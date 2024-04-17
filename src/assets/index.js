@@ -37,7 +37,7 @@ import ubuntu from "./tech/ubuntu.png";
 import vim from "./tech/vim.svg";
 import vscode from "./tech/vscode.svg";
 
-import techentreprenuers from "./company/te.png";
+import techentrepreneurs from "./company/te.png";
 
 import gadgetgalaxy from "./gadgetgalaxy.png";
 import blogbuddy from "./blogbuddy.png";
@@ -79,7 +79,7 @@ export {
   ubuntu,
   vim,
   vscode,
-  techentreprenuers,
+  techentrepreneurs,
   gadgetgalaxy,
   blogbuddy,
 };

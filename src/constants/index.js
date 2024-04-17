@@ -1,27 +1,40 @@
 import {
-  frontend,
   backend,
+  frontend,
   fullstack,
-  javascript,
-  typescript,
-  html,
+  bootstrap,
   css,
+  django,
+  docker,
+  eclipse,
+  git,
+  html,
+  java,
+  javascript,
+  jquery,
+  kubernetes,
+  linux,
+  mongodb,
+  mysql,
+  netbeans,
+  nodejs,
+  postman,
+  pycharm,
+  python,
   reactjs,
   redux,
+  replit,
+  springboot,
+  sublimetext,
   tailwind,
-  nodejs,
-  mongodb,
-  git,
-  figma,
-  docker,
-  meta,
-  starbucks,
-  tesla,
-  shopify,
-  carrent,
-  jobit,
-  tripguide,
+  typescript,
   threejs,
+  ubuntu,
+  vim,
+  vscode,
+  techentrepreneurs,
+  gadgetgalaxy,
+  blogbuddy,
 } from "../assets";
 
 export const navLinks = [
@@ -68,27 +81,39 @@ const services = [
 
 const technologies = [
   {
-    name: "HTML 5",
-    icon: html,
-  },
-  {
-    name: "CSS 3",
-    icon: css,
+    name: "Java",
+    icon: java,
   },
   {
     name: "JavaScript",
     icon: javascript,
   },
   {
-    name: "TypeScript",
-    icon: typescript,
+    name: "Python",
+    icon: python,
   },
   {
-    name: "React JS",
+    name: "MongoDB",
+    icon: mongodb,
+  },
+  {
+    name: "MySQL",
+    icon: mysql,
+  },
+  {
+    name: "HTML",
+    icon: html,
+  },
+  {
+    name: "CSS",
+    icon: css,
+  },
+  {
+    name: "ReactJS",
     icon: reactjs,
   },
   {
-    name: "Redux Toolkit",
+    name: "Redux",
     icon: redux,
   },
   {
@@ -96,89 +121,178 @@ const technologies = [
     icon: tailwind,
   },
   {
-    name: "Node JS",
+    name: "Node.js",
     icon: nodejs,
   },
   {
-    name: "MongoDB",
-    icon: mongodb,
+    name: "Django",
+    icon: django,
   },
   {
-    name: "Three JS",
-    icon: threejs,
+    name: "Bootstrap",
+    icon: bootstrap,
   },
   {
-    name: "git",
+    name: "Git",
     icon: git,
   },
   {
-    name: "figma",
-    icon: figma,
+    name: "Spring Boot",
+    icon: springboot,
   },
   {
-    name: "docker",
+    name: "Docker",
     icon: docker,
+  },
+  {
+    name: "Eclipse",
+    icon: eclipse,
+  },
+  {
+    name: "NetBeans",
+    icon: netbeans,
+  },
+  {
+    name: "Postman",
+    icon: postman,
+  },
+  {
+    name: "PyCharm",
+    icon: pycharm,
+  },
+  {
+    name: "Replit",
+    icon: replit,
+  },
+  {
+    name: "Sublime Text",
+    icon: sublimetext,
+  },
+  {
+    name: "VS Code",
+    icon: vscode,
+  },
+  {
+    name: "Vim",
+    icon: vim,
+  },
+  {
+    name: "jQuery",
+    icon: jquery,
+  },
+  {
+    name: "Kubernetes",
+    icon: kubernetes,
+  },
+  {
+    name: "Linux",
+    icon: linux,
+  },
+  {
+    name: "TypeScript",
+    icon: typescript,
+  },
+  {
+    name: "Three.js",
+    icon: threejs,
+  },
+  {
+    name: "Ubuntu",
+    icon: ubuntu,
   },
 ];
 
 const experiences = [
   {
-    title: "React.js Developer",
-    company_name: "Starbucks",
-    icon: starbucks,
+    title: "IT Trainee Intern",
+    company_name: "Tech Entrepreneurs",
+    icon: techentrepreneurs,
     iconBg: "#383E56",
-    date: "March 2020 - April 2021",
+    date: "March 2023 - September 2023",
     points: [
-      "Developing and maintaining web applications using React.js and other related technologies.",
-      "Collaborating with cross-functional teams including designers, product managers, and other developers to create high-quality products.",
-      "Implementing responsive design and ensuring cross-browser compatibility.",
-      "Participating in code reviews and providing constructive feedback to other developers.",
+      "Collaborated with a cross-functional team to develop the Placement Portal application, optimizing candidate and job matching processes and enhancing overall efficiency.",
+      "Translated project requirements into actionable tasks, defining scope and milestones with a user-centric approach.",
+      "Demonstrated exceptional multitasking skills, ensuring on-time project delivery and contributing positively to team goals.",
+      "Designed and implemented an advanced sorting system for filtering candidates and job openings based on descriptions, showcasing expertise in software designing.",
+      "Conducted regular code reviews, ensuring code quality and adherence to best practices, providing constructive feedback for continuous improvement.",
+      "Effectively managed project timelines, coordinated team efforts, and ensured successful project completion.",
     ],
   },
 ];
 
 const projects = [
   {
-    name: "Car Rent",
+    name: "Blog Application",
     description:
-      "Web-based platform that allows users to search, book, and manage car rentals from various providers, providing a convenient and efficient solution for transportation needs.",
+      "Developed BlogBuddy, a blogging platform showcasing proficiency in backend technologies and efficient database management.",
     tags: [
       {
-        name: "react",
+        name: "java",
         color: "blue-text-gradient",
+      },
+      {
+        name: "spring-boot",
+        color: "green-text-gradient",
       },
       {
         name: "mongodb",
-        color: "green-text-gradient",
-      },
-      {
-        name: "tailwind",
         color: "pink-text-gradient",
       },
+      {
+        name: "html5",
+        color: "yellow-text-gradient",
+      },
+      {
+        name: "css3",
+        color: "red-text-gradient",
+      },
+      {
+        name: "bootstrap",
+        color: "white-text-gradient",
+      },
+      {
+        name: "docker",
+        color: "orange-text-gradient",
+      },
+      {
+        name: "render",
+        color: "violet-text-gradient",
+      },
     ],
-    image: carrent,
-    source_code_link: "https://github.com/",
+    image: blogbuddy,
+    live_demo_link: "https://blog-application-01rp.onrender.com/",
+    source_code_link: "https://github.com/rugwedpatharkar/blog_application.git",
   },
   {
-    name: "Job IT",
+    name: "E-commerce Project",
     description:
-      "Web application that enables users to search for job openings, view estimated salary ranges for positions, and locate available jobs based on their current location.",
+      "Developed GadgetGalaxy, an e-commerce platform showcasing expertise in project setup, database management, and secure user authentication.",
     tags: [
       {
-        name: "react",
+        name: "python",
         color: "blue-text-gradient",
       },
       {
-        name: "restapi",
+        name: "django",
         color: "green-text-gradient",
       },
       {
-        name: "scss",
+        name: "html5",
         color: "pink-text-gradient",
       },
+      {
+        name: "css3",
+        color: "yellow-text-gradient",
+      },
+      {
+        name: "bootstrap",
+        color: "red-text-gradient",
+      },
     ],
-    image: jobit,
-    source_code_link: "https://github.com/",
+    image: gadgetgalaxy,
+    live_demo_link: "https://rugwedpatharkar.pythonanywhere.com/",
+    source_code_link:
+      "https://github.com/rugwedpatharkar/ecommerce_project.git",
   },
 ];
 
