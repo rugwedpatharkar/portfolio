@@ -6,7 +6,7 @@ import github from "./github.png";
 import menu from "./menu.svg";
 import close from "./close.svg";
 
-import bootstrap from "./bootstrap.svg";
+import bootstrap from "./tech/bootstrap.svg";
 import css from "./tech/css.png";
 import django from "./tech/django.svg";
 import docker from "./tech/docker.png";
@@ -37,6 +37,7 @@ import ubuntu from "./tech/ubuntu.png";
 import vim from "./tech/vim.svg";
 import vscode from "./tech/vscode.svg";
 
+import photo from "./photo.jpg";
 import techentrepreneurs from "./company/te.png";
 
 import gadgetgalaxy from "./gadgetgalaxy.png";
@@ -82,4 +83,5 @@ export {
   techentrepreneurs,
   gadgetgalaxy,
   blogbuddy,
+  photo,
 };
