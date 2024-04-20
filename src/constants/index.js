@@ -6,35 +6,21 @@ import {
   css,
   django,
   docker,
-  eclipse,
   git,
   html,
   java,
   javascript,
-  jquery,
   kubernetes,
-  linux,
   mongodb,
   mysql,
-  netbeans,
-  nodejs,
-  postman,
-  pycharm,
   python,
   reactjs,
-  redux,
-  replit,
   springboot,
-  sublimetext,
   tailwind,
-  typescript,
-  threejs,
-  ubuntu,
-  vim,
-  vscode,
   techentrepreneurs,
   gadgetgalaxy,
   blogbuddy,
+  web,
 } from "../assets";
 
 export const navLinks = [
@@ -66,16 +52,20 @@ const services = [
     icon: fullstack,
   },
   {
-    title: "Frontend Developer",
+    title: "ReactJS Developer",
     icon: frontend,
   },
   {
     title: "Backend Developer",
     icon: backend,
   },
+  {
+    title: "Web Developer",
+    icon: web,
+  },
 ];
 
-const technologies = [
+const skills = [
   {
     name: "Java",
     icon: java,
@@ -109,16 +99,8 @@ const technologies = [
     icon: reactjs,
   },
   {
-    name: "Redux",
-    icon: redux,
-  },
-  {
     name: "Tailwind CSS",
     icon: tailwind,
-  },
-  {
-    name: "Node.js",
-    icon: nodejs,
   },
   {
     name: "Django",
@@ -141,60 +123,8 @@ const technologies = [
     icon: docker,
   },
   {
-    name: "Eclipse",
-    icon: eclipse,
-  },
-  {
-    name: "NetBeans",
-    icon: netbeans,
-  },
-  {
-    name: "Postman",
-    icon: postman,
-  },
-  {
-    name: "PyCharm",
-    icon: pycharm,
-  },
-  {
-    name: "Replit",
-    icon: replit,
-  },
-  {
-    name: "Sublime Text",
-    icon: sublimetext,
-  },
-  {
-    name: "VS Code",
-    icon: vscode,
-  },
-  {
-    name: "Vim",
-    icon: vim,
-  },
-  {
-    name: "jQuery",
-    icon: jquery,
-  },
-  {
     name: "Kubernetes",
     icon: kubernetes,
-  },
-  {
-    name: "Linux",
-    icon: linux,
-  },
-  {
-    name: "TypeScript",
-    icon: typescript,
-  },
-  {
-    name: "Three.js",
-    icon: threejs,
-  },
-  {
-    name: "Ubuntu",
-    icon: ubuntu,
   },
 ];
 
@@ -220,7 +150,7 @@ const projects = [
   {
     name: "Blog Application",
     description:
-      "Developed BlogBuddy, a blogging platform showcasing proficiency in backend technologies and efficient database management.",
+      "BlogBuddy is a robust blogging platform developed with Java and Spring Boot, featuring secure user registration, login/logout, and password recovery with email OTP verification. Its visually appealing frontend, crafted with HTML, CSS, and Bootstrap, offers a responsive user experience. Leveraging MongoDB Atlas for data storage and Docker containers for deployment on Render, it ensures scalability and efficient management.",
     tags: [
       {
         name: "java",
@@ -262,7 +192,7 @@ const projects = [
   {
     name: "E-commerce Project",
     description:
-      "Developed GadgetGalaxy, an e-commerce platform showcasing expertise in project setup, database management, and secure user authentication.",
+      "GadgetGalaxy, an e-commerce platform built with Python and Django, offers secure user authentication, registration, and password reset with OTP. Its intuitive design facilitates seamless shopping experiences, while email notifications enhance user communication. Deployed on PythonAnywhere, it ensures continuous availability and scalability for uninterrupted service.",
     tags: [
       {
         name: "python",
@@ -292,4 +222,4 @@ const projects = [
   },
 ];
 
-export { services, technologies, experiences, projects };
+export { services, skills, experiences, projects };

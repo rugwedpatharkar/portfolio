@@ -1,3 +1,4 @@
+/* eslint-disable no-unused-vars */
 import React, { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 
@@ -29,8 +30,8 @@ const Navbar = () => {
         >
           <img src={logo} alt="logo" className="object-contain w-9 h-9" />
           <p className="tet-white text-[18px] font-bold cursor-pointer flex">
-            Rugwed&nbsp;
-            <span className="sm:block hidden">| Software Developer</span>
+            Rugwed Patharkar&nbsp;
+            <span className="sm:block hidden">| Portfolio</span>
           </p>
         </Link>
         <ul className="list-none hidden sm:flex flex-row gap-10">
