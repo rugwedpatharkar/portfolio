@@ -37,13 +37,18 @@ import threejs from "./skills/threejs.svg";
 import ubuntu from "./skills/ubuntu.png";
 import vim from "./skills/vim.svg";
 import vscode from "./skills/vscode.svg";
-
+import githubskill from "./skills/github.svg";
 import photo from "./photo.jpg";
 import techentrepreneurs from "./company/te.png";
-
+import demo from "./demo.png";
 import gadgetgalaxy from "./gadgetgalaxy.png";
 import blogbuddy from "./blogbuddy.png";
+
+import resume from "./Rugwed-Patharkar-Resume.pdf";
+
 export {
+  resume,
+  demo,
   logo,
   backend,
   frontend,
@@ -86,4 +91,5 @@ export {
   blogbuddy,
   photo,
   web,
+  githubskill,
 };

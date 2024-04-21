@@ -9,12 +9,12 @@ import { services } from "../constants";
 import { fadeIn, textVariant } from "../utils/motion";
 import { Tilt } from "react-tilt";
 import { SectionWrapper } from "../hoc";
-import { photo } from "../assets";
+import { photo, resume } from "../assets";
 
 const ServiceCard = ({ index, title, icon }) => {
   return (
     <Tilt
-      className="xs:w-[240px] w-full"
+      className="xs:w-[200px] w-full"
       options={{ max: 45, scale: 1, speed: 450 }}
     >
       <motion.div
@@ -51,7 +51,7 @@ const About = () => {
         <div className="w-full md:w-2/3 md:pl-8 mt-0 md:mt-[50px]">
           <motion.p
             variants={fadeIn("", "", 0.1, 1)}
-            className="mt-0 text-secondary text-lg max-w-[800px] leading-[30px]"
+            className="mt-6 text-secondary text-lg max-w-[800px] leading-[30px]"
           >
             Hello, I'm Rugwed Patharkar, a dedicated Full Stack Developer
             hailing from Pune, India. With a blend of creativity and technical
@@ -66,19 +66,27 @@ const About = () => {
             exceed expectations.
           </motion.p>
           <div className="flex items-center mt-6">
-            <Tilt
-              className="rounded-full overflow-hidden bg-#151030 border-2 border-#151030 mr-4"
-              options={{ max: 10, scale: 1.02 }}
-            >
-              <motion.button
-                whileHover={{ scale: 1.05 }}
-                whileTap={{ scale: 0.95 }}
-                className="text-white font-bold py-3 px-6 rounded-full focus:outline-none transition duration-300 ease-in-out"
-                style={{ backgroundColor: "#151030" }}
+            <a href={resume}>
+              <Tilt
+                className="rounded-full overflow-hidden border-2 border-transparent mr-4"
+                options={{ max: 10, scale: 1.02 }}
+                style={{
+                  background: "linear-gradient(45deg, #341497, #341497)", // Shading background
+                  border: "2px solid transparent",
+                  borderColor: "linear-gradient(45deg, #341497, #341497)", // Shading border
+                }}
               >
-                Download Resume
-              </motion.button>
-            </Tilt>
+                <motion.button
+                  whileHover={{ scale: 1.05 }}
+                  whileTap={{ scale: 0.95 }}
+                  className="text-white font-bold py-3 px-6 rounded-full focus:outline-none transition duration-300 ease-in-out"
+                  style={{ backgroundColor: "#151030" }}
+                >
+                  Download Resume
+                </motion.button>
+              </Tilt>
+            </a>
+
             <p className="text-gray-600">
               To know more about me, download my resume.
             </p>

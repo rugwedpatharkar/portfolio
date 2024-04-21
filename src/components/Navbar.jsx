@@ -9,6 +9,23 @@ import { logo, menu, close } from "../assets";
 const Navbar = () => {
   const [active, setActive] = useState("");
   const [toggle, setToggle] = useState(false);
+  const [scrolling, setScrolling] = useState(false);
+
+  useEffect(() => {
+    const handleScroll = () => {
+      if (window.scrollY > 0) {
+        setScrolling(true);
+      } else {
+        setScrolling(false);
+      }
+    };
+
+    window.addEventListener("scroll", handleScroll);
+
+    return () => {
+      window.removeEventListener("scroll", handleScroll);
+    };
+  }, []);
 
   const handleItemClick = (link) => {
     setActive(link.title);
@@ -17,7 +34,15 @@ const Navbar = () => {
 
   return (
     <nav
-      className={`${styles.paddingX} w-full flex items-center py-5 fixed top-0 z-20 bg-primary`}
+      className={`${
+        styles.paddingX
+      } w-full flex items-center py-5 fixed top-0 z-20 ${
+        scrolling ? "bg-primary" : "bg-transparent"
+      }`}
+      style={{
+        WebkitBackdropFilter: scrolling ? "blur(10px)" : "none",
+        backdropFilter: scrolling ? "blur(10px)" : "none",
+      }}
     >
       <div className="flex items-center justify-between w-full mx-auto max-w-7xl">
         <Link
@@ -55,9 +80,10 @@ const Navbar = () => {
             onClick={() => setToggle(!toggle)}
           />
           <div
+            style={{ backgroundColor: "#151030" }}
             className={`${
               toggle ? "flex" : "hidden"
-            } p-6 black-gradient absolute top-20 right-0 mx-4 my-2 min-w-[140px] z-10 rounded-xl`}
+            } p-6  absolute top-20 right-0 mx-4 my-2 min-w-[140px] z-10 rounded-xl`}
           >
             <ul className="list-none flex justify-end items-start flex-col gap-4">
               {navLinks.map((link) => (

@@ -2,25 +2,35 @@ import {
   backend,
   frontend,
   fullstack,
-  bootstrap,
-  css,
-  django,
-  docker,
-  git,
-  html,
-  java,
   javascript,
-  kubernetes,
-  mongodb,
-  mysql,
-  python,
+  html,
+  css,
   reactjs,
-  springboot,
+  redux,
   tailwind,
+  mongodb,
+  git,
+  docker,
+  eclipse,
+  java,
+  jquery,
+  kubernetes,
+  linux,
+  mysql,
+  netbeans,
+  postman,
+  pycharm,
+  python,
+  springboot,
+  threejs,
+  vscode,
   techentrepreneurs,
   gadgetgalaxy,
   blogbuddy,
   web,
+  django,
+  bootstrap,
+  github,
 } from "../assets";
 
 export const navLinks = [
@@ -65,69 +75,127 @@ const services = [
   },
 ];
 
-const skills = [
-  {
-    name: "Java",
-    icon: java,
-  },
-  {
-    name: "JavaScript",
-    icon: javascript,
-  },
-  {
-    name: "Python",
-    icon: python,
-  },
-  {
-    name: "MongoDB",
-    icon: mongodb,
-  },
-  {
-    name: "MySQL",
-    icon: mysql,
-  },
-  {
-    name: "HTML",
-    icon: html,
-  },
-  {
-    name: "CSS",
-    icon: css,
-  },
-  {
-    name: "ReactJS",
-    icon: reactjs,
-  },
-  {
-    name: "Tailwind CSS",
-    icon: tailwind,
-  },
-  {
-    name: "Django",
-    icon: django,
-  },
-  {
-    name: "Bootstrap",
-    icon: bootstrap,
-  },
-  {
-    name: "Git",
-    icon: git,
-  },
-  {
-    name: "Spring Boot",
-    icon: springboot,
-  },
-  {
-    name: "Docker",
-    icon: docker,
-  },
-  {
-    name: "Kubernetes",
-    icon: kubernetes,
-  },
-];
+const skills = {
+  "Programming Languages": [
+    {
+      name: "Java",
+      icon: java,
+    },
+    {
+      name: "JavaScript",
+      icon: javascript,
+    },
+    {
+      name: "Python",
+      icon: python,
+    },
+  ],
+  "Database Management": [
+    {
+      name: "MongoDB",
+      icon: mongodb,
+    },
+    {
+      name: "MySQL",
+      icon: mysql,
+    },
+  ],
+  "Web Development": [
+    {
+      name: "HTML",
+      icon: html,
+    },
+    {
+      name: "CSS",
+      icon: css,
+    },
+    {
+      name: "ReactJS",
+      icon: reactjs,
+    },
+    {
+      name: "Redux",
+      icon: redux,
+    },
+    {
+      name: "Tailwind CSS",
+      icon: tailwind,
+    },
 
+    {
+      name: "Bootstrap CSS",
+      icon: bootstrap,
+    },
+  ],
+  "Version Control": [
+    {
+      name: "Git",
+      icon: git,
+    },
+    {
+      name: "GitHub",
+      icon: github,
+    },
+  ],
+  "Web Frameworks": [
+    {
+      name: "Spring Boot",
+      icon: springboot,
+    },
+    {
+      name: "Django",
+      icon: django,
+    },
+  ],
+  Containerization: [
+    {
+      name: "Docker",
+      icon: docker,
+    },
+    {
+      name: "Kubernetes",
+      icon: kubernetes,
+    },
+  ],
+  "Development Tools": [
+    {
+      name: "Eclipse",
+      icon: eclipse,
+    },
+    {
+      name: "NetBeans",
+      icon: netbeans,
+    },
+    {
+      name: "Postman",
+      icon: postman,
+    },
+    {
+      name: "PyCharm",
+      icon: pycharm,
+    },
+
+    {
+      name: "VS Code",
+      icon: vscode,
+    },
+  ],
+  "Other Technologies": [
+    {
+      name: "jQuery",
+      icon: jquery,
+    },
+    {
+      name: "Linux",
+      icon: linux,
+    },
+
+    {
+      name: "Three.js",
+      icon: threejs,
+    },
+  ],
+};
 const experiences = [
   {
     title: "IT Trainee Intern",
@@ -174,7 +242,7 @@ const projects = [
       },
       {
         name: "bootstrap",
-        color: "white-text-gradient",
+        color: "purple-text-gradient",
       },
       {
         name: "docker",
@@ -182,7 +250,7 @@ const projects = [
       },
       {
         name: "render",
-        color: "violet-text-gradient",
+        color: "yellow-text-gradient",
       },
     ],
     image: blogbuddy,
@@ -222,4 +290,21 @@ const projects = [
   },
 ];
 
-export { services, skills, experiences, projects };
+const personalInfo = {
+  name: "Rugwed",
+  fullName: "Rugwed Patharkar",
+  email: "rugwedspatharkar@gmail.com",
+  role: "Full Stack Developer",
+  about: `Hello, I'm Rugwed Patharkar, a dedicated Full Stack Developere
+            hailing from Pune, India. With a blend of creativity and technical
+            prowess, I specialize in crafting seamless web solutions using a
+            variety of technologies such as Java, Python, HTML, CSS, and
+            JavaScript. My journey in software development began with a passion
+            for problem-solving and a commitment to delivering high-quality,
+            user-centric applications. From backend database management to
+            frontend design, I thrive in bringing ideas to life through code.
+            With a keen eye for detail and a collaborative spirit, I am driven
+            to create impactful digital experiences that drive innovation and
+            exceed expectations.`,
+};
+export { services, skills, experiences, projects, personalInfo };

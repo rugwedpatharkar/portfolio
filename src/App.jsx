@@ -9,6 +9,7 @@ import {
   Skills,
   Projects,
   StarsCanvas,
+  HireMe,
 } from "./components";
 
 const App = () => {
@@ -27,6 +28,7 @@ const App = () => {
           <Contact />
           <StarsCanvas />
         </div>
+        <HireMe />
       </div>
     </BrowserRouter>
   );

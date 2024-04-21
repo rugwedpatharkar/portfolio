@@ -2,7 +2,11 @@
 import { motion } from "framer-motion";
 import { styles } from "../styles";
 import { ComputersCanvas } from "./canvas";
-
+import Typewriter from "typewriter-effect";
+import { AiOutlineGithub } from "react-icons/ai";
+import { ImLinkedin } from "react-icons/im";
+import { AiOutlineInstagram } from "react-icons/ai";
+import { AiOutlineFacebook } from "react-icons/ai";
 const Hero = () => {
   return (
     <section className="relative w-full h-screen mx-auto">
@@ -11,16 +15,47 @@ const Hero = () => {
       >
         <div className="flex flex-col justify-center items-center mt-5">
           <div className="w-5 h-5 rounded-full bg-[#915eff]" />
-          <div className="w-1 sm:h-80 h-40 violet-gradient" />
+          <div className="w-1 sm:h-80 h-80 violet-gradient" />
         </div>
         <div>
           <h1 className={`${styles.heroHeadText} text-white`}>
-            Hi,&nbsp;I'm
-            <span className="text-[#915eff]">&nbsp;Rugwed Patharkar</span>
+            Hii there,&nbsp;I'm
+            <p className={`${styles.heroHeadTextCustom}`}>Rugwed Patharkar</p>
           </h1>
-          <p className={`${styles.heroSubText} text-[#915eff] mt-2`}>
-            Full Stack Developer
-          </p>
+          <h2 className={`${styles.heroSubText} text-[#915eff] mt-2`}>
+            <Typewriter
+              options={{
+                strings: [
+                  '<span class="ubuntu-mono-bold green-text-gradient">Full Stack Developer</span>',
+                  '<span class="ubuntu-mono-bold green-text-gradient">Tech Enthusiast</span>',
+                  // '<span class="ubuntu-mono-bold green-text-gradient"></span>',
+                ],
+                autoStart: true,
+                delay: 75,
+                loop: true,
+                wrapperClassName: "typewriter-wrapper", // Add a class to the wrapper for styling
+              }}
+              onInit={(typewriter) => {
+                typewriter
+                  .pauseFor(1000) // Optionally pause before starting typing
+                  .start();
+              }}
+            />
+          </h2>
+          <div className="absolute link1">
+            <a href="" target="_blank">
+              <AiOutlineGithub />
+            </a>
+            <a href="" target="_blank">
+              <ImLinkedin />
+            </a>
+            <a href="" target="_blank">
+              <AiOutlineInstagram />
+            </a>
+            <a href="" target="_blank">
+              <AiOutlineFacebook />
+            </a>
+          </div>
         </div>
       </div>
       <ComputersCanvas />
