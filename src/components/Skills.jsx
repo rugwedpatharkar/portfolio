@@ -1,3 +1,6 @@
+/* eslint-disable react-refresh/only-export-components */
+/* eslint-disable react/prop-types */
+/* eslint-disable no-unused-vars */
 import React from "react";
 import { motion } from "framer-motion";
 import { Tilt } from "react-tilt";
@@ -23,10 +26,10 @@ const SkillCard = ({ skill }) => {
           <img
             src={skill.icon}
             alt={skill.name}
-            className="w-10 h-10 mb-0"
+            className="w-8 h-8 mb-0"
             style={{ objectFit: "cover" }}
           />
-          <p className="text-xs mt-1 text-white">{skill.name}</p>{" "}
+          <p className="text-[10px] mt-1 text-white">{skill.name}</p>{" "}
         </div>
       </motion.div>
     </Tilt>
