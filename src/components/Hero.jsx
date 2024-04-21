@@ -5,8 +5,6 @@ import { ComputersCanvas } from "./canvas";
 import Typewriter from "typewriter-effect";
 import { AiOutlineGithub } from "react-icons/ai";
 import { ImLinkedin } from "react-icons/im";
-import { AiOutlineInstagram } from "react-icons/ai";
-import { AiOutlineFacebook } from "react-icons/ai";
 const Hero = () => {
   return (
     <section className="relative w-full h-screen mx-auto">
@@ -43,17 +41,14 @@ const Hero = () => {
             />
           </h2>
           <div className="absolute link1">
-            <a href="" target="_blank">
+            <a href="https://github.com/rugwedpatharkar" target="_blank">
               <AiOutlineGithub />
             </a>
-            <a href="" target="_blank">
+            <a
+              href="https://www.linkedin.com/in/rugwed-patharkar/"
+              target="_blank"
+            >
               <ImLinkedin />
-            </a>
-            <a href="" target="_blank">
-              <AiOutlineInstagram />
-            </a>
-            <a href="" target="_blank">
-              <AiOutlineFacebook />
             </a>
           </div>
         </div>

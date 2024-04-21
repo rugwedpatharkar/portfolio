@@ -11,6 +11,7 @@ import {
   mongodb,
   git,
   docker,
+  careerforall,
   eclipse,
   java,
   jquery,
@@ -287,6 +288,47 @@ const projects = [
     live_demo_link: "https://rugwedpatharkar.pythonanywhere.com/",
     source_code_link:
       "https://github.com/rugwedpatharkar/ecommerce_project.git",
+  },
+  {
+    name: "CareerForAll Application",
+    description:
+      "The CareerforAll initiative aims to revolutionize the recruitment process by connecting startup companies, institutes, and job seekers on a comprehensive platform. By streamlining the matching process, it facilitates efficient job placements, addressing challenges faced by both companies and candidates in the current competitive job market. This user-friendly solution contributes to the growth of the startup ecosystem, fostering improved career opportunities and talent acquisition within the industry.",
+    tags: [
+      {
+        name: "java",
+        color: "blue-text-gradient",
+      },
+      {
+        name: "spring-boot",
+        color: "green-text-gradient",
+      },
+      {
+        name: "mysql",
+        color: "pink-text-gradient",
+      },
+      {
+        name: "html5",
+        color: "yellow-text-gradient",
+      },
+      {
+        name: "css3",
+        color: "red-text-gradient",
+      },
+      {
+        name: "bootstrap",
+        color: "purple-text-gradient",
+      },
+      {
+        name: "javascript",
+        color: "orange-text-gradient",
+      },
+      {
+        name: "api",
+        color: "yellow-text-gradient",
+      },
+    ],
+    image: careerforall,
+    source_code_link: "https://github.com/rugwedpatharkar/CareerForAll2.git",
   },
 ];
 

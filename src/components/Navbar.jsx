@@ -1,4 +1,3 @@
-/* eslint-disable no-unused-vars */
 import React, { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 
@@ -19,6 +18,31 @@ const Navbar = () => {
         setScrolling(false);
       }
     };
+    window.addEventListener("scroll", handleScroll);
+    return () => {
+      window.removeEventListener("scroll", handleScroll);
+    };
+  }, []);
+
+  useEffect(() => {
+    const handleScroll = () => {
+      const scrollPosition = window.scrollY;
+      const visibleSection = navLinks.find((link) => {
+        const section = document.getElementById(link.id);
+        if (section) {
+          const rect = section.getBoundingClientRect();
+          return (
+            rect.top <= window.innerHeight / 2 &&
+            rect.bottom >= window.innerHeight / 2
+          );
+        }
+        return false;
+      });
+
+      if (visibleSection) {
+        setActive(visibleSection.title);
+      }
+    };
 
     window.addEventListener("scroll", handleScroll);
 
@@ -37,11 +61,13 @@ const Navbar = () => {
       className={`${
         styles.paddingX
       } w-full flex items-center py-5 fixed top-0 z-20 ${
-        scrolling ? "bg-primary" : "bg-transparent"
+        scrolling
+          ? "bg-primary bg-opacity-70 backdrop-blur-sm"
+          : "bg-transparent"
       }`}
       style={{
-        WebkitBackdropFilter: scrolling ? "blur(10px)" : "none",
-        backdropFilter: scrolling ? "blur(10px)" : "none",
+        WebkitBackdropFilter: scrolling ? "blur(5px)" : "none",
+        backdropFilter: scrolling ? "blur(5px)" : "none",
       }}
     >
       <div className="flex items-center justify-between w-full mx-auto max-w-7xl">
@@ -80,7 +106,7 @@ const Navbar = () => {
             onClick={() => setToggle(!toggle)}
           />
           <div
-            style={{ backgroundColor: "#151030" }}
+            style={{ backgroundColor: "#1d1d1d" }}
             className={`${
               toggle ? "flex" : "hidden"
             } p-6  absolute top-20 right-0 mx-4 my-2 min-w-[140px] z-10 rounded-xl`}
