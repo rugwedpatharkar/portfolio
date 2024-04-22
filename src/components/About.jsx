@@ -58,8 +58,8 @@ const About = () => {
             prowess, I specialize in crafting seamless web solutions using a
             variety of technologies such as Java, Python, HTML, CSS, and
             JavaScript. My journey in software development began with a passion
-            for problem-solving and a commitment to delivering high-quality,
-            user-centric applications. From backend database management to
+            for problem solving and a commitment to delivering high quality,
+            user centric applications. From backend database management to
             frontend design, I thrive in bringing ideas to life through code.
             With a keen eye for detail and a collaborative spirit, I am driven
             to create impactful digital experiences that drive innovation and

@@ -84,19 +84,18 @@ const Projects = () => {
           variants={fadeIn("", "", 0.1, 1)}
           className="mt-3 text-secondary  text-[17px] max-w-4xl leading-[30px]"
         >
-          The projects showcased in my portfolio exemplify my skills,
-          problem-solving prowess, and effective project management. Each
-          project represents a distinct technological challenge and reflects my
-          ability to navigate various frameworks and technologies seamlessly.
-          From developing user-centric applications to managing complex
-          projects, these endeavors underscore my capacity to solve intricate
-          problems and work proficiently with different tools and platforms.
-          Whether it's creating responsive web applications or developing robust
-          desktop solutions, these projects demonstrate my versatility and
-          proficiency in tackling diverse challenges. Together, they provide a
-          comprehensive overview of my capabilities, highlighting my adeptness
-          in delivering high-quality solutions and managing projects
-          effectively.
+          The projects showcased in my portfolio exemplify my skills, problem
+          solving prowess, and effective project management. Each project
+          represents a distinct technological challenge and reflects my ability
+          to navigate various frameworks and technologies seamlessly. From
+          developing user centric applications to managing complex projects,
+          these endeavors underscore my capacity to solve intricate problems and
+          work proficiently with different tools and platforms. Whether it's
+          creating responsive web applications or developing robust desktop
+          solutions, these projects demonstrate my versatility and proficiency
+          in tackling diverse challenges. Together, they provide a comprehensive
+          overview of my capabilities, highlighting my adeptness in delivering
+          high-quality solutions and managing projects effectively.
         </motion.p>
       </div>
       <div className="mt-20 flex flex-wrap gap-7">
