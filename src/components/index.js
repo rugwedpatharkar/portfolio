@@ -12,6 +12,7 @@ import Experience from "./Experience";
 import Projects from "./Projects";
 import Contact from "./Contact";
 import HireMe from "./HireMe";
+import Education from "./Education";
 export {
   Hero,
   Navbar,
@@ -19,6 +20,7 @@ export {
   Skills,
   Experience,
   Projects,
+  Education,
   Contact,
   EarthCanvas,
   BallCanvas,

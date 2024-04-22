@@ -1,3 +1,4 @@
+/* eslint-disable react/no-unknown-property */
 /* eslint-disable react-refresh/only-export-components */
 /* eslint-disable no-unused-vars */
 import { useState, useRef } from "react";
@@ -7,6 +8,8 @@ import { styles } from "../styles";
 import { EarthCanvas } from "./canvas";
 import { SectionWrapper } from "../hoc";
 import { slideIn } from "../utils/motion";
+import { Tilt } from "react-tilt";
+
 //template_78b974c
 //service_anw5wi4
 //9w4fyQW1xjaDjcJBU
@@ -107,17 +110,18 @@ const Contact = () => {
               className="bg-tertiary py-4 px-6 placeholder:text-secondary text-white rounded-lg outline-none border-none font-medium"
             />
           </label>
-          <button
-            type="submit"
-            className="py-3 px-8 outline-none w-fit text-white font-bold shadow-md shadow-primary rounded-xl"
-            style={{
-              background: "linear-gradient(45deg, #151030, #1f1630)", // Shading background
-              border: "2px solid transparent",
-              borderColor: "linear-gradient(45deg, #151030, #1f1630)", // Shading border
-            }}
+          <Tilt
+            className="rounded-full overflow-hidden  border-2   flex items-center text-center  "
+            options={{ max: 10, scale: 1.02 }}
           >
-            Send
-          </button>
+            <motion.button
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.95 }}
+              className="text-white font-bold py-3 px-6 rounded-full focus:outline-none transition duration-300 ease-in-out w-full"
+            >
+              Send{" "}
+            </motion.button>
+          </Tilt>
         </form>
       </motion.div>
       <motion.div

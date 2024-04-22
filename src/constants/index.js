@@ -32,6 +32,9 @@ import {
   django,
   bootstrap,
   github,
+  hsc,
+  bachelor,
+  ssc,
 } from "../assets";
 
 export const navLinks = [
@@ -50,6 +53,10 @@ export const navLinks = [
   {
     id: "projects",
     title: "Projects",
+  },
+  {
+    id: "educations",
+    title: "Education",
   },
   {
     id: "contact",
@@ -349,4 +356,31 @@ const personalInfo = {
             to create impactful digital experiences that drive innovation and
             exceed expectations.`,
 };
-export { services, skills, experiences, projects, personalInfo };
+
+const educations = [
+  {
+    degree: "MSc Computer Application",
+    marks: "Percentage : 81.95%",
+    name: "PVG's College of Science, Pune",
+    image: hsc,
+  },
+  {
+    degree: "BSc Computer Science",
+    marks: "Percentage : 72.57%",
+    name: "Modern College of Arts, Science and Commerce, Pune",
+    image: bachelor,
+  },
+  {
+    degree: "12th Standard HSC Board",
+    marks: "Percentage : 62.31 %",
+    name: "PVG College, Pune",
+    image: hsc,
+  },
+  {
+    degree: "10th Standard SSC Board",
+    marks: "Percentage : 79.40 %",
+    name: "M.S.G.G.V., Pune",
+    image: ssc,
+  },
+];
+export { services, skills, experiences, projects, personalInfo, educations };

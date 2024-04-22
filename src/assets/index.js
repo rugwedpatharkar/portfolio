@@ -45,6 +45,9 @@ import gadgetgalaxy from "./gadgetgalaxy.png";
 import blogbuddy from "./blogbuddy.png";
 import careerforall from "./careerforall.png";
 import resume from "./Rugwed-Patharkar-Resume.pdf";
+import bachelor from "./bachelor.png";
+import ssc from "./ssc.png";
+import hsc from "./hsc.png";
 
 export {
   careerforall,
@@ -93,4 +96,7 @@ export {
   photo,
   web,
   githubskill,
+  ssc,
+  hsc,
+  bachelor,
 };
