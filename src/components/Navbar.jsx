@@ -106,7 +106,7 @@ const Navbar = () => {
             onClick={() => setToggle(!toggle)}
           />
           <div
-            style={{ backgroundColor: "#1d1d1d" }}
+            style={{ backgroundColor: "#151030" }}
             className={`${
               toggle ? "flex" : "hidden"
             } p-6  absolute top-20 right-0 mx-4 my-2 min-w-[140px] z-10 rounded-xl`}
