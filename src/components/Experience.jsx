@@ -10,6 +10,7 @@ import { styles } from "../styles";
 import { experiences } from "../constants";
 import { SectionWrapper } from "../hoc";
 import { textVariant } from "../utils/motion";
+import TextScramble from "./TextScramble";
 
 const ExperienceCard = ({ experience }) => (
   <VerticalTimelineElement
@@ -55,7 +56,7 @@ const Experience = () => {
     <>
       <motion.div variants={textVariant()}>
         <p className={styles.sectionSubText}>What I have done so far</p>
-        <h2 className={styles.sectionHeadText}>Work Experience</h2>
+        <TextScramble text="Work Experience" as="h2" className={styles.sectionHeadText} />
       </motion.div>
       <div className="mt-4 flex flex-col">
         <VerticalTimeline>

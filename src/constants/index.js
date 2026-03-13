@@ -291,51 +291,6 @@ const blogPosts = [
   },
 ];
 
-const certifications = [
-  {
-    title: "Java Programming",
-    issuer: "Online Certification",
-    date: "2023",
-    icon: "☕",
-    link: "#",
-  },
-  {
-    title: "Python for Data Science",
-    issuer: "Online Certification",
-    date: "2023",
-    icon: "🐍",
-    link: "#",
-  },
-  {
-    title: "Full Stack Web Development",
-    issuer: "Online Certification",
-    date: "2024",
-    icon: "🌐",
-    link: "#",
-  },
-  {
-    title: "Docker & Containerization",
-    issuer: "Online Certification",
-    date: "2024",
-    icon: "🐳",
-    link: "#",
-  },
-  {
-    title: "Spring Boot Masterclass",
-    issuer: "Online Certification",
-    date: "2023",
-    icon: "🍃",
-    link: "#",
-  },
-  {
-    title: "React Development",
-    issuer: "Online Certification",
-    date: "2024",
-    icon: "⚛️",
-    link: "#",
-  },
-];
-
 export {
   services,
   skills,
@@ -347,5 +302,4 @@ export {
   testimonials,
   funFacts,
   blogPosts,
-  certifications,
 };

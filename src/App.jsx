@@ -1,4 +1,4 @@
-import { Suspense } from "react";
+import { Suspense, useEffect } from "react";
 import {
   About,
   Contact,
@@ -14,7 +14,7 @@ import {
 import ErrorBoundary from "./components/ErrorBoundary";
 import ScrollProgressBar from "./components/ScrollProgressBar";
 import BackToTop from "./components/BackToTop";
-import CursorSpotlight from "./components/CursorSpotlight";
+import ContextualCursor from "./components/ContextualCursor";
 import Preloader from "./components/Preloader";
 import FunFacts from "./components/FunFacts";
 import Achievements from "./components/Achievements";
@@ -24,14 +24,38 @@ import GitHubActivity from "./components/GitHubActivity";
 import EasterEgg from "./components/EasterEgg";
 import FloatingActionMenu from "./components/FloatingActionMenu";
 import WaveDivider from "./components/WaveDivider";
+import SvgLineDraw from "./components/SvgLineDraw";
 import { ToastProvider } from "./components/Toast";
+import GradientMesh from "./components/GradientMesh";
+import CommandTerminal from "./components/CommandTerminal";
+import MusicToggle from "./components/MusicToggle";
+import KeyboardHints from "./components/KeyboardHints";
 
 const App = () => {
+  // Add custom-cursor class to body for hiding default cursor on desktop
+  useEffect(() => {
+    const isDesktop = window.innerWidth >= 768;
+    if (isDesktop) document.body.classList.add("custom-cursor");
+    const handleResize = () => {
+      if (window.innerWidth >= 768) {
+        document.body.classList.add("custom-cursor");
+      } else {
+        document.body.classList.remove("custom-cursor");
+      }
+    };
+    window.addEventListener("resize", handleResize);
+    return () => {
+      document.body.classList.remove("custom-cursor");
+      window.removeEventListener("resize", handleResize);
+    };
+  }, []);
+
   return (
     <ToastProvider>
       <div className="relative z-0 bg-primary">
         <Preloader />
-        <CursorSpotlight />
+        <GradientMesh />
+        <ContextualCursor />
         <ScrollProgressBar />
         <EasterEgg />
         <a
@@ -54,6 +78,8 @@ const App = () => {
           <FunFacts />
         </ErrorBoundary>
 
+        <SvgLineDraw variant="circuit" />
+
         <WaveDivider color="#1d1836" />
         <div className="bg-[#1d1836]">
           <ErrorBoundary>
@@ -62,15 +88,22 @@ const App = () => {
         </div>
         <WaveDivider color="#1d1836" flip />
 
+        <SvgLineDraw variant="nodes" />
+
         <ErrorBoundary>
           <Skills />
         </ErrorBoundary>
+
+        <SvgLineDraw variant="wave" />
+
         <ErrorBoundary>
           <Projects />
         </ErrorBoundary>
         <ErrorBoundary>
           <Education />
         </ErrorBoundary>
+
+        <SvgLineDraw variant="circuit" />
 
         <ErrorBoundary>
           <Achievements />
@@ -81,6 +114,9 @@ const App = () => {
         <ErrorBoundary>
           <GitHubActivity />
         </ErrorBoundary>
+
+        <SvgLineDraw variant="nodes" />
+
         <ErrorBoundary>
           <Blog />
         </ErrorBoundary>
@@ -94,6 +130,9 @@ const App = () => {
         </div>
         <Footer />
         <FloatingActionMenu />
+        <CommandTerminal />
+        <MusicToggle />
+        <KeyboardHints />
         <BackToTop />
       </div>
     </ToastProvider>

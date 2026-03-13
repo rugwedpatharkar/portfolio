@@ -6,12 +6,15 @@ import Typewriter from "typewriter-effect";
 import { AiOutlineGithub } from "react-icons/ai";
 import { ImLinkedin } from "react-icons/im";
 import { personalInfo } from "../constants";
+import ParticleBackground from "./ParticleBackground";
+import MagneticButton from "./MagneticButton";
 
 const Hero = () => {
   return (
     <section className="relative w-full h-screen mx-auto overflow-hidden">
+      <ParticleBackground />
       <div
-        className={`${styles.paddingX} absolute inset-0 top-[80px] xs:top-[90px] sm:top-[120px] max-w-7xl 3xl:max-w-[2000px] mx-auto flex flex-row items-start gap-3 sm:gap-5`}
+        className={`${styles.paddingX} absolute inset-x-0 top-[80px] xs:top-[90px] sm:top-[120px] max-w-7xl 3xl:max-w-[2000px] mx-auto flex flex-row items-start gap-3 sm:gap-5 z-[2] pointer-events-none`}
       >
         <div className="flex flex-col justify-center items-center mt-5">
           <div className="w-4 h-4 sm:w-5 sm:h-5 rounded-full bg-[#915eff]" />
@@ -44,23 +47,27 @@ const Hero = () => {
               <span className="text-green-300 text-xs sm:text-sm font-medium">{personalInfo.availability}</span>
             </span>
           </div>
-          <div className="mt-4 sm:mt-6 link1">
-            <a
-              href={personalInfo.github}
-              target="_blank"
-              rel="noopener noreferrer"
-              aria-label="GitHub"
-            >
-              <AiOutlineGithub />
-            </a>
-            <a
-              href={personalInfo.linkedin}
-              target="_blank"
-              rel="noopener noreferrer"
-              aria-label="LinkedIn"
-            >
-              <ImLinkedin />
-            </a>
+          <div className="mt-4 sm:mt-6 link1 pointer-events-auto">
+            <MagneticButton strength={0.4}>
+              <a
+                href={personalInfo.github}
+                target="_blank"
+                rel="noopener noreferrer"
+                aria-label="GitHub"
+              >
+                <AiOutlineGithub />
+              </a>
+            </MagneticButton>
+            <MagneticButton strength={0.4}>
+              <a
+                href={personalInfo.linkedin}
+                target="_blank"
+                rel="noopener noreferrer"
+                aria-label="LinkedIn"
+              >
+                <ImLinkedin />
+              </a>
+            </MagneticButton>
           </div>
         </div>
       </div>
@@ -71,7 +78,7 @@ const Hero = () => {
         </Suspense>
       </div>
 
-      <div className="absolute bottom-6 xs:bottom-8 sm:bottom-10 w-full flex justify-center items-center">
+      <div className="absolute bottom-6 xs:bottom-8 sm:bottom-10 w-full flex justify-center items-center z-[2]">
         <a href="#about" aria-label="Scroll to about section">
           <div className="w-[30px] h-[54px] sm:w-[35px] sm:h-[64px] rounded-3xl border-4 border-secondary flex justify-center items-start p-2">
             <motion.div

@@ -4,6 +4,7 @@ import { styles } from "../styles";
 import { SectionWrapper } from "../hoc";
 import { achievements } from "../constants";
 import { textVariant } from "../utils/motion";
+import TextScramble from "./TextScramble";
 
 const AchievementCard = ({ achievement, index }) => (
   <motion.div
@@ -34,7 +35,7 @@ const Achievements = () => {
     <>
       <motion.div variants={textVariant()}>
         <p className={styles.sectionSubText}>Milestones</p>
-        <h2 className={styles.sectionHeadText}>Achievements</h2>
+        <TextScramble text="Achievements" as="h2" className={styles.sectionHeadText} />
       </motion.div>
       <div className="mt-8 sm:mt-12 max-w-3xl mx-auto">
         {achievements.map((achievement, index) => (

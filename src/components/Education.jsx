@@ -7,11 +7,12 @@ import { styles } from "../styles";
 import { SectionWrapper } from "../hoc";
 import { fadeIn, textVariant } from "../utils/motion";
 import { educations } from "../constants";
+import TextScramble from "./TextScramble";
 
 const EducationCard = ({ index, marks, name, degree, image }) => (
   <motion.div
     variants={fadeIn("", "spring", index * 0.5, 0.75)}
-    className="Box2 p-4 sm:p-5 rounded-3xl w-full card-shine"
+    className="Box2 p-4 sm:p-5 rounded-3xl w-full card-shine glow-hover"
   >
     <div className="mt-4 sm:mt-7 flex flex-col justify-between items-center gap-1">
       <img
@@ -47,7 +48,7 @@ const Education = () => {
       >
         <motion.div variants={textVariant()}>
           <p className={styles.sectionSubText}>Educational Details</p>
-          <h2 className={styles.sectionHeadText}>Education</h2>
+          <TextScramble text="Education" as="h2" className={styles.sectionHeadText} />
         </motion.div>
       </div>
       <div

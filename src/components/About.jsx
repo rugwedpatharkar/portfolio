@@ -9,6 +9,8 @@ import { Tilt } from "react-tilt";
 import { SectionWrapper } from "../hoc";
 import { photo, resume } from "../assets";
 import ResumeModal from "./ResumeModal";
+import TextScramble from "./TextScramble";
+import MagneticButton from "./MagneticButton";
 
 const ServiceCard = ({ index, title, icon }) => {
   return (
@@ -38,19 +40,20 @@ const About = () => {
     <>
       <motion.div variants={textVariant()}>
         <p className={styles.sectionSubText}>Introduction</p>
-        <h2 className={styles.sectionHeadText}>Overview</h2>
+        <TextScramble text="Overview" as="h2" className={styles.sectionHeadText} />
       </motion.div>
 
-      <div className="flex flex-col md:flex-row items-center md:items-start gap-6 md:gap-0">
-        <div className="w-48 xs:w-56 sm:w-64 md:w-1/3 flex-shrink-0">
+      <div className="flex flex-col md:flex-row items-center gap-6 md:gap-0">
+        <div className="w-56 xs:w-64 sm:w-72 md:w-[38%] lg:w-[35%] flex-shrink-0 relative hero-img-container">
+          <div className="hero-img-glow" />
           <motion.img
             src={photo}
             alt="Rugwed Patharkar"
             variants={fadeIn("", "", 0.1, 1)}
-            className="object-contain w-full"
+            className="object-contain w-full hero-img"
           />
         </div>
-        <div className="w-full md:w-2/3 md:pl-8 md:mt-[50px]">
+        <div className="w-full md:w-[62%] lg:w-[65%] md:pl-4 lg:pl-8">
           <motion.p
             variants={fadeIn("", "", 0.1, 1)}
             className="text-secondary text-base sm:text-lg max-w-[800px] leading-[26px] sm:leading-[30px]"
@@ -59,23 +62,27 @@ const About = () => {
           </motion.p>
           <div className="flex flex-col xs:flex-row items-start xs:items-center mt-6 gap-3">
             <div className="flex gap-3">
-              <motion.button
-                whileHover={{ scale: 1.05 }}
-                whileTap={{ scale: 0.95 }}
-                onClick={() => setShowResume(true)}
-                className="text-white font-bold py-3 px-6 rounded-full focus:outline-none transition duration-300 ease-in-out bg-tertiary border border-secondary/30 hover:border-[#915eff] whitespace-nowrap text-sm sm:text-base"
-              >
-                View Resume
-              </motion.button>
-              <a href={resume} download>
+              <MagneticButton strength={0.2}>
                 <motion.button
                   whileHover={{ scale: 1.05 }}
                   whileTap={{ scale: 0.95 }}
-                  className="text-[#915eff] font-bold py-3 px-6 rounded-full focus:outline-none transition duration-300 ease-in-out bg-transparent border border-[#915eff]/30 hover:border-[#915eff] whitespace-nowrap text-sm sm:text-base"
+                  onClick={() => setShowResume(true)}
+                  className="ripple-btn text-white font-bold py-3 px-6 rounded-full focus:outline-none transition duration-300 ease-in-out bg-tertiary border border-secondary/30 hover:border-[#915eff] whitespace-nowrap text-sm sm:text-base"
                 >
-                  Download
+                  View Resume
                 </motion.button>
-              </a>
+              </MagneticButton>
+              <MagneticButton strength={0.2}>
+                <a href={resume} download>
+                  <motion.button
+                    whileHover={{ scale: 1.05 }}
+                    whileTap={{ scale: 0.95 }}
+                    className="ripple-btn text-[#915eff] font-bold py-3 px-6 rounded-full focus:outline-none transition duration-300 ease-in-out bg-transparent border border-[#915eff]/30 hover:border-[#915eff] whitespace-nowrap text-sm sm:text-base"
+                  >
+                    Download
+                  </motion.button>
+                </a>
+              </MagneticButton>
             </div>
           </div>
         </div>

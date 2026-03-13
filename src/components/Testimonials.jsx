@@ -5,6 +5,7 @@ import { styles } from "../styles";
 import { SectionWrapper } from "../hoc";
 import { testimonials } from "../constants";
 import { textVariant } from "../utils/motion";
+import TextScramble from "./TextScramble";
 
 const Testimonials = () => {
   const [current, setCurrent] = useState(0);
@@ -17,7 +18,7 @@ const Testimonials = () => {
       <div className={`bg-tertiary rounded-2xl ${styles.padding} min-h-[200px] sm:min-h-[250px]`}>
         <motion.div variants={textVariant()}>
           <p className={styles.sectionSubText}>What Others Say</p>
-          <h2 className={styles.sectionHeadText}>Testimonials</h2>
+          <TextScramble text="Testimonials" as="h2" className={styles.sectionHeadText} />
         </motion.div>
       </div>
 

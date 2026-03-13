@@ -1,13 +1,15 @@
 /* eslint-disable react/prop-types */
 /* eslint-disable react-refresh/only-export-components */
+import { useRef } from "react";
 import { Tilt } from "react-tilt";
-import { motion } from "framer-motion";
+import { motion, useMotionValue, useSpring } from "framer-motion";
 import { styles } from "../styles";
 import { github, demo } from "../assets";
 import { SectionWrapper } from "../hoc";
 import { projects } from "../constants";
 import { fadeIn, textVariant } from "../utils/motion";
 import ImageSkeleton from "./ImageSkeleton";
+import TextScramble from "./TextScramble";
 
 const ProjectCard = ({
   index,
@@ -20,17 +22,20 @@ const ProjectCard = ({
   stats,
 }) => {
   return (
-    <motion.div variants={fadeIn("up", "spring", index * 0.5, 0.75)}>
+    <motion.div
+      variants={fadeIn("up", "spring", index * 0.5, 0.75)}
+      className="min-w-[280px] sm:min-w-[340px] xl:min-w-0"
+    >
       <Tilt
         options={{ max: 45, scale: 1, speed: 450 }}
         className="bg-tertiary p-4 sm:p-5 rounded-2xl w-full card-shine"
       >
-        <div className="relative w-full h-[180px] xs:h-[200px] sm:h-[230px]">
+        <div className="relative w-full h-[180px] xs:h-[200px] sm:h-[230px] overflow-hidden rounded-2xl group/img">
           <ImageSkeleton
             src={image}
             alt={name}
             loading="lazy"
-            className="object-cover w-full h-full rounded-2xl"
+            className="object-cover w-full h-full rounded-2xl transition-transform duration-500 group-hover/img:scale-110"
           />
 
           <div className="absolute inset-0 flex justify-end m-2 sm:m-3 card-img_hover">
@@ -39,28 +44,20 @@ const ProjectCard = ({
                 href={live_demo_link}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="black-gradient w-10 h-10 sm:w-12 sm:h-12 rounded-full flex justify-center items-center cursor-pointer mx-1 sm:mx-2"
+                className="black-gradient w-10 h-10 sm:w-12 sm:h-12 rounded-full flex justify-center items-center cursor-pointer mx-1 sm:mx-2 hover:scale-110 transition-transform"
                 aria-label={`Live demo of ${name}`}
               >
-                <img
-                  src={demo}
-                  alt=""
-                  className="w-1/2 h-1/2 object-contain"
-                />
+                <img src={demo} alt="" className="w-1/2 h-1/2 object-contain" />
               </a>
             )}
             <a
               href={source_code_link}
               target="_blank"
               rel="noopener noreferrer"
-              className="black-gradient w-10 h-10 sm:w-12 sm:h-12 rounded-full flex justify-center items-center cursor-pointer"
+              className="black-gradient w-10 h-10 sm:w-12 sm:h-12 rounded-full flex justify-center items-center cursor-pointer hover:scale-110 transition-transform"
               aria-label={`Source code for ${name}`}
             >
-              <img
-                src={github}
-                alt=""
-                className="w-1/2 h-1/2 object-contain"
-              />
+              <img src={github} alt="" className="w-1/2 h-1/2 object-contain" />
             </a>
           </div>
         </div>
@@ -86,7 +83,7 @@ const ProjectCard = ({
         <div className="mt-3 sm:mt-4 flex flex-wrap gap-1.5 sm:gap-2">
           {tags.map((tag, tagIndex) => (
             <p
-              key={`tag-${index}-${tagIndex}`}
+              key={`tag-${tagIndex}`}
               className={`text-[12px] sm:text-[14px] ${tag.color}`}
             >
               #{tag.name}
@@ -98,12 +95,31 @@ const ProjectCard = ({
   );
 };
 
+const DraggableRow = ({ children }) => {
+  const containerRef = useRef(null);
+  const x = useMotionValue(0);
+  const springX = useSpring(x, { stiffness: 300, damping: 30 });
+
+  return (
+    <div ref={containerRef} className="overflow-hidden cursor-grab active:cursor-grabbing xl:overflow-visible">
+      <motion.div
+        drag="x"
+        dragConstraints={containerRef}
+        style={{ x: springX }}
+        className="flex gap-5 sm:gap-7 xl:grid xl:grid-cols-3"
+      >
+        {children}
+      </motion.div>
+    </div>
+  );
+};
+
 const Projects = () => {
   return (
     <>
       <motion.div variants={textVariant()}>
         <p className={styles.sectionSubText}>Explore My Work</p>
-        <h2 className={styles.sectionHeadText}>Projects</h2>
+        <TextScramble text="Projects" as="h2" className={styles.sectionHeadText} />
       </motion.div>
       <div className="w-full flex">
         <motion.p
@@ -116,10 +132,15 @@ const Projects = () => {
           to navigate various frameworks and technologies seamlessly.
         </motion.p>
       </div>
-      <div className="mt-10 sm:mt-20 grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-5 sm:gap-7">
-        {projects.map((project, index) => (
-          <ProjectCard key={`project-${index}`} index={index} {...project} />
-        ))}
+      <p className="mt-4 text-secondary/50 text-xs italic xl:hidden">
+        Drag to explore projects &rarr;
+      </p>
+      <div className="mt-8 sm:mt-16">
+        <DraggableRow>
+          {projects.map((project, index) => (
+            <ProjectCard key={`project-${index}`} index={index} {...project} />
+          ))}
+        </DraggableRow>
       </div>
     </>
   );

@@ -18,7 +18,7 @@ const Footer = () => {
             <li key={link.id}>
               <a
                 href={`#${link.id}`}
-                className="text-secondary hover:text-white text-xs sm:text-sm transition-colors"
+                className="text-secondary hover:text-white text-xs sm:text-sm transition-colors link-hover-underline"
               >
                 {link.title}
               </a>
@@ -31,7 +31,7 @@ const Footer = () => {
             href={personalInfo.github}
             target="_blank"
             rel="noopener noreferrer"
-            className="text-secondary hover:text-white text-lg sm:text-xl transition-colors"
+            className="text-secondary hover:text-white text-lg sm:text-xl transition-colors icon-bounce"
             aria-label="GitHub"
           >
             <AiOutlineGithub />
@@ -40,7 +40,7 @@ const Footer = () => {
             href={personalInfo.linkedin}
             target="_blank"
             rel="noopener noreferrer"
-            className="text-secondary hover:text-white text-lg sm:text-xl transition-colors"
+            className="text-secondary hover:text-white text-lg sm:text-xl transition-colors icon-bounce"
             aria-label="LinkedIn"
           >
             <ImLinkedin />

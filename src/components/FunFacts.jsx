@@ -5,6 +5,7 @@ import { funFacts } from "../constants";
 import { textVariant } from "../utils/motion";
 import { styles } from "../styles";
 import { SectionWrapper } from "../hoc";
+import TextScramble from "./TextScramble";
 
 const AnimatedCounter = ({ value, suffix = "", duration = 2000 }) => {
   const [count, setCount] = useState(0);
@@ -47,7 +48,7 @@ const FunFacts = () => {
     <>
       <motion.div variants={textVariant()}>
         <p className={styles.sectionSubText}>A Glimpse Into My Journey</p>
-        <h2 className={styles.sectionHeadText}>Fun Facts</h2>
+        <TextScramble text="Fun Facts" as="h2" className={styles.sectionHeadText} />
       </motion.div>
       <div className="mt-8 sm:mt-12 grid grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6">
         {funFacts.map((fact, index) => (
@@ -57,7 +58,7 @@ const FunFacts = () => {
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
             transition={{ delay: index * 0.15, duration: 0.5 }}
-            className="bg-tertiary rounded-2xl p-5 sm:p-8 text-center card-shine"
+            className="bg-tertiary rounded-2xl p-5 sm:p-8 text-center card-shine glow-hover"
           >
             <span className="text-3xl sm:text-4xl block mb-3">{fact.icon}</span>
             <p className="text-white font-bold text-2xl sm:text-4xl">

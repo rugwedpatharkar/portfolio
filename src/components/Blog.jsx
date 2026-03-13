@@ -4,6 +4,7 @@ import { styles } from "../styles";
 import { SectionWrapper } from "../hoc";
 import { blogPosts } from "../constants";
 import { textVariant } from "../utils/motion";
+import TextScramble from "./TextScramble";
 
 const BlogCard = ({ post, index }) => (
   <motion.a
@@ -15,7 +16,7 @@ const BlogCard = ({ post, index }) => (
     viewport={{ once: true }}
     transition={{ delay: index * 0.15, duration: 0.5 }}
     whileHover={{ y: -5 }}
-    className="block bg-tertiary rounded-2xl p-5 sm:p-6 card-shine group"
+    className="block bg-tertiary rounded-2xl p-5 sm:p-6 card-shine glow-hover group"
   >
     <div className="flex items-center gap-2 mb-3">
       <span className="text-[#915eff] text-xs sm:text-sm font-medium">{post.date}</span>
@@ -32,7 +33,7 @@ const BlogCard = ({ post, index }) => (
       {post.tags.map((tag, i) => (
         <span
           key={i}
-          className="text-[10px] sm:text-xs px-2 py-1 rounded-full bg-[#915eff]/10 text-[#915eff] border border-[#915eff]/20"
+          className="text-[10px] sm:text-xs px-2 py-1 rounded-full bg-[#915eff]/10 text-[#915eff] border border-[#915eff]/20 tag-hover"
         >
           {tag}
         </span>
@@ -46,7 +47,7 @@ const Blog = () => {
     <>
       <motion.div variants={textVariant()}>
         <p className={styles.sectionSubText}>Sharing Knowledge</p>
-        <h2 className={styles.sectionHeadText}>Blog & Articles</h2>
+        <TextScramble text="Blog & Articles" as="h2" className={styles.sectionHeadText} />
       </motion.div>
       <div className="mt-8 sm:mt-12 grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-5 sm:gap-7">
         {blogPosts.map((post, index) => (

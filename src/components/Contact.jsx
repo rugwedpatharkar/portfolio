@@ -7,6 +7,7 @@ import { EarthCanvas } from "./canvas";
 import { SectionWrapper } from "../hoc";
 import { slideIn } from "../utils/motion";
 import { useToast } from "./Toast";
+import TextScramble from "./TextScramble";
 
 const Contact = () => {
   const formRef = useRef();
@@ -72,7 +73,7 @@ const Contact = () => {
         className="flex-[0.75] bg-black-100 p-5 sm:p-8 rounded-2xl"
       >
         <p className={styles.sectionSubText}>Get in Touch</p>
-        <h2 className={styles.sectionHeadText}>Contact</h2>
+        <TextScramble text="Contact" as="h2" className={styles.sectionHeadText} />
         <form
           ref={formRef}
           onSubmit={handleSubmit}
@@ -116,7 +117,7 @@ const Contact = () => {
             whileHover={{ scale: 1.02 }}
             whileTap={{ scale: 0.98 }}
             disabled={loading}
-            className="text-white font-bold py-3 px-8 rounded-lg focus:outline-none transition duration-300 ease-in-out w-full sm:w-auto bg-tertiary border border-secondary/30 hover:border-secondary/60 disabled:opacity-50"
+            className="ripple-btn text-white font-bold py-3 px-8 rounded-lg focus:outline-none transition duration-300 ease-in-out w-full sm:w-auto bg-tertiary border border-secondary/30 hover:border-secondary/60 disabled:opacity-50"
           >
             {loading ? "Sending..." : "Send Message"}
           </motion.button>

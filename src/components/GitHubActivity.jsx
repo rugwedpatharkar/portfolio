@@ -3,13 +3,14 @@ import { styles } from "../styles";
 import { SectionWrapper } from "../hoc";
 import { personalInfo } from "../constants";
 import { textVariant } from "../utils/motion";
+import TextScramble from "./TextScramble";
 
 const GitHubActivity = () => {
   return (
     <>
       <motion.div variants={textVariant()}>
         <p className={styles.sectionSubText}>Open Source</p>
-        <h2 className={styles.sectionHeadText}>GitHub Activity</h2>
+        <TextScramble text="GitHub Activity" as="h2" className={styles.sectionHeadText} />
       </motion.div>
       <div className="mt-8 sm:mt-12 flex flex-col items-center gap-6 sm:gap-8">
         <motion.div
