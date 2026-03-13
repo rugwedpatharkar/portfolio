@@ -1,0 +1,60 @@
+/* eslint-disable react/prop-types */
+import { motion } from "framer-motion";
+import { styles } from "../styles";
+import { SectionWrapper } from "../hoc";
+import { blogPosts } from "../constants";
+import { textVariant } from "../utils/motion";
+
+const BlogCard = ({ post, index }) => (
+  <motion.a
+    href={post.link}
+    target={post.link !== "#" ? "_blank" : undefined}
+    rel={post.link !== "#" ? "noopener noreferrer" : undefined}
+    initial={{ opacity: 0, y: 30 }}
+    whileInView={{ opacity: 1, y: 0 }}
+    viewport={{ once: true }}
+    transition={{ delay: index * 0.15, duration: 0.5 }}
+    whileHover={{ y: -5 }}
+    className="block bg-tertiary rounded-2xl p-5 sm:p-6 card-shine group"
+  >
+    <div className="flex items-center gap-2 mb-3">
+      <span className="text-[#915eff] text-xs sm:text-sm font-medium">{post.date}</span>
+      <span className="w-1 h-1 rounded-full bg-secondary" />
+      <span className="text-secondary text-xs">{post.tags[0]}</span>
+    </div>
+    <h3 className="text-white font-bold text-base sm:text-lg group-hover:text-[#915eff] transition-colors">
+      {post.title}
+    </h3>
+    <p className="text-secondary text-xs sm:text-sm mt-2 leading-relaxed line-clamp-3">
+      {post.description}
+    </p>
+    <div className="mt-4 flex flex-wrap gap-2">
+      {post.tags.map((tag, i) => (
+        <span
+          key={i}
+          className="text-[10px] sm:text-xs px-2 py-1 rounded-full bg-[#915eff]/10 text-[#915eff] border border-[#915eff]/20"
+        >
+          {tag}
+        </span>
+      ))}
+    </div>
+  </motion.a>
+);
+
+const Blog = () => {
+  return (
+    <>
+      <motion.div variants={textVariant()}>
+        <p className={styles.sectionSubText}>Sharing Knowledge</p>
+        <h2 className={styles.sectionHeadText}>Blog & Articles</h2>
+      </motion.div>
+      <div className="mt-8 sm:mt-12 grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-5 sm:gap-7">
+        {blogPosts.map((post, index) => (
+          <BlogCard key={index} post={post} index={index} />
+        ))}
+      </div>
+    </>
+  );
+};
+
+export default SectionWrapper(Blog, "");

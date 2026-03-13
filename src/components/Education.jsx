@@ -1,7 +1,5 @@
-/* eslint-disable react/no-unescaped-entities */
-/* eslint-disable react-refresh/only-export-components */
-/* eslint-disable no-unused-vars */
 /* eslint-disable react/prop-types */
+/* eslint-disable react-refresh/only-export-components */
 import React from "react";
 import { motion } from "framer-motion";
 
@@ -13,37 +11,39 @@ import { educations } from "../constants";
 const EducationCard = ({ index, marks, name, degree, image }) => (
   <motion.div
     variants={fadeIn("", "spring", index * 0.5, 0.75)}
-    className="Box2 p-5 rounded-3xl xs:w-[320px] w-full"
+    className="Box2 p-4 sm:p-5 rounded-3xl w-full card-shine"
   >
-    <div className="mt-7 flex flex-col justify-between items-center gap-1">
+    <div className="mt-4 sm:mt-7 flex flex-col justify-between items-center gap-1">
       <img
         src={image}
-        alt={`feedback_by-${name}`}
+        alt={degree}
         width="80"
         height="80"
-        className="rounded-full object-cover"
+        className="rounded-full object-cover w-16 h-16 sm:w-20 sm:h-20"
       />
-      <div className="mt-3 flex-1 flex flex-col">
-        <p className="text-center text-white font-medium text-[16px]">
-          <span className="text-center blue-text-gradient">{name}</span>
+      <div className="mt-2 sm:mt-3 flex-1 flex flex-col">
+        <p className="text-center text-white font-medium text-[13px] sm:text-[16px]">
+          <span className="blue-text-gradient">{name}</span>
         </p>
       </div>
     </div>
 
     <div className="mt-1">
-      <p className="text-center text-white tracking-wider text-[18px]">
+      <p className="text-center text-white tracking-wider text-[15px] sm:text-[18px]">
         {degree}
       </p>
-      <p className="mt-3 text-center green-text-gradient">{marks}</p>
+      <p className="mt-2 sm:mt-3 text-center green-text-gradient text-[13px] sm:text-[15px]">
+        {marks}
+      </p>
     </div>
   </motion.div>
 );
 
 const Education = () => {
   return (
-    <div className={` bg-black-100 rounded-[20px]`}>
+    <div className="bg-black-100 rounded-[20px]">
       <div
-        className={`bg-tertiary rounded-2xl ${styles.padding} min-h-[300px]`}
+        className={`bg-tertiary rounded-2xl ${styles.padding} min-h-[200px] sm:min-h-[300px]`}
       >
         <motion.div variants={textVariant()}>
           <p className={styles.sectionSubText}>Educational Details</p>
@@ -51,7 +51,7 @@ const Education = () => {
         </motion.div>
       </div>
       <div
-        className={`-mt-20 justify-center pb-14 ${styles.paddingX} flex flex-wrap gap-6`}
+        className={`-mt-10 sm:-mt-14 pb-10 sm:pb-14 ${styles.paddingX} grid grid-cols-1 xs:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6`}
       >
         {educations.map((education, index) => (
           <EducationCard key={education.name} index={index} {...education} />

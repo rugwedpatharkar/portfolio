@@ -1,0 +1,48 @@
+/* eslint-disable react/prop-types */
+import { motion } from "framer-motion";
+import { styles } from "../styles";
+import { SectionWrapper } from "../hoc";
+import { achievements } from "../constants";
+import { textVariant } from "../utils/motion";
+
+const AchievementCard = ({ achievement, index }) => (
+  <motion.div
+    initial={{ opacity: 0, x: index % 2 === 0 ? -40 : 40 }}
+    whileInView={{ opacity: 1, x: 0 }}
+    viewport={{ once: true }}
+    transition={{ delay: index * 0.15, duration: 0.5, type: "spring" }}
+    className="relative flex items-start gap-4 sm:gap-6"
+  >
+    <div className="flex flex-col items-center">
+      <div className="w-12 h-12 sm:w-14 sm:h-14 rounded-full bg-tertiary border-2 border-[#915eff] flex items-center justify-center text-xl sm:text-2xl flex-shrink-0">
+        {achievement.icon}
+      </div>
+      {index < achievements.length - 1 && (
+        <div className="w-0.5 h-12 sm:h-16 bg-[#915eff]/30 mt-2" />
+      )}
+    </div>
+    <div className="pb-8 sm:pb-12">
+      <span className="text-[#915eff] text-xs sm:text-sm font-semibold">{achievement.year}</span>
+      <h3 className="text-white font-bold text-base sm:text-lg mt-1">{achievement.title}</h3>
+      <p className="text-secondary text-xs sm:text-sm mt-1 leading-relaxed">{achievement.description}</p>
+    </div>
+  </motion.div>
+);
+
+const Achievements = () => {
+  return (
+    <>
+      <motion.div variants={textVariant()}>
+        <p className={styles.sectionSubText}>Milestones</p>
+        <h2 className={styles.sectionHeadText}>Achievements</h2>
+      </motion.div>
+      <div className="mt-8 sm:mt-12 max-w-3xl mx-auto">
+        {achievements.map((achievement, index) => (
+          <AchievementCard key={index} achievement={achievement} index={index} />
+        ))}
+      </div>
+    </>
+  );
+};
+
+export default SectionWrapper(Achievements, "achievements");

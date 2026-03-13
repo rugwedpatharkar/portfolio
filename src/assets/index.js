@@ -22,22 +22,21 @@ import linux from "./skills/linux.svg";
 import mongodb from "./skills/mongodb.png";
 import mysql from "./skills/mysql.svg";
 import netbeans from "./skills/netbeans.svg";
-import nodejs from "./skills/nodejs.png";
+
 import postman from "./skills/postman.png";
 import pycharm from "./skills/pycharm.svg";
 import python from "./skills/python.svg";
 import reactjs from "./skills/reactjs.png";
 import redux from "./skills/redux.png";
-import replit from "./skills/replit.svg";
+
 import springboot from "./skills/springboot.svg";
-import sublimetext from "./skills/sublimetext.png";
+
 import tailwind from "./skills/tailwind.png";
-import typescript from "./skills/typescript.png";
+
 import threejs from "./skills/threejs.svg";
-import ubuntu from "./skills/ubuntu.png";
-import vim from "./skills/vim.svg";
+
 import vscode from "./skills/vscode.svg";
-import githubskill from "./skills/github.svg";
+
 import photo from "./photo.png";
 import techentrepreneurs from "./company/te.png";
 import demo from "./demo.png";
@@ -75,27 +74,21 @@ export {
   mongodb,
   mysql,
   netbeans,
-  nodejs,
   postman,
   pycharm,
   python,
   reactjs,
   redux,
-  replit,
   springboot,
-  sublimetext,
   tailwind,
-  typescript,
   threejs,
-  ubuntu,
-  vim,
   vscode,
   techentrepreneurs,
   gadgetgalaxy,
   blogbuddy,
   photo,
   web,
-  githubskill,
+
   ssc,
   hsc,
   bachelor,

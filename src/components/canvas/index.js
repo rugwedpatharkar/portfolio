@@ -1,6 +1,7 @@
-import EarthCanvas from "./Earth";
-import BallCanvas from "./Ball";
-import ComputersCanvas from "./Computers";
-import StarsCanvas from "./Stars";
+import { lazy } from "react";
 
-export { EarthCanvas, BallCanvas, ComputersCanvas, StarsCanvas };
+const EarthCanvas = lazy(() => import("./Earth"));
+const ComputersCanvas = lazy(() => import("./Computers"));
+const StarsCanvas = lazy(() => import("./Stars"));
+
+export { EarthCanvas, ComputersCanvas, StarsCanvas };

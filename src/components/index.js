@@ -1,6 +1,5 @@
 import {
   EarthCanvas,
-  BallCanvas,
   ComputersCanvas,
   StarsCanvas,
 } from "./canvas";
@@ -11,8 +10,8 @@ import Skills from "./Skills";
 import Experience from "./Experience";
 import Projects from "./Projects";
 import Contact from "./Contact";
-import HireMe from "./HireMe";
 import Education from "./Education";
+import Footer from "./Footer";
 export {
   Hero,
   Navbar,
@@ -23,8 +22,7 @@ export {
   Education,
   Contact,
   EarthCanvas,
-  BallCanvas,
   ComputersCanvas,
   StarsCanvas,
-  HireMe,
+  Footer,
 };

@@ -2,12 +2,60 @@
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
-    <link rel="icon" type="image/svg+xml" href="/logo.png" />
+    <link rel="icon" type="image/png" href="/logo.png" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="description" content="Rugwed Patharkar - Full Stack Developer from Pune, India. Specializing in Java, Python, React, Spring Boot, and Django. View my projects, skills, and experience." />
+    <meta name="keywords" content="Rugwed Patharkar, Full Stack Developer, Portfolio, Java, Python, React, Spring Boot, Django" />
+    <meta name="author" content="Rugwed Patharkar" />
+    <meta name="theme-color" content="#915eff" />
+
+    <!-- Open Graph / Social Media -->
+    <meta property="og:type" content="website" />
+    <meta property="og:title" content="Rugwed Patharkar | Full Stack Developer Portfolio" />
+    <meta property="og:description" content="Full Stack Developer from Pune, India. Specializing in Java, Python, React, Spring Boot, and Django." />
+    <meta property="og:image" content="/logo.png" />
+
+    <!-- Twitter -->
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content="Rugwed Patharkar | Full Stack Developer Portfolio" />
+    <meta name="twitter:description" content="Full Stack Developer from Pune, India. Specializing in Java, Python, React, Spring Boot, and Django." />
+
+    <!-- PWA Manifest -->
+    <link rel="manifest" href="/manifest.json" />
+    <link rel="apple-touch-icon" href="/logo.png" />
+
+    <!-- JSON-LD Structured Data -->
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "Person",
+      "name": "Rugwed Patharkar",
+      "jobTitle": "Full Stack Developer",
+      "url": "https://rugwedpatharkar.com",
+      "sameAs": [
+        "https://github.com/rugwedpatharkar",
+        "https://www.linkedin.com/in/rugwed-patharkar/"
+      ],
+      "address": {
+        "@type": "PostalAddress",
+        "addressLocality": "Pune",
+        "addressCountry": "India"
+      },
+      "knowsAbout": ["Java", "Python", "React", "Spring Boot", "Django", "JavaScript", "Docker", "MongoDB", "MySQL"]
+    }
+    </script>
+
     <title>Rugwed Patharkar | Portfolio</title>
   </head>
   <body>
     <div id="root"></div>
     <script type="module" src="/src/main.jsx"></script>
+    <script>
+      if ('serviceWorker' in navigator) {
+        window.addEventListener('load', () => {
+          navigator.serviceWorker.register('/sw.js').catch(() => {});
+        });
+      }
+    </script>
   </body>
 </html>

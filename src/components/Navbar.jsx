@@ -1,9 +1,8 @@
 import React, { useEffect, useState } from "react";
-import { Link } from "react-router-dom";
-
 import { styles } from "../styles";
 import { navLinks } from "../constants";
 import { logo, menu, close } from "../assets";
+
 
 const Navbar = () => {
   const [active, setActive] = useState("");
@@ -11,116 +10,128 @@ const Navbar = () => {
   const [scrolling, setScrolling] = useState(false);
 
   useEffect(() => {
+    let ticking = false;
     const handleScroll = () => {
-      if (window.scrollY > 0) {
-        setScrolling(true);
-      } else {
-        setScrolling(false);
-      }
+      if (ticking) return;
+      ticking = true;
+      requestAnimationFrame(() => {
+        setScrolling(window.scrollY > 0);
+
+        const visibleSection = navLinks.find((link) => {
+          const section = document.getElementById(link.id);
+          if (section) {
+            const rect = section.getBoundingClientRect();
+            return (
+              rect.top <= window.innerHeight / 2 &&
+              rect.bottom >= window.innerHeight / 2
+            );
+          }
+          return false;
+        });
+
+        if (visibleSection) {
+          setActive(visibleSection.title);
+        }
+        ticking = false;
+      });
     };
-    window.addEventListener("scroll", handleScroll);
+
+    window.addEventListener("scroll", handleScroll, { passive: true });
     return () => {
       window.removeEventListener("scroll", handleScroll);
     };
   }, []);
 
   useEffect(() => {
-    const handleScroll = () => {
-      const scrollPosition = window.scrollY;
-      const visibleSection = navLinks.find((link) => {
-        const section = document.getElementById(link.id);
-        if (section) {
-          const rect = section.getBoundingClientRect();
-          return (
-            rect.top <= window.innerHeight / 2 &&
-            rect.bottom >= window.innerHeight / 2
-          );
-        }
-        return false;
-      });
+    if (!toggle) return;
 
-      if (visibleSection) {
-        setActive(visibleSection.title);
+    const handleClickOutside = (e) => {
+      if (!e.target.closest(".mobile-menu") && !e.target.closest(".menu-toggle")) {
+        setToggle(false);
       }
     };
 
-    window.addEventListener("scroll", handleScroll);
-
-    return () => {
-      window.removeEventListener("scroll", handleScroll);
-    };
-  }, []);
+    document.addEventListener("click", handleClickOutside);
+    return () => document.removeEventListener("click", handleClickOutside);
+  }, [toggle]);
 
   const handleItemClick = (link) => {
     setActive(link.title);
-    setToggle(false); // Close the toggle when a menu item is clicked
+    setToggle(false);
   };
 
   return (
     <nav
-      className={`${
-        styles.paddingX
-      } w-full flex items-center py-5 fixed top-0 z-20 ${
+      className={`${styles.paddingX} w-full flex items-center py-3 sm:py-5 fixed top-0 z-40 transition-colors duration-300 ${
         scrolling
-          ? "bg-primary bg-opacity-70 backdrop-blur-sm"
+          ? "bg-primary/70 backdrop-blur-sm"
           : "bg-transparent"
       }`}
       style={{
         WebkitBackdropFilter: scrolling ? "blur(5px)" : "none",
-        backdropFilter: scrolling ? "blur(5px)" : "none",
       }}
     >
-      <div className="flex items-center justify-between w-full mx-auto max-w-7xl">
-        <Link
-          to="/"
+      <div className="flex items-center justify-between w-full mx-auto max-w-7xl 3xl:max-w-[2000px]">
+        <a
+          href="#"
           className="flex items-center gap-2"
           onClick={() => {
             setActive("");
             window.scrollTo(0, 0);
           }}
         >
-          <img src={logo} alt="logo" className="object-contain w-9 h-9" />
-          <p className="tet-white text-[18px] font-bold cursor-pointer flex">
+          <img src={logo} alt="logo" className="object-contain w-8 h-8 sm:w-9 sm:h-9" />
+          <p className="text-white text-[15px] sm:text-[18px] font-bold cursor-pointer flex">
             Rugwed Patharkar&nbsp;
-            <span className="sm:block hidden">| Portfolio</span>
+            <span className="md:block hidden">| Portfolio</span>
           </p>
-        </Link>
-        <ul className="list-none hidden sm:flex flex-row gap-10">
+        </a>
+
+        <ul className="list-none hidden md:flex flex-row gap-6 lg:gap-10">
           {navLinks.map((link) => (
             <li
               key={link.id}
               className={`${
-                active === link.title ? "text-white" : "text-secondary"
-              } hover:text-white text-[18px] font-medium cursor-pointer`}
+                active === link.title ? "text-white nav-link-active" : "text-secondary"
+              } hover:text-white text-[15px] lg:text-[18px] font-medium cursor-pointer transition-colors relative`}
               onClick={() => handleItemClick(link)}
             >
               <a href={"#" + link.id}>{link.title}</a>
             </li>
           ))}
         </ul>
-        <div className="sm:hidden flex flex-1 justify-end items-center">
-          <img
-            src={toggle ? close : menu}
-            alt="menu"
-            className="w-[28px] h-[28px] object-contain cursor-pointer"
+
+        <div className="md:hidden flex flex-1 justify-end items-center">
+          <button
+            className="menu-toggle w-[28px] h-[28px] cursor-pointer bg-transparent border-none p-0"
             onClick={() => setToggle(!toggle)}
-          />
-          <div
-            style={{ backgroundColor: "#151030" }}
-            className={`${
-              toggle ? "flex" : "hidden"
-            } p-6  absolute top-20 right-0 mx-4 my-2 min-w-[140px] z-10 rounded-xl`}
+            aria-label="Toggle menu"
+            aria-expanded={toggle}
           >
-            <ul className="list-none flex justify-end items-start flex-col gap-4">
+            <img
+              src={toggle ? close : menu}
+              alt=""
+              className="w-full h-full object-contain"
+            />
+          </button>
+
+          <div
+            className={`mobile-menu ${
+              toggle ? "flex" : "hidden"
+            } p-6 absolute top-16 sm:top-20 right-0 mx-4 my-2 min-w-[180px] z-50 rounded-xl bg-tertiary shadow-xl`}
+          >
+            <ul className="list-none flex justify-end items-start flex-col gap-4 w-full">
               {navLinks.map((link) => (
                 <li
                   key={link.id}
                   className={`${
                     active === link.title ? "text-white" : "text-secondary"
-                  } font-poppins font-medium cursor-pointer text-[16px]`}
+                  } font-poppins font-medium cursor-pointer text-[16px] w-full`}
                   onClick={() => handleItemClick(link)}
                 >
-                  <a href={"#" + link.id}>{link.title}</a>
+                  <a href={"#" + link.id} className="block w-full py-1">
+                    {link.title}
+                  </a>
                 </li>
               ))}
             </ul>
