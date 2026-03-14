@@ -1,5 +1,5 @@
 /* eslint-disable react/prop-types */
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useRef, useMemo } from "react";
 import { motion } from "framer-motion";
 import { skills } from "../constants";
 
@@ -31,21 +31,25 @@ const TechRadar = () => {
     return () => observer.disconnect();
   }, []);
 
-  const allSkills = Object.values(skills).flat();
+  const positionedSkills = useMemo(() => {
+    const allSkills = Object.values(skills).flat();
+    // Seeded pseudo-random for stable positions across renders
+    let seed = 42;
+    const rand = () => { seed = (seed * 16807 + 0) % 2147483647; return seed / 2147483647; };
 
-  // Position skills in their rings with even spacing
-  const positionedSkills = allSkills.map((skill, i) => {
-    const ringIdx = getRing(skill.level);
-    const ring = RINGS[ringIdx];
-    const angle = (i / allSkills.length) * Math.PI * 2 + (ringIdx * 0.3);
-    const radiusJitter = ring.radius * (0.7 + Math.random() * 0.3);
-    return {
-      ...skill,
-      ringIdx,
-      x: 50 + Math.cos(angle) * radiusJitter * 42,
-      y: 50 + Math.sin(angle) * radiusJitter * 42,
-    };
-  });
+    return allSkills.map((skill, i) => {
+      const ringIdx = getRing(skill.level);
+      const ring = RINGS[ringIdx];
+      const angle = (i / allSkills.length) * Math.PI * 2 + (ringIdx * 0.3);
+      const radiusJitter = ring.radius * (0.7 + rand() * 0.3);
+      return {
+        ...skill,
+        ringIdx,
+        x: 50 + Math.cos(angle) * radiusJitter * 42,
+        y: 50 + Math.sin(angle) * radiusJitter * 42,
+      };
+    });
+  }, []);
 
   return (
     <div ref={ref} className="relative w-full max-w-2xl mx-auto aspect-square">

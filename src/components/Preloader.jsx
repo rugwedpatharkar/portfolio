@@ -17,6 +17,9 @@ const Preloader = () => {
   const readyRef = useRef(false);
 
   useEffect(() => {
+    const timers = [];
+    let cancelled = false;
+
     const handleLoad = () => {
       readyRef.current = true;
     };
@@ -29,25 +32,27 @@ const Preloader = () => {
 
     // Sequentially reveal boot lines
     BOOT_LINES.forEach((line, i) => {
-      setTimeout(() => setVisibleLines(i + 1), line.delay);
+      timers.push(setTimeout(() => setVisibleLines(i + 1), line.delay));
     });
 
     // After last line, wait a beat then fade out (only if page loaded)
     const finalDelay = BOOT_LINES[BOOT_LINES.length - 1].delay + 600;
     const checkAndFinish = () => {
+      if (cancelled) return;
       if (readyRef.current) {
         setLoaded(true);
       } else {
-        // Page not loaded yet, check again shortly
-        setTimeout(checkAndFinish, 200);
+        timers.push(setTimeout(checkAndFinish, 200));
       }
     };
-    setTimeout(checkAndFinish, finalDelay);
+    timers.push(setTimeout(checkAndFinish, finalDelay));
 
     // Cursor blink
     const cursorInterval = setInterval(() => setCursorVisible((v) => !v), 530);
 
     return () => {
+      cancelled = true;
+      timers.forEach(clearTimeout);
       window.removeEventListener("load", handleLoad);
       clearInterval(cursorInterval);
     };

@@ -59,4 +59,4 @@ const Blog = () => {
   );
 };
 
-export default SectionWrapper(Blog, "");
+export default SectionWrapper(Blog, "blog");

@@ -102,6 +102,7 @@ const SkillGlobe = () => {
   }, []);
 
   const handleMouseMove = (e) => {
+    if (!containerRef.current) return;
     const rect = containerRef.current.getBoundingClientRect();
     mouseRef.current = {
       x: e.clientX - rect.left - rect.width / 2,

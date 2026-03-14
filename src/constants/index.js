@@ -12,20 +12,17 @@ import {
   git,
   docker,
   careerforall,
-  eclipse,
   java,
   jquery,
   kubernetes,
   linux,
   mysql,
-  netbeans,
   postman,
-  pycharm,
   python,
   springboot,
-  threejs,
   vscode,
   techentrepreneurs,
+  upswing,
   gadgetgalaxy,
   blogbuddy,
   web,
@@ -35,6 +32,26 @@ import {
   hsc,
   bachelor,
   ssc,
+  fastapi,
+  firebase,
+  gcp,
+  grpc,
+  helm,
+  langchain,
+  nextjs,
+  nodejs,
+  openai,
+  postgresql,
+  prometheus,
+  rabbitmq,
+  redis,
+  terraform,
+  typescript,
+  celery,
+  eclipse,
+  netbeans,
+  pycharm,
+  threejs,
 } from "../assets";
 
 export const navLinks = [
@@ -47,75 +64,178 @@ export const navLinks = [
 ];
 
 const services = [
-  { title: "Full Stack Developer", icon: fullstack },
-  { title: "ReactJS Developer", icon: frontend },
-  { title: "Backend Developer", icon: backend },
-  { title: "Web Developer", icon: web },
+  { title: "Software Engineer", icon: backend },
+  { title: "AI / ML Engineer", icon: fullstack },
+  { title: "Cloud & DevOps", icon: web },
+  { title: "Full Stack Developer", icon: frontend },
 ];
 
 const skills = {
-  "Programming Languages": [
-    { name: "Java", icon: java, level: 85 },
-    { name: "JavaScript", icon: javascript, level: 80 },
-    { name: "Python", icon: python, level: 75 },
+  "Languages": [
+    { name: "Python", icon: python, level: 92 },
+    { name: "JavaScript", icon: javascript, level: 82 },
+    { name: "TypeScript", icon: typescript, level: 75 },
+    { name: "Java", icon: java, level: 80 },
+    { name: "SQL", icon: mysql, level: 85 },
   ],
-  "Database Management": [
-    { name: "MongoDB", icon: mongodb, level: 70 },
-    { name: "MySQL", icon: mysql, level: 75 },
+  "Backend Frameworks": [
+    { name: "FastAPI", icon: fastapi, level: 92 },
+    { name: "gRPC", icon: grpc, level: 88 },
+    { name: "Django", icon: django, level: 78 },
+    { name: "Spring Boot", icon: springboot, level: 72 },
+    { name: "Node.js", icon: nodejs, level: 75 },
+    { name: "Celery", icon: celery, level: 80 },
   ],
-  "Web Development": [
+  "Frontend": [
+    { name: "React JS", icon: reactjs, level: 82 },
+    { name: "Next JS", icon: nextjs, level: 70 },
     { name: "HTML", icon: html, level: 90 },
     { name: "CSS", icon: css, level: 85 },
-    { name: "ReactJS", icon: reactjs, level: 80 },
-    { name: "Redux", icon: redux, level: 70 },
     { name: "Tailwind CSS", icon: tailwind, level: 80 },
-    { name: "Bootstrap CSS", icon: bootstrap, level: 80 },
+    { name: "Bootstrap", icon: bootstrap, level: 78 },
+    { name: "Redux", icon: redux, level: 70 },
   ],
-  "Version Control": [
-    { name: "Git", icon: git, level: 85 },
-    { name: "GitHub", icon: github, level: 85 },
+  "AI & Emerging Tech": [
+    { name: "LangChain", icon: langchain, level: 88 },
+    { name: "OpenAI / LLMs", icon: openai, level: 85 },
+    { name: "RAG / Embeddings", icon: langchain, level: 82 },
   ],
-  "Web Frameworks": [
-    { name: "Spring Boot", icon: springboot, level: 75 },
-    { name: "Django", icon: django, level: 70 },
+  "Databases": [
+    { name: "MongoDB", icon: mongodb, level: 85 },
+    { name: "Redis", icon: redis, level: 85 },
+    { name: "PostgreSQL", icon: postgresql, level: 78 },
+    { name: "Firebase Firestore", icon: firebase, level: 80 },
+    { name: "MySQL", icon: mysql, level: 80 },
   ],
-  Containerization: [
-    { name: "Docker", icon: docker, level: 65 },
-    { name: "Kubernetes", icon: kubernetes, level: 55 },
+  "Cloud & DevOps": [
+    { name: "GCP", icon: gcp, level: 88 },
+    { name: "Docker", icon: docker, level: 88 },
+    { name: "Kubernetes", icon: kubernetes, level: 82 },
+    { name: "Terraform", icon: terraform, level: 75 },
+    { name: "Helm", icon: helm, level: 78 },
+    { name: "GitHub Actions", icon: github, level: 85 },
+    { name: "Prometheus/Grafana", icon: prometheus, level: 72 },
   ],
-  "Development Tools": [
-    { name: "Eclipse", icon: eclipse, level: 70 },
-    { name: "NetBeans", icon: netbeans, level: 65 },
-    { name: "Postman", icon: postman, level: 80 },
+  "Tools & Platforms": [
+    { name: "Git", icon: git, level: 90 },
+    { name: "RabbitMQ", icon: rabbitmq, level: 82 },
+    { name: "Postman", icon: postman, level: 85 },
+    { name: "Linux", icon: linux, level: 80 },
+    { name: "VS Code", icon: vscode, level: 92 },
     { name: "PyCharm", icon: pycharm, level: 75 },
-    { name: "VS Code", icon: vscode, level: 90 },
-  ],
-  "Other Technologies": [
-    { name: "jQuery", icon: jquery, level: 65 },
-    { name: "Linux", icon: linux, level: 70 },
-    { name: "Three.js", icon: threejs, level: 55 },
+    { name: "Eclipse", icon: eclipse, level: 70 },
   ],
 };
 
 const experiences = [
   {
+    title: "Software Engineer",
+    company_name: "Upswing Cognitive Hospitality Solutions",
+    icon: upswing,
+    iconBg: "#ffffff",
+    date: "May 2024 – Present",
+    points: [
+      "Architected and developed scalable backend microservices using Python, FastAPI, and gRPC deployed on Google Kubernetes Engine (GKE), supporting multi-tenant hospitality operations across multiple production environments.",
+      "Developed API Gateway service translating external REST requests to internal gRPC backend calls, providing a unified API surface for client applications via Protocol Buffers.",
+      "Engineered a unified abstraction layer integrating 6+ third-party Property Management Systems using base class inheritance and polymorphic design, reducing code redundancy by 60% and enabling zero-downtime provider switching.",
+      "Optimized API response latency by 96% (from 5s to 200ms) through Redis caching, connection pooling, query optimization, and efficient data serialization.",
+      "Developed 5 iterations of an enterprise conversational AI agent using LangChain, LangGraph, and Agentic AI patterns, integrating 4 LLM providers (OpenAI, Gemini, Claude, Groq) with tool-calling via Model Context Protocol (MCP).",
+      "Built a RAG pipeline using ChromaDB vector database and sentence-transformer embeddings, enabling AI-driven knowledge retrieval and context-aware guest interactions.",
+      "Led a team of 2+ developers on integration workstreams, establishing reusable code architecture patterns and coordinating parallel development across multiple codebases.",
+      "Deployed self-hosted GitHub Actions runner infrastructure, automating CI/CD pipelines for Docker image builds, semantic versioning, and Kubernetes deployments to GCP.",
+      "Engineered event-driven architecture using RabbitMQ and Google Cloud Pub/Sub for asynchronous inter-service communication and real-time notifications via Firebase Cloud Messaging.",
+      "Managed infrastructure provisioning using Terraform and Helm/Helmfile across GKE clusters with Prometheus/Grafana monitoring.",
+      "Awarded Star Performer of the Quarter for delivering across multiple concurrent production projects.",
+    ],
+  },
+  {
     title: "IT Trainee Intern",
     company_name: "Tech Entrepreneurs",
     icon: techentrepreneurs,
     iconBg: "#383E56",
-    date: "March 2023 - September 2023",
+    date: "March 2023 – September 2023",
     points: [
-      "Collaborated with a cross-functional team to develop the Placement Portal application, optimizing candidate and job matching processes and enhancing overall efficiency.",
-      "Translated project requirements into actionable tasks, defining scope and milestones with a user-centric approach.",
-      "Demonstrated exceptional multitasking skills, ensuring on-time project delivery and contributing positively to team goals.",
-      "Designed and implemented an advanced sorting system for filtering candidates and job openings based on descriptions, showcasing expertise in software designing.",
-      "Conducted regular code reviews, ensuring code quality and adherence to best practices, providing constructive feedback for continuous improvement.",
-      "Effectively managed project timelines, coordinated team efforts, and ensured successful project completion.",
+      "Engineered 10+ filtering categories for a job matching portal, achieving 95% filter accuracy and optimizing candidate-to-job matching workflows.",
+      "Designed an advanced sorting system resulting in 30% reduction in processing time for filtering candidates and job openings.",
+      "Conducted regular code reviews across the team, enforcing best practices and contributing to 20% improvement in overall code quality.",
+      "Translated business requirements into actionable development tasks, ensuring alignment with project timelines and stakeholder objectives.",
     ],
   },
 ];
 
 const projects = [
+  // --- Professional projects ---
+  {
+    name: "Multi-Agent Conversational AI",
+    description:
+      "Enterprise AI assistant built through 5 iterative versions using LangChain, LangGraph, and Google ADK. Implemented Agentic AI patterns with MCP-based tool calling for autonomous task execution. Features versioned prompt engineering, context-aware prompt chaining, RAG pipeline with ChromaDB, and dynamic routing across 4 LLM providers.",
+    tags: [
+      { name: "langchain", color: "green-text-gradient" },
+      { name: "python", color: "blue-text-gradient" },
+      { name: "openai", color: "pink-text-gradient" },
+      { name: "rag", color: "orange-text-gradient" },
+      { name: "mcp", color: "purple-text-gradient" },
+    ],
+    image: blogbuddy,
+    stats: [
+      { label: "LLM Providers", value: "4" },
+      { label: "Iterations", value: "5" },
+    ],
+    source_code_link: "https://github.com/rugwedpatharkar",
+  },
+  {
+    name: "Enterprise Integration Platform",
+    description:
+      "Unified backend integration layer connecting 6+ Property Management Systems, door lock platforms, and room management systems. Designed abstraction interfaces enabling provider-agnostic operations with Redis caching. Reduced code redundancy by 60%, cut new vendor integration time by 50%, and optimized API latency by 96%.",
+    tags: [
+      { name: "fastapi", color: "green-text-gradient" },
+      { name: "grpc", color: "blue-text-gradient" },
+      { name: "redis", color: "red-text-gradient" },
+      { name: "gcp", color: "yellow-text-gradient" },
+      { name: "python", color: "purple-text-gradient" },
+    ],
+    image: gadgetgalaxy,
+    stats: [
+      { label: "Integrations", value: "6+" },
+      { label: "Latency Reduction", value: "96%" },
+    ],
+    source_code_link: "https://github.com/rugwedpatharkar",
+  },
+  {
+    name: "Self-Hosted CI/CD Infrastructure",
+    description:
+      "Deployed and configured local GitHub Actions runner servers to execute CI/CD pipelines internally. Automated Docker image builds, semantic versioning, container registry pushes, and Kubernetes rollout deployments to GCP. Integrated Trivy vulnerability scanning for container security.",
+    tags: [
+      { name: "github-actions", color: "blue-text-gradient" },
+      { name: "docker", color: "green-text-gradient" },
+      { name: "kubernetes", color: "pink-text-gradient" },
+      { name: "terraform", color: "purple-text-gradient" },
+    ],
+    image: careerforall,
+    stats: [
+      { label: "Pipelines", value: "10+" },
+      { label: "Environments", value: "3" },
+    ],
+    source_code_link: "https://github.com/rugwedpatharkar",
+  },
+  {
+    name: "RAG Knowledge Retrieval Pipeline",
+    description:
+      "End-to-end Retrieval-Augmented Generation system using Playwright for web scraping, BeautifulSoup for parsing, OpenAI for embeddings, and ChromaDB as the vector store. Implemented chunking, indexing, and semantic search for context-aware AI responses.",
+    tags: [
+      { name: "python", color: "blue-text-gradient" },
+      { name: "chromadb", color: "green-text-gradient" },
+      { name: "openai", color: "pink-text-gradient" },
+      { name: "rag", color: "orange-text-gradient" },
+    ],
+    image: blogbuddy,
+    stats: [
+      { label: "Data Sources", value: "5+" },
+      { label: "Accuracy", value: "High" },
+    ],
+    source_code_link: "https://github.com/rugwedpatharkar",
+  },
+  // --- Personal / Academic projects ---
   {
     name: "Blog Application",
     description:
@@ -161,7 +281,7 @@ const projects = [
   {
     name: "CareerForAll Application",
     description:
-      "The CareerforAll initiative aims to revolutionize the recruitment process by connecting startup companies, institutes, and job seekers on a comprehensive platform. By streamlining the matching process, it facilitates efficient job placements, addressing challenges faced by both companies and candidates in the current competitive job market. This user-friendly solution contributes to the growth of the startup ecosystem, fostering improved career opportunities and talent acquisition within the industry.",
+      "The CareerforAll initiative aims to revolutionize the recruitment process by connecting startup companies, institutes, and job seekers on a comprehensive platform. By streamlining the matching process, it facilitates efficient job placements, addressing challenges faced by both companies and candidates in the current competitive job market.",
     tags: [
       { name: "java", color: "blue-text-gradient" },
       { name: "spring-boot", color: "green-text-gradient" },
@@ -185,36 +305,40 @@ const personalInfo = {
   name: "Rugwed",
   fullName: "Rugwed Patharkar",
   email: "rugwedspatharkar@gmail.com",
-  role: "Full Stack Developer",
-  availability: "Open to Work",
+  role: "Software Engineer",
+  availability: "Software Engineer @ Upswing",
   github: "https://github.com/rugwedpatharkar",
   githubUsername: "rugwedpatharkar",
   linkedin: "https://www.linkedin.com/in/rugwed-patharkar/",
-  about: "Hello, I'm Rugwed Patharkar, a dedicated Full Stack Developer hailing from Pune, India. With a blend of creativity and technical prowess, I specialize in crafting seamless web solutions using a variety of technologies such as Java, Python, HTML, CSS, and JavaScript. My journey in software development began with a passion for problem solving and a commitment to delivering high quality, user centric applications. From backend database management to frontend design, I thrive in bringing ideas to life through code. With a keen eye for detail and a collaborative spirit, I am driven to create impactful digital experiences that drive innovation and exceed expectations.",
+  location: "Pune, India",
+  about:
+    "Backend Software Engineer with 2+ years of experience building scalable microservices and AI-powered systems for the hospitality SaaS industry. Expert in Python, FastAPI, gRPC, and Google Cloud Platform. Architected enterprise-grade integrations with 6+ third-party systems, achieving 96% reduction in API response latency. Developed multi-agent conversational AI using LangChain, LangGraph, and Model Context Protocol (MCP). Passionate about building full stack applications with Java, Python, React, and modern web technologies. Awarded Star Performer of the Quarter for delivering across multiple concurrent production projects.",
 };
 
 const educations = [
   {
-    degree: "MSc Computer Application",
-    marks: "Percentage : 81.95%",
-    name: "PVG's College of Science, Pune",
-    image: hsc,
+    degree: "MSc (Computer Applications)",
+    marks: "Percentage: 81.95%",
+    name: "Savitribai Phule Pune University",
+    image: bachelor,
+    year: "2021 – 2023",
   },
   {
-    degree: "BSc Computer Science",
-    marks: "Percentage : 72.57%",
-    name: "Modern College of Arts, Science and Commerce, Pune",
+    degree: "BSc (Computer Science)",
+    marks: "Percentage: 72.57%",
+    name: "Savitribai Phule Pune University",
     image: bachelor,
+    year: "2017 – 2021",
   },
   {
     degree: "12th Standard HSC Board",
-    marks: "Percentage : 62.31 %",
+    marks: "Percentage: 62.31%",
     name: "PVG College, Pune",
     image: hsc,
   },
   {
     degree: "10th Standard SSC Board",
-    marks: "Percentage : 79.40 %",
+    marks: "Percentage: 79.40%",
     name: "M.S.G.G.V., Pune",
     image: ssc,
   },
@@ -222,72 +346,115 @@ const educations = [
 
 const achievements = [
   {
-    title: "MSc Computer Application",
-    description: "Completed MSc with 81.95% from PVG's College of Science, Pune",
-    icon: "🎓",
+    title: "Star Performer of the Quarter",
+    description:
+      "Awarded at Upswing Cognitive Hospitality Solutions for outstanding delivery across multiple concurrent production projects",
+    icon: "⭐",
     year: "2024",
   },
   {
+    title: "96% API Latency Reduction",
+    description:
+      "Optimized integration services from 5s to 200ms response time through Redis caching, connection pooling, and query optimization",
+    icon: "⚡",
+    year: "2024",
+  },
+  {
+    title: "5-Iteration AI Agent",
+    description:
+      "Built enterprise conversational AI through 5 iterative versions integrating 4 LLM providers with Agentic AI and MCP patterns",
+    icon: "🤖",
+    year: "2024",
+  },
+  {
+    title: "Team Leadership",
+    description:
+      "Led a team of 2+ developers on integration workstreams, establishing reusable architecture patterns across multiple codebases",
+    icon: "👥",
+    year: "2024",
+  },
+  {
+    title: "6+ Enterprise Integrations",
+    description:
+      "Architected unified abstraction layer for Property Management Systems, door locks, and room management — reducing code redundancy by 60%",
+    icon: "🔗",
+    year: "2024",
+  },
+  {
+    title: "MSc Computer Applications",
+    description:
+      "Completed MSc with 81.95% from Savitribai Phule Pune University",
+    icon: "🎓",
+    year: "2023",
+  },
+  {
     title: "Placement Portal Development",
-    description: "Led the development of a full-featured Placement Portal during internship at Tech Entrepreneurs",
+    description:
+      "Led the development of a full-featured Placement Portal during internship at Tech Entrepreneurs",
     icon: "💼",
     year: "2023",
   },
   {
     title: "3+ Full Stack Projects",
-    description: "Built and deployed production-ready applications using Java, Python, and modern web technologies",
+    description:
+      "Built and deployed production-ready applications using Java, Python, and modern web technologies",
     icon: "🚀",
     year: "2023",
-  },
-  {
-    title: "BSc Computer Science",
-    description: "Graduated from Modern College of Arts, Science and Commerce, Pune",
-    icon: "📚",
-    year: "2022",
   },
 ];
 
 const testimonials = [
   {
+    name: "Upswing Engineering Team",
+    role: "Engineering Manager",
+    quote:
+      "Rugwed consistently delivers high-impact work across backend microservices, AI systems, and infrastructure. His ability to architect scalable integrations and lead workstreams has been instrumental to our platform's growth.",
+  },
+  {
     name: "Tech Entrepreneurs Team",
     role: "Internship Supervisor",
-    quote: "Rugwed demonstrated exceptional problem-solving skills and consistently delivered high-quality code. His ability to collaborate effectively and manage project timelines was truly outstanding.",
+    quote:
+      "Rugwed demonstrated exceptional problem-solving skills and consistently delivered high-quality code. His ability to collaborate effectively and manage project timelines was truly outstanding.",
   },
   {
     name: "Academic Mentor",
-    role: "PVG's College of Science",
-    quote: "A dedicated student with a strong aptitude for software development. Rugwed's projects consistently demonstrated innovation and attention to detail.",
+    role: "Savitribai Phule Pune University",
+    quote:
+      "A dedicated student with a strong aptitude for software development. Rugwed's projects consistently demonstrated innovation and attention to detail.",
   },
 ];
 
 const funFacts = [
-  { label: "Projects Completed", value: 10, suffix: "+", icon: "🚀" },
-  { label: "Technologies Learned", value: 25, suffix: "+", icon: "💻" },
-  { label: "Lines of Code", value: 50000, suffix: "+", icon: "📝" },
-  { label: "Cups of Coffee", value: 1000, suffix: "+", icon: "☕" },
+  { label: "Years Experience", value: 2, suffix: "+", icon: "💼" },
+  { label: "Enterprise Integrations", value: 6, suffix: "+", icon: "🔗" },
+  { label: "API Latency Reduced", value: 96, suffix: "%", icon: "⚡" },
+  { label: "LLM Providers Integrated", value: 4, suffix: "", icon: "🤖" },
 ];
 
 const blogPosts = [
   {
-    title: "Getting Started with Spring Boot",
-    description: "A comprehensive guide to building RESTful APIs with Spring Boot and Java for modern web applications.",
+    title: "Building Scalable Microservices with FastAPI & gRPC",
+    description:
+      "A deep dive into architecting high-performance backend services using FastAPI for REST and gRPC for inter-service communication on GKE.",
     link: "#",
     date: "2024",
-    tags: ["Java", "Spring Boot", "REST API"],
+    tags: ["FastAPI", "gRPC", "GCP"],
   },
   {
-    title: "Docker for Beginners",
-    description: "Learn how to containerize your applications with Docker for consistent and reliable deployments.",
+    title: "Multi-Agent AI with LangChain & MCP",
+    description:
+      "How I built an enterprise conversational AI through 5 iterations using LangChain, LangGraph, and Model Context Protocol for tool calling.",
     link: "#",
     date: "2024",
-    tags: ["Docker", "DevOps", "Deployment"],
+    tags: ["LangChain", "AI", "MCP"],
   },
   {
-    title: "Building Responsive UIs with React",
-    description: "Master modern React patterns and create stunning responsive interfaces with Tailwind CSS.",
+    title: "RAG Pipeline: From Scraping to Semantic Search",
+    description:
+      "End-to-end guide on building a Retrieval-Augmented Generation system with ChromaDB, OpenAI embeddings, and context-aware responses.",
     link: "#",
     date: "2024",
-    tags: ["React", "JavaScript", "Tailwind"],
+    tags: ["RAG", "ChromaDB", "OpenAI"],
   },
 ];
 

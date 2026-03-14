@@ -93,4 +93,4 @@ const Testimonials = () => {
   );
 };
 
-export default SectionWrapper(Testimonials, "");
+export default SectionWrapper(Testimonials, "testimonials");

@@ -79,4 +79,4 @@ const FunFacts = () => {
   );
 };
 
-export default SectionWrapper(FunFacts, "");
+export default SectionWrapper(FunFacts, "funfacts");

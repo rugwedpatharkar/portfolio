@@ -104,9 +104,9 @@ const Hero = () => {
               <Typewriter
                 options={{
                   strings: [
-                    '<span class="font-mono-bold green-text-gradient">Full Stack Developer</span>',
-                    '<span class="font-mono-bold green-text-gradient">Tech Enthusiast</span>',
-                    '<span class="font-mono-bold green-text-gradient">Problem Solver</span>',
+                    '<span class="font-mono-bold green-text-gradient">Software Engineer</span>',
+                    '<span class="font-mono-bold green-text-gradient">Backend &amp; AI Engineer</span>',
+                    '<span class="font-mono-bold green-text-gradient">Cloud &amp; DevOps</span>',
                   ],
                   autoStart: true,
                   delay: 75,
@@ -125,7 +125,7 @@ const Hero = () => {
             data-parallax="-6"
             className="text-secondary text-body sm:text-body-lg mt-3 sm:mt-4 max-w-lg leading-relaxed"
           >
-            I build fast, beautiful web experiences that users love.
+            Building scalable microservices & AI-powered systems on the cloud.
           </motion.p>
 
           {/* CTA Buttons */}
