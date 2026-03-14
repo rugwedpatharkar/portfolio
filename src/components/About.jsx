@@ -11,6 +11,7 @@ import { photo, resume } from "../assets";
 import ResumeModal from "./ResumeModal";
 import TextScramble from "./TextScramble";
 import MagneticButton from "./MagneticButton";
+import JsonAboutCard from "./JsonAboutCard";
 
 const ServiceCard = ({ index, title, icon }) => {
   return (
@@ -87,6 +88,8 @@ const About = () => {
           </div>
         </div>
       </div>
+
+      <JsonAboutCard />
 
       <div className="mt-12 sm:mt-20 grid grid-cols-2 xs:grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4 sm:gap-6 lg:gap-10">
         {services.map((service, index) => (

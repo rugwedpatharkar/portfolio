@@ -30,8 +30,40 @@ import GradientMesh from "./components/GradientMesh";
 import CommandTerminal from "./components/CommandTerminal";
 import MusicToggle from "./components/MusicToggle";
 import KeyboardHints from "./components/KeyboardHints";
+import CodeRain from "./components/CodeRain";
+import CursorTrail from "./components/CursorTrail";
+import DynamicTitle from "./components/DynamicTitle";
+import AnimatedFavicon from "./components/AnimatedFavicon";
+import ThemeSwitcher from "./components/ThemeSwitcher";
+import LiveCodeShowcase from "./components/LiveCodeShowcase";
 
 const App = () => {
+  // Console easter eggs for devs who inspect
+  useEffect(() => {
+    console.log(
+      "%c\n" +
+      "  ██████╗ ██╗   ██╗ ██████╗ ██╗    ██╗███████╗██████╗ \n" +
+      "  ██╔══██╗██║   ██║██╔════╝ ██║    ██║██╔════╝██╔══██╗\n" +
+      "  ██████╔╝██║   ██║██║  ███╗██║ █╗ ██║█████╗  ██║  ██║\n" +
+      "  ██╔══██╗██║   ██║██║   ██║██║███╗██║██╔══╝  ██║  ██║\n" +
+      "  ██║  ██║╚██████╔╝╚██████╔╝╚███╔███╔╝███████╗██████╔╝\n" +
+      "  ╚═╝  ╚═╝ ╚═════╝  ╚═════╝  ╚══╝╚══╝ ╚══════╝╚═════╝ \n",
+      "color: #915eff; font-size: 10px; font-family: monospace;"
+    );
+    console.log(
+      "%cHey there, fellow developer! 👋",
+      "color: #00cea8; font-size: 16px; font-weight: bold;"
+    );
+    console.log(
+      "%cCurious about the code? Check it out: https://github.com/rugwedpatharkar/portfolio",
+      "color: #aaa6c3; font-size: 12px;"
+    );
+    console.log(
+      "%cHint: Try pressing Ctrl+` for a surprise 🎮",
+      "color: #bf61ff; font-size: 12px;"
+    );
+  }, []);
+
   // Add custom-cursor class to body for hiding default cursor on desktop
   useEffect(() => {
     const isDesktop = window.innerWidth >= 768;
@@ -54,13 +86,18 @@ const App = () => {
     <ToastProvider>
       <div className="relative z-0">
         <Preloader />
+        <DynamicTitle />
+        <AnimatedFavicon />
         <Suspense fallback={null}>
           <StarsCanvas fixed />
         </Suspense>
+        <CodeRain />
         <GradientMesh />
         <ContextualCursor />
+        <CursorTrail />
         <ScrollProgressBar />
         <EasterEgg />
+        <ThemeSwitcher />
         <a
           href="#about"
           className="sr-only focus:not-sr-only focus:absolute focus:top-4 focus:left-4 focus:z-[70] focus:bg-tertiary focus:text-white focus:px-4 focus:py-2 focus:rounded-lg"
@@ -107,6 +144,10 @@ const App = () => {
         </ErrorBoundary>
 
         <SvgLineDraw variant="circuit" />
+
+        <ErrorBoundary>
+          <LiveCodeShowcase />
+        </ErrorBoundary>
 
         <ErrorBoundary>
           <Achievements />

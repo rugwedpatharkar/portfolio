@@ -4,6 +4,8 @@ import { SectionWrapper } from "../hoc";
 import { personalInfo } from "../constants";
 import { textVariant } from "../utils/motion";
 import TextScramble from "./TextScramble";
+import LanguageChart from "./LanguageChart";
+import ImageSkeleton from "./ImageSkeleton";
 
 const GitHubActivity = () => {
   return (
@@ -20,7 +22,7 @@ const GitHubActivity = () => {
           transition={{ duration: 0.6 }}
           className="w-full max-w-4xl overflow-hidden rounded-2xl glass-card p-4 sm:p-6"
         >
-          <img
+          <ImageSkeleton
             src={`https://ghchart.rshah.org/915eff/${personalInfo.githubUsername}`}
             alt="GitHub Contribution Chart"
             loading="lazy"
@@ -35,13 +37,15 @@ const GitHubActivity = () => {
           transition={{ delay: 0.2, duration: 0.6 }}
           className="w-full max-w-4xl overflow-hidden rounded-2xl glass-card p-4 sm:p-6"
         >
-          <img
+          <ImageSkeleton
             src={`https://github-readme-stats.vercel.app/api?username=${personalInfo.githubUsername}&show_icons=true&theme=tokyonight&hide_border=true&bg_color=1d1836&title_color=915eff&icon_color=00cea8&text_color=aaa6c3`}
             alt="GitHub Stats"
             loading="lazy"
             className="w-full rounded-lg"
           />
         </motion.div>
+
+        <LanguageChart />
 
         <motion.a
           href={personalInfo.github}

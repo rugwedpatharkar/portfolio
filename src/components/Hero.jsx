@@ -8,6 +8,7 @@ import { ImLinkedin } from "react-icons/im";
 import { personalInfo } from "../constants";
 import ParticleBackground from "./ParticleBackground";
 import MagneticButton from "./MagneticButton";
+import GlitchText from "./GlitchText";
 
 const Hero = () => {
   return (
@@ -17,14 +18,14 @@ const Hero = () => {
         className={`${styles.paddingX} absolute inset-x-0 top-[80px] xs:top-[90px] sm:top-[120px] max-w-7xl 3xl:max-w-[2000px] mx-auto flex flex-row items-start gap-3 sm:gap-5 z-[2] pointer-events-none`}
       >
         <div className="flex flex-col justify-center items-center mt-5">
-          <div className="w-4 h-4 sm:w-5 sm:h-5 rounded-full bg-[#915eff]" />
+          <div className="w-4 h-4 sm:w-5 sm:h-5 rounded-full bg-[#915eff] neon-glow" />
           <div className="w-1 h-40 xs:h-60 sm:h-80 violet-gradient" />
         </div>
         <div className="flex-1 min-w-0">
           <h1 className={`${styles.heroHeadText} text-white`}>
             Hi there,&nbsp;I&apos;m
           </h1>
-          <p className={`${styles.heroHeadTextCustom}`}>Rugwed Patharkar</p>
+          <GlitchText text="Rugwed Patharkar" as="p" className={`${styles.heroHeadTextCustom}`} />
           <div className={`${styles.heroSubText} text-[#915eff] mt-2`}>
             <Typewriter
               options={{

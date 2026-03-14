@@ -54,10 +54,10 @@ const FunFacts = () => {
         {funFacts.map((fact, index) => (
           <motion.div
             key={index}
-            initial={{ opacity: 0, y: 30 }}
-            whileInView={{ opacity: 1, y: 0 }}
+            initial={{ opacity: 0, x: index % 2 === 0 ? -30 : 30, y: 20 }}
+            whileInView={{ opacity: 1, x: 0, y: 0 }}
             viewport={{ once: true }}
-            transition={{ delay: index * 0.15, duration: 0.5 }}
+            transition={{ delay: index * 0.15, duration: 0.5, type: "spring" }}
             className="glass-card rounded-2xl p-5 sm:p-8 text-center card-shine glow-hover"
           >
             <span className="text-3xl sm:text-4xl block mb-3">{fact.icon}</span>

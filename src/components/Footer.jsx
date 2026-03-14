@@ -1,6 +1,7 @@
 import { AiOutlineGithub } from "react-icons/ai";
 import { ImLinkedin } from "react-icons/im";
 import { navLinks, personalInfo } from "../constants";
+import VisitorCounter from "./VisitorCounter";
 
 const Footer = () => {
   const currentYear = new Date().getFullYear();
@@ -49,10 +50,11 @@ const Footer = () => {
         </div>
       </div>
 
-      <div className="border-t border-gray-700 mt-4 sm:mt-6 pt-3 sm:pt-4 text-center">
+      <div className="border-t border-gray-700/50 mt-4 sm:mt-6 pt-3 sm:pt-4 flex flex-col sm:flex-row items-center justify-between gap-2">
         <p className="text-secondary text-xs sm:text-sm">
           &copy; {currentYear} {personalInfo.fullName}. All rights reserved.
         </p>
+        <VisitorCounter />
       </div>
     </footer>
   );

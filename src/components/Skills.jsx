@@ -8,6 +8,7 @@ import { SectionWrapper } from "../hoc";
 import { skills } from "../constants";
 import TextScramble from "./TextScramble";
 import SkillGlobe from "./SkillGlobe";
+import TechRadar from "./TechRadar";
 
 const ProficiencyRing = ({ level, strokeWidth = 3 }) => {
   const [animatedLevel, setAnimatedLevel] = useState(0);
@@ -116,32 +117,29 @@ const Skills = () => {
           <TextScramble text="Technical Skills" as="h2" className={styles.sectionHeadText} />
         </div>
         <div className="flex gap-2 mb-2">
-          <button
-            onClick={() => setView("globe")}
-            className={`px-3 py-1.5 rounded-full text-xs font-medium transition-colors border ${
-              view === "globe"
-                ? "bg-[#915eff] border-[#915eff] text-white"
-                : "bg-transparent border-secondary/30 text-secondary hover:border-[#915eff]"
-            }`}
-          >
-            3D Globe
-          </button>
-          <button
-            onClick={() => setView("grid")}
-            className={`px-3 py-1.5 rounded-full text-xs font-medium transition-colors border ${
-              view === "grid"
-                ? "bg-[#915eff] border-[#915eff] text-white"
-                : "bg-transparent border-secondary/30 text-secondary hover:border-[#915eff]"
-            }`}
-          >
-            Grid View
-          </button>
+          {["globe", "radar", "grid"].map((v) => (
+            <button
+              key={v}
+              onClick={() => setView(v)}
+              className={`px-3 py-1.5 rounded-full text-xs font-mono font-medium transition-colors border ${
+                view === v
+                  ? "bg-[#915eff] border-[#915eff] text-white"
+                  : "bg-transparent border-secondary/30 text-secondary hover:border-[#915eff]"
+              }`}
+            >
+              {v === "globe" ? "3D Globe" : v === "radar" ? "Tech Radar" : "Grid View"}
+            </button>
+          ))}
         </div>
       </div>
 
       {view === "globe" ? (
         <div className="mt-6">
           <SkillGlobe />
+        </div>
+      ) : view === "radar" ? (
+        <div className="mt-6">
+          <TechRadar />
         </div>
       ) : (
         <div className="mt-6 grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 3xl:grid-cols-4 gap-4 sm:gap-6">

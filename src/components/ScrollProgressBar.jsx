@@ -25,7 +25,7 @@ const ScrollProgressBar = () => {
   return (
     <div
       className="fixed top-0 left-0 h-[3px] z-[60] bg-[#915eff]"
-      style={{ width: `${scrollProgress}%` }}
+      style={{ width: `${scrollProgress}%`, boxShadow: "0 0 10px rgba(145, 94, 255, 0.6), 0 0 20px rgba(145, 94, 255, 0.3)" }}
     />
   );
 };

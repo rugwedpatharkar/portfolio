@@ -11,10 +11,10 @@ const BlogCard = ({ post, index }) => (
     href={post.link}
     target={post.link !== "#" ? "_blank" : undefined}
     rel={post.link !== "#" ? "noopener noreferrer" : undefined}
-    initial={{ opacity: 0, y: 30 }}
-    whileInView={{ opacity: 1, y: 0 }}
+    initial={{ opacity: 0, y: 30, scale: 0.95 }}
+    whileInView={{ opacity: 1, y: 0, scale: 1 }}
     viewport={{ once: true }}
-    transition={{ delay: index * 0.15, duration: 0.5 }}
+    transition={{ delay: index * 0.15, duration: 0.5, type: "spring" }}
     whileHover={{ y: -5 }}
     className="block glass-card rounded-2xl p-5 sm:p-6 card-shine glow-hover group"
   >
