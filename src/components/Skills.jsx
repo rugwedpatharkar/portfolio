@@ -17,7 +17,11 @@ const Skills = () => {
   const [view, setView] = useState("terminal");
 
   return (
-    <>
+    <div className="relative">
+      {/* Ambient glow blobs */}
+      <div className="absolute -top-20 -left-20 w-60 h-60 bg-[#915eff]/5 rounded-full blur-[100px] pointer-events-none" />
+      <div className="absolute -bottom-20 -right-20 w-48 h-48 bg-[#00cea8]/5 rounded-full blur-[80px] pointer-events-none" />
+
       <motion.div variants={textVariant()}>
         <div className="flex flex-wrap items-end justify-between gap-4">
           <div>
@@ -68,7 +72,7 @@ const Skills = () => {
           </motion.div>
         )}
       </AnimatePresence>
-    </>
+    </div>
   );
 };
 

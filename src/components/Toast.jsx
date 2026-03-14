@@ -1,5 +1,5 @@
 /* eslint-disable react/prop-types */
-import { useState, useEffect, useCallback, createContext, useContext } from "react";
+import { useState, useCallback, useRef, useEffect, createContext, useContext } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 
 const ToastContext = createContext(null);
@@ -8,19 +8,28 @@ export const useToast = () => useContext(ToastContext);
 
 export const ToastProvider = ({ children }) => {
   const [toasts, setToasts] = useState([]);
+  const timersRef = useRef(new Map());
+
+  // Cleanup all timers on unmount
+  useEffect(() => {
+    const timers = timersRef.current;
+    return () => timers.forEach((t) => clearTimeout(t));
+  }, []);
 
   const addToast = useCallback((message, type = "success", duration = 4000) => {
     const id = Date.now();
     setToasts((prev) => [...prev, { id, message, type }]);
-    setTimeout(() => {
+    const timer = setTimeout(() => {
       setToasts((prev) => prev.filter((t) => t.id !== id));
+      timersRef.current.delete(id);
     }, duration);
+    timersRef.current.set(id, timer);
   }, []);
 
   return (
     <ToastContext.Provider value={addToast}>
       {children}
-      <div className="fixed top-4 right-4 z-[90] flex flex-col gap-3 pointer-events-none">
+      <div className="fixed top-4 right-4 z-[90] flex flex-col gap-3 pointer-events-none" aria-live="polite">
         <AnimatePresence>
           {toasts.map((toast) => (
             <motion.div

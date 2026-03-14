@@ -62,6 +62,7 @@ const FunFactCard = memo(({ fact, index }) => {
       whileInView={{ opacity: 1, y: 0 }}
       viewport={{ once: true }}
       transition={{ delay: index * 0.12, duration: 0.5, type: "spring" }}
+      whileHover={{ y: -5 }}
       className="cursor-pointer"
       style={{ perspective: "800px" }}
       onClick={() => setFlipped((f) => !f)}
@@ -87,7 +88,7 @@ const FunFactCard = memo(({ fact, index }) => {
             <AnimatedCounter value={fact.value} suffix={fact.suffix} />
           </p>
           <p className="text-secondary text-caption sm:text-body-sm mt-2">{fact.label}</p>
-          <p className="text-white/20 text-micro mt-3 font-mono">click to reveal</p>
+          <p className="text-white/30 text-micro mt-3 font-mono">click to reveal</p>
         </div>
 
         {/* Back face — absolute overlay, same size as front */}
@@ -118,7 +119,11 @@ FunFactCard.displayName = "FunFactCard";
 
 const FunFacts = () => {
   return (
-    <>
+    <div className="relative">
+      {/* Ambient glow blobs */}
+      <div className="absolute -top-20 -right-20 w-60 h-60 bg-[#61dafb]/5 rounded-full blur-[100px] pointer-events-none" />
+      <div className="absolute -bottom-20 -left-20 w-48 h-48 bg-[#915eff]/5 rounded-full blur-[80px] pointer-events-none" />
+
       <motion.div variants={textVariant()}>
         <p className={styles.sectionSubText}>A Glimpse Into My Journey</p>
         <TextScramble text="Fun Facts" as="h2" className={styles.sectionHeadText} />
@@ -128,7 +133,7 @@ const FunFacts = () => {
           <FunFactCard key={index} fact={fact} index={index} />
         ))}
       </div>
-    </>
+    </div>
   );
 };
 

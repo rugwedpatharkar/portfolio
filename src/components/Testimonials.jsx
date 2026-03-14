@@ -252,7 +252,7 @@ const Testimonials = () => {
                   </div>
                   {t.context.projects && (
                     <div className="flex flex-wrap gap-1.5 mt-2">
-                      <span className="text-white/20 text-micro sm:text-caption font-mono">
+                      <span className="text-white/30 text-micro sm:text-caption font-mono">
                         Projects:
                       </span>
                       {t.context.projects.map((p) => (

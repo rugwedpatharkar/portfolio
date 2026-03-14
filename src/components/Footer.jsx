@@ -16,6 +16,9 @@ const Footer = () => {
 
   return (
     <footer className="relative overflow-hidden border-t border-white/[0.06] pb-20 sm:pb-24">
+      {/* Ambient glow blobs */}
+      <div className="absolute -top-20 -left-20 w-60 h-60 bg-[#915eff]/5 rounded-full blur-[100px] pointer-events-none" />
+      <div className="absolute -bottom-20 -right-20 w-48 h-48 bg-[#00cea8]/5 rounded-full blur-[80px] pointer-events-none" />
       {/* Subtle gradient glow at top */}
       <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[600px] h-px bg-gradient-to-r from-transparent via-[#915eff]/40 to-transparent" />
 
@@ -106,7 +109,7 @@ const Footer = () => {
           <p className="text-white/25 text-caption sm:text-body-sm font-mono">
             &copy; {currentYear} {personalInfo.fullName}
           </p>
-          <p className="text-white/15 text-micro sm:text-caption font-mono">
+          <p className="text-white/25 text-micro sm:text-caption font-mono">
             Designed & Developed with{" "}
             <span className="text-[#915eff]">&lt;/&gt;</span> &amp;{" "}
             <span className="text-red-400">&#9829;</span>

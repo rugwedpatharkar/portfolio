@@ -68,7 +68,11 @@ const AchievementCard = ({ achievement, index }) => {
 
 const Achievements = () => {
   return (
-    <>
+    <div className="relative">
+      {/* Ambient glow blobs */}
+      <div className="absolute -top-20 -right-20 w-60 h-60 bg-[#f8c555]/5 rounded-full blur-[100px] pointer-events-none" />
+      <div className="absolute -bottom-20 -left-20 w-48 h-48 bg-[#915eff]/5 rounded-full blur-[80px] pointer-events-none" />
+
       <motion.div variants={textVariant()}>
         <p className={styles.sectionSubText}>Milestones</p>
         <TextScramble text="Achievements" as="h2" className={styles.sectionHeadText} />
@@ -78,7 +82,7 @@ const Achievements = () => {
           <AchievementCard key={index} achievement={achievement} index={index} />
         ))}
       </div>
-    </>
+    </div>
   );
 };
 

@@ -155,11 +155,11 @@ const DetailCard = ({ edu, color }) => (
       <span>{edu.year}</span>
       {edu.duration && (
         <>
-          <span className="text-white/10">|</span>
+          <span className="text-white/20">|</span>
           <span>{edu.duration}</span>
         </>
       )}
-      <span className="text-white/10">|</span>
+      <span className="text-white/20">|</span>
       <span className="flex items-center gap-1.5">
         <span className="w-1.5 h-1.5 rounded-full bg-[#00cea8] inline-block" />
         Completed
@@ -246,7 +246,11 @@ const Education = () => {
       : "100%";
 
   return (
-    <>
+    <div className="relative">
+      {/* Ambient glow blobs */}
+      <div className="absolute -top-20 -left-20 w-60 h-60 bg-[#00cea8]/5 rounded-full blur-[100px] pointer-events-none" />
+      <div className="absolute -bottom-20 -right-20 w-48 h-48 bg-[#915eff]/5 rounded-full blur-[80px] pointer-events-none" />
+
       <motion.div variants={textVariant()}>
         <p className={styles.sectionSubText}>Academic Journey</p>
         <TextScramble
@@ -371,7 +375,7 @@ const Education = () => {
           </button>
         </div>
       </div>
-    </>
+    </div>
   );
 };
 

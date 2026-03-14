@@ -52,7 +52,7 @@ const ProjectCard = memo(({ project, index, isExpanded, onToggle, accent }) => {
       exit={{ opacity: 0, y: -20, transition: { duration: 0.2 } }}
       transition={{ duration: 0.4, delay: index * 0.08 }}
       onClick={onToggle}
-      className="proj-card glass-card rounded-2xl overflow-hidden cursor-pointer group relative"
+      className="proj-card glass-card rounded-2xl overflow-hidden cursor-pointer group relative card-shine glow-hover"
       style={{
         borderColor: isExpanded ? `${accent}35` : undefined,
         "--proj-accent": accent,
@@ -96,7 +96,7 @@ const ProjectCard = memo(({ project, index, isExpanded, onToggle, accent }) => {
               {status.label}
             </span>
           </div>
-          <span className="font-mono text-caption text-white/15 shrink-0">
+          <span className="font-mono text-caption text-white/20 shrink-0">
             {String(index + 1).padStart(2, "0")}
           </span>
         </div>
@@ -274,7 +274,11 @@ const Projects = () => {
     setExpandedIndex(expandedIndex === "all" ? null : "all");
 
   return (
-    <>
+    <div className="relative">
+      {/* Ambient glow blobs */}
+      <div className="absolute -top-20 -right-20 w-60 h-60 bg-[#915eff]/5 rounded-full blur-[100px] pointer-events-none" />
+      <div className="absolute -bottom-20 -left-20 w-48 h-48 bg-[#61dafb]/5 rounded-full blur-[80px] pointer-events-none" />
+
       <motion.div variants={textVariant()}>
         <p className={styles.sectionSubText}>Explore My Work</p>
         <TextScramble
@@ -318,7 +322,7 @@ const Projects = () => {
       </div>
 
       {/* Project summary */}
-      <div className="mt-3 font-mono text-micro sm:text-caption text-white/20">
+      <div className="mt-3 font-mono text-micro sm:text-caption text-white/30">
         {filtered.length} project{filtered.length !== 1 ? "s" : ""}
         {filter !== "all" && ` · filtered by ${filter}`}
       </div>
@@ -349,7 +353,7 @@ const Projects = () => {
           })}
         </AnimatePresence>
       </div>
-    </>
+    </div>
   );
 };
 

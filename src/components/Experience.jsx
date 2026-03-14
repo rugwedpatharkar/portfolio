@@ -1,6 +1,6 @@
 /* eslint-disable react/prop-types */
 /* eslint-disable react-refresh/only-export-components */
-import { useState } from "react";
+import { useState, memo } from "react";
 import { motion } from "framer-motion";
 import { styles } from "../styles";
 import { experiences } from "../constants";
@@ -10,7 +10,7 @@ import TextScramble from "./TextScramble";
 
 const CAT_COLORS = ["#915eff", "#00cea8", "#61dafb", "#f8c555"];
 
-const ExperienceCard = ({ experience, index, isLast }) => {
+const ExperienceCard = memo(({ experience, index, isLast }) => {
   const [openCats, setOpenCats] = useState({ 0: true });
 
   const toggleCat = (ci) => {
@@ -165,11 +165,15 @@ const ExperienceCard = ({ experience, index, isLast }) => {
       </div>
     </motion.div>
   );
-};
+});
 
 const Experience = () => {
   return (
-    <>
+    <div className="relative">
+      {/* Ambient glow blobs */}
+      <div className="absolute -top-20 -left-20 w-60 h-60 bg-[#915eff]/5 rounded-full blur-[100px] pointer-events-none" />
+      <div className="absolute -bottom-20 -right-20 w-48 h-48 bg-[#00cea8]/5 rounded-full blur-[80px] pointer-events-none" />
+
       <motion.div variants={textVariant()}>
         <p className={styles.sectionSubText}>Where I've worked</p>
         <TextScramble
@@ -189,7 +193,7 @@ const Experience = () => {
           />
         ))}
       </div>
-    </>
+    </div>
   );
 };
 

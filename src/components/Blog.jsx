@@ -7,18 +7,23 @@ import { blogPosts } from "../constants";
 import { textVariant } from "../utils/motion";
 import TextScramble from "./TextScramble";
 
-const BlogCard = memo(({ post, index }) => (
-  <motion.a
-    href={post.link}
-    target={post.link !== "#" ? "_blank" : undefined}
-    rel={post.link !== "#" ? "noopener noreferrer" : undefined}
-    initial={{ opacity: 0, y: 30, scale: 0.95 }}
-    whileInView={{ opacity: 1, y: 0, scale: 1 }}
-    viewport={{ once: true }}
-    transition={{ delay: index * 0.15, duration: 0.5, type: "spring" }}
-    whileHover={{ y: -5 }}
-    className="block glass-card rounded-2xl p-5 sm:p-6 card-shine glow-hover group"
-  >
+const BlogCard = memo(({ post, index }) => {
+  const isPlaceholder = post.link === "#";
+  const Tag = isPlaceholder ? motion.div : motion.a;
+  const linkProps = isPlaceholder
+    ? {}
+    : { href: post.link, target: "_blank", rel: "noopener noreferrer" };
+
+  return (
+    <Tag
+      {...linkProps}
+      initial={{ opacity: 0, y: 30, scale: 0.95 }}
+      whileInView={{ opacity: 1, y: 0, scale: 1 }}
+      viewport={{ once: true }}
+      transition={{ delay: index * 0.15, duration: 0.5, type: "spring" }}
+      whileHover={{ y: -5 }}
+      className={`block glass-card rounded-2xl p-5 sm:p-6 card-shine glow-hover group ${isPlaceholder ? "cursor-default" : ""}`}
+    >
     <div className="flex items-center gap-2 mb-3">
       <span className="text-[#915eff] text-caption sm:text-body-sm font-mono font-medium">{post.date}</span>
       <span className="w-1 h-1 rounded-full bg-secondary" />
@@ -40,12 +45,22 @@ const BlogCard = memo(({ post, index }) => (
         </span>
       ))}
     </div>
-  </motion.a>
-));
+    {isPlaceholder && (
+      <span className="mt-3 inline-block text-micro font-mono text-white/30">
+        Coming soon
+      </span>
+    )}
+  </Tag>
+  );
+});
 
 const Blog = () => {
   return (
-    <>
+    <div className="relative">
+      {/* Ambient glow blobs */}
+      <div className="absolute -top-20 -right-20 w-60 h-60 bg-[#915eff]/5 rounded-full blur-[100px] pointer-events-none" />
+      <div className="absolute -bottom-20 -left-20 w-48 h-48 bg-[#00cea8]/5 rounded-full blur-[80px] pointer-events-none" />
+
       <motion.div variants={textVariant()}>
         <p className={styles.sectionSubText}>Sharing Knowledge</p>
         <TextScramble text="Blog & Articles" as="h2" className={styles.sectionHeadText} />
@@ -55,7 +70,7 @@ const Blog = () => {
           <BlogCard key={index} post={post} index={index} />
         ))}
       </div>
-    </>
+    </div>
   );
 };
 

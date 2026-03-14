@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 
 const KONAMI_CODE = [
@@ -10,6 +10,7 @@ const KONAMI_CODE = [
 const EasterEgg = () => {
   const [show, setShow] = useState(false);
   const [progress, setProgress] = useState(0);
+  const timerRef = useRef(null);
 
   useEffect(() => {
     let index = 0;
@@ -21,7 +22,8 @@ const EasterEgg = () => {
           setShow(true);
           index = 0;
           setProgress(0);
-          setTimeout(() => setShow(false), 5000);
+          clearTimeout(timerRef.current);
+          timerRef.current = setTimeout(() => setShow(false), 5000);
         }
       } else {
         index = 0;
@@ -30,7 +32,10 @@ const EasterEgg = () => {
     };
 
     window.addEventListener("keydown", handleKeyDown);
-    return () => window.removeEventListener("keydown", handleKeyDown);
+    return () => {
+      window.removeEventListener("keydown", handleKeyDown);
+      clearTimeout(timerRef.current);
+    };
   }, []);
 
   return (

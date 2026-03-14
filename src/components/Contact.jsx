@@ -57,13 +57,17 @@ const CONTACT_LINKS = [
 /* ── Contact Link Card ── */
 const ContactLinkCard = ({ link }) => {
   const [copied, setCopied] = useState(false);
+  const copyTimerRef = useRef(null);
+
+  useEffect(() => () => clearTimeout(copyTimerRef.current), []);
 
   const handleCopy = (e) => {
     if (!link.copyable) return;
     e.preventDefault();
     navigator.clipboard.writeText(link.value);
     setCopied(true);
-    setTimeout(() => setCopied(false), 2000);
+    clearTimeout(copyTimerRef.current);
+    copyTimerRef.current = setTimeout(() => setCopied(false), 2000);
   };
 
   return (
@@ -192,7 +196,7 @@ const EmailPreview = ({ form, topic, sent }) => (
     <div className="px-4 sm:px-5 py-3 space-y-2 border-b border-white/[0.06] font-mono text-caption sm:text-body-sm">
       <div className="flex gap-3">
         <span className="text-white/25 w-12 shrink-0">From:</span>
-        <span className={form.email ? "text-white/70" : "text-white/15"}>
+        <span className={form.email ? "text-white/70" : "text-white/20"}>
           {form.email || "your@email.com"}
         </span>
       </div>
@@ -202,7 +206,7 @@ const EmailPreview = ({ form, topic, sent }) => (
       </div>
       <div className="flex gap-3">
         <span className="text-white/25 w-12 shrink-0">Subj:</span>
-        <span className={topic ? "text-white/70" : "text-white/15"}>
+        <span className={topic ? "text-white/70" : "text-white/20"}>
           {topic ? `${topic} — from ${form.name || "..."}` : "Select a topic..."}
         </span>
       </div>
@@ -239,7 +243,7 @@ const EmailPreview = ({ form, topic, sent }) => (
                 <span className="contact-cursor inline-block ml-0.5 text-[#915eff]">|</span>
               </div>
             ) : (
-              <span className="text-white/15 italic">
+              <span className="text-white/20 italic">
                 Start typing to see preview...
               </span>
             )}
@@ -250,10 +254,10 @@ const EmailPreview = ({ form, topic, sent }) => (
 
     {/* Footer */}
     <div className="px-4 sm:px-5 py-2.5 border-t border-white/[0.06] flex items-center justify-between">
-      <span className="text-white/15 text-micro font-mono">
+      <span className="text-white/20 text-micro font-mono">
         {form.message.length > 0 ? `${form.message.length} chars` : ""}
       </span>
-      <span className="text-white/15 text-micro font-mono">
+      <span className="text-white/20 text-micro font-mono">
         Cmd+Enter to send
       </span>
     </div>
@@ -535,7 +539,7 @@ const Contact = () => {
                 </AnimatePresence>
               </motion.button>
 
-              <span className="hidden sm:block text-white/15 text-micro font-mono">
+              <span className="hidden sm:block text-white/20 text-micro font-mono">
                 Cmd+Enter
               </span>
             </div>

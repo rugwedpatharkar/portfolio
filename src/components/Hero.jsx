@@ -1,4 +1,4 @@
-import { useRef, useEffect } from "react";
+import { useRef, useEffect, useMemo } from "react";
 import { motion } from "framer-motion";
 import { styles } from "../styles";
 import Typewriter from "typewriter-effect";
@@ -289,8 +289,8 @@ const Hero = () => {
                   options={{
                     strings: [
                       "Software Engineer",
-                      "Backend & AI Engineer",
-                      "Cloud & DevOps",
+                      "Backend \u0026 AI Engineer",
+                      "Cloud \u0026 DevOps",
                     ],
                     autoStart: true,
                     delay: 75,
