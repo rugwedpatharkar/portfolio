@@ -47,6 +47,18 @@ const GradientMesh = () => {
 
     rafId = requestAnimationFrame(animate);
 
+    // Pause when tab is hidden to save CPU/battery
+    const handleVisibility = () => {
+      if (document.hidden) {
+        cancelAnimationFrame(rafId);
+        rafId = null;
+      } else if (!rafId) {
+        lastTime = 0;
+        rafId = requestAnimationFrame(animate);
+      }
+    };
+    document.addEventListener("visibilitychange", handleVisibility);
+
     const handleResize = () => {
       width = canvas.width = window.innerWidth;
       height = canvas.height = window.innerHeight;
@@ -58,8 +70,9 @@ const GradientMesh = () => {
     window.addEventListener("resize", handleResize);
 
     return () => {
-      cancelAnimationFrame(rafId);
+      if (rafId) cancelAnimationFrame(rafId);
       window.removeEventListener("resize", handleResize);
+      document.removeEventListener("visibilitychange", handleVisibility);
     };
   }, []);
 
@@ -67,6 +80,7 @@ const GradientMesh = () => {
     <canvas
       ref={canvasRef}
       className="fixed inset-0 w-full h-full pointer-events-none z-0"
+      aria-hidden="true"
       style={{ opacity: 0.6 }}
     />
   );

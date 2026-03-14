@@ -139,15 +139,23 @@ const ParticleBackground = () => {
     const handleMouse = (e) => {
       mouseRef.current = { x: e.clientX - cachedRect.left, y: e.clientY - cachedRect.top };
     };
+    const handleMouseLeave = () => { mouseRef.current = { x: -1000, y: -1000 }; };
 
-    const resizeHandler = () => { handleResize(); updateRect(); };
+    let resizeTimer;
+    const resizeHandler = () => {
+      clearTimeout(resizeTimer);
+      resizeTimer = setTimeout(() => { handleResize(); updateRect(); }, 150);
+    };
     window.addEventListener("resize", resizeHandler);
     parentEl.addEventListener("mousemove", handleMouse, { passive: true });
-    parentEl.addEventListener("mouseleave", () => { mouseRef.current = { x: -1000, y: -1000 }; });
+    parentEl.addEventListener("mouseleave", handleMouseLeave);
 
     return () => {
       cancelAnimationFrame(animRef.current);
+      clearTimeout(resizeTimer);
       window.removeEventListener("resize", resizeHandler);
+      parentEl.removeEventListener("mousemove", handleMouse);
+      parentEl.removeEventListener("mouseleave", handleMouseLeave);
     };
   }, []);
 
@@ -155,6 +163,7 @@ const ParticleBackground = () => {
     <canvas
       ref={canvasRef}
       className="absolute inset-0 w-full h-full pointer-events-none z-[1]"
+      aria-hidden="true"
       style={{ opacity: 0.8 }}
     />
   );

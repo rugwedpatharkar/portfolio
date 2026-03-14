@@ -56,6 +56,7 @@ const StarsCanvas = ({ fixed = false }) => {
     <div
       ref={containerRef}
       className={fixed ? "fixed inset-0 w-full h-full z-[-1]" : "w-full h-auto absolute inset-0 z-[-1]"}
+      aria-hidden="true"
     >
       <Canvas camera={{ position: [0, 0, 1] }}>
         <Suspense fallback={null}>

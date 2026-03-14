@@ -6,7 +6,7 @@ module.exports = {
       fontFamily: {
         sans: ["Inter", "sans-serif"],
         heading: ["Space Grotesk", "sans-serif"],
-        mono: ["JetBrains Mono", "monospace"],
+        mono: ["Fira Code", "monospace"],
       },
       fontSize: {
         // Type scale (Major Third — 1.25 ratio)

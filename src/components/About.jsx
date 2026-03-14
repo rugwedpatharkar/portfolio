@@ -13,22 +13,39 @@ import TextScramble from "./TextScramble";
 import MagneticButton from "./MagneticButton";
 import JsonAboutCard from "./JsonAboutCard";
 
+const CARD_ACCENTS = ["#915eff", "#00cea8", "#61dafb", "#f8c555"];
+
 const ServiceCard = memo(({ index, title, icon }) => {
+  const accent = CARD_ACCENTS[index % CARD_ACCENTS.length];
+
   return (
     <Tilt
       className="w-full"
-      options={{ max: 45, scale: 1, speed: 450 }}
+      options={{ max: 25, scale: 1.02, speed: 400 }}
     >
       <motion.div
         variants={fadeIn("right", "spring", 0.5 * index, 0.75)}
-        className="w-full green-pink-gradient p-[1px] rounded-[20px] shadow-card"
+        className="w-full glass-card rounded-2xl p-5 sm:p-6 min-h-[180px] xs:min-h-[220px] sm:min-h-[250px] flex flex-col justify-center items-center gap-4 card-shine glow-hover group relative overflow-hidden"
       >
-        <div className="glass-card rounded-[20px] py-5 px-8 sm:px-12 min-h-[200px] xs:min-h-[250px] sm:min-h-[280px] flex justify-evenly items-center flex-col card-shine">
-          <img src={icon} alt={title} className="w-12 h-12 sm:w-16 sm:h-16 object-contain" />
-          <h3 className="font-heading font-bold text-center text-white text-body sm:text-subheading">
-            {title}
-          </h3>
+        {/* Accent glow */}
+        <div
+          className="absolute -top-10 -right-10 w-32 h-32 rounded-full blur-[50px] pointer-events-none opacity-[0.06] group-hover:opacity-[0.15] transition-opacity duration-500"
+          style={{ background: accent }}
+        />
+
+        {/* Accent top bar */}
+        <div
+          className="absolute top-0 left-1/2 -translate-x-1/2 h-[2px] w-12 rounded-full opacity-40 group-hover:w-20 group-hover:opacity-80 transition-all duration-500"
+          style={{ background: accent }}
+        />
+
+        <div className="w-14 h-14 sm:w-16 sm:h-16 rounded-xl flex items-center justify-center border border-white/[0.06] bg-white/[0.03] group-hover:border-white/[0.12] transition-colors duration-300">
+          <img src={icon} alt={title} className="w-10 h-10 sm:w-12 sm:h-12 object-contain group-hover:scale-110 transition-transform duration-500" />
         </div>
+
+        <h3 className="font-heading font-bold text-center text-white text-body sm:text-body-lg">
+          {title}
+        </h3>
       </motion.div>
     </Tilt>
   );
@@ -46,28 +63,43 @@ const About = () => {
 
       <motion.div
         variants={fadeIn("up", "spring", 0.2, 0.75)}
-        className="mt-8 sm:mt-12 glass-card rounded-3xl p-6 sm:p-10 relative overflow-hidden"
+        className="mt-8 sm:mt-12 glass-card rounded-2xl p-6 sm:p-10 relative overflow-hidden"
       >
         {/* Accent glow behind the card */}
         <div className="absolute -top-20 -left-20 w-72 h-72 bg-[#915eff]/10 rounded-full blur-[100px] pointer-events-none" />
         <div className="absolute -bottom-20 -right-20 w-60 h-60 bg-[#00cea8]/8 rounded-full blur-[80px] pointer-events-none" />
 
         <div className="flex flex-col md:flex-row items-center gap-8 md:gap-0 relative z-[1]">
-          {/* Photo with decorative frame */}
-          <div className="w-56 xs:w-64 sm:w-72 md:w-[35%] lg:w-[32%] flex-shrink-0 relative">
-            {/* Rotating border ring */}
-            <div className="absolute -inset-3 sm:-inset-4 rounded-2xl border border-[#915eff]/20 rotate-3" />
-            <div className="absolute -inset-2 sm:-inset-3 rounded-2xl border border-[#00cea8]/15 -rotate-2" />
+          {/* Photo — smudged into card */}
+          <div className="w-56 xs:w-64 sm:w-72 md:w-[35%] lg:w-[32%] flex-shrink-0 relative group" style={{ perspective: "800px" }}>
+            {/* Animated glow ring behind photo — pulses on hover */}
+            <div className="absolute -inset-3 sm:-inset-4 rounded-2xl border border-[#915eff]/20 rotate-3 group-hover:border-[#915eff]/40 transition-colors duration-700" />
+            <div className="absolute -inset-2 sm:-inset-3 rounded-2xl border border-[#00cea8]/15 -rotate-2 group-hover:border-[#00cea8]/30 transition-colors duration-700" />
 
-            <div className="relative rounded-2xl overflow-hidden group">
-              {/* Gradient overlay on hover */}
-              <div className="absolute inset-0 bg-gradient-to-t from-[#050816] via-transparent to-transparent opacity-40 group-hover:opacity-20 transition-opacity duration-500 z-[2]" />
+            {/* Background glow — intensifies on hover */}
+            <div className="absolute -inset-6 rounded-3xl bg-[#915eff]/5 blur-[40px] group-hover:bg-[#915eff]/15 transition-all duration-700 pointer-events-none" />
+
+            <div className="relative rounded-2xl overflow-hidden transition-transform duration-700 ease-out group-hover:[transform:rotateY(5deg)_rotateX(3deg)_scale(1.02)]">
+              {/* Edge smudge — blends photo edges into the card */}
+              <div className="absolute inset-0 z-[2] pointer-events-none rounded-2xl"
+                style={{
+                  boxShadow: "inset 0 0 40px 15px rgba(5, 8, 22, 0.8), inset 0 -30px 40px 10px rgba(5, 8, 22, 0.9)",
+                }}
+              />
+
+              {/* Shine sweep on hover */}
+              <div className="absolute inset-0 z-[3] pointer-events-none opacity-0 group-hover:opacity-100 transition-opacity duration-500"
+                style={{
+                  background: "linear-gradient(115deg, transparent 30%, rgba(145, 94, 255, 0.08) 45%, rgba(0, 206, 168, 0.06) 55%, transparent 70%)",
+                  animation: "none",
+                }}
+              />
 
               <img
                 src={photo}
                 alt="Rugwed Patharkar"
                 loading="lazy"
-                className="object-cover w-full aspect-[3/4] rounded-2xl transition-transform duration-700 group-hover:scale-105"
+                className="object-cover w-full aspect-[3/4] rounded-2xl transition-all duration-700 group-hover:scale-110 group-hover:brightness-110"
               />
 
               {/* Bottom info bar */}

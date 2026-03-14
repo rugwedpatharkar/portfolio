@@ -11,15 +11,10 @@ import TextScramble from "./TextScramble";
 const CAT_COLORS = ["#915eff", "#00cea8", "#61dafb", "#f8c555"];
 
 const ExperienceCard = ({ experience, index, isLast }) => {
-  const [openCats, setOpenCats] = useState(new Set([0]));
+  const [openCats, setOpenCats] = useState({ 0: true });
 
   const toggleCat = (ci) => {
-    setOpenCats((prev) => {
-      const next = new Set(prev);
-      if (next.has(ci)) next.delete(ci);
-      else next.add(ci);
-      return next;
-    });
+    setOpenCats((prev) => ({ ...prev, [ci]: !prev[ci] }));
   };
 
   return (
@@ -46,7 +41,7 @@ const ExperienceCard = ({ experience, index, isLast }) => {
 
       {/* Card */}
       <div className="flex-1 pb-10 sm:pb-14">
-        <div className="glass-card rounded-2xl p-5 sm:p-7 relative overflow-hidden">
+        <div className="glass-card rounded-2xl p-5 sm:p-7 relative overflow-hidden card-shine glow-hover">
           {/* Accent glow */}
           <div className="absolute -top-10 -right-10 w-40 h-40 bg-[#915eff]/5 rounded-full blur-[60px] pointer-events-none" />
 
@@ -129,7 +124,7 @@ const ExperienceCard = ({ experience, index, isLast }) => {
                     </span>
                   </span>
                   <svg
-                    className={`w-4 h-4 text-secondary exp-chevron ${openCats.has(ci) ? "open" : ""}`}
+                    className={`w-4 h-4 text-secondary exp-chevron ${openCats[ci] ? "open" : ""}`}
                     fill="none"
                     viewBox="0 0 24 24"
                     stroke="currentColor"
@@ -145,7 +140,7 @@ const ExperienceCard = ({ experience, index, isLast }) => {
                 </button>
 
                 <div
-                  className={`exp-accordion-content ${openCats.has(ci) ? "open" : ""}`}
+                  className={`exp-accordion-content ${openCats[ci] ? "open" : ""}`}
                 >
                   <div>
                     <ul className="px-4 pb-4 space-y-2.5">

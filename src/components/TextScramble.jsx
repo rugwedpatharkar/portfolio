@@ -12,6 +12,7 @@ const TextScramble = ({ text, className = "", as: Tag = "span", delay = 0 }) => 
   useEffect(() => {
     const el = ref.current;
     if (!el) return;
+    let mounted = true;
 
     const scramble = () => {
       const length = text.length;
@@ -19,6 +20,7 @@ const TextScramble = ({ text, className = "", as: Tag = "span", delay = 0 }) => 
       const startTime = performance.now();
 
       const update = (currentTime) => {
+        if (!mounted) return;
         const elapsed = currentTime - startTime;
         const progress = Math.min(elapsed / duration, 1);
         const revealedCount = Math.floor(progress * length);
@@ -46,11 +48,12 @@ const TextScramble = ({ text, className = "", as: Tag = "span", delay = 0 }) => 
       frameRef.current = requestAnimationFrame(update);
     };
 
+    let timerId;
     const observer = new IntersectionObserver(
       ([entry]) => {
         if (entry.isIntersecting && !hasAnimatedRef.current) {
           hasAnimatedRef.current = true;
-          setTimeout(scramble, delay);
+          timerId = setTimeout(scramble, delay);
         }
       },
       { threshold: 0.3 }
@@ -58,7 +61,9 @@ const TextScramble = ({ text, className = "", as: Tag = "span", delay = 0 }) => 
     observer.observe(el);
 
     return () => {
+      mounted = false;
       observer.disconnect();
+      clearTimeout(timerId);
       cancelAnimationFrame(frameRef.current);
     };
   }, [text, delay]);

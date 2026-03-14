@@ -1,146 +1,353 @@
 /* eslint-disable react/prop-types */
 /* eslint-disable react-refresh/only-export-components */
-import { useRef } from "react";
-import { Tilt } from "react-tilt";
-import { motion, useMotionValue, useSpring } from "framer-motion";
+import { useState, useMemo, memo } from "react";
+import { motion, AnimatePresence } from "framer-motion";
 import { styles } from "../styles";
-import { github, demo } from "../assets";
 import { SectionWrapper } from "../hoc";
 import { projects } from "../constants";
 import { fadeIn, textVariant } from "../utils/motion";
-import ImageSkeleton from "./ImageSkeleton";
 import TextScramble from "./TextScramble";
 
-const ProjectCard = ({
-  index,
-  name,
-  description,
-  tags,
-  image,
-  source_code_link,
-  live_demo_link,
-  stats,
-}) => {
+const ACCENTS = [
+  "#915eff", "#00cea8", "#61dafb", "#f8c555",
+  "#ff6b6b", "#326ce5", "#68a063",
+];
+
+const FILTERS = ["all", "professional", "personal"];
+
+const STATUS_CONFIG = {
+  production: { label: "Production", dot: "#00cea8" },
+  completed: { label: "Completed", dot: "#61dafb" },
+  "in-progress": { label: "In Progress", dot: "#f8c555" },
+};
+
+/* ── Filter Tab ── */
+const FilterTab = ({ label, isActive, onClick, count }) => (
+  <button
+    onClick={onClick}
+    className={`px-3 sm:px-4 py-1.5 sm:py-2 rounded-full font-mono text-micro sm:text-caption transition-all duration-300 border ${
+      isActive
+        ? "bg-[#915eff]/15 border-[#915eff]/40 text-[#915eff]"
+        : "bg-white/[0.02] border-white/[0.06] text-white/40 hover:text-white/60 hover:border-white/15"
+    }`}
+  >
+    {label}
+    <span
+      className={`ml-1.5 ${isActive ? "text-[#915eff]/60" : "text-white/20"}`}
+    >
+      {count}
+    </span>
+  </button>
+);
+
+/* ── Project Card ── */
+const ProjectCard = memo(({ project, index, isExpanded, onToggle, accent }) => {
+  const status = STATUS_CONFIG[project.status] || STATUS_CONFIG.completed;
+
   return (
     <motion.div
-      variants={fadeIn("up", "spring", index * 0.5, 0.75)}
-      className="min-w-[250px] xs:min-w-[280px] sm:min-w-[340px] xl:min-w-0"
+      layout="position"
+      initial={{ opacity: 0, y: 30 }}
+      animate={{ opacity: 1, y: 0 }}
+      exit={{ opacity: 0, y: -20, transition: { duration: 0.2 } }}
+      transition={{ duration: 0.4, delay: index * 0.08 }}
+      onClick={onToggle}
+      className="proj-card glass-card rounded-2xl overflow-hidden cursor-pointer group relative"
+      style={{
+        borderColor: isExpanded ? `${accent}35` : undefined,
+        "--proj-accent": accent,
+      }}
     >
-      <Tilt
-        options={{ max: 45, scale: 1, speed: 450 }}
-        className="glass-card p-4 sm:p-5 rounded-2xl w-full card-shine"
-      >
-        <div className="relative w-full h-[180px] xs:h-[200px] sm:h-[230px] overflow-hidden rounded-2xl group/img">
-          <ImageSkeleton
-            src={image}
-            alt={name}
-            loading="lazy"
-            className="object-cover w-full h-full rounded-2xl transition-transform duration-500 group-hover/img:scale-110"
-          />
+      {/* Hover glow — positioned behind card content */}
+      <div
+        className="absolute -inset-px rounded-2xl opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none"
+        style={{
+          background: `radial-gradient(400px circle at var(--mouse-x, 50%) var(--mouse-y, 50%), ${accent}08, transparent 60%)`,
+        }}
+      />
 
-          <div className="absolute inset-0 flex justify-end m-2 sm:m-3 card-img_hover">
-            {live_demo_link && (
-              <a
-                href={live_demo_link}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="black-gradient w-10 h-10 sm:w-12 sm:h-12 rounded-full flex justify-center items-center cursor-pointer mx-1 sm:mx-2 hover:scale-110 transition-transform"
-                aria-label={`Live demo of ${name}`}
+      {/* Accent bar */}
+      <div
+        className="h-[3px] transition-all duration-500 relative z-[1]"
+        style={{
+          background: `linear-gradient(90deg, ${accent}, ${accent}30)`,
+          opacity: isExpanded ? 1 : 0.4,
+          boxShadow: isExpanded ? `0 0 20px ${accent}25` : "none",
+        }}
+      />
+
+      <div className="p-4 sm:p-5 relative z-[1]">
+        {/* Top row: type + status + index */}
+        <div className="flex items-center justify-between mb-2">
+          <div className="flex items-center gap-2 sm:gap-3">
+            <span
+              className="font-mono text-micro sm:text-caption"
+              style={{ color: `${accent}aa` }}
+            >
+              {project.type === "professional"
+                ? "// professional"
+                : "// personal"}
+            </span>
+            <span className="flex items-center gap-1.5 font-mono text-micro sm:text-caption text-white/30">
+              <span
+                className="w-1.5 h-1.5 rounded-full inline-block"
+                style={{ background: status.dot }}
+              />
+              {status.label}
+            </span>
+          </div>
+          <span className="font-mono text-caption text-white/15 shrink-0">
+            {String(index + 1).padStart(2, "0")}
+          </span>
+        </div>
+
+        {/* Name + highlight metric */}
+        <div className="flex items-start justify-between gap-3">
+          <h3 className="text-white font-heading font-bold text-body-lg sm:text-heading-sm leading-tight">
+            {project.name}
+          </h3>
+          {project.highlight && !isExpanded && (
+            <div className="shrink-0 text-right">
+              <div
+                className="font-heading font-bold text-subheading sm:text-heading-sm"
+                style={{ color: accent }}
               >
-                <img src={demo} alt="" className="w-1/2 h-1/2 object-contain" />
-              </a>
-            )}
-            <a
-              href={source_code_link}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="black-gradient w-10 h-10 sm:w-12 sm:h-12 rounded-full flex justify-center items-center cursor-pointer hover:scale-110 transition-transform"
-              aria-label={`Source code for ${name}`}
-            >
-              <img src={github} alt="" className="w-1/2 h-1/2 object-contain" />
-            </a>
-          </div>
-        </div>
-
-        <div className="mt-3 sm:mt-5">
-          <h3 className="text-white font-heading font-bold text-body-lg sm:text-heading-sm">{name}</h3>
-          <p className="mt-2 text-secondary text-caption sm:text-body-sm line-clamp-6">
-            {description}
-          </p>
-        </div>
-
-        {stats && stats.length > 0 && (
-          <div className="mt-3 flex gap-3 sm:gap-4">
-            {stats.map((stat, i) => (
-              <div key={i} className="flex items-center gap-1.5">
-                <span className="text-[#915eff] font-mono font-bold text-body-sm sm:text-body">{stat.value}</span>
-                <span className="text-secondary text-micro sm:text-caption">{stat.label}</span>
+                {project.highlight.value}
               </div>
-            ))}
-          </div>
-        )}
-
-        <div className="mt-3 sm:mt-4 flex flex-wrap gap-1.5 sm:gap-2">
-          {tags.map((tag, tagIndex) => (
-            <p
-              key={`tag-${tagIndex}`}
-              className={`text-caption sm:text-body-sm font-mono ${tag.color}`}
-            >
-              #{tag.name}
-            </p>
-          ))}
+              <div className="text-white/30 text-micro font-mono">
+                {project.highlight.label}
+              </div>
+            </div>
+          )}
         </div>
-      </Tilt>
+
+        {/* Meta row: year + team */}
+        <div className="flex items-center gap-3 mt-2">
+          <span className="text-white/25 text-micro sm:text-caption font-mono">
+            {project.year}
+          </span>
+          <span className="text-white/10">|</span>
+          <span className="text-white/25 text-micro sm:text-caption font-mono">
+            {project.team}
+          </span>
+        </div>
+
+        {/* Description */}
+        <p
+          className={`text-secondary text-caption sm:text-body-sm mt-3 leading-relaxed ${
+            !isExpanded ? "line-clamp-2" : ""
+          }`}
+        >
+          {project.description}
+        </p>
+
+        {/* Expanded content */}
+        <AnimatePresence initial={false}>
+          {isExpanded && (
+            <motion.div
+              initial={{ height: 0, opacity: 0 }}
+              animate={{ height: "auto", opacity: 1 }}
+              exit={{ height: 0, opacity: 0 }}
+              transition={{
+                duration: 0.35,
+                ease: [0.04, 0.62, 0.23, 0.98],
+              }}
+              className="overflow-hidden"
+            >
+              {/* Features */}
+              {project.features && (
+                <ul className="mt-4 space-y-2">
+                  {project.features.map((f, i) => (
+                    <li key={i} className="flex items-start gap-2.5">
+                      <span
+                        className="mt-0.5 shrink-0 text-caption"
+                        style={{ color: accent }}
+                      >
+                        ▹
+                      </span>
+                      <span className="text-white/80 text-caption sm:text-body-sm">
+                        {f}
+                      </span>
+                    </li>
+                  ))}
+                </ul>
+              )}
+
+              {/* Stats */}
+              {project.stats?.length > 0 && (
+                <div className="flex flex-wrap gap-3 mt-4">
+                  {project.stats.map((s, i) => (
+                    <div
+                      key={i}
+                      className="px-3 py-2 rounded-xl bg-white/[0.03] border border-white/[0.06]"
+                    >
+                      <div
+                        className="font-bold font-heading text-body"
+                        style={{ color: accent }}
+                      >
+                        {s.value}
+                      </div>
+                      <div className="text-secondary text-micro sm:text-caption font-mono">
+                        {s.label}
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </motion.div>
+          )}
+        </AnimatePresence>
+
+        {/* Tags */}
+        <div className="flex flex-wrap gap-1.5 mt-3">
+          {(isExpanded ? project.tags : project.tags.slice(0, 3)).map(
+            (tag) => (
+              <span
+                key={tag.name}
+                className="font-mono text-micro sm:text-caption px-2 py-0.5 rounded-full border"
+                style={{
+                  color: `${accent}cc`,
+                  borderColor: `${accent}20`,
+                  background: `${accent}0a`,
+                }}
+              >
+                {tag.name}
+              </span>
+            )
+          )}
+          {!isExpanded && project.tags.length > 3 && (
+            <span className="text-white/25 text-micro font-mono self-center">
+              +{project.tags.length - 3}
+            </span>
+          )}
+        </div>
+
+        {/* Expand chevron */}
+        <div className="flex justify-end mt-2">
+          <motion.svg
+            animate={{ rotate: isExpanded ? 180 : 0 }}
+            transition={{ duration: 0.3 }}
+            className="w-4 h-4 text-white/20 group-hover:text-white/40 transition-colors"
+            fill="none"
+            viewBox="0 0 24 24"
+            stroke="currentColor"
+            strokeWidth={2}
+          >
+            <path
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              d="M19 9l-7 7-7-7"
+            />
+          </motion.svg>
+        </div>
+      </div>
     </motion.div>
   );
-};
+});
 
-const DraggableRow = ({ children }) => {
-  const containerRef = useRef(null);
-  const x = useMotionValue(0);
-  const springX = useSpring(x, { stiffness: 300, damping: 30 });
-
-  return (
-    <div ref={containerRef} className="overflow-hidden cursor-grab active:cursor-grabbing xl:overflow-visible">
-      <motion.div
-        drag="x"
-        dragConstraints={containerRef}
-        style={{ x: springX }}
-        className="flex gap-5 sm:gap-7 xl:grid xl:grid-cols-3"
-      >
-        {children}
-      </motion.div>
-    </div>
-  );
-};
-
+/* ── Main Section ── */
 const Projects = () => {
+  const [expandedIndex, setExpandedIndex] = useState(null);
+  const [filter, setFilter] = useState("all");
+
+  const filtered = useMemo(
+    () =>
+      filter === "all"
+        ? projects
+        : projects.filter((p) => p.type === filter),
+    [filter]
+  );
+
+  const counts = useMemo(
+    () => ({
+      all: projects.length,
+      professional: projects.filter((p) => p.type === "professional").length,
+      personal: projects.filter((p) => p.type === "personal").length,
+    }),
+    []
+  );
+
+  const toggle = (i) =>
+    setExpandedIndex((prev) => (prev === i ? null : i));
+
+  const expandAll = () =>
+    setExpandedIndex(expandedIndex === "all" ? null : "all");
+
   return (
     <>
       <motion.div variants={textVariant()}>
         <p className={styles.sectionSubText}>Explore My Work</p>
-        <TextScramble text="Projects" as="h2" className={styles.sectionHeadText} />
+        <TextScramble
+          text="Projects"
+          as="h2"
+          className={styles.sectionHeadText}
+        />
       </motion.div>
-      <div className="w-full flex">
-        <motion.p
-          variants={fadeIn("", "", 0.1, 1)}
-          className="mt-3 text-secondary text-body-sm sm:text-body max-w-4xl"
-        >
-          The projects showcased in my portfolio exemplify my skills, problem
-          solving prowess, and effective project management. Each project
-          represents a distinct technological challenge and reflects my ability
-          to navigate various frameworks and technologies seamlessly.
-        </motion.p>
-      </div>
-      <p className="mt-4 text-secondary/50 text-caption italic xl:hidden">
-        Drag to explore projects &rarr;
-      </p>
-      <div className="mt-8 sm:mt-16">
-        <DraggableRow>
-          {projects.map((project, index) => (
-            <ProjectCard key={`project-${index}`} index={index} {...project} />
+
+      <motion.p
+        variants={fadeIn("", "", 0.1, 1)}
+        className="mt-3 text-secondary text-body-sm sm:text-body max-w-3xl"
+      >
+        Each project represents a distinct challenge — from building AI-powered
+        systems to deploying cloud infrastructure. Tap any card to explore.
+      </motion.p>
+
+      {/* Filter bar + expand all */}
+      <div className="mt-6 sm:mt-8 flex flex-wrap items-center justify-between gap-3">
+        <div className="flex gap-2">
+          {FILTERS.map((f) => (
+            <FilterTab
+              key={f}
+              label={f.charAt(0).toUpperCase() + f.slice(1)}
+              isActive={filter === f}
+              onClick={() => {
+                setFilter(f);
+                setExpandedIndex(null);
+              }}
+              count={counts[f]}
+            />
           ))}
-        </DraggableRow>
+        </div>
+
+        <button
+          onClick={expandAll}
+          className="font-mono text-micro sm:text-caption text-white/30 hover:text-white/50 transition-colors px-2 py-1"
+        >
+          {expandedIndex === "all" ? "↑ Collapse all" : "↓ Expand all"}
+        </button>
+      </div>
+
+      {/* Project summary */}
+      <div className="mt-3 font-mono text-micro sm:text-caption text-white/20">
+        {filtered.length} project{filtered.length !== 1 ? "s" : ""}
+        {filter !== "all" && ` · filtered by ${filter}`}
+      </div>
+
+      {/* Card grid */}
+      <div className="mt-5 sm:mt-6 grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-4 sm:gap-5 items-start">
+        <AnimatePresence mode="popLayout">
+          {filtered.map((project, index) => {
+            const globalIndex = projects.indexOf(project);
+            return (
+              <ProjectCard
+                key={project.name}
+                project={project}
+                index={index}
+                isExpanded={
+                  expandedIndex === "all" || expandedIndex === globalIndex
+                }
+                onToggle={() => {
+                  if (expandedIndex === "all") {
+                    setExpandedIndex(null);
+                  } else {
+                    toggle(globalIndex);
+                  }
+                }}
+                accent={ACCENTS[globalIndex % ACCENTS.length]}
+              />
+            );
+          })}
+        </AnimatePresence>
       </div>
     </>
   );

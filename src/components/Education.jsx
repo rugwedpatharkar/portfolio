@@ -1,64 +1,377 @@
 /* eslint-disable react/prop-types */
 /* eslint-disable react-refresh/only-export-components */
-import React from "react";
-import { motion } from "framer-motion";
-
+import { useState, useMemo, useEffect, useCallback } from "react";
+import { motion, AnimatePresence } from "framer-motion";
 import { styles } from "../styles";
 import { SectionWrapper } from "../hoc";
 import { fadeIn, textVariant } from "../utils/motion";
 import { educations } from "../constants";
 import TextScramble from "./TextScramble";
 
-const EducationCard = ({ index, marks, name, degree, image }) => (
-  <motion.div
-    variants={fadeIn("", "spring", index * 0.5, 0.75)}
-    className="Box2 p-4 sm:p-5 rounded-3xl w-full card-shine glow-hover"
-  >
-    <div className="mt-4 sm:mt-7 flex flex-col justify-between items-center gap-1">
-      <img
-        src={image}
-        alt={degree}
-        width="80"
-        height="80"
-        className="rounded-full object-cover w-16 h-16 sm:w-20 sm:h-20"
+const NODE_COLORS = ["#ff6b6b", "#f8c555", "#61dafb", "#915eff"];
+
+/* ── SVG Progress Ring ── */
+const ProgressRing = ({ percent, color, size = 64, strokeWidth = 3, visible }) => {
+  const r = (size - strokeWidth * 2) / 2;
+  const circ = 2 * Math.PI * r;
+  const offset = visible ? circ - (percent / 100) * circ : circ;
+
+  return (
+    <svg
+      width={size}
+      height={size}
+      className="transform -rotate-90"
+      aria-hidden="true"
+    >
+      {/* Track */}
+      <circle
+        cx={size / 2}
+        cy={size / 2}
+        r={r}
+        fill="none"
+        stroke="white"
+        strokeOpacity={0.06}
+        strokeWidth={strokeWidth}
       />
-      <div className="mt-2 sm:mt-3 flex-1 flex flex-col">
-        <p className="text-center text-white font-medium text-caption sm:text-body">
-          <span className="blue-text-gradient">{name}</span>
-        </p>
+      {/* Fill */}
+      <circle
+        cx={size / 2}
+        cy={size / 2}
+        r={r}
+        fill="none"
+        stroke={color}
+        strokeWidth={strokeWidth}
+        strokeDasharray={circ}
+        strokeDashoffset={offset}
+        strokeLinecap="round"
+        className="transition-all duration-1000 ease-out"
+        style={{
+          filter: `drop-shadow(0 0 6px ${color}40)`,
+        }}
+      />
+    </svg>
+  );
+};
+
+/* ── Milestone Node ── */
+const MilestoneNode = ({ edu, index, isActive, isPast, onClick, color }) => (
+  <button
+    onClick={onClick}
+    className={`relative z-10 flex flex-col items-center gap-1.5 sm:gap-2 group transition-transform duration-300 ${
+      isActive ? "scale-110" : "hover:scale-105"
+    }`}
+    aria-label={`View ${edu.shortName} details`}
+  >
+    {/* Ring + percentage */}
+    <div className="relative" style={{ width: 56, height: 56 }}>
+      {/* Solid bg disc — covers full ring area to mask the track line */}
+      <div className="absolute inset-0 rounded-full bg-primary z-[1]" />
+      <div className="relative z-[2]">
+        <ProgressRing
+          percent={edu.percentage}
+          color={isActive || isPast ? color : "rgba(255,255,255,0.15)"}
+          size={56}
+          strokeWidth={isActive ? 3.5 : 2.5}
+          visible={isPast || isActive}
+        />
       </div>
+      {/* Center label */}
+      <div className="absolute inset-0 flex items-center justify-center z-[3]">
+        <span
+          className={`font-heading font-bold text-micro sm:text-caption transition-colors duration-300 ${
+            isActive ? "text-white" : isPast ? "text-white/60" : "text-white/25"
+          }`}
+        >
+          {edu.percentage}%
+        </span>
+      </div>
+      {/* Active glow */}
+      {isActive && (
+        <div
+          className="absolute inset-0 rounded-full animate-pulse pointer-events-none"
+          style={{
+            boxShadow: `0 0 20px ${color}30, 0 0 40px ${color}15`,
+          }}
+        />
+      )}
     </div>
 
-    <div className="mt-1">
-      <p className="text-center text-white font-heading tracking-wider text-body-sm sm:text-body-lg">
-        {degree}
-      </p>
-      <p className="mt-2 sm:mt-3 text-center green-text-gradient text-caption sm:text-body-sm">
-        {marks}
-      </p>
+    {/* Short name */}
+    <span
+      className={`font-mono text-micro sm:text-caption font-medium transition-colors duration-300 ${
+        isActive ? "text-white" : isPast ? "text-white/50" : "text-white/25"
+      }`}
+    >
+      {edu.shortName}
+    </span>
+
+    {/* Year */}
+    <span className="font-mono text-micro text-white/20 hidden sm:block">
+      {edu.year}
+    </span>
+  </button>
+);
+
+/* ── Detail Card ── */
+const DetailCard = ({ edu, color }) => (
+  <motion.div
+    key={edu.shortName}
+    initial={{ opacity: 0, y: 20 }}
+    animate={{ opacity: 1, y: 0 }}
+    exit={{ opacity: 0, y: -15 }}
+    transition={{ duration: 0.35, ease: [0.04, 0.62, 0.23, 0.98] }}
+    className="glass-card rounded-2xl p-5 sm:p-7 relative overflow-hidden card-shine glow-hover"
+  >
+    {/* Accent glow */}
+    <div
+      className="absolute -top-10 -right-10 w-40 h-40 rounded-full blur-[60px] pointer-events-none"
+      style={{ background: `${color}08` }}
+    />
+
+    {/* Level badge */}
+    <span
+      className="inline-block font-mono text-micro sm:text-caption px-2.5 py-1 rounded-full border mb-3"
+      style={{
+        color: `${color}cc`,
+        borderColor: `${color}25`,
+        background: `${color}0a`,
+      }}
+    >
+      {edu.level}
+    </span>
+
+    {/* Degree */}
+    <h3 className="text-white font-heading font-bold text-body-lg sm:text-heading-sm leading-tight">
+      {edu.degree}
+    </h3>
+
+    {/* Institution */}
+    <p className="text-secondary text-body-sm sm:text-body mt-1">
+      {edu.name}
+    </p>
+
+    {/* Meta row */}
+    <div className="flex flex-wrap items-center gap-3 sm:gap-4 mt-3 font-mono text-caption sm:text-body-sm text-white/30">
+      <span>{edu.year}</span>
+      {edu.duration && (
+        <>
+          <span className="text-white/10">|</span>
+          <span>{edu.duration}</span>
+        </>
+      )}
+      <span className="text-white/10">|</span>
+      <span className="flex items-center gap-1.5">
+        <span className="w-1.5 h-1.5 rounded-full bg-[#00cea8] inline-block" />
+        Completed
+      </span>
+    </div>
+
+    {/* Course highlights */}
+    {edu.highlights?.length > 0 && (
+      <div className="flex flex-wrap gap-1.5 sm:gap-2 mt-4">
+        {edu.highlights.map((h) => (
+          <span
+            key={h}
+            className="font-mono text-micro sm:text-caption px-2.5 py-1 rounded-full border"
+            style={{
+              color: `${color}bb`,
+              borderColor: `${color}20`,
+              background: `${color}08`,
+            }}
+          >
+            {h}
+          </span>
+        ))}
+      </div>
+    )}
+
+    {/* Progress bar */}
+    <div className="mt-5">
+      <div className="flex items-center justify-between mb-2">
+        <span className="text-white/40 text-caption sm:text-body-sm font-mono">
+          Score
+        </span>
+        <span
+          className="font-heading font-bold text-body sm:text-body-lg"
+          style={{ color }}
+        >
+          {edu.percentage}%
+        </span>
+      </div>
+      <div className="w-full h-2 sm:h-2.5 rounded-full bg-white/[0.06] overflow-hidden">
+        <motion.div
+          initial={{ width: 0 }}
+          animate={{ width: `${edu.percentage}%` }}
+          transition={{ duration: 1, delay: 0.2, ease: "easeOut" }}
+          className="h-full rounded-full"
+          style={{
+            background: `linear-gradient(90deg, ${color}80, ${color})`,
+            boxShadow: `0 0 12px ${color}40`,
+          }}
+        />
+      </div>
     </div>
   </motion.div>
 );
 
+/* ── Main Component ── */
 const Education = () => {
+  // Reverse to show oldest → newest (left → right)
+  const timeline = useMemo(() => [...educations].reverse(), []);
+  const [activeIndex, setActiveIndex] = useState(timeline.length - 1);
+
+  const active = timeline[activeIndex];
+  const activeColor = NODE_COLORS[activeIndex % NODE_COLORS.length];
+
+  const goPrev = useCallback(() => setActiveIndex((i) => Math.max(0, i - 1)), []);
+  const goNext = useCallback(
+    () => setActiveIndex((i) => Math.min(timeline.length - 1, i + 1)),
+    [timeline.length]
+  );
+
+  /* Keyboard navigation */
+  useEffect(() => {
+    const onKey = (e) => {
+      if (e.key === "ArrowLeft") goPrev();
+      else if (e.key === "ArrowRight") goNext();
+    };
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  }, [goPrev, goNext]);
+
+  // Progress fill width based on active node
+  const progressWidth =
+    timeline.length > 1
+      ? `${(activeIndex / (timeline.length - 1)) * 100}%`
+      : "100%";
+
   return (
-    <div className="glass-section rounded-[20px]">
-      <div
-        className={`glass-card rounded-2xl ${styles.padding} min-h-[200px] sm:min-h-[300px]`}
+    <>
+      <motion.div variants={textVariant()}>
+        <p className={styles.sectionSubText}>Academic Journey</p>
+        <TextScramble
+          text="Education"
+          as="h2"
+          className={styles.sectionHeadText}
+        />
+      </motion.div>
+
+      <motion.p
+        variants={fadeIn("", "", 0.1, 1)}
+        className="mt-3 text-secondary text-body-sm sm:text-body max-w-3xl"
       >
-        <motion.div variants={textVariant()}>
-          <p className={styles.sectionSubText}>Educational Details</p>
-          <TextScramble text="Education" as="h2" className={styles.sectionHeadText} />
-        </motion.div>
+        From foundational studies to advanced computer science — each milestone
+        shaped my engineering journey.
+      </motion.p>
+
+      {/* ── Milestone Track ── */}
+      <div className="mt-10 sm:mt-14 relative px-4 sm:px-8">
+        {/* Background line — z-0 so nodes sit on top */}
+        <div className="absolute top-[28px] left-[calc(8.33%)] right-[calc(8.33%)] h-[2px] bg-white/[0.06] rounded-full z-0" />
+
+        {/* Progress fill line — z-0, behind nodes */}
+        <div
+          className="absolute top-[28px] left-[calc(8.33%)] h-[2px] rounded-full transition-all duration-700 ease-out z-0"
+          style={{
+            width: `calc(${progressWidth} * 0.8333)`,
+            background: `linear-gradient(90deg, ${NODE_COLORS[0]}, ${activeColor})`,
+            boxShadow: `0 0 10px ${activeColor}30`,
+          }}
+        />
+
+        {/* Nodes */}
+        <div className="flex items-start justify-between relative">
+          {timeline.map((edu, i) => (
+            <MilestoneNode
+              key={edu.shortName}
+              edu={edu}
+              index={i}
+              isActive={i === activeIndex}
+              isPast={i <= activeIndex}
+              onClick={() => setActiveIndex(i)}
+              color={NODE_COLORS[i % NODE_COLORS.length]}
+            />
+          ))}
+        </div>
       </div>
-      <div
-        className={`-mt-10 sm:-mt-14 pb-10 sm:pb-14 ${styles.paddingX} grid grid-cols-1 xs:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 sm:gap-6`}
-      >
-        {educations.map((education, index) => (
-          <EducationCard key={education.name} index={index} {...education} />
-        ))}
+
+      {/* ── Detail Card ── */}
+      <div className="mt-8 sm:mt-10">
+        <AnimatePresence mode="wait">
+          <DetailCard
+            key={active.shortName}
+            edu={active}
+            color={activeColor}
+          />
+        </AnimatePresence>
+
+        {/* Prev / Next */}
+        <div className="flex items-center justify-between mt-4">
+          <button
+            onClick={goPrev}
+            disabled={activeIndex === 0}
+            className="font-mono text-caption sm:text-body-sm text-white/30 hover:text-white/60 disabled:opacity-20 disabled:cursor-not-allowed transition-colors flex items-center gap-1.5 px-3 py-2 rounded-lg hover:bg-white/[0.03]"
+          >
+            <svg
+              className="w-4 h-4"
+              fill="none"
+              viewBox="0 0 24 24"
+              stroke="currentColor"
+              strokeWidth={2}
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                d="M15 19l-7-7 7-7"
+              />
+            </svg>
+            Prev
+          </button>
+
+          {/* Dot indicators */}
+          <div className="flex gap-2">
+            {timeline.map((_, i) => (
+              <button
+                key={i}
+                onClick={() => setActiveIndex(i)}
+                className={`w-2 h-2 rounded-full transition-all duration-300 ${
+                  i === activeIndex
+                    ? "scale-125"
+                    : "bg-white/15 hover:bg-white/30"
+                }`}
+                style={
+                  i === activeIndex
+                    ? { background: activeColor, boxShadow: `0 0 8px ${activeColor}50` }
+                    : undefined
+                }
+                aria-label={`Go to ${timeline[i].shortName}`}
+              />
+            ))}
+          </div>
+
+          <button
+            onClick={goNext}
+            disabled={activeIndex === timeline.length - 1}
+            className="font-mono text-caption sm:text-body-sm text-white/30 hover:text-white/60 disabled:opacity-20 disabled:cursor-not-allowed transition-colors flex items-center gap-1.5 px-3 py-2 rounded-lg hover:bg-white/[0.03]"
+          >
+            Next
+            <svg
+              className="w-4 h-4"
+              fill="none"
+              viewBox="0 0 24 24"
+              stroke="currentColor"
+              strokeWidth={2}
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                d="M9 5l7 7-7 7"
+              />
+            </svg>
+          </button>
+        </div>
       </div>
-    </div>
+    </>
   );
 };
 

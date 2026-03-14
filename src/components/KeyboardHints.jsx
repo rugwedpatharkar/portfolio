@@ -1,42 +1,47 @@
 import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 
-const SHORTCUTS = [
-  { key: "T", action: "Terminal", handler: () => document.querySelector('[aria-label="Open terminal"]')?.click() },
-  { key: "↑", action: "Top", handler: () => window.scrollTo({ top: 0, behavior: "smooth" }) },
+const SECTIONS = [
+  { key: "1", id: "about", label: "About" },
+  { key: "2", id: "experience", label: "Experience" },
+  { key: "3", id: "skills", label: "Skills" },
+  { key: "4", id: "projects", label: "Projects" },
+  { key: "5", id: "educations", label: "Education" },
+  { key: "6", id: "contact", label: "Contact" },
 ];
 
-const SECTIONS = [
-  { key: "1", id: "about" },
-  { key: "2", id: "experience" },
-  { key: "3", id: "skills" },
-  { key: "4", id: "projects" },
-  { key: "5", id: "educations" },
-  { key: "6", id: "contact" },
+const ACTIONS = [
+  { keys: ["Ctrl", "`"], label: "Toggle Terminal" },
+  { keys: ["?"], label: "This Panel" },
+  { keys: ["Esc"], label: "Close Overlay" },
+  { keys: ["T"], label: "Open Terminal" },
+  { keys: ["\u2191"], label: "Scroll to Top" },
 ];
+
+const Kbd = ({ children }) => (
+  <kbd className="text-micro px-1.5 py-0.5 bg-[#151030]/80 rounded border border-white/10 text-white font-mono">
+    {children}
+  </kbd>
+);
 
 const KeyboardHints = () => {
   const [showHints, setShowHints] = useState(false);
 
   useEffect(() => {
     const handleKeyDown = (e) => {
-      // Ignore if typing in input
       if (e.target.tagName === "INPUT" || e.target.tagName === "TEXTAREA") return;
 
-      // ? or / to toggle hints
-      if (e.key === "?" || (e.key === "/" && !e.ctrlKey)) {
+      if (e.key === "?") {
         e.preventDefault();
         setShowHints((prev) => !prev);
         return;
       }
 
-      // Escape to close
       if (e.key === "Escape") {
         setShowHints(false);
         return;
       }
 
-      // Number keys to navigate sections
       const section = SECTIONS.find((s) => s.key === e.key);
       if (section) {
         const el = document.getElementById(section.id);
@@ -44,10 +49,17 @@ const KeyboardHints = () => {
         return;
       }
 
-      // T for terminal
       if (e.key === "t" || e.key === "T") {
-        SHORTCUTS[0].handler();
+        window.dispatchEvent(new KeyboardEvent("keydown", { key: "`", ctrlKey: true }));
         return;
+      }
+
+      if (e.key === "ArrowUp" && !e.ctrlKey && !e.metaKey) {
+        // Only scroll to top if not in a scrollable component
+        const active = document.activeElement;
+        if (!active || active === document.body) {
+          window.scrollTo({ top: 0, behavior: "smooth" });
+        }
       }
     };
 
@@ -58,50 +70,80 @@ const KeyboardHints = () => {
   return (
     <AnimatePresence>
       {showHints && (
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          exit={{ opacity: 0, y: 20 }}
-          className="fixed bottom-20 right-3 sm:bottom-24 sm:right-4 z-[60] bg-[#0a0a1a]/95 border border-[#915eff]/20 rounded-xl p-4 sm:p-5 shadow-2xl backdrop-blur-sm max-w-[280px]"
-        >
-          <div className="flex items-center justify-between mb-3">
-            <h3 className="text-white font-heading font-semibold text-body-sm">Keyboard Shortcuts</h3>
-            <button
-              onClick={() => setShowHints(false)}
-              className="text-secondary hover:text-white text-caption font-mono"
-            >
-              ESC
-            </button>
-          </div>
-
-          <div className="space-y-1.5">
-            <p className="text-secondary text-micro font-mono uppercase tracking-wider mb-2">Navigation</p>
-            {SECTIONS.map((s) => (
-              <div key={s.key} className="flex items-center justify-between">
-                <span className="text-secondary text-caption font-mono capitalize">{s.id}</span>
-                <kbd className="text-micro px-1.5 py-0.5 bg-[#151030]/80 rounded border border-secondary/20 text-white font-mono">
-                  {s.key}
-                </kbd>
-              </div>
-            ))}
-
-            <p className="text-secondary text-micro font-mono uppercase tracking-wider mt-3 mb-2">Actions</p>
-            {SHORTCUTS.map((s) => (
-              <div key={s.key} className="flex items-center justify-between">
-                <span className="text-secondary text-caption font-mono">{s.action}</span>
-                <kbd className="text-micro px-1.5 py-0.5 bg-[#151030]/80 rounded border border-secondary/20 text-white font-mono">
-                  {s.key}
-                </kbd>
-              </div>
-            ))}
-            <div className="flex items-center justify-between">
-              <span className="text-secondary text-caption font-mono">Shortcuts</span>
-              <kbd className="text-micro px-1.5 py-0.5 bg-[#151030]/80 rounded border border-secondary/20 text-white font-mono">
-                ?
-              </kbd>
+        <>
+          {/* Backdrop */}
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 bg-black/50 backdrop-blur-sm z-[65]"
+            onClick={() => setShowHints(false)}
+          />
+          {/* Panel */}
+          <motion.div
+            initial={{ opacity: 0, scale: 0.95, y: 20 }}
+            animate={{ opacity: 1, scale: 1, y: 0 }}
+            exit={{ opacity: 0, scale: 0.95, y: 20 }}
+            transition={{ type: "spring", damping: 25, stiffness: 300 }}
+            className="fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 z-[66] bg-[#0a0a1a]/95 border border-[#915eff]/20 rounded-2xl p-5 sm:p-7 shadow-2xl backdrop-blur-md w-[90vw] max-w-[380px]"
+          >
+            <div className="flex items-center justify-between mb-5">
+              <h3 className="text-white font-heading font-semibold text-body sm:text-body-lg">
+                Keyboard Shortcuts
+              </h3>
+              <button
+                onClick={() => setShowHints(false)}
+                className="text-secondary hover:text-white text-caption font-mono transition-colors"
+              >
+                ESC
+              </button>
             </div>
-          </div>
-        </motion.div>
+
+            {/* Navigation */}
+            <p className="text-[#915eff] text-micro font-mono uppercase tracking-wider mb-2">
+              Navigate
+            </p>
+            <div className="space-y-1.5 mb-5">
+              {SECTIONS.map((s) => (
+                <div key={s.key} className="flex items-center justify-between">
+                  <span className="text-white/60 text-caption sm:text-body-sm font-mono">
+                    {s.label}
+                  </span>
+                  <Kbd>{s.key}</Kbd>
+                </div>
+              ))}
+            </div>
+
+            {/* Actions */}
+            <p className="text-[#00cea8] text-micro font-mono uppercase tracking-wider mb-2">
+              Actions
+            </p>
+            <div className="space-y-1.5 mb-5">
+              {ACTIONS.map((a) => (
+                <div key={a.label} className="flex items-center justify-between">
+                  <span className="text-white/60 text-caption sm:text-body-sm font-mono">
+                    {a.label}
+                  </span>
+                  <div className="flex items-center gap-1">
+                    {a.keys.map((k, i) => (
+                      <span key={i} className="flex items-center gap-1">
+                        {i > 0 && <span className="text-white/20 text-micro">+</span>}
+                        <Kbd>{k}</Kbd>
+                      </span>
+                    ))}
+                  </div>
+                </div>
+              ))}
+            </div>
+
+            {/* Easter egg hint */}
+            <div className="border-t border-white/[0.06] pt-3">
+              <p className="text-white/20 text-micro font-mono text-center">
+                Try the Konami code for a surprise
+              </p>
+            </div>
+          </motion.div>
+        </>
       )}
     </AnimatePresence>
   );

@@ -24,15 +24,15 @@ const COMMANDS = {
     projects
       .map(
         (p, i) =>
-          `${i + 1}. ${p.name}\n   ${p.tags.map((t) => `#${t.name}`).join(" ")}\n   ${p.source_code_link}`
+          `${i + 1}. ${p.name} [${p.type}]\n   ${p.tags.map((t) => `#${t.name}`).join(" ")}`
       )
       .join("\n\n"),
   contact: () =>
     `Email: ${personalInfo.email}\nGitHub: ${personalInfo.github}\nLinkedIn: ${personalInfo.linkedin}`,
   experience: () =>
-    "IT Trainee Intern @ Tech Entrepreneurs (Mar 2023 - Sep 2023)\nDeveloped Placement Portal, collaborated with cross-functional team.",
+    "Software Engineer @ Upswing Cognitive Hospitality Solutions (May 2024 - Present)\nBackend microservices, AI agents, cloud infrastructure on GKE.",
   education: () =>
-    "MSc Computer Application - PVG's College (81.95%)\nBSc Computer Science - Modern College (72.57%)",
+    "MSc Computer Applications - SPPU (81.95%)\nBSc Computer Science - SPPU (72.57%)\nHSC - PVG College (62.31%)\nSSC - M.S.G.G.V. (79.40%)",
   social: () =>
     `GitHub:   ${personalInfo.github}\nLinkedIn: ${personalInfo.linkedin}`,
 };
@@ -122,20 +122,6 @@ const CommandTerminal = () => {
 
   return (
     <>
-      <button
-        onClick={() => setIsOpen(true)}
-        className="fixed bottom-3 left-20 sm:bottom-4 sm:left-24 z-50 w-10 h-10 sm:w-11 sm:h-11 rounded-full glass-card border-[#915eff]/30 hover:border-[#915eff] text-[#915eff] flex items-center justify-center shadow-lg transition-colors group"
-        aria-label="Open terminal"
-        title="Ctrl + ` to toggle"
-      >
-        <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-          <path strokeLinecap="round" strokeLinejoin="round" d="M8 9l3 3-3 3m5 0h3M5 20h14a2 2 0 002-2V6a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
-        </svg>
-        <span className="absolute left-full ml-2 px-2 py-1 bg-black/80 text-white text-caption font-mono rounded opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap pointer-events-none">
-          Terminal (Ctrl+`)
-        </span>
-      </button>
-
       <AnimatePresence>
         {isOpen && (
           <motion.div
@@ -153,9 +139,9 @@ const CommandTerminal = () => {
                   <div className="w-3 h-3 rounded-full bg-yellow-500" />
                   <div className="w-3 h-3 rounded-full bg-green-500" />
                 </div>
-                <span className="text-secondary text-caption ml-2 font-mono">rugwed@portfolio ~ </span>
+                <span className="text-secondary text-body-sm ml-2 font-mono">rugwed@portfolio ~ </span>
               </div>
-              <button onClick={() => setIsOpen(false)} className="text-secondary hover:text-white text-caption font-mono">
+              <button onClick={() => setIsOpen(false)} className="text-secondary hover:text-white text-body-sm font-mono">
                 ESC
               </button>
             </div>
@@ -163,7 +149,7 @@ const CommandTerminal = () => {
             {/* Terminal body */}
             <div
               ref={scrollRef}
-              className="bg-[#0a0a1a]/90 backdrop-blur-md p-4 h-[300px] sm:h-[350px] overflow-y-auto font-mono text-body-sm"
+              className="bg-[#0a0a1a]/90 backdrop-blur-md p-4 h-[300px] sm:h-[350px] overflow-y-auto font-mono text-body"
               onClick={() => inputRef.current?.focus()}
             >
               {lines.map((line, i) => (
@@ -189,7 +175,7 @@ const CommandTerminal = () => {
                   value={input}
                   onChange={(e) => setInput(e.target.value)}
                   onKeyDown={handleKeyDown}
-                  className="bg-transparent text-white outline-none flex-1 font-mono text-body-sm caret-[#915eff]"
+                  className="bg-transparent text-white outline-none flex-1 font-mono text-body caret-[#915eff]"
                   autoComplete="off"
                   spellCheck="false"
                 />

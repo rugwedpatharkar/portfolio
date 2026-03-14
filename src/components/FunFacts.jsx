@@ -1,11 +1,13 @@
 /* eslint-disable react/prop-types */
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useRef, memo } from "react";
 import { motion } from "framer-motion";
 import { funFacts } from "../constants";
 import { textVariant } from "../utils/motion";
 import { styles } from "../styles";
 import { SectionWrapper } from "../hoc";
 import TextScramble from "./TextScramble";
+
+const ACCENT_COLORS = ["#915eff", "#00cea8", "#f8c555", "#61dafb"];
 
 const AnimatedCounter = ({ value, suffix = "", duration = 2000 }) => {
   const [count, setCount] = useState(0);
@@ -50,6 +52,70 @@ const AnimatedCounter = ({ value, suffix = "", duration = 2000 }) => {
   );
 };
 
+const FunFactCard = memo(({ fact, index }) => {
+  const [flipped, setFlipped] = useState(false);
+  const color = ACCENT_COLORS[index % ACCENT_COLORS.length];
+
+  return (
+    <motion.div
+      initial={{ opacity: 0, y: 30 }}
+      whileInView={{ opacity: 1, y: 0 }}
+      viewport={{ once: true }}
+      transition={{ delay: index * 0.12, duration: 0.5, type: "spring" }}
+      className="cursor-pointer"
+      style={{ perspective: "800px" }}
+      onClick={() => setFlipped((f) => !f)}
+    >
+      <div
+        className="relative w-full h-full transition-transform duration-500"
+        style={{
+          transformStyle: "preserve-3d",
+          transform: flipped ? "rotateY(180deg)" : "rotateY(0deg)",
+        }}
+      >
+        {/* Front face — stays in flow so it sets the container height */}
+        <div
+          className="glass-card rounded-2xl p-5 sm:p-7 text-center card-shine glow-hover relative overflow-hidden group"
+          style={{ backfaceVisibility: "hidden" }}
+        >
+          <div
+            className="absolute -top-8 -right-8 w-28 h-28 rounded-full blur-[50px] pointer-events-none opacity-[0.06] group-hover:opacity-[0.12] transition-opacity duration-500"
+            style={{ background: color }}
+          />
+          <span className="text-heading sm:text-heading-xl block mb-3">{fact.icon}</span>
+          <p className="font-bold text-heading-sm sm:text-heading-xl font-mono" style={{ color }}>
+            <AnimatedCounter value={fact.value} suffix={fact.suffix} />
+          </p>
+          <p className="text-secondary text-caption sm:text-body-sm mt-2">{fact.label}</p>
+          <p className="text-white/20 text-micro mt-3 font-mono">click to reveal</p>
+        </div>
+
+        {/* Back face — absolute overlay, same size as front */}
+        <div
+          className="absolute inset-0 glass-card rounded-2xl p-5 sm:p-7 text-center overflow-hidden flex flex-col items-center justify-center"
+          style={{
+            backfaceVisibility: "hidden",
+            transform: "rotateY(180deg)",
+          }}
+        >
+          <div
+            className="absolute -top-8 -right-8 w-28 h-28 rounded-full blur-[50px] pointer-events-none opacity-[0.10]"
+            style={{ background: color }}
+          />
+          <span className="text-body-lg sm:text-heading block mb-2">{fact.icon}</span>
+          <p className="text-white/80 text-caption sm:text-body-sm leading-relaxed px-1">
+            {fact.detail}
+          </p>
+          <p className="text-micro mt-3 font-mono" style={{ color: `${color}80` }}>
+            tap to flip back
+          </p>
+        </div>
+      </div>
+    </motion.div>
+  );
+});
+FunFactCard.displayName = "FunFactCard";
+
 const FunFacts = () => {
   return (
     <>
@@ -57,22 +123,9 @@ const FunFacts = () => {
         <p className={styles.sectionSubText}>A Glimpse Into My Journey</p>
         <TextScramble text="Fun Facts" as="h2" className={styles.sectionHeadText} />
       </motion.div>
-      <div className="mt-8 sm:mt-12 grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 sm:gap-6">
+      <div className="mt-8 sm:mt-12 grid grid-cols-2 md:grid-cols-4 gap-4 sm:gap-6">
         {funFacts.map((fact, index) => (
-          <motion.div
-            key={index}
-            initial={{ opacity: 0, x: index % 2 === 0 ? -30 : 30, y: 20 }}
-            whileInView={{ opacity: 1, x: 0, y: 0 }}
-            viewport={{ once: true }}
-            transition={{ delay: index * 0.15, duration: 0.5, type: "spring" }}
-            className="glass-card rounded-2xl p-5 sm:p-8 text-center card-shine glow-hover"
-          >
-            <span className="text-heading sm:text-heading-xl block mb-3">{fact.icon}</span>
-            <p className="text-white font-bold text-heading-sm sm:text-heading-xl font-mono">
-              <AnimatedCounter value={fact.value} suffix={fact.suffix} />
-            </p>
-            <p className="text-secondary text-caption sm:text-body-sm mt-2">{fact.label}</p>
-          </motion.div>
+          <FunFactCard key={index} fact={fact} index={index} />
         ))}
       </div>
     </>

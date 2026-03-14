@@ -19,23 +19,20 @@ import Preloader from "./components/Preloader";
 import FunFacts from "./components/FunFacts";
 import Achievements from "./components/Achievements";
 import Testimonials from "./components/Testimonials";
-import Blog from "./components/Blog";
-import GitHubActivity from "./components/GitHubActivity";
+// import Blog from "./components/Blog"; // Hidden until real blog posts are published
 import EasterEgg from "./components/EasterEgg";
 import FloatingActionMenu from "./components/FloatingActionMenu";
-import WaveDivider from "./components/WaveDivider";
-import SvgLineDraw from "./components/SvgLineDraw";
+
+import SectionDivider from "./components/SectionDivider";
 import { ToastProvider } from "./components/Toast";
 import GradientMesh from "./components/GradientMesh";
 import CommandTerminal from "./components/CommandTerminal";
-import MusicToggle from "./components/MusicToggle";
-import KeyboardHints from "./components/KeyboardHints";
 import CodeRain from "./components/CodeRain";
 import CursorTrail from "./components/CursorTrail";
 import DynamicTitle from "./components/DynamicTitle";
 import AnimatedFavicon from "./components/AnimatedFavicon";
 import ThemeSwitcher from "./components/ThemeSwitcher";
-import LiveCodeShowcase from "./components/LiveCodeShowcase";
+import KeyboardHints from "./components/KeyboardHints";
 
 const App = () => {
   // Console easter eggs for devs who inspect
@@ -114,65 +111,41 @@ const App = () => {
         <ErrorBoundary>
           <About />
         </ErrorBoundary>
+        <SectionDivider />
         <ErrorBoundary>
           <FunFacts />
         </ErrorBoundary>
-
-        <SvgLineDraw variant="circuit" />
-
-        <WaveDivider color="rgba(29, 24, 54, 0.5)" />
-        <div className="bg-[#1d1836]/50 backdrop-blur-sm">
-          <ErrorBoundary>
-            <Experience />
-          </ErrorBoundary>
-        </div>
-        <WaveDivider color="rgba(29, 24, 54, 0.5)" flip />
-
-        <SvgLineDraw variant="nodes" />
-
+        <SectionDivider />
+        <ErrorBoundary>
+          <Experience />
+        </ErrorBoundary>
+        <SectionDivider />
         <ErrorBoundary>
           <Skills />
         </ErrorBoundary>
-
-        <SvgLineDraw variant="wave" />
-
+        <SectionDivider />
         <ErrorBoundary>
           <Projects />
         </ErrorBoundary>
+        <SectionDivider />
         <ErrorBoundary>
           <Education />
         </ErrorBoundary>
-
-        <SvgLineDraw variant="circuit" />
-
-        <ErrorBoundary>
-          <LiveCodeShowcase />
-        </ErrorBoundary>
-
+        <SectionDivider />
         <ErrorBoundary>
           <Achievements />
         </ErrorBoundary>
+        <SectionDivider />
         <ErrorBoundary>
           <Testimonials />
         </ErrorBoundary>
+        <SectionDivider />
         <ErrorBoundary>
-          <GitHubActivity />
+          <Contact />
         </ErrorBoundary>
-
-        <SvgLineDraw variant="nodes" />
-
-        <ErrorBoundary>
-          <Blog />
-        </ErrorBoundary>
-        <div className="relative z-0">
-          <ErrorBoundary>
-            <Contact />
-          </ErrorBoundary>
-        </div>
         <Footer />
         <FloatingActionMenu />
         <CommandTerminal />
-        <MusicToggle />
         <KeyboardHints />
         <BackToTop />
       </div>

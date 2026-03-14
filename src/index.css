@@ -13,14 +13,20 @@
  *  99   — preloader (9999 currently)
  */
 
-@import url("https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap");
-@import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&display=swap');
-@import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:ital,wght@0,400;0,500;0,600;0,700;1,400;1,700&display=swap');
-
+/* Fonts loaded via <link> in index.html for reliability */
 
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+/* Force Fira Code on mono elements AND their children — * selector on body sets Inter directly
+   on every element, which beats inheritance. This rule must also target children explicitly. */
+.font-mono,
+.font-mono *,
+.skill-terminal,
+.skill-terminal * {
+  font-family: 'Fira Code', monospace !important;
+}
 
 :root {
   --accent-color: #915eff;
@@ -32,8 +38,11 @@
   padding: 0;
   box-sizing: border-box;
   font-family: "Inter", sans-serif;
-  scroll-behavior: smooth;
   color-scheme: dark;
+}
+
+html {
+  scroll-behavior: smooth;
 }
 
 /* Theme overrides */
@@ -107,22 +116,6 @@ img {
   background: -webkit-linear-gradient(-90.13deg, #00cea8 1.9%, #bf61ff 97.5%);
 }
 
-.orange-text-gradient {
-  background: #f12711; /* fallback for old browsers */
-  background: -webkit-linear-gradient(
-    to top,
-    #f12711,
-    #f5af19
-  ); /* Chrome 10-25, Safari 5.1-6 */
-  background: linear-gradient(
-    to top,
-    #f12711,
-    #f5af19
-  ); /* W3C, IE 10+/ Edge, Firefox 16+, Chrome 26+, Opera 12+, Safari 7+ */
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-}
-
 .green-text-gradient {
   background: #11998e; /* fallback for old browsers */
   background: -webkit-linear-gradient(
@@ -135,80 +128,6 @@ img {
     #11998e,
     #38ef7d
   ); /* W3C, IE 10+/ Edge, Firefox 16+, Chrome 26+, Opera 12+, Safari 7+ */
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-}
-
-.blue-text-gradient {
-  /* background: -webkit-linear-gradient(#eee, #333); */
-  background: #56ccf2; /* fallback for old browsers */
-  background: -webkit-linear-gradient(
-    to top,
-    #2f80ed,
-    #56ccf2
-  ); /* Chrome 10-25, Safari 5.1-6 */
-  background: linear-gradient(
-    to top,
-    #2f80ed,
-    #56ccf2
-  ); /* W3C, IE 10+/ Edge, Firefox 16+, Chrome 26+, Opera 12+, Safari 7+ */
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-}
-
-.pink-text-gradient {
-  background: #ec008c; /* fallback for old browsers */
-  background: -webkit-linear-gradient(
-    to top,
-    #ec008c,
-    #fc6767
-  ); /* Chrome 10-25, Safari 5.1-6 */
-  background: linear-gradient(
-    to top,
-    #ec008c,
-    #fc6767
-  ); /* W3C, IE 10+/ Edge, Firefox 16+, Chrome 26+, Opera 12+, Safari 7+ */
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-}
-.yellow-text-gradient {
-  background: #f6d365; /* fallback for old browsers */
-  background: -webkit-linear-gradient(
-    to top,
-    #f6d365,
-    #fda085
-  ); /* Chrome 10-25, Safari 5.1-6 */
-  background: linear-gradient(
-    to top,
-    #f6d365,
-    #fda085
-  ); /* W3C, IE 10+/ Edge, Firefox 16+, Chrome 26+, Opera 12+, Safari 7+ */
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-}
-
-.purple-text-gradient {
-  background: #7f7fd5; /* fallback for old browsers */
-  background: -webkit-linear-gradient(
-    to top,
-    #7f7fd5,
-    #86a8e7,
-    #91eae4
-  ); /* Chrome 10-25, Safari 5.1-6 */
-  background: linear-gradient(
-    to top,
-    #7f7fd5,
-    #86a8e7,
-    #91eae4
-  ); /* W3C, IE 10+/ Edge, Firefox 16+, Chrome 26+, Opera 12+, Safari 7+ */
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-}
-
-.red-text-gradient {
-  background: #f43b47;
-  background: -webkit-linear-gradient(to top, #453a94, #f43b47);
-  background: linear-gradient(to top, #453a94, #f43b47);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
 }
@@ -303,40 +222,9 @@ img {
 }
 
 
-.link1 {
-  line-height: 40px;
-  background: rgba(0, 0, 0, 0.3);
-  width: max-content;
-  display: flex;
-  z-index: 2;
-  gap: 0.5rem;
-  border-radius: 3rem;
-}
-
-.link1 a {
-  background: transparent;
-  padding: 0.7rem;
-  border-radius: 50%;
-  display: flex;
-  color: white;
-  font-size: 1.5rem;
-}
-
-@media (min-width: 640px) {
-  .link1 {
-    gap: 0.8rem;
-  }
-  .link1 a {
-    padding: 0.9rem;
-    font-size: 2rem;
-  }
-}
-.font-mono {
-  font-family: "JetBrains Mono", monospace;
-}
+/* font-mono handled by Tailwind config (Fira Code) */
 
 .font-mono-bold {
-  font-family: "JetBrains Mono", monospace;
   font-weight: 700;
   font-style: normal;
 }
@@ -346,12 +234,6 @@ img {
 }
 
 
-.Box2 {
-    background-color: rgba(9, 3, 17, 0.75);
-    backdrop-filter: blur(12px);
-    -webkit-backdrop-filter: blur(12px);
-    border: 1px solid rgba(145, 94, 255, 0.08);
-}
 
 /* Custom scrollbar — Firefox */
 * {
@@ -454,25 +336,6 @@ img {
   transition: opacity 0.3s;
 }
 
-/* Text reveal animation */
-.reveal-text {
-  opacity: 0;
-  transform: translateY(20px);
-  transition: opacity 0.6s ease, transform 0.6s ease;
-}
-.reveal-text.visible {
-  opacity: 1;
-  transform: translateY(0);
-}
-
-/* Proficiency ring */
-.proficiency-ring {
-  transform: rotate(-90deg);
-}
-.proficiency-ring circle {
-  transition: stroke-dashoffset 1.5s ease;
-}
-
 /* Magnetic button hover effect */
 .magnetic-btn {
   transition: transform 0.2s ease;
@@ -502,11 +365,6 @@ img {
   transform: translateX(200%);
 }
 
-/* Parallax section */
-.parallax-bg {
-  will-change: transform;
-}
-
 /* Skeleton shimmer for image loading */
 @keyframes shimmer {
   0% { transform: translateX(-100%); }
@@ -516,25 +374,13 @@ img {
   animation: shimmer 1.5s infinite;
 }
 
-/* Navbar active link underline animation */
-.nav-link-active {
-  position: relative;
-}
-.nav-link-active::after {
-  content: "";
-  position: absolute;
-  bottom: -4px;
-  left: 0;
-  width: 100%;
-  height: 2px;
-  background: #915eff;
-  border-radius: 1px;
-  box-shadow: 0 0 8px rgba(145, 94, 255, 0.5);
-  animation: underlineSlide 0.3s ease forwards;
-}
-@keyframes underlineSlide {
-  from { width: 0; left: 50%; }
-  to { width: 100%; left: 0; }
+/* Navbar scrolled glassmorphism */
+.navbar-scrolled {
+  background: rgba(5, 8, 22, 0.7);
+  backdrop-filter: blur(16px) saturate(1.2);
+  -webkit-backdrop-filter: blur(16px) saturate(1.2);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.04);
+  box-shadow: 0 4px 30px rgba(0, 0, 0, 0.3);
 }
 
 /* Open to Work badge pulse */
@@ -708,35 +554,6 @@ img {
   transform: scale(1.05);
 }
 
-/* ===== SVG LINE DRAW ANIMATION ===== */
-.svg-draw-path {
-  fill: none;
-  stroke: rgba(145, 94, 255, 0.3);
-  stroke-width: 1.5;
-  stroke-dasharray: 1000;
-  stroke-dashoffset: 1000;
-  stroke-linecap: round;
-}
-.svg-draw-path-alt {
-  stroke: rgba(0, 206, 168, 0.2);
-}
-.svg-draw-dot {
-  fill: rgba(145, 94, 255, 0.5);
-  opacity: 0;
-}
-.svg-draw-active .svg-draw-path {
-  animation: drawLine 2s ease forwards;
-}
-.svg-draw-active .svg-draw-dot {
-  animation: dotAppear 0.4s ease forwards;
-}
-@keyframes drawLine {
-  to { stroke-dashoffset: 0; }
-}
-@keyframes dotAppear {
-  to { opacity: 1; }
-}
-
 /* ===== PARALLAX SECTION REVEAL ===== */
 .section-reveal {
   opacity: 0;
@@ -832,6 +649,138 @@ img {
 @keyframes gradientShift {
   0% { background-position: 0% center; }
   100% { background-position: 200% center; }
+}
+
+/* ===== SKILL TERMINAL ===== */
+
+/* Terminal container — glass dark with purple border glow */
+.skill-terminal {
+  background: linear-gradient(165deg, #0d0a1a 0%, #130f25 50%, #0d0a1a 100%);
+  border: 1px solid rgba(145, 94, 255, 0.15);
+  border-radius: 12px;
+  overflow: hidden;
+  box-shadow:
+    0 0 40px rgba(145, 94, 255, 0.06),
+    0 4px 24px rgba(0, 0, 0, 0.4);
+  font-family: 'Fira Code', monospace !important;
+}
+
+/* Chrome bar */
+.skill-terminal-chrome {
+  background: linear-gradient(180deg, #1a1025 0%, #130f25 100%);
+  border-bottom: 1px solid rgba(145, 94, 255, 0.1);
+}
+
+/* Body */
+.skill-terminal-body {
+  min-height: 200px;
+}
+
+/* CRT scanline overlay — very subtle */
+.skill-terminal-scanline {
+  position: absolute;
+  inset: 0;
+  background: repeating-linear-gradient(
+    transparent 0px,
+    rgba(0, 0, 0, 0.015) 1px,
+    transparent 2px
+  );
+  pointer-events: none;
+  z-index: 1;
+}
+
+/* Line entrance animation */
+@keyframes termLineIn {
+  from {
+    opacity: 0;
+    transform: translateX(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+/* Blinking cursor */
+.skill-terminal-cursor {
+  color: #00cea8;
+  text-shadow: 0 0 8px rgba(0, 206, 168, 0.6);
+  animation: termCursorBlink 1s step-end infinite;
+}
+
+@keyframes termCursorBlink {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0; }
+}
+
+/* Skill bar row hover glow */
+.skill-term-row:hover {
+  text-shadow: 0 0 4px rgba(255, 255, 255, 0.05);
+}
+
+/* ===== PROJECT CARDS ===== */
+.proj-card {
+  transition: border-color 0.3s, box-shadow 0.3s;
+}
+.proj-card:hover {
+  box-shadow:
+    0 0 30px color-mix(in srgb, var(--proj-accent, #915eff) 8%, transparent),
+    0 4px 20px rgba(0, 0, 0, 0.3);
+}
+
+/* ===== TESTIMONIALS ===== */
+
+/* Progress bar timer — fills left to right over the auto-rotate interval */
+@keyframes testimonialProgress {
+  from { width: 0; }
+  to { width: 100%; }
+}
+.testimonial-progress {
+  animation: testimonialProgress linear forwards;
+}
+
+/* Rotating gradient ring on avatar */
+@keyframes avatarRingSpin {
+  to { transform: rotate(360deg); }
+}
+.testimonial-avatar-ring {
+  animation: avatarRingSpin 4s linear infinite;
+}
+
+/* ===== CONTACT ===== */
+
+/* Availability pulse */
+@keyframes contactPulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.4; }
+}
+.contact-pulse {
+  animation: contactPulse 2s ease-in-out infinite;
+}
+
+/* Cursor blink in email preview */
+@keyframes contactCursorBlink {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0; }
+}
+.contact-cursor {
+  animation: contactCursorBlink 1s step-end infinite;
+}
+
+/* Send button */
+.contact-send-btn {
+  background: linear-gradient(135deg, #915eff 0%, #915eff80 100%);
+  color: white;
+  border: 1px solid rgba(145, 94, 255, 0.3);
+}
+.contact-send-btn:hover:not(:disabled) {
+  box-shadow: 0 0 24px rgba(145, 94, 255, 0.25);
+  border-color: rgba(145, 94, 255, 0.5);
+}
+
+/* Contact link hover glow */
+.contact-link-card:hover {
+  box-shadow: 0 0 20px rgba(145, 94, 255, 0.06);
 }
 
 /* ===== HERO SOLAR SYSTEM ===== */
@@ -1162,7 +1111,6 @@ img {
   svg[viewBox="0 0 1200 120"],
   .hash-span,
   video,
-  .link1,
   .status-pulse,
   [class*="FloatingAction"],
   [class*="BackToTop"],
@@ -1171,7 +1119,11 @@ img {
   [class*="EasterEgg"],
   [class*="GradientMesh"],
   [class*="Particle"],
-  [class*="SvgLineDraw"],
+  [class*="SectionDivider"],
+  .hero-solar-system,
+  .hero-orbit-tag,
+  .hero-orbit-moon,
+  .hero-comet,
   [aria-label="Open terminal"],
   [aria-label="Play music"],
   [aria-label="Back to top"] {
@@ -1210,6 +1162,7 @@ img {
     font-size: 9pt;
     color: #666 !important;
     -webkit-text-fill-color: #666 !important;
+    word-break: break-all;
   }
 
   /* Project cards */

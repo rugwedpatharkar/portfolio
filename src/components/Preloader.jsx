@@ -14,6 +14,7 @@ const Preloader = () => {
   const [loaded, setLoaded] = useState(false);
   const [visibleLines, setVisibleLines] = useState(0);
   const [cursorVisible, setCursorVisible] = useState(true);
+  const [showSkip, setShowSkip] = useState(false);
   const readyRef = useRef(false);
 
   useEffect(() => {
@@ -46,6 +47,12 @@ const Preloader = () => {
       }
     };
     timers.push(setTimeout(checkAndFinish, finalDelay));
+
+    // Show skip button after 3s
+    timers.push(setTimeout(() => { if (!cancelled) setShowSkip(true); }, 3000));
+
+    // Hard cap — dismiss preloader after 8s regardless of load state
+    timers.push(setTimeout(() => { if (!cancelled) setLoaded(true); }, 8000));
 
     // Cursor blink
     const cursorInterval = setInterval(() => setCursorVisible((v) => !v), 530);
@@ -86,6 +93,14 @@ const Preloader = () => {
             />
           )}
         </div>
+        {showSkip && !loaded && (
+          <button
+            onClick={() => setLoaded(true)}
+            className="mt-6 text-white/30 hover:text-white/60 text-caption font-mono transition-colors"
+          >
+            skip &rarr;
+          </button>
+        )}
       </div>
     </div>
   );

@@ -42,10 +42,15 @@ const AnimatedFavicon = () => {
       frameIdx.current = (frameIdx.current + 1) % FRAMES.length;
     };
 
+    const originalHref = document.querySelector('link[rel="icon"]')?.href || "";
     drawFrame();
     const interval = setInterval(drawFrame, INTERVAL);
 
-    return () => clearInterval(interval);
+    return () => {
+      clearInterval(interval);
+      const link = document.querySelector('link[rel="icon"]');
+      if (link && originalHref) link.href = originalHref;
+    };
   }, []);
 
   return null;

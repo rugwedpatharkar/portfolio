@@ -16,7 +16,7 @@ const jsonData = {
 
 const SyntaxLine = ({ lineNum, indent = 0, children }) => (
   <div className="flex">
-    <span className="w-8 sm:w-10 text-right pr-3 sm:pr-4 text-white/20 select-none text-micro sm:text-caption">
+    <span className="w-8 sm:w-10 text-right pr-3 sm:pr-4 text-white/20 select-none text-caption sm:text-body-sm">
       {lineNum}
     </span>
     <span style={{ paddingLeft: `${indent * 16}px` }}>{children}</span>
@@ -45,13 +45,13 @@ const JsonAboutCard = () => {
           <div className="w-2.5 h-2.5 rounded-full bg-yellow-500/80" />
           <div className="w-2.5 h-2.5 rounded-full bg-green-500/80" />
         </div>
-        <span className="text-secondary text-micro sm:text-caption font-mono ml-2">
+        <span className="text-secondary text-caption sm:text-body-sm font-mono ml-2">
           📦 package.json — rugwed-patharkar
         </span>
       </div>
 
       {/* Code content */}
-      <div className="glass-card-dark rounded-t-none rounded-b-lg p-3 sm:p-4 font-mono text-micro sm:text-caption leading-relaxed overflow-x-auto">
+      <div className="glass-card-dark rounded-t-none rounded-b-lg p-3 sm:p-5 font-mono text-caption sm:text-body-sm leading-relaxed overflow-x-auto">
         <SyntaxLine lineNum={line++}>
           <JsonPunct>{"{"}</JsonPunct>
         </SyntaxLine>

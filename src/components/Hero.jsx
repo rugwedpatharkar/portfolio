@@ -81,10 +81,13 @@ const CODE_SNIPPET = [
 const FloatingCode = () => {
   const ref = useRef(null);
   const started = useRef(false);
+  const timerRef = useRef(null);
 
   useEffect(() => {
     const el = ref.current;
     if (!el) return;
+    let cancelled = false;
+
     const obs = new IntersectionObserver(([e]) => {
       if (e.isIntersecting && !started.current) {
         started.current = true;
@@ -93,7 +96,7 @@ const FloatingCode = () => {
         let currentSpan = null;
 
         const type = () => {
-          if (tokenIdx >= CODE_SNIPPET.length) return;
+          if (cancelled || tokenIdx >= CODE_SNIPPET.length) return;
           const token = CODE_SNIPPET[tokenIdx];
           if (!currentSpan || currentSpan.dataset.ti !== String(tokenIdx)) {
             currentSpan = document.createElement("span");
@@ -108,13 +111,17 @@ const FloatingCode = () => {
             tokenIdx++;
             charIdx = 0;
           }
-          setTimeout(type, 40 + Math.random() * 30);
+          timerRef.current = setTimeout(type, 40 + Math.random() * 30);
         };
-        setTimeout(type, 800);
+        timerRef.current = setTimeout(type, 800);
       }
     }, { threshold: 0.3 });
     obs.observe(el);
-    return () => obs.disconnect();
+    return () => {
+      cancelled = true;
+      clearTimeout(timerRef.current);
+      obs.disconnect();
+    };
   }, []);
 
   return (
@@ -124,7 +131,7 @@ const FloatingCode = () => {
         <span className="w-2 h-2 rounded-full bg-yellow-500/70" />
         <span className="w-2 h-2 rounded-full bg-green-500/70" />
       </div>
-      <pre ref={ref} className="font-mono text-[10px] sm:text-micro leading-relaxed whitespace-pre" />
+      <pre ref={ref} className="font-mono text-micro sm:text-caption leading-relaxed whitespace-pre" />
     </div>
   );
 };
@@ -432,17 +439,17 @@ const Hero = () => {
             {/* Center glow — the "star" */}
             <div className="hero-photo-glow absolute -inset-[5%] rounded-full opacity-60" />
 
-            {/* Orbital ring tracks — concentric circles */}
+            {/* Orbital ring tracks — concentric circles (outer 2 hidden on mobile) */}
             <div className="absolute rounded-full border border-[#915eff]/20 hero-orbit-ring" style={{ inset: "-8%" }} />
             <div className="absolute rounded-full border border-[#915eff]/15 hero-orbit-ring" style={{ inset: "-25%", animationDelay: "-1.5s" }} />
-            <div className="absolute rounded-full border border-[#915eff]/10 hero-orbit-ring" style={{ inset: "-42%", animationDelay: "-3s" }} />
-            <div className="absolute rounded-full border border-[#915eff]/5" style={{ inset: "-58%" }} />
+            <div className="absolute rounded-full border border-[#915eff]/10 hero-orbit-ring hidden sm:block" style={{ inset: "-42%", animationDelay: "-3s" }} />
+            <div className="absolute rounded-full border border-[#915eff]/5 hidden sm:block" style={{ inset: "-58%" }} />
 
-            {/* Orbiting tech tags — outer rings hidden on small screens */}
+            {/* Orbiting tech tags — outer ring (r=0.92) hidden on small screens */}
             {ORBIT_TAGS.map((tag, i) => (
               <div
                 key={i}
-                className="hero-orbit-tag"
+                className={`hero-orbit-tag${tag.r >= 0.92 ? " hidden sm:block" : ""}`}
                 style={{
                   "--orbit-r": `calc(var(--photo-size) * ${tag.r})`,
                   "--orbit-dur": `${tag.dur}s`,
@@ -462,7 +469,7 @@ const Hero = () => {
             {ORBIT_DOTS.map((dot, i) => (
               <div
                 key={`dot-${i}`}
-                className="hero-orbit-moon"
+                className={`hero-orbit-moon${dot.r >= 0.92 ? " hidden sm:block" : ""}`}
                 style={{
                   "--orbit-r": `calc(var(--photo-size) * ${dot.r})`,
                   "--orbit-dur": `${dot.dur}s`,
@@ -479,7 +486,7 @@ const Hero = () => {
             {COMETS.map((c, i) => (
               <div
                 key={`comet-${i}`}
-                className="hero-comet"
+                className="hero-comet hidden sm:block"
                 style={{
                   "--cx1": `calc(var(--photo-size) * ${c.x1})`,
                   "--cy1": `calc(var(--photo-size) * ${c.y1})`,

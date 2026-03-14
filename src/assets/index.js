@@ -23,7 +23,6 @@ import helm from "./skills/helm.svg";
 import html from "./skills/html.png";
 import java from "./skills/java.svg";
 import javascript from "./skills/javascript.png";
-import jquery from "./skills/jquery.png";
 import kubernetes from "./skills/kubernetes.svg";
 import langchain from "./skills/langchain.svg";
 import linux from "./skills/linux.svg";
@@ -54,7 +53,6 @@ import photo from "./photo.png";
 import heroPhoto from "./hero-photo.png";
 import techentrepreneurs from "./company/te.png";
 import upswing from "./company/upswing.png";
-import demo from "./demo.png";
 import gadgetgalaxy from "./gadgetgalaxy.png";
 import blogbuddy from "./blogbuddy.png";
 import careerforall from "./careerforall.png";
@@ -66,7 +64,6 @@ import hsc from "./hsc.png";
 export {
   careerforall,
   resume,
-  demo,
   logo,
   backend,
   frontend,
@@ -89,7 +86,6 @@ export {
   html,
   java,
   javascript,
-  jquery,
   kubernetes,
   langchain,
   linux,
