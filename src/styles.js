@@ -11,7 +11,7 @@ const styles = {
   sectionHeadText:
     "text-white font-black md:text-[60px] sm:text-[50px] xs:text-[40px] text-[30px]",
   sectionSubText:
-    "sm:text-[18px] text-[14px] text-secondary uppercase tracking-wider",
+    "font-mono sm:text-[16px] text-[12px] text-secondary uppercase tracking-wider",
   heroHeadTextCustom:
     "kalam-bold text-[#915eff] lg:text-[100px] sm:text-[80px] xs:text-[50px] text-[36px] lg:leading-[98px] mt-2",
 };

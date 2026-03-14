@@ -32,11 +32,15 @@ const Stars = ({ paused = false, ...props }) => {
   );
 };
 
-const StarsCanvas = () => {
-  const [isVisible, setIsVisible] = useState(true);
+const StarsCanvas = ({ fixed = false }) => {
+  const [isVisible, setIsVisible] = useState(fixed ? true : false);
   const containerRef = useRef(null);
 
   useEffect(() => {
+    if (fixed) {
+      setIsVisible(true);
+      return;
+    }
     const el = containerRef.current;
     if (!el) return;
 
@@ -46,10 +50,13 @@ const StarsCanvas = () => {
     );
     observer.observe(el);
     return () => observer.disconnect();
-  }, []);
+  }, [fixed]);
 
   return (
-    <div ref={containerRef} className="w-full h-auto absolute inset-0 z-[-1]">
+    <div
+      ref={containerRef}
+      className={fixed ? "fixed inset-0 w-full h-full z-[-1]" : "w-full h-auto absolute inset-0 z-[-1]"}
+    >
       <Canvas camera={{ position: [0, 0, 1] }}>
         <Suspense fallback={null}>
           <Stars paused={!isVisible} />

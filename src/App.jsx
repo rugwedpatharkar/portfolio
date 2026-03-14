@@ -52,8 +52,11 @@ const App = () => {
 
   return (
     <ToastProvider>
-      <div className="relative z-0 bg-primary">
+      <div className="relative z-0">
         <Preloader />
+        <Suspense fallback={null}>
+          <StarsCanvas fixed />
+        </Suspense>
         <GradientMesh />
         <ContextualCursor />
         <ScrollProgressBar />
@@ -64,12 +67,12 @@ const App = () => {
         >
           Skip to main content
         </a>
-        <div className="bg-hero-pattern bg-cover bg-no-repeat bg-center">
+        <div className="bg-hero-pattern bg-cover bg-no-repeat bg-center relative">
           <Navbar />
           <Hero />
         </div>
 
-        <WaveDivider color="#050816" />
+        <WaveDivider color="rgba(5, 8, 22, 0.4)" />
 
         <ErrorBoundary>
           <About />
@@ -80,13 +83,13 @@ const App = () => {
 
         <SvgLineDraw variant="circuit" />
 
-        <WaveDivider color="#1d1836" />
-        <div className="bg-[#1d1836]">
+        <WaveDivider color="rgba(29, 24, 54, 0.5)" />
+        <div className="bg-[#1d1836]/50 backdrop-blur-sm">
           <ErrorBoundary>
             <Experience />
           </ErrorBoundary>
         </div>
-        <WaveDivider color="#1d1836" flip />
+        <WaveDivider color="rgba(29, 24, 54, 0.5)" flip />
 
         <SvgLineDraw variant="nodes" />
 
@@ -124,9 +127,6 @@ const App = () => {
           <ErrorBoundary>
             <Contact />
           </ErrorBoundary>
-          <Suspense fallback={null}>
-            <StarsCanvas />
-          </Suspense>
         </div>
         <Footer />
         <FloatingActionMenu />

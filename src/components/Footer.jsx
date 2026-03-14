@@ -6,7 +6,8 @@ const Footer = () => {
   const currentYear = new Date().getFullYear();
 
   return (
-    <footer className="bg-tertiary py-6 sm:py-8 px-4 sm:px-6">
+    <footer className="glass-card-dark py-6 sm:py-8 px-4 sm:px-6 border-t border-[#915eff]/10"
+      style={{ borderLeft: "none", borderRight: "none", borderBottom: "none", borderRadius: 0 }}>
       <div className="max-w-7xl 3xl:max-w-[2000px] mx-auto flex flex-col md:flex-row justify-between items-center gap-4 sm:gap-6">
         <div className="text-center md:text-left">
           <p className="text-white font-bold text-base sm:text-lg">{personalInfo.fullName}</p>

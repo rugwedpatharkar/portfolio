@@ -70,7 +70,7 @@ const Contact = () => {
     <div className="xl:mt-12 flex flex-col-reverse xl:flex-row gap-6 sm:gap-10 overflow-hidden">
       <motion.div
         variants={slideIn("left", "tween", 0.2, 1)}
-        className="flex-[0.75] bg-black-100 p-5 sm:p-8 rounded-2xl"
+        className="flex-[0.75] glass-card-dark p-5 sm:p-8 rounded-2xl"
       >
         <p className={styles.sectionSubText}>Get in Touch</p>
         <TextScramble text="Contact" as="h2" className={styles.sectionHeadText} />
@@ -87,7 +87,7 @@ const Contact = () => {
               value={form.name}
               onChange={handleChange}
               placeholder="What's your name?"
-              className="bg-tertiary py-3 sm:py-4 px-4 sm:px-6 placeholder:text-secondary text-white rounded-lg outline-none border-none font-medium text-sm sm:text-base"
+              className="glass-card py-3 sm:py-4 px-4 sm:px-6 placeholder:text-secondary text-white rounded-lg outline-none font-medium text-sm sm:text-base"
             />
           </label>
           <label className="flex flex-col">
@@ -98,7 +98,7 @@ const Contact = () => {
               value={form.email}
               onChange={handleChange}
               placeholder="What's your email?"
-              className="bg-tertiary py-3 sm:py-4 px-4 sm:px-6 placeholder:text-secondary text-white rounded-lg outline-none border-none font-medium text-sm sm:text-base"
+              className="glass-card py-3 sm:py-4 px-4 sm:px-6 placeholder:text-secondary text-white rounded-lg outline-none font-medium text-sm sm:text-base"
             />
           </label>
           <label className="flex flex-col">
@@ -109,7 +109,7 @@ const Contact = () => {
               value={form.message}
               onChange={handleChange}
               placeholder="What do you want to say?"
-              className="bg-tertiary py-3 sm:py-4 px-4 sm:px-6 placeholder:text-secondary text-white rounded-lg outline-none border-none font-medium resize-none text-sm sm:text-base"
+              className="glass-card py-3 sm:py-4 px-4 sm:px-6 placeholder:text-secondary text-white rounded-lg outline-none font-medium resize-none text-sm sm:text-base"
             />
           </label>
           <motion.button
@@ -117,7 +117,7 @@ const Contact = () => {
             whileHover={{ scale: 1.02 }}
             whileTap={{ scale: 0.98 }}
             disabled={loading}
-            className="ripple-btn text-white font-bold py-3 px-8 rounded-lg focus:outline-none transition duration-300 ease-in-out w-full sm:w-auto bg-tertiary border border-secondary/30 hover:border-secondary/60 disabled:opacity-50"
+            className="ripple-btn text-white font-bold py-3 px-8 rounded-lg focus:outline-none transition duration-300 ease-in-out w-full sm:w-auto glass-card border border-secondary/30 hover:border-[#915eff] disabled:opacity-50"
           >
             {loading ? "Sending..." : "Send Message"}
           </motion.button>

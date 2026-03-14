@@ -18,7 +18,7 @@ const GitHubActivity = () => {
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
           transition={{ duration: 0.6 }}
-          className="w-full max-w-4xl overflow-hidden rounded-2xl bg-tertiary p-4 sm:p-6"
+          className="w-full max-w-4xl overflow-hidden rounded-2xl glass-card p-4 sm:p-6"
         >
           <img
             src={`https://ghchart.rshah.org/915eff/${personalInfo.githubUsername}`}
@@ -33,7 +33,7 @@ const GitHubActivity = () => {
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
           transition={{ delay: 0.2, duration: 0.6 }}
-          className="w-full max-w-4xl overflow-hidden rounded-2xl bg-tertiary p-4 sm:p-6"
+          className="w-full max-w-4xl overflow-hidden rounded-2xl glass-card p-4 sm:p-6"
         >
           <img
             src={`https://github-readme-stats.vercel.app/api?username=${personalInfo.githubUsername}&show_icons=true&theme=tokyonight&hide_border=true&bg_color=1d1836&title_color=915eff&icon_color=00cea8&text_color=aaa6c3`}
@@ -53,7 +53,7 @@ const GitHubActivity = () => {
           transition={{ delay: 0.4 }}
           whileHover={{ scale: 1.02 }}
           whileTap={{ scale: 0.98 }}
-          className="text-white font-medium py-3 px-6 rounded-full bg-tertiary border border-secondary/30 hover:border-[#915eff] transition-colors text-sm sm:text-base"
+          className="text-white font-medium py-3 px-6 rounded-full glass-card hover:border-[#915eff] transition-colors text-sm sm:text-base"
         >
           View Full Profile on GitHub
         </motion.a>

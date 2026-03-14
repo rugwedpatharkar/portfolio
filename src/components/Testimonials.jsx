@@ -14,8 +14,8 @@ const Testimonials = () => {
   const prev = () => setCurrent((prev) => (prev - 1 + testimonials.length) % testimonials.length);
 
   return (
-    <div className="bg-black-100 rounded-[20px]">
-      <div className={`bg-tertiary rounded-2xl ${styles.padding} min-h-[200px] sm:min-h-[250px]`}>
+    <div className="glass-section rounded-[20px]">
+      <div className={`glass-card rounded-2xl ${styles.padding} min-h-[200px] sm:min-h-[250px]`}>
         <motion.div variants={textVariant()}>
           <p className={styles.sectionSubText}>What Others Say</p>
           <TextScramble text="Testimonials" as="h2" className={styles.sectionHeadText} />
@@ -31,7 +31,7 @@ const Testimonials = () => {
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0, y: -20 }}
               transition={{ duration: 0.4 }}
-              className="bg-[#1d1836] rounded-2xl p-6 sm:p-10"
+              className="glass-card-dark rounded-2xl p-6 sm:p-10"
             >
               <svg className="w-8 h-8 sm:w-10 sm:h-10 text-[#915eff] mb-4" fill="currentColor" viewBox="0 0 24 24">
                 <path d="M14.017 21v-7.391c0-5.704 3.731-9.57 8.983-10.609l.995 2.151c-2.432.917-3.995 3.638-3.995 5.849h4v10h-9.983zm-14.017 0v-7.391c0-5.704 3.731-9.57 8.983-10.609l.995 2.151c-2.432.917-3.995 3.638-3.995 5.849h4v10h-9.983z" />
@@ -57,7 +57,7 @@ const Testimonials = () => {
             <div className="flex justify-center gap-3 mt-6">
               <button
                 onClick={prev}
-                className="w-10 h-10 rounded-full bg-tertiary border border-secondary/30 hover:border-[#915eff] text-white flex items-center justify-center transition-colors"
+                className="w-10 h-10 rounded-full glass-card border border-secondary/30 hover:border-[#915eff] text-white flex items-center justify-center transition-colors"
                 aria-label="Previous testimonial"
               >
                 <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
@@ -78,7 +78,7 @@ const Testimonials = () => {
               </div>
               <button
                 onClick={next}
-                className="w-10 h-10 rounded-full bg-tertiary border border-secondary/30 hover:border-[#915eff] text-white flex items-center justify-center transition-colors"
+                className="w-10 h-10 rounded-full glass-card border border-secondary/30 hover:border-[#915eff] text-white flex items-center justify-center transition-colors"
                 aria-label="Next testimonial"
               >
                 <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>

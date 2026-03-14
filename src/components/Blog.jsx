@@ -16,10 +16,10 @@ const BlogCard = ({ post, index }) => (
     viewport={{ once: true }}
     transition={{ delay: index * 0.15, duration: 0.5 }}
     whileHover={{ y: -5 }}
-    className="block bg-tertiary rounded-2xl p-5 sm:p-6 card-shine glow-hover group"
+    className="block glass-card rounded-2xl p-5 sm:p-6 card-shine glow-hover group"
   >
     <div className="flex items-center gap-2 mb-3">
-      <span className="text-[#915eff] text-xs sm:text-sm font-medium">{post.date}</span>
+      <span className="text-[#915eff] text-xs sm:text-sm font-mono font-medium">{post.date}</span>
       <span className="w-1 h-1 rounded-full bg-secondary" />
       <span className="text-secondary text-xs">{post.tags[0]}</span>
     </div>
@@ -33,7 +33,7 @@ const BlogCard = ({ post, index }) => (
       {post.tags.map((tag, i) => (
         <span
           key={i}
-          className="text-[10px] sm:text-xs px-2 py-1 rounded-full bg-[#915eff]/10 text-[#915eff] border border-[#915eff]/20 tag-hover"
+          className="text-[10px] sm:text-xs font-mono px-2 py-1 rounded-full bg-[#915eff]/10 text-[#915eff] border border-[#915eff]/20 tag-hover"
         >
           {tag}
         </span>

@@ -28,7 +28,7 @@ const ProjectCard = ({
     >
       <Tilt
         options={{ max: 45, scale: 1, speed: 450 }}
-        className="bg-tertiary p-4 sm:p-5 rounded-2xl w-full card-shine"
+        className="glass-card p-4 sm:p-5 rounded-2xl w-full card-shine"
       >
         <div className="relative w-full h-[180px] xs:h-[200px] sm:h-[230px] overflow-hidden rounded-2xl group/img">
           <ImageSkeleton
@@ -84,7 +84,7 @@ const ProjectCard = ({
           {tags.map((tag, tagIndex) => (
             <p
               key={`tag-${tagIndex}`}
-              className={`text-[12px] sm:text-[14px] ${tag.color}`}
+              className={`text-[12px] sm:text-[14px] font-mono ${tag.color}`}
             >
               #{tag.name}
             </p>

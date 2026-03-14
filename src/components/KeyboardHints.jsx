@@ -79,7 +79,7 @@ const KeyboardHints = () => {
             {SECTIONS.map((s) => (
               <div key={s.key} className="flex items-center justify-between">
                 <span className="text-secondary text-xs capitalize">{s.id}</span>
-                <kbd className="text-[10px] px-1.5 py-0.5 bg-tertiary rounded border border-secondary/20 text-white font-mono">
+                <kbd className="text-[10px] px-1.5 py-0.5 bg-[#151030]/80 rounded border border-secondary/20 text-white font-mono">
                   {s.key}
                 </kbd>
               </div>
@@ -89,14 +89,14 @@ const KeyboardHints = () => {
             {SHORTCUTS.map((s) => (
               <div key={s.key} className="flex items-center justify-between">
                 <span className="text-secondary text-xs">{s.action}</span>
-                <kbd className="text-[10px] px-1.5 py-0.5 bg-tertiary rounded border border-secondary/20 text-white font-mono">
+                <kbd className="text-[10px] px-1.5 py-0.5 bg-[#151030]/80 rounded border border-secondary/20 text-white font-mono">
                   {s.key}
                 </kbd>
               </div>
             ))}
             <div className="flex items-center justify-between">
               <span className="text-secondary text-xs">Shortcuts</span>
-              <kbd className="text-[10px] px-1.5 py-0.5 bg-tertiary rounded border border-secondary/20 text-white font-mono">
+              <kbd className="text-[10px] px-1.5 py-0.5 bg-[#151030]/80 rounded border border-secondary/20 text-white font-mono">
                 ?
               </kbd>
             </div>

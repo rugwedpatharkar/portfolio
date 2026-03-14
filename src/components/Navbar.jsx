@@ -64,7 +64,7 @@ const Navbar = () => {
     <nav
       className={`${styles.paddingX} w-full flex items-center py-3 sm:py-5 fixed top-0 z-40 transition-colors duration-300 ${
         scrolling
-          ? "bg-primary/70 backdrop-blur-sm"
+          ? "bg-primary/50 backdrop-blur-md"
           : "bg-transparent"
       }`}
       style={{
@@ -118,7 +118,7 @@ const Navbar = () => {
           <div
             className={`mobile-menu ${
               toggle ? "flex" : "hidden"
-            } p-6 absolute top-16 sm:top-20 right-0 mx-4 my-2 min-w-[180px] z-50 rounded-xl bg-tertiary shadow-xl`}
+            } p-6 absolute top-16 sm:top-20 right-0 mx-4 my-2 min-w-[180px] z-50 rounded-xl glass-card shadow-xl`}
           >
             <ul className="list-none flex justify-end items-start flex-col gap-4 w-full">
               {navLinks.map((link) => (
@@ -126,7 +126,7 @@ const Navbar = () => {
                   key={link.id}
                   className={`${
                     active === link.title ? "text-white" : "text-secondary"
-                  } font-poppins font-medium cursor-pointer text-[16px] w-full`}
+                  } font-sans font-medium cursor-pointer text-[16px] w-full`}
                   onClick={() => handleItemClick(link)}
                 >
                   <a href={"#" + link.id} className="block w-full py-1">

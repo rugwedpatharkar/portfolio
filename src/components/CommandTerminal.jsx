@@ -124,7 +124,7 @@ const CommandTerminal = () => {
     <>
       <button
         onClick={() => setIsOpen(true)}
-        className="fixed bottom-3 left-20 sm:bottom-4 sm:left-24 z-50 w-10 h-10 sm:w-11 sm:h-11 rounded-full bg-tertiary border border-[#915eff]/30 hover:border-[#915eff] text-[#915eff] flex items-center justify-center shadow-lg transition-colors group"
+        className="fixed bottom-3 left-20 sm:bottom-4 sm:left-24 z-50 w-10 h-10 sm:w-11 sm:h-11 rounded-full glass-card border-[#915eff]/30 hover:border-[#915eff] text-[#915eff] flex items-center justify-center shadow-lg transition-colors group"
         aria-label="Open terminal"
         title="Ctrl + ` to toggle"
       >
@@ -146,7 +146,7 @@ const CommandTerminal = () => {
             className="fixed bottom-16 left-3 sm:bottom-20 sm:left-4 z-[60] w-[calc(100vw-24px)] max-w-[560px] rounded-xl overflow-hidden shadow-2xl border border-[#915eff]/20"
           >
             {/* Title bar */}
-            <div className="bg-[#1a1a2e] px-4 py-2 flex items-center justify-between">
+            <div className="bg-[#1a1a2e]/90 backdrop-blur-md px-4 py-2 flex items-center justify-between">
               <div className="flex items-center gap-2">
                 <div className="flex gap-1.5">
                   <button onClick={() => setIsOpen(false)} className="w-3 h-3 rounded-full bg-red-500 hover:bg-red-400 transition-colors" />
@@ -163,7 +163,7 @@ const CommandTerminal = () => {
             {/* Terminal body */}
             <div
               ref={scrollRef}
-              className="bg-[#0a0a1a] p-4 h-[300px] sm:h-[350px] overflow-y-auto font-mono text-sm"
+              className="bg-[#0a0a1a]/90 backdrop-blur-md p-4 h-[300px] sm:h-[350px] overflow-y-auto font-mono text-sm"
               onClick={() => inputRef.current?.focus()}
             >
               {lines.map((line, i) => (

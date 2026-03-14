@@ -17,7 +17,7 @@ const ResumeModal = ({ isOpen, onClose }) => {
             initial={{ scale: 0.9, opacity: 0 }}
             animate={{ scale: 1, opacity: 1 }}
             exit={{ scale: 0.9, opacity: 0 }}
-            className="relative w-full max-w-4xl h-[85vh] bg-tertiary rounded-2xl overflow-hidden shadow-2xl"
+            className="relative w-full max-w-4xl h-[85vh] glass-card rounded-2xl overflow-hidden shadow-2xl"
             onClick={(e) => e.stopPropagation()}
           >
             <div className="flex items-center justify-between p-4 border-b border-secondary/20">

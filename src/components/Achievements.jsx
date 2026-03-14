@@ -15,7 +15,7 @@ const AchievementCard = ({ achievement, index }) => (
     className="relative flex items-start gap-4 sm:gap-6"
   >
     <div className="flex flex-col items-center">
-      <div className="w-12 h-12 sm:w-14 sm:h-14 rounded-full bg-tertiary border-2 border-[#915eff] flex items-center justify-center text-xl sm:text-2xl flex-shrink-0">
+      <div className="w-12 h-12 sm:w-14 sm:h-14 rounded-full glass-card border-2 border-[#915eff] flex items-center justify-center text-xl sm:text-2xl flex-shrink-0">
         {achievement.icon}
       </div>
       {index < achievements.length - 1 && (
@@ -23,7 +23,7 @@ const AchievementCard = ({ achievement, index }) => (
       )}
     </div>
     <div className="pb-8 sm:pb-12">
-      <span className="text-[#915eff] text-xs sm:text-sm font-semibold">{achievement.year}</span>
+      <span className="text-[#915eff] text-xs sm:text-sm font-mono font-semibold">{achievement.year}</span>
       <h3 className="text-white font-bold text-base sm:text-lg mt-1">{achievement.title}</h3>
       <p className="text-secondary text-xs sm:text-sm mt-1 leading-relaxed">{achievement.description}</p>
     </div>

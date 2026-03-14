@@ -42,9 +42,9 @@ const EducationCard = ({ index, marks, name, degree, image }) => (
 
 const Education = () => {
   return (
-    <div className="bg-black-100 rounded-[20px]">
+    <div className="glass-section rounded-[20px]">
       <div
-        className={`bg-tertiary rounded-2xl ${styles.padding} min-h-[200px] sm:min-h-[300px]`}
+        className={`glass-card rounded-2xl ${styles.padding} min-h-[200px] sm:min-h-[300px]`}
       >
         <motion.div variants={textVariant()}>
           <p className={styles.sectionSubText}>Educational Details</p>

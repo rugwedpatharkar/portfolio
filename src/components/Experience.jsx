@@ -14,8 +14,8 @@ import TextScramble from "./TextScramble";
 
 const ExperienceCard = ({ experience }) => (
   <VerticalTimelineElement
-    contentStyle={{ background: "#1d1836", color: "#fff" }}
-    contentArrowStyle={{ borderRight: "7px solid #232631" }}
+    contentStyle={{ background: "rgba(29, 24, 54, 0.6)", backdropFilter: "blur(16px)", WebkitBackdropFilter: "blur(16px)", border: "1px solid rgba(145, 94, 255, 0.1)", color: "#fff" }}
+    contentArrowStyle={{ borderRight: "7px solid rgba(29, 24, 54, 0.6)" }}
     date={experience.date}
     iconStyle={{ background: experience.iconBg }}
     icon={

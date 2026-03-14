@@ -36,7 +36,7 @@ const MusicToggle = () => {
   return (
     <button
       onClick={toggle}
-      className="fixed bottom-3 left-[8.5rem] sm:bottom-4 sm:left-[9.5rem] z-50 w-10 h-10 sm:w-11 sm:h-11 rounded-full bg-tertiary border border-secondary/30 hover:border-[#915eff] text-white flex items-center justify-center shadow-lg transition-colors group"
+      className="fixed bottom-3 left-[8.5rem] sm:bottom-4 sm:left-[9.5rem] z-50 w-10 h-10 sm:w-11 sm:h-11 rounded-full glass-card hover:border-[#915eff] text-white flex items-center justify-center shadow-lg transition-colors group"
       aria-label={isPlaying ? "Pause music" : "Play music"}
     >
       <AnimatePresence mode="wait">

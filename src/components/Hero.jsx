@@ -29,8 +29,8 @@ const Hero = () => {
             <Typewriter
               options={{
                 strings: [
-                  '<span class="ubuntu-mono-bold green-text-gradient">Full Stack Developer</span>',
-                  '<span class="ubuntu-mono-bold green-text-gradient">Tech Enthusiast</span>',
+                  '<span class="font-mono-bold green-text-gradient">Full Stack Developer</span>',
+                  '<span class="font-mono-bold green-text-gradient">Tech Enthusiast</span>',
                 ],
                 autoStart: true,
                 delay: 75,

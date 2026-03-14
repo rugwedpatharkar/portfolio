@@ -58,10 +58,10 @@ const FunFacts = () => {
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
             transition={{ delay: index * 0.15, duration: 0.5 }}
-            className="bg-tertiary rounded-2xl p-5 sm:p-8 text-center card-shine glow-hover"
+            className="glass-card rounded-2xl p-5 sm:p-8 text-center card-shine glow-hover"
           >
             <span className="text-3xl sm:text-4xl block mb-3">{fact.icon}</span>
-            <p className="text-white font-bold text-2xl sm:text-4xl">
+            <p className="text-white font-bold text-2xl sm:text-4xl font-mono">
               <AnimatedCounter value={fact.value} suffix={fact.suffix} />
             </p>
             <p className="text-secondary text-xs sm:text-sm mt-2">{fact.label}</p>

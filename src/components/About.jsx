@@ -22,7 +22,7 @@ const ServiceCard = ({ index, title, icon }) => {
         variants={fadeIn("right", "spring", 0.5 * index, 0.75)}
         className="w-full green-pink-gradient p-[1px] rounded-[20px] shadow-card"
       >
-        <div className="bg-tertiary rounded-[20px] py-5 px-8 sm:px-12 min-h-[200px] xs:min-h-[250px] sm:min-h-[280px] flex justify-evenly items-center flex-col card-shine">
+        <div className="glass-card rounded-[20px] py-5 px-8 sm:px-12 min-h-[200px] xs:min-h-[250px] sm:min-h-[280px] flex justify-evenly items-center flex-col card-shine">
           <img src={icon} alt={title} className="w-12 h-12 sm:w-16 sm:h-16 object-contain" />
           <h3 className="font-bold text-center text-white text-[16px] sm:text-[20px]">
             {title}
@@ -67,7 +67,7 @@ const About = () => {
                   whileHover={{ scale: 1.05 }}
                   whileTap={{ scale: 0.95 }}
                   onClick={() => setShowResume(true)}
-                  className="ripple-btn text-white font-bold py-3 px-6 rounded-full focus:outline-none transition duration-300 ease-in-out bg-tertiary border border-secondary/30 hover:border-[#915eff] whitespace-nowrap text-sm sm:text-base"
+                  className="ripple-btn text-white font-bold py-3 px-6 rounded-full focus:outline-none transition duration-300 ease-in-out glass-card hover:border-[#915eff] whitespace-nowrap text-sm sm:text-base"
                 >
                   View Resume
                 </motion.button>

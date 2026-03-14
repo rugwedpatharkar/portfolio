@@ -89,7 +89,7 @@ const SkillIcon = ({ skill }) => {
       <div
         className="absolute inset-[3px] rounded-md flex items-center justify-center p-1.5 sm:p-2 md:p-3"
         style={{
-          backgroundImage: "linear-gradient(45deg, #151030, #1f1630)",
+          backgroundImage: "linear-gradient(45deg, rgba(21, 16, 48, 0.8), rgba(31, 22, 48, 0.8))",
           boxShadow: tilt.scale > 1
             ? "0 0 16px 4px rgba(145, 94, 255, 0.5)"
             : "0 0 8px 2px rgba(145, 94, 255, 0.3)",
