@@ -16,7 +16,7 @@ import JsonAboutCard from "./JsonAboutCard";
 const ServiceCard = memo(({ index, title, icon }) => {
   return (
     <Tilt
-      className="w-full xs:w-[200px]"
+      className="w-full"
       options={{ max: 45, scale: 1, speed: 450 }}
     >
       <motion.div

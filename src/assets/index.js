@@ -51,6 +51,7 @@ import vscode from "./skills/vscode.svg";
 
 // Other assets
 import photo from "./photo.png";
+import heroPhoto from "./hero-photo.png";
 import techentrepreneurs from "./company/te.png";
 import upswing from "./company/upswing.png";
 import demo from "./demo.png";
@@ -118,6 +119,7 @@ export {
   gadgetgalaxy,
   blogbuddy,
   photo,
+  heroPhoto,
   web,
   ssc,
   hsc,

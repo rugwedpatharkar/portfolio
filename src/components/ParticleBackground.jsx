@@ -10,10 +10,18 @@ const ParticleBackground = () => {
     const ctx = canvas.getContext("2d");
     let width = (canvas.width = canvas.parentElement.offsetWidth);
     let height = (canvas.height = canvas.parentElement.offsetHeight);
-    // Fewer particles — 40 max instead of 80
-    const PARTICLE_COUNT = Math.min(40, Math.floor((width * height) / 25000));
-    const CONNECTION_DIST_SQ = 150 * 150; // Squared — avoid Math.sqrt
-    const MOUSE_DIST_SQ = 200 * 200;
+    const dpr = Math.min(window.devicePixelRatio || 1, 2);
+    canvas.width = width * dpr;
+    canvas.height = height * dpr;
+    canvas.style.width = width + "px";
+    canvas.style.height = height + "px";
+    ctx.scale(dpr, dpr);
+
+    const PARTICLE_COUNT = Math.min(60, Math.floor((width * height) / 18000));
+    const CONNECTION_DIST = 180;
+    const CONNECTION_DIST_SQ = CONNECTION_DIST * CONNECTION_DIST;
+    const MOUSE_ATTRACT_DIST = 250;
+    const MOUSE_ATTRACT_DIST_SQ = MOUSE_ATTRACT_DIST * MOUSE_ATTRACT_DIST;
 
     let particles = [];
 
@@ -23,9 +31,10 @@ const ParticleBackground = () => {
         particles.push({
           x: Math.random() * width,
           y: Math.random() * height,
-          vx: (Math.random() - 0.5) * 0.5,
-          vy: (Math.random() - 0.5) * 0.5,
-          radius: Math.random() * 2 + 1,
+          vx: (Math.random() - 0.5) * 0.4,
+          vy: (Math.random() - 0.5) * 0.4,
+          radius: Math.random() * 2 + 0.8,
+          baseRadius: Math.random() * 2 + 0.8,
         });
       }
     };
@@ -33,26 +42,30 @@ const ParticleBackground = () => {
     const animate = () => {
       ctx.clearRect(0, 0, width, height);
       const mouse = mouseRef.current;
-
-      // Batch particle fill
-      ctx.fillStyle = "rgba(145, 94, 255, 0.6)";
+      const hasMouse = mouse.x > -500;
 
       for (let i = 0; i < particles.length; i++) {
         const p = particles[i];
 
-        // Mouse repulsion — squared distance, no sqrt
-        const dx = p.x - mouse.x;
-        const dy = p.y - mouse.y;
-        const distSq = dx * dx + dy * dy;
-        if (distSq < MOUSE_DIST_SQ && distSq > 0) {
-          const dist = Math.sqrt(distSq); // Only sqrt when actually needed
-          const force = (200 - dist) / 200;
-          p.vx += (dx / dist) * force * 0.3;
-          p.vy += (dy / dist) * force * 0.3;
+        // Mouse attraction — gentle pull toward cursor
+        if (hasMouse) {
+          const dx = mouse.x - p.x;
+          const dy = mouse.y - p.y;
+          const distSq = dx * dx + dy * dy;
+          if (distSq < MOUSE_ATTRACT_DIST_SQ && distSq > 100) {
+            const dist = Math.sqrt(distSq);
+            const force = (1 - dist / MOUSE_ATTRACT_DIST) * 0.015;
+            p.vx += dx / dist * force;
+            p.vy += dy / dist * force;
+            // Glow up near cursor
+            p.radius = p.baseRadius + (1 - dist / MOUSE_ATTRACT_DIST) * 2;
+          } else {
+            p.radius += (p.baseRadius - p.radius) * 0.05;
+          }
         }
 
-        p.vx *= 0.98;
-        p.vy *= 0.98;
+        p.vx *= 0.985;
+        p.vy *= 0.985;
         p.x += p.vx;
         p.y += p.vy;
 
@@ -61,23 +74,42 @@ const ParticleBackground = () => {
         if (p.y < 0) p.y = height;
         if (p.y > height) p.y = 0;
 
+        // Draw particle with glow
+        const glowAlpha = Math.min(1, p.radius / (p.baseRadius + 1));
         ctx.beginPath();
         ctx.arc(p.x, p.y, p.radius, 0, Math.PI * 2);
+        ctx.fillStyle = `rgba(145, 94, 255, ${0.4 + glowAlpha * 0.4})`;
         ctx.fill();
 
-        // Connections — squared distance, no sqrt, batch stroke
+        // Connections
         for (let j = i + 1; j < particles.length; j++) {
           const p2 = particles[j];
           const cdx = p.x - p2.x;
           const cdy = p.y - p2.y;
           const cdistSq = cdx * cdx + cdy * cdy;
           if (cdistSq < CONNECTION_DIST_SQ) {
-            const alpha = 0.15 * (1 - Math.sqrt(cdistSq) / 150);
+            const ratio = 1 - Math.sqrt(cdistSq) / CONNECTION_DIST;
+            const alpha = ratio * 0.2;
+
+            // Connections near mouse are brighter and teal-tinted
+            let r = 145, g = 94, b = 255;
+            if (hasMouse) {
+              const midX = (p.x + p2.x) / 2;
+              const midY = (p.y + p2.y) / 2;
+              const mDistSq = (midX - mouse.x) ** 2 + (midY - mouse.y) ** 2;
+              if (mDistSq < MOUSE_ATTRACT_DIST_SQ) {
+                const t = 1 - Math.sqrt(mDistSq) / MOUSE_ATTRACT_DIST;
+                r = Math.round(145 + (0 - 145) * t);
+                g = Math.round(94 + (206 - 94) * t);
+                b = Math.round(255 + (168 - 255) * t);
+              }
+            }
+
             ctx.beginPath();
             ctx.moveTo(p.x, p.y);
             ctx.lineTo(p2.x, p2.y);
-            ctx.strokeStyle = `rgba(145, 94, 255, ${alpha})`;
-            ctx.lineWidth = 0.5;
+            ctx.strokeStyle = `rgba(${r}, ${g}, ${b}, ${alpha})`;
+            ctx.lineWidth = ratio * 1.2;
             ctx.stroke();
           }
         }
@@ -90,12 +122,16 @@ const ParticleBackground = () => {
     animate();
 
     const handleResize = () => {
-      width = canvas.width = canvas.parentElement.offsetWidth;
-      height = canvas.height = canvas.parentElement.offsetHeight;
+      width = canvas.parentElement.offsetWidth;
+      height = canvas.parentElement.offsetHeight;
+      canvas.width = width * dpr;
+      canvas.height = height * dpr;
+      canvas.style.width = width + "px";
+      canvas.style.height = height + "px";
+      ctx.scale(dpr, dpr);
       createParticles();
     };
 
-    // Cache rect — only update on resize, not every mousemove
     let cachedRect = canvas.getBoundingClientRect();
     const updateRect = () => { cachedRect = canvas.getBoundingClientRect(); };
 
@@ -104,13 +140,14 @@ const ParticleBackground = () => {
       mouseRef.current = { x: e.clientX - cachedRect.left, y: e.clientY - cachedRect.top };
     };
 
-    window.addEventListener("resize", () => { handleResize(); updateRect(); });
+    const resizeHandler = () => { handleResize(); updateRect(); };
+    window.addEventListener("resize", resizeHandler);
     parentEl.addEventListener("mousemove", handleMouse, { passive: true });
     parentEl.addEventListener("mouseleave", () => { mouseRef.current = { x: -1000, y: -1000 }; });
 
     return () => {
       cancelAnimationFrame(animRef.current);
-      window.removeEventListener("resize", handleResize);
+      window.removeEventListener("resize", resizeHandler);
     };
   }, []);
 
@@ -118,7 +155,7 @@ const ParticleBackground = () => {
     <canvas
       ref={canvasRef}
       className="absolute inset-0 w-full h-full pointer-events-none z-[1]"
-      style={{ opacity: 0.7 }}
+      style={{ opacity: 0.8 }}
     />
   );
 };
