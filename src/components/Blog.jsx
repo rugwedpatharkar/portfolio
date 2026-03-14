@@ -1,4 +1,5 @@
 /* eslint-disable react/prop-types */
+import { memo } from "react";
 import { motion } from "framer-motion";
 import { styles } from "../styles";
 import { SectionWrapper } from "../hoc";
@@ -6,7 +7,7 @@ import { blogPosts } from "../constants";
 import { textVariant } from "../utils/motion";
 import TextScramble from "./TextScramble";
 
-const BlogCard = ({ post, index }) => (
+const BlogCard = memo(({ post, index }) => (
   <motion.a
     href={post.link}
     target={post.link !== "#" ? "_blank" : undefined}
@@ -40,7 +41,7 @@ const BlogCard = ({ post, index }) => (
       ))}
     </div>
   </motion.a>
-);
+));
 
 const Blog = () => {
   return (

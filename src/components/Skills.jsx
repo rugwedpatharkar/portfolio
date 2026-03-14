@@ -1,6 +1,6 @@
 /* eslint-disable react/prop-types */
 /* eslint-disable react-refresh/only-export-components */
-import { useState, useEffect, useRef, useCallback } from "react";
+import { useState, useEffect, useRef, useCallback, memo } from "react";
 import { motion } from "framer-motion";
 import { textVariant } from "../utils/motion";
 import { styles } from "../styles";
@@ -60,51 +60,58 @@ const ProficiencyRing = ({ level, strokeWidth = 3 }) => {
   );
 };
 
-const SkillIcon = ({ skill }) => {
+const SkillIcon = memo(({ skill }) => {
   const ref = useRef(null);
-  const [tilt, setTilt] = useState({ rotateX: 0, rotateY: 0, scale: 1 });
+  const innerRef = useRef(null);
 
   const handleMouseMove = useCallback((e) => {
-    const rect = ref.current.getBoundingClientRect();
+    const el = ref.current;
+    if (!el) return;
+    const rect = el.getBoundingClientRect();
     const x = (e.clientX - rect.left) / rect.width - 0.5;
     const y = (e.clientY - rect.top) / rect.height - 0.5;
-    setTilt({ rotateX: -y * 25, rotateY: x * 25, scale: 1.15 });
+    el.style.transform = `perspective(500px) rotateX(${-y * 25}deg) rotateY(${x * 25}deg) scale(1.15)`;
+    el.style.zIndex = "20";
+    if (innerRef.current) innerRef.current.style.boxShadow = "0 0 16px 4px rgba(145, 94, 255, 0.5)";
   }, []);
 
   const handleMouseLeave = useCallback(() => {
-    setTilt({ rotateX: 0, rotateY: 0, scale: 1 });
+    const el = ref.current;
+    if (!el) return;
+    el.style.transform = "";
+    el.style.zIndex = "1";
+    if (innerRef.current) innerRef.current.style.boxShadow = "0 0 8px 2px rgba(145, 94, 255, 0.3)";
   }, []);
 
   return (
-    <motion.div
+    <div
       ref={ref}
       onMouseMove={handleMouseMove}
       onMouseLeave={handleMouseLeave}
-      animate={tilt}
-      transition={{ type: "spring", stiffness: 300, damping: 20 }}
       className="relative rounded-md overflow-visible flex items-center justify-center w-14 h-14 sm:w-16 sm:h-16 md:w-20 md:h-20 3xl:w-24 3xl:h-24 group"
-      style={{ perspective: 500, zIndex: tilt.scale > 1 ? 20 : 1 }}
-      title={`${skill.name} - ${skill.level}%`}
+      style={{ transition: "transform 0.15s ease-out", zIndex: 1 }}
+      aria-label={`${skill.name} - ${skill.level}% proficiency`}
+      role="img"
+      tabIndex={0}
     >
       <ProficiencyRing level={skill.level} />
       <div
+        ref={innerRef}
         className="absolute inset-[3px] rounded-md flex items-center justify-center p-1.5 sm:p-2 md:p-3"
         style={{
           backgroundImage: "linear-gradient(45deg, rgba(21, 16, 48, 0.8), rgba(31, 22, 48, 0.8))",
-          boxShadow: tilt.scale > 1
-            ? "0 0 16px 4px rgba(145, 94, 255, 0.5)"
-            : "0 0 8px 2px rgba(145, 94, 255, 0.3)",
+          boxShadow: "0 0 8px 2px rgba(145, 94, 255, 0.3)",
           transition: "box-shadow 0.3s ease",
         }}
       >
-        <img src={skill.icon} alt={skill.name} className="w-full h-full object-contain" />
+        <img src={skill.icon} alt={skill.name} className="w-full h-full object-contain" loading="lazy" />
       </div>
-      <div className="absolute -top-8 left-1/2 -translate-x-1/2 opacity-0 group-hover:opacity-100 transition-opacity bg-black/90 text-white text-micro sm:text-caption px-2 py-1 rounded whitespace-nowrap pointer-events-none z-30 shadow-lg">
+      <div className="absolute -top-8 left-1/2 -translate-x-1/2 opacity-0 group-hover:opacity-100 group-focus-within:opacity-100 transition-opacity bg-black/90 text-white text-micro sm:text-caption px-2 py-1 rounded whitespace-nowrap pointer-events-none z-30 shadow-lg">
         {skill.name} ({skill.level}%)
       </div>
-    </motion.div>
+    </div>
   );
-};
+});
 
 const Skills = () => {
   const [view, setView] = useState("globe");

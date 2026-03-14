@@ -9,17 +9,21 @@ import TextScramble from "./TextScramble";
 
 const AnimatedCounter = ({ value, suffix = "", duration = 2000 }) => {
   const [count, setCount] = useState(0);
-  const [hasAnimated, setHasAnimated] = useState(false);
   const ref = useRef(null);
+  const hasAnimatedRef = useRef(false);
 
   useEffect(() => {
+    const el = ref.current;
+    if (!el) return;
+
+    let timer;
     const observer = new IntersectionObserver(
       ([entry]) => {
-        if (entry.isIntersecting && !hasAnimated) {
-          setHasAnimated(true);
+        if (entry.isIntersecting && !hasAnimatedRef.current) {
+          hasAnimatedRef.current = true;
           let start = 0;
           const increment = value / (duration / 16);
-          const timer = setInterval(() => {
+          timer = setInterval(() => {
             start += increment;
             if (start >= value) {
               setCount(value);
@@ -32,9 +36,12 @@ const AnimatedCounter = ({ value, suffix = "", duration = 2000 }) => {
       },
       { threshold: 0.5 }
     );
-    if (ref.current) observer.observe(ref.current);
-    return () => observer.disconnect();
-  }, [value, duration, hasAnimated]);
+    observer.observe(el);
+    return () => {
+      observer.disconnect();
+      clearInterval(timer);
+    };
+  }, [value, duration]);
 
   return (
     <span ref={ref} className="tabular-nums">

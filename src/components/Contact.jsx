@@ -26,6 +26,7 @@ const Contact = () => {
 
   const handleSubmit = (e) => {
     e.preventDefault();
+    if (loading) return; // prevent double-submit
 
     if (!form.name.trim() || !form.email.trim() || !form.message.trim()) {
       toast("Please fill in all fields.", "warning");
@@ -38,20 +39,30 @@ const Contact = () => {
       return;
     }
 
+    const serviceId = import.meta.env.VITE_EMAILJS_SERVICE_ID;
+    const templateId = import.meta.env.VITE_EMAILJS_TEMPLATE_ID;
+    const publicKey = import.meta.env.VITE_EMAILJS_PUBLIC_KEY;
+    const toEmail = import.meta.env.VITE_EMAILJS_TO_EMAIL;
+
+    if (!serviceId || !templateId || !publicKey || !toEmail) {
+      toast("Email service is not configured. Please try again later.", "error");
+      return;
+    }
+
     setLoading(true);
 
     emailjs
       .send(
-        import.meta.env.VITE_EMAILJS_SERVICE_ID,
-        import.meta.env.VITE_EMAILJS_TEMPLATE_ID,
+        serviceId,
+        templateId,
         {
           from_name: form.name,
           to_name: "Rugwed Patharkar",
           from_email: form.email,
-          to_email: "rugwedsp2000@gmail.com",
+          to_email: toEmail,
           message: form.message,
         },
-        import.meta.env.VITE_EMAILJS_PUBLIC_KEY
+        publicKey
       )
       .then(
         () => {
@@ -87,7 +98,10 @@ const Contact = () => {
               value={form.name}
               onChange={handleChange}
               placeholder="What's your name?"
-              className="glass-card py-3 sm:py-4 px-4 sm:px-6 placeholder:text-secondary text-white rounded-lg outline-none font-medium text-body-sm sm:text-body"
+              required
+              aria-required="true"
+              disabled={loading}
+              className="glass-card py-3 sm:py-4 px-4 sm:px-6 placeholder:text-secondary text-white rounded-lg outline-none font-medium text-body-sm sm:text-body disabled:opacity-50"
             />
           </label>
           <label className="flex flex-col">
@@ -98,7 +112,10 @@ const Contact = () => {
               value={form.email}
               onChange={handleChange}
               placeholder="What's your email?"
-              className="glass-card py-3 sm:py-4 px-4 sm:px-6 placeholder:text-secondary text-white rounded-lg outline-none font-medium text-body-sm sm:text-body"
+              required
+              aria-required="true"
+              disabled={loading}
+              className="glass-card py-3 sm:py-4 px-4 sm:px-6 placeholder:text-secondary text-white rounded-lg outline-none font-medium text-body-sm sm:text-body disabled:opacity-50"
             />
           </label>
           <label className="flex flex-col">
@@ -109,7 +126,10 @@ const Contact = () => {
               value={form.message}
               onChange={handleChange}
               placeholder="What do you want to say?"
-              className="glass-card py-3 sm:py-4 px-4 sm:px-6 placeholder:text-secondary text-white rounded-lg outline-none font-medium resize-none text-body-sm sm:text-body"
+              required
+              aria-required="true"
+              disabled={loading}
+              className="glass-card py-3 sm:py-4 px-4 sm:px-6 placeholder:text-secondary text-white rounded-lg outline-none font-medium resize-none text-body-sm sm:text-body disabled:opacity-50"
             />
           </label>
           <motion.button

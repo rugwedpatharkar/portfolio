@@ -1,6 +1,6 @@
 /* eslint-disable react/prop-types */
 /* eslint-disable react-refresh/only-export-components */
-import React, { useState } from "react";
+import React, { useState, memo } from "react";
 import { motion } from "framer-motion";
 import { styles } from "../styles";
 import { services, personalInfo } from "../constants";
@@ -13,7 +13,7 @@ import TextScramble from "./TextScramble";
 import MagneticButton from "./MagneticButton";
 import JsonAboutCard from "./JsonAboutCard";
 
-const ServiceCard = ({ index, title, icon }) => {
+const ServiceCard = memo(({ index, title, icon }) => {
   return (
     <Tilt
       className="w-full xs:w-[200px]"
@@ -32,7 +32,7 @@ const ServiceCard = ({ index, title, icon }) => {
       </motion.div>
     </Tilt>
   );
-};
+});
 
 const About = () => {
   const [showResume, setShowResume] = useState(false);
@@ -66,6 +66,7 @@ const About = () => {
               <img
                 src={photo}
                 alt="Rugwed Patharkar"
+                loading="lazy"
                 className="object-cover w-full aspect-[3/4] rounded-2xl transition-transform duration-700 group-hover:scale-105"
               />
 
@@ -113,7 +114,7 @@ const About = () => {
                   <span className="absolute inset-0 bg-gradient-to-r from-[#915eff] to-[#7c3aed] rounded-full" />
                   <span className="absolute inset-0 bg-gradient-to-r from-[#7c3aed] to-[#00cea8] rounded-full opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
                   <span className="relative z-[1] flex items-center gap-2">
-                    <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                    <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2} aria-hidden="true">
                       <path strokeLinecap="round" strokeLinejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
                       <path strokeLinecap="round" strokeLinejoin="round" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
                     </svg>
@@ -129,7 +130,7 @@ const About = () => {
                     whileTap={{ scale: 0.95 }}
                     className="text-white font-bold py-3 px-7 rounded-full focus:outline-none border border-[#915eff]/40 hover:border-[#915eff] whitespace-nowrap text-body-sm sm:text-body transition-colors duration-300 flex items-center gap-2"
                   >
-                    <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                    <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2} aria-hidden="true">
                       <path strokeLinecap="round" strokeLinejoin="round" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
                     </svg>
                     Download CV

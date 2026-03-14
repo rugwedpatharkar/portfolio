@@ -10,7 +10,7 @@ const VisitorCounter = () => {
     const KEY = "portfolio_visitor_count";
     const VISITED_KEY = "portfolio_has_visited";
 
-    let storedCount = parseInt(localStorage.getItem(KEY) || "4832", 10);
+    let storedCount = parseInt(localStorage.getItem(KEY) || "0", 10);
     const hasVisited = sessionStorage.getItem(VISITED_KEY);
 
     if (!hasVisited) {

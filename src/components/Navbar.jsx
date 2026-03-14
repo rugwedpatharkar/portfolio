@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { styles } from "../styles";
 import { navLinks } from "../constants";
 import { logo, menu, close } from "../assets";
@@ -9,11 +9,12 @@ const Navbar = () => {
   const [toggle, setToggle] = useState(false);
   const [scrolling, setScrolling] = useState(false);
 
+  const tickingRef = useRef(false);
+
   useEffect(() => {
-    let ticking = false;
     const handleScroll = () => {
-      if (ticking) return;
-      ticking = true;
+      if (tickingRef.current) return;
+      tickingRef.current = true;
       requestAnimationFrame(() => {
         setScrolling(window.scrollY > 0);
 
@@ -32,18 +33,19 @@ const Navbar = () => {
         if (visibleSection) {
           setActive(visibleSection.title);
         }
-        ticking = false;
+        tickingRef.current = false;
       });
     };
 
     window.addEventListener("scroll", handleScroll, { passive: true });
-    return () => {
-      window.removeEventListener("scroll", handleScroll);
-    };
+    return () => window.removeEventListener("scroll", handleScroll);
   }, []);
 
   useEffect(() => {
     if (!toggle) return;
+
+    // Lock body scroll while mobile menu is open
+    document.body.style.overflow = "hidden";
 
     const handleClickOutside = (e) => {
       if (!e.target.closest(".mobile-menu") && !e.target.closest(".menu-toggle")) {
@@ -51,8 +53,17 @@ const Navbar = () => {
       }
     };
 
+    const handleKeyDown = (e) => {
+      if (e.key === "Escape") setToggle(false);
+    };
+
     document.addEventListener("click", handleClickOutside);
-    return () => document.removeEventListener("click", handleClickOutside);
+    document.addEventListener("keydown", handleKeyDown);
+    return () => {
+      document.removeEventListener("click", handleClickOutside);
+      document.removeEventListener("keydown", handleKeyDown);
+      document.body.style.overflow = "";
+    };
   }, [toggle]);
 
   const handleItemClick = (link) => {
@@ -119,6 +130,7 @@ const Navbar = () => {
             className={`mobile-menu ${
               toggle ? "flex" : "hidden"
             } p-6 absolute top-16 sm:top-20 right-0 mx-4 my-2 min-w-[180px] z-50 rounded-xl glass-card shadow-xl`}
+            role="menu"
           >
             <ul className="list-none flex justify-end items-start flex-col gap-4 w-full">
               {navLinks.map((link) => (

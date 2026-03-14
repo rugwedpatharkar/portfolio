@@ -3,6 +3,7 @@ import { useState } from "react";
 
 const ImageSkeleton = ({ src, alt, className = "", shape = "rect", ...props }) => {
   const [loaded, setLoaded] = useState(false);
+  const [error, setError] = useState(false);
 
   const skeletonShape = {
     rect: "rounded-2xl",
@@ -40,13 +41,23 @@ const ImageSkeleton = ({ src, alt, className = "", shape = "rect", ...props }) =
           )}
         </div>
       )}
-      <img
-        src={src}
-        alt={alt}
-        className={`${className} transition-opacity duration-500 ${loaded ? "opacity-100" : "opacity-0"}`}
-        onLoad={() => setLoaded(true)}
-        {...props}
-      />
+      {error ? (
+        <div className={`${className} bg-tertiary flex items-center justify-center ${skeletonShape}`}>
+          <svg className="w-10 h-10 text-white/20" fill="currentColor" viewBox="0 0 24 24">
+            <path d="M21 5v6.59l-3-3.01-4 4.01-4-4-4 4-3-3.01V5c0-1.1.9-2 2-2h14c1.1 0 2 .9 2 2zm-3 6.42l3 3.01V19c0 1.1-.9 2-2 2H5c-1.1 0-2-.9-2-2v-6.58l3 2.99 4-4 4 4 4-3.99z" />
+          </svg>
+        </div>
+      ) : (
+        <img
+          src={src}
+          alt={alt}
+          className={`${className} transition-opacity duration-500 ${loaded ? "opacity-100" : "opacity-0"}`}
+          onLoad={() => setLoaded(true)}
+          onError={() => setError(true)}
+          loading="lazy"
+          {...props}
+        />
+      )}
     </div>
   );
 };
