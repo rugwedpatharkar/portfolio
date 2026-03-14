@@ -134,18 +134,45 @@ const experiences = [
     icon: upswing,
     iconBg: "#ffffff",
     date: "May 2024 – Present",
-    points: [
-      "Architected and developed scalable backend microservices using Python, FastAPI, and gRPC deployed on Google Kubernetes Engine (GKE), supporting multi-tenant hospitality operations across multiple production environments.",
-      "Developed API Gateway service translating external REST requests to internal gRPC backend calls, providing a unified API surface for client applications via Protocol Buffers.",
-      "Engineered a unified abstraction layer integrating 6+ third-party Property Management Systems using base class inheritance and polymorphic design, reducing code redundancy by 60% and enabling zero-downtime provider switching.",
-      "Optimized API response latency by 96% (from 5s to 200ms) through Redis caching, connection pooling, query optimization, and efficient data serialization.",
-      "Developed 5 iterations of an enterprise conversational AI agent using LangChain, LangGraph, and Agentic AI patterns, integrating 4 LLM providers (OpenAI, Gemini, Claude, Groq) with tool-calling via Model Context Protocol (MCP).",
-      "Built a RAG pipeline using ChromaDB vector database and sentence-transformer embeddings, enabling AI-driven knowledge retrieval and context-aware guest interactions.",
-      "Led a team of 2+ developers on integration workstreams, establishing reusable code architecture patterns and coordinating parallel development across multiple codebases.",
-      "Deployed self-hosted GitHub Actions runner infrastructure, automating CI/CD pipelines for Docker image builds, semantic versioning, and Kubernetes deployments to GCP.",
-      "Engineered event-driven architecture using RabbitMQ and Google Cloud Pub/Sub for asynchronous inter-service communication and real-time notifications via Firebase Cloud Messaging.",
-      "Managed infrastructure provisioning using Terraform and Helm/Helmfile across GKE clusters with Prometheus/Grafana monitoring.",
-      "Awarded Star Performer of the Quarter for delivering across multiple concurrent production projects.",
+    tech: ["Python", "FastAPI", "gRPC", "GKE", "LangChain", "Redis", "RabbitMQ", "Terraform", "Docker", "Helm"],
+    metrics: [
+      { value: "96%", label: "Latency Reduced" },
+      { value: "60%", label: "Code Reduced" },
+      { value: "6+", label: "Integrations" },
+      { value: "5", label: "AI Iterations" },
+    ],
+    achievement: "Awarded Star Performer of the Quarter",
+    categories: [
+      {
+        name: "Backend & Architecture",
+        points: [
+          "Architected and developed scalable backend microservices using Python, FastAPI, and gRPC deployed on Google Kubernetes Engine (GKE), supporting multi-tenant hospitality operations across multiple production environments.",
+          "Developed API Gateway service translating external REST requests to internal gRPC backend calls, providing a unified API surface for client applications via Protocol Buffers.",
+          "Engineered a unified abstraction layer integrating 6+ third-party Property Management Systems using base class inheritance and polymorphic design, reducing code redundancy by 60% and enabling zero-downtime provider switching.",
+          "Optimized API response latency by 96% (from 5s to 200ms) through Redis caching, connection pooling, query optimization, and efficient data serialization.",
+        ],
+      },
+      {
+        name: "AI & Machine Learning",
+        points: [
+          "Developed 5 iterations of an enterprise conversational AI agent using LangChain, LangGraph, and Agentic AI patterns, integrating 4 LLM providers (OpenAI, Gemini, Claude, Groq) with tool-calling via Model Context Protocol (MCP).",
+          "Built a RAG pipeline using ChromaDB vector database and sentence-transformer embeddings, enabling AI-driven knowledge retrieval and context-aware guest interactions.",
+        ],
+      },
+      {
+        name: "DevOps & Infrastructure",
+        points: [
+          "Deployed self-hosted GitHub Actions runner infrastructure, automating CI/CD pipelines for Docker image builds, semantic versioning, and Kubernetes deployments to GCP.",
+          "Engineered event-driven architecture using RabbitMQ and Google Cloud Pub/Sub for asynchronous inter-service communication and real-time notifications via Firebase Cloud Messaging.",
+          "Managed infrastructure provisioning using Terraform and Helm/Helmfile across GKE clusters with Prometheus/Grafana monitoring.",
+        ],
+      },
+      {
+        name: "Leadership & Impact",
+        points: [
+          "Led a team of 2+ developers on integration workstreams, establishing reusable code architecture patterns and coordinating parallel development across multiple codebases.",
+        ],
+      },
     ],
   },
   {
@@ -154,11 +181,28 @@ const experiences = [
     icon: techentrepreneurs,
     iconBg: "#383E56",
     date: "March 2023 – September 2023",
-    points: [
-      "Engineered 10+ filtering categories for a job matching portal, achieving 95% filter accuracy and optimizing candidate-to-job matching workflows.",
-      "Designed an advanced sorting system resulting in 30% reduction in processing time for filtering candidates and job openings.",
-      "Conducted regular code reviews across the team, enforcing best practices and contributing to 20% improvement in overall code quality.",
-      "Translated business requirements into actionable development tasks, ensuring alignment with project timelines and stakeholder objectives.",
+    tech: ["Python", "Django", "JavaScript", "PostgreSQL"],
+    metrics: [
+      { value: "10+", label: "Filter Categories" },
+      { value: "95%", label: "Filter Accuracy" },
+      { value: "30%", label: "Faster Processing" },
+      { value: "20%", label: "Code Quality Up" },
+    ],
+    categories: [
+      {
+        name: "Development",
+        points: [
+          "Engineered 10+ filtering categories for a job matching portal, achieving 95% filter accuracy and optimizing candidate-to-job matching workflows.",
+          "Designed an advanced sorting system resulting in 30% reduction in processing time for filtering candidates and job openings.",
+        ],
+      },
+      {
+        name: "Process & Leadership",
+        points: [
+          "Conducted regular code reviews across the team, enforcing best practices and contributing to 20% improvement in overall code quality.",
+          "Translated business requirements into actionable development tasks, ensuring alignment with project timelines and stakeholder objectives.",
+        ],
+      },
     ],
   },
 ];

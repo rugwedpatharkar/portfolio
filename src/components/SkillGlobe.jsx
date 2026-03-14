@@ -41,7 +41,7 @@ const SkillGlobe = () => {
       img.loading = "lazy";
 
       const label = document.createElement("span");
-      label.className = "text-[9px] sm:text-[10px] text-white/70 whitespace-nowrap font-medium opacity-0 group-hover:opacity-100 transition-opacity";
+      label.className = "text-[10px] sm:text-[11px] text-white/70 whitespace-nowrap font-medium opacity-0 group-hover:opacity-100 transition-opacity";
       label.textContent = item.name;
 
       iconBox.appendChild(img);
@@ -52,7 +52,7 @@ const SkillGlobe = () => {
       return { el: wrapper, iconBox };
     });
 
-    const radius = 200;
+    const radius = Math.min(200, container.offsetWidth * 0.38);
     const speed = { x: 0.002, y: 0.003 };
 
     const animate = () => {

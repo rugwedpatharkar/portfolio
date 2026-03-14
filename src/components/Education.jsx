@@ -52,7 +52,7 @@ const Education = () => {
         </motion.div>
       </div>
       <div
-        className={`-mt-10 sm:-mt-14 pb-10 sm:pb-14 ${styles.paddingX} grid grid-cols-1 xs:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6`}
+        className={`-mt-10 sm:-mt-14 pb-10 sm:pb-14 ${styles.paddingX} grid grid-cols-1 xs:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 sm:gap-6`}
       >
         {educations.map((education, index) => (
           <EducationCard key={education.name} index={index} {...education} />

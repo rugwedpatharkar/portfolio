@@ -114,7 +114,7 @@ const Navbar = () => {
 
         <div className="md:hidden flex flex-1 justify-end items-center">
           <button
-            className="menu-toggle w-[28px] h-[28px] cursor-pointer bg-transparent border-none p-0"
+            className="menu-toggle w-11 h-11 cursor-pointer bg-transparent border-none p-2 flex items-center justify-center"
             onClick={() => setToggle(!toggle)}
             aria-label="Toggle menu"
             aria-expanded={toggle}

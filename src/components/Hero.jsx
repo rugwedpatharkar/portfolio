@@ -12,7 +12,7 @@ import ParticleBackground from "./ParticleBackground";
 /* ── Tech stack marquee — auto-scrolling skill icons ── */
 const allSkillIcons = Object.values(skills).flat();
 const TechMarquee = () => (
-  <div className="absolute bottom-12 left-0 right-0 z-[2] overflow-hidden pointer-events-none opacity-40">
+  <div className="absolute bottom-10 sm:bottom-14 left-0 right-0 z-[3] overflow-hidden pointer-events-none opacity-40">
     <div className="hero-marquee flex gap-8 sm:gap-12 items-center w-max">
       {[...allSkillIcons, ...allSkillIcons].map((skill, i) => (
         <div key={i} className="flex items-center gap-2 shrink-0">
@@ -242,14 +242,14 @@ const Hero = () => {
 
       <div
         ref={parallaxRef}
-        className={`${styles.paddingX} absolute inset-0 top-[60px] sm:top-0 max-w-[1800px] mx-auto flex flex-col md:flex-row items-start md:items-center gap-3 sm:gap-8 z-[2] pointer-events-none`}
+        className={`${styles.paddingX} absolute inset-0 top-[60px] sm:top-0 pb-14 sm:pb-0 max-w-[1800px] mx-auto flex flex-col md:flex-row items-center md:justify-center gap-0 sm:gap-8 z-[2] pointer-events-none`}
       >
         {/* Left column: decorative line + text */}
-        <div className="flex flex-row items-start gap-3 sm:gap-5 flex-1 min-w-0">
-          {/* Decorative line + dot */}
-          <div className="flex flex-col justify-center items-center mt-5" data-parallax="-8">
+        <div className="flex flex-row items-start gap-3 sm:gap-5 md:flex-1 min-w-0">
+          {/* Decorative line + dot — hidden on small mobile */}
+          <div className="hidden xs:flex flex-col justify-center items-center mt-5" data-parallax="-8">
             <div className="w-4 h-4 sm:w-5 sm:h-5 rounded-full bg-[#915eff] shadow-[0_0_20px_rgba(145,94,255,0.6)]" />
-            <div className="w-1 h-28 xs:h-40 sm:h-80 violet-gradient" />
+            <div className="w-1 h-24 sm:h-80 violet-gradient" />
           </div>
 
           {/* Text content — staggered entrance */}
@@ -296,11 +296,11 @@ const Hero = () => {
               </div>
             </motion.div>
 
-            {/* Tagline */}
+            {/* Tagline — hidden on small mobile to save space */}
             <motion.p
               variants={item()}
               data-parallax="-6"
-              className="text-secondary text-body sm:text-body-lg mt-3 sm:mt-4 max-w-lg leading-relaxed"
+              className="hidden xs:block text-secondary text-body sm:text-body-lg mt-2 sm:mt-4 max-w-lg leading-relaxed"
             >
               Building scalable microservices & AI-powered systems on the cloud.
             </motion.p>
@@ -308,14 +308,14 @@ const Hero = () => {
             {/* CTA Buttons */}
             <motion.div
               variants={item(20)}
-              className="mt-5 sm:mt-8 flex flex-wrap items-center gap-3 sm:gap-4 pointer-events-auto"
+              className="mt-2 sm:mt-8 flex flex-wrap items-center gap-2 sm:gap-4 pointer-events-auto"
             >
               <MagneticButton strength={0.2}>
                 <a href="#projects">
                   <motion.button
                     whileHover={{ scale: 1.05 }}
                     whileTap={{ scale: 0.95 }}
-                    className="group relative text-white font-bold py-3 px-7 rounded-full focus:outline-none overflow-hidden whitespace-nowrap text-body-sm sm:text-body"
+                    className="group relative text-white font-bold py-2.5 px-5 sm:py-3 sm:px-7 rounded-full focus:outline-none overflow-hidden whitespace-nowrap text-body-sm sm:text-body"
                   >
                     <span className="absolute inset-0 bg-gradient-to-r from-[#915eff] to-[#7c3aed] rounded-full" />
                     <span className="absolute inset-0 bg-gradient-to-r from-[#7c3aed] to-[#00cea8] rounded-full opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
@@ -334,7 +334,7 @@ const Hero = () => {
                   <motion.button
                     whileHover={{ scale: 1.05 }}
                     whileTap={{ scale: 0.95 }}
-                    className="text-white font-bold py-3 px-7 rounded-full focus:outline-none border border-[#915eff]/40 hover:border-[#915eff] whitespace-nowrap text-body-sm sm:text-body transition-colors duration-300 flex items-center gap-2"
+                    className="text-white font-bold py-2.5 px-5 sm:py-3 sm:px-7 rounded-full focus:outline-none border border-[#915eff]/40 hover:border-[#915eff] whitespace-nowrap text-body-sm sm:text-body transition-colors duration-300 flex items-center gap-2"
                   >
                     <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2} aria-hidden="true">
                       <path strokeLinecap="round" strokeLinejoin="round" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
@@ -345,11 +345,11 @@ const Hero = () => {
               </MagneticButton>
 
               <MagneticButton strength={0.2}>
-                <a href={resume} download="Rugwed-Patharkar-Resume.pdf">
+                <a href={resume} download="Rugwed-Patharkar-Resume.pdf" className="hidden xs:inline-flex">
                   <motion.button
                     whileHover={{ scale: 1.05 }}
                     whileTap={{ scale: 0.95 }}
-                    className="text-white/80 font-bold py-3 px-7 rounded-full focus:outline-none border border-white/10 hover:border-white/30 whitespace-nowrap text-body-sm sm:text-body transition-colors duration-300 flex items-center gap-2"
+                    className="text-white/80 font-bold py-2.5 px-5 sm:py-3 sm:px-7 rounded-full focus:outline-none border border-white/10 hover:border-white/30 whitespace-nowrap text-body-sm sm:text-body transition-colors duration-300 flex items-center gap-2"
                   >
                     <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2} aria-hidden="true">
                       <path strokeLinecap="round" strokeLinejoin="round" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
@@ -363,7 +363,7 @@ const Hero = () => {
             {/* Availability + Social icons */}
             <motion.div
               variants={item()}
-              className="mt-3 sm:mt-5 flex flex-wrap items-center gap-3 pointer-events-auto"
+              className="mt-1 sm:mt-5 flex flex-wrap items-center gap-2 sm:gap-3 pointer-events-auto"
             >
               <span className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-green-900/30 border border-green-500/30 status-pulse">
                 <span className="w-2 h-2 rounded-full bg-green-400" />
@@ -372,7 +372,7 @@ const Hero = () => {
                 </span>
               </span>
 
-              <span className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-white/5 border border-white/10">
+              <span className="hidden xs:inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-white/5 border border-white/10">
                 <svg className="w-3 h-3 text-[#915eff]" fill="currentColor" viewBox="0 0 20 20" aria-hidden="true">
                   <path fillRule="evenodd" d="M5.05 4.05a7 7 0 119.9 9.9L10 18.9l-4.95-4.95a7 7 0 010-9.9zM10 11a2 2 0 100-4 2 2 0 000 4z" clipRule="evenodd" />
                 </svg>
@@ -405,10 +405,10 @@ const Hero = () => {
               </div>
             </motion.div>
 
-            {/* Stats counter row */}
+            {/* Stats counter row — hidden on small mobile */}
             <motion.div
               variants={item(20)}
-              className="mt-4 sm:mt-6 flex items-center gap-5 sm:gap-8"
+              className="mt-2 sm:mt-6 hidden xs:flex items-center gap-4 sm:gap-8"
             >
               {HERO_STATS.map((stat, i) => (
                 <div key={i} className="flex flex-col items-center">
@@ -420,29 +420,11 @@ const Hero = () => {
           </motion.div>
         </div>
 
-        {/* Mobile photo — compact version */}
+        {/* Photo — solar system: flex-1 on mobile fills remaining space and centers orbit */}
         <motion.div
-          className="flex md:hidden justify-center mt-6 pointer-events-none"
+          className="flex flex-1 md:flex-none items-center justify-center w-full md:w-auto pointer-events-none"
           initial={{ opacity: 0, scale: 0.8 }}
           animate={{ opacity: 1, scale: 1 }}
-          transition={{ type: "spring", damping: 20, stiffness: 80, delay: 0.6 }}
-        >
-          <div className="relative w-[160px] h-[160px] xs:w-[200px] xs:h-[200px] rounded-full overflow-hidden">
-            <div className="hero-photo-glow absolute -inset-[10%] rounded-full opacity-50" />
-            <img
-              src={heroPhoto}
-              alt={personalInfo.fullName}
-              className="w-full h-full object-cover object-top relative z-[1]"
-              loading="eager"
-            />
-          </div>
-        </motion.div>
-
-        {/* Desktop photo — solar system with orbiting tech tags */}
-        <motion.div
-          className="hidden md:flex items-center justify-center md:flex-shrink-0"
-          initial={{ opacity: 0, scale: 0.8, x: 40 }}
-          animate={{ opacity: 1, scale: 1, x: 0 }}
           transition={{ type: "spring", damping: 20, stiffness: 80, delay: 0.6 }}
           data-parallax="-20"
         >
@@ -456,7 +438,7 @@ const Hero = () => {
             <div className="absolute rounded-full border border-[#915eff]/10 hero-orbit-ring" style={{ inset: "-42%", animationDelay: "-3s" }} />
             <div className="absolute rounded-full border border-[#915eff]/5" style={{ inset: "-58%" }} />
 
-            {/* Orbiting tech tags */}
+            {/* Orbiting tech tags — outer rings hidden on small screens */}
             {ORBIT_TAGS.map((tag, i) => (
               <div
                 key={i}
@@ -476,7 +458,7 @@ const Hero = () => {
               </div>
             ))}
 
-            {/* Orbiting dots — tiny moons/asteroids */}
+            {/* Orbiting dots — tiny moons/asteroids, outer dots hidden on small */}
             {ORBIT_DOTS.map((dot, i) => (
               <div
                 key={`dot-${i}`}
@@ -493,7 +475,7 @@ const Hero = () => {
               />
             ))}
 
-            {/* Comets — tech tags streaking across */}
+            {/* Comets — tech tags streaking across (hidden on small screens) */}
             {COMETS.map((c, i) => (
               <div
                 key={`comet-${i}`}
@@ -514,7 +496,7 @@ const Hero = () => {
               </div>
             ))}
 
-            {/* Orbiting code card — on middle ring */}
+            {/* Orbiting code card — on middle ring (hidden on small screens) */}
             <div
               className="hero-orbit-tag hero-orbit-code"
               style={{

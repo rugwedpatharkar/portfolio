@@ -57,7 +57,7 @@ const Testimonials = () => {
             <div className="flex justify-center gap-3 mt-6">
               <button
                 onClick={prev}
-                className="w-10 h-10 rounded-full glass-card border border-secondary/30 hover:border-[#915eff] text-white flex items-center justify-center transition-colors"
+                className="w-11 h-11 rounded-full glass-card border border-secondary/30 hover:border-[#915eff] text-white flex items-center justify-center transition-colors"
                 aria-label="Previous testimonial"
               >
                 <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
@@ -78,7 +78,7 @@ const Testimonials = () => {
               </div>
               <button
                 onClick={next}
-                className="w-10 h-10 rounded-full glass-card border border-secondary/30 hover:border-[#915eff] text-white flex items-center justify-center transition-colors"
+                className="w-11 h-11 rounded-full glass-card border border-secondary/30 hover:border-[#915eff] text-white flex items-center justify-center transition-colors"
                 aria-label="Next testimonial"
               >
                 <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>

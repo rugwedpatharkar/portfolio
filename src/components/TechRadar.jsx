@@ -52,7 +52,7 @@ const TechRadar = () => {
   }, []);
 
   return (
-    <div ref={ref} className="relative w-full max-w-2xl mx-auto aspect-square">
+    <div ref={ref} className="relative w-full max-w-sm sm:max-w-xl md:max-w-2xl mx-auto aspect-square">
       {/* Rings */}
       <svg viewBox="0 0 100 100" className="absolute inset-0 w-full h-full">
         {RINGS.map((ring, i) => (
@@ -80,7 +80,7 @@ const TechRadar = () => {
       {RINGS.map((ring, i) => (
         <span
           key={i}
-          className="absolute text-micro font-mono text-white/30 pointer-events-none"
+          className="absolute text-[8px] sm:text-micro font-mono text-white/30 pointer-events-none"
           style={{
             left: "50%",
             top: `${50 - ring.radius * 42}%`,

@@ -123,12 +123,12 @@ const Skills = () => {
           <p className={styles.sectionSubText}>What I Bring to the Table</p>
           <TextScramble text="Technical Skills" as="h2" className={styles.sectionHeadText} />
         </div>
-        <div className="flex gap-2 mb-2">
+        <div className="flex flex-wrap gap-2 mb-2">
           {["globe", "radar", "grid"].map((v) => (
             <button
               key={v}
               onClick={() => setView(v)}
-              className={`px-3 py-1.5 rounded-full text-caption font-mono font-medium transition-colors border ${
+              className={`px-3 sm:px-4 py-2 rounded-full text-caption sm:text-body-sm font-mono font-medium transition-colors border ${
                 view === v
                   ? "bg-[#915eff] border-[#915eff] text-white"
                   : "bg-transparent border-secondary/30 text-secondary hover:border-[#915eff]"
@@ -149,7 +149,7 @@ const Skills = () => {
           <TechRadar />
         </div>
       ) : (
-        <div className="mt-6 grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 3xl:grid-cols-4 gap-4 sm:gap-6">
+        <div className="mt-6 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-3 3xl:grid-cols-4 gap-4 sm:gap-6">
           {Object.entries(skills).map(([category, skillsInCategory], index) => (
             <div key={index} className="mt-2">
               <h3 className="text-white font-heading text-body sm:text-body-lg font-semibold mb-3">{category}</h3>

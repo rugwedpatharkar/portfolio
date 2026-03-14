@@ -841,11 +841,31 @@ img {
   overflow: visible;
 }
 
-/* Fluid photo size — scales with viewport */
+/* Fluid photo size — scales with viewport across ALL screen sizes */
 .hero-photo-frame {
-  --photo-size: clamp(320px, 60vh, 800px);
+  --photo-size: clamp(240px, 60vw, 320px);
   width: var(--photo-size);
   height: var(--photo-size);
+}
+@media (min-width: 480px) {
+  .hero-photo-frame {
+    --photo-size: clamp(200px, 40vw, 300px);
+  }
+}
+@media (min-width: 768px) {
+  .hero-photo-frame {
+    --photo-size: clamp(280px, 45vh, 500px);
+  }
+}
+@media (min-width: 1024px) {
+  .hero-photo-frame {
+    --photo-size: clamp(320px, 50vh, 600px);
+  }
+}
+@media (min-width: 1440px) {
+  .hero-photo-frame {
+    --photo-size: clamp(400px, 55vh, 800px);
+  }
 }
 
 /* Gentle float for the photo */
@@ -1025,6 +1045,54 @@ img {
     transform: translate(var(--cx2), var(--cy2));
     opacity: 0;
   }
+}
+
+/* ===== EXPERIENCE SECTION ===== */
+
+/* Achievement banner */
+.exp-achievement {
+  background: linear-gradient(135deg, rgba(248, 197, 85, 0.1), rgba(248, 197, 85, 0.05));
+  border: 1px solid rgba(248, 197, 85, 0.3);
+}
+
+/* Metrics card hover */
+.exp-metric {
+  transition: all 0.3s ease;
+}
+.exp-metric:hover {
+  background: rgba(145, 94, 255, 0.08);
+  border-color: rgba(145, 94, 255, 0.2);
+  transform: translateY(-2px);
+}
+
+/* Tech pill hover */
+.exp-tech-pill {
+  transition: all 0.2s ease;
+}
+.exp-tech-pill:hover {
+  background: rgba(145, 94, 255, 0.2);
+  border-color: rgba(145, 94, 255, 0.4);
+}
+
+/* Accordion smooth expand/collapse */
+.exp-accordion-content {
+  display: grid;
+  grid-template-rows: 0fr;
+  transition: grid-template-rows 0.3s ease-out;
+}
+.exp-accordion-content.open {
+  grid-template-rows: 1fr;
+}
+.exp-accordion-content > div {
+  overflow: hidden;
+}
+
+/* Chevron rotation */
+.exp-chevron {
+  transition: transform 0.3s ease;
+}
+.exp-chevron.open {
+  transform: rotate(180deg);
 }
 
 /* ===== HERO TECH MARQUEE ===== */
