@@ -65,38 +65,38 @@ const KeyboardHints = () => {
           className="fixed bottom-20 right-3 sm:bottom-24 sm:right-4 z-[60] bg-[#0a0a1a]/95 border border-[#915eff]/20 rounded-xl p-4 sm:p-5 shadow-2xl backdrop-blur-sm max-w-[280px]"
         >
           <div className="flex items-center justify-between mb-3">
-            <h3 className="text-white font-semibold text-sm">Keyboard Shortcuts</h3>
+            <h3 className="text-white font-heading font-semibold text-body-sm">Keyboard Shortcuts</h3>
             <button
               onClick={() => setShowHints(false)}
-              className="text-secondary hover:text-white text-xs"
+              className="text-secondary hover:text-white text-caption font-mono"
             >
               ESC
             </button>
           </div>
 
           <div className="space-y-1.5">
-            <p className="text-secondary text-[10px] uppercase tracking-wider mb-2">Navigation</p>
+            <p className="text-secondary text-micro font-mono uppercase tracking-wider mb-2">Navigation</p>
             {SECTIONS.map((s) => (
               <div key={s.key} className="flex items-center justify-between">
-                <span className="text-secondary text-xs capitalize">{s.id}</span>
-                <kbd className="text-[10px] px-1.5 py-0.5 bg-[#151030]/80 rounded border border-secondary/20 text-white font-mono">
+                <span className="text-secondary text-caption font-mono capitalize">{s.id}</span>
+                <kbd className="text-micro px-1.5 py-0.5 bg-[#151030]/80 rounded border border-secondary/20 text-white font-mono">
                   {s.key}
                 </kbd>
               </div>
             ))}
 
-            <p className="text-secondary text-[10px] uppercase tracking-wider mt-3 mb-2">Actions</p>
+            <p className="text-secondary text-micro font-mono uppercase tracking-wider mt-3 mb-2">Actions</p>
             {SHORTCUTS.map((s) => (
               <div key={s.key} className="flex items-center justify-between">
-                <span className="text-secondary text-xs">{s.action}</span>
-                <kbd className="text-[10px] px-1.5 py-0.5 bg-[#151030]/80 rounded border border-secondary/20 text-white font-mono">
+                <span className="text-secondary text-caption font-mono">{s.action}</span>
+                <kbd className="text-micro px-1.5 py-0.5 bg-[#151030]/80 rounded border border-secondary/20 text-white font-mono">
                   {s.key}
                 </kbd>
               </div>
             ))}
             <div className="flex items-center justify-between">
-              <span className="text-secondary text-xs">Shortcuts</span>
-              <kbd className="text-[10px] px-1.5 py-0.5 bg-[#151030]/80 rounded border border-secondary/20 text-white font-mono">
+              <span className="text-secondary text-caption font-mono">Shortcuts</span>
+              <kbd className="text-micro px-1.5 py-0.5 bg-[#151030]/80 rounded border border-secondary/20 text-white font-mono">
                 ?
               </kbd>
             </div>

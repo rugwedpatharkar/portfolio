@@ -19,21 +19,21 @@ const BlogCard = ({ post, index }) => (
     className="block glass-card rounded-2xl p-5 sm:p-6 card-shine glow-hover group"
   >
     <div className="flex items-center gap-2 mb-3">
-      <span className="text-[#915eff] text-xs sm:text-sm font-mono font-medium">{post.date}</span>
+      <span className="text-[#915eff] text-caption sm:text-body-sm font-mono font-medium">{post.date}</span>
       <span className="w-1 h-1 rounded-full bg-secondary" />
-      <span className="text-secondary text-xs">{post.tags[0]}</span>
+      <span className="text-secondary text-caption">{post.tags[0]}</span>
     </div>
-    <h3 className="text-white font-bold text-base sm:text-lg group-hover:text-[#915eff] transition-colors">
+    <h3 className="text-white font-heading font-bold text-body sm:text-body-lg group-hover:text-[#915eff] transition-colors">
       {post.title}
     </h3>
-    <p className="text-secondary text-xs sm:text-sm mt-2 leading-relaxed line-clamp-3">
+    <p className="text-secondary text-caption sm:text-body-sm mt-2 leading-relaxed line-clamp-3">
       {post.description}
     </p>
     <div className="mt-4 flex flex-wrap gap-2">
       {post.tags.map((tag, i) => (
         <span
           key={i}
-          className="text-[10px] sm:text-xs font-mono px-2 py-1 rounded-full bg-[#915eff]/10 text-[#915eff] border border-[#915eff]/20 tag-hover"
+          className="text-micro sm:text-caption font-mono px-2 py-1 rounded-full bg-[#915eff]/10 text-[#915eff] border border-[#915eff]/20 tag-hover"
         >
           {tag}
         </span>

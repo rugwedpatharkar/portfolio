@@ -57,7 +57,7 @@ const GitHubActivity = () => {
           transition={{ delay: 0.4 }}
           whileHover={{ scale: 1.02 }}
           whileTap={{ scale: 0.98 }}
-          className="text-white font-medium py-3 px-6 rounded-full glass-card hover:border-[#915eff] transition-colors text-sm sm:text-base"
+          className="text-white font-medium py-3 px-6 rounded-full glass-card hover:border-[#915eff] transition-colors text-body-sm sm:text-body"
         >
           View Full Profile on GitHub
         </motion.a>

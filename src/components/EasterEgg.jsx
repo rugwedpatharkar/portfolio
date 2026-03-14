@@ -49,13 +49,13 @@ const EasterEgg = () => {
             className="text-center p-8 sm:p-12"
           >
             <p className="text-6xl sm:text-8xl mb-4">🎮</p>
-            <h3 className="text-white text-2xl sm:text-4xl font-bold mb-2">
+            <h3 className="text-white text-heading-sm sm:text-heading-xl font-heading font-bold mb-2">
               You found it!
             </h3>
-            <p className="text-[#915eff] text-base sm:text-lg">
+            <p className="text-[#915eff] text-body sm:text-body-lg font-mono">
               Thanks for visiting my portfolio!
             </p>
-            <p className="text-secondary text-xs sm:text-sm mt-4">
+            <p className="text-secondary text-caption sm:text-body-sm mt-4">
               Click anywhere to close
             </p>
           </motion.div>

@@ -80,36 +80,36 @@ const Contact = () => {
           className="mt-8 sm:mt-12 flex flex-col gap-5 sm:gap-8"
         >
           <label className="flex flex-col">
-            <span className="text-white font-medium mb-2 sm:mb-4 text-sm sm:text-base">Your Name</span>
+            <span className="text-white font-medium mb-2 sm:mb-4 text-body-sm sm:text-body">Your Name</span>
             <input
               type="text"
               name="name"
               value={form.name}
               onChange={handleChange}
               placeholder="What's your name?"
-              className="glass-card py-3 sm:py-4 px-4 sm:px-6 placeholder:text-secondary text-white rounded-lg outline-none font-medium text-sm sm:text-base"
+              className="glass-card py-3 sm:py-4 px-4 sm:px-6 placeholder:text-secondary text-white rounded-lg outline-none font-medium text-body-sm sm:text-body"
             />
           </label>
           <label className="flex flex-col">
-            <span className="text-white font-medium mb-2 sm:mb-4 text-sm sm:text-base">Your Email</span>
+            <span className="text-white font-medium mb-2 sm:mb-4 text-body-sm sm:text-body">Your Email</span>
             <input
               type="email"
               name="email"
               value={form.email}
               onChange={handleChange}
               placeholder="What's your email?"
-              className="glass-card py-3 sm:py-4 px-4 sm:px-6 placeholder:text-secondary text-white rounded-lg outline-none font-medium text-sm sm:text-base"
+              className="glass-card py-3 sm:py-4 px-4 sm:px-6 placeholder:text-secondary text-white rounded-lg outline-none font-medium text-body-sm sm:text-body"
             />
           </label>
           <label className="flex flex-col">
-            <span className="text-white font-medium mb-2 sm:mb-4 text-sm sm:text-base">Your Message</span>
+            <span className="text-white font-medium mb-2 sm:mb-4 text-body-sm sm:text-body">Your Message</span>
             <textarea
               rows="5"
               name="message"
               value={form.message}
               onChange={handleChange}
               placeholder="What do you want to say?"
-              className="glass-card py-3 sm:py-4 px-4 sm:px-6 placeholder:text-secondary text-white rounded-lg outline-none font-medium resize-none text-sm sm:text-base"
+              className="glass-card py-3 sm:py-4 px-4 sm:px-6 placeholder:text-secondary text-white rounded-lg outline-none font-medium resize-none text-body-sm sm:text-body"
             />
           </label>
           <motion.button

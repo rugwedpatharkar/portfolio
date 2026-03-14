@@ -80,7 +80,7 @@ const MusicToggle = () => {
           </motion.svg>
         )}
       </AnimatePresence>
-      <span className="absolute left-full ml-2 px-2 py-1 bg-black/80 text-white text-xs rounded opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap pointer-events-none">
+      <span className="absolute left-full ml-2 px-2 py-1 bg-black/80 text-white text-caption font-mono rounded opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap pointer-events-none">
         {isPlaying ? "Pause Music" : "Play Music"}
       </span>
     </button>

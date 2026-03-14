@@ -56,7 +56,7 @@ const Preloader = () => {
   return (
     <div className={`preloader ${loaded ? "loaded" : ""}`}>
       <div className="w-full max-w-lg px-6">
-        <div className="font-mono text-sm sm:text-base space-y-1.5">
+        <div className="font-mono text-body-sm sm:text-body space-y-1.5">
           {BOOT_LINES.slice(0, visibleLines).map((line, i) => (
             <div
               key={i}

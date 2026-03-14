@@ -112,16 +112,16 @@ const LiveCodeShowcase = () => {
             <div className="w-2.5 h-2.5 rounded-full bg-yellow-500/80" />
             <div className="w-2.5 h-2.5 rounded-full bg-green-500/80" />
           </div>
-          <span className="text-secondary text-[11px] sm:text-xs font-mono ml-2">
+          <span className="text-secondary text-micro sm:text-caption font-mono ml-2">
             solution.js — rugwed-patharkar
           </span>
         </div>
 
         <div className="glass-card-dark rounded-t-none rounded-b-xl p-4 sm:p-6 overflow-x-auto min-h-[280px] sm:min-h-[380px]">
-          <div className="font-mono text-[11px] sm:text-sm leading-relaxed">
+          <div className="font-mono text-micro sm:text-body-sm leading-relaxed">
             {CODE_LINES.slice(0, visibleLines).map((line, i) => (
               <div key={i} className="flex" style={{ animation: "fadeInLine 0.15s ease forwards" }}>
-                <span className="w-8 sm:w-10 text-right pr-3 sm:pr-4 text-white/20 select-none text-[11px] sm:text-xs shrink-0">
+                <span className="w-8 sm:w-10 text-right pr-3 sm:pr-4 text-white/20 select-none text-micro sm:text-caption shrink-0">
                   {i + 1}
                 </span>
                 <span className="whitespace-pre">

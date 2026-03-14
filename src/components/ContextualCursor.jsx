@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from "react";
+import { useEffect, useRef, useState } from "react";
 
 const CURSOR_STATES = {
   default: { size: 12, label: "", mix: true },
@@ -9,11 +9,27 @@ const CURSOR_STATES = {
   image: { size: 64, label: "View", mix: false },
 };
 
+const detectState = (el) => {
+  if (!el) return "default";
+  let current = el;
+  while (current && current !== document.body) {
+    const tag = current.tagName?.toLowerCase();
+    if (tag === "a" && current.target === "_blank") return "external";
+    if (tag === "a") return "link";
+    if (tag === "button" || current.role === "button") return "button";
+    if (current.getAttribute("draggable") === "true" || current.classList?.contains("active:cursor-grabbing")) return "grab";
+    if (tag === "img" && current.closest(".card-shine")) return "image";
+    current = current.parentElement;
+  }
+  return "default";
+};
+
 const ContextualCursor = () => {
-  const [position, setPosition] = useState({ x: -100, y: -100 });
-  const [cursorState, setCursorState] = useState("default");
+  const cursorRef = useRef(null);
+  const labelRef = useRef(null);
+  const stateRef = useRef("default");
+  const posRef = useRef({ x: -100, y: -100 });
   const [isDesktop, setIsDesktop] = useState(false);
-  const [isClicking, setIsClicking] = useState(false);
 
   useEffect(() => {
     const check = () => setIsDesktop(window.innerWidth >= 768);
@@ -22,42 +38,43 @@ const ContextualCursor = () => {
     return () => window.removeEventListener("resize", check);
   }, []);
 
-  const detectState = useCallback((el) => {
-    if (!el) return "default";
-
-    // Walk up DOM tree to find relevant element
-    let current = el;
-    while (current && current !== document.body) {
-      const tag = current.tagName?.toLowerCase();
-
-      // External links
-      if (tag === "a" && current.target === "_blank") return "external";
-      // Internal links
-      if (tag === "a") return "link";
-      // Buttons
-      if (tag === "button" || current.role === "button") return "button";
-      // Draggable
-      if (current.getAttribute("draggable") === "true" || current.classList?.contains("active:cursor-grabbing")) return "grab";
-      // Images in project cards
-      if (tag === "img" && current.closest(".card-shine")) return "image";
-
-      current = current.parentElement;
-    }
-    return "default";
-  }, []);
-
   useEffect(() => {
     if (!isDesktop) return;
 
+    const cursor = cursorRef.current;
+    const label = labelRef.current;
+    if (!cursor) return;
+
+    let lastDetect = 0;
+
     const handleMove = (e) => {
-      requestAnimationFrame(() => {
-        setPosition({ x: e.clientX, y: e.clientY });
-        setCursorState(detectState(e.target));
-      });
+      posRef.current.x = e.clientX;
+      posRef.current.y = e.clientY;
+
+      // Direct DOM update — no React re-render
+      cursor.style.left = `${e.clientX}px`;
+      cursor.style.top = `${e.clientY}px`;
+
+      // Throttle DOM traversal to ~15fps
+      const now = performance.now();
+      if (now - lastDetect > 66) {
+        lastDetect = now;
+        const newState = detectState(e.target);
+        if (newState !== stateRef.current) {
+          stateRef.current = newState;
+          const s = CURSOR_STATES[newState];
+          cursor.style.width = `${s.size}px`;
+          cursor.style.height = `${s.size}px`;
+          cursor.style.border = newState === "default" ? "2px solid rgba(145, 94, 255, 0.6)" : "2px solid rgba(145, 94, 255, 0.3)";
+          cursor.style.background = newState === "default" ? "rgba(145, 94, 255, 0.2)" : "rgba(145, 94, 255, 0.08)";
+          cursor.style.mixBlendMode = s.mix ? "difference" : "normal";
+          label.textContent = s.label;
+        }
+      }
     };
 
-    const handleDown = () => setIsClicking(true);
-    const handleUp = () => setIsClicking(false);
+    const handleDown = () => { cursor.style.transform = "translate(-50%, -50%) scale(0.8)"; };
+    const handleUp = () => { cursor.style.transform = "translate(-50%, -50%) scale(1)"; };
 
     window.addEventListener("mousemove", handleMove, { passive: true });
     window.addEventListener("mousedown", handleDown);
@@ -68,34 +85,32 @@ const ContextualCursor = () => {
       window.removeEventListener("mousedown", handleDown);
       window.removeEventListener("mouseup", handleUp);
     };
-  }, [isDesktop, detectState]);
+  }, [isDesktop]);
 
   if (!isDesktop) return null;
 
-  const state = CURSOR_STATES[cursorState];
-  const size = isClicking ? state.size * 0.8 : state.size;
-
   return (
     <div
-      className="fixed pointer-events-none z-[9998] transition-[width,height,opacity] duration-200 ease-out flex items-center justify-center"
+      ref={cursorRef}
+      className="fixed pointer-events-none z-[9998] flex items-center justify-center"
       style={{
-        width: size,
-        height: size,
-        left: position.x,
-        top: position.y,
+        width: 12,
+        height: 12,
+        left: -100,
+        top: -100,
         transform: "translate(-50%, -50%)",
         borderRadius: "50%",
-        border: cursorState === "default" ? "2px solid rgba(145, 94, 255, 0.6)" : "2px solid rgba(145, 94, 255, 0.3)",
-        background: cursorState === "default" ? "rgba(145, 94, 255, 0.2)" : "rgba(145, 94, 255, 0.08)",
-        mixBlendMode: state.mix ? "difference" : "normal",
-        backdropFilter: cursorState !== "default" ? "blur(2px)" : "none",
+        border: "2px solid rgba(145, 94, 255, 0.6)",
+        background: "rgba(145, 94, 255, 0.2)",
+        mixBlendMode: "difference",
+        transition: "width 0.2s, height 0.2s, background 0.2s, border 0.2s",
+        willChange: "left, top",
       }}
     >
-      {state.label && (
-        <span className="text-white text-[9px] font-bold uppercase tracking-wider select-none">
-          {state.label}
-        </span>
-      )}
+      <span
+        ref={labelRef}
+        className="text-white text-[9px] font-bold uppercase tracking-wider select-none"
+      />
     </div>
   );
 };

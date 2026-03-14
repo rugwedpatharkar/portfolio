@@ -76,7 +76,7 @@ const TechRadar = () => {
       {RINGS.map((ring, i) => (
         <span
           key={i}
-          className="absolute text-[8px] sm:text-[10px] font-mono text-white/30 pointer-events-none"
+          className="absolute text-micro font-mono text-white/30 pointer-events-none"
           style={{
             left: "50%",
             top: `${50 - ring.radius * 42}%`,
@@ -118,7 +118,7 @@ const TechRadar = () => {
           </div>
 
           {/* Tooltip */}
-          <div className="absolute bottom-full mb-1 px-2 py-1 bg-black/90 text-white text-[9px] sm:text-[10px] font-mono rounded whitespace-nowrap pointer-events-none opacity-0 group-hover:opacity-100 transition-opacity z-30">
+          <div className="absolute bottom-full mb-1 px-2 py-1 bg-black/90 text-white text-micro font-mono rounded whitespace-nowrap pointer-events-none opacity-0 group-hover:opacity-100 transition-opacity z-30">
             {skill.name} ({skill.level}%)
           </div>
         </motion.div>

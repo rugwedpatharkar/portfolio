@@ -36,13 +36,13 @@ export const ToastProvider = ({ children }) => {
                   : "bg-yellow-900/80 border-yellow-500/30 text-yellow-100"
               }`}
             >
-              <span className="text-lg flex-shrink-0">
+              <span className="text-body-lg flex-shrink-0">
                 {toast.type === "success" ? "✓" : toast.type === "error" ? "✕" : "⚠"}
               </span>
-              <p className="text-sm font-medium">{toast.message}</p>
+              <p className="text-body-sm font-medium">{toast.message}</p>
               <button
                 onClick={() => setToasts((prev) => prev.filter((t) => t.id !== toast.id))}
-                className="ml-auto text-white/60 hover:text-white text-lg flex-shrink-0"
+                className="ml-auto text-white/60 hover:text-white text-body-lg flex-shrink-0"
               >
                 ×
               </button>

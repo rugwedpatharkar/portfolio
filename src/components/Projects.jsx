@@ -63,8 +63,8 @@ const ProjectCard = ({
         </div>
 
         <div className="mt-3 sm:mt-5">
-          <h3 className="text-white font-bold text-[18px] sm:text-[24px]">{name}</h3>
-          <p className="mt-2 text-secondary text-[12px] sm:text-[13px] leading-[18px] sm:leading-[20px] line-clamp-6">
+          <h3 className="text-white font-heading font-bold text-body-lg sm:text-heading-sm">{name}</h3>
+          <p className="mt-2 text-secondary text-caption sm:text-body-sm line-clamp-6">
             {description}
           </p>
         </div>
@@ -73,8 +73,8 @@ const ProjectCard = ({
           <div className="mt-3 flex gap-3 sm:gap-4">
             {stats.map((stat, i) => (
               <div key={i} className="flex items-center gap-1.5">
-                <span className="text-[#915eff] font-bold text-sm sm:text-base">{stat.value}</span>
-                <span className="text-secondary text-[10px] sm:text-xs">{stat.label}</span>
+                <span className="text-[#915eff] font-mono font-bold text-body-sm sm:text-body">{stat.value}</span>
+                <span className="text-secondary text-micro sm:text-caption">{stat.label}</span>
               </div>
             ))}
           </div>
@@ -84,7 +84,7 @@ const ProjectCard = ({
           {tags.map((tag, tagIndex) => (
             <p
               key={`tag-${tagIndex}`}
-              className={`text-[12px] sm:text-[14px] font-mono ${tag.color}`}
+              className={`text-caption sm:text-body-sm font-mono ${tag.color}`}
             >
               #{tag.name}
             </p>
@@ -124,7 +124,7 @@ const Projects = () => {
       <div className="w-full flex">
         <motion.p
           variants={fadeIn("", "", 0.1, 1)}
-          className="mt-3 text-secondary text-[14px] sm:text-[17px] max-w-4xl leading-[24px] sm:leading-[30px]"
+          className="mt-3 text-secondary text-body-sm sm:text-body max-w-4xl"
         >
           The projects showcased in my portfolio exemplify my skills, problem
           solving prowess, and effective project management. Each project
@@ -132,7 +132,7 @@ const Projects = () => {
           to navigate various frameworks and technologies seamlessly.
         </motion.p>
       </div>
-      <p className="mt-4 text-secondary/50 text-xs italic xl:hidden">
+      <p className="mt-4 text-secondary/50 text-caption italic xl:hidden">
         Drag to explore projects &rarr;
       </p>
       <div className="mt-8 sm:mt-16">

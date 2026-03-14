@@ -1,37 +1,33 @@
 /* eslint-disable react/prop-types */
-import { useRef, useState } from "react";
-import { motion } from "framer-motion";
+import { useRef, useCallback } from "react";
 
 const MagneticButton = ({ children, className = "", strength = 0.3, ...props }) => {
   const ref = useRef(null);
-  const [position, setPosition] = useState({ x: 0, y: 0 });
 
-  const handleMouseMove = (e) => {
-    const rect = ref.current.getBoundingClientRect();
-    const centerX = rect.left + rect.width / 2;
-    const centerY = rect.top + rect.height / 2;
-    setPosition({
-      x: (e.clientX - centerX) * strength,
-      y: (e.clientY - centerY) * strength,
-    });
-  };
+  const handleMouseMove = useCallback((e) => {
+    const el = ref.current;
+    if (!el) return;
+    const rect = el.getBoundingClientRect();
+    const x = (e.clientX - rect.left - rect.width / 2) * strength;
+    const y = (e.clientY - rect.top - rect.height / 2) * strength;
+    el.style.transform = `translate(${x}px, ${y}px)`;
+  }, [strength]);
 
-  const handleMouseLeave = () => {
-    setPosition({ x: 0, y: 0 });
-  };
+  const handleMouseLeave = useCallback(() => {
+    if (ref.current) ref.current.style.transform = "";
+  }, []);
 
   return (
-    <motion.div
+    <div
       ref={ref}
       onMouseMove={handleMouseMove}
       onMouseLeave={handleMouseLeave}
-      animate={{ x: position.x, y: position.y }}
-      transition={{ type: "spring", stiffness: 300, damping: 15, mass: 0.2 }}
       className={className}
+      style={{ transition: "transform 0.2s cubic-bezier(0.25, 0.46, 0.45, 0.94)" }}
       {...props}
     >
       {children}
-    </motion.div>
+    </div>
   );
 };
 

@@ -23,17 +23,17 @@ const EducationCard = ({ index, marks, name, degree, image }) => (
         className="rounded-full object-cover w-16 h-16 sm:w-20 sm:h-20"
       />
       <div className="mt-2 sm:mt-3 flex-1 flex flex-col">
-        <p className="text-center text-white font-medium text-[13px] sm:text-[16px]">
+        <p className="text-center text-white font-medium text-caption sm:text-body">
           <span className="blue-text-gradient">{name}</span>
         </p>
       </div>
     </div>
 
     <div className="mt-1">
-      <p className="text-center text-white tracking-wider text-[15px] sm:text-[18px]">
+      <p className="text-center text-white font-heading tracking-wider text-body-sm sm:text-body-lg">
         {degree}
       </p>
-      <p className="mt-2 sm:mt-3 text-center green-text-gradient text-[13px] sm:text-[15px]">
+      <p className="mt-2 sm:mt-3 text-center green-text-gradient text-caption sm:text-body-sm">
         {marks}
       </p>
     </div>

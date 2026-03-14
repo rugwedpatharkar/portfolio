@@ -47,11 +47,11 @@ const FloatingActionMenu = () => {
               animate={{ opacity: 1, y: 0, scale: 1 }}
               exit={{ opacity: 0, y: 10, scale: 0 }}
               transition={{ delay: i * 0.05 }}
-              className={`${action.color} w-10 h-10 sm:w-11 sm:h-11 rounded-full flex items-center justify-center text-white text-lg shadow-lg hover:shadow-xl transition-shadow group relative`}
+              className={`${action.color} w-10 h-10 sm:w-11 sm:h-11 rounded-full flex items-center justify-center text-white text-body-lg shadow-lg hover:shadow-xl transition-shadow group relative`}
               aria-label={action.label}
             >
               {action.icon}
-              <span className="absolute left-full ml-2 px-2 py-1 bg-black/80 text-white text-xs rounded opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap pointer-events-none">
+              <span className="absolute left-full ml-2 px-2 py-1 bg-black/80 text-white text-caption font-mono rounded opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap pointer-events-none">
                 {action.label}
               </span>
             </motion.a>

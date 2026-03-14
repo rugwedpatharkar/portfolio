@@ -38,7 +38,7 @@ const ExperienceCard = ({ experience }) => (
     }
   >
     {/* Git commit hash */}
-    <div className="font-mono text-[10px] sm:text-xs text-[#915eff]/70 mb-2 flex items-center gap-2">
+    <div className="font-mono text-micro sm:text-caption text-[#915eff]/70 mb-2 flex items-center gap-2">
       <span className="text-[#00cea8]">●</span>
       <span>{generateHash(experience.company_name + experience.title)}</span>
       <span className="text-white/30">—</span>
@@ -46,9 +46,9 @@ const ExperienceCard = ({ experience }) => (
     </div>
 
     <div>
-      <h3 className="text-white text-[18px] sm:text-[24px] font-bold">{experience.title}</h3>
+      <h3 className="text-white text-body-lg sm:text-heading-sm font-heading font-bold">{experience.title}</h3>
       <p
-        className="text-secondary text-[14px] sm:text-[16px] font-semibold"
+        className="text-secondary text-body-sm sm:text-body font-semibold"
         style={{ margin: 0 }}
       >
         {experience.company_name}
@@ -59,9 +59,9 @@ const ExperienceCard = ({ experience }) => (
       {experience.points.map((point, index) => (
         <li
           key={`experience-point-${index}`}
-          className="text-white-100 text-[12px] sm:text-[14px] pl-0 tracking-wider flex items-start gap-2"
+          className="text-white-100 text-caption sm:text-body-sm pl-0 tracking-wider flex items-start gap-2"
         >
-          <span className="font-mono text-[#00cea8] text-xs mt-0.5 shrink-0">feat:</span>
+          <span className="font-mono text-[#00cea8] text-caption mt-0.5 shrink-0">feat:</span>
           <span>{point}</span>
         </li>
       ))}

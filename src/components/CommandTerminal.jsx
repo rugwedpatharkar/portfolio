@@ -131,7 +131,7 @@ const CommandTerminal = () => {
         <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
           <path strokeLinecap="round" strokeLinejoin="round" d="M8 9l3 3-3 3m5 0h3M5 20h14a2 2 0 002-2V6a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
         </svg>
-        <span className="absolute left-full ml-2 px-2 py-1 bg-black/80 text-white text-xs rounded opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap pointer-events-none">
+        <span className="absolute left-full ml-2 px-2 py-1 bg-black/80 text-white text-caption font-mono rounded opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap pointer-events-none">
           Terminal (Ctrl+`)
         </span>
       </button>
@@ -153,9 +153,9 @@ const CommandTerminal = () => {
                   <div className="w-3 h-3 rounded-full bg-yellow-500" />
                   <div className="w-3 h-3 rounded-full bg-green-500" />
                 </div>
-                <span className="text-secondary text-xs ml-2 font-mono">rugwed@portfolio ~ </span>
+                <span className="text-secondary text-caption ml-2 font-mono">rugwed@portfolio ~ </span>
               </div>
-              <button onClick={() => setIsOpen(false)} className="text-secondary hover:text-white text-xs">
+              <button onClick={() => setIsOpen(false)} className="text-secondary hover:text-white text-caption font-mono">
                 ESC
               </button>
             </div>
@@ -163,7 +163,7 @@ const CommandTerminal = () => {
             {/* Terminal body */}
             <div
               ref={scrollRef}
-              className="bg-[#0a0a1a]/90 backdrop-blur-md p-4 h-[300px] sm:h-[350px] overflow-y-auto font-mono text-sm"
+              className="bg-[#0a0a1a]/90 backdrop-blur-md p-4 h-[300px] sm:h-[350px] overflow-y-auto font-mono text-body-sm"
               onClick={() => inputRef.current?.focus()}
             >
               {lines.map((line, i) => (
@@ -189,7 +189,7 @@ const CommandTerminal = () => {
                   value={input}
                   onChange={(e) => setInput(e.target.value)}
                   onKeyDown={handleKeyDown}
-                  className="bg-transparent text-white outline-none flex-1 font-mono text-sm caret-[#915eff]"
+                  className="bg-transparent text-white outline-none flex-1 font-mono text-body-sm caret-[#915eff]"
                   autoComplete="off"
                   spellCheck="false"
                 />

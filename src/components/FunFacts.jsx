@@ -60,11 +60,11 @@ const FunFacts = () => {
             transition={{ delay: index * 0.15, duration: 0.5, type: "spring" }}
             className="glass-card rounded-2xl p-5 sm:p-8 text-center card-shine glow-hover"
           >
-            <span className="text-3xl sm:text-4xl block mb-3">{fact.icon}</span>
-            <p className="text-white font-bold text-2xl sm:text-4xl font-mono">
+            <span className="text-heading sm:text-heading-xl block mb-3">{fact.icon}</span>
+            <p className="text-white font-bold text-heading-sm sm:text-heading-xl font-mono">
               <AnimatedCounter value={fact.value} suffix={fact.suffix} />
             </p>
-            <p className="text-secondary text-xs sm:text-sm mt-2">{fact.label}</p>
+            <p className="text-secondary text-caption sm:text-body-sm mt-2">{fact.label}</p>
           </motion.div>
         ))}
       </div>

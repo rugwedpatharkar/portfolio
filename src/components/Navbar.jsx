@@ -81,7 +81,7 @@ const Navbar = () => {
           }}
         >
           <img src={logo} alt="logo" className="object-contain w-8 h-8 sm:w-9 sm:h-9" />
-          <p className="text-white text-[15px] sm:text-[18px] font-bold cursor-pointer flex">
+          <p className="text-white text-body-sm sm:text-body font-heading font-bold cursor-pointer flex">
             Rugwed Patharkar&nbsp;
             <span className="md:block hidden">| Portfolio</span>
           </p>
@@ -93,7 +93,7 @@ const Navbar = () => {
               key={link.id}
               className={`${
                 active === link.title ? "text-white nav-link-active" : "text-secondary"
-              } hover:text-white text-[15px] lg:text-[18px] font-medium cursor-pointer transition-colors relative link-hover-underline`}
+              } hover:text-white text-body-sm lg:text-body font-medium cursor-pointer transition-colors relative link-hover-underline`}
               onClick={() => handleItemClick(link)}
             >
               <a href={"#" + link.id}>{link.title}</a>
@@ -126,7 +126,7 @@ const Navbar = () => {
                   key={link.id}
                   className={`${
                     active === link.title ? "text-white" : "text-secondary"
-                  } font-sans font-medium cursor-pointer text-[16px] w-full`}
+                  } font-sans font-medium cursor-pointer text-body w-full`}
                   onClick={() => handleItemClick(link)}
                 >
                   <a href={"#" + link.id} className="block w-full py-1">

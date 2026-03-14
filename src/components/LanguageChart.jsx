@@ -34,7 +34,7 @@ const LanguageChart = () => {
       transition={{ duration: 0.6 }}
       className="w-full max-w-4xl mx-auto glass-card rounded-2xl p-5 sm:p-8"
     >
-      <h3 className="text-white font-bold text-base sm:text-lg mb-4 font-mono">
+      <h3 className="text-white font-bold text-body sm:text-body-lg mb-4 font-mono">
         $ language --stats
       </h3>
 
@@ -61,10 +61,10 @@ const LanguageChart = () => {
               className="w-3 h-3 rounded-sm shrink-0"
               style={{ backgroundColor: lang.color }}
             />
-            <span className="text-secondary text-xs sm:text-sm font-mono">
+            <span className="text-secondary text-caption sm:text-body-sm font-mono">
               {lang.name}
             </span>
-            <span className="text-white/50 text-xs font-mono ml-auto">
+            <span className="text-white/50 text-caption font-mono ml-auto">
               {lang.percentage}%
             </span>
           </div>

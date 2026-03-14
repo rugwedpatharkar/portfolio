@@ -99,7 +99,7 @@ const SkillIcon = ({ skill }) => {
       >
         <img src={skill.icon} alt={skill.name} className="w-full h-full object-contain" />
       </div>
-      <div className="absolute -top-8 left-1/2 -translate-x-1/2 opacity-0 group-hover:opacity-100 transition-opacity bg-black/90 text-white text-[10px] sm:text-[11px] px-2 py-1 rounded whitespace-nowrap pointer-events-none z-30 shadow-lg">
+      <div className="absolute -top-8 left-1/2 -translate-x-1/2 opacity-0 group-hover:opacity-100 transition-opacity bg-black/90 text-white text-micro sm:text-caption px-2 py-1 rounded whitespace-nowrap pointer-events-none z-30 shadow-lg">
         {skill.name} ({skill.level}%)
       </div>
     </motion.div>
@@ -121,7 +121,7 @@ const Skills = () => {
             <button
               key={v}
               onClick={() => setView(v)}
-              className={`px-3 py-1.5 rounded-full text-xs font-mono font-medium transition-colors border ${
+              className={`px-3 py-1.5 rounded-full text-caption font-mono font-medium transition-colors border ${
                 view === v
                   ? "bg-[#915eff] border-[#915eff] text-white"
                   : "bg-transparent border-secondary/30 text-secondary hover:border-[#915eff]"
@@ -145,7 +145,7 @@ const Skills = () => {
         <div className="mt-6 grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 3xl:grid-cols-4 gap-4 sm:gap-6">
           {Object.entries(skills).map(([category, skillsInCategory], index) => (
             <div key={index} className="mt-2">
-              <h3 className="text-white text-base sm:text-lg font-semibold mb-3">{category}</h3>
+              <h3 className="text-white font-heading text-body sm:text-body-lg font-semibold mb-3">{category}</h3>
               <div className="flex flex-wrap items-start justify-start gap-4 sm:gap-5 pb-2">
                 {skillsInCategory.map((skill, skillIndex) => (
                   <SkillIcon key={skillIndex} skill={skill} />

@@ -84,7 +84,7 @@ const App = () => {
 
   return (
     <ToastProvider>
-      <div className="relative z-0">
+      <div id="main-content" className="relative z-0">
         <Preloader />
         <DynamicTitle />
         <AnimatedFavicon />
@@ -108,8 +108,8 @@ const App = () => {
           <Navbar />
           <Hero />
         </div>
-
-        <WaveDivider color="rgba(5, 8, 22, 0.4)" />
+        {/* Gradient fade to smooth the 3D model's hard bottom edge into the background */}
+        <div className="relative -mt-48 sm:-mt-64 h-48 sm:h-64 bg-gradient-to-b from-transparent to-[#050816] pointer-events-none z-[3]" />
 
         <ErrorBoundary>
           <About />
