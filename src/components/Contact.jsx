@@ -20,6 +20,13 @@ const TOPICS = [
   { label: "Just saying hi", icon: "👋" },
 ];
 
+const MSG_TEMPLATES = {
+  Hiring: "Hi Rugwed, I came across your portfolio and I'm impressed by your work. We have an exciting opportunity that I think would be a great fit for your skills. Would you be open to discussing it?",
+  Freelance: "Hi Rugwed, I have a project that could use your expertise in backend/AI development. I'd love to discuss the scope, timeline, and how we could work together.",
+  Collaboration: "Hi Rugwed, I'm working on something interesting and your experience with microservices and AI systems would be a great complement. Would you be interested in collaborating?",
+  "Just saying hi": "Hey Rugwed! Just wanted to say your portfolio is really impressive. Keep up the great work!",
+};
+
 const CONTACT_LINKS = [
   {
     label: "Email",
@@ -446,7 +453,14 @@ const Contact = () => {
                   <button
                     key={t.label}
                     type="button"
-                    onClick={() => setTopic(topic === t.label ? "" : t.label)}
+                    onClick={() => {
+                      const newTopic = topic === t.label ? "" : t.label;
+                      setTopic(newTopic);
+                      // Auto-fill template if message is empty or matches a previous template
+                      if (newTopic && (!form.message.trim() || Object.values(MSG_TEMPLATES).includes(form.message))) {
+                        setForm((prev) => ({ ...prev, message: MSG_TEMPLATES[newTopic] || "" }));
+                      }
+                    }}
                     className={`px-3 py-1.5 rounded-full font-mono text-micro sm:text-caption border transition-all duration-300 ${
                       topic === t.label
                         ? "bg-[#915eff]/15 border-[#915eff]/40 text-[#915eff]"

@@ -1,5 +1,20 @@
 import { useEffect, useRef } from "react";
 
+/* ── Time-based color palette ── */
+const getTimeColors = () => {
+  const h = new Date().getHours();
+  // Dawn (5-8): warm amber + soft purple
+  if (h >= 5 && h < 8) return ["200, 120, 50", "145, 94, 255", "220, 160, 80"];
+  // Morning (8-12): bright teal + purple
+  if (h >= 8 && h < 12) return ["145, 94, 255", "0, 206, 168", "97, 218, 251"];
+  // Afternoon (12-17): warm gold + purple
+  if (h >= 12 && h < 17) return ["145, 94, 255", "248, 197, 85", "191, 97, 255"];
+  // Evening (17-21): deep purple + teal
+  if (h >= 17 && h < 21) return ["120, 60, 220", "0, 180, 150", "160, 80, 255"];
+  // Night (21-5): deep blue + subtle purple
+  return ["80, 50, 180", "0, 140, 120", "100, 60, 200"];
+};
+
 const GradientMesh = () => {
   const canvasRef = useRef(null);
 
@@ -9,10 +24,11 @@ const GradientMesh = () => {
     let width = (canvas.width = window.innerWidth);
     let height = (canvas.height = window.innerHeight);
 
+    const timeColors = getTimeColors();
     const blobs = [
-      { x: width * 0.3, y: height * 0.3, radius: 300, color: "145, 94, 255", speedX: 0.3, speedY: 0.2 },
-      { x: width * 0.7, y: height * 0.6, radius: 250, color: "0, 206, 168", speedX: -0.2, speedY: 0.3 },
-      { x: width * 0.5, y: height * 0.8, radius: 280, color: "191, 97, 255", speedX: 0.25, speedY: -0.15 },
+      { x: width * 0.3, y: height * 0.3, radius: 300, color: timeColors[0], speedX: 0.3, speedY: 0.2 },
+      { x: width * 0.7, y: height * 0.6, radius: 250, color: timeColors[1], speedX: -0.2, speedY: 0.3 },
+      { x: width * 0.5, y: height * 0.8, radius: 280, color: timeColors[2], speedX: 0.25, speedY: -0.15 },
     ];
 
     let time = 0;

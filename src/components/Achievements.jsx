@@ -1,4 +1,5 @@
 /* eslint-disable react/prop-types */
+import { useRef, useCallback } from "react";
 import { motion } from "framer-motion";
 import { styles } from "../styles";
 import { SectionWrapper } from "../hoc";
@@ -8,8 +9,86 @@ import TextScramble from "./TextScramble";
 
 const ACCENT_COLORS = ["#915eff", "#00cea8", "#f8c555", "#61dafb", "#ff6b6b"];
 
-const AchievementCard = ({ achievement, index }) => {
+/* ── Mini confetti burst — fires from a DOM element ── */
+const useConfetti = () => {
+  const particles = useRef([]);
+  const canvasRef = useRef(null);
+
+  const fire = useCallback((originEl, color) => {
+    if (!originEl) return;
+    const rect = originEl.getBoundingClientRect();
+    const cx = rect.left + rect.width / 2;
+    const cy = rect.top + rect.height / 2;
+
+    // Create or reuse a tiny full-screen canvas
+    let canvas = canvasRef.current;
+    if (!canvas) {
+      canvas = document.createElement("canvas");
+      canvas.style.cssText = "position:fixed;inset:0;width:100%;height:100%;pointer-events:none;z-index:60";
+      document.body.appendChild(canvas);
+      canvasRef.current = canvas;
+    }
+    canvas.width = window.innerWidth;
+    canvas.height = window.innerHeight;
+    const ctx = canvas.getContext("2d");
+
+    // Spawn 20 particles
+    const COLORS = [color, "#ffffff", "#f8c555", "#00cea8", "#61dafb"];
+    particles.current = Array.from({ length: 20 }, () => ({
+      x: cx,
+      y: cy,
+      vx: (Math.random() - 0.5) * 8,
+      vy: -Math.random() * 6 - 2,
+      size: Math.random() * 4 + 2,
+      color: COLORS[Math.floor(Math.random() * COLORS.length)],
+      life: 1,
+      decay: 0.015 + Math.random() * 0.01,
+      rotation: Math.random() * Math.PI * 2,
+      rotSpeed: (Math.random() - 0.5) * 0.2,
+    }));
+
+    let rafId;
+    const animate = () => {
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      let alive = false;
+      for (const p of particles.current) {
+        if (p.life <= 0) continue;
+        alive = true;
+        p.x += p.vx;
+        p.y += p.vy;
+        p.vy += 0.15; // gravity
+        p.life -= p.decay;
+        p.rotation += p.rotSpeed;
+
+        ctx.save();
+        ctx.translate(p.x, p.y);
+        ctx.rotate(p.rotation);
+        ctx.globalAlpha = Math.max(0, p.life);
+        ctx.fillStyle = p.color;
+        ctx.fillRect(-p.size / 2, -p.size / 2, p.size, p.size);
+        ctx.restore();
+      }
+      if (alive) {
+        rafId = requestAnimationFrame(animate);
+      } else {
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+      }
+    };
+    rafId = requestAnimationFrame(animate);
+
+    // Safety cleanup after 2s
+    setTimeout(() => {
+      cancelAnimationFrame(rafId);
+      if (canvas) ctx.clearRect(0, 0, canvas.width, canvas.height);
+    }, 2000);
+  }, []);
+
+  return fire;
+};
+
+const AchievementCard = ({ achievement, index, onCelebrate }) => {
   const color = ACCENT_COLORS[index % ACCENT_COLORS.length];
+  const iconRef = useRef(null);
 
   return (
     <motion.div
@@ -22,7 +101,9 @@ const AchievementCard = ({ achievement, index }) => {
       {/* Timeline column */}
       <div className="flex flex-col items-center">
         <motion.div
+          ref={iconRef}
           whileHover={{ scale: 1.15, rotate: [0, -8, 8, 0] }}
+          onHoverStart={() => onCelebrate(iconRef.current, color)}
           transition={{ type: "spring", stiffness: 300 }}
           className="w-12 h-12 sm:w-14 sm:h-14 rounded-full glass-card flex items-center justify-center text-subheading sm:text-heading-sm flex-shrink-0 border-2 transition-colors duration-300 cursor-default"
           style={{ borderColor: `${color}40`, boxShadow: `0 0 20px ${color}15` }}
@@ -67,6 +148,8 @@ const AchievementCard = ({ achievement, index }) => {
 };
 
 const Achievements = () => {
+  const fireConfetti = useConfetti();
+
   return (
     <div className="relative">
       {/* Ambient glow blobs */}
@@ -88,7 +171,7 @@ const Achievements = () => {
 
       <div className="mt-8 sm:mt-12 max-w-3xl mx-auto">
         {achievements.map((achievement, index) => (
-          <AchievementCard key={index} achievement={achievement} index={index} />
+          <AchievementCard key={index} achievement={achievement} index={index} onCelebrate={fireConfetti} />
         ))}
       </div>
     </div>

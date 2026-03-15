@@ -12,6 +12,7 @@ import Preloader from "./components/Preloader";
 import SectionDivider from "./components/SectionDivider";
 import { ToastProvider } from "./components/Toast";
 import GradientMesh from "./components/GradientMesh";
+import ScrollDepthBlur from "./components/ScrollDepthBlur";
 import CodeRain from "./components/CodeRain";
 import DynamicTitle from "./components/DynamicTitle";
 import AnimatedFavicon from "./components/AnimatedFavicon";
@@ -94,6 +95,7 @@ const App = () => {
         </Suspense>
         <CodeRain />
         <GradientMesh />
+        <ScrollDepthBlur />
         <Suspense fallback={null}>
           <ContextualCursor />
           <CursorTrail />
