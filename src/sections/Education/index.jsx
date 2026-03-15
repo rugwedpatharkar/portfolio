@@ -1,6 +1,6 @@
 /* eslint-disable react/prop-types */
 /* eslint-disable react-refresh/only-export-components */
-import { useState, useMemo, useEffect, useCallback } from "react";
+import { useState, useMemo, useEffect, useCallback, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { styles } from "../../styles";
 import { SectionWrapper } from "../../hoc";
@@ -220,15 +220,31 @@ const Education = () => {
   const active = timeline[activeIndex];
   const activeColor = NODE_COLORS[activeIndex % NODE_COLORS.length];
 
+  const isVisibleRef = useRef(false);
+  const sectionRef = useRef(null);
+
   const goPrev = useCallback(() => setActiveIndex((i) => Math.max(0, i - 1)), []);
   const goNext = useCallback(
     () => setActiveIndex((i) => Math.min(timeline.length - 1, i + 1)),
     [timeline.length]
   );
 
-  /* Keyboard navigation */
+  /* Track section visibility */
+  useEffect(() => {
+    const el = sectionRef.current;
+    if (!el) return;
+    const obs = new IntersectionObserver(
+      ([entry]) => { isVisibleRef.current = entry.isIntersecting; },
+      { threshold: 0.1 }
+    );
+    obs.observe(el);
+    return () => obs.disconnect();
+  }, []);
+
+  /* Keyboard navigation — scoped to section visibility */
   useEffect(() => {
     const onKey = (e) => {
+      if (!isVisibleRef.current) return;
       if (e.key === "ArrowLeft") goPrev();
       else if (e.key === "ArrowRight") goNext();
     };
@@ -243,7 +259,7 @@ const Education = () => {
       : "100%";
 
   return (
-    <div className="relative">
+    <div ref={sectionRef} className="relative">
       {/* Ambient glow blobs */}
       <div className="absolute -top-20 -left-20 w-60 h-60 bg-[#00cea8]/5 rounded-full blur-[100px] pointer-events-none" />
       <div className="absolute -bottom-20 -right-20 w-48 h-48 bg-[#915eff]/5 rounded-full blur-[80px] pointer-events-none" />
@@ -334,7 +350,7 @@ const Education = () => {
               <button
                 key={i}
                 onClick={() => setActiveIndex(i)}
-                className="p-2"
+                className="p-2.5 min-w-[44px] min-h-[44px] flex items-center justify-center"
                 aria-label={`Go to ${timeline[i].shortName}`}
               >
                 <span
@@ -379,4 +395,4 @@ const Education = () => {
   );
 };
 
-export default SectionWrapper(Education, "education");
+export default SectionWrapper(Education, "education", "Education");

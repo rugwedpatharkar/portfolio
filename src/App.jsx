@@ -10,7 +10,7 @@ import ScrollProgressBar from "./components/ScrollProgressBar";
 import Preloader from "./components/Preloader";
 
 import SectionDivider from "./components/SectionDivider";
-import { ToastProvider } from "./components/Toast";
+import { ToastProvider, useToast } from "./components/Toast";
 import GradientMesh from "./components/GradientMesh";
 import ScrollDepthBlur from "./components/ScrollDepthBlur";
 import CodeRain from "./components/CodeRain";
@@ -109,9 +109,26 @@ const App = () => {
     };
   }, []);
 
+  const ReferrerGreeting = () => {
+    const toast = useToast();
+    useEffect(() => {
+      if (sessionStorage.getItem("referrer-greeted")) return;
+      sessionStorage.setItem("referrer-greeted", "1");
+      const ref = document.referrer.toLowerCase();
+      if (ref.includes("linkedin")) {
+        toast("Welcome from LinkedIn! Thanks for visiting.", "success");
+      } else if (ref.includes("github")) {
+        toast("Hey fellow developer! Welcome from GitHub.", "success");
+      }
+    }, [toast]);
+    return null;
+  };
+
   return (
     <ToastProvider>
+      <ReferrerGreeting />
       <main id="main-content" className="relative z-0">
+        <div className="noise-overlay" aria-hidden="true" />
         <Preloader />
         <DynamicTitle />
         <AnimatedFavicon />

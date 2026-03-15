@@ -21,8 +21,14 @@ const GradientMesh = () => {
   useEffect(() => {
     const canvas = canvasRef.current;
     const ctx = canvas.getContext("2d");
-    let width = (canvas.width = window.innerWidth);
-    let height = (canvas.height = window.innerHeight);
+    const dpr = window.devicePixelRatio || 1;
+    let width = window.innerWidth;
+    let height = window.innerHeight;
+    canvas.width = width * dpr;
+    canvas.height = height * dpr;
+    canvas.style.width = `${width}px`;
+    canvas.style.height = `${height}px`;
+    ctx.scale(dpr, dpr);
 
     const timeColors = getTimeColors();
     const blobs = [
@@ -76,18 +82,30 @@ const GradientMesh = () => {
     document.addEventListener("visibilitychange", handleVisibility);
 
     const handleResize = () => {
-      width = canvas.width = window.innerWidth;
-      height = canvas.height = window.innerHeight;
+      const newDpr = window.devicePixelRatio || 1;
+      width = window.innerWidth;
+      height = window.innerHeight;
+      canvas.width = width * newDpr;
+      canvas.height = height * newDpr;
+      canvas.style.width = `${width}px`;
+      canvas.style.height = `${height}px`;
+      ctx.setTransform(newDpr, 0, 0, newDpr, 0, 0);
       blobs[0].x = width * 0.3; blobs[0].y = height * 0.3;
       blobs[1].x = width * 0.7; blobs[1].y = height * 0.6;
       blobs[2].x = width * 0.5; blobs[2].y = height * 0.8;
     };
 
-    window.addEventListener("resize", handleResize);
+    let resizeTimer;
+    const debouncedResize = () => {
+      clearTimeout(resizeTimer);
+      resizeTimer = setTimeout(handleResize, 150);
+    };
+    window.addEventListener("resize", debouncedResize);
 
     return () => {
       if (rafId) cancelAnimationFrame(rafId);
-      window.removeEventListener("resize", handleResize);
+      clearTimeout(resizeTimer);
+      window.removeEventListener("resize", debouncedResize);
       document.removeEventListener("visibilitychange", handleVisibility);
     };
   }, []);

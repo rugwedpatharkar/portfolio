@@ -51,9 +51,8 @@ const ContextualCursor = () => {
       posRef.current.x = e.clientX;
       posRef.current.y = e.clientY;
 
-      // Direct DOM update — no React re-render
-      cursor.style.left = `${e.clientX}px`;
-      cursor.style.top = `${e.clientY}px`;
+      // Direct DOM update — no React re-render (translate3d avoids layout thrashing)
+      cursor.style.transform = `translate3d(${e.clientX}px, ${e.clientY}px, 0) translate(-50%, -50%)`;
 
       // Throttle DOM traversal to ~15fps
       const now = performance.now();
@@ -73,8 +72,8 @@ const ContextualCursor = () => {
       }
     };
 
-    const handleDown = () => { cursor.style.transform = "translate(-50%, -50%) scale(0.8)"; };
-    const handleUp = () => { cursor.style.transform = "translate(-50%, -50%) scale(1)"; };
+    const handleDown = () => { cursor.style.transform = `translate3d(${posRef.current.x}px, ${posRef.current.y}px, 0) translate(-50%, -50%) scale(0.8)`; };
+    const handleUp = () => { cursor.style.transform = `translate3d(${posRef.current.x}px, ${posRef.current.y}px, 0) translate(-50%, -50%) scale(1)`; };
 
     window.addEventListener("mousemove", handleMove, { passive: true });
     window.addEventListener("mousedown", handleDown);
@@ -96,15 +95,16 @@ const ContextualCursor = () => {
       style={{
         width: 12,
         height: 12,
-        left: -100,
-        top: -100,
-        transform: "translate(-50%, -50%)",
+        position: "fixed",
+        top: 0,
+        left: 0,
+        transform: "translate3d(-100px, -100px, 0) translate(-50%, -50%)",
         borderRadius: "50%",
         border: "2px solid rgba(145, 94, 255, 0.6)",
         background: "rgba(145, 94, 255, 0.2)",
         mixBlendMode: "difference",
         transition: "width 0.2s, height 0.2s, background 0.2s, border 0.2s",
-        willChange: "left, top",
+        willChange: "transform",
       }}
     >
       <span

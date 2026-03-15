@@ -11,7 +11,6 @@ import {
   mongodb,
   git,
   docker,
-  careerforall,
   java,
   kubernetes,
   linux,
@@ -22,8 +21,6 @@ import {
   vscode,
   techentrepreneurs,
   upswing,
-  gadgetgalaxy,
-  blogbuddy,
   web,
   django,
   bootstrap,
@@ -52,6 +49,9 @@ import {
   celery,
   eclipse,
   pycharm,
+  gadgetgalaxy,
+  blogbuddy,
+  careerforall,
 } from "../assets";
 
 export const navLinks = [
@@ -133,7 +133,7 @@ export const skills = {
 export const experiences = [
   {
     title: "Software Engineer",
-    company_name: "Upswing Cognitive Hospitality Solutions",
+    companyName: "Upswing Cognitive Hospitality Solutions",
     icon: upswing,
     iconBg: "#ffffff",
     date: "May 2024 – Present",
@@ -180,7 +180,7 @@ export const experiences = [
   },
   {
     title: "IT Trainee Intern",
-    company_name: "Tech Entrepreneurs",
+    companyName: "Tech Entrepreneurs",
     icon: techentrepreneurs,
     iconBg: "#383E56",
     date: "March 2023 – September 2023",
@@ -325,6 +325,7 @@ export const projects = [
     status: "completed",
     year: "2023",
     team: "Solo",
+    image: blogbuddy,
     github: "https://github.com/rugwedpatharkar/BlogBuddy",
     description:
       "BlogBuddy — a full-stack blogging platform with secure authentication, email OTP verification, and responsive UI. Deployed with Docker on Render.",
@@ -353,6 +354,7 @@ export const projects = [
     status: "completed",
     year: "2023",
     team: "Solo",
+    image: gadgetgalaxy,
     github: "https://github.com/rugwedpatharkar/GadgetGalaxy",
     description:
       "GadgetGalaxy — an e-commerce platform with secure user authentication, product catalog, cart system, and email notifications. Deployed on PythonAnywhere.",
@@ -381,6 +383,7 @@ export const projects = [
     status: "completed",
     year: "2023",
     team: "Solo",
+    image: careerforall,
     github: "https://github.com/rugwedpatharkar/CareerForAll",
     description:
       "Recruitment platform connecting startups, institutes, and job seekers. Streamlines the matching process with multi-role access and modular architecture.",
@@ -461,7 +464,7 @@ export const educations = [
     name: "M.S.G.G.V., Pune",
     image: ssc,
     year: "2015",
-    duration: "",
+    duration: null,
     highlights: ["Mathematics", "Science", "English"],
   },
 ];
@@ -574,12 +577,14 @@ export const funFacts = [
   { label: "Bugs Squashed", value: 500, suffix: "+", icon: "🐛", detail: "From race conditions to timezone bugs — every squash is a war story." },
 ];
 
+// Blog tags use plain strings (e.g. "FastAPI") unlike project tags which use
+// objects (e.g. { name: "React" }). The Blog component renders them directly.
 export const blogPosts = [
   {
     title: "Building Scalable Microservices with FastAPI & gRPC",
     description:
       "A deep dive into architecting high-performance backend services using FastAPI for REST and gRPC for inter-service communication on GKE.",
-    link: "#",
+    link: "#", // placeholder — Blog component renders "Coming soon" for "#" links
     date: "2024",
     tags: ["FastAPI", "gRPC", "GCP"],
   },
@@ -587,7 +592,7 @@ export const blogPosts = [
     title: "Multi-Agent AI with LangChain & MCP",
     description:
       "How I built an enterprise conversational AI through 5 iterations using LangChain, LangGraph, and Model Context Protocol for tool calling.",
-    link: "#",
+    link: "#", // placeholder — Blog component renders "Coming soon" for "#" links
     date: "2024",
     tags: ["LangChain", "AI", "MCP"],
   },
@@ -595,14 +600,14 @@ export const blogPosts = [
     title: "RAG Pipeline: From Scraping to Semantic Search",
     description:
       "End-to-end guide on building a Retrieval-Augmented Generation system with ChromaDB, OpenAI embeddings, and context-aware responses.",
-    link: "#",
+    link: "#", // placeholder — Blog component renders "Coming soon" for "#" links
     date: "2024",
     tags: ["RAG", "ChromaDB", "OpenAI"],
   },
 ];
 
 export const sectionMeta = {
-  about: { sub: "Introduction", heading: "Overview", description: "" },
+  about: { sub: "Introduction", heading: "Overview", description: "A snapshot of who I am, what drives me, and the disciplines I bring to every project." },
   funFacts: { sub: "Numbers That Define Me", heading: "Fun Facts", description: "A few numbers and fun stats from my journey so far — because every line of code tells a story." },
   experience: { sub: "Where I've worked", heading: "Work Experience", description: "Building scalable microservices, AI-powered systems, and cloud-native solutions — here's where I've put my engineering skills to work." },
   skills: { sub: "What I Bring to the Table", heading: "Technical Skills", description: "From Python and FastAPI to cloud infrastructure and AI — the tools and technologies I use to build production-grade software." },

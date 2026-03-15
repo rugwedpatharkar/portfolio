@@ -7,6 +7,7 @@ import { achievements, sectionMeta } from "../../content";
 import { fadeIn, textVariant } from "../../utils/motion";
 import TextScramble from "../../components/TextScramble";
 import { ACCENT_COLORS } from "../../config/theme";
+import TiltCard from "../../components/TiltCard";
 
 /* ── Mini confetti burst — fires from a DOM element ── */
 const useConfetti = () => {
@@ -113,6 +114,7 @@ const AchievementCard = ({ achievement, index, onCelebrate }) => {
           ref={iconRef}
           whileHover={{ scale: 1.15, rotate: [0, -8, 8, 0] }}
           onHoverStart={() => onCelebrate(iconRef.current, color)}
+          onClick={() => onCelebrate(iconRef.current, color)}
           transition={{ type: "spring", stiffness: 300 }}
           className="w-12 h-12 sm:w-14 sm:h-14 rounded-full glass-card flex items-center justify-center text-subheading sm:text-heading-sm flex-shrink-0 border-2 transition-colors duration-300 cursor-default"
           style={{ borderColor: `${color}40`, boxShadow: `0 0 20px ${color}15` }}
@@ -129,28 +131,30 @@ const AchievementCard = ({ achievement, index, onCelebrate }) => {
 
       {/* Card */}
       <div className="pb-8 sm:pb-12 flex-1">
-        <div className="glass-card rounded-2xl p-4 sm:p-5 card-shine glow-hover border-glow relative overflow-hidden">
-          {/* Subtle accent glow */}
-          <div
-            className="absolute -top-6 -right-6 w-24 h-24 rounded-full blur-[40px] pointer-events-none opacity-[0.06]"
-            style={{ background: color }}
-          />
+        <TiltCard tiltStrength={5}>
+          <div className="glass-card rounded-2xl p-4 sm:p-5 card-shine glow-hover border-glow relative overflow-hidden">
+            {/* Subtle accent glow */}
+            <div
+              className="absolute -top-6 -right-6 w-24 h-24 rounded-full blur-[40px] pointer-events-none opacity-[0.06]"
+              style={{ background: color }}
+            />
 
-          <div className="flex items-center gap-2 mb-1.5">
-            <span
-              className="font-mono text-caption sm:text-body-sm font-semibold"
-              style={{ color }}
-            >
-              {achievement.year}
-            </span>
+            <div className="flex items-center gap-2 mb-1.5">
+              <span
+                className="font-mono text-caption sm:text-body-sm font-semibold"
+                style={{ color }}
+              >
+                {achievement.year}
+              </span>
+            </div>
+            <h3 className="text-white font-heading font-bold text-body sm:text-body-lg">
+              {achievement.title}
+            </h3>
+            <p className="text-secondary text-caption sm:text-body-sm mt-1 leading-relaxed">
+              {achievement.description}
+            </p>
           </div>
-          <h3 className="text-white font-heading font-bold text-body sm:text-body-lg">
-            {achievement.title}
-          </h3>
-          <p className="text-secondary text-caption sm:text-body-sm mt-1 leading-relaxed">
-            {achievement.description}
-          </p>
-        </div>
+        </TiltCard>
       </div>
     </motion.div>
   );
@@ -186,4 +190,4 @@ const Achievements = () => {
   );
 };
 
-export default SectionWrapper(Achievements, "achievements");
+export default SectionWrapper(Achievements, "achievements", "Achievements");

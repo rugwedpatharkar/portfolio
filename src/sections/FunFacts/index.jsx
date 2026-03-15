@@ -7,6 +7,7 @@ import { styles } from "../../styles";
 import { SectionWrapper } from "../../hoc";
 import { ACCENT_COLORS } from "../../config/theme";
 import TextScramble from "../../components/TextScramble";
+import TiltCard from "../../components/TiltCard";
 
 const AnimatedCounter = ({ value, suffix = "", duration = 2000 }) => {
   const [count, setCount] = useState(0);
@@ -74,21 +75,23 @@ const FunFactCard = memo(({ fact, index }) => {
         }}
       >
         {/* Front face -- stays in flow so it sets the container height */}
-        <div
-          className="glass-card rounded-2xl p-5 sm:p-7 text-center card-shine glow-hover relative overflow-hidden group"
-          style={{ backfaceVisibility: "hidden" }}
-        >
+        <TiltCard tiltStrength={6}>
           <div
-            className="absolute -top-8 -right-8 w-28 h-28 rounded-full blur-[50px] pointer-events-none opacity-[0.06] group-hover:opacity-[0.12] transition-opacity duration-500"
-            style={{ background: color }}
-          />
-          <span className="text-heading sm:text-heading-xl block mb-3">{fact.icon}</span>
-          <p className="font-bold text-heading-sm sm:text-heading-xl font-mono" style={{ color }}>
-            <AnimatedCounter value={fact.value} suffix={fact.suffix} />
-          </p>
-          <p className="text-secondary text-caption sm:text-body-sm mt-2">{fact.label}</p>
-          <p className="text-white/45 text-micro mt-3 font-mono">click to reveal</p>
-        </div>
+            className="glass-card rounded-2xl p-5 sm:p-7 text-center card-shine glow-hover border-glow relative overflow-hidden group"
+            style={{ backfaceVisibility: "hidden" }}
+          >
+            <div
+              className="absolute -top-8 -right-8 w-28 h-28 rounded-full blur-[50px] pointer-events-none opacity-[0.06] group-hover:opacity-[0.12] transition-opacity duration-500"
+              style={{ background: color }}
+            />
+            <span className="text-heading sm:text-heading-xl block mb-3">{fact.icon}</span>
+            <p className="font-bold text-heading-sm sm:text-heading-xl font-mono" style={{ color }}>
+              <AnimatedCounter value={fact.value} suffix={fact.suffix} />
+            </p>
+            <p className="text-secondary text-caption sm:text-body-sm mt-2">{fact.label}</p>
+            <p className="text-white/45 text-micro mt-3 font-mono">click to reveal</p>
+          </div>
+        </TiltCard>
 
         {/* Back face -- absolute overlay, same size as front */}
         <div
@@ -144,4 +147,4 @@ const FunFacts = () => {
   );
 };
 
-export default SectionWrapper(FunFacts, "funfacts");
+export default SectionWrapper(FunFacts, "funfacts", "Fun Facts");

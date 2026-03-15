@@ -10,6 +10,7 @@ import { photo, resume } from "../../assets";
 import ResumeModal from "../../components/ResumeModal";
 import TextScramble from "../../components/TextScramble";
 import MagneticButton from "../../components/MagneticButton";
+import TiltCard from "../../components/TiltCard";
 
 const CARD_ACCENTS = ["#915eff", "#00cea8", "#61dafb", "#f8c555"];
 
@@ -21,27 +22,30 @@ const ServiceCard = memo(({ index, title, icon }) => {
       variants={fadeIn("right", "spring", 0.5 * index, 0.75)}
       whileHover={{ y: -6 }}
       transition={{ type: "spring", stiffness: 300, damping: 20 }}
-      className="w-full glass-card rounded-2xl p-5 sm:p-6 min-h-[180px] xs:min-h-[220px] sm:min-h-[250px] flex flex-col justify-center items-center gap-4 card-shine glow-hover border-glow group relative overflow-hidden"
     >
-      {/* Accent glow */}
-      <div
-        className="absolute -top-10 -right-10 w-32 h-32 rounded-full blur-[50px] pointer-events-none opacity-[0.06] group-hover:opacity-[0.15] transition-opacity duration-500"
-        style={{ background: accent }}
-      />
+      <TiltCard>
+        <div className="w-full glass-card rounded-2xl p-5 sm:p-6 min-h-[180px] xs:min-h-[220px] sm:min-h-[250px] flex flex-col justify-center items-center gap-4 card-shine glow-hover border-glow group relative overflow-hidden">
+          {/* Accent glow */}
+          <div
+            className="absolute -top-10 -right-10 w-32 h-32 rounded-full blur-[50px] pointer-events-none opacity-[0.06] group-hover:opacity-[0.15] transition-opacity duration-500"
+            style={{ background: accent }}
+          />
 
-      {/* Accent top bar */}
-      <div
-        className="absolute top-0 left-1/2 -translate-x-1/2 h-[2px] w-12 rounded-full opacity-40 group-hover:w-20 group-hover:opacity-80 transition-all duration-500"
-        style={{ background: accent }}
-      />
+          {/* Accent top bar */}
+          <div
+            className="absolute top-0 left-1/2 -translate-x-1/2 h-[2px] w-12 rounded-full opacity-40 group-hover:w-20 group-hover:opacity-80 transition-all duration-500"
+            style={{ background: accent }}
+          />
 
-      <div className="w-14 h-14 sm:w-16 sm:h-16 rounded-xl flex items-center justify-center border border-white/[0.06] bg-white/[0.03] group-hover:border-white/[0.12] transition-colors duration-300">
-        <img src={icon} alt={title} className="w-10 h-10 sm:w-12 sm:h-12 object-contain group-hover:scale-110 transition-transform duration-500" />
-      </div>
+          <div className="w-14 h-14 sm:w-16 sm:h-16 rounded-xl flex items-center justify-center border border-white/[0.06] bg-white/[0.03] group-hover:border-white/[0.12] transition-colors duration-300">
+            <img src={icon} alt={title} className="w-10 h-10 sm:w-12 sm:h-12 object-contain group-hover:scale-110 transition-transform duration-500" />
+          </div>
 
-      <h3 className="font-heading font-bold text-center text-white text-body sm:text-body-lg">
-        {title}
-      </h3>
+          <h3 className="font-heading font-bold text-center text-white text-body sm:text-body-lg">
+            {title}
+          </h3>
+        </div>
+      </TiltCard>
     </motion.div>
   );
 });
@@ -258,4 +262,4 @@ const About = () => {
   );
 };
 
-export default SectionWrapper(About, "about");
+export default SectionWrapper(About, "about", "About");

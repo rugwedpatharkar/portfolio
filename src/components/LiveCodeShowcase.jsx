@@ -143,4 +143,4 @@ const LiveCodeShowcase = () => {
   );
 };
 
-export default SectionWrapper(LiveCodeShowcase, "showcase");
+export default SectionWrapper(LiveCodeShowcase, "showcase", "Showcase");

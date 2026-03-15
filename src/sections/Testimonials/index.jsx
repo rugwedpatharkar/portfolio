@@ -77,6 +77,8 @@ const Testimonials = () => {
   const [timerKey, setTimerKey] = useState(0);
   const dragX = useMotionValue(0);
   const containerRef = useRef(null);
+  const isVisibleRef = useRef(false);
+  const sectionRef = useRef(null);
 
   const total = testimonials.length;
   const t = testimonials[current];
@@ -108,9 +110,22 @@ const Testimonials = () => {
     return () => clearInterval(id);
   }, [paused, go, timerKey]);
 
-  /* Keyboard navigation */
+  /* Track section visibility */
+  useEffect(() => {
+    const el = sectionRef.current;
+    if (!el) return;
+    const obs = new IntersectionObserver(
+      ([entry]) => { isVisibleRef.current = entry.isIntersecting; },
+      { threshold: 0.1 }
+    );
+    obs.observe(el);
+    return () => obs.disconnect();
+  }, []);
+
+  /* Keyboard navigation — scoped to section visibility */
   useEffect(() => {
     const onKey = (e) => {
+      if (!isVisibleRef.current) return;
       if (e.key === "ArrowRight") go(1);
       else if (e.key === "ArrowLeft") go(-1);
     };
@@ -125,7 +140,7 @@ const Testimonials = () => {
   };
 
   return (
-    <>
+    <div ref={sectionRef}>
       <motion.div variants={textVariant()}>
         <p className={styles.sectionSubText}>{sectionMeta.testimonials.sub}</p>
         <TextScramble
@@ -204,7 +219,7 @@ const Testimonials = () => {
               dragConstraints={{ left: 0, right: 0 }}
               dragElastic={0.15}
               onDragEnd={handleDragEnd}
-              className="glass-card rounded-2xl p-5 sm:p-8 cursor-grab active:cursor-grabbing touch-pan-y card-shine glow-hover"
+              className="glass-card rounded-2xl p-5 sm:p-8 cursor-grab active:cursor-grabbing touch-pan-y card-shine glow-hover border-glow"
               style={{
                 x: dragX,
                 borderColor: `${accent}15`,
@@ -340,7 +355,7 @@ const Testimonials = () => {
                 <button
                   key={i}
                   onClick={() => goTo(i)}
-                  className="p-2 group"
+                  className="p-2.5 min-w-[44px] min-h-[44px] flex items-center justify-center group"
                   aria-label={`Go to testimonial ${i + 1}`}
                 >
                   <span
@@ -388,8 +403,8 @@ const Testimonials = () => {
           </button>
         </div>
       </div>
-    </>
+    </div>
   );
 };
 
-export default SectionWrapper(Testimonials, "testimonials");
+export default SectionWrapper(Testimonials, "testimonials", "Testimonials");

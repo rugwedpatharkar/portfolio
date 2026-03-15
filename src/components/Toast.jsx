@@ -2,6 +2,8 @@
 import { useState, useCallback, useRef, useEffect, createContext, useContext } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 
+let toastIdCounter = 0;
+
 const ToastContext = createContext(null);
 
 export const useToast = () => useContext(ToastContext);
@@ -17,7 +19,7 @@ export const ToastProvider = ({ children }) => {
   }, []);
 
   const addToast = useCallback((message, type = "success", duration = 4000) => {
-    const id = Date.now();
+    const id = ++toastIdCounter;
     setToasts((prev) => [...prev, { id, message, type }]);
     const timer = setTimeout(() => {
       setToasts((prev) => prev.filter((t) => t.id !== id));

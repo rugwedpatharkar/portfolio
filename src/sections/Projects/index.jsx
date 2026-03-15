@@ -69,6 +69,19 @@ const ProjectCard = memo(({ project, index, isExpanded, onToggle, accent }) => {
       />
 
       <div className="p-4 sm:p-5 relative z-[1]">
+        {/* Project image */}
+        {project.image && (
+          <div className="relative h-40 sm:h-48 overflow-hidden rounded-t-2xl -mx-5 -mt-5 sm:-mx-6 sm:-mt-6 mb-4">
+            <img
+              src={project.image}
+              alt={`${project.name} screenshot`}
+              className="w-full h-full object-cover object-top"
+              loading="lazy"
+            />
+            <div className="absolute inset-0 bg-gradient-to-t from-[#151030] to-transparent" />
+          </div>
+        )}
+
         {/* Top row: type + status + index */}
         <div className="flex items-center justify-between mb-2">
           <div className="flex items-center gap-2 sm:gap-3">
@@ -351,32 +364,40 @@ const Projects = () => {
 
       {/* Card grid */}
       <div className="mt-5 sm:mt-6 grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-4 sm:gap-5 items-start">
-        <AnimatePresence mode="popLayout">
-          {filtered.map((project, index) => {
-            const globalIndex = projects.indexOf(project);
-            return (
-              <ProjectCard
-                key={project.name}
-                project={project}
-                index={index}
-                isExpanded={
-                  expandedIndex === "all" || expandedIndex === globalIndex
-                }
-                onToggle={() => {
-                  if (expandedIndex === "all") {
-                    setExpandedIndex(null);
-                  } else {
-                    toggle(globalIndex);
+        {filtered.length === 0 ? (
+          <div className="col-span-full flex flex-col items-center justify-center py-16 text-center">
+            <span className="text-heading-sm mb-3">🔍</span>
+            <p className="text-white/60 font-heading font-semibold text-body-lg">No projects found</p>
+            <p className="text-white/40 text-body-sm mt-1 font-mono">Try selecting a different filter</p>
+          </div>
+        ) : (
+          <AnimatePresence mode="popLayout">
+            {filtered.map((project, index) => {
+              const globalIndex = projects.indexOf(project);
+              return (
+                <ProjectCard
+                  key={project.name}
+                  project={project}
+                  index={index}
+                  isExpanded={
+                    expandedIndex === "all" || expandedIndex === globalIndex
                   }
-                }}
-                accent={PROJECT_ACCENTS[globalIndex % PROJECT_ACCENTS.length]}
-              />
-            );
-          })}
-        </AnimatePresence>
+                  onToggle={() => {
+                    if (expandedIndex === "all") {
+                      setExpandedIndex(null);
+                    } else {
+                      toggle(globalIndex);
+                    }
+                  }}
+                  accent={PROJECT_ACCENTS[globalIndex % PROJECT_ACCENTS.length]}
+                />
+              );
+            })}
+          </AnimatePresence>
+        )}
       </div>
     </div>
   );
 };
 
-export default SectionWrapper(Projects, "projects");
+export default SectionWrapper(Projects, "projects", "Projects");

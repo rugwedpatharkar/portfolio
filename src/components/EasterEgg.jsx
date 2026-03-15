@@ -38,6 +38,16 @@ const EasterEgg = () => {
     };
   }, []);
 
+  /* Dismiss modal on Escape key */
+  useEffect(() => {
+    if (!show) return;
+    const handleEscape = (e) => {
+      if (e.key === "Escape") setShow(false);
+    };
+    window.addEventListener("keydown", handleEscape);
+    return () => window.removeEventListener("keydown", handleEscape);
+  }, [show]);
+
   return (
     <AnimatePresence>
       {show && (
@@ -45,6 +55,9 @@ const EasterEgg = () => {
           initial={{ opacity: 0, scale: 0.5 }}
           animate={{ opacity: 1, scale: 1 }}
           exit={{ opacity: 0, scale: 0.5 }}
+          role="dialog"
+          aria-modal="true"
+          aria-label="Easter egg"
           className="fixed inset-0 z-[70] flex items-center justify-center bg-black/80 backdrop-blur-sm"
           onClick={() => setShow(false)}
         >

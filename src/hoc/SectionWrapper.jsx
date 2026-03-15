@@ -3,7 +3,7 @@ import { motion, useScroll, useTransform } from "framer-motion";
 import { styles } from "../styles";
 import { staggerContainer } from "../utils/motion";
 
-const SectionWrapper = (Component, idName) =>
+const SectionWrapper = (Component, idName, label) =>
   function HOC() {
     const ref = useRef(null);
     const { scrollYProgress } = useScroll({
@@ -16,6 +16,14 @@ const SectionWrapper = (Component, idName) =>
 
     return (
       <section ref={ref} className="relative z-0">
+        {label && (
+          <span
+            className="absolute -top-6 -left-4 sm:-left-8 font-heading font-black text-white/[0.015] text-[120px] sm:text-[180px] md:text-[220px] leading-none select-none pointer-events-none whitespace-nowrap overflow-hidden max-w-full"
+            aria-hidden="true"
+          >
+            {label}
+          </span>
+        )}
         <span className="hash-span" id={idName}>
           &nbsp;
         </span>

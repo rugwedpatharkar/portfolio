@@ -45,6 +45,9 @@ const SectionDivider = () => {
   const startRef = useRef(null);
   const visibleRef = useRef(false);
   const glowPosRef = useRef(50); // 0-100, starts center
+  const wavesRef = useRef(null);
+  const glowRef = useRef(null);
+  const glowBrightRef = useRef(null);
 
   const tick = useCallback((timestamp) => {
     const el = ref.current;
@@ -56,8 +59,13 @@ const SectionDivider = () => {
     if (!startRef.current) startRef.current = timestamp;
     const t = (timestamp - startRef.current) / 1000;
 
+    // Cache DOM queries on first frame
+    if (!wavesRef.current) wavesRef.current = el.querySelectorAll("[data-wave]");
+    if (!glowRef.current) glowRef.current = el.querySelector("[data-glow]");
+    if (!glowBrightRef.current) glowBrightRef.current = el.querySelector("[data-glow-bright]");
+
     // Update wave shapes
-    const paths = el.querySelectorAll("[data-wave]");
+    const paths = wavesRef.current;
     for (let i = 0; i < paths.length; i++) {
       const p = paths[i];
       p.setAttribute(
@@ -77,7 +85,7 @@ const SectionDivider = () => {
     // Ease toward target for smooth motion, slowly drift back to center when idle
     glowPosRef.current += (target - glowPosRef.current) * 0.08;
 
-    const glow = el.querySelector("[data-glow]");
+    const glow = glowRef.current;
     if (glow) {
       glow.setAttribute("cx", `${glowPosRef.current}%`);
       // Glow intensity increases with movement speed
@@ -89,7 +97,7 @@ const SectionDivider = () => {
     }
 
     // Glow brightness element
-    const glowBright = el.querySelector("[data-glow-bright]");
+    const glowBright = glowBrightRef.current;
     if (glowBright) {
       const speed = Math.abs(glowPosRef.current - 50) / 45;
       glowBright.setAttribute("cx", `${glowPosRef.current}%`);

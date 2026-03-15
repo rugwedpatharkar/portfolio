@@ -75,4 +75,4 @@ const GitHubActivity = () => {
   );
 };
 
-export default SectionWrapper(GitHubActivity, "github");
+export default SectionWrapper(GitHubActivity, "github", "GitHub");

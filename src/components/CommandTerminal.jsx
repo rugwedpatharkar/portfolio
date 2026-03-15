@@ -13,6 +13,7 @@ const COMMANDS = {
   experience  - View work experience
   education   - View education
   social      - Social media links
+  matrix      - Enter the Matrix
   clear       - Clear terminal
   exit        - Close terminal`,
   about: () => personalInfo.about,
@@ -36,6 +37,13 @@ const COMMANDS = {
     "MSc Computer Applications - SPPU (81.95%)\nBSc Computer Science - SPPU (72.57%)\nHSC - PVG College (62.31%)\nSSC - M.S.G.G.V. (79.40%)",
   social: () =>
     `GitHub:   ${personalInfo.github}\nLinkedIn: ${personalInfo.linkedin}`,
+  matrix: () => {
+    document.body.classList.add("matrix-mode");
+    setTimeout(() => {
+      document.body.classList.remove("matrix-mode");
+    }, 10000);
+    return "Entering the Matrix... \u{1F7E2}";
+  },
 };
 
 const CommandTerminal = () => {

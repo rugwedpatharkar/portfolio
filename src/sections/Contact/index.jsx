@@ -172,7 +172,7 @@ const FormField = ({ label, name, type = "text", value, onChange, placeholder, d
 
 /* ── Live Email Preview ── */
 const EmailPreview = ({ form, topic, sent }) => (
-  <div className="glass-card rounded-2xl overflow-hidden h-full flex flex-col">
+  <div className="glass-card border-glow rounded-2xl overflow-hidden h-full flex flex-col">
     {/* Email header chrome */}
     <div className="px-4 sm:px-5 py-3 border-b border-white/[0.06] flex items-center gap-2">
       <div className="flex gap-1.5">
@@ -271,6 +271,8 @@ const Contact = () => {
   const [topic, setTopic] = useState("");
   const [loading, setLoading] = useState(false);
   const [sent, setSent] = useState(false);
+  const isVisibleRef = useRef(false);
+  const sectionRef = useRef(null);
 
   /* Persist form to sessionStorage */
   useEffect(() => {
@@ -350,9 +352,22 @@ const Contact = () => {
   const handleSubmitRef = useRef(handleSubmit);
   handleSubmitRef.current = handleSubmit;
 
-  /* Cmd/Ctrl + Enter to submit */
+  /* Track section visibility */
+  useEffect(() => {
+    const el = sectionRef.current;
+    if (!el) return;
+    const obs = new IntersectionObserver(
+      ([entry]) => { isVisibleRef.current = entry.isIntersecting; },
+      { threshold: 0.1 }
+    );
+    obs.observe(el);
+    return () => obs.disconnect();
+  }, []);
+
+  /* Cmd/Ctrl + Enter to submit — scoped to section visibility */
   useEffect(() => {
     const onKey = (e) => {
+      if (!isVisibleRef.current) return;
       if ((e.metaKey || e.ctrlKey) && e.key === "Enter") {
         handleSubmitRef.current();
       }
@@ -362,7 +377,7 @@ const Contact = () => {
   }, []);
 
   return (
-    <>
+    <div ref={sectionRef}>
       <motion.div variants={textVariant()}>
         <p className={styles.sectionSubText}>{sectionMeta.contact.sub}</p>
         <TextScramble text={sectionMeta.contact.heading} as="h2" className={styles.sectionHeadText} />
@@ -375,7 +390,7 @@ const Contact = () => {
         {sectionMeta.contact.description}
       </motion.p>
 
-      <div className="mt-8 sm:mt-12 flex flex-col xl:flex-row gap-6 sm:gap-8">
+      <div className="mt-8 sm:mt-12 flex flex-col lg:flex-row gap-6 sm:gap-8">
         {/* ── Left: Info + Form ── */}
         <motion.div
           variants={fadeIn("up", "tween", 0.2, 0.8)}
@@ -425,7 +440,7 @@ const Contact = () => {
           {/* Form */}
           <form
             onSubmit={handleSubmit}
-            className="glass-card rounded-2xl p-5 sm:p-7 space-y-5"
+            className="glass-card rounded-2xl p-5 sm:p-7 space-y-5 card-shine glow-hover border-glow"
             style={{ borderColor: `${ACCENT}10` }}
           >
             {/* Topic selector */}
@@ -555,15 +570,15 @@ const Contact = () => {
         {/* ── Right: Live Email Preview ── */}
         <motion.div
           variants={fadeIn("up", "tween", 0.3, 0.8)}
-          className="xl:flex-1 xl:max-w-[440px] hidden xl:block"
+          className="lg:flex-1 lg:max-w-[440px] hidden lg:block"
         >
           <div className="sticky top-28">
             <EmailPreview form={form} topic={topic} sent={sent} />
           </div>
         </motion.div>
       </div>
-    </>
+    </div>
   );
 };
 
-export default SectionWrapper(Contact, "contact");
+export default SectionWrapper(Contact, "contact", "Contact");

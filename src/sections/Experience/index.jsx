@@ -29,7 +29,7 @@ const ExperienceCard = memo(({ experience, index, isLast }) => {
         >
           <img
             src={experience.icon}
-            alt={experience.company_name}
+            alt={experience.companyName}
             className="w-[70%] h-[70%] object-contain"
           />
         </div>
@@ -66,7 +66,7 @@ const ExperienceCard = memo(({ experience, index, isLast }) => {
             {experience.title}
           </h3>
           <p className="text-secondary text-body-sm sm:text-body font-semibold mt-0.5">
-            {experience.company_name}
+            {experience.companyName}
           </p>
           <p className="text-[#915eff] text-caption sm:text-body-sm font-mono mt-1">
             {experience.date}
@@ -203,4 +203,4 @@ const Experience = () => {
   );
 };
 
-export default SectionWrapper(Experience, "experience");
+export default SectionWrapper(Experience, "experience", "Experience");

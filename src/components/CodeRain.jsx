@@ -10,16 +10,30 @@ const CodeRain = () => {
     const canvas = canvasRef.current;
     const ctx = canvas.getContext("2d");
 
+    const fontSize = 14;
+    let columns = Math.floor(window.innerWidth / fontSize);
+    let drops = Array(columns).fill(1).map(() => Math.random() * -100);
+
     const resize = () => {
       canvas.width = window.innerWidth;
       canvas.height = window.innerHeight;
+      const newColumns = Math.floor(canvas.width / fontSize);
+      if (newColumns !== columns) {
+        const newDrops = Array(newColumns).fill(1).map((_, i) =>
+          i < columns ? drops[i] : Math.random() * -100
+        );
+        columns = newColumns;
+        drops = newDrops;
+      }
     };
     resize();
-    window.addEventListener("resize", resize);
 
-    const fontSize = 14;
-    let columns = Math.floor(canvas.width / fontSize);
-    let drops = Array(columns).fill(1).map(() => Math.random() * -100);
+    let resizeTimer;
+    const debouncedResize = () => {
+      clearTimeout(resizeTimer);
+      resizeTimer = setTimeout(resize, 150);
+    };
+    window.addEventListener("resize", debouncedResize);
 
     // Pre-generate colors to avoid per-frame allocation
     const purples = Array.from({ length: 10 }, (_, i) => `rgba(145, 94, 255, ${0.06 + (i / 10) * 0.08})`);
@@ -72,7 +86,8 @@ const CodeRain = () => {
 
     return () => {
       if (rafId) cancelAnimationFrame(rafId);
-      window.removeEventListener("resize", resize);
+      clearTimeout(resizeTimer);
+      window.removeEventListener("resize", debouncedResize);
       document.removeEventListener("visibilitychange", handleVisibility);
     };
   }, []);

@@ -31,4 +31,4 @@ const Skills = () => {
   );
 };
 
-export default SectionWrapper(Skills, "skills");
+export default SectionWrapper(Skills, "skills", "Skills");
