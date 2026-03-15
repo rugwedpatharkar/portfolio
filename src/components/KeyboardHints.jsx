@@ -145,7 +145,7 @@ const KeyboardHints = () => {
 
             {/* Easter egg hint */}
             <div className="border-t border-white/[0.06] pt-3">
-              <p className="text-white/30 text-micro font-mono text-center">
+              <p className="text-white/45 text-micro font-mono text-center">
                 Try the Konami code for a surprise
               </p>
             </div>

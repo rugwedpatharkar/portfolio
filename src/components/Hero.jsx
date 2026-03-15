@@ -200,10 +200,11 @@ const Hero = () => {
   const spotlightRef = useRef(null);
 
   /* ── mouse parallax + spotlight — single RAF loop ── */
+  const rafIdRef = useRef(0);
+
   useEffect(() => {
     if (window.innerWidth < 768) return;
 
-    let rafId = 0;
     let latestX = 0;
     let latestY = 0;
 
@@ -216,8 +217,8 @@ const Hero = () => {
     const onMouse = (e) => {
       latestX = e.clientX;
       latestY = e.clientY;
-      if (!rafId) {
-        rafId = requestAnimationFrame(() => {
+      if (!rafIdRef.current) {
+        rafIdRef.current = requestAnimationFrame(() => {
           const cx = window.innerWidth / 2;
           const cy = window.innerHeight / 2;
           const dx = (latestX - cx) / cx;
@@ -229,7 +230,7 @@ const Hero = () => {
           if (spot) {
             spot.style.background = `radial-gradient(600px circle at ${latestX}px ${latestY}px, rgba(145, 94, 255, 0.06), transparent 60%)`;
           }
-          rafId = 0;
+          rafIdRef.current = 0;
         });
       }
     };
@@ -237,7 +238,7 @@ const Hero = () => {
     window.addEventListener("mousemove", onMouse, { passive: true });
     return () => {
       window.removeEventListener("mousemove", onMouse);
-      cancelAnimationFrame(rafId);
+      cancelAnimationFrame(rafIdRef.current);
     };
   }, []);
 
@@ -372,9 +373,9 @@ const Hero = () => {
               variants={item()}
               className="mt-1 sm:mt-5 flex flex-wrap items-center gap-2 sm:gap-3 pointer-events-auto"
             >
-              <span className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-green-900/30 border border-green-500/30 status-pulse">
-                <span className="w-2 h-2 rounded-full bg-green-400" />
-                <span className="text-green-300 text-caption sm:text-body-sm font-mono font-medium">
+              <span className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-[#00cea8]/10 border border-[#00cea8]/30 status-pulse">
+                <span className="w-2 h-2 rounded-full bg-[#00cea8]" />
+                <span className="text-[#00cea8] text-caption sm:text-body-sm font-mono font-medium">
                   {personalInfo.availability}
                 </span>
               </span>

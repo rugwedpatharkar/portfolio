@@ -92,7 +92,7 @@ const ProjectCard = memo(({ project, index, isExpanded, onToggle, accent }) => {
                 ? "// professional"
                 : "// personal"}
             </span>
-            <span className="flex items-center gap-1.5 font-mono text-micro sm:text-caption text-white/30">
+            <span className="flex items-center gap-1.5 font-mono text-micro sm:text-caption text-white/45">
               <span
                 className="w-1.5 h-1.5 rounded-full inline-block"
                 style={{ background: status.dot }}
@@ -118,7 +118,7 @@ const ProjectCard = memo(({ project, index, isExpanded, onToggle, accent }) => {
               >
                 {project.highlight.value}
               </div>
-              <div className="text-white/30 text-micro font-mono">
+              <div className="text-white/45 text-micro font-mono">
                 {project.highlight.label}
               </div>
             </div>
@@ -127,11 +127,11 @@ const ProjectCard = memo(({ project, index, isExpanded, onToggle, accent }) => {
 
         {/* Meta row: year + team */}
         <div className="flex items-center gap-3 mt-2">
-          <span className="text-white/25 text-micro sm:text-caption font-mono">
+          <span className="text-white/40 text-micro sm:text-caption font-mono">
             {project.year}
           </span>
           <span className="text-white/10">|</span>
-          <span className="text-white/25 text-micro sm:text-caption font-mono">
+          <span className="text-white/40 text-micro sm:text-caption font-mono">
             {project.team}
           </span>
         </div>
@@ -251,7 +251,7 @@ const ProjectCard = memo(({ project, index, isExpanded, onToggle, accent }) => {
             )
           )}
           {!isExpanded && project.tags.length > 3 && (
-            <span className="text-white/25 text-micro font-mono self-center">
+            <span className="text-white/40 text-micro font-mono self-center">
               +{project.tags.length - 3}
             </span>
           )}
@@ -350,14 +350,14 @@ const Projects = () => {
 
         <button
           onClick={expandAll}
-          className="font-mono text-micro sm:text-caption text-white/30 hover:text-white/50 transition-colors px-2 py-1"
+          className="font-mono text-micro sm:text-caption text-white/45 hover:text-white/50 transition-colors px-2 py-1"
         >
           {expandedIndex === "all" ? "↑ Collapse all" : "↓ Expand all"}
         </button>
       </div>
 
       {/* Project summary */}
-      <div className="mt-3 font-mono text-micro sm:text-caption text-white/30">
+      <div className="mt-3 font-mono text-micro sm:text-caption text-white/45">
         {filtered.length} project{filtered.length !== 1 ? "s" : ""}
         {filter !== "all" && ` · filtered by ${filter}`}
       </div>

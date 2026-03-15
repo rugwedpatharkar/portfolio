@@ -57,9 +57,22 @@ const CodeRain = () => {
 
     rafId = requestAnimationFrame(draw);
 
+    // Pause when tab is hidden to save CPU/battery
+    const handleVisibility = () => {
+      if (document.hidden) {
+        cancelAnimationFrame(rafId);
+        rafId = null;
+      } else if (!rafId) {
+        lastTime = 0;
+        rafId = requestAnimationFrame(draw);
+      }
+    };
+    document.addEventListener("visibilitychange", handleVisibility);
+
     return () => {
-      cancelAnimationFrame(rafId);
+      if (rafId) cancelAnimationFrame(rafId);
       window.removeEventListener("resize", resize);
+      document.removeEventListener("visibilitychange", handleVisibility);
     };
   }, []);
 

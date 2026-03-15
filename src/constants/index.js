@@ -49,9 +49,7 @@ import {
   typescript,
   celery,
   eclipse,
-  netbeans,
   pycharm,
-  threejs,
 } from "../assets";
 
 export const navLinks = [
@@ -534,7 +532,7 @@ const testimonials = [
     endorsements: ["Backend", "System Design", "AI/ML", "DevOps"],
     context: {
       projects: ["Enterprise Integration Platform", "Multi-Agent AI", "CI/CD Infrastructure"],
-      period: "2023 – Present",
+      period: "May 2024 – Present",
     },
   },
   {

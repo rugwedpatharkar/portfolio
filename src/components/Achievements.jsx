@@ -39,7 +39,7 @@ const AchievementCard = ({ achievement, index }) => {
 
       {/* Card */}
       <div className="pb-8 sm:pb-12 flex-1">
-        <div className="glass-card rounded-2xl p-4 sm:p-5 card-shine glow-hover relative overflow-hidden">
+        <div className="glass-card rounded-2xl p-4 sm:p-5 card-shine glow-hover border-glow relative overflow-hidden">
           {/* Subtle accent glow */}
           <div
             className="absolute -top-6 -right-6 w-24 h-24 rounded-full blur-[40px] pointer-events-none opacity-[0.06]"

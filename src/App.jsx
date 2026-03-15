@@ -85,7 +85,7 @@ const App = () => {
 
   return (
     <ToastProvider>
-      <div id="main-content" className="relative z-0">
+      <main id="main-content" className="relative z-0">
         <Preloader />
         <DynamicTitle />
         <AnimatedFavicon />
@@ -158,7 +158,7 @@ const App = () => {
           <KeyboardHints />
           <BackToTop />
         </Suspense>
-      </div>
+      </main>
     </ToastProvider>
   );
 };

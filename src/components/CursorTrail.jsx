@@ -69,10 +69,22 @@ const CursorTrail = () => {
     window.addEventListener("mousemove", handleMouse, { passive: true });
     rafId = requestAnimationFrame(animate);
 
+    // Pause when tab is hidden to save CPU/battery
+    const handleVisibility = () => {
+      if (document.hidden) {
+        cancelAnimationFrame(rafId);
+        rafId = null;
+      } else if (!rafId) {
+        rafId = requestAnimationFrame(animate);
+      }
+    };
+    document.addEventListener("visibilitychange", handleVisibility);
+
     return () => {
       window.removeEventListener("resize", resize);
       window.removeEventListener("mousemove", handleMouse);
-      cancelAnimationFrame(rafId);
+      if (rafId) cancelAnimationFrame(rafId);
+      document.removeEventListener("visibilitychange", handleVisibility);
     };
   }, []);
 

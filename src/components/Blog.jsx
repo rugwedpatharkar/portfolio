@@ -22,7 +22,7 @@ const BlogCard = memo(({ post, index }) => {
       viewport={{ once: true }}
       transition={{ delay: index * 0.15, duration: 0.5, type: "spring" }}
       whileHover={{ y: -5 }}
-      className={`block glass-card rounded-2xl p-5 sm:p-6 card-shine glow-hover group ${isPlaceholder ? "cursor-default" : ""}`}
+      className={`block glass-card rounded-2xl p-5 sm:p-6 card-shine glow-hover border-glow group ${isPlaceholder ? "cursor-default" : ""}`}
     >
     <div className="flex items-center gap-2 mb-3">
       <span className="text-[#915eff] text-caption sm:text-body-sm font-mono font-medium">{post.date}</span>
@@ -46,7 +46,7 @@ const BlogCard = memo(({ post, index }) => {
       ))}
     </div>
     {isPlaceholder && (
-      <span className="mt-3 inline-block text-micro font-mono text-white/30">
+      <span className="mt-3 inline-block text-micro font-mono text-white/45">
         Coming soon
       </span>
     )}

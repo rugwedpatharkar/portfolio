@@ -77,7 +77,7 @@ const MilestoneNode = ({ edu, index, isActive, isPast, onClick, color }) => (
       <div className="absolute inset-0 flex items-center justify-center z-[3]">
         <span
           className={`font-heading font-bold text-micro sm:text-caption transition-colors duration-300 ${
-            isActive ? "text-white" : isPast ? "text-white/60" : "text-white/25"
+            isActive ? "text-white" : isPast ? "text-white/60" : "text-white/40"
           }`}
         >
           {edu.percentage}%
@@ -97,7 +97,7 @@ const MilestoneNode = ({ edu, index, isActive, isPast, onClick, color }) => (
     {/* Short name */}
     <span
       className={`font-mono text-micro sm:text-caption font-medium transition-colors duration-300 ${
-        isActive ? "text-white" : isPast ? "text-white/50" : "text-white/25"
+        isActive ? "text-white" : isPast ? "text-white/50" : "text-white/40"
       }`}
     >
       {edu.shortName}
@@ -149,7 +149,7 @@ const DetailCard = ({ edu, color }) => (
     </p>
 
     {/* Meta row */}
-    <div className="flex flex-wrap items-center gap-3 sm:gap-4 mt-3 font-mono text-caption sm:text-body-sm text-white/30">
+    <div className="flex flex-wrap items-center gap-3 sm:gap-4 mt-3 font-mono text-caption sm:text-body-sm text-white/45">
       <span>{edu.year}</span>
       {edu.duration && (
         <>
@@ -312,7 +312,7 @@ const Education = () => {
           <button
             onClick={goPrev}
             disabled={activeIndex === 0}
-            className="font-mono text-caption sm:text-body-sm text-white/30 hover:text-white/60 disabled:opacity-20 disabled:cursor-not-allowed transition-colors flex items-center gap-1.5 px-3 py-2.5 sm:py-2 rounded-lg hover:bg-white/[0.03] min-h-[44px]"
+            className="font-mono text-caption sm:text-body-sm text-white/45 hover:text-white/60 disabled:opacity-20 disabled:cursor-not-allowed transition-colors flex items-center gap-1.5 px-3 py-2.5 sm:py-2 rounded-lg hover:bg-white/[0.03] min-h-[44px]"
           >
             <svg
               className="w-5 h-5 sm:w-4 sm:h-4"
@@ -358,7 +358,7 @@ const Education = () => {
           <button
             onClick={goNext}
             disabled={activeIndex === timeline.length - 1}
-            className="font-mono text-caption sm:text-body-sm text-white/30 hover:text-white/60 disabled:opacity-20 disabled:cursor-not-allowed transition-colors flex items-center gap-1.5 px-3 py-2.5 sm:py-2 rounded-lg hover:bg-white/[0.03] min-h-[44px]"
+            className="font-mono text-caption sm:text-body-sm text-white/45 hover:text-white/60 disabled:opacity-20 disabled:cursor-not-allowed transition-colors flex items-center gap-1.5 px-3 py-2.5 sm:py-2 rounded-lg hover:bg-white/[0.03] min-h-[44px]"
           >
             Next
             <svg

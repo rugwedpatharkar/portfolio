@@ -66,7 +66,7 @@ const Preloader = () => {
   }, []);
 
   return (
-    <div className={`preloader ${loaded ? "loaded" : ""}`}>
+    <div className={`preloader ${loaded ? "loaded" : ""}`} role="status" aria-live="polite" aria-label="Loading portfolio">
       <div className="w-full max-w-lg px-6">
         <div className="font-mono text-body-sm sm:text-body space-y-1.5">
           {BOOT_LINES.slice(0, visibleLines).map((line, i) => (
@@ -96,7 +96,7 @@ const Preloader = () => {
         {showSkip && !loaded && (
           <button
             onClick={() => setLoaded(true)}
-            className="mt-6 text-white/30 hover:text-white/60 text-caption font-mono transition-colors"
+            className="mt-6 text-white/45 hover:text-white/60 text-caption font-mono transition-colors"
           >
             skip &rarr;
           </button>

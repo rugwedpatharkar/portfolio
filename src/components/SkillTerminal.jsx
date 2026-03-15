@@ -115,7 +115,7 @@ const SkillTerminal = () => {
           <span className="w-2.5 h-2.5 sm:w-3 sm:h-3 rounded-full bg-[#febc2e]" />
           <span className="w-2.5 h-2.5 sm:w-3 sm:h-3 rounded-full bg-[#28c840]" />
         </div>
-        <span className="text-white/40 text-micro sm:text-micro font-mono tracking-wide">
+        <span className="text-white/40 text-micro sm:text-caption font-mono tracking-wide">
           rugwed@portfolio — skills
         </span>
         <div className="w-10 sm:w-12" />
@@ -153,7 +153,7 @@ const SkillTerminal = () => {
           <div className="font-mono text-caption sm:text-body-sm space-y-0.5">
             <div>
               <span className="text-[#915eff] font-bold">rugwed</span>
-              <span className="text-white/30">@</span>
+              <span className="text-white/45">@</span>
               <span className="text-[#00cea8] font-bold">portfolio</span>
             </div>
             <div className="text-white/15 select-none">
@@ -207,7 +207,7 @@ const SkillTerminal = () => {
           <span className="text-green-400">❯</span>{" "}
           <span className="text-[#61dafb]">cat</span>{" "}
           <span className="text-white/70">skills.json</span>{" "}
-          <span className="text-white/30">|</span>{" "}
+          <span className="text-white/45">|</span>{" "}
           <span className="text-[#61dafb]">jq</span>{" "}
           <span className="text-[#00cea8]">{"'.categories[]'"}</span>
         </div>

@@ -121,7 +121,18 @@ const ParticleBackground = () => {
     };
 
     createParticles();
-    animate();
+    animRef.current = requestAnimationFrame(animate);
+
+    // Pause when tab is hidden to save CPU/battery
+    const handleVisibility = () => {
+      if (document.hidden) {
+        cancelAnimationFrame(animRef.current);
+        animRef.current = null;
+      } else if (!animRef.current) {
+        animRef.current = requestAnimationFrame(animate);
+      }
+    };
+    document.addEventListener("visibilitychange", handleVisibility);
 
     const handleResize = () => {
       width = canvas.parentElement.offsetWidth;
@@ -153,11 +164,12 @@ const ParticleBackground = () => {
     parentEl.addEventListener("mouseleave", handleMouseLeave);
 
     return () => {
-      cancelAnimationFrame(animRef.current);
+      if (animRef.current) cancelAnimationFrame(animRef.current);
       clearTimeout(resizeTimer);
       window.removeEventListener("resize", resizeHandler);
       parentEl.removeEventListener("mousemove", handleMouse);
       parentEl.removeEventListener("mouseleave", handleMouseLeave);
+      document.removeEventListener("visibilitychange", handleVisibility);
     };
   }, []);
 

@@ -154,8 +154,8 @@ const Photo3D = () => {
         {/* Bottom info bar */}
         <div className="absolute bottom-0 left-0 right-0 p-3 sm:p-4 z-[3]">
           <div className="flex items-center gap-2">
-            <span className="w-2 h-2 rounded-full bg-green-400 animate-pulse" />
-            <span className="text-green-300 text-caption sm:text-body-sm font-mono font-medium">
+            <span className="w-2 h-2 rounded-full bg-[#00cea8] animate-pulse" />
+            <span className="text-[#00cea8] text-caption sm:text-body-sm font-mono font-medium">
               {personalInfo.availability}
             </span>
           </div>

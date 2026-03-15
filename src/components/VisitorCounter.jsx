@@ -29,7 +29,7 @@ const VisitorCounter = () => {
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       transition={{ delay: 2, duration: 1 }}
-      className="font-mono text-micro sm:text-caption text-white/30 flex items-center gap-1.5"
+      className="font-mono text-micro sm:text-caption text-white/45 flex items-center gap-1.5"
     >
       <span className="w-1.5 h-1.5 rounded-full bg-[#00cea8] animate-pulse" />
       visitor #{count.toLocaleString()}

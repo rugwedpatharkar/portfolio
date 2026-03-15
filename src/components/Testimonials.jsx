@@ -225,7 +225,7 @@ const Testimonials = () => {
               {/* Endorsements */}
               {t.endorsements && (
                 <div className="mt-5">
-                  <span className="text-white/25 text-micro sm:text-caption font-mono uppercase tracking-wider">
+                  <span className="text-white/40 text-micro sm:text-caption font-mono uppercase tracking-wider">
                     Endorses
                   </span>
                   <div className="flex flex-wrap gap-1.5 sm:gap-2 mt-2">
@@ -260,7 +260,7 @@ const Testimonials = () => {
                   </div>
                   {t.context.projects && (
                     <div className="flex flex-wrap gap-1.5 mt-2">
-                      <span className="text-white/30 text-micro sm:text-caption font-mono">
+                      <span className="text-white/45 text-micro sm:text-caption font-mono">
                         Projects:
                       </span>
                       {t.context.projects.map((p) => (
@@ -359,7 +359,7 @@ const Testimonials = () => {
               ))}
             </div>
           ) : (
-            <span className="font-mono text-caption text-white/30">
+            <span className="font-mono text-caption text-white/45">
               <span style={{ color: accent }}>{String(current + 1).padStart(2, "0")}</span>
               <span className="mx-1">/</span>
               {String(total).padStart(2, "0")}

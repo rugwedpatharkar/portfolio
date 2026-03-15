@@ -152,6 +152,7 @@ const FormField = ({ label, name, type = "text", value, onChange, placeholder, d
           placeholder={placeholder}
           required
           aria-required="true"
+          aria-invalid={hasValue && !isValid}
           disabled={disabled}
           rows={isTextarea ? 5 : undefined}
           maxLength={maxLength}
@@ -187,7 +188,7 @@ const EmailPreview = ({ form, topic, sent }) => (
         <span className="w-2.5 h-2.5 rounded-full bg-[#febc2e]" />
         <span className="w-2.5 h-2.5 rounded-full bg-[#28c840]" />
       </div>
-      <span className="text-white/30 text-micro sm:text-caption font-mono ml-2">
+      <span className="text-white/45 text-micro sm:text-caption font-mono ml-2">
         New Message
       </span>
     </div>
@@ -195,17 +196,17 @@ const EmailPreview = ({ form, topic, sent }) => (
     {/* Email fields */}
     <div className="px-4 sm:px-5 py-3 space-y-2 border-b border-white/[0.06] font-mono text-caption sm:text-body-sm">
       <div className="flex gap-3">
-        <span className="text-white/25 w-12 shrink-0">From:</span>
+        <span className="text-white/40 w-12 shrink-0">From:</span>
         <span className={form.email ? "text-white/70" : "text-white/20"}>
           {form.email || "your@email.com"}
         </span>
       </div>
       <div className="flex gap-3">
-        <span className="text-white/25 w-12 shrink-0">To:</span>
+        <span className="text-white/40 w-12 shrink-0">To:</span>
         <span className="text-white/70">{personalInfo.email}</span>
       </div>
       <div className="flex gap-3">
-        <span className="text-white/25 w-12 shrink-0">Subj:</span>
+        <span className="text-white/40 w-12 shrink-0">Subj:</span>
         <span className={topic ? "text-white/70" : "text-white/20"}>
           {topic ? `${topic} — from ${form.name || "..."}` : "Select a topic..."}
         </span>
@@ -233,7 +234,7 @@ const EmailPreview = ({ form, topic, sent }) => (
               </svg>
             </motion.div>
             <span className="text-[#00cea8] text-body-sm font-mono">Message sent!</span>
-            <span className="text-white/30 text-caption">I'll get back to you soon.</span>
+            <span className="text-white/45 text-caption">I'll get back to you soon.</span>
           </motion.div>
         ) : (
           <motion.div key="preview" initial={{ opacity: 0 }} animate={{ opacity: 1 }}>
@@ -396,7 +397,7 @@ const Contact = () => {
                 {personalInfo.availability}
               </span>
             </span>
-            <span className="text-white/25 text-micro sm:text-caption font-mono">
+            <span className="text-white/40 text-micro sm:text-caption font-mono">
               Responds within 24h
             </span>
           </div>
@@ -410,7 +411,7 @@ const Contact = () => {
 
           {/* Location + Resume CTA */}
           <div className="flex flex-wrap items-center gap-4">
-            <div className="flex items-center gap-2 text-white/30 text-caption sm:text-body-sm font-mono">
+            <div className="flex items-center gap-2 text-white/45 text-caption sm:text-body-sm font-mono">
               <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
                 <path strokeLinecap="round" strokeLinejoin="round" d="M15 10.5a3 3 0 11-6 0 3 3 0 016 0z" />
                 <path strokeLinecap="round" strokeLinejoin="round" d="M19.5 10.5c0 7.142-7.5 11.25-7.5 11.25S4.5 17.642 4.5 10.5a7.5 7.5 0 0115 0z" />

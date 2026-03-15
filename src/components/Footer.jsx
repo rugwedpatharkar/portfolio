@@ -58,7 +58,7 @@ const Footer = () => {
 
           {/* Column 2: Quick Links */}
           <div>
-            <h4 className="text-white/30 text-caption font-mono uppercase tracking-wider mb-3">
+            <h4 className="text-white/45 text-caption font-mono uppercase tracking-wider mb-3">
               Navigate
             </h4>
             <ul className="grid grid-cols-2 gap-x-4 gap-y-1.5">
@@ -80,7 +80,7 @@ const Footer = () => {
 
           {/* Column 3: Built With */}
           <div>
-            <h4 className="text-white/30 text-caption font-mono uppercase tracking-wider mb-3">
+            <h4 className="text-white/45 text-caption font-mono uppercase tracking-wider mb-3">
               Built With
             </h4>
             <div className="flex flex-wrap gap-2">
@@ -106,10 +106,10 @@ const Footer = () => {
 
         {/* Bottom bar */}
         <div className="border-t border-white/[0.06] mt-8 sm:mt-10 pt-4 sm:pt-5 flex flex-col sm:flex-row items-center justify-between gap-2">
-          <p className="text-white/25 text-caption sm:text-body-sm font-mono">
+          <p className="text-white/40 text-caption sm:text-body-sm font-mono">
             &copy; {currentYear} {personalInfo.fullName}
           </p>
-          <p className="text-white/25 text-micro sm:text-caption font-mono">
+          <p className="text-white/40 text-micro sm:text-caption font-mono">
             Designed & Developed with{" "}
             <span className="text-[#915eff]">&lt;/&gt;</span> &amp;{" "}
             <span className="text-red-400">&#9829;</span>

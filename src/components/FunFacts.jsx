@@ -88,7 +88,7 @@ const FunFactCard = memo(({ fact, index }) => {
             <AnimatedCounter value={fact.value} suffix={fact.suffix} />
           </p>
           <p className="text-secondary text-caption sm:text-body-sm mt-2">{fact.label}</p>
-          <p className="text-white/30 text-micro mt-3 font-mono">click to reveal</p>
+          <p className="text-white/45 text-micro mt-3 font-mono">click to reveal</p>
         </div>
 
         {/* Back face — absolute overlay, same size as front */}
