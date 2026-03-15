@@ -148,7 +148,7 @@ const FormField = ({ label, name, type = "text", value, onChange, placeholder, d
           disabled={disabled}
           rows={isTextarea ? 5 : undefined}
           maxLength={maxLength}
-          className="w-full glass-card py-3 sm:py-4 px-4 sm:px-6 placeholder:text-secondary/50 text-white rounded-xl outline-none font-medium text-body-sm sm:text-body disabled:opacity-50 resize-none transition-colors duration-300"
+          className="w-full glass-card py-3 sm:py-4 px-4 sm:px-6 placeholder:text-secondary/50 text-white rounded-xl outline-none font-medium text-body-sm sm:text-body disabled:opacity-50 resize-none focus:ring-2 focus:ring-[#915eff]/30 focus:border-[#915eff]/40 transition-all duration-300"
         />
       </div>
 

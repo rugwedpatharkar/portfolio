@@ -24,6 +24,8 @@ if (typeof document !== "undefined" && !document.getElementById(RIPPLE_STYLE_ID)
 const MagneticButton = ({ children, className = "", strength = 0.3, ...props }) => {
   const ref = useRef(null);
   const [shadow, setShadow] = useState("");
+  const [ripples, setRipples] = useState([]);
+  const rippleIdRef = useRef(0);
 
   const handleMouseMove = useCallback((e) => {
     const el = ref.current;
@@ -53,21 +55,13 @@ const MagneticButton = ({ children, className = "", strength = 0.3, ...props }) 
     const x = e.clientX - rect.left - size / 2;
     const y = e.clientY - rect.top - size / 2;
 
-    const ripple = document.createElement("span");
-    ripple.style.cssText = `
-      position: absolute;
-      left: ${x}px;
-      top: ${y}px;
-      width: ${size}px;
-      height: ${size}px;
-      border-radius: 50%;
-      background: rgba(145, 94, 255, 0.15);
-      pointer-events: none;
-      animation: magnetic-ripple 0.6s ease-out forwards;
-    `;
+    const id = ++rippleIdRef.current;
+    setRipples((prev) => [...prev, { id, x, y, size }]);
 
-    el.appendChild(ripple);
-    ripple.addEventListener("animationend", () => ripple.remove());
+    // Auto-remove after animation completes (600ms)
+    setTimeout(() => {
+      setRipples((prev) => prev.filter((r) => r.id !== id));
+    }, 600);
   }, []);
 
   return (
@@ -86,6 +80,22 @@ const MagneticButton = ({ children, className = "", strength = 0.3, ...props }) 
       {...props}
     >
       {children}
+      {ripples.map((r) => (
+        <span
+          key={r.id}
+          style={{
+            position: "absolute",
+            left: r.x,
+            top: r.y,
+            width: r.size,
+            height: r.size,
+            borderRadius: "50%",
+            background: "rgba(145, 94, 255, 0.15)",
+            pointerEvents: "none",
+            animation: "magnetic-ripple 0.6s ease-out forwards",
+          }}
+        />
+      ))}
     </div>
   );
 };

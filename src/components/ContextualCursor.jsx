@@ -86,6 +86,8 @@ const ContextualCursor = () => {
 
     let lastDetect = 0;
     let lastSection = "default";
+    let lastTarget = null;
+    let cachedState = "default";
 
     const handleMove = (e) => {
       posRef.current.x = e.clientX;
@@ -98,7 +100,12 @@ const ContextualCursor = () => {
       const now = performance.now();
       if (now - lastDetect > 66) {
         lastDetect = now;
-        const newState = detectState(e.target);
+        // Only re-run detectState if the target element changed
+        if (e.target !== lastTarget) {
+          lastTarget = e.target;
+          cachedState = detectState(e.target);
+        }
+        const newState = cachedState;
         const section = activeSectionRef.current;
         const sectionCfg = SECTION_CURSORS[section] || SECTION_CURSORS.default;
 

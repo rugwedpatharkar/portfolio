@@ -6,11 +6,14 @@
  *  20   — skill hover states
  *  30   — tooltips
  *  40   — navbar
- *  50   — mobile menu
- *  90   — modals, resume viewer (9999 currently)
- *  95   — toasts (9999 currently)
- *  98   — custom cursor (9998 currently)
- *  99   — preloader (9999 currently)
+ *  50   — mobile menu / scroll progress
+ *  60   — command terminal
+ *  65-66 — keyboard hints
+ *  80   — preloader
+ *  90   — modals, resume viewer, easter egg
+ *  90   — toasts
+ *  95   — spotlight search
+ *  98   — custom cursor
  */
 
 /* Fonts loaded via <link> in index.html for reliability */
@@ -49,6 +52,14 @@ textarea,
 :root {
   --accent-color: #915eff;
   --bg-color: #050816;
+
+  /* Animation timing tokens */
+  --duration-fast: 150ms;
+  --duration-base: 300ms;
+  --duration-long: 500ms;
+  --duration-slow: 1000ms;
+  --ease-out: cubic-bezier(0.4, 0, 0.2, 1);
+  --ease-spring: cubic-bezier(0.34, 1.56, 0.64, 1);
 }
 
 * {
@@ -188,11 +199,32 @@ img {
   background: #a47aff;
 }
 
+/* Scrollbar theme awareness */
+[data-theme="cyber"] {
+  scrollbar-color: #00f0ff transparent;
+}
+[data-theme="cyber"] ::-webkit-scrollbar-thumb {
+  background: #00f0ff;
+}
+[data-theme="cyber"] ::-webkit-scrollbar-thumb:hover {
+  background: #33f3ff;
+}
+
+[data-theme="matrix"] {
+  scrollbar-color: #00ff41 transparent;
+}
+[data-theme="matrix"] ::-webkit-scrollbar-thumb {
+  background: #00ff41;
+}
+[data-theme="matrix"] ::-webkit-scrollbar-thumb:hover {
+  background: #39ff14;
+}
+
 /* Preloader */
 .preloader {
   position: fixed;
   inset: 0;
-  z-index: 99;
+  z-index: 80;
   display: flex;
   flex-direction: column;
   align-items: center;

@@ -79,7 +79,13 @@ const ProjectCard = memo(({ project, index, isExpanded, onToggle, accent }) => {
       <div className="p-4 sm:p-5 relative z-[1]">
         {/* Project image */}
         {project.image && (
-          <div className="relative h-40 sm:h-48 overflow-hidden rounded-t-2xl -mx-5 -mt-5 sm:-mx-6 sm:-mt-6 mb-4">
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.5 }}
+            className="relative h-40 sm:h-48 overflow-hidden rounded-t-2xl -mx-5 -mt-5 sm:-mx-6 sm:-mt-6 mb-4"
+          >
             <img
               src={project.image}
               alt={`${project.name} screenshot`}
@@ -87,7 +93,7 @@ const ProjectCard = memo(({ project, index, isExpanded, onToggle, accent }) => {
               loading="lazy"
             />
             <div className="absolute inset-0 bg-gradient-to-t from-[#151030] to-transparent" />
-          </div>
+          </motion.div>
         )}
 
         {/* Top row: type + status + index */}
@@ -245,9 +251,12 @@ const ProjectCard = memo(({ project, index, isExpanded, onToggle, accent }) => {
         {/* Tags */}
         <div className="flex flex-wrap gap-1.5 mt-3">
           {(isExpanded ? project.tags : project.tags.slice(0, 3)).map(
-            (tag) => (
-              <span
+            (tag, tagIndex) => (
+              <motion.span
                 key={tag.name}
+                initial={{ opacity: 0, scale: 0.8 }}
+                animate={{ opacity: 1, scale: 1 }}
+                transition={{ duration: 0.2, delay: tagIndex * 0.03 }}
                 className="font-mono text-micro sm:text-caption px-2 py-0.5 rounded-full border"
                 style={{
                   color: `${accent}cc`,
@@ -256,7 +265,7 @@ const ProjectCard = memo(({ project, index, isExpanded, onToggle, accent }) => {
                 }}
               >
                 {tag.name}
-              </span>
+              </motion.span>
             )
           )}
           {!isExpanded && project.tags.length > 3 && (

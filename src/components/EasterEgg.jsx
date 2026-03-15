@@ -59,7 +59,7 @@ const EasterEgg = () => {
           role="dialog"
           aria-modal="true"
           aria-label="Easter egg"
-          className="fixed inset-0 z-[70] flex items-center justify-center bg-black/80 backdrop-blur-sm"
+          className="fixed inset-0 z-[90] flex items-center justify-center bg-black/80 backdrop-blur-sm"
           onClick={() => setShow(false)}
         >
           <motion.div
