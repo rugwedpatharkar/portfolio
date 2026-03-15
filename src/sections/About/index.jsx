@@ -1,13 +1,12 @@
 /* eslint-disable react/prop-types */
 /* eslint-disable react-refresh/only-export-components */
-import { useState, useRef, useCallback, useEffect, memo } from "react";
+import { useRef, useCallback, useEffect, useState, memo } from "react";
 import { motion, useScroll, useTransform, useInView } from "framer-motion";
 import { styles } from "../../styles";
 import { services, personalInfo, sectionMeta, aboutStats, uiLabels } from "../../content";
 import { fadeIn, textVariant } from "../../utils/motion";
 import { SectionWrapper } from "../../hoc";
 import { photo, resume } from "../../assets";
-import ResumeModal from "../../components/ResumeModal";
 import TextScramble from "../../components/TextScramble";
 import MagneticButton from "../../components/MagneticButton";
 import TiltCard from "../../components/TiltCard";
@@ -243,7 +242,6 @@ const ParallaxCard = ({ index, children }) => {
 };
 
 const About = () => {
-  const [showResume, setShowResume] = useState(false);
 
   return (
     <>
@@ -289,11 +287,13 @@ const About = () => {
             {/* Action buttons */}
             <div className="flex flex-wrap items-center mt-6 sm:mt-8 gap-3 sm:gap-4">
               <MagneticButton strength={0.2}>
-                <motion.button
+                <motion.a
+                  href={resume}
+                  target="_blank"
+                  rel="noopener noreferrer"
                   whileHover={{ scale: 1.05 }}
                   whileTap={{ scale: 0.95 }}
-                  onClick={() => setShowResume(true)}
-                  className="group relative text-white font-bold py-3 px-7 rounded-full focus:outline-none overflow-hidden whitespace-nowrap text-body-sm sm:text-body"
+                  className="group relative text-white font-bold py-3 px-7 rounded-full focus:outline-none overflow-hidden whitespace-nowrap text-body-sm sm:text-body inline-flex"
                 >
                   {/* Gradient background */}
                   <span className="absolute inset-0 bg-gradient-to-r from-[#915eff] to-[#7c3aed] rounded-full" />
@@ -305,7 +305,7 @@ const About = () => {
                     </svg>
                     {uiLabels.about.viewResume}
                   </span>
-                </motion.button>
+                </motion.a>
               </MagneticButton>
 
               <MagneticButton strength={0.2}>
@@ -344,7 +344,6 @@ const About = () => {
         ))}
       </motion.div>
 
-      <ResumeModal isOpen={showResume} onClose={() => setShowResume(false)} />
     </>
   );
 };

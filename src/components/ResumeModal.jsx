@@ -1,11 +1,22 @@
 /* eslint-disable react/prop-types */
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import { createPortal } from "react-dom";
 import { motion, AnimatePresence } from "framer-motion";
 import { resume } from "../assets";
 
+// Preload the PDF as soon as this module loads — browser caches it
+const preloadLink = document.createElement("link");
+preloadLink.rel = "prefetch";
+preloadLink.href = resume;
+document.head.appendChild(preloadLink);
+
 const ResumeModal = ({ isOpen, onClose }) => {
   const modalRef = useRef(null);
+  const [iframeLoaded, setIframeLoaded] = useState(false);
+
+  useEffect(() => {
+    if (isOpen) setIframeLoaded(false);
+  }, [isOpen]);
 
   useEffect(() => {
     const mainContent = document.getElementById("main-content");
@@ -105,11 +116,20 @@ const ResumeModal = ({ isOpen, onClose }) => {
                 </button>
               </div>
             </div>
-            <iframe
-              src={`${resume}#toolbar=0`}
-              title="Resume"
-              className="w-full h-[calc(80vh-60px)] sm:h-[calc(85vh-60px)]"
-            />
+            <div className="relative w-full h-[calc(80vh-60px)] sm:h-[calc(85vh-60px)]">
+              {!iframeLoaded && (
+                <div className="absolute inset-0 flex flex-col items-center justify-center gap-3">
+                  <div className="w-8 h-8 border-2 border-[#915eff]/30 border-t-[#915eff] rounded-full animate-spin" />
+                  <span className="text-white/40 text-caption font-mono">Loading resume...</span>
+                </div>
+              )}
+              <iframe
+                src={`${resume}#toolbar=0`}
+                title="Resume"
+                className={`w-full h-full transition-opacity duration-300 ${iframeLoaded ? "opacity-100" : "opacity-0"}`}
+                onLoad={() => setIframeLoaded(true)}
+              />
+            </div>
           </motion.div>
         </motion.div>
       )}
