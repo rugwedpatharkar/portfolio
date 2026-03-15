@@ -396,18 +396,35 @@ const Contact = () => {
           variants={fadeIn("up", "tween", 0.2, 0.8)}
           className="flex-1 space-y-6"
         >
-          {/* Availability + Response time */}
-          <div className="flex flex-wrap items-center gap-3 sm:gap-4">
-            <span className="flex items-center gap-2 px-3 py-1.5 rounded-full bg-[#00cea8]/10 border border-[#00cea8]/20">
-              <span className="w-2 h-2 rounded-full bg-[#00cea8] contact-pulse" />
-              <span className="text-[#00cea8] text-micro sm:text-caption font-mono">
+          {/* Availability indicator — interactive with glow */}
+          <motion.div
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.3 }}
+            className="contact-availability-card flex flex-wrap items-center gap-3 sm:gap-4 p-3 sm:p-4 rounded-xl bg-[#00cea8]/[0.03] border border-[#00cea8]/10"
+          >
+            <div className="flex items-center gap-2.5">
+              <span className="relative flex h-3 w-3">
+                <span className="contact-availability-ping absolute inline-flex h-full w-full rounded-full bg-[#00cea8] opacity-75" />
+                <span className="relative inline-flex rounded-full h-3 w-3 bg-[#00cea8] shadow-[0_0_8px_rgba(0,206,168,0.6)]" />
+              </span>
+              <span className="text-[#00cea8] text-caption sm:text-body-sm font-mono font-medium">
                 {personalInfo.availability}
               </span>
+            </div>
+            <span className="text-white/30 hidden sm:inline">|</span>
+            <span className="text-white/50 text-micro sm:text-caption font-mono">
+              Currently accepting new opportunities
             </span>
-            <span className="text-white/55 text-micro sm:text-caption font-mono">
+            <span className="text-white/30 hidden sm:inline">|</span>
+            <span className="text-white/40 text-micro sm:text-caption font-mono flex items-center gap-1.5">
+              <svg className="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                <path strokeLinecap="round" strokeLinejoin="round" d="M12 6v6l4 2" />
+                <circle cx="12" cy="12" r="9" strokeLinecap="round" />
+              </svg>
               Responds within 24h
             </span>
-          </div>
+          </motion.div>
 
           {/* Contact links */}
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
@@ -437,134 +454,174 @@ const Contact = () => {
             </a>
           </div>
 
-          {/* Form */}
-          <form
-            onSubmit={handleSubmit}
-            className="glass-card rounded-2xl p-5 sm:p-7 space-y-5 card-shine glow-hover border-glow"
-            style={{ borderColor: `${ACCENT}10` }}
-          >
-            {/* Topic selector */}
-            <div>
-              <span className="text-white font-medium text-body-sm sm:text-body block mb-2">
-                What's this about?
-              </span>
-              <div className="flex flex-wrap gap-2">
-                {contactContent.topics.map((t) => (
-                  <button
-                    key={t.label}
-                    type="button"
-                    onClick={() => {
-                      const newTopic = topic === t.label ? "" : t.label;
-                      setTopic(newTopic);
-                      // Auto-fill template if message is empty or matches a previous template
-                      if (newTopic && (!form.message.trim() || Object.values(contactContent.msgTemplates).includes(form.message))) {
-                        setForm((prev) => ({ ...prev, message: contactContent.msgTemplates[newTopic] || "" }));
-                      }
-                    }}
-                    className={`px-3 py-1.5 rounded-full font-mono text-micro sm:text-caption border transition-all duration-300 ${
-                      topic === t.label
-                        ? "bg-[#915eff]/15 border-[#915eff]/40 text-[#915eff]"
-                        : "bg-white/[0.02] border-white/[0.06] text-white/40 hover:text-white/60 hover:border-white/15"
-                    }`}
-                  >
-                    {t.icon} {t.label}
-                  </button>
-                ))}
+          {/* Form — Terminal-style wrapper */}
+          <div className="contact-terminal rounded-xl overflow-hidden card-shine glow-hover">
+            {/* Terminal chrome bar */}
+            <div className="contact-terminal-chrome flex items-center justify-between px-4 py-2.5 sm:py-3">
+              <div className="flex gap-1.5 sm:gap-2">
+                <span className="w-2.5 h-2.5 sm:w-3 sm:h-3 rounded-full bg-[#ff5f57]" />
+                <span className="w-2.5 h-2.5 sm:w-3 sm:h-3 rounded-full bg-[#febc2e]" />
+                <span className="w-2.5 h-2.5 sm:w-3 sm:h-3 rounded-full bg-[#28c840]" />
               </div>
-            </div>
-
-            {/* Name + Email row */}
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
-              <FormField
-                label="Your Name"
-                name="name"
-                value={form.name}
-                onChange={handleChange}
-                placeholder="John Doe"
-                disabled={loading}
-              />
-              <FormField
-                label="Your Email"
-                name="email"
-                type="email"
-                value={form.email}
-                onChange={handleChange}
-                placeholder="john@example.com"
-                disabled={loading}
-              />
-            </div>
-
-            {/* Message */}
-            <FormField
-              label="Your Message"
-              name="message"
-              value={form.message}
-              onChange={handleChange}
-              placeholder="Tell me about your project or just say hi..."
-              disabled={loading}
-              isTextarea
-              maxLength={contactContent.msgLimit}
-            />
-
-            {/* Submit button */}
-            <div className="flex items-center justify-between gap-4">
-              <motion.button
-                type="submit"
-                whileHover={{ scale: 1.05 }}
-                whileTap={{ scale: 0.97 }}
-                disabled={loading}
-                className="contact-send-btn flex items-center gap-2 px-6 sm:px-8 py-3 rounded-xl font-bold text-body-sm sm:text-body transition-all duration-300 disabled:opacity-50"
-              >
-                <AnimatePresence mode="wait">
-                  {loading ? (
-                    <motion.span
-                      key="loading"
-                      initial={{ opacity: 0 }}
-                      animate={{ opacity: 1 }}
-                      exit={{ opacity: 0 }}
-                      className="flex items-center gap-2"
-                    >
-                      <svg className="w-4 h-4 animate-spin" fill="none" viewBox="0 0 24 24">
-                        <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
-                        <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
-                      </svg>
-                      Sending...
-                    </motion.span>
-                  ) : sent ? (
-                    <motion.span
-                      key="sent"
-                      initial={{ opacity: 0, scale: 0.8 }}
-                      animate={{ opacity: 1, scale: 1 }}
-                      exit={{ opacity: 0 }}
-                      className="flex items-center gap-2 text-[#00cea8]"
-                    >
-                      <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-                        <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
-                      </svg>
-                      Sent!
-                    </motion.span>
-                  ) : (
-                    <motion.span
-                      key="default"
-                      initial={{ opacity: 0 }}
-                      animate={{ opacity: 1 }}
-                      exit={{ opacity: 0 }}
-                      className="flex items-center gap-2"
-                    >
-                      Send Message
-                      <svg className="w-4 h-4 group-hover:translate-x-0.5 transition-transform" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-                        <path strokeLinecap="round" strokeLinejoin="round" d="M6 12L3.269 3.126A59.768 59.768 0 0121.485 12 59.77 59.77 0 013.27 20.876L5.999 12zm0 0h7.5" />
-                      </svg>
-                    </motion.span>
-                  )}
-                </AnimatePresence>
-              </motion.button>
-
-              <span className="hidden sm:block text-white/20 text-micro font-mono">
-                Cmd+Enter
+              <span className="text-white/55 text-micro sm:text-caption font-mono tracking-wide">
+                rugwed@portfolio — compose
               </span>
+              <div className="w-10 sm:w-12" />
             </div>
-          </form>
+
+            {/* Terminal body containing the form */}
+            <form
+              onSubmit={handleSubmit}
+              className="contact-terminal-body p-5 sm:p-7 space-y-5"
+            >
+              {/* Terminal prompt line */}
+              <div className="font-mono text-caption sm:text-body-sm">
+                <span className="text-[#00cea8]">&#10095;</span>{" "}
+                <span className="text-[#61dafb]">compose</span>{" "}
+                <span className="text-white/55">--new-message</span>
+                <span className="contact-terminal-cursor ml-1">_</span>
+              </div>
+
+              {/* Topic selector */}
+              <div>
+                <span className="text-white font-medium text-body-sm sm:text-body block mb-2">
+                  What's this about?
+                </span>
+                <div className="flex flex-wrap gap-2">
+                  {contactContent.topics.map((t) => (
+                    <button
+                      key={t.label}
+                      type="button"
+                      onClick={() => {
+                        const newTopic = topic === t.label ? "" : t.label;
+                        setTopic(newTopic);
+                        // Auto-fill template if message is empty or matches a previous template
+                        if (newTopic && (!form.message.trim() || Object.values(contactContent.msgTemplates).includes(form.message))) {
+                          setForm((prev) => ({ ...prev, message: contactContent.msgTemplates[newTopic] || "" }));
+                        }
+                      }}
+                      className={`px-3 py-1.5 rounded-full font-mono text-micro sm:text-caption border transition-all duration-300 ${
+                        topic === t.label
+                          ? "bg-[#915eff]/15 border-[#915eff]/40 text-[#915eff]"
+                          : "bg-white/[0.02] border-white/[0.06] text-white/40 hover:text-white/60 hover:border-white/15"
+                      }`}
+                    >
+                      {t.icon} {t.label}
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              {/* Name + Email row */}
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
+                <FormField
+                  label="Your Name"
+                  name="name"
+                  value={form.name}
+                  onChange={handleChange}
+                  placeholder="John Doe"
+                  disabled={loading}
+                />
+                <FormField
+                  label="Your Email"
+                  name="email"
+                  type="email"
+                  value={form.email}
+                  onChange={handleChange}
+                  placeholder="john@example.com"
+                  disabled={loading}
+                />
+              </div>
+
+              {/* Message */}
+              <FormField
+                label="Your Message"
+                name="message"
+                value={form.message}
+                onChange={handleChange}
+                placeholder="Tell me about your project or just say hi..."
+                disabled={loading}
+                isTextarea
+                maxLength={contactContent.msgLimit}
+              />
+
+              {/* Submit button — animated states */}
+              <div className="flex items-center justify-between gap-4">
+                <motion.button
+                  type="submit"
+                  whileHover={{ scale: 1.05 }}
+                  whileTap={{ scale: 0.97 }}
+                  disabled={loading}
+                  className="contact-send-btn flex items-center gap-2 px-6 sm:px-8 py-3 rounded-xl font-bold text-body-sm sm:text-body transition-all duration-300 disabled:opacity-50"
+                >
+                  <AnimatePresence mode="wait">
+                    {loading ? (
+                      <motion.span
+                        key="loading"
+                        initial={{ opacity: 0 }}
+                        animate={{ opacity: 1 }}
+                        exit={{ opacity: 0 }}
+                        className="flex items-center gap-2 font-mono"
+                      >
+                        <span className="contact-sending-dots">Sending</span>
+                      </motion.span>
+                    ) : sent ? (
+                      <motion.span
+                        key="sent"
+                        initial={{ opacity: 0, scale: 0.8 }}
+                        animate={{ opacity: 1, scale: 1 }}
+                        exit={{ opacity: 0 }}
+                        className="flex items-center gap-2 text-[#00cea8]"
+                      >
+                        <motion.svg
+                          className="w-5 h-5"
+                          fill="none"
+                          viewBox="0 0 24 24"
+                          stroke="currentColor"
+                          strokeWidth={2.5}
+                          initial={{ pathLength: 0 }}
+                          animate={{ pathLength: 1 }}
+                        >
+                          <motion.path
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                            d="M5 13l4 4L19 7"
+                            initial={{ pathLength: 0 }}
+                            animate={{ pathLength: 1 }}
+                            transition={{ duration: 0.4, ease: "easeOut" }}
+                          />
+                        </motion.svg>
+                        Delivered!
+                      </motion.span>
+                    ) : (
+                      <motion.span
+                        key="default"
+                        initial={{ opacity: 0 }}
+                        animate={{ opacity: 1 }}
+                        exit={{ opacity: 0 }}
+                        className="flex items-center gap-2"
+                      >
+                        Send Message
+                        <svg className="w-4 h-4 group-hover:translate-x-0.5 transition-transform" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                          <path strokeLinecap="round" strokeLinejoin="round" d="M6 12L3.269 3.126A59.768 59.768 0 0121.485 12 59.77 59.77 0 013.27 20.876L5.999 12zm0 0h7.5" />
+                        </svg>
+                      </motion.span>
+                    )}
+                  </AnimatePresence>
+                </motion.button>
+
+                <span className="hidden sm:block text-white/20 text-micro font-mono">
+                  Cmd+Enter
+                </span>
+              </div>
+
+              {/* Terminal bottom prompt */}
+              <div className="font-mono text-caption sm:text-body-sm text-white/20 pt-2 border-t border-white/[0.06]">
+                <span className="text-[#00cea8]/40">&#10095;</span>{" "}
+                <span className="text-white/15">ready</span>
+              </div>
+            </form>
+          </div>
         </motion.div>
 
         {/* ── Right: Live Email Preview ── */}

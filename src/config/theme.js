@@ -16,3 +16,13 @@ export const STATUS_CONFIG = {
 export const CAT_COLORS = ["#915eff", "#00cea8", "#61dafb", "#f8c555"];
 
 export const NODE_COLORS = ["#ff6b6b", "#f8c555", "#61dafb", "#915eff"];
+
+export const CATEGORY_COLORS = {
+  Languages: "#915eff",
+  "Backend Frameworks": "#00cea8",
+  Frontend: "#61dafb",
+  "AI & Emerging Tech": "#f8c555",
+  Databases: "#ff6b6b",
+  "Cloud & DevOps": "#326ce5",
+  "Tools & Platforms": "#68a063",
+};

@@ -45,7 +45,9 @@ textarea,
 .font-mono,
 .font-mono *,
 .skill-terminal,
-.skill-terminal * {
+.skill-terminal *,
+.contact-terminal,
+.contact-terminal * {
   font-family: 'JetBrains Mono', monospace !important;
 }
 
@@ -598,6 +600,60 @@ img {
 /* Contact link hover glow */
 .contact-link-card:hover {
   box-shadow: 0 0 20px rgba(145, 94, 255, 0.06);
+}
+
+/* ── Contact Terminal Wrapper ── */
+.contact-terminal {
+  background: linear-gradient(165deg, #0d0a1a 0%, #130f25 50%, #0d0a1a 100%);
+  border: 1px solid rgba(145, 94, 255, 0.15);
+  box-shadow: 0 0 30px rgba(145, 94, 255, 0.06), inset 0 1px 0 rgba(255,255,255,0.03);
+}
+.contact-terminal-chrome {
+  background: linear-gradient(180deg, #1a1025 0%, #130f25 100%);
+  border-bottom: 1px solid rgba(145, 94, 255, 0.1);
+}
+.contact-terminal-body {
+  position: relative;
+}
+
+/* Terminal cursor blink */
+@keyframes contactTermCursorBlink {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0; }
+}
+.contact-terminal-cursor {
+  color: #00cea8;
+  text-shadow: 0 0 8px rgba(0, 206, 168, 0.6);
+  animation: contactTermCursorBlink 1s step-end infinite;
+}
+
+/* ── Sending dots animation ── */
+.contact-sending-dots::after {
+  content: '';
+  animation: sendingDots 1.4s steps(4, end) infinite;
+}
+@keyframes sendingDots {
+  0%   { content: ''; }
+  25%  { content: '.'; }
+  50%  { content: '..'; }
+  75%  { content: '...'; }
+  100% { content: ''; }
+}
+
+/* ── Availability indicator ── */
+.contact-availability-card {
+  transition: all 0.3s ease;
+}
+.contact-availability-card:hover {
+  border-color: rgba(0, 206, 168, 0.25);
+  box-shadow: 0 0 20px rgba(0, 206, 168, 0.06);
+}
+@keyframes availabilityPing {
+  0% { transform: scale(1); opacity: 0.75; }
+  75%, 100% { transform: scale(2); opacity: 0; }
+}
+.contact-availability-ping {
+  animation: availabilityPing 2s cubic-bezier(0, 0, 0.2, 1) infinite;
 }
 
 /* ===== HERO SOLAR SYSTEM ===== */

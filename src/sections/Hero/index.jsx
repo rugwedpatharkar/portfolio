@@ -32,9 +32,14 @@ const CountUp = ({ value, suffix = "" }) => {
   useEffect(() => {
     const el = ref.current;
     if (!el) return;
+    const prefersReducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
     const obs = new IntersectionObserver(([e]) => {
       if (e.isIntersecting && !counted.current) {
         counted.current = true;
+        if (prefersReducedMotion) {
+          el.textContent = value + suffix;
+          return;
+        }
         let start = 0;
         const step = Math.max(1, Math.ceil(value / 30));
         const tick = () => {

@@ -14,7 +14,13 @@ const TextScramble = ({ text, className = "", as: Tag = "span", delay = 0 }) => 
     if (!el) return;
     let mounted = true;
 
+    const prefersReducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+
     const scramble = () => {
+      if (prefersReducedMotion) {
+        setDisplayText(text);
+        return;
+      }
       const length = text.length;
       const duration = 800;
       const startTime = performance.now();

@@ -1,8 +1,9 @@
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState, useMemo, useCallback } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { styles } from "../styles";
 import { navLinks } from "../content";
 import { logo } from "../assets";
+import useRetryObserver from "../hooks/useRetryObserver";
 
 const Navbar = () => {
   const [active, setActive] = useState("");
@@ -30,73 +31,46 @@ const Navbar = () => {
   /* IntersectionObserver for active section tracking.
      Sections are React.lazy — they don't exist in the DOM on first render.
      We retry until all sections are found, then observe them. */
-  useEffect(() => {
-    const sectionIds = navLinks.map((link) => link.id);
-    const visibilityMap = {};
-    let observer;
-    let retryTimer;
-    let retryCount = 0;
-    const MAX_RETRIES = 20;
+  const sectionIds = useMemo(() => navLinks.map((link) => link.id), []);
+  const visibilityMapRef = useRef({});
 
-    const setupObserver = () => {
-      const elements = sectionIds
-        .map((id) => document.getElementById(id))
-        .filter(Boolean);
+  const observerCallback = useCallback(
+    (entries) => {
+      const visibilityMap = visibilityMapRef.current;
+      entries.forEach((entry) => {
+        visibilityMap[entry.target.id] = entry.isIntersecting
+          ? entry.intersectionRatio
+          : 0;
+      });
 
-      // If not all sections loaded yet, retry up to MAX_RETRIES
-      if (elements.length < sectionIds.length && retryCount < MAX_RETRIES) {
-        retryCount++;
-        retryTimer = setTimeout(setupObserver, 500);
-        return;
+      let bestId = null;
+      let bestRatio = 0;
+      for (const id of sectionIds) {
+        if ((visibilityMap[id] || 0) > bestRatio) {
+          bestRatio = visibilityMap[id];
+          bestId = id;
+        }
       }
 
-      // Proceed with whatever sections were found (or all)
-      if (elements.length === 0) return;
-
-      observer = new IntersectionObserver(
-        (entries) => {
-          entries.forEach((entry) => {
-            visibilityMap[entry.target.id] = entry.isIntersecting
-              ? entry.intersectionRatio
-              : 0;
-          });
-
-          // Find the section with the highest visibility
-          let bestId = null;
-          let bestRatio = 0;
-          for (const id of sectionIds) {
-            if ((visibilityMap[id] || 0) > bestRatio) {
-              bestRatio = visibilityMap[id];
-              bestId = id;
-            }
-          }
-
-          if (bestId && bestRatio > 0) {
-            const matchedLink = navLinks.find((l) => l.id === bestId);
-            if (matchedLink) {
-              setActive(matchedLink.title);
-            }
-          }
-        },
-        {
-          // Use low threshold so tall sections still trigger
-          threshold: [0, 0.1, 0.2, 0.3, 0.5],
-          // Offset for the fixed navbar height
-          rootMargin: "-80px 0px 0px 0px",
+      if (bestId && bestRatio > 0) {
+        const matchedLink = navLinks.find((l) => l.id === bestId);
+        if (matchedLink) {
+          setActive(matchedLink.title);
         }
-      );
+      }
+    },
+    [sectionIds]
+  );
 
-      elements.forEach((el) => observer.observe(el));
-    };
+  const observerOptions = useMemo(
+    () => ({
+      threshold: [0, 0.1, 0.2, 0.3, 0.5],
+      rootMargin: "-80px 0px 0px 0px",
+    }),
+    []
+  );
 
-    // Start trying after a short delay for lazy sections to mount
-    retryTimer = setTimeout(setupObserver, 300);
-
-    return () => {
-      clearTimeout(retryTimer);
-      if (observer) observer.disconnect();
-    };
-  }, []);
+  useRetryObserver(sectionIds, observerCallback, observerOptions);
 
   /* Mobile menu: body lock + outside click + escape */
   useEffect(() => {

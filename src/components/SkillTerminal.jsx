@@ -1,6 +1,7 @@
 /* eslint-disable react/prop-types */
 import { useState, useEffect, useRef, useMemo, memo } from "react";
 import { skills } from "../content";
+import { CATEGORY_COLORS } from "../config/theme";
 
 const ASCII_ART = [
   "  ██████╗ ██████╗ ",
@@ -10,16 +11,6 @@ const ASCII_ART = [
   "  ██║  ██║██║     ",
   "  ╚═╝  ╚═╝╚═╝    ",
 ].join("\n");
-
-const CATEGORY_COLORS = {
-  Languages: "#915eff",
-  "Backend Frameworks": "#00cea8",
-  Frontend: "#61dafb",
-  "AI & Emerging Tech": "#f8c555",
-  Databases: "#ff6b6b",
-  "Cloud & DevOps": "#326ce5",
-  "Tools & Platforms": "#68a063",
-};
 
 /* ── Single skill bar row — bar stretches to fill width ── */
 const SkillBar = memo(({ name, level, color, visible, delay }) => (

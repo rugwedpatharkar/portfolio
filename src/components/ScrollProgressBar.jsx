@@ -1,4 +1,5 @@
-import { useRef, useEffect, useState } from "react";
+import { useRef, useEffect, useState, useMemo, useCallback } from "react";
+import useRetryObserver from "../hooks/useRetryObserver";
 
 const MILESTONES = [
   { id: "about", label: "About", icon: "👤" },
@@ -39,59 +40,39 @@ const ScrollProgressBar = () => {
 
   // Track active section via IntersectionObserver
   // Retry until lazy-loaded sections exist in DOM
-  useEffect(() => {
-    const visibilityMap = {};
-    let observer;
-    let retryTimer;
-    let retryCount = 0;
-    const MAX_RETRIES = 20;
+  const milestoneIds = useMemo(() => MILESTONES.map((m) => m.id), []);
+  const visibilityMapRef = useRef({});
 
-    const setup = () => {
-      const elements = MILESTONES
-        .map(({ id }) => document.getElementById(id))
-        .filter(Boolean);
-
-      if (elements.length < MILESTONES.length && retryCount < MAX_RETRIES) {
-        retryCount++;
-        retryTimer = setTimeout(setup, 500);
-        return;
+  const observerCallback = useCallback(
+    (entries) => {
+      const visibilityMap = visibilityMapRef.current;
+      entries.forEach((entry) => {
+        visibilityMap[entry.target.id] = entry.isIntersecting
+          ? entry.intersectionRatio
+          : 0;
+      });
+      let bestId = null;
+      let bestRatio = 0;
+      for (const { id } of MILESTONES) {
+        if ((visibilityMap[id] || 0) > bestRatio) {
+          bestRatio = visibilityMap[id];
+          bestId = id;
+        }
       }
+      if (bestId && bestRatio > 0 && bestId !== activeSectionRef.current) {
+        activeSectionRef.current = bestId;
+        setActiveSection(bestId);
+      }
+    },
+    []
+  );
 
-      // Proceed with whatever sections were found (or all)
-      if (elements.length === 0) return;
+  const observerOptions = useMemo(
+    () => ({ threshold: [0, 0.1, 0.2, 0.3, 0.5], rootMargin: "-80px 0px 0px 0px" }),
+    []
+  );
 
-      observer = new IntersectionObserver(
-        (entries) => {
-          entries.forEach((entry) => {
-            visibilityMap[entry.target.id] = entry.isIntersecting
-              ? entry.intersectionRatio
-              : 0;
-          });
-          let bestId = null;
-          let bestRatio = 0;
-          for (const { id } of MILESTONES) {
-            if ((visibilityMap[id] || 0) > bestRatio) {
-              bestRatio = visibilityMap[id];
-              bestId = id;
-            }
-          }
-          if (bestId && bestRatio > 0 && bestId !== activeSectionRef.current) {
-            activeSectionRef.current = bestId;
-            setActiveSection(bestId);
-          }
-        },
-        { threshold: [0, 0.1, 0.2, 0.3, 0.5], rootMargin: "-80px 0px 0px 0px" }
-      );
-
-      elements.forEach((el) => observer.observe(el));
-    };
-
-    retryTimer = setTimeout(setup, 300);
-    return () => {
-      clearTimeout(retryTimer);
-      if (observer) observer.disconnect();
-    };
-  }, []);
+  useRetryObserver(milestoneIds, observerCallback, observerOptions);
 
   const activeLabel = MILESTONES.find((m) => m.id === activeSection);
 
