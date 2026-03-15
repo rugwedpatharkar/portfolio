@@ -9,6 +9,20 @@ const CURSOR_STATES = {
   image: { size: 64, label: "View", mix: false },
 };
 
+const SECTION_CURSORS = {
+  default: { size: 20, color: "rgba(145, 94, 255, 0.5)", label: "" },
+  about: { size: 24, color: "rgba(145, 94, 255, 0.5)", label: "" },
+  experience: { size: 20, color: "rgba(248, 197, 85, 0.5)", label: "" },
+  skills: { size: 18, color: "rgba(0, 206, 168, 0.5)", label: ">" },
+  projects: { size: 22, color: "rgba(97, 218, 251, 0.5)", label: "" },
+  education: { size: 20, color: "rgba(0, 206, 168, 0.5)", label: "" },
+  achievements: { size: 24, color: "rgba(248, 197, 85, 0.5)", label: "" },
+  testimonials: { size: 20, color: "rgba(145, 94, 255, 0.5)", label: "" },
+  contact: { size: 20, color: "rgba(145, 94, 255, 0.5)", label: "" },
+};
+
+const SECTION_IDS = Object.keys(SECTION_CURSORS).filter((k) => k !== "default");
+
 const detectState = (el) => {
   if (!el) return "default";
   let current = el;
@@ -29,6 +43,7 @@ const ContextualCursor = () => {
   const labelRef = useRef(null);
   const stateRef = useRef("default");
   const posRef = useRef({ x: -100, y: -100 });
+  const activeSectionRef = useRef("default");
   const [isDesktop, setIsDesktop] = useState(false);
 
   useEffect(() => {
@@ -38,6 +53,30 @@ const ContextualCursor = () => {
     return () => window.removeEventListener("resize", check);
   }, []);
 
+  // IntersectionObserver to track which section is currently in view
+  useEffect(() => {
+    if (!isDesktop) return;
+
+    const observer = new IntersectionObserver(
+      (entries) => {
+        for (const entry of entries) {
+          if (entry.isIntersecting) {
+            activeSectionRef.current = entry.target.id || "default";
+          }
+        }
+      },
+      { threshold: 0.3 }
+    );
+
+    // Observe all section elements by their ID
+    SECTION_IDS.forEach((id) => {
+      const el = document.getElementById(id);
+      if (el) observer.observe(el);
+    });
+
+    return () => observer.disconnect();
+  }, [isDesktop]);
+
   useEffect(() => {
     if (!isDesktop) return;
 
@@ -46,6 +85,7 @@ const ContextualCursor = () => {
     if (!cursor) return;
 
     let lastDetect = 0;
+    let lastSection = "default";
 
     const handleMove = (e) => {
       posRef.current.x = e.clientX;
@@ -59,15 +99,30 @@ const ContextualCursor = () => {
       if (now - lastDetect > 66) {
         lastDetect = now;
         const newState = detectState(e.target);
-        if (newState !== stateRef.current) {
+        const section = activeSectionRef.current;
+        const sectionCfg = SECTION_CURSORS[section] || SECTION_CURSORS.default;
+
+        if (newState !== stateRef.current || section !== lastSection) {
           stateRef.current = newState;
+          lastSection = section;
           const s = CURSOR_STATES[newState];
-          cursor.style.width = `${s.size}px`;
-          cursor.style.height = `${s.size}px`;
-          cursor.style.border = newState === "default" ? "2px solid rgba(145, 94, 255, 0.6)" : "2px solid rgba(145, 94, 255, 0.3)";
-          cursor.style.background = newState === "default" ? "rgba(145, 94, 255, 0.2)" : "rgba(145, 94, 255, 0.08)";
-          cursor.style.mixBlendMode = s.mix ? "difference" : "normal";
-          label.textContent = s.label;
+
+          if (newState === "default") {
+            // Use section-specific visuals for the default cursor state
+            cursor.style.width = `${sectionCfg.size}px`;
+            cursor.style.height = `${sectionCfg.size}px`;
+            cursor.style.borderColor = sectionCfg.color;
+            cursor.style.background = sectionCfg.color.replace(/[\d.]+\)$/, "0.2)");
+            cursor.style.mixBlendMode = "difference";
+            label.textContent = sectionCfg.label;
+          } else {
+            cursor.style.width = `${s.size}px`;
+            cursor.style.height = `${s.size}px`;
+            cursor.style.borderColor = "rgba(145, 94, 255, 0.3)";
+            cursor.style.background = "rgba(145, 94, 255, 0.08)";
+            cursor.style.mixBlendMode = s.mix ? "difference" : "normal";
+            label.textContent = s.label;
+          }
         }
       }
     };
@@ -93,17 +148,17 @@ const ContextualCursor = () => {
       ref={cursorRef}
       className="fixed pointer-events-none z-[98] flex items-center justify-center"
       style={{
-        width: 12,
-        height: 12,
+        width: 20,
+        height: 20,
         position: "fixed",
         top: 0,
         left: 0,
         transform: "translate3d(-100px, -100px, 0) translate(-50%, -50%)",
         borderRadius: "50%",
-        border: "2px solid rgba(145, 94, 255, 0.6)",
+        border: "2px solid rgba(145, 94, 255, 0.5)",
         background: "rgba(145, 94, 255, 0.2)",
         mixBlendMode: "difference",
-        transition: "width 0.2s, height 0.2s, background 0.2s, border 0.2s",
+        transition: "width 0.3s, height 0.3s, border-color 0.3s, background 0.3s",
         willChange: "transform",
       }}
     >

@@ -108,6 +108,7 @@ const CommandTerminal = () => {
       setLines(newLines);
     }
 
+    window.dispatchEvent(new CustomEvent("achievement", { detail: "hacker" }));
     setHistory((prev) => [cmd, ...prev]);
     setHistoryIndex(-1);
     setInput("");

@@ -1,4 +1,5 @@
 import { Suspense, lazy, useEffect } from "react";
+import useVisitorAchievements from "./hooks/useVisitorAchievements";
 import {
   Navbar,
   StarsCanvas,
@@ -38,6 +39,7 @@ const EasterEgg = lazy(() => import("./components/EasterEgg"));
 const FloatingActionMenu = lazy(() => import("./components/FloatingActionMenu"));
 const CommandTerminal = lazy(() => import("./components/CommandTerminal"));
 const KeyboardHints = lazy(() => import("./components/KeyboardHints"));
+const SpotlightSearch = lazy(() => import("./components/SpotlightSearch"));
 
 const App = () => {
   // Console easter eggs for devs who inspect
@@ -109,6 +111,20 @@ const App = () => {
     };
   }, []);
 
+  const AchievementTracker = () => {
+    const toast = useToast();
+    const unlock = useVisitorAchievements(toast);
+
+    // Listen for custom achievement events from other components
+    useEffect(() => {
+      const handler = (e) => unlock(e.detail);
+      window.addEventListener("achievement", handler);
+      return () => window.removeEventListener("achievement", handler);
+    }, [unlock]);
+
+    return null;
+  };
+
   const ReferrerGreeting = () => {
     const toast = useToast();
     useEffect(() => {
@@ -126,6 +142,7 @@ const App = () => {
 
   return (
     <ToastProvider>
+      <AchievementTracker />
       <ReferrerGreeting />
       <main id="main-content" className="relative z-0">
         <div className="noise-overlay" aria-hidden="true" />
@@ -200,6 +217,7 @@ const App = () => {
           <FloatingActionMenu />
           <CommandTerminal />
           <KeyboardHints />
+          <SpotlightSearch />
           <BackToTop />
         </Suspense>
       </main>

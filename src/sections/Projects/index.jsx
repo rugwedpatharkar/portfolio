@@ -303,8 +303,14 @@ const Projects = () => {
     []
   );
 
-  const toggle = (i) =>
-    setExpandedIndex((prev) => (prev === i ? null : i));
+  const toggle = (i) => {
+    setExpandedIndex((prev) => {
+      if (prev !== i) {
+        window.dispatchEvent(new CustomEvent("achievement", { detail: "curious" }));
+      }
+      return prev === i ? null : i;
+    });
+  };
 
   const expandAll = () =>
     setExpandedIndex(expandedIndex === "all" ? null : "all");

@@ -20,6 +20,7 @@ const EasterEgg = () => {
         setProgress(index);
         if (index === KONAMI_CODE.length) {
           setShow(true);
+          window.dispatchEvent(new CustomEvent("achievement", { detail: "konami" }));
           index = 0;
           setProgress(0);
           clearTimeout(timerRef.current);

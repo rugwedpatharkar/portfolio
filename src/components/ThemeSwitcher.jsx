@@ -57,6 +57,7 @@ const ThemeSwitcher = () => {
                 onClick={() => {
                   applyTheme(theme.id);
                   setOpen(false);
+                  window.dispatchEvent(new CustomEvent("achievement", { detail: "timeTravel" }));
                 }}
                 className={`w-full flex items-center gap-2 px-3 py-2 rounded-lg text-caption sm:text-body-sm transition-colors ${
                   activeTheme === theme.id

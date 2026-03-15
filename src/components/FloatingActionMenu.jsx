@@ -31,6 +31,7 @@ const FloatingActionMenu = () => {
       audioRef.current.play().catch(() => {});
     }
     setIsPlaying(!isPlaying);
+    window.dispatchEvent(new CustomEvent("achievement", { detail: "musician" }));
   };
 
   const openTerminal = () => {
