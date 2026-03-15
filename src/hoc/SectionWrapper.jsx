@@ -18,7 +18,7 @@ const SectionWrapper = (Component, idName, label) =>
     const labelOpacity = useTransform(scrollYProgress, [0, 0.3, 0.7, 1], [0, 0.015, 0.015, 0]);
 
     return (
-      <section ref={ref} className="relative z-0">
+      <section ref={ref} id={idName} className="relative z-0">
         {label && (
           <motion.span
             style={{ y: labelY, opacity: labelOpacity }}
@@ -28,7 +28,7 @@ const SectionWrapper = (Component, idName, label) =>
             {label}
           </motion.span>
         )}
-        <span className="hash-span" id={idName}>
+        <span className="hash-span">
           &nbsp;
         </span>
         <motion.div
