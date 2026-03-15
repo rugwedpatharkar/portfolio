@@ -31,6 +31,7 @@ import {
   hsc,
   bachelor,
   ssc,
+  bigquery,
   fastapi,
   firebase,
   gcp,
@@ -105,6 +106,7 @@ const skills = {
     { name: "PostgreSQL", icon: postgresql, level: 78 },
     { name: "Firebase Firestore", icon: firebase, level: 80 },
     { name: "MySQL", icon: mysql, level: 80 },
+    { name: "BigQuery", icon: bigquery, level: 78 },
   ],
   "Cloud & DevOps": [
     { name: "GCP", icon: gcp, level: 88 },
@@ -321,6 +323,7 @@ const projects = [
     status: "completed",
     year: "2023",
     team: "Solo",
+    github: "https://github.com/rugwedpatharkar/BlogBuddy",
     description:
       "BlogBuddy — a full-stack blogging platform with secure authentication, email OTP verification, and responsive UI. Deployed with Docker on Render.",
     features: [
@@ -348,6 +351,7 @@ const projects = [
     status: "completed",
     year: "2023",
     team: "Solo",
+    github: "https://github.com/rugwedpatharkar/GadgetGalaxy",
     description:
       "GadgetGalaxy — an e-commerce platform with secure user authentication, product catalog, cart system, and email notifications. Deployed on PythonAnywhere.",
     features: [
@@ -375,6 +379,7 @@ const projects = [
     status: "completed",
     year: "2023",
     team: "Solo",
+    github: "https://github.com/rugwedpatharkar/CareerForAll",
     description:
       "Recruitment platform connecting startups, institutes, and job seekers. Streamlines the matching process with multi-role access and modular architecture.",
     features: [

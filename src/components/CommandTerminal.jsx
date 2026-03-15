@@ -1,6 +1,7 @@
 import { useState, useRef, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { personalInfo, skills, projects } from "../constants";
+import useFocusTrap from "../utils/useFocusTrap";
 
 const COMMANDS = {
   help: () =>
@@ -47,6 +48,8 @@ const CommandTerminal = () => {
   const [historyIndex, setHistoryIndex] = useState(-1);
   const inputRef = useRef(null);
   const scrollRef = useRef(null);
+  const terminalRef = useRef(null);
+  useFocusTrap(terminalRef, isOpen);
 
   useEffect(() => {
     if (isOpen && inputRef.current) {
@@ -66,10 +69,13 @@ const CommandTerminal = () => {
         e.preventDefault();
         setIsOpen((prev) => !prev);
       }
+      if (e.key === "Escape" && isOpen) {
+        setIsOpen(false);
+      }
     };
     window.addEventListener("keydown", handleKeyDown);
     return () => window.removeEventListener("keydown", handleKeyDown);
-  }, []);
+  }, [isOpen]);
 
   const handleSubmit = (e) => {
     e.preventDefault();
@@ -129,6 +135,10 @@ const CommandTerminal = () => {
             animate={{ opacity: 1, y: 0, scale: 1 }}
             exit={{ opacity: 0, y: 40, scale: 0.95 }}
             transition={{ type: "spring", damping: 25, stiffness: 300 }}
+            ref={terminalRef}
+            role="dialog"
+            aria-modal="true"
+            aria-label="Command terminal"
             className="fixed bottom-16 left-3 sm:bottom-20 sm:left-4 z-[60] w-[calc(100vw-24px)] max-w-[560px] rounded-xl overflow-hidden shadow-2xl border border-[#915eff]/20"
           >
             {/* Title bar */}

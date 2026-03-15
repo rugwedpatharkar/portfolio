@@ -36,7 +36,7 @@ const SkillBar = memo(({ name, level, color, visible, delay }) => (
     </span>
 
     {/* Bar container — flex-1 stretches to fill remaining width */}
-    <div className="relative flex-1 h-[1.1em] min-w-0">
+    <div className="relative flex-1 h-[1.1em] min-w-0" role="progressbar" aria-valuenow={level} aria-valuemin={0} aria-valuemax={100} aria-label={`${name} proficiency`}>
       {/* Background track */}
       <div
         className="absolute inset-0 rounded-sm"

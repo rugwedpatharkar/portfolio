@@ -41,7 +41,7 @@ const SkillGlobe = () => {
       img.loading = "lazy";
 
       const label = document.createElement("span");
-      label.className = "text-[10px] sm:text-[11px] text-white/70 whitespace-nowrap font-medium opacity-0 group-hover:opacity-100 transition-opacity";
+      label.className = "text-micro sm:text-caption text-white/70 whitespace-nowrap font-medium opacity-0 group-hover:opacity-100 transition-opacity";
       label.textContent = item.name;
 
       iconBox.appendChild(img);

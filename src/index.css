@@ -416,10 +416,50 @@ img {
 
 /* Glow on hover for cards */
 .glow-hover {
-  transition: box-shadow 0.3s ease;
+  transition: box-shadow 0.4s ease, border-color 0.4s ease;
 }
 .glow-hover:hover {
   box-shadow: 0 0 20px rgba(145, 94, 255, 0.15), 0 0 60px rgba(145, 94, 255, 0.05);
+  border-color: rgba(145, 94, 255, 0.25);
+}
+
+/* Animated gradient border for featured/expanded cards */
+.border-glow {
+  position: relative;
+}
+.border-glow::before {
+  content: "";
+  position: absolute;
+  inset: -1px;
+  border-radius: inherit;
+  padding: 1px;
+  background: linear-gradient(
+    var(--border-angle, 0deg),
+    rgba(145, 94, 255, 0.4),
+    rgba(0, 206, 168, 0.2),
+    rgba(97, 218, 251, 0.2),
+    rgba(145, 94, 255, 0.4)
+  );
+  -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+  mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+  -webkit-mask-composite: xor;
+  mask-composite: exclude;
+  animation: borderRotate 4s linear infinite;
+  opacity: 0;
+  transition: opacity 0.4s ease;
+  pointer-events: none;
+}
+.border-glow:hover::before {
+  opacity: 1;
+}
+
+@keyframes borderRotate {
+  to { --border-angle: 360deg; }
+}
+@property --border-angle {
+  syntax: "<angle>";
+  initial-value: 0deg;
+  inherits: false;
 }
 
 /* Smooth focus ring for accessibility */
@@ -999,6 +1039,22 @@ img {
   body.custom-cursor,
   body.custom-cursor * {
     cursor: none !important;
+  }
+}
+
+/* ===== REDUCED MOTION ===== */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+
+  .hero-marquee {
+    animation: none !important;
   }
 }
 

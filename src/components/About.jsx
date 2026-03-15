@@ -21,7 +21,7 @@ const ServiceCard = memo(({ index, title, icon }) => {
       variants={fadeIn("right", "spring", 0.5 * index, 0.75)}
       whileHover={{ y: -6 }}
       transition={{ type: "spring", stiffness: 300, damping: 20 }}
-      className="w-full glass-card rounded-2xl p-5 sm:p-6 min-h-[180px] xs:min-h-[220px] sm:min-h-[250px] flex flex-col justify-center items-center gap-4 card-shine glow-hover group relative overflow-hidden"
+      className="w-full glass-card rounded-2xl p-5 sm:p-6 min-h-[180px] xs:min-h-[220px] sm:min-h-[250px] flex flex-col justify-center items-center gap-4 card-shine glow-hover border-glow group relative overflow-hidden"
     >
       {/* Accent glow */}
       <div

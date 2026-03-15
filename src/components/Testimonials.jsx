@@ -5,7 +5,7 @@ import { motion, AnimatePresence, useMotionValue } from "framer-motion";
 import { styles } from "../styles";
 import { SectionWrapper } from "../hoc";
 import { testimonials } from "../constants";
-import { textVariant } from "../utils/motion";
+import { fadeIn, textVariant } from "../utils/motion";
 import TextScramble from "./TextScramble";
 
 const ACCENTS = ["#915eff", "#00cea8", "#f8c555", "#61dafb", "#ff6b6b", "#326ce5"];
@@ -133,6 +133,14 @@ const Testimonials = () => {
           className={styles.sectionHeadText}
         />
       </motion.div>
+
+      <motion.p
+        variants={fadeIn("", "", 0.1, 1)}
+        className="mt-3 text-secondary text-body-sm sm:text-body max-w-3xl"
+      >
+        Feedback from colleagues, mentors, and collaborators I've had the
+        privilege of working with.
+      </motion.p>
 
       {/* Card container */}
       <div

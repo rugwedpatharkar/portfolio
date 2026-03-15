@@ -69,8 +69,8 @@ const TextScramble = ({ text, className = "", as: Tag = "span", delay = 0 }) => 
   }, [text, delay]);
 
   return (
-    <Tag ref={ref} className={className}>
-      {displayText || "\u00A0"}
+    <Tag ref={ref} className={className} aria-label={text}>
+      <span aria-hidden="true">{displayText || "\u00A0"}</span>
     </Tag>
   );
 };

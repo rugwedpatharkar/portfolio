@@ -1,38 +1,42 @@
-import { Suspense, useEffect } from "react";
+import { Suspense, lazy, useEffect } from "react";
 import {
-  About,
-  Contact,
-  Experience,
   Hero,
   Navbar,
-  Skills,
-  Projects,
   StarsCanvas,
-  Education,
   Footer,
 } from "./components";
 import ErrorBoundary from "./components/ErrorBoundary";
 import ScrollProgressBar from "./components/ScrollProgressBar";
-import BackToTop from "./components/BackToTop";
-import ContextualCursor from "./components/ContextualCursor";
 import Preloader from "./components/Preloader";
-import FunFacts from "./components/FunFacts";
-import Achievements from "./components/Achievements";
-import Testimonials from "./components/Testimonials";
-// import Blog from "./components/Blog"; // Hidden until real blog posts are published
-import EasterEgg from "./components/EasterEgg";
-import FloatingActionMenu from "./components/FloatingActionMenu";
 
 import SectionDivider from "./components/SectionDivider";
 import { ToastProvider } from "./components/Toast";
 import GradientMesh from "./components/GradientMesh";
-import CommandTerminal from "./components/CommandTerminal";
 import CodeRain from "./components/CodeRain";
-import CursorTrail from "./components/CursorTrail";
 import DynamicTitle from "./components/DynamicTitle";
 import AnimatedFavicon from "./components/AnimatedFavicon";
 import ThemeSwitcher from "./components/ThemeSwitcher";
-import KeyboardHints from "./components/KeyboardHints";
+
+// Lazy-loaded below-fold sections
+const About = lazy(() => import("./components/About"));
+const FunFacts = lazy(() => import("./components/FunFacts"));
+const Experience = lazy(() => import("./components/Experience"));
+const Skills = lazy(() => import("./components/Skills"));
+const Projects = lazy(() => import("./components/Projects"));
+const Education = lazy(() => import("./components/Education"));
+const Achievements = lazy(() => import("./components/Achievements"));
+const Testimonials = lazy(() => import("./components/Testimonials"));
+const Contact = lazy(() => import("./components/Contact"));
+// const Blog = lazy(() => import("./components/Blog")); // Hidden until real blog posts are published
+
+// Lazy-loaded interactive overlays (not needed at first paint)
+const ContextualCursor = lazy(() => import("./components/ContextualCursor"));
+const CursorTrail = lazy(() => import("./components/CursorTrail"));
+const BackToTop = lazy(() => import("./components/BackToTop"));
+const EasterEgg = lazy(() => import("./components/EasterEgg"));
+const FloatingActionMenu = lazy(() => import("./components/FloatingActionMenu"));
+const CommandTerminal = lazy(() => import("./components/CommandTerminal"));
+const KeyboardHints = lazy(() => import("./components/KeyboardHints"));
 
 const App = () => {
   // Console easter eggs for devs who inspect
@@ -90,10 +94,12 @@ const App = () => {
         </Suspense>
         <CodeRain />
         <GradientMesh />
-        <ContextualCursor />
-        <CursorTrail />
+        <Suspense fallback={null}>
+          <ContextualCursor />
+          <CursorTrail />
+          <EasterEgg />
+        </Suspense>
         <ScrollProgressBar />
-        <EasterEgg />
         <ThemeSwitcher />
         <a
           href="#about"
@@ -108,46 +114,50 @@ const App = () => {
         {/* Gradient fade to smooth the 3D model's hard bottom edge into the background */}
         <div className="relative -mt-48 sm:-mt-64 h-48 sm:h-64 bg-gradient-to-b from-transparent to-[#050816] pointer-events-none z-[3]" />
 
-        <ErrorBoundary>
-          <About />
-        </ErrorBoundary>
-        <SectionDivider />
-        <ErrorBoundary>
-          <FunFacts />
-        </ErrorBoundary>
-        <SectionDivider />
-        <ErrorBoundary>
-          <Experience />
-        </ErrorBoundary>
-        <SectionDivider />
-        <ErrorBoundary>
-          <Skills />
-        </ErrorBoundary>
-        <SectionDivider />
-        <ErrorBoundary>
-          <Projects />
-        </ErrorBoundary>
-        <SectionDivider />
-        <ErrorBoundary>
-          <Education />
-        </ErrorBoundary>
-        <SectionDivider />
-        <ErrorBoundary>
-          <Achievements />
-        </ErrorBoundary>
-        <SectionDivider />
-        <ErrorBoundary>
-          <Testimonials />
-        </ErrorBoundary>
-        <SectionDivider />
-        <ErrorBoundary>
-          <Contact />
-        </ErrorBoundary>
+        <Suspense fallback={null}>
+          <ErrorBoundary>
+            <About />
+          </ErrorBoundary>
+          <SectionDivider />
+          <ErrorBoundary>
+            <FunFacts />
+          </ErrorBoundary>
+          <SectionDivider />
+          <ErrorBoundary>
+            <Experience />
+          </ErrorBoundary>
+          <SectionDivider />
+          <ErrorBoundary>
+            <Skills />
+          </ErrorBoundary>
+          <SectionDivider />
+          <ErrorBoundary>
+            <Projects />
+          </ErrorBoundary>
+          <SectionDivider />
+          <ErrorBoundary>
+            <Education />
+          </ErrorBoundary>
+          <SectionDivider />
+          <ErrorBoundary>
+            <Achievements />
+          </ErrorBoundary>
+          <SectionDivider />
+          <ErrorBoundary>
+            <Testimonials />
+          </ErrorBoundary>
+          <SectionDivider />
+          <ErrorBoundary>
+            <Contact />
+          </ErrorBoundary>
+        </Suspense>
         <Footer />
-        <FloatingActionMenu />
-        <CommandTerminal />
-        <KeyboardHints />
-        <BackToTop />
+        <Suspense fallback={null}>
+          <FloatingActionMenu />
+          <CommandTerminal />
+          <KeyboardHints />
+          <BackToTop />
+        </Suspense>
       </div>
     </ToastProvider>
   );

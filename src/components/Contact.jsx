@@ -4,7 +4,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import emailjs from "@emailjs/browser";
 import { styles } from "../styles";
 import { SectionWrapper } from "../hoc";
-import { slideIn, textVariant } from "../utils/motion";
+import { fadeIn, slideIn, textVariant } from "../utils/motion";
 import { personalInfo } from "../constants";
 import { resume } from "../assets";
 import { useToast } from "./Toast";
@@ -266,7 +266,6 @@ const EmailPreview = ({ form, topic, sent }) => (
 
 /* ── Main Contact Component ── */
 const Contact = () => {
-  const formRef = useRef(null);
   const toast = useToast();
   const [form, setForm] = useState(() => {
     try {
@@ -375,6 +374,14 @@ const Contact = () => {
         <TextScramble text="Contact" as="h2" className={styles.sectionHeadText} />
       </motion.div>
 
+      <motion.p
+        variants={fadeIn("", "", 0.1, 1)}
+        className="mt-3 text-secondary text-body-sm sm:text-body max-w-3xl"
+      >
+        Have a project idea, collaboration opportunity, or just want to say hi?
+        I'd love to hear from you.
+      </motion.p>
+
       <div className="mt-8 sm:mt-12 flex flex-col xl:flex-row gap-6 sm:gap-8">
         {/* ── Left: Info + Form ── */}
         <motion.div
@@ -424,7 +431,6 @@ const Contact = () => {
 
           {/* Form */}
           <form
-            ref={formRef}
             onSubmit={handleSubmit}
             className="glass-card rounded-2xl p-5 sm:p-7 space-y-5"
             style={{ borderColor: `${ACCENT}10` }}
@@ -489,7 +495,7 @@ const Contact = () => {
             <div className="flex items-center justify-between gap-4">
               <motion.button
                 type="submit"
-                whileHover={{ scale: 1.02 }}
+                whileHover={{ scale: 1.05 }}
                 whileTap={{ scale: 0.97 }}
                 disabled={loading}
                 className="contact-send-btn flex items-center gap-2 px-6 sm:px-8 py-3 rounded-xl font-bold text-body-sm sm:text-body transition-all duration-300 disabled:opacity-50"

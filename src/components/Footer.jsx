@@ -5,7 +5,7 @@ import VisitorCounter from "./VisitorCounter";
 
 const BUILT_WITH = [
   { name: "React", color: "#61dafb" },
-  { name: "Tailwind CSS", color: "#38bdf8" },
+  { name: "Tailwind CSS", color: "#61dafb" },
   { name: "Framer Motion", color: "#bf61ff" },
   { name: "Three.js", color: "#00cea8" },
   { name: "Vite", color: "#f8c555" },
@@ -42,7 +42,7 @@ const Footer = () => {
                 className="w-9 h-9 rounded-lg glass-card border border-white/[0.08] hover:border-[#915eff]/40 flex items-center justify-center text-white/50 hover:text-white transition-all duration-300 group"
                 aria-label="GitHub"
               >
-                <AiOutlineGithub className="text-lg group-hover:scale-110 transition-transform" />
+                <AiOutlineGithub className="text-body-lg group-hover:scale-110 transition-transform" />
               </a>
               <a
                 href={personalInfo.linkedin}
@@ -51,7 +51,7 @@ const Footer = () => {
                 className="w-9 h-9 rounded-lg glass-card border border-white/[0.08] hover:border-[#0077b5]/40 flex items-center justify-center text-white/50 hover:text-[#0077b5] transition-all duration-300 group"
                 aria-label="LinkedIn"
               >
-                <ImLinkedin className="text-sm group-hover:scale-110 transition-transform" />
+                <ImLinkedin className="text-body-sm group-hover:scale-110 transition-transform" />
               </a>
             </div>
           </div>

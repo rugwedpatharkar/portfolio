@@ -4,7 +4,7 @@ import { motion } from "framer-motion";
 import { styles } from "../styles";
 import { SectionWrapper } from "../hoc";
 import { blogPosts } from "../constants";
-import { textVariant } from "../utils/motion";
+import { fadeIn, textVariant } from "../utils/motion";
 import TextScramble from "./TextScramble";
 
 const BlogCard = memo(({ post, index }) => {
@@ -65,6 +65,15 @@ const Blog = () => {
         <p className={styles.sectionSubText}>Sharing Knowledge</p>
         <TextScramble text="Blog & Articles" as="h2" className={styles.sectionHeadText} />
       </motion.div>
+
+      <motion.p
+        variants={fadeIn("", "", 0.1, 1)}
+        className="mt-3 text-secondary text-body-sm sm:text-body max-w-3xl"
+      >
+        Writing about backend architecture, AI/ML engineering, and lessons
+        learned from building real-world systems.
+      </motion.p>
+
       <div className="mt-8 sm:mt-12 grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-5 sm:gap-7">
         {blogPosts.map((post, index) => (
           <BlogCard key={index} post={post} index={index} />

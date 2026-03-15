@@ -46,19 +46,19 @@ const FloatingActionMenu = () => {
     {
       label: "Email",
       href: `mailto:${personalInfo.email}`,
-      icon: <AiOutlineMail className="text-lg" />,
+      icon: <AiOutlineMail className="text-body-lg" />,
       color: "#ff6b6b",
     },
     {
       label: "LinkedIn",
       href: personalInfo.linkedin,
-      icon: <ImLinkedin className="text-sm" />,
+      icon: <ImLinkedin className="text-body-sm" />,
       color: "#0077b5",
     },
     {
       label: "GitHub",
       href: personalInfo.github,
-      icon: <AiOutlineGithub className="text-lg" />,
+      icon: <AiOutlineGithub className="text-body-lg" />,
       color: "#6e7681",
     },
     {

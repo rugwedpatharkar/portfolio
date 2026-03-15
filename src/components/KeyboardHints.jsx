@@ -1,5 +1,6 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
+import useFocusTrap from "../utils/useFocusTrap";
 
 const SECTIONS = [
   { key: "1", id: "about", label: "About" },
@@ -26,6 +27,8 @@ const Kbd = ({ children }) => (
 
 const KeyboardHints = () => {
   const [showHints, setShowHints] = useState(false);
+  const panelRef = useRef(null);
+  useFocusTrap(panelRef, showHints);
 
   useEffect(() => {
     const handleKeyDown = (e) => {
@@ -85,6 +88,10 @@ const KeyboardHints = () => {
             animate={{ opacity: 1, scale: 1, y: 0 }}
             exit={{ opacity: 0, scale: 0.95, y: 20 }}
             transition={{ type: "spring", damping: 25, stiffness: 300 }}
+            ref={panelRef}
+            role="dialog"
+            aria-modal="true"
+            aria-label="Keyboard shortcuts"
             className="fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 z-[66] bg-[#0a0a1a]/95 border border-[#915eff]/20 rounded-2xl p-5 sm:p-7 shadow-2xl backdrop-blur-md w-[90vw] max-w-[380px]"
           >
             <div className="flex items-center justify-between mb-5">

@@ -49,7 +49,7 @@ const ThemeSwitcher = () => {
             initial={{ opacity: 0, y: -10, scale: 0.95 }}
             animate={{ opacity: 1, y: 0, scale: 1 }}
             exit={{ opacity: 0, y: -10, scale: 0.95 }}
-            className="absolute right-0 mt-2 glass-card rounded-xl p-2 shadow-xl min-w-[140px]"
+            className="absolute right-0 mt-2 glass-card rounded-2xl p-2 min-w-[140px] border border-white/[0.08]"
           >
             {THEMES.map((theme) => (
               <button

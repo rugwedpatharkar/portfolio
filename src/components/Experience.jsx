@@ -41,7 +41,7 @@ const ExperienceCard = memo(({ experience, index, isLast }) => {
 
       {/* Card */}
       <div className="flex-1 pb-10 sm:pb-14">
-        <div className="glass-card rounded-2xl p-5 sm:p-7 relative overflow-hidden card-shine glow-hover">
+        <div className="glass-card rounded-2xl p-5 sm:p-7 relative overflow-hidden card-shine glow-hover border-glow">
           {/* Accent glow */}
           <div className="absolute -top-10 -right-10 w-40 h-40 bg-[#915eff]/5 rounded-full blur-[60px] pointer-events-none" />
 
@@ -182,6 +182,14 @@ const Experience = () => {
           className={styles.sectionHeadText}
         />
       </motion.div>
+
+      <motion.p
+        variants={fadeIn("", "", 0.1, 1)}
+        className="mt-3 text-secondary text-body-sm sm:text-body max-w-3xl"
+      >
+        Building scalable microservices, AI-powered systems, and cloud-native
+        solutions — here's where I've put my engineering skills to work.
+      </motion.p>
 
       <div className="mt-10 sm:mt-16">
         {experiences.map((exp, i) => (

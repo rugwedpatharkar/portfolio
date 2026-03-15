@@ -2,7 +2,7 @@
 import { useState, useEffect, useRef, memo } from "react";
 import { motion } from "framer-motion";
 import { funFacts } from "../constants";
-import { textVariant } from "../utils/motion";
+import { fadeIn, textVariant } from "../utils/motion";
 import { styles } from "../styles";
 import { SectionWrapper } from "../hoc";
 import TextScramble from "./TextScramble";
@@ -128,6 +128,15 @@ const FunFacts = () => {
         <p className={styles.sectionSubText}>A Glimpse Into My Journey</p>
         <TextScramble text="Fun Facts" as="h2" className={styles.sectionHeadText} />
       </motion.div>
+
+      <motion.p
+        variants={fadeIn("", "", 0.1, 1)}
+        className="mt-3 text-secondary text-body-sm sm:text-body max-w-3xl"
+      >
+        A few numbers and tidbits that sum up my journey as a developer — flip
+        the cards to discover more.
+      </motion.p>
+
       <div className="mt-8 sm:mt-12 grid grid-cols-2 md:grid-cols-4 gap-4 sm:gap-6">
         {funFacts.map((fact, index) => (
           <FunFactCard key={index} fact={fact} index={index} />

@@ -3,7 +3,7 @@ import { motion } from "framer-motion";
 import { styles } from "../styles";
 import { SectionWrapper } from "../hoc";
 import { achievements } from "../constants";
-import { textVariant } from "../utils/motion";
+import { fadeIn, textVariant } from "../utils/motion";
 import TextScramble from "./TextScramble";
 
 const ACCENT_COLORS = ["#915eff", "#00cea8", "#f8c555", "#61dafb", "#ff6b6b"];
@@ -39,7 +39,7 @@ const AchievementCard = ({ achievement, index }) => {
 
       {/* Card */}
       <div className="pb-8 sm:pb-12 flex-1">
-        <div className="glass-card rounded-xl p-4 sm:p-5 card-shine glow-hover relative overflow-hidden">
+        <div className="glass-card rounded-2xl p-4 sm:p-5 card-shine glow-hover relative overflow-hidden">
           {/* Subtle accent glow */}
           <div
             className="absolute -top-6 -right-6 w-24 h-24 rounded-full blur-[40px] pointer-events-none opacity-[0.06]"
@@ -77,6 +77,15 @@ const Achievements = () => {
         <p className={styles.sectionSubText}>Milestones</p>
         <TextScramble text="Achievements" as="h2" className={styles.sectionHeadText} />
       </motion.div>
+
+      <motion.p
+        variants={fadeIn("", "", 0.1, 1)}
+        className="mt-3 text-secondary text-body-sm sm:text-body max-w-3xl"
+      >
+        Key milestones and recognitions from my academic and professional journey
+        that keep me motivated to push further.
+      </motion.p>
+
       <div className="mt-8 sm:mt-12 max-w-3xl mx-auto">
         {achievements.map((achievement, index) => (
           <AchievementCard key={index} achievement={achievement} index={index} />

@@ -15,7 +15,7 @@ const TechMarquee = () => (
   <div className="absolute bottom-10 sm:bottom-14 left-0 right-0 z-[3] overflow-hidden pointer-events-none opacity-40">
     <div className="hero-marquee flex gap-8 sm:gap-12 items-center w-max">
       {[...allSkillIcons, ...allSkillIcons].map((skill, i) => (
-        <div key={i} className="flex items-center gap-2 shrink-0">
+        <div key={`${skill.name}-${i}`} className="flex items-center gap-2 shrink-0">
           <img src={skill.icon} alt="" className="w-5 h-5 sm:w-6 sm:h-6 object-contain" loading="lazy" />
           <span className="text-micro sm:text-caption font-mono text-white/50 whitespace-nowrap">{skill.name}</span>
         </div>
@@ -395,7 +395,7 @@ const Hero = () => {
                     aria-label="GitHub"
                     className="group flex items-center justify-center w-10 h-10 sm:w-12 sm:h-12 rounded-full border border-white/10 hover:border-[#915eff]/50 bg-white/5 hover:bg-[#915eff]/10 transition-all duration-300"
                   >
-                    <AiOutlineGithub className="text-lg sm:text-2xl text-white/70 group-hover:text-white transition-colors" />
+                    <AiOutlineGithub className="text-body-lg sm:text-heading-sm text-white/70 group-hover:text-white transition-colors" />
                   </a>
                 </MagneticButton>
                 <MagneticButton strength={0.4}>
@@ -406,7 +406,7 @@ const Hero = () => {
                     aria-label="LinkedIn"
                     className="group flex items-center justify-center w-10 h-10 sm:w-12 sm:h-12 rounded-full border border-white/10 hover:border-[#0077b5]/50 bg-white/5 hover:bg-[#0077b5]/10 transition-all duration-300"
                   >
-                    <ImLinkedin className="text-base sm:text-xl text-white/70 group-hover:text-[#0077b5] transition-colors" />
+                    <ImLinkedin className="text-body sm:text-subheading text-white/70 group-hover:text-[#0077b5] transition-colors" />
                   </a>
                 </MagneticButton>
               </div>

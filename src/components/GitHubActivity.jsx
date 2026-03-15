@@ -2,7 +2,7 @@ import { motion } from "framer-motion";
 import { styles } from "../styles";
 import { SectionWrapper } from "../hoc";
 import { personalInfo } from "../constants";
-import { textVariant } from "../utils/motion";
+import { fadeIn, textVariant } from "../utils/motion";
 import TextScramble from "./TextScramble";
 import LanguageChart from "./LanguageChart";
 import ImageSkeleton from "./ImageSkeleton";
@@ -14,6 +14,15 @@ const GitHubActivity = () => {
         <p className={styles.sectionSubText}>Open Source</p>
         <TextScramble text="GitHub Activity" as="h2" className={styles.sectionHeadText} />
       </motion.div>
+
+      <motion.p
+        variants={fadeIn("", "", 0.1, 1)}
+        className="mt-3 text-secondary text-body-sm sm:text-body max-w-3xl"
+      >
+        My contribution graph, streaks, and language breakdown — a snapshot of
+        what I've been building in the open.
+      </motion.p>
+
       <div className="mt-8 sm:mt-12 flex flex-col items-center gap-6 sm:gap-8">
         <motion.div
           initial={{ opacity: 0, y: 20 }}

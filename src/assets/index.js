@@ -8,6 +8,7 @@ import menu from "./menu.svg";
 import close from "./close.svg";
 
 // Skill icons
+import bigquery from "./skills/bigquery.svg";
 import bootstrap from "./skills/bootstrap.svg";
 import celery from "./skills/celery.svg";
 import css from "./skills/css.png";
@@ -71,6 +72,7 @@ export {
   github,
   menu,
   close,
+  bigquery,
   bootstrap,
   celery,
   css,
