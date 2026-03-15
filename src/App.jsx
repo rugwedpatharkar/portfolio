@@ -66,6 +66,37 @@ const App = () => {
     );
   }, []);
 
+  // Disable copy, cut, right-click on portfolio content (allow in form fields)
+  useEffect(() => {
+    const isFormElement = (el) =>
+      el.tagName === "INPUT" || el.tagName === "TEXTAREA" || el.isContentEditable;
+
+    const blockCopy = (e) => {
+      if (!isFormElement(e.target)) e.preventDefault();
+    };
+    const blockContext = (e) => {
+      if (!isFormElement(e.target)) e.preventDefault();
+    };
+    const blockKeys = (e) => {
+      if (isFormElement(e.target)) return;
+      // Block Ctrl+C, Ctrl+A, Ctrl+U, Ctrl+S
+      if ((e.ctrlKey || e.metaKey) && ["c", "a", "u", "s"].includes(e.key.toLowerCase())) {
+        e.preventDefault();
+      }
+    };
+
+    document.addEventListener("copy", blockCopy);
+    document.addEventListener("cut", blockCopy);
+    document.addEventListener("contextmenu", blockContext);
+    document.addEventListener("keydown", blockKeys);
+    return () => {
+      document.removeEventListener("copy", blockCopy);
+      document.removeEventListener("cut", blockCopy);
+      document.removeEventListener("contextmenu", blockContext);
+      document.removeEventListener("keydown", blockKeys);
+    };
+  }, []);
+
   // Add custom-cursor class to body for hiding default cursor on desktop
   useEffect(() => {
     const isDesktop = window.innerWidth >= 768;

@@ -41,7 +41,9 @@ import python from "./skills/python.svg";
 import rabbitmq from "./skills/rabbitmq.svg";
 import reactjs from "./skills/reactjs.png";
 import redis from "./skills/redis.svg";
+import restapi from "./skills/restapi.svg";
 import redux from "./skills/redux.png";
+import soapapi from "./skills/soapapi.svg";
 import springboot from "./skills/springboot.svg";
 import tailwind from "./skills/tailwind.png";
 import terraform from "./skills/terraform.svg";
@@ -105,7 +107,9 @@ export {
   rabbitmq,
   reactjs,
   redis,
+  restapi,
   redux,
+  soapapi,
   springboot,
   tailwind,
   terraform,

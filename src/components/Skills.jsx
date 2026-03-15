@@ -5,7 +5,6 @@ import { styles } from "../styles";
 import { SectionWrapper } from "../hoc";
 import TextScramble from "./TextScramble";
 import SkillTerminal from "./SkillTerminal";
-import SkillGraph from "./SkillGraph";
 
 const Skills = () => {
   return (
@@ -28,7 +27,6 @@ const Skills = () => {
       </motion.p>
 
       <SkillTerminal />
-      <SkillGraph />
     </div>
   );
 };

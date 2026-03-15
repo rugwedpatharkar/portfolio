@@ -19,6 +19,24 @@
 @tailwind components;
 @tailwind utilities;
 
+/* ── Disable text selection & copying on portfolio content ── */
+body {
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+  user-select: none;
+}
+
+/* Allow selection in form inputs so users can still type/edit */
+input,
+textarea,
+[contenteditable="true"] {
+  -webkit-user-select: text;
+  -moz-user-select: text;
+  -ms-user-select: text;
+  user-select: text;
+}
+
 /* Force Fira Code on mono elements AND their children — * selector on body sets Inter directly
    on every element, which beats inheritance. This rule must also target children explicitly. */
 .font-mono,
