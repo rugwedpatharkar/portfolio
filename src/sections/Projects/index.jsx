@@ -388,10 +388,11 @@ const Projects = () => {
       {/* Card grid */}
       <div className="mt-5 sm:mt-6 grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-4 sm:gap-5 items-start">
         {filtered.length === 0 ? (
-          <div className="col-span-full flex flex-col items-center justify-center py-16 text-center">
-            <span className="text-heading-sm mb-3">🔍</span>
-            <p className="text-white/60 font-heading font-semibold text-body-lg">No projects found</p>
-            <p className="text-white/40 text-body-sm mt-1 font-mono">Try selecting a different filter</p>
+          <div className="col-span-full text-center py-16">
+            <p className="text-white/40 font-mono text-body-sm">No projects found for this filter.</p>
+            <button onClick={() => setFilter("all")} className="mt-3 text-[#915eff] hover:text-[#b8a0ff] font-mono text-caption transition-colors">
+              Show all projects
+            </button>
           </div>
         ) : (
           <AnimatePresence mode="popLayout">

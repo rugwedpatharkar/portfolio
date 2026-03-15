@@ -9,27 +9,98 @@ import { fadeIn, textVariant } from "../../utils/motion";
 import TextScramble from "../../components/TextScramble";
 import { ACCENT_COLORS as ACCENTS } from "../../config/theme";
 
+/* ── Parallax tilt hook for testimonial card ── */
+const useParallaxTilt = (ref, strength = 8) => {
+  useEffect(() => {
+    const el = ref.current;
+    if (!el) return;
+
+    const handleMove = (e) => {
+      const rect = el.getBoundingClientRect();
+      const x = (e.clientX - rect.left) / rect.width - 0.5;
+      const y = (e.clientY - rect.top) / rect.height - 0.5;
+      el.style.transform = `perspective(800px) rotateY(${x * strength}deg) rotateX(${-y * strength}deg) scale3d(1.01, 1.01, 1.01)`;
+    };
+
+    const handleLeave = () => {
+      el.style.transform = "perspective(800px) rotateY(0deg) rotateX(0deg) scale3d(1, 1, 1)";
+    };
+
+    el.addEventListener("mousemove", handleMove);
+    el.addEventListener("mouseleave", handleLeave);
+    return () => {
+      el.removeEventListener("mousemove", handleMove);
+      el.removeEventListener("mouseleave", handleLeave);
+    };
+  }, [ref, strength]);
+};
+
 const AUTO_INTERVAL = 6000;
 const DRAG_THRESHOLD = 50;
 
-/* ── Animated Stars ── */
+/* ── Animated Stars with shimmer ── */
 const StarRating = ({ rating, color, delay = 0 }) => (
-  <div className="flex gap-1">
+  <div className="flex gap-1 star-rating-container">
     {[...Array(5)].map((_, i) => (
-      <motion.svg
+      <motion.div
         key={i}
         initial={{ opacity: 0, scale: 0 }}
         animate={{ opacity: 1, scale: 1 }}
         transition={{ delay: delay + i * 0.1, type: "spring", stiffness: 300 }}
-        className="w-4 h-4 sm:w-5 sm:h-5"
-        viewBox="0 0 20 20"
-        fill={i < rating ? color : "rgba(255,255,255,0.08)"}
+        className="relative"
       >
-        <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
-      </motion.svg>
+        <svg
+          className="w-4 h-4 sm:w-5 sm:h-5"
+          viewBox="0 0 20 20"
+          fill={i < rating ? color : "rgba(255,255,255,0.08)"}
+        >
+          <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
+        </svg>
+        {/* Shimmer overlay for filled stars */}
+        {i < rating && (
+          <div
+            className="absolute inset-0 star-shimmer rounded-sm"
+            style={{
+              animationDelay: `${i * 0.3}s`,
+            }}
+          />
+        )}
+      </motion.div>
     ))}
   </div>
 );
+
+/* ── Company initials badge ── */
+const CompanyBadge = ({ company, color }) => {
+  const initials = company
+    .split(" ")
+    .filter((w) => w[0] && w[0] === w[0].toUpperCase())
+    .map((w) => w[0])
+    .slice(0, 2)
+    .join("");
+
+  return (
+    <div
+      className="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-md text-micro sm:text-caption font-mono font-semibold border"
+      style={{
+        color: `${color}cc`,
+        borderColor: `${color}20`,
+        background: `${color}0a`,
+      }}
+    >
+      <span
+        className="w-5 h-5 rounded flex items-center justify-center text-[10px] font-bold"
+        style={{
+          background: `${color}18`,
+          color: color,
+        }}
+      >
+        {initials}
+      </span>
+      {company}
+    </div>
+  );
+};
 
 /* ── Avatar with rotating gradient ring ── */
 const AvatarRing = ({ name, color }) => (
@@ -79,6 +150,8 @@ const Testimonials = () => {
   const containerRef = useRef(null);
   const isVisibleRef = useRef(false);
   const sectionRef = useRef(null);
+  const tiltRef = useRef(null);
+  useParallaxTilt(tiltRef, 6);
 
   const total = testimonials.length;
   const t = testimonials[current];
@@ -202,7 +275,7 @@ const Testimonials = () => {
         </AnimatePresence>
 
         {/* Swipeable card */}
-        <div className="overflow-hidden rounded-2xl">
+        <div ref={tiltRef} className="overflow-hidden rounded-2xl transition-transform duration-200 ease-out" style={{ transformStyle: "preserve-3d" }}>
           <AnimatePresence mode="wait" custom={direction}>
             <motion.div
               key={current}
@@ -299,10 +372,15 @@ const Testimonials = () => {
               {/* Author */}
               <div className="flex items-center gap-3 sm:gap-4">
                 <AvatarRing name={t.name} color={accent} />
-                <div>
-                  <p className="text-white font-heading font-semibold text-body-sm sm:text-body">
-                    {t.name}
-                  </p>
+                <div className="flex flex-col gap-1">
+                  <div className="flex items-center gap-2 flex-wrap">
+                    <p className="text-white font-heading font-semibold text-body-sm sm:text-body">
+                      {t.name}
+                    </p>
+                    {t.company && (
+                      <CompanyBadge company={t.company} color={accent} />
+                    )}
+                  </div>
                   <p className="text-secondary text-caption sm:text-body-sm">
                     {t.role}
                   </p>

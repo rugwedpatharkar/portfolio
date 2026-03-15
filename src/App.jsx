@@ -62,36 +62,7 @@ const App = () => {
     );
   }, []);
 
-  // Disable copy, cut, right-click on portfolio content (allow in form fields)
-  useEffect(() => {
-    const isFormElement = (el) =>
-      el.tagName === "INPUT" || el.tagName === "TEXTAREA" || el.isContentEditable;
-
-    const blockCopy = (e) => {
-      if (!isFormElement(e.target)) e.preventDefault();
-    };
-    const blockContext = (e) => {
-      if (!isFormElement(e.target)) e.preventDefault();
-    };
-    const blockKeys = (e) => {
-      if (isFormElement(e.target)) return;
-      // Block Ctrl+C, Ctrl+A, Ctrl+U, Ctrl+S
-      if ((e.ctrlKey || e.metaKey) && ["c", "a", "u", "s"].includes(e.key.toLowerCase())) {
-        e.preventDefault();
-      }
-    };
-
-    document.addEventListener("copy", blockCopy);
-    document.addEventListener("cut", blockCopy);
-    document.addEventListener("contextmenu", blockContext);
-    document.addEventListener("keydown", blockKeys);
-    return () => {
-      document.removeEventListener("copy", blockCopy);
-      document.removeEventListener("cut", blockCopy);
-      document.removeEventListener("contextmenu", blockContext);
-      document.removeEventListener("keydown", blockKeys);
-    };
-  }, []);
+  // Copy/context-menu blocking moved to CopyBlocker component (inside ToastProvider)
 
   // Add custom-cursor class to body for hiding default cursor on desktop
   useEffect(() => {
@@ -125,6 +96,46 @@ const App = () => {
     return null;
   };
 
+  const CopyBlocker = () => {
+    const toast = useToast();
+    useEffect(() => {
+      const isFormElement = (el) =>
+        el.tagName === "INPUT" || el.tagName === "TEXTAREA" || el.isContentEditable;
+
+      const blockCopy = (e) => {
+        if (!isFormElement(e.target)) {
+          e.preventDefault();
+          toast("Content copying is disabled on this site.", "warning", 2500);
+        }
+      };
+      const blockContext = (e) => {
+        if (!isFormElement(e.target)) {
+          e.preventDefault();
+          toast("Right-click is disabled on this site.", "warning", 2500);
+        }
+      };
+      const blockKeys = (e) => {
+        if (isFormElement(e.target)) return;
+        if ((e.ctrlKey || e.metaKey) && ["c", "a", "u", "s"].includes(e.key.toLowerCase())) {
+          e.preventDefault();
+          toast("This keyboard shortcut is disabled.", "warning", 2500);
+        }
+      };
+
+      document.addEventListener("copy", blockCopy);
+      document.addEventListener("cut", blockCopy);
+      document.addEventListener("contextmenu", blockContext);
+      document.addEventListener("keydown", blockKeys);
+      return () => {
+        document.removeEventListener("copy", blockCopy);
+        document.removeEventListener("cut", blockCopy);
+        document.removeEventListener("contextmenu", blockContext);
+        document.removeEventListener("keydown", blockKeys);
+      };
+    }, [toast]);
+    return null;
+  };
+
   const ReferrerGreeting = () => {
     const toast = useToast();
     useEffect(() => {
@@ -142,6 +153,7 @@ const App = () => {
 
   return (
     <ToastProvider>
+      <CopyBlocker />
       <AchievementTracker />
       <ReferrerGreeting />
       <main id="main-content" className="relative z-0">

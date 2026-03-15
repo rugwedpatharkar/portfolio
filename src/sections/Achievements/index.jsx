@@ -132,10 +132,23 @@ const AchievementCard = ({ achievement, index, onCelebrate }) => {
       {/* Card */}
       <div className="pb-8 sm:pb-12 flex-1">
         <TiltCard tiltStrength={5}>
-          <div className="glass-card rounded-2xl p-4 sm:p-5 card-shine glow-hover border-glow relative overflow-hidden">
-            {/* Subtle accent glow */}
+          <div
+            className="glass-card rounded-2xl p-4 sm:p-5 card-shine glow-hover border-glow achievement-card relative overflow-hidden transition-transform duration-300 ease-out hover:scale-[1.03]"
+            style={{
+              "--achievement-accent": color,
+            }}
+          >
+            {/* Gradient border glow on hover */}
             <div
-              className="absolute -top-6 -right-6 w-24 h-24 rounded-full blur-[40px] pointer-events-none opacity-[0.06]"
+              className="absolute inset-0 rounded-2xl pointer-events-none opacity-0 transition-opacity duration-500 achievement-gradient-border"
+              style={{
+                boxShadow: `inset 0 0 0 1.5px ${color}30, 0 0 20px ${color}15, 0 0 40px ${color}08`,
+              }}
+            />
+
+            {/* Subtle accent glow — intensifies on hover */}
+            <div
+              className="absolute -top-6 -right-6 w-24 h-24 rounded-full blur-[40px] pointer-events-none opacity-[0.06] transition-opacity duration-500 achievement-glow-blob"
               style={{ background: color }}
             />
 

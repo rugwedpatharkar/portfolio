@@ -1,7 +1,7 @@
 /* eslint-disable react/prop-types */
 /* eslint-disable react-refresh/only-export-components */
-import { useState, useRef, useCallback, memo } from "react";
-import { motion, useScroll, useTransform } from "framer-motion";
+import { useState, useRef, useCallback, useEffect, memo } from "react";
+import { motion, useScroll, useTransform, useInView } from "framer-motion";
 import { styles } from "../../styles";
 import { services, personalInfo, sectionMeta } from "../../content";
 import { fadeIn, textVariant } from "../../utils/motion";
@@ -13,6 +13,68 @@ import MagneticButton from "../../components/MagneticButton";
 import TiltCard from "../../components/TiltCard";
 
 const CARD_ACCENTS = ["#915eff", "#00cea8", "#61dafb", "#f8c555"];
+
+/* -- Animated Count-Up -- */
+const CountUp = ({ end, suffix = "", duration = 2 }) => {
+  const ref = useRef(null);
+  const inView = useInView(ref, { once: true, margin: "-50px" });
+  const [count, setCount] = useState(0);
+
+  useEffect(() => {
+    if (!inView) return;
+    let start = 0;
+    const step = Math.ceil(end / (duration * 60)); // ~60fps
+    const timer = setInterval(() => {
+      start += step;
+      if (start >= end) {
+        setCount(end);
+        clearInterval(timer);
+      } else {
+        setCount(start);
+      }
+    }, 1000 / 60);
+    return () => clearInterval(timer);
+  }, [inView, end, duration]);
+
+  return (
+    <span ref={ref} className="tabular-nums">
+      {count}{suffix}
+    </span>
+  );
+};
+
+const STATS = [
+  { value: 3, suffix: "+", label: "Years Experience" },
+  { value: 10, suffix: "+", label: "Projects Built" },
+  { value: 5, suffix: "+", label: "Technologies" },
+];
+
+const StatCounter = () => (
+  <div className="flex items-center gap-6 sm:gap-8 mt-5">
+    {STATS.map((stat, i) => (
+      <div key={stat.label} className="flex flex-col items-center">
+        <motion.span
+          initial={{ opacity: 0, y: 10 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true }}
+          transition={{ delay: 0.3 + i * 0.15, duration: 0.5 }}
+          className="text-white font-heading font-bold text-heading-sm sm:text-heading"
+        >
+          <CountUp end={stat.value} suffix={stat.suffix} />
+        </motion.span>
+        <motion.span
+          initial={{ opacity: 0 }}
+          whileInView={{ opacity: 1 }}
+          viewport={{ once: true }}
+          transition={{ delay: 0.5 + i * 0.15, duration: 0.5 }}
+          className="text-secondary text-caption sm:text-body-sm font-mono mt-1 whitespace-nowrap"
+        >
+          {stat.label}
+        </motion.span>
+      </div>
+    ))}
+  </div>
+);
 
 const ServiceCard = memo(({ index, title, icon }) => {
   const accent = CARD_ACCENTS[index % CARD_ACCENTS.length];
@@ -227,6 +289,9 @@ const About = () => {
               {personalInfo.about}
             </p>
 
+            {/* Animated stat counters */}
+            <StatCounter />
+
             {/* Action buttons */}
             <div className="flex flex-wrap items-center mt-6 sm:mt-8 gap-3 sm:gap-4">
               <MagneticButton strength={0.2}>
@@ -268,13 +333,22 @@ const About = () => {
         </div>
       </motion.div>
 
-      <div className="mt-12 sm:mt-20 grid grid-cols-2 xs:grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4 sm:gap-6 lg:gap-10">
+      <motion.div
+        variants={{
+          hidden: {},
+          show: { transition: { staggerChildren: 0.15, delayChildren: 0.2 } },
+        }}
+        initial="hidden"
+        whileInView="show"
+        viewport={{ once: true, margin: "-80px" }}
+        className="mt-12 sm:mt-20 grid grid-cols-2 xs:grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4 sm:gap-6 lg:gap-10"
+      >
         {services.map((service, index) => (
           <ParallaxCard key={service.title} index={index}>
             <ServiceCard index={index} {...service} />
           </ParallaxCard>
         ))}
-      </div>
+      </motion.div>
 
       <ResumeModal isOpen={showResume} onClose={() => setShowResume(false)} />
     </>

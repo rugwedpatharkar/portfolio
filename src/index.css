@@ -566,6 +566,46 @@ img {
   animation: avatarRingSpin 4s linear infinite;
 }
 
+/* Star shimmer/glow effect */
+@keyframes starShimmer {
+  0%, 100% { opacity: 0; }
+  50% { opacity: 0.6; }
+}
+.star-shimmer {
+  background: linear-gradient(
+    105deg,
+    transparent 20%,
+    rgba(255, 255, 255, 0.35) 45%,
+    rgba(255, 255, 255, 0.5) 50%,
+    rgba(255, 255, 255, 0.35) 55%,
+    transparent 80%
+  );
+  background-size: 200% 100%;
+  animation: starShimmerSlide 3s ease-in-out infinite;
+  mix-blend-mode: overlay;
+  pointer-events: none;
+}
+@keyframes starShimmerSlide {
+  0% { background-position: 200% 0; opacity: 0; }
+  30% { opacity: 0.7; }
+  70% { opacity: 0.7; }
+  100% { background-position: -200% 0; opacity: 0; }
+}
+
+/* Achievement card gradient border glow on hover */
+.achievement-gradient-border {
+  transition: opacity 0.5s ease, box-shadow 0.5s ease;
+}
+.achievement-card:hover .achievement-gradient-border {
+  opacity: 1 !important;
+}
+.achievement-glow-blob {
+  transition: opacity 0.5s ease;
+}
+.achievement-card:hover .achievement-glow-blob {
+  opacity: 0.15 !important;
+}
+
 /* ===== CONTACT ===== */
 
 /* Availability pulse */

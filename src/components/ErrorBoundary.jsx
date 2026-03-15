@@ -13,16 +13,8 @@ class ErrorBoundary extends React.Component {
   render() {
     if (this.state.hasError) {
       return (
-        <div className="flex flex-col items-center justify-center p-8 min-h-[200px]">
-          <p className="text-secondary text-body-sm">
-            Something went wrong loading this section.
-          </p>
-          <button
-            onClick={() => window.location.reload()}
-            className="mt-4 text-white text-body-sm bg-tertiary px-4 py-2 rounded-lg border border-secondary/30 hover:border-secondary/60 transition-colors"
-          >
-            Reload Page
-          </button>
+        <div className="min-h-[200px] flex items-center justify-center">
+          <p className="text-white/40 font-mono text-caption">Something went wrong loading this section.</p>
         </div>
       );
     }
