@@ -124,7 +124,7 @@ const SkillTerminal = () => {
           <span className="w-2.5 h-2.5 sm:w-3 sm:h-3 rounded-full bg-[#febc2e]" />
           <span className="w-2.5 h-2.5 sm:w-3 sm:h-3 rounded-full bg-[#28c840]" />
         </div>
-        <span className="text-white/40 text-micro sm:text-caption font-mono tracking-wide">
+        <span className="text-white/55 text-micro sm:text-caption font-mono tracking-wide">
           rugwed@portfolio — skills
         </span>
         <div className="w-10 sm:w-12" />
@@ -142,7 +142,7 @@ const SkillTerminal = () => {
         >
           <span className="text-[#00cea8]">❯</span>{" "}
           <span className="text-[#61dafb]">neofetch</span>{" "}
-          <span className="text-white/40">--skills</span>
+          <span className="text-white/55">--skills</span>
           <span className="skill-terminal-cursor ml-1">_</span>
         </div>
 
@@ -170,35 +170,35 @@ const SkillTerminal = () => {
               ──────────────────
             </div>
             <div>
-              <span className="text-white/40">OS:</span>{" "}
+              <span className="text-white/55">OS:</span>{" "}
               <span className="text-white/70">Engineer v3.0</span>
             </div>
             <div>
-              <span className="text-white/40">Shell:</span>{" "}
+              <span className="text-white/55">Shell:</span>{" "}
               <span className="text-white/70">Python / JavaScript</span>
             </div>
             <div>
-              <span className="text-white/40">Stack:</span>{" "}
+              <span className="text-white/55">Stack:</span>{" "}
               <span className="text-white/70">
                 {stats.total} technologies
               </span>
             </div>
             <div>
-              <span className="text-white/40">Domains:</span>{" "}
+              <span className="text-white/55">Domains:</span>{" "}
               <span className="text-white/70">
                 {stats.domains} categories
               </span>
             </div>
             <div>
-              <span className="text-white/40">Uptime:</span>{" "}
+              <span className="text-white/55">Uptime:</span>{" "}
               <span className="text-white/70">3+ years</span>
             </div>
             <div>
-              <span className="text-white/40">Avg Level:</span>{" "}
+              <span className="text-white/55">Avg Level:</span>{" "}
               <span className="text-[#00cea8]">{stats.avg}%</span>
             </div>
             <div>
-              <span className="text-white/40">Top:</span>{" "}
+              <span className="text-white/55">Top:</span>{" "}
               <span className="text-[#f8c555]">{stats.top}</span>
             </div>
           </div>

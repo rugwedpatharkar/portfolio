@@ -11,6 +11,7 @@ const MILESTONES = [
 
 const ScrollProgressBar = () => {
   const barRef = useRef(null);
+  const activeSectionRef = useRef("");
   const [activeSection, setActiveSection] = useState("");
   const [scrolled, setScrolled] = useState(false);
 
@@ -42,16 +43,22 @@ const ScrollProgressBar = () => {
     const visibilityMap = {};
     let observer;
     let retryTimer;
+    let retryCount = 0;
+    const MAX_RETRIES = 20;
 
     const setup = () => {
       const elements = MILESTONES
         .map(({ id }) => document.getElementById(id))
         .filter(Boolean);
 
-      if (elements.length < MILESTONES.length) {
+      if (elements.length < MILESTONES.length && retryCount < MAX_RETRIES) {
+        retryCount++;
         retryTimer = setTimeout(setup, 500);
         return;
       }
+
+      // Proceed with whatever sections were found (or all)
+      if (elements.length === 0) return;
 
       observer = new IntersectionObserver(
         (entries) => {
@@ -68,7 +75,10 @@ const ScrollProgressBar = () => {
               bestId = id;
             }
           }
-          if (bestId && bestRatio > 0) setActiveSection(bestId);
+          if (bestId && bestRatio > 0 && bestId !== activeSectionRef.current) {
+            activeSectionRef.current = bestId;
+            setActiveSection(bestId);
+          }
         },
         { threshold: [0, 0.1, 0.2, 0.3, 0.5], rootMargin: "-80px 0px 0px 0px" }
       );

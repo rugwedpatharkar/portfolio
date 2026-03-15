@@ -77,7 +77,7 @@ const ContactLinkCard = ({ link }) => {
         {link.icon}
       </div>
       <div className="min-w-0 flex-1">
-        <div className="text-white/40 text-micro sm:text-caption font-mono">
+        <div className="text-white/55 text-micro sm:text-caption font-mono">
           {link.label}
         </div>
         <div className="text-white text-caption sm:text-body-sm font-mono truncate">
@@ -188,17 +188,17 @@ const EmailPreview = ({ form, topic, sent }) => (
     {/* Email fields */}
     <div className="px-4 sm:px-5 py-3 space-y-2 border-b border-white/[0.06] font-mono text-caption sm:text-body-sm">
       <div className="flex gap-3">
-        <span className="text-white/40 w-12 shrink-0">From:</span>
+        <span className="text-white/55 w-12 shrink-0">From:</span>
         <span className={form.email ? "text-white/70" : "text-white/20"}>
           {form.email || "your@email.com"}
         </span>
       </div>
       <div className="flex gap-3">
-        <span className="text-white/40 w-12 shrink-0">To:</span>
+        <span className="text-white/55 w-12 shrink-0">To:</span>
         <span className="text-white/70">{personalInfo.email}</span>
       </div>
       <div className="flex gap-3">
-        <span className="text-white/40 w-12 shrink-0">Subj:</span>
+        <span className="text-white/55 w-12 shrink-0">Subj:</span>
         <span className={topic ? "text-white/70" : "text-white/20"}>
           {topic ? `${topic} — from ${form.name || "..."}` : "Select a topic..."}
         </span>
@@ -404,7 +404,7 @@ const Contact = () => {
                 {personalInfo.availability}
               </span>
             </span>
-            <span className="text-white/40 text-micro sm:text-caption font-mono">
+            <span className="text-white/55 text-micro sm:text-caption font-mono">
               Responds within 24h
             </span>
           </div>

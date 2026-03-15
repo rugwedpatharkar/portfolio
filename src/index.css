@@ -65,9 +65,11 @@ textarea,
 }
 
 /* Accessibility: bump low-opacity white text to meet WCAG AA (4.5:1) on dark bg */
-.text-white\/30 { color: rgba(255, 255, 255, 0.45) !important; }
+.text-white\/30 { color: rgba(255, 255, 255, 0.50) !important; }
 .text-white\/40 { color: rgba(255, 255, 255, 0.55) !important; }
 .text-white\/45 { color: rgba(255, 255, 255, 0.58) !important; }
+.text-white\/50 { color: rgba(255, 255, 255, 0.50) !important; }
+.text-white\/55 { color: rgba(255, 255, 255, 0.55) !important; }
 
 html {
   scroll-behavior: smooth;

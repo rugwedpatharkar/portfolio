@@ -11,8 +11,10 @@ const ParticleBackground = () => {
     if (!canvas) return;
     const ctx = canvas.getContext("2d");
     if (!ctx) return;
-    let width = (canvas.width = canvas.parentElement.offsetWidth);
-    let height = (canvas.height = canvas.parentElement.offsetHeight);
+    const parent = canvas.parentElement;
+    if (!parent) return;
+    let width = (canvas.width = parent.offsetWidth);
+    let height = (canvas.height = parent.offsetHeight);
     const dpr = Math.min(window.devicePixelRatio || 1, 2);
     canvas.width = width * dpr;
     canvas.height = height * dpr;
@@ -136,6 +138,7 @@ const ParticleBackground = () => {
     document.addEventListener("visibilitychange", handleVisibility);
 
     const handleResize = () => {
+      if (!canvas.parentElement) return;
       width = canvas.parentElement.offsetWidth;
       height = canvas.parentElement.offsetHeight;
       canvas.width = width * dpr;

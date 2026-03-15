@@ -132,7 +132,7 @@ const DetailCard = ({ edu, color }) => (
     animate={{ opacity: 1, y: 0 }}
     exit={{ opacity: 0, y: -15 }}
     transition={{ duration: 0.35, ease: [0.04, 0.62, 0.23, 0.98] }}
-    className="glass-card rounded-2xl p-5 sm:p-7 relative overflow-hidden"
+    className="glass-card rounded-2xl p-5 sm:p-7 relative overflow-hidden hover:border-white/[0.12] transition-colors duration-300"
   >
     {/* Accent glow */}
     <div

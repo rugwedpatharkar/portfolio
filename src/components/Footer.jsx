@@ -89,7 +89,7 @@ const Footer = () => {
                 <li key={link.id}>
                   <a
                     href={`#${link.id}`}
-                    className="text-secondary hover:text-white text-body-sm transition-colors duration-200 inline-flex items-center gap-1.5 group"
+                    className="text-secondary hover:text-[#915eff] text-body-sm transition-colors duration-200 inline-flex items-center gap-1.5 group"
                   >
                     <span
                       className="w-1 h-1 rounded-full bg-[#915eff]/40 group-hover:bg-[#915eff] transition-colors"
@@ -143,7 +143,7 @@ const Footer = () => {
         {/* Bottom bar */}
         <div className="border-t border-white/[0.06] mt-8 sm:mt-10 pt-4 sm:pt-5 flex flex-col sm:flex-row items-center justify-between gap-2">
           <div className="flex items-center gap-3">
-            <p className="text-white/40 text-caption sm:text-body-sm font-mono">
+            <p className="text-white/55 text-caption sm:text-body-sm font-mono">
               &copy; {currentYear} {personalInfo.fullName}
             </p>
             <span className="inline-flex items-center gap-1.5 font-mono text-micro px-2 py-0.5 rounded-full border border-[#915eff]/20 bg-[#915eff]/5">
@@ -151,7 +151,7 @@ const Footer = () => {
               <span className="text-[#915eff]">v3.0</span>
             </span>
           </div>
-          <p className="text-white/40 text-micro sm:text-caption font-mono">
+          <p className="text-white/55 text-micro sm:text-caption font-mono">
             Designed & Developed with{" "}
             <span className="text-[#915eff]">&lt;/&gt;</span> &amp;{" "}
             <span className="footer-heart text-red-400 inline-block">&#9829;</span>

@@ -10,6 +10,7 @@ const Navbar = () => {
   const [scrolled, setScrolled] = useState(false);
   const tickingRef = useRef(false);
   const indicatorRef = useRef(null);
+  const trapFocusRef = useRef(null);
 
   /* Scroll detection (scrolled state for navbar background) */
   useEffect(() => {
@@ -34,17 +35,23 @@ const Navbar = () => {
     const visibilityMap = {};
     let observer;
     let retryTimer;
+    let retryCount = 0;
+    const MAX_RETRIES = 20;
 
     const setupObserver = () => {
       const elements = sectionIds
         .map((id) => document.getElementById(id))
         .filter(Boolean);
 
-      // If not all sections loaded yet, retry
-      if (elements.length < sectionIds.length) {
+      // If not all sections loaded yet, retry up to MAX_RETRIES
+      if (elements.length < sectionIds.length && retryCount < MAX_RETRIES) {
+        retryCount++;
         retryTimer = setTimeout(setupObserver, 500);
         return;
       }
+
+      // Proceed with whatever sections were found (or all)
+      if (elements.length === 0) return;
 
       observer = new IntersectionObserver(
         (entries) => {
@@ -115,8 +122,8 @@ const Navbar = () => {
         }
       };
       document.addEventListener("keydown", trapFocus);
-      // Store for cleanup
-      menu._trapFocus = trapFocus;
+      // Store for cleanup via ref (not on DOM node)
+      trapFocusRef.current = trapFocus;
     }
 
     const handleClickOutside = (e) => {
@@ -131,8 +138,10 @@ const Navbar = () => {
     document.addEventListener("click", handleClickOutside);
     document.addEventListener("keydown", handleKeyDown);
     return () => {
-      const menuEl = document.querySelector(".mobile-menu");
-      if (menuEl?._trapFocus) document.removeEventListener("keydown", menuEl._trapFocus);
+      if (trapFocusRef.current) {
+        document.removeEventListener("keydown", trapFocusRef.current);
+        trapFocusRef.current = null;
+      }
       document.removeEventListener("click", handleClickOutside);
       document.removeEventListener("keydown", handleKeyDown);
       document.body.style.overflow = "";
