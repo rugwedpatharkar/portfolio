@@ -78,18 +78,20 @@ const LiveCodeShowcase = () => {
     return () => observer.disconnect();
   }, [hasStarted]);
 
+  const intervalRef = useRef(null);
+
   useEffect(() => {
     if (!hasStarted) return;
-    const interval = setInterval(() => {
+    intervalRef.current = setInterval(() => {
       setVisibleLines((prev) => {
         if (prev >= CODE_LINES.length) {
-          clearInterval(interval);
+          clearInterval(intervalRef.current);
           return prev;
         }
         return prev + 1;
       });
     }, 120);
-    return () => clearInterval(interval);
+    return () => clearInterval(intervalRef.current);
   }, [hasStarted]);
 
   return (

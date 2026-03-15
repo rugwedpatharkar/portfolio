@@ -1,6 +1,6 @@
 /* eslint-disable react/prop-types */
 /* eslint-disable react-refresh/only-export-components */
-import { useState, memo } from "react";
+import { useState, useRef, useEffect, useCallback, memo } from "react";
 import { motion } from "framer-motion";
 import { styles } from "../../styles";
 import { experiences, sectionMeta } from "../../content";
@@ -8,6 +8,81 @@ import { SectionWrapper } from "../../hoc";
 import { fadeIn, textVariant } from "../../utils/motion";
 import TextScramble from "../../components/TextScramble";
 import { CAT_COLORS } from "../../config/theme";
+
+const ANIM_DURATION = 1500; // ms
+
+function parseMetricValue(value) {
+  const match = value.match(/^([0-9]*\.?[0-9]+)(.*)$/);
+  if (!match) return null;
+  return {
+    number: parseFloat(match[1]),
+    decimals: match[1].includes(".") ? match[1].split(".")[1].length : 0,
+    suffix: match[2],
+  };
+}
+
+function easeOut(t) {
+  return 1 - Math.pow(1 - t, 3);
+}
+
+const AnimatedMetric = ({ value }) => {
+  const ref = useRef(null);
+  const hasAnimated = useRef(false);
+
+  const animate = useCallback(() => {
+    const parsed = parseMetricValue(value);
+    if (!parsed || !ref.current) return;
+
+    const { number, decimals, suffix } = parsed;
+    const el = ref.current;
+    const start = performance.now();
+
+    const tick = (now) => {
+      const elapsed = now - start;
+      const progress = Math.min(elapsed / ANIM_DURATION, 1);
+      const eased = easeOut(progress);
+      const current = eased * number;
+      el.textContent = current.toFixed(decimals) + suffix;
+      if (progress < 1) {
+        requestAnimationFrame(tick);
+      }
+    };
+
+    requestAnimationFrame(tick);
+  }, [value]);
+
+  useEffect(() => {
+    const el = ref.current;
+    if (!el) return;
+
+    const parsed = parseMetricValue(value);
+    if (!parsed) return;
+
+    // Show initial "0" state
+    el.textContent = (0).toFixed(parsed.decimals) + parsed.suffix;
+
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        if (entry.isIntersecting && !hasAnimated.current) {
+          hasAnimated.current = true;
+          animate();
+          observer.disconnect();
+        }
+      },
+      { threshold: 0.5 }
+    );
+
+    observer.observe(el);
+    return () => observer.disconnect();
+  }, [value, animate]);
+
+  // Fallback for unparseable values
+  if (!parseMetricValue(value)) {
+    return <span>{value}</span>;
+  }
+
+  return <span ref={ref} />;
+};
 
 const ExperienceCard = memo(({ experience, index, isLast }) => {
   const [openCats, setOpenCats] = useState({ 0: true });
@@ -92,7 +167,7 @@ const ExperienceCard = memo(({ experience, index, isLast }) => {
                 className="exp-metric text-center p-2.5 rounded-xl bg-white/[0.03] border border-white/[0.06]"
               >
                 <div className="text-white font-heading font-bold text-body-lg sm:text-heading-sm">
-                  {m.value}
+                  <AnimatedMetric value={m.value} />
                 </div>
                 <div className="text-secondary text-micro sm:text-caption font-mono mt-0.5">
                   {m.label}

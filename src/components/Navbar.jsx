@@ -11,35 +11,62 @@ const Navbar = () => {
   const tickingRef = useRef(false);
   const indicatorRef = useRef(null);
 
-  /* Scroll detection + active section tracking */
+  /* Scroll detection (scrolled state for navbar background) */
   useEffect(() => {
     const handleScroll = () => {
       if (tickingRef.current) return;
       tickingRef.current = true;
       requestAnimationFrame(() => {
         setScrolled(window.scrollY > 50);
-
-        const visibleSection = navLinks.find((link) => {
-          const section = document.getElementById(link.id);
-          if (section) {
-            const rect = section.getBoundingClientRect();
-            return (
-              rect.top <= window.innerHeight / 2 &&
-              rect.bottom >= window.innerHeight / 2
-            );
-          }
-          return false;
-        });
-
-        if (visibleSection) {
-          setActive(visibleSection.title);
-        }
         tickingRef.current = false;
       });
     };
 
     window.addEventListener("scroll", handleScroll, { passive: true });
     return () => window.removeEventListener("scroll", handleScroll);
+  }, []);
+
+  /* IntersectionObserver for active section tracking */
+  useEffect(() => {
+    const sectionIds = navLinks.map((link) => link.id);
+    const visibilityMap = {};
+
+    const observer = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          visibilityMap[entry.target.id] = entry.intersectionRatio;
+        });
+
+        // Find the section with the highest intersection ratio
+        let bestId = null;
+        let bestRatio = 0;
+        for (const id of sectionIds) {
+          if ((visibilityMap[id] || 0) > bestRatio) {
+            bestRatio = visibilityMap[id];
+            bestId = id;
+          }
+        }
+
+        if (bestId && bestRatio > 0) {
+          const matchedLink = navLinks.find((l) => l.id === bestId);
+          if (matchedLink) {
+            setActive(matchedLink.title);
+          }
+        }
+      },
+      { threshold: 0.3 }
+    );
+
+    const elements = sectionIds
+      .map((id) => document.getElementById(id))
+      .filter(Boolean);
+
+    elements.forEach((el) => observer.observe(el));
+
+    return () => {
+      elements.forEach((el) => observer.unobserve(el));
+      observer.disconnect();
+    };
   }, []);
 
   /* Mobile menu: body lock + outside click + escape */
@@ -136,6 +163,7 @@ const Navbar = () => {
                       ? "text-white"
                       : "text-secondary hover:text-white/80"
                   }`}
+                  style={active === link.title ? { color: "#915eff" } : {}}
                 >
                   {active === link.title && (
                     <motion.span
@@ -145,6 +173,15 @@ const Navbar = () => {
                     />
                   )}
                   <span className="relative z-[1]">{link.title}</span>
+                  {/* Active underline dot/bar */}
+                  {active === link.title && (
+                    <motion.span
+                      layoutId="navUnderlineDot"
+                      className="absolute left-1/2 -translate-x-1/2 -bottom-0.5 h-[3px] w-5 rounded-full"
+                      style={{ backgroundColor: "#915eff" }}
+                      transition={{ type: "spring", bounce: 0.25, duration: 0.5 }}
+                    />
+                  )}
                 </a>
               </li>
             ))}
@@ -189,6 +226,7 @@ const Navbar = () => {
                             ? "text-white bg-[#915eff]/15"
                             : "text-secondary hover:text-white hover:bg-white/[0.04]"
                         }`}
+                        style={active === link.title ? { color: "#915eff" } : {}}
                       >
                         {link.title}
                       </a>

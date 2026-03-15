@@ -28,6 +28,13 @@ const FilterTab = ({ label, isActive, onClick, count }) => (
   </button>
 );
 
+/* ── Mouse-tracking glow for cards ── */
+const handleCardMouse = (e) => {
+  const rect = e.currentTarget.getBoundingClientRect();
+  e.currentTarget.style.setProperty("--mouse-x", `${e.clientX - rect.left}px`);
+  e.currentTarget.style.setProperty("--mouse-y", `${e.clientY - rect.top}px`);
+};
+
 /* ── Project Card ── */
 const ProjectCard = memo(({ project, index, isExpanded, onToggle, accent }) => {
   const status = STATUS_CONFIG[project.status] || STATUS_CONFIG.completed;
@@ -40,6 +47,7 @@ const ProjectCard = memo(({ project, index, isExpanded, onToggle, accent }) => {
       exit={{ opacity: 0, y: -20, transition: { duration: 0.2 } }}
       transition={{ duration: 0.4, delay: index * 0.08 }}
       onClick={onToggle}
+      onMouseMove={handleCardMouse}
       role="button"
       tabIndex={0}
       aria-expanded={isExpanded}

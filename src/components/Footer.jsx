@@ -1,3 +1,4 @@
+import { useEffect, useRef, useState } from "react";
 import { AiOutlineGithub } from "react-icons/ai";
 import { ImLinkedin } from "react-icons/im";
 import { navLinks, personalInfo } from "../content";
@@ -13,14 +14,36 @@ const BUILT_WITH = [
 
 const Footer = () => {
   const currentYear = new Date().getFullYear();
+  const pillsRef = useRef(null);
+  const [pillsVisible, setPillsVisible] = useState(false);
+
+  useEffect(() => {
+    const el = pillsRef.current;
+    if (!el) return;
+
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        if (entry.isIntersecting) {
+          setPillsVisible(true);
+          observer.disconnect();
+        }
+      },
+      { threshold: 0.3 }
+    );
+
+    observer.observe(el);
+    return () => observer.disconnect();
+  }, []);
 
   return (
-    <footer className="relative overflow-hidden border-t border-white/[0.06] pb-20 sm:pb-24">
+    <footer className="footer-glow-border relative overflow-hidden border-t border-white/[0.06] pb-20 sm:pb-24">
       {/* Ambient glow blobs */}
       <div className="absolute -top-20 -left-20 w-60 h-60 bg-[#915eff]/5 rounded-full blur-[100px] pointer-events-none" />
       <div className="absolute -bottom-20 -right-20 w-48 h-48 bg-[#00cea8]/5 rounded-full blur-[80px] pointer-events-none" />
       {/* Subtle gradient glow at top */}
       <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[600px] h-px bg-gradient-to-r from-transparent via-[#915eff]/40 to-transparent" />
+      {/* Scroll-to-top glowing line animation */}
+      <div className="footer-glow-line absolute top-0 left-0 w-full h-px pointer-events-none" />
 
       <div className="max-w-7xl 3xl:max-w-[2000px] mx-auto px-4 sm:px-6 pt-10 sm:pt-14 pb-6 sm:pb-8">
         {/* Top section: 3 columns */}
@@ -83,15 +106,28 @@ const Footer = () => {
             <h4 className="text-white/45 text-caption font-mono uppercase tracking-wider mb-3">
               Built With
             </h4>
-            <div className="flex flex-wrap gap-2">
-              {BUILT_WITH.map((tech) => (
+            <div className="flex flex-wrap gap-2" ref={pillsRef}>
+              {BUILT_WITH.map((tech, index) => (
                 <span
                   key={tech.name}
-                  className="font-mono text-micro sm:text-caption px-2.5 py-1 rounded-full border transition-colors duration-300"
+                  className="font-mono text-micro sm:text-caption px-2.5 py-1 rounded-full border transition-all duration-300 cursor-default"
                   style={{
                     color: `${tech.color}cc`,
                     borderColor: `${tech.color}20`,
                     background: `${tech.color}08`,
+                    opacity: pillsVisible ? 1 : 0,
+                    transform: pillsVisible ? "translateY(0)" : "translateY(12px)",
+                    transitionDelay: `${index * 100}ms`,
+                    transitionProperty: "opacity, transform, box-shadow, border-color",
+                    "--pill-color": tech.color,
+                  }}
+                  onMouseEnter={(e) => {
+                    e.currentTarget.style.boxShadow = `0 0 12px ${tech.color}40`;
+                    e.currentTarget.style.borderColor = `${tech.color}60`;
+                  }}
+                  onMouseLeave={(e) => {
+                    e.currentTarget.style.boxShadow = "none";
+                    e.currentTarget.style.borderColor = `${tech.color}20`;
                   }}
                 >
                   {tech.name}
@@ -106,13 +142,19 @@ const Footer = () => {
 
         {/* Bottom bar */}
         <div className="border-t border-white/[0.06] mt-8 sm:mt-10 pt-4 sm:pt-5 flex flex-col sm:flex-row items-center justify-between gap-2">
-          <p className="text-white/40 text-caption sm:text-body-sm font-mono">
-            &copy; {currentYear} {personalInfo.fullName}
-          </p>
+          <div className="flex items-center gap-3">
+            <p className="text-white/40 text-caption sm:text-body-sm font-mono">
+              &copy; {currentYear} {personalInfo.fullName}
+            </p>
+            <span className="inline-flex items-center gap-1.5 font-mono text-micro px-2 py-0.5 rounded-full border border-[#915eff]/20 bg-[#915eff]/5">
+              <span className="w-1.5 h-1.5 rounded-full bg-[#915eff] animate-pulse" />
+              <span className="text-[#915eff]">v3.0</span>
+            </span>
+          </div>
           <p className="text-white/40 text-micro sm:text-caption font-mono">
             Designed & Developed with{" "}
             <span className="text-[#915eff]">&lt;/&gt;</span> &amp;{" "}
-            <span className="text-red-400">&#9829;</span>
+            <span className="footer-heart text-red-400 inline-block">&#9829;</span>
           </p>
         </div>
       </div>

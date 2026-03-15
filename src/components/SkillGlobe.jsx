@@ -26,6 +26,7 @@ const SkillGlobe = () => {
 
     // Create DOM nodes once
     const container = containerRef.current;
+    if (!container) return;
     nodesRef.current = itemsRef.current.map((item, i) => {
       const wrapper = document.createElement("div");
       wrapper.className = "absolute flex flex-col items-center gap-1 group";

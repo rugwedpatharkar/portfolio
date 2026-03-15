@@ -1018,3 +1018,38 @@ body.matrix-mode .bg-gradient-to-r {
   }
 }
 
+/* ===== FOOTER ENHANCEMENTS ===== */
+
+/* Scroll-to-top glowing line that sweeps left-to-right */
+.footer-glow-line::after {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 60%;
+  height: 2px;
+  background: linear-gradient(90deg, transparent, #915eff, #00cea8, transparent);
+  animation: footerGlowSweep 3s ease-in-out infinite;
+}
+
+@keyframes footerGlowSweep {
+  0% { left: -60%; }
+  100% { left: 100%; }
+}
+
+/* Heartbeat animation on hover */
+.footer-heart {
+  transition: transform 0.2s ease;
+}
+.footer-heart:hover {
+  animation: heartbeat 0.8s ease-in-out infinite;
+}
+
+@keyframes heartbeat {
+  0%, 100% { transform: scale(1); }
+  15% { transform: scale(1.3); }
+  30% { transform: scale(1); }
+  45% { transform: scale(1.2); }
+  60% { transform: scale(1); }
+}
+
