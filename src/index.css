@@ -1076,3 +1076,47 @@ body.matrix-mode .bg-gradient-to-r {
   100% { top: 100%; }
 }
 
+/* ===== COLOR WAVE SHIMMER ON PROGRESS BARS ===== */
+/* Applied to skill terminal bars and education progress bars.
+   A translucent highlight sweeps left-to-right using translateX —
+   GPU-composited (transform only), zero layout cost. */
+
+.bar-wave {
+  position: relative;
+  overflow: hidden;
+}
+
+.bar-wave::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    90deg,
+    transparent 0%,
+    rgba(255, 255, 255, 0.18) 40%,
+    rgba(255, 255, 255, 0.25) 50%,
+    rgba(255, 255, 255, 0.18) 60%,
+    transparent 100%
+  );
+  transform: translateX(-100%);
+  animation: barWaveShimmer 3s ease-in-out infinite;
+  pointer-events: none;
+  border-radius: inherit;
+}
+
+@keyframes barWaveShimmer {
+  0% { transform: translateX(-100%); }
+  50% { transform: translateX(100%); }
+  100% { transform: translateX(100%); }
+}
+
+/* Active section label entrance */
+.scroll-progress-label {
+  animation: labelFadeIn 0.3s ease-out;
+}
+
+@keyframes labelFadeIn {
+  from { opacity: 0; transform: translateY(-4px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+

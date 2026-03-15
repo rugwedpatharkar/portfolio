@@ -232,7 +232,7 @@ const DetailCard = ({ edu, color }) => (
           initial={{ width: 0 }}
           animate={{ width: `${edu.percentage}%` }}
           transition={{ duration: 1, delay: 0.2, ease: "easeOut" }}
-          className="h-full rounded-full"
+          className="h-full rounded-full bar-wave"
           style={{
             background: `linear-gradient(90deg, ${color}80, ${color})`,
             boxShadow: `0 0 12px ${color}40`,
@@ -319,7 +319,7 @@ const Education = () => {
 
         {/* Progress fill line — z-0, behind nodes */}
         <div
-          className="absolute top-[22px] sm:top-[28px] left-[calc(8.33%)] h-[2px] rounded-full transition-all duration-700 ease-out z-0"
+          className="absolute top-[22px] sm:top-[28px] left-[calc(8.33%)] h-[2px] rounded-full transition-all duration-700 ease-out z-0 bar-wave"
           style={{
             width: `calc(${progressWidth} * 0.8333)`,
             background: `linear-gradient(90deg, ${NODE_COLORS[0]}, ${activeColor})`,

@@ -44,7 +44,7 @@ const SkillBar = memo(({ name, level, color, visible, delay }) => (
       />
       {/* Fill bar */}
       <div
-        className="absolute inset-y-0 left-0 rounded-sm"
+        className="absolute inset-y-0 left-0 rounded-sm bar-wave"
         style={{
           width: visible ? `${level}%` : "0%",
           background: `linear-gradient(90deg, ${color}90, ${color})`,

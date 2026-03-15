@@ -1,4 +1,4 @@
-import { useRef, useEffect, useState, useCallback } from "react";
+import { useRef, useEffect, useState } from "react";
 
 const MILESTONES = [
   { id: "about", label: "About", icon: "👤" },
@@ -12,8 +12,9 @@ const MILESTONES = [
 const ScrollProgressBar = () => {
   const barRef = useRef(null);
   const [activeSection, setActiveSection] = useState("");
+  const [scrolled, setScrolled] = useState(false);
 
-  // Scroll progress (ref-based, no re-renders)
+  // Scroll progress (ref-based, no re-renders for bar)
   useEffect(() => {
     let ticking = false;
     const onScroll = () => {
@@ -26,6 +27,7 @@ const ScrollProgressBar = () => {
         if (barRef.current) {
           barRef.current.style.transform = `scaleX(${progress})`;
         }
+        setScrolled(scrollTop > 200);
         ticking = false;
       });
     };
@@ -36,21 +38,33 @@ const ScrollProgressBar = () => {
 
   // Track active section via IntersectionObserver
   useEffect(() => {
-    const observers = [];
+    const visibilityMap = {};
+    const observer = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          visibilityMap[entry.target.id] = entry.intersectionRatio;
+        });
+        let bestId = null;
+        let bestRatio = 0;
+        for (const { id } of MILESTONES) {
+          if ((visibilityMap[id] || 0) > bestRatio) {
+            bestRatio = visibilityMap[id];
+            bestId = id;
+          }
+        }
+        if (bestId && bestRatio > 0) setActiveSection(bestId);
+      },
+      { threshold: [0, 0.2, 0.4, 0.6, 0.8, 1] }
+    );
+
     MILESTONES.forEach(({ id }) => {
       const el = document.getElementById(id);
-      if (!el) return;
-      const obs = new IntersectionObserver(
-        ([entry]) => {
-          if (entry.isIntersecting) setActiveSection(id);
-        },
-        { threshold: 0.3 }
-      );
-      obs.observe(el);
-      observers.push(obs);
+      if (el) observer.observe(el);
     });
-    return () => observers.forEach((o) => o.disconnect());
+    return () => observer.disconnect();
   }, []);
+
+  const activeLabel = MILESTONES.find((m) => m.id === activeSection);
 
   return (
     <div className="fixed top-0 left-0 right-0 z-[50] group">
@@ -58,10 +72,23 @@ const ScrollProgressBar = () => {
       <div className="h-[2px] bg-white/[0.04]">
         <div
           ref={barRef}
-          className="h-full bg-gradient-to-r from-[#915eff] to-[#00cea8] origin-left"
+          className="h-full bg-gradient-to-r from-[#915eff] to-[#00cea8] origin-left bar-wave"
           style={{ transform: "scaleX(0)" }}
         />
       </div>
+
+      {/* Active section label — always visible when scrolled */}
+      {scrolled && activeLabel && (
+        <div className="absolute top-[6px] left-1/2 -translate-x-1/2 pointer-events-none">
+          <span
+            key={activeLabel.id}
+            className="inline-flex items-center gap-1.5 font-mono text-micro px-2.5 py-1 rounded-full border border-[#915eff]/20 bg-primary/80 backdrop-blur-sm text-white/50 scroll-progress-label"
+          >
+            <span className="w-1.5 h-1.5 rounded-full bg-[#915eff] animate-pulse" />
+            {activeLabel.label}
+          </span>
+        </div>
+      )}
 
       {/* Milestone dots — visible on hover */}
       <div className="absolute top-0 left-0 right-0 flex justify-between px-[10%] opacity-0 group-hover:opacity-100 transition-opacity duration-300">
