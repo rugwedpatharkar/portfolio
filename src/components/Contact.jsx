@@ -4,7 +4,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import emailjs from "@emailjs/browser";
 import { styles } from "../styles";
 import { SectionWrapper } from "../hoc";
-import { fadeIn, slideIn, textVariant } from "../utils/motion";
+import { fadeIn, textVariant } from "../utils/motion";
 import { personalInfo } from "../constants";
 import { resume } from "../assets";
 import { useToast } from "./Toast";
@@ -393,7 +393,7 @@ const Contact = () => {
       <div className="mt-8 sm:mt-12 flex flex-col xl:flex-row gap-6 sm:gap-8">
         {/* ── Left: Info + Form ── */}
         <motion.div
-          variants={slideIn("left", "tween", 0.2, 1)}
+          variants={fadeIn("up", "tween", 0.2, 0.8)}
           className="flex-1 space-y-6"
         >
           {/* Availability + Response time */}
@@ -569,7 +569,7 @@ const Contact = () => {
 
         {/* ── Right: Live Email Preview ── */}
         <motion.div
-          variants={slideIn("right", "tween", 0.2, 1)}
+          variants={fadeIn("up", "tween", 0.3, 0.8)}
           className="xl:flex-1 xl:max-w-[440px] hidden xl:block"
         >
           <div className="sticky top-28">

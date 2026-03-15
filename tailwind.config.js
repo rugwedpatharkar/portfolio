@@ -4,9 +4,9 @@ module.exports = {
   theme: {
     extend: {
       fontFamily: {
-        sans: ["Inter", "sans-serif"],
-        heading: ["Space Grotesk", "sans-serif"],
-        mono: ["Fira Code", "monospace"],
+        sans: ["DM Sans", "sans-serif"],
+        heading: ["Sora", "sans-serif"],
+        mono: ["JetBrains Mono", "monospace"],
       },
       fontSize: {
         // Type scale (Major Third — 1.25 ratio)

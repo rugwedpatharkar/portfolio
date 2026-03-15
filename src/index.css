@@ -37,13 +37,13 @@ textarea,
   user-select: text;
 }
 
-/* Force Fira Code on mono elements AND their children — * selector on body sets Inter directly
-   on every element, which beats inheritance. This rule must also target children explicitly. */
+/* Force JetBrains Mono on mono elements AND their children — * selector on body sets DM Sans
+   directly on every element, which beats inheritance. This rule must also target children explicitly. */
 .font-mono,
 .font-mono *,
 .skill-terminal,
 .skill-terminal * {
-  font-family: 'Fira Code', monospace !important;
+  font-family: 'JetBrains Mono', monospace !important;
 }
 
 :root {
@@ -56,7 +56,7 @@ textarea,
   margin: 0;
   padding: 0;
   box-sizing: border-box;
-  font-family: "Inter", sans-serif;
+  font-family: "DM Sans", sans-serif;
   color-scheme: dark;
 }
 
@@ -232,7 +232,7 @@ img {
 }
 
 
-/* font-mono handled by Tailwind config (Fira Code) */
+/* font-mono handled by Tailwind config (JetBrains Mono) */
 
 .font-mono-bold {
   font-weight: 700;
@@ -240,7 +240,7 @@ img {
 }
 
 .font-heading {
-  font-family: "Space Grotesk", sans-serif;
+  font-family: "Sora", sans-serif;
 }
 
 
@@ -646,7 +646,7 @@ img {
   box-shadow:
     0 0 40px rgba(145, 94, 255, 0.06),
     0 4px 24px rgba(0, 0, 0, 0.4);
-  font-family: 'Fira Code', monospace !important;
+  font-family: 'JetBrains Mono', monospace !important;
 }
 
 /* Chrome bar */
@@ -855,7 +855,7 @@ img {
 .hero-orbit-tag-label {
   position: absolute;
   transform: translate(-50%, -50%);
-  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-family: 'JetBrains Mono', ui-monospace, monospace;
   font-size: 0.65rem;
   padding: 0.25rem 0.6rem;
   border-radius: 9999px;
@@ -930,7 +930,7 @@ img {
 .hero-comet-label {
   position: absolute;
   transform: translate(-50%, -50%);
-  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-family: 'JetBrains Mono', ui-monospace, monospace;
   font-size: 0.6rem;
   padding: 0.2rem 0.5rem;
   border-radius: 9999px;
