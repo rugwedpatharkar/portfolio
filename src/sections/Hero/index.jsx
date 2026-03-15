@@ -454,6 +454,7 @@ const Hero = () => {
                 alt={personalInfo.fullName}
                 className="w-full h-full object-cover object-top hero-photo-fade"
                 loading="eager"
+                fetchPriority="high"
               />
             </div>
           </div>

@@ -140,17 +140,34 @@ const DetailCard = ({ edu, color }) => (
       style={{ background: `${color}08` }}
     />
 
-    {/* Level badge */}
-    <span
-      className="inline-block font-mono text-micro sm:text-caption px-2.5 py-1 rounded-full border mb-3"
-      style={{
-        color: `${color}cc`,
-        borderColor: `${color}25`,
-        background: `${color}0a`,
-      }}
-    >
-      {edu.level}
-    </span>
+    {/* Level badge + Score pill row */}
+    <div className="flex flex-wrap items-center gap-2 mb-3">
+      <span
+        className="inline-block font-mono text-micro sm:text-caption px-2.5 py-1 rounded-full border"
+        style={{
+          color: `${color}cc`,
+          borderColor: `${color}25`,
+          background: `${color}0a`,
+        }}
+      >
+        {edu.level}
+      </span>
+      {edu.percentage != null && (
+        <span
+          className="inline-flex items-center gap-1 font-mono text-micro sm:text-caption px-2.5 py-1 rounded-full border font-semibold"
+          style={{
+            color: "#00cea8",
+            borderColor: "rgba(0,206,168,0.25)",
+            background: "rgba(0,206,168,0.08)",
+          }}
+        >
+          <svg className="w-3 h-3" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
+            <path d="M10.394 2.08a1 1 0 00-.788 0l-7 3a1 1 0 000 1.84L5.25 8.051a.999.999 0 01.356-.257l4-1.714a1 1 0 11.788 1.838l-3.14 1.346 2.352 1.005a1 1 0 00.788 0l7-3a1 1 0 000-1.838l-7-3.001zM3.31 9.397L5 10.12v4.102a8.969 8.969 0 00-1.05-.174 1 1 0 01-.89-.89 11.115 11.115 0 01.25-3.762zM9.3 16.573A9.026 9.026 0 007 14.935v-3.957l1.818.78a3 3 0 002.364 0l5.508-2.361a11.026 11.026 0 01.25 3.762 1 1 0 01-.89.89 8.968 8.968 0 00-5.35 2.524 1 1 0 01-1.4 0z" />
+          </svg>
+          Score: {edu.percentage}%
+        </span>
+      )}
+    </div>
 
     {/* Degree */}
     <h3 className="text-white font-heading font-bold text-body-lg sm:text-heading-sm leading-tight">
@@ -326,8 +343,23 @@ const Education = () => {
         </div>
       </div>
 
+      {/* ── Vertical Timeline Connector ── */}
+      <div className="flex justify-center mt-0">
+        <motion.div
+          key={`connector-${activeIndex}`}
+          initial={{ height: 0, opacity: 0 }}
+          animate={{ height: 40, opacity: 1 }}
+          transition={{ duration: 0.5, ease: "easeOut" }}
+          className="w-[2px] rounded-full"
+          style={{
+            background: `linear-gradient(180deg, ${activeColor}60, ${activeColor}15)`,
+            boxShadow: `0 0 8px ${activeColor}20`,
+          }}
+        />
+      </div>
+
       {/* ── Detail Card ── */}
-      <div className="mt-8 sm:mt-10">
+      <div className="mt-2 sm:mt-3">
         <AnimatePresence mode="wait">
           <DetailCard
             key={active.shortName}
