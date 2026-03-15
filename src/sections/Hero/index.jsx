@@ -1,13 +1,14 @@
 import { useRef, useEffect } from "react";
 import { motion } from "framer-motion";
-import { styles } from "../styles";
+import { styles } from "../../styles";
 import Typewriter from "typewriter-effect";
 import { AiOutlineGithub } from "react-icons/ai";
 import { ImLinkedin } from "react-icons/im";
-import { personalInfo } from "../constants";
-import { heroPhoto, resume } from "../assets";
-import { skills } from "../constants";
-import ParticleBackground from "./ParticleBackground";
+import { personalInfo, skills, heroContent } from "../../content";
+import { heroPhoto, resume } from "../../assets";
+import ParticleBackground from "../../components/ParticleBackground";
+import MagneticButton from "../../components/MagneticButton";
+import TextScramble from "../../components/TextScramble";
 
 /* ── Tech stack marquee — auto-scrolling skill icons ── */
 const allSkillIcons = Object.values(skills).flat();
@@ -23,16 +24,8 @@ const TechMarquee = () => (
     </div>
   </div>
 );
-import MagneticButton from "./MagneticButton";
-import TextScramble from "./TextScramble";
 
 /* ── Lightweight animated counter ── */
-const HERO_STATS = [
-  { value: 3, suffix: "+", label: "Years Exp." },
-  { value: 10, suffix: "+", label: "Projects" },
-  { value: 6, suffix: "+", label: "Integrations" },
-];
-
 const CountUp = ({ value, suffix = "" }) => {
   const ref = useRef(null);
   const counted = useRef(false);
@@ -59,25 +52,6 @@ const CountUp = ({ value, suffix = "" }) => {
 };
 
 /* ── Floating code card — auto-types a snippet, orbits around photo ── */
-const CODE_SNIPPET = [
-  { text: "const ", color: "#bf61ff" },
-  { text: "rugwed", color: "#79c0ff" },
-  { text: " = {", color: "#e6e6e6" },
-  { text: "\n  role: ", color: "#e6e6e6" },
-  { text: '"SWE"', color: "#00cea8" },
-  { text: ",", color: "#e6e6e6" },
-  { text: "\n  stack: ", color: "#e6e6e6" },
-  { text: "[", color: "#e6e6e6" },
-  { text: '"Python"', color: "#00cea8" },
-  { text: ", ", color: "#e6e6e6" },
-  { text: '"React"', color: "#00cea8" },
-  { text: "]", color: "#e6e6e6" },
-  { text: ",", color: "#e6e6e6" },
-  { text: "\n  passion: ", color: "#e6e6e6" },
-  { text: '"building"', color: "#00cea8" },
-  { text: "\n};", color: "#e6e6e6" },
-];
-
 const FloatingCode = () => {
   const ref = useRef(null);
   const started = useRef(false);
@@ -96,8 +70,8 @@ const FloatingCode = () => {
         let currentSpan = null;
 
         const type = () => {
-          if (cancelled || tokenIdx >= CODE_SNIPPET.length) return;
-          const token = CODE_SNIPPET[tokenIdx];
+          if (cancelled || tokenIdx >= heroContent.codeSnippet.length) return;
+          const token = heroContent.codeSnippet[tokenIdx];
           if (!currentSpan || currentSpan.dataset.ti !== String(tokenIdx)) {
             currentSpan = document.createElement("span");
             currentSpan.style.color = token.color;
@@ -135,47 +109,6 @@ const FloatingCode = () => {
     </div>
   );
 };
-
-/* ── Solar system orbital config ── */
-const ORBIT_TAGS = [
-  // Inner ring — core skills
-  { name: "Python", color: "#915eff", r: 0.58, dur: 22, delay: 0 },
-  { name: "Django", color: "#00cea8", r: 0.58, dur: 22, delay: -7.33 },
-  { name: "FastAPI", color: "#bf61ff", r: 0.58, dur: 22, delay: -14.67 },
-  // Middle ring — tools & frameworks
-  { name: "React", color: "#61dafb", r: 0.75, dur: 32, delay: 0 },
-  { name: "Docker", color: "#2496ed", r: 0.75, dur: 32, delay: -10.67 },
-  { name: "Redis", color: "#ff4438", r: 0.75, dur: 32, delay: -21.33 },
-  // Outer ring — infrastructure & domains
-  { name: "K8s", color: "#326ce5", r: 0.92, dur: 45, delay: 0 },
-  { name: "GCP", color: "#f8c555", r: 0.92, dur: 45, delay: -11.25 },
-  { name: "PostgreSQL", color: "#336791", r: 0.92, dur: 45, delay: -22.5 },
-  { name: "AI/ML", color: "#00cea8", r: 0.92, dur: 45, delay: -33.75 },
-];
-
-const ORBIT_DOTS = [
-  { r: 0.58, dur: 22, delay: -4, size: 3, color: "#915eff" },
-  { r: 0.58, dur: 22, delay: -15, size: 2, color: "#00cea8" },
-  { r: 0.75, dur: 32, delay: -5, size: 3, color: "#61dafb" },
-  { r: 0.75, dur: 32, delay: -18, size: 2, color: "#915eff" },
-  { r: 0.75, dur: 32, delay: -28, size: 2.5, color: "#bf61ff" },
-  { r: 0.92, dur: 45, delay: -7, size: 2.5, color: "#f8c555" },
-  { r: 0.92, dur: 45, delay: -22, size: 2, color: "#00cea8" },
-  { r: 0.92, dur: 45, delay: -38, size: 3, color: "#915eff" },
-  { r: 1.08, dur: 60, delay: -10, size: 2, color: "#915eff" },
-  { r: 1.08, dur: 60, delay: -30, size: 1.5, color: "#00cea8" },
-  { r: 1.08, dur: 60, delay: -50, size: 2.5, color: "#bf61ff" },
-];
-
-/* ── Comets — tech tags that streak across the solar system ── */
-const COMETS = [
-  // (x1,y1) → (x2,y2) as multipliers of --photo-size, tailDir: trail side
-  { name: "TypeScript", color: "#3178c6", dur: 30, delay: 0, x1: -1.3, y1: -0.5, x2: 1.3, y2: 0.5, tail: "left" },
-  { name: "Node.js", color: "#68a063", dur: 38, delay: -10, x1: 1.3, y1: -0.3, x2: -1.3, y2: 0.4, tail: "right" },
-  { name: "MongoDB", color: "#4db33d", dur: 34, delay: -20, x1: -1.1, y1: 0.6, x2: 1.2, y2: -0.4, tail: "left" },
-  { name: "GraphQL", color: "#e535ab", dur: 42, delay: -30, x1: 0.8, y1: -1.2, x2: -0.5, y2: 1.3, tail: "right" },
-  { name: "Terraform", color: "#7b42bc", dur: 36, delay: -8, x1: -0.6, y1: -1.3, x2: 0.7, y2: 1.2, tail: "left" },
-];
 
 /* ── Time-based greeting ── */
 const getGreeting = () => {
@@ -288,11 +221,7 @@ const Hero = () => {
               <div className={`${styles.heroSubText} green-text-gradient font-mono-bold mt-2 sm:mt-3`}>
                 <Typewriter
                   options={{
-                    strings: [
-                      "Software Engineer",
-                      "Backend \u0026 AI Engineer",
-                      "Cloud \u0026 DevOps",
-                    ],
+                    strings: heroContent.typewriterRoles,
                     autoStart: true,
                     delay: 75,
                     loop: true,
@@ -310,7 +239,7 @@ const Hero = () => {
               data-parallax="-6"
               className="hidden xs:block text-secondary text-body sm:text-body-lg mt-2 sm:mt-4 max-w-lg leading-relaxed"
             >
-              Building scalable microservices & AI-powered systems on the cloud.
+              {heroContent.tagline}
             </motion.p>
 
             {/* CTA Buttons */}
@@ -418,7 +347,7 @@ const Hero = () => {
               variants={item(20)}
               className="mt-2 sm:mt-6 hidden xs:flex items-center gap-4 sm:gap-8"
             >
-              {HERO_STATS.map((stat, i) => (
+              {heroContent.stats.map((stat, i) => (
                 <div key={i} className="flex flex-col items-center">
                   <CountUp value={stat.value} suffix={stat.suffix} />
                   <span className="text-secondary text-micro sm:text-caption font-mono mt-0.5">{stat.label}</span>
@@ -447,7 +376,7 @@ const Hero = () => {
             <div className="absolute rounded-full border border-[#915eff]/5 hidden sm:block" style={{ inset: "-58%" }} />
 
             {/* Orbiting tech tags — outer ring (r=0.92) hidden on small screens */}
-            {ORBIT_TAGS.map((tag, i) => (
+            {heroContent.orbitTags.map((tag, i) => (
               <div
                 key={i}
                 className={`hero-orbit-tag${tag.r >= 0.92 ? " hidden sm:block" : ""}`}
@@ -467,7 +396,7 @@ const Hero = () => {
             ))}
 
             {/* Orbiting dots — tiny moons/asteroids, outer dots hidden on small */}
-            {ORBIT_DOTS.map((dot, i) => (
+            {heroContent.orbitDots.map((dot, i) => (
               <div
                 key={`dot-${i}`}
                 className={`hero-orbit-moon${dot.r >= 0.92 ? " hidden sm:block" : ""}`}
@@ -484,7 +413,7 @@ const Hero = () => {
             ))}
 
             {/* Comets — tech tags streaking across (hidden on small screens) */}
-            {COMETS.map((c, i) => (
+            {heroContent.comets.map((c, i) => (
               <div
                 key={`comet-${i}`}
                 className="hero-comet hidden sm:block"

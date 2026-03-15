@@ -129,12 +129,12 @@ const SectionDivider = () => {
   return (
     <div
       ref={ref}
-      className="relative w-full py-2 sm:py-4 overflow-hidden"
+      className="relative w-full py-0 sm:py-1 overflow-hidden"
       aria-hidden="true"
     >
       <svg
         viewBox="0 0 1200 100"
-        className="w-full h-20 sm:h-28 md:h-36"
+        className="w-full h-14 sm:h-20 md:h-24"
         preserveAspectRatio="none"
       >
         <defs>

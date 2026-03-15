@@ -1,6 +1,6 @@
 /* eslint-disable react/prop-types */
 import { useState, useEffect, useRef, useMemo, memo } from "react";
-import { skills } from "../constants";
+import { skills } from "../content";
 
 const ASCII_ART = [
   "  ██████╗ ██████╗ ",

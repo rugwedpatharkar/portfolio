@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { styles } from "../styles";
-import { navLinks } from "../constants";
+import { navLinks } from "../content";
 import { logo } from "../assets";
 
 const Navbar = () => {

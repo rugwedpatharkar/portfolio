@@ -1,6 +1,6 @@
 import { AiOutlineGithub } from "react-icons/ai";
 import { ImLinkedin } from "react-icons/im";
-import { navLinks, personalInfo } from "../constants";
+import { navLinks, personalInfo } from "../content";
 import VisitorCounter from "./VisitorCounter";
 
 const BUILT_WITH = [

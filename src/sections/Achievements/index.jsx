@@ -1,13 +1,12 @@
 /* eslint-disable react/prop-types */
-import { useRef, useCallback } from "react";
+import { useRef, useCallback, useEffect } from "react";
 import { motion } from "framer-motion";
-import { styles } from "../styles";
-import { SectionWrapper } from "../hoc";
-import { achievements } from "../constants";
-import { fadeIn, textVariant } from "../utils/motion";
-import TextScramble from "./TextScramble";
-
-const ACCENT_COLORS = ["#915eff", "#00cea8", "#f8c555", "#61dafb", "#ff6b6b"];
+import { styles } from "../../styles";
+import { SectionWrapper } from "../../hoc";
+import { achievements, sectionMeta } from "../../content";
+import { fadeIn, textVariant } from "../../utils/motion";
+import TextScramble from "../../components/TextScramble";
+import { ACCENT_COLORS } from "../../config/theme";
 
 /* ── Mini confetti burst — fires from a DOM element ── */
 const useConfetti = () => {
@@ -81,6 +80,16 @@ const useConfetti = () => {
       cancelAnimationFrame(rafId);
       if (canvas) ctx.clearRect(0, 0, canvas.width, canvas.height);
     }, 2000);
+  }, []);
+
+  // Remove canvas from DOM on unmount
+  useEffect(() => {
+    return () => {
+      if (canvasRef.current) {
+        canvasRef.current.remove();
+        canvasRef.current = null;
+      }
+    };
   }, []);
 
   return fire;
@@ -157,16 +166,15 @@ const Achievements = () => {
       <div className="absolute -bottom-20 -left-20 w-48 h-48 bg-[#915eff]/5 rounded-full blur-[80px] pointer-events-none" />
 
       <motion.div variants={textVariant()}>
-        <p className={styles.sectionSubText}>Milestones</p>
-        <TextScramble text="Achievements" as="h2" className={styles.sectionHeadText} />
+        <p className={styles.sectionSubText}>{sectionMeta.achievements.sub}</p>
+        <TextScramble text={sectionMeta.achievements.heading} as="h2" className={styles.sectionHeadText} />
       </motion.div>
 
       <motion.p
         variants={fadeIn("", "", 0.1, 1)}
         className="mt-3 text-secondary text-body-sm sm:text-body max-w-3xl"
       >
-        Key milestones and recognitions from my academic and professional journey
-        that keep me motivated to push further.
+        {sectionMeta.achievements.description}
       </motion.p>
 
       <div className="mt-8 sm:mt-12 max-w-3xl mx-auto">

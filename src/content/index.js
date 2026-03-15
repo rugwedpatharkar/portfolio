@@ -59,18 +59,18 @@ export const navLinks = [
   { id: "experience", title: "Experience" },
   { id: "skills", title: "Skills" },
   { id: "projects", title: "Projects" },
-  { id: "educations", title: "Education" },
+  { id: "education", title: "Education" },
   { id: "contact", title: "Contact" },
 ];
 
-const services = [
+export const services = [
   { title: "Software Engineer", icon: backend },
   { title: "AI / ML Engineer", icon: fullstack },
   { title: "Cloud & DevOps", icon: web },
   { title: "Full Stack Developer", icon: frontend },
 ];
 
-const skills = {
+export const skills = {
   "Languages": [
     { name: "Python", icon: python, level: 92 },
     { name: "JavaScript", icon: javascript, level: 82 },
@@ -130,7 +130,7 @@ const skills = {
   ],
 };
 
-const experiences = [
+export const experiences = [
   {
     title: "Software Engineer",
     company_name: "Upswing Cognitive Hospitality Solutions",
@@ -210,7 +210,7 @@ const experiences = [
   },
 ];
 
-const projects = [
+export const projects = [
   // --- Professional projects ---
   {
     name: "Multi-Agent Conversational AI",
@@ -405,7 +405,7 @@ const projects = [
   },
 ];
 
-const personalInfo = {
+export const personalInfo = {
   name: "Rugwed",
   fullName: "Rugwed Patharkar",
   email: "rugwedspatharkar@gmail.com",
@@ -419,7 +419,7 @@ const personalInfo = {
     "Backend Software Engineer with 2+ years of experience building scalable microservices and AI-powered systems for the hospitality SaaS industry. Expert in Python, FastAPI, gRPC, and Google Cloud Platform. Architected enterprise-grade integrations with 6+ third-party systems, achieving 96% reduction in API response latency. Developed multi-agent conversational AI using LangChain, LangGraph, and Model Context Protocol (MCP). Passionate about building full stack applications with Java, Python, React, and modern web technologies. Awarded Star Performer of the Quarter for delivering across multiple concurrent production projects.",
 };
 
-const educations = [
+export const educations = [
   {
     degree: "MSc (Computer Applications)",
     shortName: "MSc",
@@ -466,7 +466,7 @@ const educations = [
   },
 ];
 
-const achievements = [
+export const achievements = [
   {
     title: "Star Performer of the Quarter",
     description:
@@ -525,7 +525,7 @@ const achievements = [
   },
 ];
 
-const testimonials = [
+export const testimonials = [
   {
     name: "Upswing Engineering Team",
     role: "Engineering Manager",
@@ -567,14 +567,14 @@ const testimonials = [
   },
 ];
 
-const funFacts = [
+export const funFacts = [
   { label: "Cups of Coffee", value: 1200, suffix: "+", icon: "☕", detail: "Fueled by filter coffee & chai — mostly during late-night debugging sessions." },
   { label: "Git Commits", value: 3000, suffix: "+", icon: "📝", detail: "Across 30+ repos spanning Django, FastAPI, React, and infrastructure projects." },
   { label: "APIs Deployed", value: 15, suffix: "+", icon: "🚀", detail: "REST & gRPC services running on GKE, serving millions of requests per day." },
   { label: "Bugs Squashed", value: 500, suffix: "+", icon: "🐛", detail: "From race conditions to timezone bugs — every squash is a war story." },
 ];
 
-const blogPosts = [
+export const blogPosts = [
   {
     title: "Building Scalable Microservices with FastAPI & gRPC",
     description:
@@ -601,15 +601,113 @@ const blogPosts = [
   },
 ];
 
-export {
-  services,
-  skills,
-  experiences,
-  projects,
-  personalInfo,
-  educations,
-  achievements,
-  testimonials,
-  funFacts,
-  blogPosts,
+export const sectionMeta = {
+  about: { sub: "Introduction", heading: "Overview", description: "" },
+  funFacts: { sub: "Numbers That Define Me", heading: "Fun Facts", description: "A few numbers and fun stats from my journey so far — because every line of code tells a story." },
+  experience: { sub: "Where I've worked", heading: "Work Experience", description: "Building scalable microservices, AI-powered systems, and cloud-native solutions — here's where I've put my engineering skills to work." },
+  skills: { sub: "What I Bring to the Table", heading: "Technical Skills", description: "From Python and FastAPI to cloud infrastructure and AI — the tools and technologies I use to build production-grade software." },
+  projects: { sub: "Explore My Work", heading: "Projects", description: "Each project represents a distinct challenge — from building AI-powered systems to deploying cloud infrastructure. Tap any card to explore." },
+  education: { sub: "Academic Journey", heading: "Education", description: "From foundational studies to advanced computer science — each milestone shaped my engineering journey." },
+  achievements: { sub: "Milestones", heading: "Achievements", description: "Key milestones and recognitions from my academic and professional journey that keep me motivated to push further." },
+  testimonials: { sub: "What Others Say", heading: "Testimonials", description: "Feedback from colleagues, mentors, and collaborators I've had the privilege of working with." },
+  contact: { sub: "Get in Touch", heading: "Contact", description: "Have a project idea, collaboration opportunity, or just want to say hi? I'd love to hear from you." },
 };
+
+export const heroContent = {
+  stats: [
+    { value: 3, suffix: "+", label: "Years Exp." },
+    { value: 10, suffix: "+", label: "Projects" },
+    { value: 6, suffix: "+", label: "Integrations" },
+  ],
+  typewriterRoles: [
+    "Software Engineer",
+    "Backend \u0026 AI Engineer",
+    "Cloud \u0026 DevOps",
+  ],
+  tagline: "Building scalable microservices & AI-powered systems on the cloud.",
+  codeSnippet: [
+    { text: "const ", color: "#bf61ff" },
+    { text: "rugwed", color: "#79c0ff" },
+    { text: " = {", color: "#e6e6e6" },
+    { text: "\n  role: ", color: "#e6e6e6" },
+    { text: '"SWE"', color: "#00cea8" },
+    { text: ",", color: "#e6e6e6" },
+    { text: "\n  stack: ", color: "#e6e6e6" },
+    { text: "[", color: "#e6e6e6" },
+    { text: '"Python"', color: "#00cea8" },
+    { text: ", ", color: "#e6e6e6" },
+    { text: '"React"', color: "#00cea8" },
+    { text: "]", color: "#e6e6e6" },
+    { text: ",", color: "#e6e6e6" },
+    { text: "\n  passion: ", color: "#e6e6e6" },
+    { text: '"building"', color: "#00cea8" },
+    { text: "\n};", color: "#e6e6e6" },
+  ],
+  orbitTags: [
+    { name: "Python", color: "#915eff", r: 0.58, dur: 22, delay: 0 },
+    { name: "Django", color: "#00cea8", r: 0.58, dur: 22, delay: -7.33 },
+    { name: "FastAPI", color: "#bf61ff", r: 0.58, dur: 22, delay: -14.67 },
+    { name: "React", color: "#61dafb", r: 0.75, dur: 32, delay: 0 },
+    { name: "Docker", color: "#2496ed", r: 0.75, dur: 32, delay: -10.67 },
+    { name: "Redis", color: "#ff4438", r: 0.75, dur: 32, delay: -21.33 },
+    { name: "K8s", color: "#326ce5", r: 0.92, dur: 45, delay: 0 },
+    { name: "GCP", color: "#f8c555", r: 0.92, dur: 45, delay: -11.25 },
+    { name: "PostgreSQL", color: "#336791", r: 0.92, dur: 45, delay: -22.5 },
+    { name: "AI/ML", color: "#00cea8", r: 0.92, dur: 45, delay: -33.75 },
+  ],
+  orbitDots: [
+    { r: 0.58, dur: 22, delay: -4, size: 3, color: "#915eff" },
+    { r: 0.58, dur: 22, delay: -15, size: 2, color: "#00cea8" },
+    { r: 0.75, dur: 32, delay: -5, size: 3, color: "#61dafb" },
+    { r: 0.75, dur: 32, delay: -18, size: 2, color: "#915eff" },
+    { r: 0.75, dur: 32, delay: -28, size: 2.5, color: "#bf61ff" },
+    { r: 0.92, dur: 45, delay: -7, size: 2.5, color: "#f8c555" },
+    { r: 0.92, dur: 45, delay: -22, size: 2, color: "#00cea8" },
+    { r: 0.92, dur: 45, delay: -38, size: 3, color: "#915eff" },
+    { r: 1.08, dur: 60, delay: -10, size: 2, color: "#915eff" },
+    { r: 1.08, dur: 60, delay: -30, size: 1.5, color: "#00cea8" },
+    { r: 1.08, dur: 60, delay: -50, size: 2.5, color: "#bf61ff" },
+  ],
+  comets: [
+    { name: "TypeScript", color: "#3178c6", dur: 30, delay: 0, x1: -1.3, y1: -0.5, x2: 1.3, y2: 0.5, tail: "left" },
+    { name: "Node.js", color: "#68a063", dur: 38, delay: -10, x1: 1.3, y1: -0.3, x2: -1.3, y2: 0.4, tail: "right" },
+    { name: "MongoDB", color: "#4db33d", dur: 34, delay: -20, x1: -1.1, y1: 0.6, x2: 1.2, y2: -0.4, tail: "left" },
+    { name: "GraphQL", color: "#e535ab", dur: 42, delay: -30, x1: 0.8, y1: -1.2, x2: -0.5, y2: 1.3, tail: "right" },
+    { name: "Terraform", color: "#7b42bc", dur: 36, delay: -8, x1: -0.6, y1: -1.3, x2: 0.7, y2: 1.2, tail: "left" },
+  ],
+};
+
+export const contactContent = {
+  topics: [
+    { label: "Hiring", icon: "💼" },
+    { label: "Freelance", icon: "🤝" },
+    { label: "Collaboration", icon: "🚀" },
+    { label: "Just saying hi", icon: "👋" },
+  ],
+  msgTemplates: {
+    Hiring: "Hi Rugwed, I came across your portfolio and I'm impressed by your work. We have an exciting opportunity that I think would be a great fit for your skills. Would you be open to discussing it?",
+    Freelance: "Hi Rugwed, I have a project that could use your expertise in backend/AI development. I'd love to discuss the scope, timeline, and how we could work together.",
+    Collaboration: "Hi Rugwed, I'm working on something interesting and your experience with microservices and AI systems would be a great complement. Would you be interested in collaborating?",
+    "Just saying hi": "Hey Rugwed! Just wanted to say your portfolio is really impressive. Keep up the great work!",
+  },
+  msgLimit: 500,
+};
+
+export const easterEggs = {
+  ascii: "  ██████╗ ██╗   ██╗ ██████╗ ██╗    ██╗███████╗██████╗ \n  ██╔══██╗██║   ██║██╔════╝ ██║    ██║██╔════╝██╔══██╗\n  ██████╔╝██║   ██║██║  ███╗██║ █╗ ██║█████╗  ██║  ██║\n  ██╔══██╗██║   ██║██║   ██║██║███╗██║██╔══╝  ██║  ██║\n  ██║  ██║╚██████╔╝╚██████╔╝╚███╔███╔╝███████╗██████╔╝\n  ╚═╝  ╚═╝ ╚═════╝  ╚═════╝  ╚══╝╚══╝ ╚══════╝╚═════╝ ",
+  greeting: "Hey there, fellow developer! 👋",
+  repoLink: "Curious about the code? Check it out: https://github.com/rugwedpatharkar/portfolio",
+  hint: "Hint: Try pressing Ctrl+` for a surprise 🎮",
+};
+
+export const sectionOrder = [
+  "about",
+  "funFacts",
+  "experience",
+  "skills",
+  "projects",
+  "education",
+  "achievements",
+  "testimonials",
+  "contact",
+];

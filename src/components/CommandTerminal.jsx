@@ -1,6 +1,6 @@
 import { useState, useRef, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { personalInfo, skills, projects } from "../constants";
+import { personalInfo, skills, projects } from "../content";
 import useFocusTrap from "../utils/useFocusTrap";
 
 const COMMANDS = {

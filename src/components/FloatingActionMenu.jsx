@@ -1,6 +1,6 @@
 import { useState, useRef, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { personalInfo } from "../constants";
+import { personalInfo } from "../content";
 import { AiOutlineGithub, AiOutlineMail } from "react-icons/ai";
 import { ImLinkedin } from "react-icons/im";
 

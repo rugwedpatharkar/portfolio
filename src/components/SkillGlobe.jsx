@@ -1,6 +1,6 @@
 /* eslint-disable react/prop-types */
 import { useEffect, useRef } from "react";
-import { skills as skillData } from "../constants";
+import { skills as skillData } from "../content";
 
 const allSkills = Object.values(skillData).flat();
 

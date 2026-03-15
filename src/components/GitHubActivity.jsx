@@ -1,7 +1,7 @@
 import { motion } from "framer-motion";
 import { styles } from "../styles";
 import { SectionWrapper } from "../hoc";
-import { personalInfo } from "../constants";
+import { personalInfo } from "../content";
 import { fadeIn, textVariant } from "../utils/motion";
 import TextScramble from "./TextScramble";
 import LanguageChart from "./LanguageChart";

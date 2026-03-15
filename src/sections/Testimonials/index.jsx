@@ -2,13 +2,13 @@
 /* eslint-disable react-refresh/only-export-components */
 import { useState, useEffect, useCallback, useRef } from "react";
 import { motion, AnimatePresence, useMotionValue } from "framer-motion";
-import { styles } from "../styles";
-import { SectionWrapper } from "../hoc";
-import { testimonials } from "../constants";
-import { fadeIn, textVariant } from "../utils/motion";
-import TextScramble from "./TextScramble";
+import { styles } from "../../styles";
+import { SectionWrapper } from "../../hoc";
+import { testimonials, sectionMeta } from "../../content";
+import { fadeIn, textVariant } from "../../utils/motion";
+import TextScramble from "../../components/TextScramble";
+import { ACCENT_COLORS as ACCENTS } from "../../config/theme";
 
-const ACCENTS = ["#915eff", "#00cea8", "#f8c555", "#61dafb", "#ff6b6b", "#326ce5"];
 const AUTO_INTERVAL = 6000;
 const DRAG_THRESHOLD = 50;
 
@@ -84,11 +84,12 @@ const Testimonials = () => {
 
   const go = useCallback(
     (dir) => {
+      dragX.set(0);
       setDirection(dir);
       setCurrent((prev) => (prev + dir + total) % total);
       setTimerKey((k) => k + 1);
     },
-    [total]
+    [total, dragX]
   );
 
   const goTo = useCallback(
@@ -126,9 +127,9 @@ const Testimonials = () => {
   return (
     <>
       <motion.div variants={textVariant()}>
-        <p className={styles.sectionSubText}>What Others Say</p>
+        <p className={styles.sectionSubText}>{sectionMeta.testimonials.sub}</p>
         <TextScramble
-          text="Testimonials"
+          text={sectionMeta.testimonials.heading}
           as="h2"
           className={styles.sectionHeadText}
         />
@@ -138,8 +139,7 @@ const Testimonials = () => {
         variants={fadeIn("", "", 0.1, 1)}
         className="mt-3 text-secondary text-body-sm sm:text-body max-w-3xl"
       >
-        Feedback from colleagues, mentors, and collaborators I've had the
-        privilege of working with.
+        {sectionMeta.testimonials.description}
       </motion.p>
 
       {/* Card container */}

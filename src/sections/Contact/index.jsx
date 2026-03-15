@@ -1,31 +1,16 @@
 /* eslint-disable react-refresh/only-export-components */
-import { useState, useRef, useEffect, useCallback } from "react";
+import { useState, useRef, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import emailjs from "@emailjs/browser";
-import { styles } from "../styles";
-import { SectionWrapper } from "../hoc";
-import { fadeIn, textVariant } from "../utils/motion";
-import { personalInfo } from "../constants";
-import { resume } from "../assets";
-import { useToast } from "./Toast";
-import TextScramble from "./TextScramble";
+import { styles } from "../../styles";
+import { SectionWrapper } from "../../hoc";
+import { fadeIn, textVariant } from "../../utils/motion";
+import { personalInfo, sectionMeta, contactContent } from "../../content";
+import { resume } from "../../assets";
+import { useToast } from "../../components/Toast";
+import TextScramble from "../../components/TextScramble";
 
 const ACCENT = "#915eff";
-const MSG_LIMIT = 500;
-
-const TOPICS = [
-  { label: "Hiring", icon: "💼" },
-  { label: "Freelance", icon: "🤝" },
-  { label: "Collaboration", icon: "🚀" },
-  { label: "Just saying hi", icon: "👋" },
-];
-
-const MSG_TEMPLATES = {
-  Hiring: "Hi Rugwed, I came across your portfolio and I'm impressed by your work. We have an exciting opportunity that I think would be a great fit for your skills. Would you be open to discussing it?",
-  Freelance: "Hi Rugwed, I have a project that could use your expertise in backend/AI development. I'd love to discuss the scope, timeline, and how we could work together.",
-  Collaboration: "Hi Rugwed, I'm working on something interesting and your experience with microservices and AI systems would be a great complement. Would you be interested in collaborating?",
-  "Just saying hi": "Hey Rugwed! Just wanted to say your portfolio is really impressive. Keep up the great work!",
-};
 
 const CONTACT_LINKS = [
   {
@@ -302,92 +287,92 @@ const Contact = () => {
     if (sent) setSent(false);
   };
 
-  const handleSubmit = useCallback(
-    (e) => {
-      if (e) e.preventDefault();
-      if (loading) return;
+  const handleSubmit = (e) => {
+    if (e) e.preventDefault();
+    if (loading) return;
 
-      if (!form.name.trim() || !form.email.trim() || !form.message.trim()) {
-        toast("Please fill in all fields.", "warning");
-        return;
-      }
+    if (!form.name.trim() || !form.email.trim() || !form.message.trim()) {
+      toast("Please fill in all fields.", "warning");
+      return;
+    }
 
-      if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(form.email)) {
-        toast("Please enter a valid email address.", "warning");
-        return;
-      }
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(form.email)) {
+      toast("Please enter a valid email address.", "warning");
+      return;
+    }
 
-      const serviceId = import.meta.env.VITE_EMAILJS_SERVICE_ID;
-      const templateId = import.meta.env.VITE_EMAILJS_TEMPLATE_ID;
-      const publicKey = import.meta.env.VITE_EMAILJS_PUBLIC_KEY;
-      const toEmail = import.meta.env.VITE_EMAILJS_TO_EMAIL;
+    const serviceId = import.meta.env.VITE_EMAILJS_SERVICE_ID;
+    const templateId = import.meta.env.VITE_EMAILJS_TEMPLATE_ID;
+    const publicKey = import.meta.env.VITE_EMAILJS_PUBLIC_KEY;
+    const toEmail = import.meta.env.VITE_EMAILJS_TO_EMAIL;
 
-      if (!serviceId || !templateId || !publicKey || !toEmail) {
-        toast("Email service is not configured.", "error");
-        return;
-      }
+    if (!serviceId || !templateId || !publicKey || !toEmail) {
+      toast("Email service is not configured.", "error");
+      return;
+    }
 
-      setLoading(true);
+    setLoading(true);
 
-      emailjs
-        .send(
-          serviceId,
-          templateId,
-          {
-            from_name: form.name,
-            to_name: "Rugwed Patharkar",
-            from_email: form.email,
-            to_email: toEmail,
-            message: `[${topic || "General"}] ${form.message}`,
-          },
-          publicKey
-        )
-        .then(
-          () => {
-            setLoading(false);
-            setSent(true);
-            toast("Message sent! I'll get back to you soon.", "success");
-            setForm({ name: "", email: "", message: "" });
-            setTopic("");
-            try {
-              sessionStorage.removeItem("contact-form");
-            } catch {
-              /* ignore */
-            }
-          },
-          () => {
-            setLoading(false);
-            toast("Something went wrong. Please try again.", "error");
+    emailjs
+      .send(
+        serviceId,
+        templateId,
+        {
+          from_name: form.name,
+          to_name: "Rugwed Patharkar",
+          from_email: form.email,
+          to_email: toEmail,
+          message: `[${topic || "General"}] ${form.message}`,
+        },
+        publicKey
+      )
+      .then(
+        () => {
+          setLoading(false);
+          setSent(true);
+          toast("Message sent! I'll get back to you soon.", "success");
+          setForm({ name: "", email: "", message: "" });
+          setTopic("");
+          try {
+            sessionStorage.removeItem("contact-form");
+          } catch {
+            /* ignore */
           }
-        );
-    },
-    [form, topic, loading, toast]
-  );
+        },
+        () => {
+          setLoading(false);
+          toast("Something went wrong. Please try again.", "error");
+        }
+      );
+  };
+
+  /* Stable ref for keyboard shortcut — avoids re-registering listener on every keystroke */
+  const handleSubmitRef = useRef(handleSubmit);
+  handleSubmitRef.current = handleSubmit;
 
   /* Cmd/Ctrl + Enter to submit */
   useEffect(() => {
     const onKey = (e) => {
       if ((e.metaKey || e.ctrlKey) && e.key === "Enter") {
-        handleSubmit();
+        handleSubmitRef.current();
       }
     };
     window.addEventListener("keydown", onKey);
     return () => window.removeEventListener("keydown", onKey);
-  }, [handleSubmit]);
+  }, []);
 
   return (
     <>
       <motion.div variants={textVariant()}>
-        <p className={styles.sectionSubText}>Get in Touch</p>
-        <TextScramble text="Contact" as="h2" className={styles.sectionHeadText} />
+        <p className={styles.sectionSubText}>{sectionMeta.contact.sub}</p>
+        <TextScramble text={sectionMeta.contact.heading} as="h2" className={styles.sectionHeadText} />
       </motion.div>
 
       <motion.p
         variants={fadeIn("", "", 0.1, 1)}
         className="mt-3 text-secondary text-body-sm sm:text-body max-w-3xl"
       >
-        Have a project idea, collaboration opportunity, or just want to say hi?
-        I'd love to hear from you.
+        {sectionMeta.contact.description}
       </motion.p>
 
       <div className="mt-8 sm:mt-12 flex flex-col xl:flex-row gap-6 sm:gap-8">
@@ -449,7 +434,7 @@ const Contact = () => {
                 What's this about?
               </span>
               <div className="flex flex-wrap gap-2">
-                {TOPICS.map((t) => (
+                {contactContent.topics.map((t) => (
                   <button
                     key={t.label}
                     type="button"
@@ -457,8 +442,8 @@ const Contact = () => {
                       const newTopic = topic === t.label ? "" : t.label;
                       setTopic(newTopic);
                       // Auto-fill template if message is empty or matches a previous template
-                      if (newTopic && (!form.message.trim() || Object.values(MSG_TEMPLATES).includes(form.message))) {
-                        setForm((prev) => ({ ...prev, message: MSG_TEMPLATES[newTopic] || "" }));
+                      if (newTopic && (!form.message.trim() || Object.values(contactContent.msgTemplates).includes(form.message))) {
+                        setForm((prev) => ({ ...prev, message: contactContent.msgTemplates[newTopic] || "" }));
                       }
                     }}
                     className={`px-3 py-1.5 rounded-full font-mono text-micro sm:text-caption border transition-all duration-300 ${
@@ -503,7 +488,7 @@ const Contact = () => {
               placeholder="Tell me about your project or just say hi..."
               disabled={loading}
               isTextarea
-              maxLength={MSG_LIMIT}
+              maxLength={contactContent.msgLimit}
             />
 
             {/* Submit button */}

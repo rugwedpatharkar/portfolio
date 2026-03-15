@@ -3,7 +3,7 @@ import { memo } from "react";
 import { motion } from "framer-motion";
 import { styles } from "../styles";
 import { SectionWrapper } from "../hoc";
-import { blogPosts } from "../constants";
+import { blogPosts } from "../content";
 import { fadeIn, textVariant } from "../utils/motion";
 import TextScramble from "./TextScramble";
 

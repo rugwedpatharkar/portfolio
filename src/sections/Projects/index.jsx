@@ -2,24 +2,12 @@
 /* eslint-disable react-refresh/only-export-components */
 import { useState, useMemo, memo } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { styles } from "../styles";
-import { SectionWrapper } from "../hoc";
-import { projects } from "../constants";
-import { fadeIn, textVariant } from "../utils/motion";
-import TextScramble from "./TextScramble";
-
-const ACCENTS = [
-  "#915eff", "#00cea8", "#61dafb", "#f8c555",
-  "#ff6b6b", "#326ce5", "#68a063",
-];
-
-const FILTERS = ["all", "professional", "personal"];
-
-const STATUS_CONFIG = {
-  production: { label: "Production", dot: "#00cea8" },
-  completed: { label: "Completed", dot: "#61dafb" },
-  "in-progress": { label: "In Progress", dot: "#f8c555" },
-};
+import { styles } from "../../styles";
+import { SectionWrapper } from "../../hoc";
+import { projects, sectionMeta } from "../../content";
+import { fadeIn, textVariant } from "../../utils/motion";
+import TextScramble from "../../components/TextScramble";
+import { PROJECT_ACCENTS, PROJECT_FILTERS, STATUS_CONFIG } from "../../config/theme";
 
 /* ── Filter Tab ── */
 const FilterTab = ({ label, isActive, onClick, count }) => (
@@ -315,9 +303,9 @@ const Projects = () => {
       <div className="absolute -bottom-20 -left-20 w-48 h-48 bg-[#61dafb]/5 rounded-full blur-[80px] pointer-events-none" />
 
       <motion.div variants={textVariant()}>
-        <p className={styles.sectionSubText}>Explore My Work</p>
+        <p className={styles.sectionSubText}>{sectionMeta.projects.sub}</p>
         <TextScramble
-          text="Projects"
+          text={sectionMeta.projects.heading}
           as="h2"
           className={styles.sectionHeadText}
         />
@@ -327,14 +315,13 @@ const Projects = () => {
         variants={fadeIn("", "", 0.1, 1)}
         className="mt-3 text-secondary text-body-sm sm:text-body max-w-3xl"
       >
-        Each project represents a distinct challenge — from building AI-powered
-        systems to deploying cloud infrastructure. Tap any card to explore.
+        {sectionMeta.projects.description}
       </motion.p>
 
       {/* Filter bar + expand all */}
       <div className="mt-6 sm:mt-8 flex flex-wrap items-center justify-between gap-3">
         <div className="flex gap-2">
-          {FILTERS.map((f) => (
+          {PROJECT_FILTERS.map((f) => (
             <FilterTab
               key={f}
               label={f.charAt(0).toUpperCase() + f.slice(1)}
@@ -382,7 +369,7 @@ const Projects = () => {
                     toggle(globalIndex);
                   }
                 }}
-                accent={ACCENTS[globalIndex % ACCENTS.length]}
+                accent={PROJECT_ACCENTS[globalIndex % PROJECT_ACCENTS.length]}
               />
             );
           })}

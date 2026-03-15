@@ -2,13 +2,12 @@
 /* eslint-disable react-refresh/only-export-components */
 import { useState, useMemo, useEffect, useCallback } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { styles } from "../styles";
-import { SectionWrapper } from "../hoc";
-import { fadeIn, textVariant } from "../utils/motion";
-import { educations } from "../constants";
-import TextScramble from "./TextScramble";
-
-const NODE_COLORS = ["#ff6b6b", "#f8c555", "#61dafb", "#915eff"];
+import { styles } from "../../styles";
+import { SectionWrapper } from "../../hoc";
+import { fadeIn, textVariant } from "../../utils/motion";
+import { educations, sectionMeta } from "../../content";
+import TextScramble from "../../components/TextScramble";
+import { NODE_COLORS } from "../../config/theme";
 
 /* ── SVG Progress Ring ── */
 const ProgressRing = ({ percent, color, size = 56, strokeWidth = 3, visible }) => {
@@ -250,9 +249,9 @@ const Education = () => {
       <div className="absolute -bottom-20 -right-20 w-48 h-48 bg-[#915eff]/5 rounded-full blur-[80px] pointer-events-none" />
 
       <motion.div variants={textVariant()}>
-        <p className={styles.sectionSubText}>Academic Journey</p>
+        <p className={styles.sectionSubText}>{sectionMeta.education.sub}</p>
         <TextScramble
-          text="Education"
+          text={sectionMeta.education.heading}
           as="h2"
           className={styles.sectionHeadText}
         />
@@ -262,8 +261,7 @@ const Education = () => {
         variants={fadeIn("", "", 0.1, 1)}
         className="mt-3 text-secondary text-body-sm sm:text-body max-w-3xl"
       >
-        From foundational studies to advanced computer science — each milestone
-        shaped my engineering journey.
+        {sectionMeta.education.description}
       </motion.p>
 
       {/* ── Milestone Track ── */}
@@ -381,4 +379,4 @@ const Education = () => {
   );
 };
 
-export default SectionWrapper(Education, "educations");
+export default SectionWrapper(Education, "education");

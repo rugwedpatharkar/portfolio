@@ -2,13 +2,12 @@
 /* eslint-disable react-refresh/only-export-components */
 import { useState, memo } from "react";
 import { motion } from "framer-motion";
-import { styles } from "../styles";
-import { experiences } from "../constants";
-import { SectionWrapper } from "../hoc";
-import { fadeIn, textVariant } from "../utils/motion";
-import TextScramble from "./TextScramble";
-
-const CAT_COLORS = ["#915eff", "#00cea8", "#61dafb", "#f8c555"];
+import { styles } from "../../styles";
+import { experiences, sectionMeta } from "../../content";
+import { SectionWrapper } from "../../hoc";
+import { fadeIn, textVariant } from "../../utils/motion";
+import TextScramble from "../../components/TextScramble";
+import { CAT_COLORS } from "../../config/theme";
 
 const ExperienceCard = memo(({ experience, index, isLast }) => {
   const [openCats, setOpenCats] = useState({ 0: true });
@@ -175,9 +174,9 @@ const Experience = () => {
       <div className="absolute -bottom-20 -right-20 w-48 h-48 bg-[#00cea8]/5 rounded-full blur-[80px] pointer-events-none" />
 
       <motion.div variants={textVariant()}>
-        <p className={styles.sectionSubText}>Where I've worked</p>
+        <p className={styles.sectionSubText}>{sectionMeta.experience.sub}</p>
         <TextScramble
-          text="Work Experience"
+          text={sectionMeta.experience.heading}
           as="h2"
           className={styles.sectionHeadText}
         />
@@ -187,8 +186,7 @@ const Experience = () => {
         variants={fadeIn("", "", 0.1, 1)}
         className="mt-3 text-secondary text-body-sm sm:text-body max-w-3xl"
       >
-        Building scalable microservices, AI-powered systems, and cloud-native
-        solutions — here's where I've put my engineering skills to work.
+        {sectionMeta.experience.description}
       </motion.p>
 
       <div className="mt-10 sm:mt-16">

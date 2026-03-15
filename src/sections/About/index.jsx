@@ -2,14 +2,14 @@
 /* eslint-disable react-refresh/only-export-components */
 import { useState, useRef, useCallback, memo } from "react";
 import { motion } from "framer-motion";
-import { styles } from "../styles";
-import { services, personalInfo } from "../constants";
-import { fadeIn, textVariant } from "../utils/motion";
-import { SectionWrapper } from "../hoc";
-import { photo, resume } from "../assets";
-import ResumeModal from "./ResumeModal";
-import TextScramble from "./TextScramble";
-import MagneticButton from "./MagneticButton";
+import { styles } from "../../styles";
+import { services, personalInfo, sectionMeta } from "../../content";
+import { fadeIn, textVariant } from "../../utils/motion";
+import { SectionWrapper } from "../../hoc";
+import { photo, resume } from "../../assets";
+import ResumeModal from "../../components/ResumeModal";
+import TextScramble from "../../components/TextScramble";
+import MagneticButton from "../../components/MagneticButton";
 
 const CARD_ACCENTS = ["#915eff", "#00cea8", "#61dafb", "#f8c555"];
 
@@ -46,7 +46,7 @@ const ServiceCard = memo(({ index, title, icon }) => {
   );
 });
 
-/* ── 3D Pop-Out Photo ── */
+/* -- 3D Pop-Out Photo -- */
 const Photo3D = () => {
   const containerRef = useRef(null);
   const frameRef = useRef(null);
@@ -58,10 +58,10 @@ const Photo3D = () => {
     const el = containerRef.current;
     if (!el) return;
     const rect = el.getBoundingClientRect();
-    const x = (e.clientX - rect.left) / rect.width;   // 0–1
-    const y = (e.clientY - rect.top) / rect.height;    // 0–1
-    const rotateY = (x - 0.5) * 25;   // ±12.5°
-    const rotateX = (0.5 - y) * 20;   // ±10°
+    const x = (e.clientX - rect.left) / rect.width;   // 0-1
+    const y = (e.clientY - rect.top) / rect.height;    // 0-1
+    const rotateY = (x - 0.5) * 25;   // +/-12.5
+    const rotateX = (0.5 - y) * 20;   // +/-10
 
     if (frameRef.current) {
       frameRef.current.style.transform =
@@ -105,7 +105,7 @@ const Photo3D = () => {
       <div className="absolute -inset-3 sm:-inset-4 rounded-2xl border border-[#915eff]/20 rotate-3 group-hover:border-[#915eff]/40 transition-colors duration-700" />
       <div className="absolute -inset-2 sm:-inset-3 rounded-2xl border border-[#00cea8]/15 -rotate-2 group-hover:border-[#00cea8]/30 transition-colors duration-700" />
 
-      {/* Background glow — intensifies on hover */}
+      {/* Background glow -- intensifies on hover */}
       <div className="absolute -inset-6 rounded-3xl bg-[#915eff]/5 blur-[40px] group-hover:bg-[#915eff]/15 transition-all duration-700 pointer-events-none" />
 
       {/* Cursor-tracking purple glow behind photo */}
@@ -114,7 +114,7 @@ const Photo3D = () => {
         className="absolute -inset-4 rounded-3xl blur-[30px] pointer-events-none opacity-0 transition-opacity duration-500"
       />
 
-      {/* 3D-transformed frame — pops out of card */}
+      {/* 3D-transformed frame -- pops out of card */}
       <div
         ref={frameRef}
         className="relative rounded-2xl overflow-hidden will-change-transform"
@@ -123,7 +123,7 @@ const Photo3D = () => {
           transition: "transform 0.15s ease-out",
         }}
       >
-        {/* Edge smudge — blends photo edges into card */}
+        {/* Edge smudge -- blends photo edges into card */}
         <div
           className="absolute inset-0 z-[2] pointer-events-none rounded-2xl"
           style={{
@@ -171,8 +171,8 @@ const About = () => {
   return (
     <>
       <motion.div variants={textVariant()}>
-        <p className={styles.sectionSubText}>Introduction</p>
-        <TextScramble text="Overview" as="h2" className={styles.sectionHeadText} />
+        <p className={styles.sectionSubText}>{sectionMeta.about.sub}</p>
+        <TextScramble text={sectionMeta.about.heading} as="h2" className={styles.sectionHeadText} />
       </motion.div>
 
       <motion.div
@@ -184,7 +184,7 @@ const About = () => {
         <div className="absolute -bottom-20 -right-20 w-60 h-60 bg-[#00cea8]/8 rounded-full blur-[80px] pointer-events-none" />
 
         <div className="flex flex-col md:flex-row items-center gap-8 md:gap-0 relative z-[1]">
-          {/* Photo — 3D pop-out on hover */}
+          {/* Photo -- 3D pop-out on hover */}
           <Photo3D />
 
           {/* Text content */}

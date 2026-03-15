@@ -1,13 +1,12 @@
 /* eslint-disable react/prop-types */
 import { useState, useEffect, useRef, memo } from "react";
 import { motion } from "framer-motion";
-import { funFacts } from "../constants";
-import { fadeIn, textVariant } from "../utils/motion";
-import { styles } from "../styles";
-import { SectionWrapper } from "../hoc";
-import TextScramble from "./TextScramble";
-
-const ACCENT_COLORS = ["#915eff", "#00cea8", "#f8c555", "#61dafb"];
+import { funFacts, sectionMeta } from "../../content";
+import { fadeIn, textVariant } from "../../utils/motion";
+import { styles } from "../../styles";
+import { SectionWrapper } from "../../hoc";
+import { ACCENT_COLORS } from "../../config/theme";
+import TextScramble from "../../components/TextScramble";
 
 const AnimatedCounter = ({ value, suffix = "", duration = 2000 }) => {
   const [count, setCount] = useState(0);
@@ -74,7 +73,7 @@ const FunFactCard = memo(({ fact, index }) => {
           transform: flipped ? "rotateY(180deg)" : "rotateY(0deg)",
         }}
       >
-        {/* Front face — stays in flow so it sets the container height */}
+        {/* Front face -- stays in flow so it sets the container height */}
         <div
           className="glass-card rounded-2xl p-5 sm:p-7 text-center card-shine glow-hover relative overflow-hidden group"
           style={{ backfaceVisibility: "hidden" }}
@@ -91,7 +90,7 @@ const FunFactCard = memo(({ fact, index }) => {
           <p className="text-white/45 text-micro mt-3 font-mono">click to reveal</p>
         </div>
 
-        {/* Back face — absolute overlay, same size as front */}
+        {/* Back face -- absolute overlay, same size as front */}
         <div
           className="absolute inset-0 glass-card rounded-2xl p-5 sm:p-7 text-center overflow-hidden flex flex-col items-center justify-center"
           style={{
@@ -125,16 +124,15 @@ const FunFacts = () => {
       <div className="absolute -bottom-20 -left-20 w-48 h-48 bg-[#915eff]/5 rounded-full blur-[80px] pointer-events-none" />
 
       <motion.div variants={textVariant()}>
-        <p className={styles.sectionSubText}>A Glimpse Into My Journey</p>
-        <TextScramble text="Fun Facts" as="h2" className={styles.sectionHeadText} />
+        <p className={styles.sectionSubText}>{sectionMeta.funFacts.sub}</p>
+        <TextScramble text={sectionMeta.funFacts.heading} as="h2" className={styles.sectionHeadText} />
       </motion.div>
 
       <motion.p
         variants={fadeIn("", "", 0.1, 1)}
         className="mt-3 text-secondary text-body-sm sm:text-body max-w-3xl"
       >
-        A few numbers and tidbits that sum up my journey as a developer — flip
-        the cards to discover more.
+        {sectionMeta.funFacts.description}
       </motion.p>
 
       <div className="mt-8 sm:mt-12 grid grid-cols-2 md:grid-cols-4 gap-4 sm:gap-6">

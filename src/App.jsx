@@ -1,10 +1,10 @@
 import { Suspense, lazy, useEffect } from "react";
 import {
-  Hero,
   Navbar,
   StarsCanvas,
   Footer,
 } from "./components";
+import { easterEggs } from "./content";
 import ErrorBoundary from "./components/ErrorBoundary";
 import ScrollProgressBar from "./components/ScrollProgressBar";
 import Preloader from "./components/Preloader";
@@ -17,18 +17,18 @@ import CodeRain from "./components/CodeRain";
 import DynamicTitle from "./components/DynamicTitle";
 import AnimatedFavicon from "./components/AnimatedFavicon";
 import ThemeSwitcher from "./components/ThemeSwitcher";
+import Hero from "./sections/Hero";
 
 // Lazy-loaded below-fold sections
-const About = lazy(() => import("./components/About"));
-const FunFacts = lazy(() => import("./components/FunFacts"));
-const Experience = lazy(() => import("./components/Experience"));
-const Skills = lazy(() => import("./components/Skills"));
-const Projects = lazy(() => import("./components/Projects"));
-const Education = lazy(() => import("./components/Education"));
-const Achievements = lazy(() => import("./components/Achievements"));
-const Testimonials = lazy(() => import("./components/Testimonials"));
-const Contact = lazy(() => import("./components/Contact"));
-// const Blog = lazy(() => import("./components/Blog")); // Hidden until real blog posts are published
+const About = lazy(() => import("./sections/About"));
+const FunFacts = lazy(() => import("./sections/FunFacts"));
+const Experience = lazy(() => import("./sections/Experience"));
+const Skills = lazy(() => import("./sections/Skills"));
+const Projects = lazy(() => import("./sections/Projects"));
+const Education = lazy(() => import("./sections/Education"));
+const Achievements = lazy(() => import("./sections/Achievements"));
+const Testimonials = lazy(() => import("./sections/Testimonials"));
+const Contact = lazy(() => import("./sections/Contact"));
 
 // Lazy-loaded interactive overlays (not needed at first paint)
 const ContextualCursor = lazy(() => import("./components/ContextualCursor"));
@@ -43,25 +43,19 @@ const App = () => {
   // Console easter eggs for devs who inspect
   useEffect(() => {
     console.log(
-      "%c\n" +
-      "  ██████╗ ██╗   ██╗ ██████╗ ██╗    ██╗███████╗██████╗ \n" +
-      "  ██╔══██╗██║   ██║██╔════╝ ██║    ██║██╔════╝██╔══██╗\n" +
-      "  ██████╔╝██║   ██║██║  ███╗██║ █╗ ██║█████╗  ██║  ██║\n" +
-      "  ██╔══██╗██║   ██║██║   ██║██║███╗██║██╔══╝  ██║  ██║\n" +
-      "  ██║  ██║╚██████╔╝╚██████╔╝╚███╔███╔╝███████╗██████╔╝\n" +
-      "  ╚═╝  ╚═╝ ╚═════╝  ╚═════╝  ╚══╝╚══╝ ╚══════╝╚═════╝ \n",
+      "%c\n" + easterEggs.ascii + " \n",
       "color: #915eff; font-size: 10px; font-family: monospace;"
     );
     console.log(
-      "%cHey there, fellow developer! 👋",
+      `%c${easterEggs.greeting}`,
       "color: #00cea8; font-size: 16px; font-weight: bold;"
     );
     console.log(
-      "%cCurious about the code? Check it out: https://github.com/rugwedpatharkar/portfolio",
+      `%c${easterEggs.repoLink}`,
       "color: #aaa6c3; font-size: 12px;"
     );
     console.log(
-      "%cHint: Try pressing Ctrl+` for a surprise 🎮",
+      `%c${easterEggs.hint}`,
       "color: #bf61ff; font-size: 12px;"
     );
   }, []);
