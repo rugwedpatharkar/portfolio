@@ -96,8 +96,11 @@ const SkillGlobe = () => {
 
     return () => {
       cancelAnimationFrame(animRef.current);
-      // Clean up DOM nodes
-      nodesRef.current.forEach((n) => n.el.remove());
+      try {
+        nodesRef.current.forEach((n) => n.el.remove());
+      } catch {
+        // DOM nodes already cleaned up
+      }
     };
   }, []);
 

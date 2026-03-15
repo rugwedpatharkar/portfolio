@@ -92,7 +92,7 @@ const ContextualCursor = () => {
   return (
     <div
       ref={cursorRef}
-      className="fixed pointer-events-none z-[80] flex items-center justify-center"
+      className="fixed pointer-events-none z-[98] flex items-center justify-center"
       style={{
         width: 12,
         height: 12,

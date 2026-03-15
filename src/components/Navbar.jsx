@@ -47,6 +47,29 @@ const Navbar = () => {
     if (!toggle) return;
     document.body.style.overflow = "hidden";
 
+    // Focus trap for mobile menu
+    const menu = document.querySelector(".mobile-menu");
+    if (menu) {
+      const focusable = menu.querySelectorAll("a, button");
+      if (focusable.length) focusable[0].focus();
+
+      const trapFocus = (e) => {
+        if (e.key !== "Tab" || !focusable.length) return;
+        const first = focusable[0];
+        const last = focusable[focusable.length - 1];
+        if (e.shiftKey && document.activeElement === first) {
+          e.preventDefault();
+          last.focus();
+        } else if (!e.shiftKey && document.activeElement === last) {
+          e.preventDefault();
+          first.focus();
+        }
+      };
+      document.addEventListener("keydown", trapFocus);
+      // Store for cleanup
+      menu._trapFocus = trapFocus;
+    }
+
     const handleClickOutside = (e) => {
       if (!e.target.closest(".mobile-menu") && !e.target.closest(".menu-toggle")) {
         setToggle(false);
@@ -59,6 +82,8 @@ const Navbar = () => {
     document.addEventListener("click", handleClickOutside);
     document.addEventListener("keydown", handleKeyDown);
     return () => {
+      const menuEl = document.querySelector(".mobile-menu");
+      if (menuEl?._trapFocus) document.removeEventListener("keydown", menuEl._trapFocus);
       document.removeEventListener("click", handleClickOutside);
       document.removeEventListener("keydown", handleKeyDown);
       document.body.style.overflow = "";

@@ -6,6 +6,7 @@ const ParticleBackground = () => {
   const animRef = useRef(null);
 
   useEffect(() => {
+    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
     const canvas = canvasRef.current;
     if (!canvas) return;
     const ctx = canvas.getContext("2d");
@@ -19,8 +20,8 @@ const ParticleBackground = () => {
     canvas.style.height = height + "px";
     ctx.scale(dpr, dpr);
 
-    const PARTICLE_COUNT = Math.min(60, Math.floor((width * height) / 18000));
-    const CONNECTION_DIST = 180;
+    const PARTICLE_COUNT = Math.min(40, Math.floor((width * height) / 22000));
+    const CONNECTION_DIST = 140;
     const CONNECTION_DIST_SQ = CONNECTION_DIST * CONNECTION_DIST;
     const MOUSE_ATTRACT_DIST = 250;
     const MOUSE_ATTRACT_DIST_SQ = MOUSE_ATTRACT_DIST * MOUSE_ATTRACT_DIST;

@@ -17,6 +17,7 @@ const FloatingActionMenu = () => {
     return () => {
       if (audioRef.current) {
         audioRef.current.pause();
+        audioRef.current.src = "";
         audioRef.current = null;
       }
     };

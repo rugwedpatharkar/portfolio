@@ -131,7 +131,7 @@ const SkillTerminal = () => {
           className="font-mono text-caption sm:text-body-sm"
           style={ls(d())}
         >
-          <span className="text-green-400">❯</span>{" "}
+          <span className="text-[#00cea8]">❯</span>{" "}
           <span className="text-[#61dafb]">neofetch</span>{" "}
           <span className="text-white/40">--skills</span>
         </div>
@@ -204,7 +204,7 @@ const SkillTerminal = () => {
           className="font-mono text-caption sm:text-body-sm mb-4"
           style={ls(d())}
         >
-          <span className="text-green-400">❯</span>{" "}
+          <span className="text-[#00cea8]">❯</span>{" "}
           <span className="text-[#61dafb]">cat</span>{" "}
           <span className="text-white/70">skills.json</span>{" "}
           <span className="text-white/45">|</span>{" "}
@@ -252,7 +252,7 @@ const SkillTerminal = () => {
 
         {/* ── Bottom prompt + blinking cursor ── */}
         <div className="font-mono text-caption sm:text-body-sm mt-5">
-          <span className="text-green-400">❯</span>{" "}
+          <span className="text-[#00cea8]">❯</span>{" "}
           <span className="skill-terminal-cursor">█</span>
         </div>
       </div>

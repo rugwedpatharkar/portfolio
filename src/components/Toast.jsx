@@ -52,6 +52,7 @@ export const ToastProvider = ({ children }) => {
               <button
                 onClick={() => setToasts((prev) => prev.filter((t) => t.id !== toast.id))}
                 className="ml-auto text-white/60 hover:text-white text-body-lg flex-shrink-0"
+                aria-label="Dismiss notification"
               >
                 ×
               </button>
