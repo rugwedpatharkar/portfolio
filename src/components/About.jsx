@@ -1,6 +1,6 @@
 /* eslint-disable react/prop-types */
 /* eslint-disable react-refresh/only-export-components */
-import { useState, memo } from "react";
+import { useState, useRef, useCallback, memo } from "react";
 import { motion } from "framer-motion";
 import { styles } from "../styles";
 import { services, personalInfo } from "../constants";
@@ -46,6 +46,125 @@ const ServiceCard = memo(({ index, title, icon }) => {
   );
 });
 
+/* ── 3D Pop-Out Photo ── */
+const Photo3D = () => {
+  const containerRef = useRef(null);
+  const frameRef = useRef(null);
+  const glowRef = useRef(null);
+  const shineRef = useRef(null);
+  const isHovering = useRef(false);
+
+  const handleMove = useCallback((e) => {
+    const el = containerRef.current;
+    if (!el) return;
+    const rect = el.getBoundingClientRect();
+    const x = (e.clientX - rect.left) / rect.width;   // 0–1
+    const y = (e.clientY - rect.top) / rect.height;    // 0–1
+    const rotateY = (x - 0.5) * 25;   // ±12.5°
+    const rotateX = (0.5 - y) * 20;   // ±10°
+
+    if (frameRef.current) {
+      frameRef.current.style.transform =
+        `rotateY(${rotateY}deg) rotateX(${rotateX}deg) translateZ(40px) scale(1.06)`;
+    }
+    if (glowRef.current) {
+      glowRef.current.style.opacity = "1";
+      glowRef.current.style.background =
+        `radial-gradient(circle at ${x * 100}% ${y * 100}%, rgba(145,94,255,0.35), transparent 60%)`;
+    }
+    if (shineRef.current) {
+      shineRef.current.style.opacity = "1";
+      shineRef.current.style.background =
+        `radial-gradient(circle at ${x * 100}% ${y * 100}%, rgba(255,255,255,0.12) 0%, transparent 50%)`;
+    }
+  }, []);
+
+  const handleEnter = useCallback(() => {
+    isHovering.current = true;
+  }, []);
+
+  const handleLeave = useCallback(() => {
+    isHovering.current = false;
+    if (frameRef.current) {
+      frameRef.current.style.transform = "rotateY(0deg) rotateX(0deg) translateZ(0px) scale(1)";
+    }
+    if (glowRef.current) glowRef.current.style.opacity = "0";
+    if (shineRef.current) shineRef.current.style.opacity = "0";
+  }, []);
+
+  return (
+    <div
+      ref={containerRef}
+      onMouseMove={handleMove}
+      onMouseEnter={handleEnter}
+      onMouseLeave={handleLeave}
+      className="w-56 xs:w-64 sm:w-72 md:w-[35%] lg:w-[32%] flex-shrink-0 relative group"
+      style={{ perspective: "800px" }}
+    >
+      {/* Animated glow rings behind photo */}
+      <div className="absolute -inset-3 sm:-inset-4 rounded-2xl border border-[#915eff]/20 rotate-3 group-hover:border-[#915eff]/40 transition-colors duration-700" />
+      <div className="absolute -inset-2 sm:-inset-3 rounded-2xl border border-[#00cea8]/15 -rotate-2 group-hover:border-[#00cea8]/30 transition-colors duration-700" />
+
+      {/* Background glow — intensifies on hover */}
+      <div className="absolute -inset-6 rounded-3xl bg-[#915eff]/5 blur-[40px] group-hover:bg-[#915eff]/15 transition-all duration-700 pointer-events-none" />
+
+      {/* Cursor-tracking purple glow behind photo */}
+      <div
+        ref={glowRef}
+        className="absolute -inset-4 rounded-3xl blur-[30px] pointer-events-none opacity-0 transition-opacity duration-500"
+      />
+
+      {/* 3D-transformed frame — pops out of card */}
+      <div
+        ref={frameRef}
+        className="relative rounded-2xl overflow-hidden will-change-transform"
+        style={{
+          transformStyle: "preserve-3d",
+          transition: "transform 0.15s ease-out",
+        }}
+      >
+        {/* Edge smudge — blends photo edges into card */}
+        <div
+          className="absolute inset-0 z-[2] pointer-events-none rounded-2xl"
+          style={{
+            boxShadow:
+              "inset 0 0 40px 15px rgba(5, 8, 22, 0.8), inset 0 -30px 40px 10px rgba(5, 8, 22, 0.9)",
+          }}
+        />
+
+        {/* Dynamic shine that follows cursor */}
+        <div
+          ref={shineRef}
+          className="absolute inset-0 z-[3] pointer-events-none opacity-0 transition-opacity duration-300 mix-blend-overlay"
+        />
+
+        {/* Shadow underneath that grows on hover */}
+        <div
+          className="absolute -bottom-4 left-[10%] right-[10%] h-8 bg-[#915eff]/0 group-hover:bg-[#915eff]/20 blur-[20px] rounded-full transition-all duration-500 pointer-events-none"
+          style={{ transform: "translateZ(-30px)" }}
+        />
+
+        <img
+          src={photo}
+          alt="Rugwed Patharkar"
+          loading="lazy"
+          className="object-cover w-full aspect-[3/4] rounded-2xl transition-all duration-500 group-hover:brightness-110"
+        />
+
+        {/* Bottom info bar */}
+        <div className="absolute bottom-0 left-0 right-0 p-3 sm:p-4 z-[3]">
+          <div className="flex items-center gap-2">
+            <span className="w-2 h-2 rounded-full bg-green-400 animate-pulse" />
+            <span className="text-green-300 text-caption sm:text-body-sm font-mono font-medium">
+              {personalInfo.availability}
+            </span>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+};
+
 const About = () => {
   const [showResume, setShowResume] = useState(false);
 
@@ -58,56 +177,15 @@ const About = () => {
 
       <motion.div
         variants={fadeIn("up", "spring", 0.2, 0.75)}
-        className="mt-8 sm:mt-12 glass-card rounded-2xl p-6 sm:p-10 relative overflow-hidden"
+        className="mt-8 sm:mt-12 glass-card rounded-2xl p-6 sm:p-10 relative overflow-visible"
       >
         {/* Accent glow behind the card */}
         <div className="absolute -top-20 -left-20 w-72 h-72 bg-[#915eff]/10 rounded-full blur-[100px] pointer-events-none" />
         <div className="absolute -bottom-20 -right-20 w-60 h-60 bg-[#00cea8]/8 rounded-full blur-[80px] pointer-events-none" />
 
         <div className="flex flex-col md:flex-row items-center gap-8 md:gap-0 relative z-[1]">
-          {/* Photo — smudged into card */}
-          <div className="w-56 xs:w-64 sm:w-72 md:w-[35%] lg:w-[32%] flex-shrink-0 relative group" style={{ perspective: "800px" }}>
-            {/* Animated glow ring behind photo — pulses on hover */}
-            <div className="absolute -inset-3 sm:-inset-4 rounded-2xl border border-[#915eff]/20 rotate-3 group-hover:border-[#915eff]/40 transition-colors duration-700" />
-            <div className="absolute -inset-2 sm:-inset-3 rounded-2xl border border-[#00cea8]/15 -rotate-2 group-hover:border-[#00cea8]/30 transition-colors duration-700" />
-
-            {/* Background glow — intensifies on hover */}
-            <div className="absolute -inset-6 rounded-3xl bg-[#915eff]/5 blur-[40px] group-hover:bg-[#915eff]/15 transition-all duration-700 pointer-events-none" />
-
-            <div className="relative rounded-2xl overflow-hidden transition-transform duration-700 ease-out group-hover:[transform:rotateY(5deg)_rotateX(3deg)_scale(1.02)]">
-              {/* Edge smudge — blends photo edges into the card */}
-              <div className="absolute inset-0 z-[2] pointer-events-none rounded-2xl"
-                style={{
-                  boxShadow: "inset 0 0 40px 15px rgba(5, 8, 22, 0.8), inset 0 -30px 40px 10px rgba(5, 8, 22, 0.9)",
-                }}
-              />
-
-              {/* Shine sweep on hover */}
-              <div className="absolute inset-0 z-[3] pointer-events-none opacity-0 group-hover:opacity-100 transition-opacity duration-500"
-                style={{
-                  background: "linear-gradient(115deg, transparent 30%, rgba(145, 94, 255, 0.08) 45%, rgba(0, 206, 168, 0.06) 55%, transparent 70%)",
-                  animation: "none",
-                }}
-              />
-
-              <img
-                src={photo}
-                alt="Rugwed Patharkar"
-                loading="lazy"
-                className="object-cover w-full aspect-[3/4] rounded-2xl transition-all duration-700 group-hover:scale-110 group-hover:brightness-110"
-              />
-
-              {/* Bottom info bar */}
-              <div className="absolute bottom-0 left-0 right-0 p-3 sm:p-4 z-[3]">
-                <div className="flex items-center gap-2">
-                  <span className="w-2 h-2 rounded-full bg-green-400 animate-pulse" />
-                  <span className="text-green-300 text-caption sm:text-body-sm font-mono font-medium">
-                    {personalInfo.availability}
-                  </span>
-                </div>
-              </div>
-            </div>
-          </div>
+          {/* Photo — 3D pop-out on hover */}
+          <Photo3D />
 
           {/* Text content */}
           <div className="w-full md:w-[65%] lg:w-[68%] md:pl-8 lg:pl-12">
