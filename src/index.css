@@ -1053,3 +1053,27 @@ body.matrix-mode .bg-gradient-to-r {
   60% { transform: scale(1); }
 }
 
+/* ===== SKILL TERMINAL — ANIMATED SCAN LINE SWEEP ===== */
+.skill-terminal-scanline-sweep::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 100%;
+  height: 4px;
+  background: linear-gradient(
+    180deg,
+    transparent 0%,
+    rgba(145, 94, 255, 0.03) 50%,
+    transparent 100%
+  );
+  z-index: 2;
+  pointer-events: none;
+  animation: termScanSweep 4s linear infinite;
+}
+
+@keyframes termScanSweep {
+  0% { top: 0; }
+  100% { top: 100%; }
+}
+

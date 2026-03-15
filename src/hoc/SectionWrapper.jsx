@@ -13,16 +13,20 @@ const SectionWrapper = (Component, idName, label) =>
 
     // Subtle parallax: section floats up 20px as it scrolls through viewport
     const y = useTransform(scrollYProgress, [0, 1], [20, -20]);
+    // Watermark moves slower — creates depth separation
+    const labelY = useTransform(scrollYProgress, [0, 1], [40, -40]);
+    const labelOpacity = useTransform(scrollYProgress, [0, 0.3, 0.7, 1], [0, 0.015, 0.015, 0]);
 
     return (
       <section ref={ref} className="relative z-0">
         {label && (
-          <span
-            className="absolute -top-6 -left-4 sm:-left-8 font-heading font-black text-white/[0.015] text-[120px] sm:text-[180px] md:text-[220px] leading-none select-none pointer-events-none whitespace-nowrap overflow-hidden max-w-full"
+          <motion.span
+            style={{ y: labelY, opacity: labelOpacity }}
+            className="absolute -top-6 -left-4 sm:-left-8 font-heading font-black text-white text-[120px] sm:text-[180px] md:text-[220px] leading-none select-none pointer-events-none whitespace-nowrap overflow-hidden max-w-full"
             aria-hidden="true"
           >
             {label}
-          </span>
+          </motion.span>
         )}
         <span className="hash-span" id={idName}>
           &nbsp;

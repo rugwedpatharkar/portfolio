@@ -51,8 +51,23 @@ const ProgressRing = ({ percent, color, size = 56, strokeWidth = 3, visible }) =
   );
 };
 
+/* ── Pulse-glow keyframes (injected once) ── */
+const PULSE_STYLE_ID = "edu-pulse-glow";
+if (typeof document !== "undefined" && !document.getElementById(PULSE_STYLE_ID)) {
+  const style = document.createElement("style");
+  style.id = PULSE_STYLE_ID;
+  style.textContent = `
+    @keyframes eduPulseGlow {
+      0%, 100% { opacity: 0.6; transform: scale(1); }
+      50%      { opacity: 1;   transform: scale(1.18); }
+    }
+    .edu-pulse-glow { animation: eduPulseGlow 2s ease-in-out infinite; }
+  `;
+  document.head.appendChild(style);
+}
+
 /* ── Milestone Node ── */
-const MilestoneNode = ({ edu, index, isActive, isPast, onClick, color }) => (
+const MilestoneNode = ({ edu, index, isActive, isPast, onClick, color, isLast }) => (
   <button
     onClick={onClick}
     className={`relative z-10 flex flex-col items-center gap-1.5 sm:gap-2 group transition-transform duration-300 ${
@@ -82,12 +97,12 @@ const MilestoneNode = ({ edu, index, isActive, isPast, onClick, color }) => (
           {edu.percentage}%
         </span>
       </div>
-      {/* Active glow */}
+      {/* Active pulse glow */}
       {isActive && (
         <div
-          className="absolute inset-0 rounded-full animate-pulse pointer-events-none"
+          className="absolute inset-[-6px] rounded-full edu-pulse-glow pointer-events-none z-[0]"
           style={{
-            boxShadow: `0 0 20px ${color}30, 0 0 40px ${color}15`,
+            boxShadow: `0 0 18px ${color}50, 0 0 36px ${color}25, 0 0 54px ${color}10`,
           }}
         />
       )}

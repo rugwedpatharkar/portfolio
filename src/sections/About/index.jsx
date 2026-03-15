@@ -1,7 +1,7 @@
 /* eslint-disable react/prop-types */
 /* eslint-disable react-refresh/only-export-components */
 import { useState, useRef, useCallback, memo } from "react";
-import { motion } from "framer-motion";
+import { motion, useScroll, useTransform } from "framer-motion";
 import { styles } from "../../styles";
 import { services, personalInfo, sectionMeta } from "../../content";
 import { fadeIn, textVariant } from "../../utils/motion";
@@ -169,6 +169,23 @@ const Photo3D = () => {
   );
 };
 
+const ParallaxCard = ({ index, children }) => {
+  const ref = useRef(null);
+  const { scrollYProgress } = useScroll({
+    target: ref,
+    offset: ["start end", "end start"],
+  });
+  const offset = 10 + (index % 3) * 5; // 10px, 15px, or 20px
+  const direction = index % 2 === 0 ? 1 : -1;
+  const y = useTransform(scrollYProgress, [0, 1], [offset * direction, -offset * direction]);
+
+  return (
+    <motion.div ref={ref} style={{ y }}>
+      {children}
+    </motion.div>
+  );
+};
+
 const About = () => {
   const [showResume, setShowResume] = useState(false);
 
@@ -253,7 +270,9 @@ const About = () => {
 
       <div className="mt-12 sm:mt-20 grid grid-cols-2 xs:grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4 sm:gap-6 lg:gap-10">
         {services.map((service, index) => (
-          <ServiceCard key={service.title} index={index} {...service} />
+          <ParallaxCard key={service.title} index={index}>
+            <ServiceCard index={index} {...service} />
+          </ParallaxCard>
         ))}
       </div>
 

@@ -70,6 +70,7 @@ const SkillBar = memo(({ name, level, color, visible, delay }) => (
 /* ── Main terminal component ── */
 const SkillTerminal = () => {
   const [visible, setVisible] = useState(false);
+  const [activeCategory, setActiveCategory] = useState(null);
   const ref = useRef(null);
 
   useEffect(() => {
@@ -107,9 +108,17 @@ const SkillTerminal = () => {
       : { opacity: 0 };
 
   return (
-    <div ref={ref} className="skill-terminal mt-6 sm:mt-8 card-shine glow-hover">
+    <div ref={ref} className="skill-terminal skill-terminal-scanline-sweep mt-6 sm:mt-8 card-shine glow-hover">
       {/* ── Terminal chrome ── */}
-      <div className="skill-terminal-chrome flex items-center justify-between px-4 py-2.5 sm:py-3 rounded-t-xl">
+      <div
+        className="skill-terminal-chrome flex items-center justify-between px-4 py-2.5 sm:py-3 rounded-t-xl"
+        style={{
+          boxShadow: activeCategory
+            ? `0 0 15px ${CATEGORY_COLORS[activeCategory] || "#915eff"}20, 0 0 30px ${CATEGORY_COLORS[activeCategory] || "#915eff"}10`
+            : undefined,
+          transition: "box-shadow 0.4s ease",
+        }}
+      >
         <div className="flex gap-1.5 sm:gap-2">
           <span className="w-2.5 h-2.5 sm:w-3 sm:h-3 rounded-full bg-[#ff5f57]" />
           <span className="w-2.5 h-2.5 sm:w-3 sm:h-3 rounded-full bg-[#febc2e]" />
@@ -134,6 +143,7 @@ const SkillTerminal = () => {
           <span className="text-[#00cea8]">❯</span>{" "}
           <span className="text-[#61dafb]">neofetch</span>{" "}
           <span className="text-white/40">--skills</span>
+          <span className="skill-terminal-cursor ml-1">_</span>
         </div>
 
         {/* ── neofetch output block ── */}
@@ -219,7 +229,11 @@ const SkillTerminal = () => {
             const catDelay = d();
 
             return (
-              <div key={category}>
+              <div
+                key={category}
+                onMouseEnter={() => setActiveCategory(category)}
+                onMouseLeave={() => setActiveCategory(null)}
+              >
                 {/* Category header */}
                 <div
                   className="font-mono text-caption sm:text-body-sm mb-1"
