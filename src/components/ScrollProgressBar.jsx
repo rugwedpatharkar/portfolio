@@ -91,7 +91,7 @@ const ScrollProgressBar = () => {
       <div className="h-[2px] bg-white/[0.04]">
         <div
           ref={barRef}
-          className="h-full bg-gradient-to-r from-[#915eff] to-[#00cea8] origin-left bar-wave"
+          className="h-full bg-gradient-to-r from-[#915eff] to-[#00cea8] origin-left"
           style={{ transform: "scaleX(0)" }}
         />
       </div>

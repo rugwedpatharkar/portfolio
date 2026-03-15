@@ -1082,8 +1082,8 @@ body.matrix-mode .bg-gradient-to-r {
    GPU-composited (transform only), zero layout cost. */
 
 .bar-wave {
-  position: relative;
   overflow: hidden;
+  isolation: isolate;
 }
 
 .bar-wave::after {

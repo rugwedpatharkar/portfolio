@@ -13,12 +13,12 @@ import TextScramble from "../../components/TextScramble";
 /* ── Tech stack marquee — auto-scrolling skill icons ── */
 const allSkillIcons = Object.values(skills).flat();
 const TechMarquee = () => (
-  <div className="absolute bottom-10 sm:bottom-14 left-0 right-0 z-[3] overflow-hidden pointer-events-none opacity-40">
+  <div className="absolute bottom-10 sm:bottom-14 left-0 right-0 z-[3] overflow-hidden pointer-events-none opacity-70">
     <div className="hero-marquee flex gap-8 sm:gap-12 items-center w-max">
       {[...allSkillIcons, ...allSkillIcons].map((skill, i) => (
         <div key={`${skill.name}-${i}`} className="flex items-center gap-2 shrink-0">
           <img src={skill.icon} alt="" className="w-5 h-5 sm:w-6 sm:h-6 object-contain" loading="lazy" />
-          <span className="text-micro sm:text-caption font-mono text-white/50 whitespace-nowrap">{skill.name}</span>
+          <span className="text-micro sm:text-caption font-mono text-white/70 whitespace-nowrap">{skill.name}</span>
         </div>
       ))}
     </div>

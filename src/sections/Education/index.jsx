@@ -132,7 +132,7 @@ const DetailCard = ({ edu, color }) => (
     animate={{ opacity: 1, y: 0 }}
     exit={{ opacity: 0, y: -15 }}
     transition={{ duration: 0.35, ease: [0.04, 0.62, 0.23, 0.98] }}
-    className="glass-card rounded-2xl p-5 sm:p-7 relative overflow-hidden card-shine glow-hover border-glow"
+    className="glass-card rounded-2xl p-5 sm:p-7 relative overflow-hidden"
   >
     {/* Accent glow */}
     <div
@@ -232,7 +232,7 @@ const DetailCard = ({ edu, color }) => (
           initial={{ width: 0 }}
           animate={{ width: `${edu.percentage}%` }}
           transition={{ duration: 1, delay: 0.2, ease: "easeOut" }}
-          className="h-full rounded-full bar-wave"
+          className="h-full rounded-full relative bar-wave"
           style={{
             background: `linear-gradient(90deg, ${color}80, ${color})`,
             boxShadow: `0 0 12px ${color}40`,

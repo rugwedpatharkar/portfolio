@@ -168,13 +168,20 @@ const App = () => {
         >
           Skip to main content
         </a>
-        <div className="bg-hero-pattern bg-cover bg-no-repeat bg-center relative">
+        <div className="relative">
+          {/* Hero background — fades out at bottom */}
+          <div
+            className="absolute inset-0 bg-hero-pattern bg-cover bg-no-repeat bg-center"
+            style={{
+              maskImage: "linear-gradient(to bottom, #000 60%, transparent 100%)",
+              WebkitMaskImage: "linear-gradient(to bottom, #000 60%, transparent 100%)",
+            }}
+          />
           <Navbar />
           <Hero />
         </div>
-        {/* Gradient fade to smooth the 3D model's hard bottom edge into the background */}
-        <div className="relative -mt-48 sm:-mt-64 h-48 sm:h-64 bg-gradient-to-b from-transparent to-[#050816] pointer-events-none z-[3]" />
 
+        <div className="mt-16 sm:mt-24" />
         <Suspense fallback={null}>
           <ErrorBoundary>
             <About />
