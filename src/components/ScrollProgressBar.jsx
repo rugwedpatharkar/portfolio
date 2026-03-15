@@ -37,31 +37,50 @@ const ScrollProgressBar = () => {
   }, []);
 
   // Track active section via IntersectionObserver
+  // Retry until lazy-loaded sections exist in DOM
   useEffect(() => {
     const visibilityMap = {};
-    const observer = new IntersectionObserver(
-      (entries) => {
-        entries.forEach((entry) => {
-          visibilityMap[entry.target.id] = entry.intersectionRatio;
-        });
-        let bestId = null;
-        let bestRatio = 0;
-        for (const { id } of MILESTONES) {
-          if ((visibilityMap[id] || 0) > bestRatio) {
-            bestRatio = visibilityMap[id];
-            bestId = id;
-          }
-        }
-        if (bestId && bestRatio > 0) setActiveSection(bestId);
-      },
-      { threshold: [0, 0.2, 0.4, 0.6, 0.8, 1] }
-    );
+    let observer;
+    let retryTimer;
 
-    MILESTONES.forEach(({ id }) => {
-      const el = document.getElementById(id);
-      if (el) observer.observe(el);
-    });
-    return () => observer.disconnect();
+    const setup = () => {
+      const elements = MILESTONES
+        .map(({ id }) => document.getElementById(id))
+        .filter(Boolean);
+
+      if (elements.length < MILESTONES.length) {
+        retryTimer = setTimeout(setup, 500);
+        return;
+      }
+
+      observer = new IntersectionObserver(
+        (entries) => {
+          entries.forEach((entry) => {
+            visibilityMap[entry.target.id] = entry.isIntersecting
+              ? entry.intersectionRatio
+              : 0;
+          });
+          let bestId = null;
+          let bestRatio = 0;
+          for (const { id } of MILESTONES) {
+            if ((visibilityMap[id] || 0) > bestRatio) {
+              bestRatio = visibilityMap[id];
+              bestId = id;
+            }
+          }
+          if (bestId && bestRatio > 0) setActiveSection(bestId);
+        },
+        { threshold: [0, 0.1, 0.2, 0.3, 0.5], rootMargin: "-80px 0px 0px 0px" }
+      );
+
+      elements.forEach((el) => observer.observe(el));
+    };
+
+    retryTimer = setTimeout(setup, 300);
+    return () => {
+      clearTimeout(retryTimer);
+      if (observer) observer.disconnect();
+    };
   }, []);
 
   const activeLabel = MILESTONES.find((m) => m.id === activeSection);

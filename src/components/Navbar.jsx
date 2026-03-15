@@ -26,46 +26,68 @@ const Navbar = () => {
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
 
-  /* IntersectionObserver for active section tracking */
+  /* IntersectionObserver for active section tracking.
+     Sections are React.lazy — they don't exist in the DOM on first render.
+     We retry until all sections are found, then observe them. */
   useEffect(() => {
     const sectionIds = navLinks.map((link) => link.id);
     const visibilityMap = {};
+    let observer;
+    let retryTimer;
 
-    const observer = new IntersectionObserver(
-      (entries) => {
-        entries.forEach((entry) => {
-          visibilityMap[entry.target.id] = entry.intersectionRatio;
-        });
+    const setupObserver = () => {
+      const elements = sectionIds
+        .map((id) => document.getElementById(id))
+        .filter(Boolean);
 
-        // Find the section with the highest intersection ratio
-        let bestId = null;
-        let bestRatio = 0;
-        for (const id of sectionIds) {
-          if ((visibilityMap[id] || 0) > bestRatio) {
-            bestRatio = visibilityMap[id];
-            bestId = id;
+      // If not all sections loaded yet, retry
+      if (elements.length < sectionIds.length) {
+        retryTimer = setTimeout(setupObserver, 500);
+        return;
+      }
+
+      observer = new IntersectionObserver(
+        (entries) => {
+          entries.forEach((entry) => {
+            visibilityMap[entry.target.id] = entry.isIntersecting
+              ? entry.intersectionRatio
+              : 0;
+          });
+
+          // Find the section with the highest visibility
+          let bestId = null;
+          let bestRatio = 0;
+          for (const id of sectionIds) {
+            if ((visibilityMap[id] || 0) > bestRatio) {
+              bestRatio = visibilityMap[id];
+              bestId = id;
+            }
           }
-        }
 
-        if (bestId && bestRatio > 0) {
-          const matchedLink = navLinks.find((l) => l.id === bestId);
-          if (matchedLink) {
-            setActive(matchedLink.title);
+          if (bestId && bestRatio > 0) {
+            const matchedLink = navLinks.find((l) => l.id === bestId);
+            if (matchedLink) {
+              setActive(matchedLink.title);
+            }
           }
+        },
+        {
+          // Use low threshold so tall sections still trigger
+          threshold: [0, 0.1, 0.2, 0.3, 0.5],
+          // Offset for the fixed navbar height
+          rootMargin: "-80px 0px 0px 0px",
         }
-      },
-      { threshold: 0.3 }
-    );
+      );
 
-    const elements = sectionIds
-      .map((id) => document.getElementById(id))
-      .filter(Boolean);
+      elements.forEach((el) => observer.observe(el));
+    };
 
-    elements.forEach((el) => observer.observe(el));
+    // Start trying after a short delay for lazy sections to mount
+    retryTimer = setTimeout(setupObserver, 300);
 
     return () => {
-      elements.forEach((el) => observer.unobserve(el));
-      observer.disconnect();
+      clearTimeout(retryTimer);
+      if (observer) observer.disconnect();
     };
   }, []);
 
