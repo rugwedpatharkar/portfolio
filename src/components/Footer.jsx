@@ -1,16 +1,9 @@
 import { useEffect, useRef, useState } from "react";
 import { AiOutlineGithub } from "react-icons/ai";
 import { ImLinkedin } from "react-icons/im";
-import { navLinks, personalInfo } from "../content";
+import { navLinks, personalInfo, builtWith, footerContent } from "../content";
 import VisitorCounter from "./VisitorCounter";
 
-const BUILT_WITH = [
-  { name: "React", color: "#61dafb" },
-  { name: "Tailwind CSS", color: "#61dafb" },
-  { name: "Framer Motion", color: "#bf61ff" },
-  { name: "Three.js", color: "#00cea8" },
-  { name: "Vite", color: "#f8c555" },
-];
 
 const Footer = () => {
   const currentYear = new Date().getFullYear();
@@ -54,7 +47,7 @@ const Footer = () => {
               {personalInfo.fullName}
             </p>
             <p className="text-secondary text-body-sm mt-1.5 max-w-xs leading-relaxed">
-              {personalInfo.role}. Building scalable microservices & AI-powered systems.
+              {footerContent.tagline}
             </p>
             {/* Social icons */}
             <div className="flex gap-3 mt-4">
@@ -79,21 +72,21 @@ const Footer = () => {
             </div>
             {/* Download Portfolio */}
             <a
-              href="/Rugwed-Patharkar-Portfolio.pdf"
+              href={footerContent.portfolioFile}
               download
               className="inline-flex items-center gap-1.5 mt-3 text-secondary hover:text-[#915eff] text-body-sm font-mono transition-colors duration-200 group"
             >
               <svg className="w-4 h-4 group-hover:translate-y-0.5 transition-transform" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
                 <path strokeLinecap="round" strokeLinejoin="round" d="M3 16.5v2.25A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75V16.5M16.5 12L12 16.5m0 0L7.5 12m4.5 4.5V3" />
               </svg>
-              Download Portfolio
+              {footerContent.portfolioDownload}
             </a>
           </div>
 
           {/* Column 2: Quick Links */}
           <div>
             <h4 className="text-white/45 text-caption font-mono uppercase tracking-wider mb-3">
-              Navigate
+              {footerContent.navigateHeader}
             </h4>
             <ul className="grid grid-cols-2 gap-x-4 gap-y-1.5">
               {navLinks.map((link) => (
@@ -115,10 +108,10 @@ const Footer = () => {
           {/* Column 3: Built With */}
           <div>
             <h4 className="text-white/45 text-caption font-mono uppercase tracking-wider mb-3">
-              Built With
+              {footerContent.builtWithHeader}
             </h4>
             <div className="flex flex-wrap gap-2" ref={pillsRef}>
-              {BUILT_WITH.map((tech, index) => (
+              {builtWith.map((tech, index) => (
                 <span
                   key={tech.name}
                   className="font-mono text-micro sm:text-caption px-2.5 py-1 rounded-full border transition-all duration-300 cursor-default"
@@ -159,13 +152,13 @@ const Footer = () => {
             </p>
             <span className="inline-flex items-center gap-1.5 font-mono text-micro px-2 py-0.5 rounded-full border border-[#915eff]/20 bg-[#915eff]/5">
               <span className="w-1.5 h-1.5 rounded-full bg-[#915eff] animate-pulse" />
-              <span className="text-[#915eff]">v3.0</span>
+              <span className="text-[#915eff]">{footerContent.version}</span>
             </span>
           </div>
           <p className="text-white/55 text-micro sm:text-caption font-mono">
-            Designed & Developed with{" "}
+            {footerContent.madeWith}{" "}
             <span className="text-[#915eff]">&lt;/&gt;</span> &amp;{" "}
-            <span className="footer-heart text-red-400 inline-block">&#9829;</span>
+            <span className="footer-heart text-red-400 inline-block align-middle">&#9829;</span>
           </p>
         </div>
       </div>

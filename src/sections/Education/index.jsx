@@ -1,11 +1,11 @@
 /* eslint-disable react/prop-types */
 /* eslint-disable react-refresh/only-export-components */
-import { useState, useMemo, useEffect, useCallback, useRef } from "react";
+import { Fragment, useState, useMemo, useEffect, useCallback, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { styles } from "../../styles";
 import { SectionWrapper } from "../../hoc";
 import { fadeIn, textVariant } from "../../utils/motion";
-import { educations, sectionMeta } from "../../content";
+import { educations, sectionMeta, uiLabels } from "../../content";
 import TextScramble from "../../components/TextScramble";
 import { NODE_COLORS } from "../../config/theme";
 
@@ -100,7 +100,7 @@ const MilestoneNode = ({ edu, index, isActive, isPast, onClick, color, isLast })
       {/* Active pulse glow */}
       {isActive && (
         <div
-          className="absolute inset-[-6px] rounded-full edu-pulse-glow pointer-events-none z-[0]"
+          className="absolute -inset-1.5 rounded-full edu-pulse-glow pointer-events-none z-[0]"
           style={{
             boxShadow: `0 0 18px ${color}50, 0 0 36px ${color}25, 0 0 54px ${color}10`,
           }}
@@ -164,7 +164,7 @@ const DetailCard = ({ edu, color }) => (
           <svg className="w-3 h-3" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
             <path d="M10.394 2.08a1 1 0 00-.788 0l-7 3a1 1 0 000 1.84L5.25 8.051a.999.999 0 01.356-.257l4-1.714a1 1 0 11.788 1.838l-3.14 1.346 2.352 1.005a1 1 0 00.788 0l7-3a1 1 0 000-1.838l-7-3.001zM3.31 9.397L5 10.12v4.102a8.969 8.969 0 00-1.05-.174 1 1 0 01-.89-.89 11.115 11.115 0 01.25-3.762zM9.3 16.573A9.026 9.026 0 007 14.935v-3.957l1.818.78a3 3 0 002.364 0l5.508-2.361a11.026 11.026 0 01.25 3.762 1 1 0 01-.89.89 8.968 8.968 0 00-5.35 2.524 1 1 0 01-1.4 0z" />
           </svg>
-          Score: {edu.percentage}%
+          {uiLabels.education.score}: {edu.percentage}%
         </span>
       )}
     </div>
@@ -191,7 +191,7 @@ const DetailCard = ({ edu, color }) => (
       <span className="text-white/20">|</span>
       <span className="flex items-center gap-1.5">
         <span className="w-1.5 h-1.5 rounded-full bg-[#00cea8] inline-block" />
-        Completed
+        {uiLabels.education.completed}
       </span>
     </div>
 
@@ -218,7 +218,7 @@ const DetailCard = ({ edu, color }) => (
     <div className="mt-5">
       <div className="flex items-center justify-between mb-2">
         <span className="text-white/40 text-caption sm:text-body-sm font-mono">
-          Score
+          {uiLabels.education.score}
         </span>
         <span
           className="font-heading font-bold text-body sm:text-body-lg"
@@ -284,12 +284,6 @@ const Education = () => {
     return () => window.removeEventListener("keydown", onKey);
   }, [goPrev, goNext]);
 
-  // Progress fill width based on active node
-  const progressWidth =
-    timeline.length > 1
-      ? `${(activeIndex / (timeline.length - 1)) * 100}%`
-      : "100%";
-
   return (
     <div ref={sectionRef} className="relative">
       {/* Ambient glow blobs */}
@@ -313,33 +307,51 @@ const Education = () => {
       </motion.p>
 
       {/* ── Milestone Track ── */}
-      <div className="mt-10 sm:mt-14 relative px-2 sm:px-8">
-        {/* Background line — z-0 so nodes sit on top */}
-        <div className="absolute top-[22px] sm:top-[28px] left-[calc(8.33%)] right-[calc(8.33%)] h-[2px] bg-white/[0.06] rounded-full z-0" />
-
-        {/* Progress fill line — z-0, behind nodes */}
+      <div className="mt-10 sm:mt-14 px-2 sm:px-8">
+        {/* Grid: [node] [line] [node] [line] [node] [line] [node]
+             node columns = auto, line columns = 1fr */}
         <div
-          className="absolute top-[22px] sm:top-[28px] left-[calc(8.33%)] h-[2px] rounded-full transition-all duration-700 ease-out z-0 bar-wave"
+          className="grid items-start"
           style={{
-            width: `calc(${progressWidth} * 0.8333)`,
-            background: `linear-gradient(90deg, ${NODE_COLORS[0]}, ${activeColor})`,
-            boxShadow: `0 0 10px ${activeColor}30`,
+            gridTemplateColumns: timeline
+              .map((_, i) => i < timeline.length - 1 ? "auto 1fr" : "auto")
+              .join(" "),
           }}
-        />
-
-        {/* Nodes */}
-        <div className="flex items-start justify-between relative">
-          {timeline.map((edu, i) => (
-            <MilestoneNode
-              key={edu.shortName}
-              edu={edu}
-              index={i}
-              isActive={i === activeIndex}
-              isPast={i <= activeIndex}
-              onClick={() => setActiveIndex(i)}
-              color={NODE_COLORS[i % NODE_COLORS.length]}
-            />
-          ))}
+        >
+          {timeline.map((edu, i) => {
+            const segmentFilled = i < activeIndex;
+            const segmentColor = NODE_COLORS[i % NODE_COLORS.length];
+            const nextColor = NODE_COLORS[(i + 1) % NODE_COLORS.length];
+            return (
+              <Fragment key={edu.shortName}>
+                {/* Node */}
+                <MilestoneNode
+                  edu={edu}
+                  index={i}
+                  isActive={i === activeIndex}
+                  isPast={i <= activeIndex}
+                  onClick={() => setActiveIndex(i)}
+                  color={NODE_COLORS[i % NODE_COLORS.length]}
+                />
+                {/* Segment line to next node */}
+                {i < timeline.length - 1 && (
+                  <div
+                    className="h-[2px] rounded-full mt-[22px] sm:mt-[28px] bg-white/[0.06] overflow-hidden"
+                    style={{ alignSelf: "start" }}
+                  >
+                    <div
+                      className="h-full rounded-full transition-all duration-700 ease-out"
+                      style={{
+                        width: segmentFilled ? "100%" : "0%",
+                        background: `linear-gradient(90deg, ${segmentColor}, ${nextColor})`,
+                        boxShadow: segmentFilled ? `0 0 8px ${nextColor}30` : "none",
+                      }}
+                    />
+                  </div>
+                )}
+              </Fragment>
+            );
+          })}
         </div>
       </div>
 
@@ -388,7 +400,7 @@ const Education = () => {
                 d="M15 19l-7-7 7-7"
               />
             </svg>
-            Prev
+            {uiLabels.education.prev}
           </button>
 
           {/* Dot indicators */}
@@ -421,7 +433,7 @@ const Education = () => {
             disabled={activeIndex === timeline.length - 1}
             className="font-mono text-caption sm:text-body-sm text-white/45 hover:text-white/60 disabled:opacity-20 disabled:cursor-not-allowed transition-colors flex items-center gap-1.5 px-3 py-2.5 sm:py-2 rounded-lg hover:bg-white/[0.03] min-h-[44px]"
           >
-            Next
+            {uiLabels.education.next}
             <svg
               className="w-5 h-5 sm:w-4 sm:h-4"
               fill="none"

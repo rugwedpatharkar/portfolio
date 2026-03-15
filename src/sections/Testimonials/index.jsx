@@ -4,7 +4,7 @@ import { useState, useEffect, useCallback, useRef } from "react";
 import { motion, AnimatePresence, useMotionValue } from "framer-motion";
 import { styles } from "../../styles";
 import { SectionWrapper } from "../../hoc";
-import { testimonials, sectionMeta } from "../../content";
+import { testimonials, sectionMeta, uiLabels } from "../../content";
 import { fadeIn, textVariant } from "../../utils/motion";
 import TextScramble from "../../components/TextScramble";
 import { ACCENT_COLORS as ACCENTS } from "../../config/theme";
@@ -314,7 +314,7 @@ const Testimonials = () => {
               {t.endorsements && (
                 <div className="mt-5">
                   <span className="text-white/40 text-micro sm:text-caption font-mono uppercase tracking-wider">
-                    Endorses
+                    {uiLabels.testimonials.endorses}
                   </span>
                   <div className="flex flex-wrap gap-1.5 sm:gap-2 mt-2">
                     {t.endorsements.map((skill) => (
@@ -349,7 +349,7 @@ const Testimonials = () => {
                   {t.context.projects && (
                     <div className="flex flex-wrap gap-1.5 mt-2">
                       <span className="text-white/45 text-micro sm:text-caption font-mono">
-                        Projects:
+                        {uiLabels.testimonials.projects}
                       </span>
                       {t.context.projects.map((p) => (
                         <span

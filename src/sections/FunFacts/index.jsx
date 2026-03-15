@@ -1,7 +1,7 @@
 /* eslint-disable react/prop-types */
 import { useState, useEffect, useRef, memo } from "react";
 import { motion } from "framer-motion";
-import { funFacts, sectionMeta } from "../../content";
+import { funFacts, sectionMeta, uiLabels } from "../../content";
 import { fadeIn, textVariant } from "../../utils/motion";
 import { styles } from "../../styles";
 import { SectionWrapper } from "../../hoc";
@@ -68,7 +68,7 @@ const FunFactCard = memo(({ fact, index }) => {
       onClick={() => setFlipped((f) => !f)}
     >
       <div
-        className="relative w-full h-full transition-transform duration-500"
+        className="relative w-full h-full transition-transform duration-500 will-change-transform"
         style={{
           transformStyle: "preserve-3d",
           transform: flipped ? "rotateY(180deg)" : "rotateY(0deg)",
@@ -81,7 +81,7 @@ const FunFactCard = memo(({ fact, index }) => {
             style={{ backfaceVisibility: "hidden" }}
           >
             <div
-              className="absolute -top-8 -right-8 w-28 h-28 rounded-full blur-[50px] pointer-events-none opacity-[0.06] group-hover:opacity-[0.12] transition-opacity duration-500"
+              className="absolute top-0 right-0 w-28 h-28 rounded-full blur-[50px] pointer-events-none opacity-[0.06] group-hover:opacity-[0.12] transition-opacity duration-500"
               style={{ background: color }}
             />
             <span className="text-heading sm:text-heading-xl block mb-3">{fact.icon}</span>
@@ -89,7 +89,7 @@ const FunFactCard = memo(({ fact, index }) => {
               <AnimatedCounter value={fact.value} suffix={fact.suffix} />
             </p>
             <p className="text-secondary text-caption sm:text-body-sm mt-2">{fact.label}</p>
-            <p className="text-white/45 text-micro mt-3 font-mono">click to reveal</p>
+            <p className="text-white/45 text-micro mt-3 font-mono">{uiLabels.funFacts.flipHint}</p>
           </div>
         </TiltCard>
 
@@ -102,7 +102,7 @@ const FunFactCard = memo(({ fact, index }) => {
           }}
         >
           <div
-            className="absolute -top-8 -right-8 w-28 h-28 rounded-full blur-[50px] pointer-events-none opacity-[0.10]"
+            className="absolute top-0 right-0 w-28 h-28 rounded-full blur-[50px] pointer-events-none opacity-[0.10]"
             style={{ background: color }}
           />
           <span className="text-body-lg sm:text-heading block mb-2">{fact.icon}</span>
@@ -110,7 +110,7 @@ const FunFactCard = memo(({ fact, index }) => {
             {fact.detail}
           </p>
           <p className="text-micro mt-3 font-mono" style={{ color: `${color}80` }}>
-            tap to flip back
+            {uiLabels.funFacts.flipBack}
           </p>
         </div>
       </div>

@@ -102,73 +102,56 @@ const AchievementCard = ({ achievement, index, onCelebrate }) => {
 
   return (
     <motion.div
-      initial={{ opacity: 0, x: index % 2 === 0 ? -40 : 40 }}
-      whileInView={{ opacity: 1, x: 0 }}
+      initial={{ opacity: 0, y: 30 }}
+      whileInView={{ opacity: 1, y: 0 }}
       viewport={{ once: true }}
-      transition={{ delay: index * 0.15, duration: 0.5, type: "spring" }}
-      className="relative flex items-start gap-4 sm:gap-6 group"
+      transition={{ delay: index * 0.1, duration: 0.5, type: "spring" }}
     >
-      {/* Timeline column */}
-      <div className="flex flex-col items-center">
-        <motion.div
-          ref={iconRef}
-          whileHover={{ scale: 1.15, rotate: [0, -8, 8, 0] }}
-          onHoverStart={() => onCelebrate(iconRef.current, color)}
-          onClick={() => onCelebrate(iconRef.current, color)}
-          transition={{ type: "spring", stiffness: 300 }}
-          className="w-12 h-12 sm:w-14 sm:h-14 rounded-full glass-card flex items-center justify-center text-subheading sm:text-heading-sm flex-shrink-0 border-2 transition-colors duration-300 cursor-default"
-          style={{ borderColor: `${color}40`, boxShadow: `0 0 20px ${color}15` }}
+      <TiltCard tiltStrength={5}>
+        <div
+          className="glass-card rounded-2xl p-5 sm:p-6 card-shine glow-hover border-glow achievement-card relative overflow-hidden h-full"
+          style={{ "--achievement-accent": color }}
         >
-          {achievement.icon}
-        </motion.div>
-        {index < achievements.length - 1 && (
+          {/* Gradient border glow on hover */}
           <div
-            className="w-[2px] h-12 sm:h-16 mt-2 rounded-full"
-            style={{ background: `linear-gradient(to bottom, ${color}40, transparent)` }}
-          />
-        )}
-      </div>
-
-      {/* Card */}
-      <div className="pb-8 sm:pb-12 flex-1">
-        <TiltCard tiltStrength={5}>
-          <div
-            className="glass-card rounded-2xl p-4 sm:p-5 card-shine glow-hover border-glow achievement-card relative overflow-hidden transition-transform duration-300 ease-out hover:scale-[1.03]"
+            className="absolute inset-0 rounded-2xl pointer-events-none opacity-0 transition-opacity duration-500 achievement-gradient-border"
             style={{
-              "--achievement-accent": color,
+              boxShadow: `inset 0 0 0 1.5px ${color}30, 0 0 20px ${color}15, 0 0 40px ${color}08`,
             }}
-          >
-            {/* Gradient border glow on hover */}
-            <div
-              className="absolute inset-0 rounded-2xl pointer-events-none opacity-0 transition-opacity duration-500 achievement-gradient-border"
-              style={{
-                boxShadow: `inset 0 0 0 1.5px ${color}30, 0 0 20px ${color}15, 0 0 40px ${color}08`,
-              }}
-            />
+          />
 
-            {/* Subtle accent glow — intensifies on hover */}
-            <div
-              className="absolute -top-6 -right-6 w-24 h-24 rounded-full blur-[40px] pointer-events-none opacity-[0.06] transition-opacity duration-500 achievement-glow-blob"
-              style={{ background: color }}
-            />
+          {/* Subtle accent glow */}
+          <div
+            className="absolute top-0 right-0 w-24 h-24 rounded-full blur-[40px] pointer-events-none opacity-[0.06] transition-opacity duration-500 achievement-glow-blob"
+            style={{ background: color }}
+          />
 
-            <div className="flex items-center gap-2 mb-1.5">
-              <span
-                className="font-mono text-caption sm:text-body-sm font-semibold"
-                style={{ color }}
-              >
-                {achievement.year}
-              </span>
+          {/* Icon + Year row */}
+          <div className="flex items-center gap-3 mb-3">
+            <div
+              ref={iconRef}
+              onClick={() => onCelebrate(iconRef.current, color)}
+              className="w-11 h-11 sm:w-12 sm:h-12 rounded-full glass-card flex items-center justify-center text-body-lg sm:text-subheading flex-shrink-0 border-2 cursor-pointer transition-transform duration-200 hover:scale-110 active:scale-95"
+              style={{ borderColor: `${color}40`, boxShadow: `0 0 20px ${color}15` }}
+            >
+              {achievement.icon}
             </div>
-            <h3 className="text-white font-heading font-bold text-body sm:text-body-lg">
-              {achievement.title}
-            </h3>
-            <p className="text-secondary text-caption sm:text-body-sm mt-1 leading-relaxed">
-              {achievement.description}
-            </p>
+            <span
+              className="font-mono text-caption sm:text-body-sm font-semibold"
+              style={{ color }}
+            >
+              {achievement.year}
+            </span>
           </div>
-        </TiltCard>
-      </div>
+
+          <h3 className="text-white font-heading font-bold text-body sm:text-body-lg">
+            {achievement.title}
+          </h3>
+          <p className="text-secondary text-caption sm:text-body-sm mt-1.5 leading-relaxed">
+            {achievement.description}
+          </p>
+        </div>
+      </TiltCard>
     </motion.div>
   );
 };
@@ -194,7 +177,7 @@ const Achievements = () => {
         {sectionMeta.achievements.description}
       </motion.p>
 
-      <div className="mt-8 sm:mt-12 max-w-3xl mx-auto">
+      <div className="mt-8 sm:mt-12 grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6">
         {achievements.map((achievement, index) => (
           <AchievementCard key={index} achievement={achievement} index={index} onCelebrate={fireConfetti} />
         ))}

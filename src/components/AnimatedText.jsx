@@ -40,7 +40,7 @@ const AnimatedText = React.memo(({ text, mode = "words", className = "" }) => {
     <motion.span
       ref={ref}
       className={className}
-      style={{ display: "inline-flex", flexWrap: "wrap" }}
+      style={{ display: "inline-flex", flexWrap: "wrap", gap: mode === "words" ? "0.3em" : 0 }}
       variants={container}
       initial="hidden"
       animate={isInView ? "visible" : "hidden"}
@@ -49,10 +49,7 @@ const AnimatedText = React.memo(({ text, mode = "words", className = "" }) => {
         <motion.span
           key={key}
           variants={child}
-          style={{
-            display: "inline-block",
-            marginRight: mode === "words" ? "0.3em" : 0,
-          }}
+          style={{ display: "inline-block" }}
         >
           {content}
         </motion.span>

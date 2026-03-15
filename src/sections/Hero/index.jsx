@@ -4,7 +4,7 @@ import { styles } from "../../styles";
 import Typewriter from "typewriter-effect";
 import { AiOutlineGithub } from "react-icons/ai";
 import { ImLinkedin } from "react-icons/im";
-import { personalInfo, skills, heroContent } from "../../content";
+import { personalInfo, skills, heroContent, heroButtons } from "../../content";
 import { heroPhoto, resume } from "../../assets";
 import ParticleBackground from "../../components/ParticleBackground";
 import MagneticButton from "../../components/MagneticButton";
@@ -53,7 +53,7 @@ const CountUp = ({ value, suffix = "" }) => {
     obs.observe(el);
     return () => obs.disconnect();
   }, [value, suffix]);
-  return <span ref={ref} className="text-white font-heading font-bold text-body-lg sm:text-heading-sm">0{suffix}</span>;
+  return <span ref={ref} className="text-white font-heading font-bold text-body-lg sm:text-heading-sm">{suffix}</span>;
 };
 
 /* ── Floating code card — auto-types a snippet, orbits around photo ── */
@@ -260,12 +260,12 @@ const Hero = () => {
                     className="group relative text-white font-bold py-2.5 px-5 sm:py-3 sm:px-7 rounded-full focus:outline-none overflow-hidden whitespace-nowrap text-body-sm sm:text-body"
                   >
                     <span className="absolute inset-0 bg-gradient-to-r from-[#915eff] to-[#7c3aed] rounded-full" />
-                    <span className="absolute inset-0 bg-gradient-to-r from-[#7c3aed] to-[#00cea8] rounded-full opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+                    <span className="absolute inset-0 bg-gradient-to-r from-[#7c3aed] to-[#00cea8] rounded-full opacity-0 group-hover:opacity-100 transition-opacity duration-500 ease-in-out" />
                     <span className="relative z-[1] flex items-center gap-2">
                       <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2} aria-hidden="true">
                         <path strokeLinecap="round" strokeLinejoin="round" d="M13 10V3L4 14h7v7l9-11h-7z" />
                       </svg>
-                      Explore My Work
+                      {heroButtons.primary}
                     </span>
                   </motion.button>
                 </a>
@@ -281,13 +281,13 @@ const Hero = () => {
                     <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2} aria-hidden="true">
                       <path strokeLinecap="round" strokeLinejoin="round" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
                     </svg>
-                    Get in Touch
+                    {heroButtons.secondary}
                   </motion.button>
                 </a>
               </MagneticButton>
 
               <MagneticButton strength={0.2}>
-                <a href={resume} download="Rugwed-Patharkar-Resume.pdf" className="hidden xs:inline-flex">
+                <a href={resume} download={heroButtons.resumeFilename} className="hidden xs:inline-flex">
                   <motion.button
                     whileHover={{ scale: 1.05 }}
                     whileTap={{ scale: 0.95 }}
@@ -296,7 +296,7 @@ const Hero = () => {
                     <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2} aria-hidden="true">
                       <path strokeLinecap="round" strokeLinejoin="round" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
                     </svg>
-                    Resume
+                    {heroButtons.resume}
                   </motion.button>
                 </a>
               </MagneticButton>
@@ -318,7 +318,7 @@ const Hero = () => {
                 <svg className="w-3 h-3 text-[#915eff]" fill="currentColor" viewBox="0 0 20 20" aria-hidden="true">
                   <path fillRule="evenodd" d="M5.05 4.05a7 7 0 119.9 9.9L10 18.9l-4.95-4.95a7 7 0 010-9.9zM10 11a2 2 0 100-4 2 2 0 000 4z" clipRule="evenodd" />
                 </svg>
-                <span className="text-white/60 text-caption sm:text-body-sm font-mono">Pune, India</span>
+                <span className="text-white/60 text-caption sm:text-body-sm font-mono">{personalInfo.location}</span>
               </span>
 
               <div className="flex items-center gap-2">

@@ -563,7 +563,7 @@ img {
   to { transform: rotate(360deg); }
 }
 .testimonial-avatar-ring {
-  animation: avatarRingSpin 4s linear infinite;
+  animation: avatarRingSpin 6s linear infinite;
 }
 
 /* Star shimmer/glow effect */
@@ -741,8 +741,8 @@ img {
 
 /* Photo bottom dissolve — smudges into background */
 .hero-photo-fade {
-  -webkit-mask-image: linear-gradient(to bottom, black 50%, transparent 95%);
-  mask-image: linear-gradient(to bottom, black 50%, transparent 95%);
+  -webkit-mask-image: linear-gradient(to bottom, black 60%, transparent 97%);
+  mask-image: linear-gradient(to bottom, black 60%, transparent 97%);
 }
 
 /* Center glow — the "star" */
@@ -785,7 +785,7 @@ img {
   position: absolute;
   transform: translate(-50%, -50%);
   font-family: 'JetBrains Mono', ui-monospace, monospace;
-  font-size: 0.65rem;
+  font-size: 0.6rem;
   padding: 0.25rem 0.6rem;
   border-radius: 9999px;
   white-space: nowrap;
@@ -951,7 +951,7 @@ img {
 
 /* Chevron rotation */
 .exp-chevron {
-  transition: transform 0.3s ease;
+  transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 }
 .exp-chevron.open {
   transform: rotate(180deg);
@@ -1188,6 +1188,7 @@ body.matrix-mode .bg-gradient-to-r {
 /* Heartbeat animation on hover */
 .footer-heart {
   transition: transform 0.2s ease;
+  vertical-align: middle;
 }
 .footer-heart:hover {
   animation: heartbeat 0.8s ease-in-out infinite;

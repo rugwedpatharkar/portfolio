@@ -42,7 +42,7 @@ const TiltCard = ({ children, className = "", tiltStrength = 8, glareOpacity = 0
       onMouseMove={handleMove}
       onMouseLeave={handleLeave}
       className={`transition-transform duration-300 ease-out ${className}`}
-      style={{ transformStyle: "preserve-3d", willChange: "transform" }}
+      style={{ transformStyle: "preserve-3d", transformOrigin: "center center", willChange: "transform" }}
     >
       {children}
     </div>

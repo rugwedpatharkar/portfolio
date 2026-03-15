@@ -1,7 +1,8 @@
 import { useEffect, useRef } from "react";
+import { personalInfo } from "../content";
 
-const ORIGINAL_TITLE = "Rugwed Patharkar | Portfolio";
-const AWAY_TITLE = "Come back! 👀 | Rugwed Patharkar";
+const ORIGINAL_TITLE = `${personalInfo.fullName} | Portfolio`;
+const AWAY_TITLE = `Come back! 👀 | ${personalInfo.fullName}`;
 const RETURN_TITLE = "Welcome back! 🚀 | Portfolio";
 
 const DynamicTitle = () => {

@@ -4,7 +4,7 @@ import { useState, useMemo, memo } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { styles } from "../../styles";
 import { SectionWrapper } from "../../hoc";
-import { projects, sectionMeta } from "../../content";
+import { projects, sectionMeta, uiLabels } from "../../content";
 import { fadeIn, textVariant } from "../../utils/motion";
 import TextScramble from "../../components/TextScramble";
 import { PROJECT_ACCENTS, PROJECT_FILTERS, STATUS_CONFIG } from "../../config/theme";
@@ -77,24 +77,32 @@ const ProjectCard = memo(({ project, index, isExpanded, onToggle, accent }) => {
       />
 
       <div className="p-4 sm:p-5 relative z-[1]">
-        {/* Project image */}
-        {project.image && (
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            transition={{ duration: 0.5 }}
-            className="relative h-40 sm:h-48 overflow-hidden rounded-t-2xl -mx-5 -mt-5 sm:-mx-6 sm:-mt-6 mb-4"
-          >
+        {/* Project image / placeholder */}
+        <div className="relative h-36 sm:h-44 overflow-hidden rounded-t-2xl -mx-4 -mt-4 sm:-mx-5 sm:-mt-5 mb-4">
+          {project.image ? (
             <img
               src={project.image}
               alt={`${project.name} screenshot`}
               className="w-full h-full object-cover object-top"
               loading="lazy"
             />
-            <div className="absolute inset-0 bg-gradient-to-t from-[#151030] to-transparent" />
-          </motion.div>
-        )}
+          ) : (
+            <div
+              className="w-full h-full flex items-center justify-center"
+              style={{
+                background: `linear-gradient(135deg, ${accent}08, ${accent}18)`,
+              }}
+            >
+              <span
+                className="font-heading font-bold text-display opacity-[0.08] select-none"
+                style={{ color: accent }}
+              >
+                {String(index + 1).padStart(2, "0")}
+              </span>
+            </div>
+          )}
+          <div className="absolute inset-0 bg-gradient-to-t from-[#151030] via-transparent to-transparent" />
+        </div>
 
         {/* Top row: type + status + index */}
         <div className="flex items-center justify-between mb-2">
@@ -104,8 +112,8 @@ const ProjectCard = memo(({ project, index, isExpanded, onToggle, accent }) => {
               style={{ color: `${accent}aa` }}
             >
               {project.type === "professional"
-                ? "// professional"
-                : "// personal"}
+                ? uiLabels.projects.professional
+                : uiLabels.projects.personal}
             </span>
             <span className="flex items-center gap-1.5 font-mono text-micro sm:text-caption text-white/45">
               <span
@@ -226,7 +234,7 @@ const ProjectCard = memo(({ project, index, isExpanded, onToggle, accent }) => {
                       className="flex items-center gap-1.5 text-caption sm:text-body-sm font-mono px-3 py-1.5 rounded-lg border border-white/[0.08] hover:border-white/20 text-white/60 hover:text-white transition-colors"
                     >
                       <svg className="w-4 h-4" viewBox="0 0 24 24" fill="currentColor"><path d="M12 0C5.37 0 0 5.37 0 12c0 5.3 3.438 9.8 8.205 11.385.6.113.82-.258.82-.577 0-.285-.01-1.04-.015-2.04-3.338.724-4.042-1.61-4.042-1.61-.546-1.385-1.335-1.755-1.335-1.755-1.087-.744.084-.729.084-.729 1.205.084 1.838 1.236 1.838 1.236 1.07 1.835 2.809 1.305 3.495.998.108-.776.417-1.305.76-1.605-2.665-.3-5.466-1.332-5.466-5.93 0-1.31.465-2.38 1.235-3.22-.135-.303-.54-1.523.105-3.176 0 0 1.005-.322 3.3 1.23.96-.267 1.98-.399 3-.405 1.02.006 2.04.138 3 .405 2.28-1.552 3.285-1.23 3.285-1.23.645 1.653.24 2.873.12 3.176.765.84 1.23 1.91 1.23 3.22 0 4.61-2.805 5.625-5.475 5.92.42.36.81 1.096.81 2.22 0 1.606-.015 2.896-.015 3.286 0 .315.21.69.825.57C20.565 21.795 24 17.295 24 12c0-6.63-5.37-12-12-12"/></svg>
-                      Source
+                      {uiLabels.projects.source}
                     </a>
                   )}
                   {project.live && (
@@ -239,7 +247,7 @@ const ProjectCard = memo(({ project, index, isExpanded, onToggle, accent }) => {
                       style={{ borderColor: `${accent}30` }}
                     >
                       <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" /></svg>
-                      Live Demo
+                      {uiLabels.projects.liveDemo}
                     </a>
                   )}
                 </div>
@@ -280,7 +288,7 @@ const ProjectCard = memo(({ project, index, isExpanded, onToggle, accent }) => {
           <motion.svg
             animate={{ rotate: isExpanded ? 180 : 0 }}
             transition={{ duration: 0.3 }}
-            className="w-4 h-4 text-white/20 group-hover:text-white/40 transition-colors"
+            className="w-4 h-4 text-white/20 group-hover:text-white/40 transition-colors duration-300"
             fill="none"
             viewBox="0 0 24 24"
             stroke="currentColor"
@@ -324,6 +332,12 @@ const Projects = () => {
     setExpandedIndex((prev) => {
       if (prev !== i) {
         window.dispatchEvent(new CustomEvent("achievement", { detail: "curious" }));
+        // Scroll expanded card into view after animation settles
+        setTimeout(() => {
+          const cards = document.querySelectorAll(".proj-card");
+          const idx = filtered.findIndex((p) => projects.indexOf(p) === i);
+          if (cards[idx]) cards[idx].scrollIntoView({ behavior: "smooth", block: "nearest" });
+        }, 400);
       }
       return prev === i ? null : i;
     });
@@ -375,7 +389,7 @@ const Projects = () => {
           onClick={expandAll}
           className="font-mono text-micro sm:text-caption text-white/45 hover:text-white/50 transition-colors px-2 py-1"
         >
-          {expandedIndex === "all" ? "↑ Collapse all" : "↓ Expand all"}
+          {expandedIndex === "all" ? uiLabels.projects.collapseAll : uiLabels.projects.expandAll}
         </button>
       </div>
 
@@ -389,9 +403,9 @@ const Projects = () => {
       <div className="mt-5 sm:mt-6 grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-4 sm:gap-5 items-start">
         {filtered.length === 0 ? (
           <div className="col-span-full text-center py-16">
-            <p className="text-white/40 font-mono text-body-sm">No projects found for this filter.</p>
+            <p className="text-white/40 font-mono text-body-sm">{uiLabels.projects.noResults}</p>
             <button onClick={() => setFilter("all")} className="mt-3 text-[#915eff] hover:text-[#b8a0ff] font-mono text-caption transition-colors">
-              Show all projects
+              {uiLabels.projects.showAll}
             </button>
           </div>
         ) : (

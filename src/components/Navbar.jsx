@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState, useMemo, useCallback } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { styles } from "../styles";
-import { navLinks } from "../content";
+import { navLinks, navbarContent } from "../content";
 import { logo } from "../assets";
 import useRetryObserver from "../hooks/useRetryObserver";
 
@@ -150,8 +150,8 @@ const Navbar = () => {
             <div className="absolute inset-0 rounded-full bg-[#915eff]/20 blur-md opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
           </div>
           <p className="text-white text-body-sm sm:text-body font-heading font-bold cursor-pointer flex">
-            Rugwed Patharkar&nbsp;
-            <span className="md:block hidden text-white/50 font-normal">| Portfolio</span>
+            {navbarContent.name}&nbsp;
+            <span className="md:block hidden text-white/50 font-normal">{navbarContent.suffix}</span>
           </p>
         </a>
 
@@ -174,7 +174,7 @@ const Navbar = () => {
                     <motion.span
                       layoutId="navIndicator"
                       className="absolute inset-0 rounded-full bg-[#915eff]/15 border border-[#915eff]/25"
-                      transition={{ type: "spring", bounce: 0.2, duration: 0.5 }}
+                      transition={{ type: "spring", damping: 15, stiffness: 150, duration: 0.35 }}
                     />
                   )}
                   <span className="relative z-[1]">{link.title}</span>
@@ -184,7 +184,7 @@ const Navbar = () => {
                       layoutId="navUnderlineDot"
                       className="absolute left-1/2 -translate-x-1/2 -bottom-0.5 h-[3px] w-5 rounded-full"
                       style={{ backgroundColor: "#915eff" }}
-                      transition={{ type: "spring", bounce: 0.25, duration: 0.5 }}
+                      transition={{ type: "spring", damping: 15, stiffness: 150, duration: 0.35 }}
                     />
                   )}
                 </a>
@@ -220,9 +220,17 @@ const Navbar = () => {
                 style={{ background: "rgba(5, 8, 22, 0.9)", backdropFilter: "blur(20px)", WebkitBackdropFilter: "blur(20px)" }}
                 role="menu"
               >
-                <ul className="list-none flex flex-col p-2">
+                <motion.ul
+                  className="list-none flex flex-col p-2"
+                  initial="hidden"
+                  animate="show"
+                  variants={{ hidden: {}, show: { transition: { staggerChildren: 0.05 } } }}
+                >
                   {navLinks.map((link, i) => (
-                    <li key={link.id}>
+                    <motion.li
+                      key={link.id}
+                      variants={{ hidden: { opacity: 0, x: -10 }, show: { opacity: 1, x: 0 } }}
+                    >
                       <a
                         href={`#${link.id}`}
                         onClick={() => handleItemClick(link)}
@@ -235,9 +243,9 @@ const Navbar = () => {
                       >
                         {link.title}
                       </a>
-                    </li>
+                    </motion.li>
                   ))}
-                </ul>
+                </motion.ul>
               </motion.div>
             )}
           </AnimatePresence>

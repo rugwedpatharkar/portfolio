@@ -682,6 +682,40 @@ export const heroContent = {
   ],
 };
 
+export const aboutStats = [
+  { value: 3, suffix: "+", label: "Years Experience" },
+  { value: 10, suffix: "+", label: "Projects Built" },
+  { value: 5, suffix: "+", label: "Technologies" },
+];
+
+export const contactLinks = [
+  {
+    label: "Email",
+    value: personalInfo.email,
+    href: `mailto:${personalInfo.email}`,
+    iconType: "email",
+    copyable: true,
+  },
+  {
+    label: "Book a Call",
+    value: "Schedule a Meeting",
+    href: "#book-a-call",
+    iconType: "calendar",
+  },
+  {
+    label: "GitHub",
+    value: personalInfo.githubUsername,
+    href: personalInfo.github,
+    iconType: "github",
+  },
+  {
+    label: "LinkedIn",
+    value: "rugwed-patharkar",
+    href: personalInfo.linkedin,
+    iconType: "linkedin",
+  },
+];
+
 export const contactContent = {
   topics: [
     { label: "Hiring", icon: "💼" },
@@ -696,6 +730,31 @@ export const contactContent = {
     "Just saying hi": "Hey Rugwed! Just wanted to say your portfolio is really impressive. Keep up the great work!",
   },
   msgLimit: 500,
+  availabilityMessage: "Currently accepting new opportunities",
+  responseTime: "Responds within 24h",
+  terminalTitle: `${personalInfo.name.toLowerCase()}@portfolio — compose`,
+  terminalCommand: { prompt: "compose", flag: "--new-message" },
+  formLabels: {
+    topicQuestion: "What's this about?",
+    name: "Your Name",
+    email: "Your Email",
+    message: "Your Message",
+  },
+  placeholders: {
+    name: "John Doe",
+    email: "john@example.com",
+    message: "Tell me about your project or just say hi...",
+    previewEmpty: "Start typing to see preview...",
+    previewFrom: "your@email.com",
+    previewSubject: "Select a topic...",
+  },
+  successMessage: "Message sent! I'll get back to you soon.",
+  previewSuccessMessage: "Message sent!",
+  previewSuccessSubtext: "I'll get back to you soon.",
+  sendButton: "Send Message",
+  sendingText: "Sending",
+  sentText: "Delivered!",
+  keyboardHint: "Cmd+Enter",
 };
 
 export const easterEggs = {
@@ -703,6 +762,67 @@ export const easterEggs = {
   greeting: "Hey there, fellow developer! 👋",
   repoLink: "Curious about the code? Check it out: https://github.com/rugwedpatharkar/portfolio",
   hint: "Hint: Try pressing Ctrl+` for a surprise 🎮",
+};
+
+export const builtWith = [
+  { name: "React", color: "#61dafb" },
+  { name: "Tailwind CSS", color: "#61dafb" },
+  { name: "Framer Motion", color: "#bf61ff" },
+  { name: "Three.js", color: "#00cea8" },
+  { name: "Vite", color: "#f8c555" },
+];
+
+export const footerContent = {
+  tagline: `${personalInfo.role}. Building scalable microservices & AI-powered systems.`,
+  navigateHeader: "Navigate",
+  builtWithHeader: "Built With",
+  version: "v3.0",
+  madeWith: "Designed & Developed with",
+  portfolioDownload: "Download Portfolio",
+  portfolioFile: "/Rugwed-Patharkar-Portfolio.pdf",
+};
+
+export const navbarContent = {
+  name: personalInfo.fullName,
+  suffix: "| Portfolio",
+};
+
+export const heroButtons = {
+  primary: "Explore My Work",
+  secondary: "Get in Touch",
+  resume: "Resume",
+  resumeFilename: "Rugwed-Patharkar-Resume.pdf",
+};
+
+export const uiLabels = {
+  projects: {
+    professional: "// professional",
+    personal: "// personal",
+    source: "Source",
+    liveDemo: "Live Demo",
+    noResults: "No projects found for this filter.",
+    showAll: "Show all projects",
+    collapseAll: "↑ Collapse all",
+    expandAll: "↓ Expand all",
+  },
+  education: {
+    score: "Score",
+    completed: "Completed",
+    prev: "Prev",
+    next: "Next",
+  },
+  funFacts: {
+    flipHint: "click to reveal",
+    flipBack: "tap to flip back",
+  },
+  testimonials: {
+    endorses: "Endorses",
+    projects: "Projects:",
+  },
+  about: {
+    viewResume: "View Resume",
+    downloadCv: "Download CV",
+  },
 };
 
 export const sectionOrder = [

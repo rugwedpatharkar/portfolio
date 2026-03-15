@@ -3,7 +3,7 @@
 import { useState, useRef, useCallback, useEffect, memo } from "react";
 import { motion, useScroll, useTransform, useInView } from "framer-motion";
 import { styles } from "../../styles";
-import { services, personalInfo, sectionMeta } from "../../content";
+import { services, personalInfo, sectionMeta, aboutStats, uiLabels } from "../../content";
 import { fadeIn, textVariant } from "../../utils/motion";
 import { SectionWrapper } from "../../hoc";
 import { photo, resume } from "../../assets";
@@ -43,15 +43,9 @@ const CountUp = ({ end, suffix = "", duration = 2 }) => {
   );
 };
 
-const STATS = [
-  { value: 3, suffix: "+", label: "Years Experience" },
-  { value: 10, suffix: "+", label: "Projects Built" },
-  { value: 5, suffix: "+", label: "Technologies" },
-];
-
 const StatCounter = () => (
   <div className="flex items-center gap-6 sm:gap-8 mt-5">
-    {STATS.map((stat, i) => (
+    {aboutStats.map((stat, i) => (
       <div key={stat.label} className="flex flex-col items-center">
         <motion.span
           initial={{ opacity: 0, y: 10 }}
@@ -212,7 +206,7 @@ const Photo3D = () => {
 
         <img
           src={photo}
-          alt="Rugwed Patharkar"
+          alt={personalInfo.fullName}
           loading="lazy"
           className="object-cover w-full aspect-[3/4] rounded-2xl transition-all duration-500 group-hover:brightness-110"
         />
@@ -278,7 +272,7 @@ const About = () => {
                 {personalInfo.fullName}
               </h3>
               <p className="text-[#915eff] font-mono text-body-sm sm:text-body mt-1">
-                {personalInfo.role} <span className="text-secondary">— {personalInfo.location || "Pune, India"}</span>
+                {personalInfo.role} <span className="text-secondary">— {personalInfo.location}</span>
               </p>
             </div>
 
@@ -309,7 +303,7 @@ const About = () => {
                       <path strokeLinecap="round" strokeLinejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
                       <path strokeLinecap="round" strokeLinejoin="round" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
                     </svg>
-                    View Resume
+                    {uiLabels.about.viewResume}
                   </span>
                 </motion.button>
               </MagneticButton>
@@ -324,7 +318,7 @@ const About = () => {
                     <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2} aria-hidden="true">
                       <path strokeLinecap="round" strokeLinejoin="round" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
                     </svg>
-                    Download CV
+                    {uiLabels.about.downloadCv}
                   </motion.button>
                 </a>
               </MagneticButton>
@@ -341,7 +335,7 @@ const About = () => {
         initial="hidden"
         whileInView="show"
         viewport={{ once: true, margin: "-80px" }}
-        className="mt-12 sm:mt-20 grid grid-cols-2 xs:grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4 sm:gap-6 lg:gap-10"
+        className="mt-12 sm:mt-20 grid grid-cols-2 xs:grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4 sm:gap-6 lg:gap-8"
       >
         {services.map((service, index) => (
           <ParallaxCard key={service.title} index={index}>

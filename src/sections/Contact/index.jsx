@@ -5,56 +5,36 @@ import emailjs from "@emailjs/browser";
 import { styles } from "../../styles";
 import { SectionWrapper } from "../../hoc";
 import { fadeIn, textVariant } from "../../utils/motion";
-import { personalInfo, sectionMeta, contactContent } from "../../content";
+import { personalInfo, sectionMeta, contactContent, contactLinks } from "../../content";
 import { resume } from "../../assets";
 import { useToast } from "../../components/Toast";
 import TextScramble from "../../components/TextScramble";
 
 const ACCENT = "#915eff";
 
-const CONTACT_LINKS = [
-  {
-    label: "Email",
-    value: personalInfo.email,
-    href: `mailto:${personalInfo.email}`,
-    icon: (
-      <svg className="w-4 h-4 sm:w-5 sm:h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
-        <path strokeLinecap="round" strokeLinejoin="round" d="M21.75 6.75v10.5a2.25 2.25 0 01-2.25 2.25h-15a2.25 2.25 0 01-2.25-2.25V6.75m19.5 0A2.25 2.25 0 0019.5 4.5h-15a2.25 2.25 0 00-2.25 2.25m19.5 0v.243a2.25 2.25 0 01-1.07 1.916l-7.5 4.615a2.25 2.25 0 01-2.36 0L3.32 8.91a2.25 2.25 0 01-1.07-1.916V6.75" />
-      </svg>
-    ),
-    copyable: true,
-  },
-  {
-    label: "Book a Call",
-    value: "Schedule a Meeting",
-    href: "#book-a-call",
-    icon: (
-      <svg className="w-4 h-4 sm:w-5 sm:h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
-        <path strokeLinecap="round" strokeLinejoin="round" d="M6.75 3v2.25M17.25 3v2.25M3 18.75V7.5a2.25 2.25 0 012.25-2.25h13.5A2.25 2.25 0 0121 7.5v11.25m-18 0A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75m-18 0v-7.5A2.25 2.25 0 015.25 9h13.5A2.25 2.25 0 0121 11.25v7.5m-9-6h.008v.008H12v-.008zM12 15h.008v.008H12V15zm0 2.25h.008v.008H12v-.008zM9.75 15h.008v.008H9.75V15zm0 2.25h.008v.008H9.75v-.008zM7.5 15h.008v.008H7.5V15zm0 2.25h.008v.008H7.5v-.008zm6.75-4.5h.008v.008h-.008v-.008zm0 2.25h.008v.008h-.008V15zm0 2.25h.008v.008h-.008v-.008zm2.25-4.5h.008v.008H16.5v-.008zm0 2.25h.008v.008H16.5V15z" />
-      </svg>
-    ),
-  },
-  {
-    label: "GitHub",
-    value: personalInfo.githubUsername,
-    href: personalInfo.github,
-    icon: (
-      <svg className="w-4 h-4 sm:w-5 sm:h-5" fill="currentColor" viewBox="0 0 24 24">
-        <path d="M12 0c-6.626 0-12 5.373-12 12 0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23.957-.266 1.983-.399 3.003-.404 1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576 4.765-1.589 8.199-6.086 8.199-11.386 0-6.627-5.373-12-12-12z" />
-      </svg>
-    ),
-  },
-  {
-    label: "LinkedIn",
-    value: "rugwed-patharkar",
-    href: personalInfo.linkedin,
-    icon: (
-      <svg className="w-4 h-4 sm:w-5 sm:h-5" fill="currentColor" viewBox="0 0 24 24">
-        <path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433c-1.144 0-2.063-.926-2.063-2.065 0-1.138.92-2.063 2.063-2.063 1.14 0 2.064.925 2.064 2.063 0 1.139-.925 2.065-2.064 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z" />
-      </svg>
-    ),
-  },
-];
+/* Icon map — maps iconType from content to SVG elements */
+const CONTACT_ICONS = {
+  email: (
+    <svg className="w-4 h-4 sm:w-5 sm:h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
+      <path strokeLinecap="round" strokeLinejoin="round" d="M21.75 6.75v10.5a2.25 2.25 0 01-2.25 2.25h-15a2.25 2.25 0 01-2.25-2.25V6.75m19.5 0A2.25 2.25 0 0019.5 4.5h-15a2.25 2.25 0 00-2.25 2.25m19.5 0v.243a2.25 2.25 0 01-1.07 1.916l-7.5 4.615a2.25 2.25 0 01-2.36 0L3.32 8.91a2.25 2.25 0 01-1.07-1.916V6.75" />
+    </svg>
+  ),
+  calendar: (
+    <svg className="w-4 h-4 sm:w-5 sm:h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
+      <path strokeLinecap="round" strokeLinejoin="round" d="M6.75 3v2.25M17.25 3v2.25M3 18.75V7.5a2.25 2.25 0 012.25-2.25h13.5A2.25 2.25 0 0121 7.5v11.25m-18 0A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75m-18 0v-7.5A2.25 2.25 0 015.25 9h13.5A2.25 2.25 0 0121 11.25v7.5m-9-6h.008v.008H12v-.008zM12 15h.008v.008H12V15zm0 2.25h.008v.008H12v-.008zM9.75 15h.008v.008H9.75V15zm0 2.25h.008v.008H9.75v-.008zM7.5 15h.008v.008H7.5V15zm0 2.25h.008v.008H7.5v-.008zm6.75-4.5h.008v.008h-.008v-.008zm0 2.25h.008v.008h-.008V15zm0 2.25h.008v.008h-.008v-.008zm2.25-4.5h.008v.008H16.5v-.008zm0 2.25h.008v.008H16.5V15z" />
+    </svg>
+  ),
+  github: (
+    <svg className="w-4 h-4 sm:w-5 sm:h-5" fill="currentColor" viewBox="0 0 24 24">
+      <path d="M12 0c-6.626 0-12 5.373-12 12 0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23.957-.266 1.983-.399 3.003-.404 1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576 4.765-1.589 8.199-6.086 8.199-11.386 0-6.627-5.373-12-12-12z" />
+    </svg>
+  ),
+  linkedin: (
+    <svg className="w-4 h-4 sm:w-5 sm:h-5" fill="currentColor" viewBox="0 0 24 24">
+      <path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433c-1.144 0-2.063-.926-2.063-2.065 0-1.138.92-2.063 2.063-2.063 1.14 0 2.064.925 2.064 2.063 0 1.139-.925 2.065-2.064 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z" />
+    </svg>
+  ),
+};
 
 /* ── Contact Link Card ── */
 const ContactLinkCard = ({ link }) => {
@@ -84,13 +64,13 @@ const ContactLinkCard = ({ link }) => {
         className="w-9 h-9 sm:w-10 sm:h-10 rounded-lg flex items-center justify-center shrink-0 transition-colors duration-300"
         style={{ background: `${ACCENT}10`, color: ACCENT }}
       >
-        {link.icon}
+        {CONTACT_ICONS[link.iconType]}
       </div>
       <div className="min-w-0 flex-1">
         <div className="text-white/55 text-micro sm:text-caption font-mono">
           {link.label}
         </div>
-        <div className="text-white text-caption sm:text-body-sm font-mono truncate">
+        <div className="text-white text-caption sm:text-body-sm font-mono break-all">
           {link.value}
         </div>
       </div>
@@ -126,15 +106,19 @@ const FormField = ({ label, name, type = "text", value, onChange, placeholder, d
           {label}
         </span>
         {/* Validation indicator */}
+        <AnimatePresence>
         {hasValue && (
           <motion.span
-            initial={{ scale: 0 }}
-            animate={{ scale: 1 }}
+            initial={{ scale: 0, opacity: 0 }}
+            animate={{ scale: 1, opacity: 1 }}
+            exit={{ scale: 0, opacity: 0 }}
+            transition={{ duration: 0.2 }}
             className={`text-caption ${isValid ? "text-[#00cea8]" : "text-[#ff6b6b]"}`}
           >
             {isValid ? "✓" : "✗"}
           </motion.span>
         )}
+        </AnimatePresence>
       </div>
 
       {/* Input with focus glow */}
@@ -158,7 +142,7 @@ const FormField = ({ label, name, type = "text", value, onChange, placeholder, d
           disabled={disabled}
           rows={isTextarea ? 5 : undefined}
           maxLength={maxLength}
-          className="w-full glass-card py-3 sm:py-4 px-4 sm:px-6 placeholder:text-secondary/50 text-white rounded-xl outline-none font-medium text-body-sm sm:text-body disabled:opacity-50 resize-none focus:ring-2 focus:ring-[#915eff]/30 focus:border-[#915eff]/40 transition-all duration-300"
+          className="w-full glass-card py-3 sm:py-4 px-4 sm:px-6 placeholder:text-white/40 text-white rounded-xl outline-none font-medium text-body-sm sm:text-body disabled:opacity-50 resize-none focus:ring-2 focus:ring-[#915eff]/30 focus:border-[#915eff]/40 transition-all duration-300"
         />
       </div>
 
@@ -166,11 +150,14 @@ const FormField = ({ label, name, type = "text", value, onChange, placeholder, d
       {isTextarea && maxLength && (
         <div className="flex justify-end mt-1.5">
           <span
-            className={`font-mono text-micro ${
-              value.length > maxLength * 0.9
-                ? "text-[#ff6b6b]"
-                : "text-white/20"
-            }`}
+            className="font-mono text-micro transition-colors duration-300"
+            style={{
+              color: value.length > maxLength * 0.9
+                ? "#ff6b6b"
+                : value.length > maxLength * 0.5
+                  ? "rgba(255,255,255,0.35)"
+                  : "rgba(255,255,255,0.2)",
+            }}
           >
             {value.length} / {maxLength}
           </span>
@@ -200,7 +187,7 @@ const EmailPreview = ({ form, topic, sent }) => (
       <div className="flex gap-3">
         <span className="text-white/55 w-12 shrink-0">From:</span>
         <span className={form.email ? "text-white/70" : "text-white/20"}>
-          {form.email || "your@email.com"}
+          {form.email || contactContent.placeholders.previewFrom}
         </span>
       </div>
       <div className="flex gap-3">
@@ -210,7 +197,7 @@ const EmailPreview = ({ form, topic, sent }) => (
       <div className="flex gap-3">
         <span className="text-white/55 w-12 shrink-0">Subj:</span>
         <span className={topic ? "text-white/70" : "text-white/20"}>
-          {topic ? `${topic} — from ${form.name || "..."}` : "Select a topic..."}
+          {topic ? `${topic} — from ${form.name || "..."}` : contactContent.placeholders.previewSubject}
         </span>
       </div>
     </div>
@@ -235,19 +222,19 @@ const EmailPreview = ({ form, topic, sent }) => (
                 <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
               </svg>
             </motion.div>
-            <span className="text-[#00cea8] text-body-sm font-mono">Message sent!</span>
-            <span className="text-white/45 text-caption">I'll get back to you soon.</span>
+            <span className="text-[#00cea8] text-body-sm font-mono">{contactContent.previewSuccessMessage}</span>
+            <span className="text-white/45 text-caption">{contactContent.previewSuccessSubtext}</span>
           </motion.div>
         ) : (
           <motion.div key="preview" initial={{ opacity: 0 }} animate={{ opacity: 1 }}>
             {form.message ? (
               <div className="text-white/60 leading-relaxed whitespace-pre-wrap break-words">
                 {form.message}
-                <span className="contact-cursor inline-block ml-0.5 text-[#915eff]">|</span>
+                <span className="contact-cursor inline-block text-[#915eff]">|</span>
               </div>
             ) : (
               <span className="text-white/20 italic">
-                Start typing to see preview...
+                {contactContent.placeholders.previewEmpty}
               </span>
             )}
           </motion.div>
@@ -261,7 +248,7 @@ const EmailPreview = ({ form, topic, sent }) => (
         {form.message.length > 0 ? `${form.message.length} chars` : ""}
       </span>
       <span className="text-white/20 text-micro font-mono">
-        Cmd+Enter to send
+        {contactContent.keyboardHint} to send
       </span>
     </div>
   </div>
@@ -331,7 +318,7 @@ const Contact = () => {
         templateId,
         {
           from_name: form.name,
-          to_name: "Rugwed Patharkar",
+          to_name: personalInfo.fullName,
           from_email: form.email,
           to_email: toEmail,
           message: `[${topic || "General"}] ${form.message}`,
@@ -342,7 +329,7 @@ const Contact = () => {
         () => {
           setLoading(false);
           setSent(true);
-          toast("Message sent! I'll get back to you soon.", "success");
+          toast(contactContent.successMessage, "success");
           setForm({ name: "", email: "", message: "" });
           setTopic("");
           try {
@@ -400,11 +387,11 @@ const Contact = () => {
         {sectionMeta.contact.description}
       </motion.p>
 
-      <div className="mt-8 sm:mt-12 flex flex-col lg:flex-row gap-6 sm:gap-8">
-        {/* ── Left: Info + Form ── */}
+      <div className="mt-8 sm:mt-12 flex flex-col gap-6 sm:gap-8">
+        {/* ── Info + Form ── */}
         <motion.div
           variants={fadeIn("up", "tween", 0.2, 0.8)}
-          className="flex-1 space-y-6"
+          className="space-y-6"
         >
           {/* Availability indicator — interactive with glow */}
           <motion.div
@@ -424,7 +411,7 @@ const Contact = () => {
             </div>
             <span className="text-white/30 hidden sm:inline">|</span>
             <span className="text-white/50 text-micro sm:text-caption font-mono">
-              Currently accepting new opportunities
+              {contactContent.availabilityMessage}
             </span>
             <span className="text-white/30 hidden sm:inline">|</span>
             <span className="text-white/40 text-micro sm:text-caption font-mono flex items-center gap-1.5">
@@ -432,13 +419,13 @@ const Contact = () => {
                 <path strokeLinecap="round" strokeLinejoin="round" d="M12 6v6l4 2" />
                 <circle cx="12" cy="12" r="9" strokeLinecap="round" />
               </svg>
-              Responds within 24h
+              {contactContent.responseTime}
             </span>
           </motion.div>
 
           {/* Contact links */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
-            {CONTACT_LINKS.map((link) => (
+          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-3">
+            {contactLinks.map((link) => (
               <ContactLinkCard key={link.label} link={link} />
             ))}
           </div>
@@ -454,7 +441,7 @@ const Contact = () => {
             </div>
             <a
               href={resume}
-              download="Rugwed-Patharkar-Resume.pdf"
+              download={`${personalInfo.fullName.replace(/\s+/g, "-")}-Resume.pdf`}
               className="flex items-center gap-1.5 text-[#915eff]/70 hover:text-[#915eff] text-caption sm:text-body-sm font-mono transition-colors"
             >
               <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
@@ -464,8 +451,16 @@ const Contact = () => {
             </a>
           </div>
 
+        </motion.div>
+
+        {/* ── Form + Preview side by side ── */}
+        <div className="flex flex-col lg:flex-row gap-6 sm:gap-8">
           {/* Form — Terminal-style wrapper */}
-          <div className="contact-terminal rounded-xl overflow-hidden card-shine glow-hover">
+          <motion.div
+            variants={fadeIn("up", "tween", 0.2, 0.8)}
+            className="flex-1"
+          >
+          <div className="contact-terminal rounded-xl overflow-hidden card-shine glow-hover h-full">
             {/* Terminal chrome bar */}
             <div className="contact-terminal-chrome flex items-center justify-between px-4 py-2.5 sm:py-3">
               <div className="flex gap-1.5 sm:gap-2">
@@ -474,7 +469,7 @@ const Contact = () => {
                 <span className="w-2.5 h-2.5 sm:w-3 sm:h-3 rounded-full bg-[#28c840]" />
               </div>
               <span className="text-white/55 text-micro sm:text-caption font-mono tracking-wide">
-                rugwed@portfolio — compose
+                {contactContent.terminalTitle}
               </span>
               <div className="w-10 sm:w-12" />
             </div>
@@ -487,15 +482,15 @@ const Contact = () => {
               {/* Terminal prompt line */}
               <div className="font-mono text-caption sm:text-body-sm">
                 <span className="text-[#00cea8]">&#10095;</span>{" "}
-                <span className="text-[#61dafb]">compose</span>{" "}
-                <span className="text-white/55">--new-message</span>
+                <span className="text-[#61dafb]">{contactContent.terminalCommand.prompt}</span>{" "}
+                <span className="text-white/55">{contactContent.terminalCommand.flag}</span>
                 <span className="contact-terminal-cursor ml-1">_</span>
               </div>
 
               {/* Topic selector */}
               <div>
                 <span className="text-white font-medium text-body-sm sm:text-body block mb-2">
-                  What's this about?
+                  {contactContent.formLabels.topicQuestion}
                 </span>
                 <div className="flex flex-wrap gap-2">
                   {contactContent.topics.map((t) => (
@@ -525,31 +520,31 @@ const Contact = () => {
               {/* Name + Email row */}
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
                 <FormField
-                  label="Your Name"
+                  label={contactContent.formLabels.name}
                   name="name"
                   value={form.name}
                   onChange={handleChange}
-                  placeholder="John Doe"
+                  placeholder={contactContent.placeholders.name}
                   disabled={loading}
                 />
                 <FormField
-                  label="Your Email"
+                  label={contactContent.formLabels.email}
                   name="email"
                   type="email"
                   value={form.email}
                   onChange={handleChange}
-                  placeholder="john@example.com"
+                  placeholder={contactContent.placeholders.email}
                   disabled={loading}
                 />
               </div>
 
               {/* Message */}
               <FormField
-                label="Your Message"
+                label={contactContent.formLabels.message}
                 name="message"
                 value={form.message}
                 onChange={handleChange}
-                placeholder="Tell me about your project or just say hi..."
+                placeholder={contactContent.placeholders.message}
                 disabled={loading}
                 isTextarea
                 maxLength={contactContent.msgLimit}
@@ -573,7 +568,7 @@ const Contact = () => {
                         exit={{ opacity: 0 }}
                         className="flex items-center gap-2 font-mono"
                       >
-                        <span className="contact-sending-dots">Sending</span>
+                        <span className="contact-sending-dots">{contactContent.sendingText}</span>
                       </motion.span>
                     ) : sent ? (
                       <motion.span
@@ -601,7 +596,7 @@ const Contact = () => {
                             transition={{ duration: 0.4, ease: "easeOut" }}
                           />
                         </motion.svg>
-                        Delivered!
+                        {contactContent.sentText}
                       </motion.span>
                     ) : (
                       <motion.span
@@ -611,7 +606,7 @@ const Contact = () => {
                         exit={{ opacity: 0 }}
                         className="flex items-center gap-2"
                       >
-                        Send Message
+                        {contactContent.sendButton}
                         <svg className="w-4 h-4 group-hover:translate-x-0.5 transition-transform" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
                           <path strokeLinecap="round" strokeLinejoin="round" d="M6 12L3.269 3.126A59.768 59.768 0 0121.485 12 59.77 59.77 0 013.27 20.876L5.999 12zm0 0h7.5" />
                         </svg>
@@ -621,7 +616,7 @@ const Contact = () => {
                 </motion.button>
 
                 <span className="hidden sm:block text-white/20 text-micro font-mono">
-                  Cmd+Enter
+                  {contactContent.keyboardHint}
                 </span>
               </div>
 
@@ -632,17 +627,16 @@ const Contact = () => {
               </div>
             </form>
           </div>
-        </motion.div>
+          </motion.div>
 
-        {/* ── Right: Live Email Preview ── */}
-        <motion.div
-          variants={fadeIn("up", "tween", 0.3, 0.8)}
-          className="lg:flex-1 lg:max-w-[440px] hidden lg:block"
-        >
-          <div className="sticky top-28">
+          {/* ── Live Email Preview ── */}
+          <motion.div
+            variants={fadeIn("up", "tween", 0.3, 0.8)}
+            className="flex-1 lg:max-w-[440px]"
+          >
             <EmailPreview form={form} topic={topic} sent={sent} />
-          </div>
-        </motion.div>
+          </motion.div>
+        </div>
       </div>
     </div>
   );
