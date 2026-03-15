@@ -149,7 +149,7 @@ const Navbar = () => {
                 animate={{ opacity: 1, y: 0, scale: 1 }}
                 exit={{ opacity: 0, y: -10, scale: 0.95 }}
                 transition={{ duration: 0.2, ease: "easeOut" }}
-                className="mobile-menu absolute top-16 sm:top-20 right-0 mx-4 my-2 min-w-[200px] z-50 rounded-2xl overflow-hidden border border-white/[0.08]"
+                className="mobile-menu absolute top-16 sm:top-20 right-0 mx-3 sm:mx-4 my-2 w-[calc(100vw-24px)] sm:w-auto sm:min-w-[200px] max-w-[280px] z-50 rounded-2xl overflow-hidden border border-white/[0.08]"
                 style={{ background: "rgba(5, 8, 22, 0.9)", backdropFilter: "blur(20px)", WebkitBackdropFilter: "blur(20px)" }}
                 role="menu"
               >

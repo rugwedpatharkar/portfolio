@@ -80,7 +80,7 @@ const ResumeModal = ({ isOpen, onClose }) => {
             exit={{ scale: 0.9, opacity: 0, y: 30 }}
             transition={{ type: "spring", damping: 25, stiffness: 300 }}
             ref={modalRef}
-            className="relative w-full max-w-4xl h-[85vh] glass-card rounded-2xl overflow-hidden shadow-2xl"
+            className="relative w-full max-w-4xl h-[80vh] sm:h-[85vh] mx-2 sm:mx-4 glass-card rounded-2xl overflow-hidden shadow-2xl"
             onClick={(e) => e.stopPropagation()}
             role="dialog"
             aria-modal="true"
@@ -98,7 +98,7 @@ const ResumeModal = ({ isOpen, onClose }) => {
                 </a>
                 <button
                   onClick={onClose}
-                  className="w-8 h-8 rounded-full bg-black/30 hover:bg-black/50 text-white flex items-center justify-center transition-colors"
+                  className="w-10 h-10 sm:w-8 sm:h-8 rounded-full bg-black/30 hover:bg-black/50 text-white flex items-center justify-center transition-colors"
                   aria-label="Close resume viewer"
                 >
                   ✕
@@ -108,7 +108,7 @@ const ResumeModal = ({ isOpen, onClose }) => {
             <iframe
               src={`${resume}#toolbar=0`}
               title="Resume"
-              className="w-full h-[calc(85vh-60px)]"
+              className="w-full h-[calc(80vh-60px)] sm:h-[calc(85vh-60px)]"
             />
           </motion.div>
         </motion.div>

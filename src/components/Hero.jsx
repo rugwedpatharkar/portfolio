@@ -249,10 +249,10 @@ const Hero = () => {
 
       <div
         ref={parallaxRef}
-        className={`${styles.paddingX} absolute inset-0 top-[60px] sm:top-0 pb-14 sm:pb-0 max-w-[1800px] mx-auto flex flex-col md:flex-row items-center md:justify-center gap-0 sm:gap-8 z-[2] pointer-events-none`}
+        className={`${styles.paddingX} absolute inset-0 top-[60px] sm:top-0 pb-14 sm:pb-0 max-w-[1800px] mx-auto flex flex-col lg:flex-row items-center lg:justify-center gap-0 sm:gap-8 z-[2] pointer-events-none`}
       >
         {/* Left column: decorative line + text */}
-        <div className="flex flex-row items-start gap-3 sm:gap-5 md:flex-1 min-w-0">
+        <div className="flex flex-row items-start gap-3 sm:gap-5 lg:flex-1 min-w-0">
           {/* Decorative line + dot — hidden on small mobile */}
           <div className="hidden xs:flex flex-col justify-center items-center mt-5" data-parallax="-8">
             <div className="w-4 h-4 sm:w-5 sm:h-5 rounded-full bg-[#915eff] shadow-[0_0_20px_rgba(145,94,255,0.6)]" />
@@ -429,7 +429,7 @@ const Hero = () => {
 
         {/* Photo — solar system: flex-1 on mobile fills remaining space and centers orbit */}
         <motion.div
-          className="flex flex-1 md:flex-none items-center justify-center w-full md:w-auto pointer-events-none"
+          className="flex flex-1 lg:flex-none items-center justify-center w-full lg:w-auto pointer-events-none"
           initial={{ opacity: 0, scale: 0.8 }}
           animate={{ opacity: 1, scale: 1 }}
           transition={{ type: "spring", damping: 20, stiffness: 80, delay: 0.6 }}

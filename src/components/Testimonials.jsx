@@ -315,7 +315,7 @@ const Testimonials = () => {
           {/* Prev */}
           <button
             onClick={() => go(-1)}
-            className="w-10 h-10 sm:w-11 sm:h-11 rounded-full glass-card border border-white/[0.08] hover:border-white/20 text-white/40 hover:text-white flex items-center justify-center transition-colors"
+            className="w-11 h-11 rounded-full glass-card border border-white/[0.08] hover:border-white/20 text-white/40 hover:text-white flex items-center justify-center transition-colors"
             aria-label="Previous testimonial"
           >
             <svg
@@ -335,23 +335,27 @@ const Testimonials = () => {
 
           {/* Indicators — dots for ≤6, counter for 7+ */}
           {total <= 6 ? (
-            <div className="flex items-center gap-2">
+            <div className="flex items-center gap-1">
               {testimonials.map((_, i) => (
                 <button
                   key={i}
                   onClick={() => goTo(i)}
-                  className="w-2 h-2 rounded-full transition-all duration-300"
-                  style={
-                    i === current
-                      ? {
-                          background: accent,
-                          boxShadow: `0 0 8px ${accent}50`,
-                          transform: "scale(1.3)",
-                        }
-                      : { background: "rgba(255,255,255,0.15)" }
-                  }
+                  className="p-2 group"
                   aria-label={`Go to testimonial ${i + 1}`}
-                />
+                >
+                  <span
+                    className="block w-2 h-2 rounded-full transition-all duration-300"
+                    style={
+                      i === current
+                        ? {
+                            background: accent,
+                            boxShadow: `0 0 8px ${accent}50`,
+                            transform: "scale(1.3)",
+                          }
+                        : { background: "rgba(255,255,255,0.15)" }
+                    }
+                  />
+                </button>
               ))}
             </div>
           ) : (
@@ -365,7 +369,7 @@ const Testimonials = () => {
           {/* Next */}
           <button
             onClick={() => go(1)}
-            className="w-10 h-10 sm:w-11 sm:h-11 rounded-full glass-card border border-white/[0.08] hover:border-white/20 text-white/40 hover:text-white flex items-center justify-center transition-colors"
+            className="w-11 h-11 rounded-full glass-card border border-white/[0.08] hover:border-white/20 text-white/40 hover:text-white flex items-center justify-center transition-colors"
             aria-label="Next testimonial"
           >
             <svg

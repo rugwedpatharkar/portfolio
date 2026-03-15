@@ -402,7 +402,7 @@ const Contact = () => {
           </div>
 
           {/* Contact links */}
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
             {CONTACT_LINKS.map((link) => (
               <ContactLinkCard key={link.label} link={link} />
             ))}
@@ -555,7 +555,7 @@ const Contact = () => {
         {/* ── Right: Live Email Preview ── */}
         <motion.div
           variants={slideIn("right", "tween", 0.2, 1)}
-          className="xl:flex-1 xl:max-w-[440px] hidden md:block"
+          className="xl:flex-1 xl:max-w-[440px] hidden xl:block"
         >
           <div className="sticky top-28">
             <EmailPreview form={form} topic={topic} sent={sent} />

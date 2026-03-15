@@ -11,16 +11,15 @@ import TextScramble from "./TextScramble";
 const NODE_COLORS = ["#ff6b6b", "#f8c555", "#61dafb", "#915eff"];
 
 /* ── SVG Progress Ring ── */
-const ProgressRing = ({ percent, color, size = 64, strokeWidth = 3, visible }) => {
+const ProgressRing = ({ percent, color, size = 56, strokeWidth = 3, visible }) => {
   const r = (size - strokeWidth * 2) / 2;
   const circ = 2 * Math.PI * r;
   const offset = visible ? circ - (percent / 100) * circ : circ;
 
   return (
     <svg
-      width={size}
-      height={size}
-      className="transform -rotate-90"
+      viewBox={`0 0 ${size} ${size}`}
+      className="w-full h-full transform -rotate-90"
       aria-hidden="true"
     >
       {/* Track */}
@@ -63,14 +62,13 @@ const MilestoneNode = ({ edu, index, isActive, isPast, onClick, color }) => (
     aria-label={`View ${edu.shortName} details`}
   >
     {/* Ring + percentage */}
-    <div className="relative" style={{ width: 56, height: 56 }}>
+    <div className="relative w-11 h-11 sm:w-14 sm:h-14">
       {/* Solid bg disc — covers full ring area to mask the track line */}
       <div className="absolute inset-0 rounded-full bg-primary z-[1]" />
-      <div className="relative z-[2]">
+      <div className="relative z-[2] w-full h-full">
         <ProgressRing
           percent={edu.percentage}
           color={isActive || isPast ? color : "rgba(255,255,255,0.15)"}
-          size={56}
           strokeWidth={isActive ? 3.5 : 2.5}
           visible={isPast || isActive}
         />
@@ -269,13 +267,13 @@ const Education = () => {
       </motion.p>
 
       {/* ── Milestone Track ── */}
-      <div className="mt-10 sm:mt-14 relative px-4 sm:px-8">
+      <div className="mt-10 sm:mt-14 relative px-2 sm:px-8">
         {/* Background line — z-0 so nodes sit on top */}
-        <div className="absolute top-[28px] left-[calc(8.33%)] right-[calc(8.33%)] h-[2px] bg-white/[0.06] rounded-full z-0" />
+        <div className="absolute top-[22px] sm:top-[28px] left-[calc(8.33%)] right-[calc(8.33%)] h-[2px] bg-white/[0.06] rounded-full z-0" />
 
         {/* Progress fill line — z-0, behind nodes */}
         <div
-          className="absolute top-[28px] left-[calc(8.33%)] h-[2px] rounded-full transition-all duration-700 ease-out z-0"
+          className="absolute top-[22px] sm:top-[28px] left-[calc(8.33%)] h-[2px] rounded-full transition-all duration-700 ease-out z-0"
           style={{
             width: `calc(${progressWidth} * 0.8333)`,
             background: `linear-gradient(90deg, ${NODE_COLORS[0]}, ${activeColor})`,
@@ -314,10 +312,10 @@ const Education = () => {
           <button
             onClick={goPrev}
             disabled={activeIndex === 0}
-            className="font-mono text-caption sm:text-body-sm text-white/30 hover:text-white/60 disabled:opacity-20 disabled:cursor-not-allowed transition-colors flex items-center gap-1.5 px-3 py-2 rounded-lg hover:bg-white/[0.03]"
+            className="font-mono text-caption sm:text-body-sm text-white/30 hover:text-white/60 disabled:opacity-20 disabled:cursor-not-allowed transition-colors flex items-center gap-1.5 px-3 py-2.5 sm:py-2 rounded-lg hover:bg-white/[0.03] min-h-[44px]"
           >
             <svg
-              className="w-4 h-4"
+              className="w-5 h-5 sm:w-4 sm:h-4"
               fill="none"
               viewBox="0 0 24 24"
               stroke="currentColor"
@@ -338,29 +336,33 @@ const Education = () => {
               <button
                 key={i}
                 onClick={() => setActiveIndex(i)}
-                className={`w-2 h-2 rounded-full transition-all duration-300 ${
-                  i === activeIndex
-                    ? "scale-125"
-                    : "bg-white/15 hover:bg-white/30"
-                }`}
-                style={
-                  i === activeIndex
-                    ? { background: activeColor, boxShadow: `0 0 8px ${activeColor}50` }
-                    : undefined
-                }
+                className="p-2"
                 aria-label={`Go to ${timeline[i].shortName}`}
-              />
+              >
+                <span
+                  className={`block w-2 h-2 rounded-full transition-all duration-300 ${
+                    i === activeIndex
+                      ? "scale-125"
+                      : "bg-white/15 hover:bg-white/30"
+                  }`}
+                  style={
+                    i === activeIndex
+                      ? { background: activeColor, boxShadow: `0 0 8px ${activeColor}50` }
+                      : undefined
+                  }
+                />
+              </button>
             ))}
           </div>
 
           <button
             onClick={goNext}
             disabled={activeIndex === timeline.length - 1}
-            className="font-mono text-caption sm:text-body-sm text-white/30 hover:text-white/60 disabled:opacity-20 disabled:cursor-not-allowed transition-colors flex items-center gap-1.5 px-3 py-2 rounded-lg hover:bg-white/[0.03]"
+            className="font-mono text-caption sm:text-body-sm text-white/30 hover:text-white/60 disabled:opacity-20 disabled:cursor-not-allowed transition-colors flex items-center gap-1.5 px-3 py-2.5 sm:py-2 rounded-lg hover:bg-white/[0.03] min-h-[44px]"
           >
             Next
             <svg
-              className="w-4 h-4"
+              className="w-5 h-5 sm:w-4 sm:h-4"
               fill="none"
               viewBox="0 0 24 24"
               stroke="currentColor"

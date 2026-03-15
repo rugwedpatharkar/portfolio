@@ -36,7 +36,7 @@ const ThemeSwitcher = () => {
     <div className="fixed top-20 sm:top-24 right-3 sm:right-4 z-50">
       <button
         onClick={() => setOpen(!open)}
-        className="w-9 h-9 sm:w-10 sm:h-10 rounded-full glass-card hover:border-[#915eff] text-white flex items-center justify-center shadow-lg transition-colors text-body-sm sm:text-body"
+        className="w-11 h-11 sm:w-10 sm:h-10 rounded-full glass-card hover:border-[#915eff] text-white flex items-center justify-center shadow-lg transition-colors text-body-sm sm:text-body"
         aria-label="Change theme"
         title="Theme switcher"
       >

@@ -27,7 +27,7 @@ const BackToTop = () => {
           animate={{ opacity: 1, y: 0 }}
           exit={{ opacity: 0, y: 20 }}
           onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}
-          className="fixed bottom-3 right-3 sm:bottom-4 sm:right-4 z-50 w-10 h-10 sm:w-12 sm:h-12 rounded-full glass-card hover:border-[#915eff] text-white flex items-center justify-center shadow-lg transition-colors"
+          className="fixed bottom-3 right-3 sm:bottom-4 sm:right-4 z-50 w-11 h-11 sm:w-12 sm:h-12 rounded-full glass-card hover:border-[#915eff] text-white flex items-center justify-center shadow-lg transition-colors"
           aria-label="Back to top"
         >
           <svg
