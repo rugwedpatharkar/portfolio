@@ -27,6 +27,7 @@ const ParticleBackground = () => {
     const CONNECTION_DIST_SQ = CONNECTION_DIST * CONNECTION_DIST;
     const MOUSE_ATTRACT_DIST = 250;
     const MOUSE_ATTRACT_DIST_SQ = MOUSE_ATTRACT_DIST * MOUSE_ATTRACT_DIST;
+    const CELL_SIZE = CONNECTION_DIST;
 
     let particles = [];
 
@@ -42,6 +43,21 @@ const ParticleBackground = () => {
           baseRadius: Math.random() * 2 + 0.8,
         });
       }
+    };
+
+    // Spatial grid for O(n) neighbor lookups instead of O(n²)
+    const getGrid = () => {
+      const cols = Math.ceil(width / CELL_SIZE) || 1;
+      const grid = {};
+      for (let i = 0; i < particles.length; i++) {
+        const p = particles[i];
+        const cx = (p.x / CELL_SIZE) | 0;
+        const cy = (p.y / CELL_SIZE) | 0;
+        const key = cx + cy * cols;
+        if (!grid[key]) grid[key] = [];
+        grid[key].push(i);
+      }
+      return { grid, cols };
     };
 
     const animate = () => {
@@ -62,7 +78,6 @@ const ParticleBackground = () => {
             const force = (1 - dist / MOUSE_ATTRACT_DIST) * 0.015;
             p.vx += dx / dist * force;
             p.vy += dy / dist * force;
-            // Glow up near cursor
             p.radius = p.baseRadius + (1 - dist / MOUSE_ATTRACT_DIST) * 2;
           } else {
             p.radius += (p.baseRadius - p.radius) * 0.05;
@@ -83,39 +98,60 @@ const ParticleBackground = () => {
         const glowAlpha = Math.min(1, p.radius / (p.baseRadius + 1));
         ctx.beginPath();
         ctx.arc(p.x, p.y, p.radius, 0, Math.PI * 2);
-        ctx.fillStyle = `rgba(145, 94, 255, ${0.4 + glowAlpha * 0.4})`;
+        ctx.fillStyle = "rgba(145,94,255," + (0.4 + glowAlpha * 0.4) + ")";
         ctx.fill();
+      }
 
-        // Connections
-        for (let j = i + 1; j < particles.length; j++) {
-          const p2 = particles[j];
-          const cdx = p.x - p2.x;
-          const cdy = p.y - p2.y;
-          const cdistSq = cdx * cdx + cdy * cdy;
-          if (cdistSq < CONNECTION_DIST_SQ) {
-            const ratio = 1 - Math.sqrt(cdistSq) / CONNECTION_DIST;
-            const alpha = ratio * 0.2;
+      // Spatial-grid connections — only check neighboring cells
+      const { grid, cols } = getGrid();
+      const visited = new Set();
+      for (const key in grid) {
+        const cell = grid[key];
+        const k = +key;
+        const cx = k % cols;
+        const cy = (k / cols) | 0;
 
-            // Connections near mouse are brighter and teal-tinted
-            let r = 145, g = 94, b = 255;
-            if (hasMouse) {
-              const midX = (p.x + p2.x) / 2;
-              const midY = (p.y + p2.y) / 2;
-              const mDistSq = (midX - mouse.x) ** 2 + (midY - mouse.y) ** 2;
-              if (mDistSq < MOUSE_ATTRACT_DIST_SQ) {
-                const t = 1 - Math.sqrt(mDistSq) / MOUSE_ATTRACT_DIST;
-                r = Math.round(145 + (0 - 145) * t);
-                g = Math.round(94 + (206 - 94) * t);
-                b = Math.round(255 + (168 - 255) * t);
+        // Check this cell + 4 neighbors (right, below-left, below, below-right) to avoid duplicates
+        const neighborKeys = [k, k + 1, k + cols - 1, k + cols, k + cols + 1];
+        for (const nk of neighborKeys) {
+          const neighbor = grid[nk];
+          if (!neighbor) continue;
+          const sameCell = nk === k;
+          for (let a = 0; a < cell.length; a++) {
+            const startB = sameCell ? a + 1 : 0;
+            for (let b = startB; b < neighbor.length; b++) {
+              const i = cell[a];
+              const j = neighbor[b];
+              const p = particles[i];
+              const p2 = particles[j];
+              const cdx = p.x - p2.x;
+              const cdy = p.y - p2.y;
+              const cdistSq = cdx * cdx + cdy * cdy;
+              if (cdistSq < CONNECTION_DIST_SQ) {
+                const ratio = 1 - Math.sqrt(cdistSq) / CONNECTION_DIST;
+                const alpha = ratio * 0.2;
+
+                let r = 145, g = 94, bv = 255;
+                if (hasMouse) {
+                  const midX = (p.x + p2.x) * 0.5;
+                  const midY = (p.y + p2.y) * 0.5;
+                  const mDistSq = (midX - mouse.x) ** 2 + (midY - mouse.y) ** 2;
+                  if (mDistSq < MOUSE_ATTRACT_DIST_SQ) {
+                    const t = 1 - Math.sqrt(mDistSq) / MOUSE_ATTRACT_DIST;
+                    r = (145 + (0 - 145) * t) | 0;
+                    g = (94 + (206 - 94) * t) | 0;
+                    bv = (255 + (168 - 255) * t) | 0;
+                  }
+                }
+
+                ctx.beginPath();
+                ctx.moveTo(p.x, p.y);
+                ctx.lineTo(p2.x, p2.y);
+                ctx.strokeStyle = "rgba(" + r + "," + g + "," + bv + "," + alpha + ")";
+                ctx.lineWidth = ratio * 1.2;
+                ctx.stroke();
               }
             }
-
-            ctx.beginPath();
-            ctx.moveTo(p.x, p.y);
-            ctx.lineTo(p2.x, p2.y);
-            ctx.strokeStyle = `rgba(${r}, ${g}, ${b}, ${alpha})`;
-            ctx.lineWidth = ratio * 1.2;
-            ctx.stroke();
           }
         }
       }

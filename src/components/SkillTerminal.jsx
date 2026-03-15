@@ -1,5 +1,5 @@
 /* eslint-disable react/prop-types */
-import { useState, useEffect, useRef, useMemo, memo } from "react";
+import { useState, useEffect, useRef, useMemo, memo, useCallback } from "react";
 import { skills } from "../content";
 import { CATEGORY_COLORS } from "../config/theme";
 
@@ -13,9 +13,12 @@ const ASCII_ART = [
 ].join("\n");
 
 /* ── Single skill bar row — bar stretches to fill width ── */
-const SkillBar = memo(({ name, level, color, visible, delay }) => (
+const SkillBar = memo(({ name, level, color, visible, delay, isSelected, onSkillClick }) => (
   <div
-    className="skill-term-row flex items-center gap-2 sm:gap-3 font-mono text-caption sm:text-body-sm leading-[1.8] hover:bg-white/[0.04] px-2 -mx-2 rounded cursor-default transition-colors"
+    onClick={() => onSkillClick(name)}
+    className={`skill-term-row flex items-center gap-2 sm:gap-3 font-mono text-caption sm:text-body-sm leading-[1.8] hover:bg-white/[0.04] px-2 -mx-2 rounded cursor-pointer transition-all duration-300 ${
+      isSelected ? "ring-1 ring-[#915eff]/40 bg-[#915eff]/[0.08]" : ""
+    }`}
     style={
       visible
         ? { animation: `termLineIn 0.3s ease-out ${delay}s both` }
@@ -62,7 +65,28 @@ const SkillBar = memo(({ name, level, color, visible, delay }) => (
 const SkillTerminal = () => {
   const [visible, setVisible] = useState(false);
   const [activeCategory, setActiveCategory] = useState(null);
+  const [selectedSkill, setSelectedSkill] = useState(null);
   const ref = useRef(null);
+
+  /* Handle skill click — toggle selection and dispatch event */
+  const handleSkillClick = useCallback((skillName) => {
+    setSelectedSkill((prev) => {
+      const next = prev === skillName ? null : skillName;
+      window.dispatchEvent(
+        new CustomEvent("skill-filter", { detail: next })
+      );
+      return next;
+    });
+  }, []);
+
+  /* Listen for external clears (e.g. from Projects banner X button) */
+  useEffect(() => {
+    const onSkillFilter = (e) => {
+      if (e.detail === null) setSelectedSkill(null);
+    };
+    window.addEventListener("skill-filter", onSkillFilter);
+    return () => window.removeEventListener("skill-filter", onSkillFilter);
+  }, []);
 
   useEffect(() => {
     const obs = new IntersectionObserver(
@@ -248,6 +272,8 @@ const SkillTerminal = () => {
                     color={color}
                     visible={visible}
                     delay={d()}
+                    isSelected={selectedSkill === skill.name}
+                    onSkillClick={handleSkillClick}
                   />
                 ))}
               </div>

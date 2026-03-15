@@ -7,10 +7,14 @@ import * as random from "maath/random/dist/maath-random.esm";
 const Stars = ({ paused = false, ...props }) => {
   const ref = useRef();
 
-  const sphere = useMemo(
-    () => random.inSphere(new Float32Array(5000), { radius: 1.2 }),
-    []
-  );
+  const sphere = useMemo(() => {
+    const positions = random.inSphere(new Float32Array(5000), { radius: 1.2 });
+    // Sanitize: replace any NaN values to prevent THREE.js bounding sphere errors
+    for (let i = 0; i < positions.length; i++) {
+      if (Number.isNaN(positions[i])) positions[i] = 0;
+    }
+    return positions;
+  }, []);
   useFrame((state, delta) => {
     if (paused) return;
     ref.current.rotation.x -= delta / 10;

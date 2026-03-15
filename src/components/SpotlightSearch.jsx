@@ -163,6 +163,9 @@ const SpotlightSearch = () => {
             exit={{ opacity: 0, scale: 0.95, y: -20 }}
             transition={{ duration: 0.2, ease: [0.04, 0.62, 0.23, 0.98] }}
             onClick={(e) => e.stopPropagation()}
+            role="dialog"
+            aria-label="Search portfolio"
+            aria-modal="true"
             className="relative w-[90vw] max-w-lg glass-card rounded-2xl border border-white/[0.08] overflow-hidden shadow-2xl"
           >
             {/* Input */}
@@ -176,6 +179,12 @@ const SpotlightSearch = () => {
                 onChange={(e) => { setQuery(e.target.value); setSelectedIndex(0); }}
                 onKeyDown={onInputKey}
                 placeholder="Search portfolio..."
+                aria-label="Search portfolio"
+                aria-autocomplete="list"
+                aria-controls="spotlight-results"
+                aria-activedescendant={results[selectedIndex] ? `spotlight-item-${selectedIndex}` : undefined}
+                role="combobox"
+                aria-expanded="true"
                 className="flex-1 bg-transparent text-white text-body placeholder:text-white/30 outline-none font-mono"
               />
               <kbd className="hidden sm:inline text-micro font-mono text-white/20 bg-white/[0.04] px-1.5 py-0.5 rounded border border-white/[0.08]">
@@ -184,7 +193,7 @@ const SpotlightSearch = () => {
             </div>
 
             {/* Results */}
-            <div ref={listRef} className="max-h-[50vh] overflow-y-auto py-2">
+            <div ref={listRef} id="spotlight-results" role="listbox" aria-label="Search results" className="max-h-[50vh] overflow-y-auto py-2">
               {results.length === 0 ? (
                 <div className="px-5 py-8 text-center text-white/40 text-body-sm font-mono">
                   No results found
@@ -193,6 +202,9 @@ const SpotlightSearch = () => {
                 results.map((item, i) => (
                   <button
                     key={`${item.type}-${item.title}-${i}`}
+                    id={`spotlight-item-${i}`}
+                    role="option"
+                    aria-selected={i === selectedIndex}
                     onClick={() => navigate(item.id)}
                     className={`w-full flex items-center gap-3 px-5 py-3 text-left transition-colors ${
                       i === selectedIndex

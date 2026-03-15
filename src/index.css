@@ -52,7 +52,13 @@ textarea,
 }
 
 :root {
-  --accent-color: #915eff;
+  --accent: #915eff;
+  --accent-rgb: 145, 94, 255;
+  --accent-secondary: #00cea8;
+  --accent-secondary-rgb: 0, 206, 168;
+  --accent-tertiary: #bf61ff;
+  --accent-info: #61dafb;
+  --accent-warn: #f8c555;
   --bg-color: #050816;
 
   /* Animation timing tokens */
@@ -358,6 +364,24 @@ img {
   syntax: "<angle>";
   initial-value: 0deg;
   inherits: false;
+}
+
+/* Fallback for browsers that don't support @property (older Firefox/Safari) —
+   rotates the entire pseudo-element instead of the gradient angle */
+@supports not (background: paint(something)) {
+  .border-glow::before {
+    background: conic-gradient(
+      from 0deg,
+      rgba(var(--accent-rgb), 0.4),
+      rgba(var(--accent-secondary-rgb), 0.2),
+      rgba(97, 218, 251, 0.2),
+      rgba(var(--accent-rgb), 0.4)
+    );
+    animation: borderRotateFallback 4s linear infinite;
+  }
+}
+@keyframes borderRotateFallback {
+  to { transform: rotate(360deg); }
 }
 
 /* Smooth focus ring for accessibility */

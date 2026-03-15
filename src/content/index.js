@@ -699,7 +699,7 @@ export const contactLinks = [
   {
     label: "Book a Call",
     value: "Schedule a Meeting",
-    href: "#book-a-call",
+    href: "https://calendar.app.google/NBvECL2cKbdgVVwG7",
     iconType: "calendar",
   },
   {

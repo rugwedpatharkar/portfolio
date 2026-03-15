@@ -68,6 +68,7 @@ const SkillGlobe = () => {
       const sinY = Math.sin(ry);
 
       const items = itemsRef.current;
+      const nodes = nodesRef.current;
       for (let i = 0; i < items.length; i++) {
         const item = items[i];
         // Rotate around Y then X
@@ -83,11 +84,19 @@ const SkillGlobe = () => {
         // Update DOM directly — no React re-render
         const scale = (z2 + 1.5) / 2.5;
         const opacity = Math.max(0.2, (z2 + 1) / 2);
-        const node = nodesRef.current[i];
-        node.el.style.transform = `translate3d(${x1 * radius}px, ${y1 * radius}px, 0) scale(${scale})`;
-        node.el.style.opacity = opacity;
-        node.el.style.zIndex = Math.round(z2 * 10 + 10);
-        node.iconBox.style.boxShadow = `0 0 ${8 + scale * 8}px ${2 + scale * 2}px rgba(145, 94, 255, ${0.2 + scale * 0.2})`;
+        const node = nodes[i];
+        const elStyle = node.el.style;
+        const iconStyle = node.iconBox.style;
+        const px = x1 * radius;
+        const py = y1 * radius;
+        const blur = 8 + scale * 8;
+        const spread = 2 + scale * 2;
+        const shadowAlpha = 0.2 + scale * 0.2;
+
+        elStyle.transform = "translate3d(" + px + "px," + py + "px,0) scale(" + scale + ")";
+        elStyle.opacity = opacity;
+        elStyle.zIndex = (z2 * 10 + 10) | 0;
+        iconStyle.boxShadow = "0 0 " + blur + "px " + spread + "px rgba(145,94,255," + shadowAlpha + ")";
       }
 
       animRef.current = requestAnimationFrame(animate);

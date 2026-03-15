@@ -4,6 +4,7 @@ import { styles } from "../styles";
 import { navLinks, navbarContent } from "../content";
 import { logo } from "../assets";
 import useRetryObserver from "../hooks/useRetryObserver";
+import useSoundEffects from "../hooks/useSoundEffects";
 
 const Navbar = () => {
   const [active, setActive] = useState("");
@@ -12,6 +13,7 @@ const Navbar = () => {
   const tickingRef = useRef(false);
   const indicatorRef = useRef(null);
   const trapFocusRef = useRef(null);
+  const { playClick, playToggle } = useSoundEffects();
 
   /* Scroll detection (scrolled state for navbar background) */
   useEffect(() => {
@@ -123,6 +125,7 @@ const Navbar = () => {
   }, [toggle]);
 
   const handleItemClick = (link) => {
+    playClick();
     setActive(link.title);
     setToggle(false);
   };
@@ -197,7 +200,7 @@ const Navbar = () => {
         <div className="md:hidden flex flex-1 justify-end items-center">
           <button
             className="menu-toggle w-11 h-11 cursor-pointer rounded-xl border border-white/10 hover:border-[#915eff]/30 bg-white/5 flex items-center justify-center transition-colors duration-300"
-            onClick={() => setToggle(!toggle)}
+            onClick={() => { playToggle(); setToggle(!toggle); }}
             aria-label="Toggle menu"
             aria-expanded={toggle}
           >

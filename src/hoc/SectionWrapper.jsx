@@ -17,8 +17,24 @@ const SectionWrapper = (Component, idName, label) =>
     const labelY = useTransform(scrollYProgress, [0, 1], [40, -40]);
     const labelOpacity = useTransform(scrollYProgress, [0, 0.3, 0.7, 1], [0, 0.015, 0.015, 0]);
 
+    // Clip-path reveal: expands from center as section scrolls into view
+    const clipInsetTop = useTransform(scrollYProgress, [0, 0.3], [5, 0]);
+    const clipInsetSide = useTransform(scrollYProgress, [0, 0.3], [10, 0]);
+    const clipPath = useTransform(
+      [clipInsetTop, clipInsetSide],
+      ([top, side]) => `inset(${top}% ${side}%)`
+    );
+
+    // Fade-in: opacity 0.3 to 1 as content enters viewport center
+    const contentOpacity = useTransform(scrollYProgress, [0, 0.25, 0.5], [0.3, 0.8, 1]);
+
     return (
-      <section ref={ref} id={idName} className="relative z-0">
+      <motion.section
+        ref={ref}
+        id={idName}
+        className="relative z-0"
+        style={{ clipPath }}
+      >
         {label && (
           <motion.span
             style={{ y: labelY, opacity: labelOpacity }}
@@ -36,12 +52,12 @@ const SectionWrapper = (Component, idName, label) =>
           initial="hidden"
           whileInView="show"
           viewport={{ once: true, amount: 0.15 }}
-          style={{ y }}
+          style={{ y, opacity: contentOpacity }}
           className={`${styles.padding} max-w-7xl 3xl:max-w-[2000px] mx-auto`}
         >
           <Component />
         </motion.div>
-      </section>
+      </motion.section>
     );
   };
 

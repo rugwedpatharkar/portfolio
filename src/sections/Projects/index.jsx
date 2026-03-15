@@ -1,6 +1,6 @@
 /* eslint-disable react/prop-types */
 /* eslint-disable react-refresh/only-export-components */
-import { useState, useMemo, memo } from "react";
+import { useState, useEffect, useMemo, memo, useRef, useCallback, forwardRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { styles } from "../../styles";
 import { SectionWrapper } from "../../hoc";
@@ -36,8 +36,43 @@ const handleCardMouse = (e) => {
 };
 
 /* ── Project Card ── */
-const ProjectCard = memo(({ project, index, isExpanded, onToggle, accent }) => {
+const ProjectCard = memo(forwardRef(({ project, index, isExpanded, onToggle, accent, dimmed }, ref) => {
   const status = STATUS_CONFIG[project.status] || STATUS_CONFIG.completed;
+  const imgTiltRef = useRef(null);
+  const imgShineRef = useRef(null);
+  const imgRafRef = useRef(null);
+  const imgMouseRef = useRef({ x: 0, y: 0 });
+
+  const handleImageMouseMove = useCallback((e) => {
+    imgMouseRef.current.x = e.clientX;
+    imgMouseRef.current.y = e.clientY;
+    if (imgRafRef.current) return;
+    imgRafRef.current = requestAnimationFrame(() => {
+      imgRafRef.current = null;
+      const el = imgTiltRef.current;
+      if (!el) return;
+      const rect = el.getBoundingClientRect();
+      const x = (imgMouseRef.current.x - rect.left) / rect.width;
+      const y = (imgMouseRef.current.y - rect.top) / rect.height;
+      const rotateX = (0.5 - y) * 8;
+      const rotateY = (x - 0.5) * 8;
+      el.style.transform = `perspective(600px) rotateX(${rotateX}deg) rotateY(${rotateY}deg) scale3d(1.03, 1.03, 1.03)`;
+      if (imgShineRef.current) {
+        imgShineRef.current.style.opacity = "1";
+        imgShineRef.current.style.background = `radial-gradient(300px circle at ${x * 100}% ${y * 100}%, rgba(255,255,255,0.12), transparent 60%)`;
+      }
+    });
+  }, []);
+
+  const handleImageMouseLeave = useCallback(() => {
+    if (imgRafRef.current) {
+      cancelAnimationFrame(imgRafRef.current);
+      imgRafRef.current = null;
+    }
+    const el = imgTiltRef.current;
+    if (el) el.style.transform = "perspective(600px) rotateX(0deg) rotateY(0deg) scale3d(1, 1, 1)";
+    if (imgShineRef.current) imgShineRef.current.style.opacity = "0";
+  }, []);
 
   return (
     <motion.div
@@ -56,6 +91,8 @@ const ProjectCard = memo(({ project, index, isExpanded, onToggle, accent }) => {
       style={{
         borderColor: isExpanded ? `${accent}35` : undefined,
         "--proj-accent": accent,
+        opacity: dimmed ? 0.3 : 1,
+        transition: "opacity 0.4s ease",
       }}
     >
       {/* Hover glow — positioned behind card content */}
@@ -77,31 +114,47 @@ const ProjectCard = memo(({ project, index, isExpanded, onToggle, accent }) => {
       />
 
       <div className="p-4 sm:p-5 relative z-[1]">
-        {/* Project image / placeholder */}
-        <div className="relative h-36 sm:h-44 overflow-hidden rounded-t-2xl -mx-4 -mt-4 sm:-mx-5 sm:-mt-5 mb-4">
-          {project.image ? (
-            <img
-              src={project.image}
-              alt={`${project.name} screenshot`}
-              className="w-full h-full object-cover object-top"
-              loading="lazy"
-            />
-          ) : (
-            <div
-              className="w-full h-full flex items-center justify-center"
-              style={{
-                background: `linear-gradient(135deg, ${accent}08, ${accent}18)`,
-              }}
-            >
-              <span
-                className="font-heading font-bold text-display opacity-[0.08] select-none"
-                style={{ color: accent }}
+        {/* Project image / placeholder — with 3D tilt effect */}
+        <div
+          className="relative h-36 sm:h-44 overflow-hidden rounded-t-2xl -mx-4 -mt-4 sm:-mx-5 sm:-mt-5 mb-4"
+          onMouseMove={handleImageMouseMove}
+          onMouseLeave={handleImageMouseLeave}
+        >
+          <div
+            ref={imgTiltRef}
+            className="w-full h-full transition-transform duration-300 ease-out"
+            style={{ transformStyle: "preserve-3d", transformOrigin: "center center", willChange: "transform" }}
+          >
+            {project.image ? (
+              <img
+                src={project.image}
+                alt={`${project.name} screenshot`}
+                className="w-full h-full object-cover object-top"
+                loading="lazy"
+              />
+            ) : (
+              <div
+                className="w-full h-full flex items-center justify-center"
+                style={{
+                  background: `linear-gradient(135deg, ${accent}08, ${accent}18)`,
+                }}
               >
-                {String(index + 1).padStart(2, "0")}
-              </span>
-            </div>
-          )}
-          <div className="absolute inset-0 bg-gradient-to-t from-[#151030] via-transparent to-transparent" />
+                <span
+                  className="font-heading font-bold text-display opacity-[0.08] select-none"
+                  style={{ color: accent }}
+                >
+                  {String(index + 1).padStart(2, "0")}
+                </span>
+              </div>
+            )}
+            <div className="absolute inset-0 bg-gradient-to-t from-[#151030] via-transparent to-transparent" />
+            {/* Shine overlay — follows mouse */}
+            <div
+              ref={imgShineRef}
+              className="absolute inset-0 pointer-events-none transition-opacity duration-300 ease-out"
+              style={{ opacity: 0 }}
+            />
+          </div>
         </div>
 
         {/* Top row: type + status + index */}
@@ -304,12 +357,37 @@ const ProjectCard = memo(({ project, index, isExpanded, onToggle, accent }) => {
       </div>
     </motion.div>
   );
-});
+}));
 
 /* ── Main Section ── */
 const Projects = () => {
   const [expandedIndex, setExpandedIndex] = useState(null);
   const [filter, setFilter] = useState("all");
+  const [skillFilter, setSkillFilter] = useState(null);
+
+  /* Listen for skill-filter events from SkillTerminal */
+  useEffect(() => {
+    const onSkillFilter = (e) => {
+      setSkillFilter(e.detail);
+    };
+    window.addEventListener("skill-filter", onSkillFilter);
+    return () => window.removeEventListener("skill-filter", onSkillFilter);
+  }, []);
+
+  /* Check if a project matches the active skill filter (case-insensitive partial match) */
+  const projectMatchesSkill = useCallback((project, skill) => {
+    if (!skill) return true;
+    const lowerSkill = skill.toLowerCase();
+    return project.tags.some((tag) =>
+      tag.name.toLowerCase().includes(lowerSkill) ||
+      lowerSkill.includes(tag.name.toLowerCase())
+    );
+  }, []);
+
+  const clearSkillFilter = () => {
+    setSkillFilter(null);
+    window.dispatchEvent(new CustomEvent("skill-filter", { detail: null }));
+  };
 
   const filtered = useMemo(
     () =>
@@ -399,8 +477,25 @@ const Projects = () => {
         {filter !== "all" && ` · filtered by ${filter}`}
       </div>
 
+      {/* Skill filter banner */}
+      {skillFilter && (
+        <div className="mt-3 flex items-center gap-2 px-3 py-2 rounded-lg bg-[#915eff]/[0.08] border border-[#915eff]/20 font-mono text-caption sm:text-body-sm text-[#915eff] transition-all duration-300">
+          <span className="text-white/50">Showing projects with:</span>
+          <span className="font-bold">{skillFilter}</span>
+          <button
+            onClick={clearSkillFilter}
+            className="ml-auto text-white/40 hover:text-white/70 transition-colors p-0.5"
+            aria-label="Clear skill filter"
+          >
+            <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+              <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
+            </svg>
+          </button>
+        </div>
+      )}
+
       {/* Card grid */}
-      <div className="mt-5 sm:mt-6 grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-4 sm:gap-5 items-start">
+      <div className="relative mt-5 sm:mt-6 grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-4 sm:gap-5 items-start">
         {filtered.length === 0 ? (
           <div className="col-span-full text-center py-16">
             <p className="text-white/40 font-mono text-body-sm">{uiLabels.projects.noResults}</p>
@@ -428,6 +523,7 @@ const Projects = () => {
                     }
                   }}
                   accent={PROJECT_ACCENTS[globalIndex % PROJECT_ACCENTS.length]}
+                  dimmed={skillFilter ? !projectMatchesSkill(project, skillFilter) : false}
                 />
               );
             })}
