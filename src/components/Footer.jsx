@@ -77,6 +77,17 @@ const Footer = () => {
                 <ImLinkedin className="text-body-sm group-hover:scale-110 transition-transform" />
               </a>
             </div>
+            {/* Download Portfolio */}
+            <a
+              href="/Rugwed-Patharkar-Portfolio.pdf"
+              download
+              className="inline-flex items-center gap-1.5 mt-3 text-secondary hover:text-[#915eff] text-body-sm font-mono transition-colors duration-200 group"
+            >
+              <svg className="w-4 h-4 group-hover:translate-y-0.5 transition-transform" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
+                <path strokeLinecap="round" strokeLinejoin="round" d="M3 16.5v2.25A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75V16.5M16.5 12L12 16.5m0 0L7.5 12m4.5 4.5V3" />
+              </svg>
+              Download Portfolio
+            </a>
           </div>
 
           {/* Column 2: Quick Links */}

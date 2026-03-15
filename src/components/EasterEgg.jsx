@@ -21,10 +21,15 @@ const EasterEgg = () => {
         if (index === KONAMI_CODE.length) {
           setShow(true);
           window.dispatchEvent(new CustomEvent("achievement", { detail: "konami" }));
+          // Rainbow border visual effect for 5 seconds
+          document.body.classList.add("konami-rainbow");
           index = 0;
           setProgress(0);
           clearTimeout(timerRef.current);
-          timerRef.current = setTimeout(() => setShow(false), 5000);
+          timerRef.current = setTimeout(() => {
+            setShow(false);
+            document.body.classList.remove("konami-rainbow");
+          }, 5000);
         }
       } else {
         index = 0;
@@ -36,6 +41,7 @@ const EasterEgg = () => {
     return () => {
       window.removeEventListener("keydown", handleKeyDown);
       clearTimeout(timerRef.current);
+      document.body.classList.remove("konami-rainbow");
     };
   }, []);
 

@@ -5,7 +5,7 @@ import { motion } from "framer-motion";
 import { styles } from "../../styles";
 import { experiences, sectionMeta } from "../../content";
 import { SectionWrapper } from "../../hoc";
-import { fadeIn, textVariant } from "../../utils/motion";
+import { fadeIn, textVariant, staggerContainer } from "../../utils/motion";
 import TextScramble from "../../components/TextScramble";
 import { CAT_COLORS } from "../../config/theme";
 
@@ -140,9 +140,18 @@ const ExperienceCard = memo(({ experience, index, isLast }) => {
           <h3 className="text-white font-heading font-bold text-body-lg sm:text-heading-sm">
             {experience.title}
           </h3>
-          <p className="text-secondary text-body-sm sm:text-body font-semibold mt-0.5">
-            {experience.companyName}
-          </p>
+          <div className="flex items-center gap-2 mt-0.5">
+            <span
+              className="w-6 h-6 rounded-full flex items-center justify-center text-[10px] font-bold font-heading shrink-0 border border-white/10"
+              style={{ background: experience.iconBg, color: experience.iconBg === "#ffffff" ? "#1a1a2e" : "#ffffff" }}
+              aria-hidden="true"
+            >
+              {experience.companyName.charAt(0)}
+            </span>
+            <p className="text-secondary text-body-sm sm:text-body font-semibold">
+              {experience.companyName}
+            </p>
+          </div>
           <p className="text-[#915eff] text-caption sm:text-body-sm font-mono mt-1">
             {experience.date}
           </p>
@@ -264,7 +273,13 @@ const Experience = () => {
         {sectionMeta.experience.description}
       </motion.p>
 
-      <div className="mt-10 sm:mt-16">
+      <motion.div
+        className="mt-10 sm:mt-16"
+        variants={staggerContainer(0.3, 0.2)}
+        initial="hidden"
+        whileInView="show"
+        viewport={{ once: true, amount: 0.1 }}
+      >
         {experiences.map((exp, i) => (
           <ExperienceCard
             key={i}
@@ -273,7 +288,7 @@ const Experience = () => {
             isLast={i === experiences.length - 1}
           />
         ))}
-      </div>
+      </motion.div>
     </div>
   );
 };

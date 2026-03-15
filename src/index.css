@@ -1007,6 +1007,25 @@ img {
   }
 }
 
+/* Konami code rainbow border effect */
+body.konami-rainbow {
+  animation: konamiRainbow 1.5s linear infinite;
+  box-shadow:
+    inset 0 0 0 3px transparent,
+    0 0 30px rgba(145, 94, 255, 0.3);
+  outline: 3px solid;
+  outline-offset: -3px;
+}
+@keyframes konamiRainbow {
+  0%   { outline-color: #ff0000; box-shadow: inset 0 0 20px rgba(255, 0, 0, 0.1); }
+  16%  { outline-color: #ff8800; box-shadow: inset 0 0 20px rgba(255, 136, 0, 0.1); }
+  33%  { outline-color: #ffff00; box-shadow: inset 0 0 20px rgba(255, 255, 0, 0.1); }
+  50%  { outline-color: #00ff41; box-shadow: inset 0 0 20px rgba(0, 255, 65, 0.1); }
+  66%  { outline-color: #00cea8; box-shadow: inset 0 0 20px rgba(0, 206, 168, 0.1); }
+  83%  { outline-color: #915eff; box-shadow: inset 0 0 20px rgba(145, 94, 255, 0.1); }
+  100% { outline-color: #ff0000; box-shadow: inset 0 0 20px rgba(255, 0, 0, 0.1); }
+}
+
 /* Matrix mode easter egg */
 body.matrix-mode {
   transition: filter 0.5s ease;
