@@ -1,6 +1,7 @@
 /* eslint-disable react/prop-types */
-import { memo } from "react";
+import { memo, forwardRef, useRef, useEffect } from "react";
 import { motion } from "framer-motion";
+import CardBorderTrace from "../../components/CardBorderTrace";
 import { styles } from "../../styles";
 import { SectionWrapper } from "../../hoc";
 import { hobbies, sectionMeta } from "../../content";
@@ -9,25 +10,21 @@ import { ACCENT_COLORS } from "../../config/theme";
 import TextScramble from "../../components/TextScramble";
 import TiltCard from "../../components/TiltCard";
 
-const HobbyCard = memo(({ hobby, index }) => {
+const HobbyCard = memo(forwardRef(({ hobby, index }, ref) => {
   const color = ACCENT_COLORS[index % ACCENT_COLORS.length];
 
   return (
     <motion.div
+      ref={ref}
       initial={{ opacity: 0, y: 30 }}
       whileInView={{ opacity: 1, y: 0 }}
       viewport={{ once: true }}
       transition={{ delay: index * 0.08, duration: 0.5, type: "spring" }}
       className="h-full"
     >
-      <TiltCard tiltStrength={8}>
-        <div className="glass-card rounded-2xl p-5 sm:p-6 card-shine glow-hover border-glow relative overflow-hidden group h-full min-h-[220px] sm:min-h-[260px] flex flex-col">
-
-          {/* Accent top bar — widens on hover */}
-          <div
-            className="absolute top-0 left-1/2 -translate-x-1/2 h-[2px] w-12 rounded-full opacity-40 group-hover:w-20 group-hover:opacity-80 transition-all duration-500"
-            style={{ background: color }}
-          />
+      <TiltCard tiltStrength={8} className="h-full">
+        <div className="relative group h-full">
+        <div className="glass-card rounded-2xl p-5 sm:p-6 card-shine glow-hover border-glow relative overflow-hidden h-full flex flex-col">
 
           {/* Accent glow blob — top-right corner */}
           <div
@@ -69,14 +66,14 @@ const HobbyCard = memo(({ hobby, index }) => {
             {hobby.name}
           </h3>
 
-          {/* Crossfading text: tagline ↔ detail (fixed height prevents layout shift) */}
-          <div className="relative mt-1 mb-3 h-[60px] sm:h-[72px] z-[1]">
+          {/* Crossfading text: tagline ↔ detail — grid stacking avoids fixed height */}
+          <div className="grid grid-cols-1 grid-rows-1 mt-1 mb-3 z-[1]">
             {/* Tagline — visible by default, fades out on hover */}
-            <p className="text-secondary text-caption sm:text-body-sm absolute inset-0 opacity-100 group-hover:opacity-0 transition-opacity duration-200 line-clamp-3 leading-relaxed">
+            <p className="col-start-1 row-start-1 text-secondary text-caption sm:text-body-sm opacity-100 group-hover:opacity-0 transition-opacity duration-200 leading-relaxed">
               {hobby.tagline}
             </p>
             {/* Detail — hidden by default, fades in on hover */}
-            <p className="text-white/70 text-caption sm:text-body-sm absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-300 delay-100 line-clamp-3 leading-relaxed">
+            <p className="col-start-1 row-start-1 text-white/70 text-caption sm:text-body-sm opacity-0 group-hover:opacity-100 transition-opacity duration-300 delay-100 leading-relaxed">
               {hobby.detail}
             </p>
           </div>
@@ -100,13 +97,33 @@ const HobbyCard = memo(({ hobby, index }) => {
           </div>
 
         </div>
+          <CardBorderTrace color={color} />
+        </div>
       </TiltCard>
     </motion.div>
   );
-});
+}));
 HobbyCard.displayName = "HobbyCard";
 
 const Hobbies = () => {
+  const cardRefs = useRef([]);
+
+  useEffect(() => {
+    const equalize = () => {
+      const els = cardRefs.current.filter(Boolean);
+      if (!els.length) return;
+      els.forEach((el) => (el.style.minHeight = ""));
+      const max = Math.max(...els.map((el) => el.getBoundingClientRect().height));
+      els.forEach((el) => (el.style.minHeight = `${max}px`));
+    };
+    const timer = setTimeout(equalize, 700);
+    window.addEventListener("resize", equalize);
+    return () => {
+      clearTimeout(timer);
+      window.removeEventListener("resize", equalize);
+    };
+  }, []);
+
   return (
     <div className="relative">
       {/* Ambient glow blobs behind section */}
@@ -141,7 +158,7 @@ const Hobbies = () => {
       {/* Grid: 2 cols on mobile/sm → 4 cols on lg */}
       <div className="mt-8 sm:mt-12 grid grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-5 lg:gap-6">
         {hobbies.map((hobby, index) => (
-          <HobbyCard key={hobby.name} hobby={hobby} index={index} />
+          <HobbyCard key={hobby.name} ref={(el) => (cardRefs.current[index] = el)} hobby={hobby} index={index} />
         ))}
       </div>
     </div>

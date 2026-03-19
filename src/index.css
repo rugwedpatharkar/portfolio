@@ -623,6 +623,18 @@ img {
   100% { background-position: -200% 0; opacity: 0; }
 }
 
+/* ── CardBorderTrace SVG paths ── */
+.card-border-path {
+  stroke-dashoffset: 1;
+  stroke-opacity: 0;
+  transition: stroke-dashoffset 0.55s cubic-bezier(0.4, 0, 0.2, 1),
+              stroke-opacity 0.15s ease-out;
+}
+.group:hover .card-border-path {
+  stroke-dashoffset: 0;
+  stroke-opacity: 0.65;
+}
+
 /* Achievement card gradient border glow on hover */
 .achievement-gradient-border {
   transition: opacity 0.5s ease, box-shadow 0.5s ease;

@@ -8,6 +8,7 @@ import { projects, sectionMeta, uiLabels } from "../../content";
 import { fadeIn, textVariant } from "../../utils/motion";
 import TextScramble from "../../components/TextScramble";
 import { PROJECT_ACCENTS, PROJECT_FILTERS, STATUS_CONFIG } from "../../config/theme";
+import CardBorderTrace from "../../components/CardBorderTrace";
 
 /* ── Filter Tab ── */
 const FilterTab = ({ label, isActive, onClick, count }) => (
@@ -36,7 +37,7 @@ const handleCardMouse = (e) => {
 };
 
 /* ── Project Card ── */
-const ProjectCard = memo(forwardRef(({ project, index, isExpanded, onToggle, accent, dimmed }, ref) => {
+const ProjectCard = memo(forwardRef(({ project, index, accent, dimmed }, ref) => {
   const status = STATUS_CONFIG[project.status] || STATUS_CONFIG.completed;
   const imgTiltRef = useRef(null);
   const imgShineRef = useRef(null);
@@ -81,20 +82,18 @@ const ProjectCard = memo(forwardRef(({ project, index, isExpanded, onToggle, acc
       animate={{ opacity: 1, y: 0 }}
       exit={{ opacity: 0, y: -20, transition: { duration: 0.2 } }}
       transition={{ duration: 0.4, delay: index * 0.08 }}
-      onClick={onToggle}
       onMouseMove={handleCardMouse}
-      role="button"
-      tabIndex={0}
-      aria-expanded={isExpanded}
-      onKeyDown={(e) => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); onToggle(); } }}
-      className="proj-card glass-card rounded-2xl overflow-hidden cursor-pointer group relative card-shine glow-hover border-glow"
+      className="proj-card relative group h-full"
       style={{
-        borderColor: isExpanded ? `${accent}35` : undefined,
         "--proj-accent": accent,
         opacity: dimmed ? 0.3 : 1,
         transition: "opacity 0.4s ease",
       }}
     >
+      <div
+        className="glass-card rounded-2xl overflow-hidden relative card-shine glow-hover border-glow h-full flex flex-col"
+        style={{ borderColor: `${accent}35` }}
+      >
       {/* Hover glow — positioned behind card content */}
       <div
         className="absolute -inset-px rounded-2xl opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none"
@@ -103,17 +102,17 @@ const ProjectCard = memo(forwardRef(({ project, index, isExpanded, onToggle, acc
         }}
       />
 
-      {/* Accent bar */}
+      {/* Accent bar — always visible */}
       <div
         className="h-[3px] transition-all duration-500 relative z-[1]"
         style={{
           background: `linear-gradient(90deg, ${accent}, ${accent}30)`,
-          opacity: isExpanded ? 1 : 0.4,
-          boxShadow: isExpanded ? `0 0 20px ${accent}25` : "none",
+          opacity: 1,
+          boxShadow: `0 0 20px ${accent}25`,
         }}
       />
 
-      <div className="p-4 sm:p-5 relative z-[1]">
+      <div className="p-4 sm:p-5 relative z-[1] flex flex-col flex-1">
         {/* Project image / placeholder — with 3D tilt effect */}
         <div
           className="relative h-36 sm:h-44 overflow-hidden rounded-t-2xl -mx-4 -mt-4 sm:-mx-5 sm:-mt-5 mb-4"
@@ -186,7 +185,7 @@ const ProjectCard = memo(forwardRef(({ project, index, isExpanded, onToggle, acc
           <h3 className="text-white font-heading font-bold text-body sm:text-body-lg md:text-heading-sm leading-tight min-w-0">
             {project.name}
           </h3>
-          {project.highlight && !isExpanded && (
+          {project.highlight && (
             <div className="shrink-0 text-right">
               <div
                 className="font-heading font-bold text-body-lg sm:text-heading-sm"
@@ -213,155 +212,87 @@ const ProjectCard = memo(forwardRef(({ project, index, isExpanded, onToggle, acc
         </div>
 
         {/* Description */}
-        <p
-          className={`text-secondary text-caption sm:text-body-sm mt-3 leading-relaxed ${
-            !isExpanded ? "line-clamp-2" : ""
-          }`}
-        >
+        <p className="text-secondary text-caption sm:text-body-sm mt-3 leading-relaxed">
           {project.description}
         </p>
 
-        {/* Expanded content */}
-        <AnimatePresence initial={false}>
-          {isExpanded && (
-            <motion.div
-              initial={{ height: 0, opacity: 0 }}
-              animate={{ height: "auto", opacity: 1 }}
-              exit={{ height: 0, opacity: 0 }}
-              transition={{
-                duration: 0.35,
-                ease: [0.04, 0.62, 0.23, 0.98],
-              }}
-              className="overflow-hidden"
-            >
-              {/* Features */}
-              {project.features && (
-                <ul className="mt-4 space-y-2">
-                  {project.features.map((f, i) => (
-                    <li key={i} className="flex items-start gap-2.5">
-                      <span
-                        className="mt-0.5 shrink-0 text-caption"
-                        style={{ color: accent }}
-                      >
-                        ▹
-                      </span>
-                      <span className="text-white/80 text-caption sm:text-body-sm">
-                        {f}
-                      </span>
-                    </li>
-                  ))}
-                </ul>
-              )}
+        {/* Features */}
+        {project.features && (
+          <ul className="mt-4 space-y-2">
+            {project.features.map((f, i) => (
+              <li key={i} className="flex items-start gap-2.5">
+                <span className="mt-0.5 shrink-0 text-caption" style={{ color: accent }}>▹</span>
+                <span className="text-white/80 text-caption sm:text-body-sm">{f}</span>
+              </li>
+            ))}
+          </ul>
+        )}
 
-              {/* Stats */}
-              {project.stats?.length > 0 && (
-                <div className="flex flex-wrap gap-3 mt-4">
-                  {project.stats.map((s, i) => (
-                    <div
-                      key={i}
-                      className="px-3 py-2 rounded-xl bg-white/[0.03] border border-white/[0.06]"
-                    >
-                      <div
-                        className="font-bold font-heading text-body"
-                        style={{ color: accent }}
-                      >
-                        {s.value}
-                      </div>
-                      <div className="text-secondary text-micro sm:text-caption font-mono">
-                        {s.label}
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              )}
+        {/* Stats */}
+        {project.stats?.length > 0 && (
+          <div className="flex flex-wrap gap-3 mt-4">
+            {project.stats.map((s, i) => (
+              <div key={i} className="px-3 py-2 rounded-xl bg-white/[0.03] border border-white/[0.06]">
+                <div className="font-bold font-heading text-body" style={{ color: accent }}>{s.value}</div>
+                <div className="text-secondary text-micro sm:text-caption font-mono">{s.label}</div>
+              </div>
+            ))}
+          </div>
+        )}
 
-              {/* Links */}
-              {(project.github || project.live) && (
-                <div className="flex flex-wrap gap-3 mt-4">
-                  {project.github && (
-                    <a
-                      href={project.github}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      onClick={(e) => e.stopPropagation()}
-                      className="flex items-center gap-1.5 text-caption sm:text-body-sm font-mono px-3 py-1.5 rounded-lg border border-white/[0.08] hover:border-white/20 text-white/60 hover:text-white transition-colors"
-                    >
-                      <svg className="w-4 h-4" viewBox="0 0 24 24" fill="currentColor"><path d="M12 0C5.37 0 0 5.37 0 12c0 5.3 3.438 9.8 8.205 11.385.6.113.82-.258.82-.577 0-.285-.01-1.04-.015-2.04-3.338.724-4.042-1.61-4.042-1.61-.546-1.385-1.335-1.755-1.335-1.755-1.087-.744.084-.729.084-.729 1.205.084 1.838 1.236 1.838 1.236 1.07 1.835 2.809 1.305 3.495.998.108-.776.417-1.305.76-1.605-2.665-.3-5.466-1.332-5.466-5.93 0-1.31.465-2.38 1.235-3.22-.135-.303-.54-1.523.105-3.176 0 0 1.005-.322 3.3 1.23.96-.267 1.98-.399 3-.405 1.02.006 2.04.138 3 .405 2.28-1.552 3.285-1.23 3.285-1.23.645 1.653.24 2.873.12 3.176.765.84 1.23 1.91 1.23 3.22 0 4.61-2.805 5.625-5.475 5.92.42.36.81 1.096.81 2.22 0 1.606-.015 2.896-.015 3.286 0 .315.21.69.825.57C20.565 21.795 24 17.295 24 12c0-6.63-5.37-12-12-12"/></svg>
-                      {uiLabels.projects.source}
-                    </a>
-                  )}
-                  {project.live && (
-                    <a
-                      href={project.live}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      onClick={(e) => e.stopPropagation()}
-                      className="flex items-center gap-1.5 text-caption sm:text-body-sm font-mono px-3 py-1.5 rounded-lg border hover:border-opacity-40 text-white/60 hover:text-white transition-colors"
-                      style={{ borderColor: `${accent}30` }}
-                    >
-                      <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" /></svg>
-                      {uiLabels.projects.liveDemo}
-                    </a>
-                  )}
-                </div>
+        {/* Tags + Links — pinned to bottom */}
+        <div className="mt-auto pt-4">
+          {/* Links */}
+          {(project.github || project.live) && (
+            <div className="flex flex-wrap gap-3 mb-3">
+              {project.github && (
+                <a
+                  href={project.github}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="flex items-center gap-1.5 text-caption sm:text-body-sm font-mono px-3 py-1.5 rounded-lg border border-white/[0.08] hover:border-white/20 text-white/60 hover:text-white transition-colors"
+                >
+                  <svg className="w-4 h-4" viewBox="0 0 24 24" fill="currentColor"><path d="M12 0C5.37 0 0 5.37 0 12c0 5.3 3.438 9.8 8.205 11.385.6.113.82-.258.82-.577 0-.285-.01-1.04-.015-2.04-3.338.724-4.042-1.61-4.042-1.61-.546-1.385-1.335-1.755-1.335-1.755-1.087-.744.084-.729.084-.729 1.205.084 1.838 1.236 1.838 1.236 1.07 1.835 2.809 1.305 3.495.998.108-.776.417-1.305.76-1.605-2.665-.3-5.466-1.332-5.466-5.93 0-1.31.465-2.38 1.235-3.22-.135-.303-.54-1.523.105-3.176 0 0 1.005-.322 3.3 1.23.96-.267 1.98-.399 3-.405 1.02.006 2.04.138 3 .405 2.28-1.552 3.285-1.23 3.285-1.23.645 1.653.24 2.873.12 3.176.765.84 1.23 1.91 1.23 3.22 0 4.61-2.805 5.625-5.475 5.92.42.36.81 1.096.81 2.22 0 1.606-.015 2.896-.015 3.286 0 .315.21.69.825.57C20.565 21.795 24 17.295 24 12c0-6.63-5.37-12-12-12"/></svg>
+                  {uiLabels.projects.source}
+                </a>
               )}
-            </motion.div>
+              {project.live && (
+                <a
+                  href={project.live}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="flex items-center gap-1.5 text-caption sm:text-body-sm font-mono px-3 py-1.5 rounded-lg border hover:border-opacity-40 text-white/60 hover:text-white transition-colors"
+                  style={{ borderColor: `${accent}30` }}
+                >
+                  <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" /></svg>
+                  {uiLabels.projects.liveDemo}
+                </a>
+              )}
+            </div>
           )}
-        </AnimatePresence>
 
-        {/* Tags */}
-        <div className="flex flex-wrap gap-1.5 mt-3">
-          {(isExpanded ? project.tags : project.tags.slice(0, 3)).map(
-            (tag, tagIndex) => (
-              <motion.span
+          {/* Tags */}
+          <div className="flex flex-wrap gap-1.5">
+            {project.tags.map((tag, tagIndex) => (
+              <span
                 key={tag.name}
-                initial={{ opacity: 0, scale: 0.8 }}
-                animate={{ opacity: 1, scale: 1 }}
-                transition={{ duration: 0.2, delay: tagIndex * 0.03 }}
                 className="font-mono text-micro sm:text-caption px-2 py-0.5 rounded-full border"
-                style={{
-                  color: `${accent}cc`,
-                  borderColor: `${accent}20`,
-                  background: `${accent}0a`,
-                }}
+                style={{ color: `${accent}cc`, borderColor: `${accent}20`, background: `${accent}0a` }}
               >
                 {tag.name}
-              </motion.span>
-            )
-          )}
-          {!isExpanded && project.tags.length > 3 && (
-            <span className="text-white/40 text-micro font-mono self-center">
-              +{project.tags.length - 3}
-            </span>
-          )}
-        </div>
-
-        {/* Expand chevron */}
-        <div className="flex justify-end mt-2">
-          <motion.svg
-            animate={{ rotate: isExpanded ? 180 : 0 }}
-            transition={{ duration: 0.3 }}
-            className="w-4 h-4 text-white/20 group-hover:text-white/40 transition-colors duration-300"
-            fill="none"
-            viewBox="0 0 24 24"
-            stroke="currentColor"
-            strokeWidth={2}
-          >
-            <path
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              d="M19 9l-7 7-7-7"
-            />
-          </motion.svg>
+              </span>
+            ))}
+          </div>
         </div>
       </div>
+      </div>
+      <CardBorderTrace color={accent} />
     </motion.div>
   );
 }));
 
 /* ── Main Section ── */
 const Projects = () => {
-  const [expandedIndex, setExpandedIndex] = useState(null);
   const [filter, setFilter] = useState("all");
   const [skillFilter, setSkillFilter] = useState(null);
 
@@ -406,24 +337,6 @@ const Projects = () => {
     []
   );
 
-  const toggle = (i) => {
-    setExpandedIndex((prev) => {
-      if (prev !== i) {
-        window.dispatchEvent(new CustomEvent("achievement", { detail: "curious" }));
-        // Scroll expanded card into view after animation settles
-        setTimeout(() => {
-          const cards = document.querySelectorAll(".proj-card");
-          const idx = filtered.findIndex((p) => projects.indexOf(p) === i);
-          if (cards[idx]) cards[idx].scrollIntoView({ behavior: "smooth", block: "nearest" });
-        }, 400);
-      }
-      return prev === i ? null : i;
-    });
-  };
-
-  const expandAll = () =>
-    setExpandedIndex(expandedIndex === "all" ? null : "all");
-
   return (
     <div className="relative">
       {/* Ambient glow blobs */}
@@ -454,21 +367,12 @@ const Projects = () => {
               key={f}
               label={f.charAt(0).toUpperCase() + f.slice(1)}
               isActive={filter === f}
-              onClick={() => {
-                setFilter(f);
-                setExpandedIndex(null);
-              }}
+              onClick={() => setFilter(f)}
               count={counts[f]}
             />
           ))}
         </div>
 
-        <button
-          onClick={expandAll}
-          className="font-mono text-micro sm:text-caption text-white/45 hover:text-white/50 transition-colors px-2 py-1"
-        >
-          {expandedIndex === "all" ? uiLabels.projects.collapseAll : uiLabels.projects.expandAll}
-        </button>
       </div>
 
       {/* Project summary */}
@@ -495,7 +399,7 @@ const Projects = () => {
       )}
 
       {/* Card grid */}
-      <div className="relative mt-5 sm:mt-6 grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-4 sm:gap-5 items-start">
+      <div className="relative mt-5 sm:mt-6 grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-4 sm:gap-5">
         {filtered.length === 0 ? (
           <div className="col-span-full text-center py-16">
             <p className="text-white/40 font-mono text-body-sm">{uiLabels.projects.noResults}</p>
@@ -512,16 +416,6 @@ const Projects = () => {
                   key={project.name}
                   project={project}
                   index={index}
-                  isExpanded={
-                    expandedIndex === "all" || expandedIndex === globalIndex
-                  }
-                  onToggle={() => {
-                    if (expandedIndex === "all") {
-                      setExpandedIndex(null);
-                    } else {
-                      toggle(globalIndex);
-                    }
-                  }}
                   accent={PROJECT_ACCENTS[globalIndex % PROJECT_ACCENTS.length]}
                   dimmed={skillFilter ? !projectMatchesSkill(project, skillFilter) : false}
                 />

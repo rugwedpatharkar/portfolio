@@ -1,6 +1,7 @@
 /* eslint-disable react/prop-types */
 /* eslint-disable react-refresh/only-export-components */
-import { useRef, useCallback, useEffect, useState, memo } from "react";
+import { useRef, useCallback, useEffect, useState, memo, forwardRef } from "react";
+import CardBorderTrace from "../../components/CardBorderTrace";
 import { motion, useInView } from "framer-motion";
 import { styles } from "../../styles";
 import { services, personalInfo, sectionMeta, aboutStats, uiLabels } from "../../content";
@@ -109,26 +110,22 @@ const StatCounter = () => (
   </div>
 );
 
-const ServiceCard = memo(({ index, title, icon }) => {
+const ServiceCard = memo(forwardRef(({ index, title, icon }, ref) => {
   const accent = CARD_ACCENTS[index % CARD_ACCENTS.length];
 
   return (
     <motion.div
+      ref={ref}
       variants={fadeIn("right", "spring", 0.5 * index, 0.75)}
       whileHover={{ y: -6 }}
       transition={{ type: "spring", stiffness: 300, damping: 20 }}
     >
       <TiltCard>
-        <div className="w-full glass-card rounded-2xl p-5 sm:p-6 min-h-[180px] xs:min-h-[220px] sm:min-h-[250px] flex flex-col justify-center items-center gap-4 card-shine glow-hover border-glow group relative overflow-hidden">
+        <div className="relative group">
+        <div className="w-full glass-card rounded-2xl p-5 sm:p-6 min-h-[180px] xs:min-h-[220px] sm:min-h-[250px] flex flex-col justify-center items-center gap-4 card-shine glow-hover border-glow relative overflow-hidden">
           {/* Accent glow */}
           <div
             className="absolute -top-10 -right-10 w-32 h-32 rounded-full blur-[50px] pointer-events-none opacity-[0.06] group-hover:opacity-[0.15] transition-opacity duration-500"
-            style={{ background: accent }}
-          />
-
-          {/* Accent top bar */}
-          <div
-            className="absolute top-0 left-1/2 -translate-x-1/2 h-[2px] w-12 rounded-full opacity-40 group-hover:w-20 group-hover:opacity-80 transition-all duration-500"
             style={{ background: accent }}
           />
 
@@ -140,10 +137,13 @@ const ServiceCard = memo(({ index, title, icon }) => {
             {title}
           </h3>
         </div>
+          <CardBorderTrace color={accent} />
+        </div>
       </TiltCard>
     </motion.div>
   );
-});
+}));
+ServiceCard.displayName = "ServiceCard";
 
 /* -- 3D Pop-Out Photo -- */
 const Photo3D = () => {
@@ -266,6 +266,23 @@ const Photo3D = () => {
 
 
 const About = () => {
+  const serviceRefs = useRef([]);
+
+  useEffect(() => {
+    const equalize = () => {
+      const els = serviceRefs.current.filter(Boolean);
+      if (!els.length) return;
+      els.forEach((el) => (el.style.minHeight = ""));
+      const max = Math.max(...els.map((el) => el.getBoundingClientRect().height));
+      els.forEach((el) => (el.style.minHeight = `${max}px`));
+    };
+    const timer = setTimeout(equalize, 700);
+    window.addEventListener("resize", equalize);
+    return () => {
+      clearTimeout(timer);
+      window.removeEventListener("resize", equalize);
+    };
+  }, []);
 
   return (
     <>
@@ -362,7 +379,7 @@ const About = () => {
         className="mt-12 sm:mt-20 grid grid-cols-2 xs:grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4 sm:gap-6 lg:gap-8"
       >
         {services.map((service, index) => (
-          <ServiceCard key={service.title} index={index} {...service} />
+          <ServiceCard key={service.title} ref={(el) => (serviceRefs.current[index] = el)} index={index} {...service} />
         ))}
       </motion.div>
 

@@ -1,5 +1,5 @@
 /* eslint-disable react/prop-types */
-import { useRef, useCallback, useEffect } from "react";
+import { useRef, useCallback, useEffect, forwardRef } from "react";
 import { motion } from "framer-motion";
 import { styles } from "../../styles";
 import { SectionWrapper } from "../../hoc";
@@ -8,6 +8,7 @@ import { fadeIn, textVariant } from "../../utils/motion";
 import TextScramble from "../../components/TextScramble";
 import { ACCENT_COLORS } from "../../config/theme";
 import TiltCard from "../../components/TiltCard";
+import CardBorderTrace from "../../components/CardBorderTrace";
 
 /* ── Mini confetti burst — fires from a DOM element ── */
 const useConfetti = () => {
@@ -96,18 +97,21 @@ const useConfetti = () => {
   return fire;
 };
 
-const AchievementCard = ({ achievement, index, onCelebrate }) => {
+const AchievementCard = forwardRef(({ achievement, index, onCelebrate }, ref) => {
   const color = ACCENT_COLORS[index % ACCENT_COLORS.length];
   const iconRef = useRef(null);
 
   return (
     <motion.div
+      ref={ref}
       initial={{ opacity: 0, y: 30 }}
       whileInView={{ opacity: 1, y: 0 }}
       viewport={{ once: true }}
       transition={{ delay: index * 0.1, duration: 0.5, type: "spring" }}
+      className="h-full"
     >
-      <TiltCard tiltStrength={5}>
+      <TiltCard tiltStrength={5} className="h-full">
+        <div className="relative group h-full">
         <div
           className="glass-card rounded-2xl p-5 sm:p-6 card-shine glow-hover border-glow achievement-card relative overflow-hidden h-full"
           style={{ "--achievement-accent": color }}
@@ -151,13 +155,35 @@ const AchievementCard = ({ achievement, index, onCelebrate }) => {
             {achievement.description}
           </p>
         </div>
+          <CardBorderTrace color={color} />
+        </div>
       </TiltCard>
     </motion.div>
   );
-};
+});
+AchievementCard.displayName = "AchievementCard";
 
 const Achievements = () => {
   const fireConfetti = useConfetti();
+  const cardRefs = useRef([]);
+
+  // Equalize all card heights so the tallest card sets the size for all
+  useEffect(() => {
+    const equalize = () => {
+      const els = cardRefs.current.filter(Boolean);
+      if (!els.length) return;
+      els.forEach((el) => (el.style.minHeight = ""));
+      const max = Math.max(...els.map((el) => el.getBoundingClientRect().height));
+      els.forEach((el) => (el.style.minHeight = `${max}px`));
+    };
+    // Wait for entrance animations to settle before measuring
+    const timer = setTimeout(equalize, 700);
+    window.addEventListener("resize", equalize);
+    return () => {
+      clearTimeout(timer);
+      window.removeEventListener("resize", equalize);
+    };
+  }, []);
 
   return (
     <div className="relative">
@@ -179,7 +205,13 @@ const Achievements = () => {
 
       <div className="mt-8 sm:mt-12 grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6">
         {achievements.map((achievement, index) => (
-          <AchievementCard key={index} achievement={achievement} index={index} onCelebrate={fireConfetti} />
+          <AchievementCard
+            key={index}
+            ref={(el) => (cardRefs.current[index] = el)}
+            achievement={achievement}
+            index={index}
+            onCelebrate={fireConfetti}
+          />
         ))}
       </div>
     </div>

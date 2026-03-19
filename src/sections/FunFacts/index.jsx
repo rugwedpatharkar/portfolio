@@ -1,5 +1,6 @@
 /* eslint-disable react/prop-types */
-import { useState, useEffect, useRef, memo } from "react";
+import { useState, useEffect, useRef, memo, forwardRef } from "react";
+import CardBorderTrace from "../../components/CardBorderTrace";
 import { motion } from "framer-motion";
 import { funFacts, sectionMeta, uiLabels } from "../../content";
 import { fadeIn, textVariant } from "../../utils/motion";
@@ -52,18 +53,19 @@ const AnimatedCounter = ({ value, suffix = "", duration = 2000 }) => {
   );
 };
 
-const FunFactCard = memo(({ fact, index }) => {
+const FunFactCard = memo(forwardRef(({ fact, index }, ref) => {
   const [flipped, setFlipped] = useState(false);
   const color = ACCENT_COLORS[index % ACCENT_COLORS.length];
 
   return (
     <motion.div
+      ref={ref}
       initial={{ opacity: 0, y: 30 }}
       whileInView={{ opacity: 1, y: 0 }}
       viewport={{ once: true }}
       transition={{ delay: index * 0.12, duration: 0.5, type: "spring" }}
       whileHover={{ y: -5 }}
-      className="cursor-pointer"
+      className="cursor-pointer h-full"
       style={{ perspective: "800px" }}
       onClick={() => setFlipped((f) => !f)}
     >
@@ -76,8 +78,9 @@ const FunFactCard = memo(({ fact, index }) => {
       >
         {/* Front face -- stays in flow so it sets the container height */}
         <TiltCard tiltStrength={6}>
+          <div className="relative group">
           <div
-            className="glass-card rounded-2xl p-4 sm:p-5 md:p-7 text-center card-shine glow-hover border-glow relative overflow-hidden group hover:scale-[1.02] hover:border-white/[0.12] transition-transform duration-300"
+            className="glass-card rounded-2xl p-4 sm:p-5 md:p-7 text-center card-shine glow-hover border-glow relative overflow-hidden hover:scale-[1.02] hover:border-white/[0.12] transition-transform duration-300"
             style={{ backfaceVisibility: "hidden" }}
           >
             <div
@@ -90,6 +93,8 @@ const FunFactCard = memo(({ fact, index }) => {
             </p>
             <p className="text-secondary text-caption sm:text-body-sm mt-2">{fact.label}</p>
             <p className="text-white/45 text-micro mt-3 font-mono">{uiLabels.funFacts.flipHint}</p>
+          </div>
+            <CardBorderTrace color={color} />
           </div>
         </TiltCard>
 
@@ -116,10 +121,28 @@ const FunFactCard = memo(({ fact, index }) => {
       </div>
     </motion.div>
   );
-});
+}));
 FunFactCard.displayName = "FunFactCard";
 
 const FunFacts = () => {
+  const cardRefs = useRef([]);
+
+  useEffect(() => {
+    const equalize = () => {
+      const els = cardRefs.current.filter(Boolean);
+      if (!els.length) return;
+      els.forEach((el) => (el.style.minHeight = ""));
+      const max = Math.max(...els.map((el) => el.getBoundingClientRect().height));
+      els.forEach((el) => (el.style.minHeight = `${max}px`));
+    };
+    const timer = setTimeout(equalize, 700);
+    window.addEventListener("resize", equalize);
+    return () => {
+      clearTimeout(timer);
+      window.removeEventListener("resize", equalize);
+    };
+  }, []);
+
   return (
     <div className="relative">
       {/* Ambient glow blobs */}
@@ -140,7 +163,7 @@ const FunFacts = () => {
 
       <div className="mt-8 sm:mt-12 grid grid-cols-2 md:grid-cols-4 gap-4 sm:gap-6">
         {funFacts.map((fact, index) => (
-          <FunFactCard key={index} fact={fact} index={index} />
+          <FunFactCard key={index} ref={(el) => (cardRefs.current[index] = el)} fact={fact} index={index} />
         ))}
       </div>
     </div>

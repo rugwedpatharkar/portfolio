@@ -7,6 +7,7 @@ import { SectionWrapper } from "../../hoc";
 import { fadeIn, textVariant } from "../../utils/motion";
 import { educations, sectionMeta, uiLabels } from "../../content";
 import TextScramble from "../../components/TextScramble";
+import CardBorderTrace from "../../components/CardBorderTrace";
 import { NODE_COLORS } from "../../config/theme";
 
 /* ── SVG Progress Ring ── */
@@ -132,8 +133,9 @@ const DetailCard = ({ edu, color }) => (
     animate={{ opacity: 1, y: 0 }}
     exit={{ opacity: 0, y: -15 }}
     transition={{ duration: 0.35, ease: [0.04, 0.62, 0.23, 0.98] }}
-    className="glass-card rounded-2xl p-4 sm:p-5 md:p-7 relative overflow-hidden hover:border-white/[0.12] transition-colors duration-300"
+    className="relative group"
   >
+    <div className="glass-card rounded-2xl p-4 sm:p-5 md:p-7 relative overflow-hidden hover:border-white/[0.12] transition-colors duration-300">
     {/* Accent glow */}
     <div
       className="absolute -top-10 -right-10 w-40 h-40 rounded-full blur-[60px] pointer-events-none"
@@ -240,6 +242,8 @@ const DetailCard = ({ edu, color }) => (
         />
       </div>
     </div>
+    </div>
+    <CardBorderTrace color={color} />
   </motion.div>
 );
 

@@ -7,6 +7,7 @@ import { SectionWrapper } from "../../hoc";
 import { testimonials, sectionMeta, uiLabels } from "../../content";
 import { fadeIn, textVariant } from "../../utils/motion";
 import TextScramble from "../../components/TextScramble";
+import CardBorderTrace from "../../components/CardBorderTrace";
 import { ACCENT_COLORS as ACCENTS } from "../../config/theme";
 
 /* ── Parallax tilt hook for testimonial card ── */
@@ -275,7 +276,7 @@ const Testimonials = () => {
         </AnimatePresence>
 
         {/* Swipeable card */}
-        <div ref={tiltRef} className="overflow-hidden rounded-2xl transition-transform duration-200 ease-out" style={{ transformStyle: "preserve-3d" }}>
+        <div ref={tiltRef} className="relative group rounded-2xl transition-transform duration-200 ease-out" style={{ transformStyle: "preserve-3d" }}>
           <AnimatePresence mode="wait" custom={direction}>
             <motion.div
               key={current}
@@ -292,12 +293,13 @@ const Testimonials = () => {
               dragConstraints={{ left: 0, right: 0 }}
               dragElastic={0.15}
               onDragEnd={handleDragEnd}
-              className="glass-card rounded-2xl p-4 sm:p-5 md:p-8 cursor-grab active:cursor-grabbing touch-pan-y card-shine glow-hover border-glow"
+              className="glass-card rounded-2xl p-4 sm:p-5 md:p-8 cursor-grab active:cursor-grabbing touch-pan-y card-shine glow-hover border-glow overflow-hidden"
               style={{
                 x: dragX,
                 borderColor: `${accent}15`,
               }}
             >
+
               {/* Stars */}
               <StarRating
                 rating={t.rating}
@@ -388,6 +390,7 @@ const Testimonials = () => {
               </div>
             </motion.div>
           </AnimatePresence>
+          <CardBorderTrace color={accent} />
         </div>
 
         {/* Progress bar timer */}
