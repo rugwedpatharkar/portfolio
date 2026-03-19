@@ -21,7 +21,7 @@ module.exports = {
         "body":       ["1rem",    { lineHeight: "1.6" }],                                // 16px — body default
         "body-sm":    ["0.875rem",{ lineHeight: "1.5" }],                               // 14px — secondary text
         "caption":    ["0.75rem", { lineHeight: "1.5" }],                                // 12px — captions, tags
-        "micro":      ["0.625rem",{ lineHeight: "1.4" }],                                // 10px — tooltips
+        "micro":      ["0.6875rem",{ lineHeight: "1.4" }],                               // 11px — tooltips
       },
       colors: {
         primary: "#050816",

@@ -6,6 +6,8 @@ const CodeRain = () => {
   const canvasRef = useRef(null);
 
   useEffect(() => {
+    // Skip on mobile (saves GPU/CPU — ParticleBackground + GradientMesh still run)
+    if (window.innerWidth < 768) return;
     if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
     const canvas = canvasRef.current;
     const ctx = canvas.getContext("2d");

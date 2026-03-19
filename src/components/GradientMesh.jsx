@@ -25,6 +25,11 @@ const lerpColor = (current, target, t) =>
 const rgbToColorString = (rgb) =>
   `${Math.round(rgb[0])}, ${Math.round(rgb[1])}, ${Math.round(rgb[2])}`;
 
+const SECTION_PALETTES_EXTRA = {
+  hobbies: ["#00cea8", "#f8c555", "#915eff"],
+  funfacts: ["#61dafb", "#915eff", "#00cea8"],
+};
+
 const SECTION_IDS = [
   "about",
   "experience",
@@ -32,6 +37,7 @@ const SECTION_IDS = [
   "projects",
   "education",
   "achievements",
+  "hobbies",
   "testimonials",
   "contact",
 ];
@@ -79,6 +85,7 @@ const GradientMesh = () => {
   }, []);
 
   useEffect(() => {
+    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
     const canvas = canvasRef.current;
     const ctx = canvas.getContext("2d");
     const dpr = window.devicePixelRatio || 1;
@@ -110,7 +117,10 @@ const GradientMesh = () => {
       time += 0.005;
 
       // Determine target palette from active section
-      const palette = SECTION_PALETTES[activeSectionRef.current] || SECTION_PALETTES.default;
+      const palette =
+        SECTION_PALETTES[activeSectionRef.current] ||
+        SECTION_PALETTES_EXTRA[activeSectionRef.current] ||
+        SECTION_PALETTES.default;
       const targetColors = palette.map(hexToRgb);
 
       // Lerp current colors toward target

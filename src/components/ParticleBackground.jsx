@@ -45,19 +45,27 @@ const ParticleBackground = () => {
       }
     };
 
-    // Spatial grid for O(n) neighbor lookups instead of O(n²)
-    const getGrid = () => {
-      const cols = Math.ceil(width / CELL_SIZE) || 1;
-      const grid = {};
+    // Spatial grid for O(n) neighbor lookups instead of O(n²) — reused each frame
+    const gridState = { grid: {}, cols: 1 };
+    const gridKeys = [];
+
+    const buildGrid = () => {
+      // Clear previous frame's cells without re-allocating the object
+      for (let ki = 0; ki < gridKeys.length; ki++) {
+        delete gridState.grid[gridKeys[ki]];
+      }
+      gridKeys.length = 0;
+
+      gridState.cols = Math.ceil(width / CELL_SIZE) || 1;
       for (let i = 0; i < particles.length; i++) {
         const p = particles[i];
-        const cx = (p.x / CELL_SIZE) | 0;
-        const cy = (p.y / CELL_SIZE) | 0;
-        const key = cx + cy * cols;
-        if (!grid[key]) grid[key] = [];
-        grid[key].push(i);
+        const key = ((p.x / CELL_SIZE) | 0) + ((p.y / CELL_SIZE) | 0) * gridState.cols;
+        if (!gridState.grid[key]) {
+          gridState.grid[key] = [];
+          gridKeys.push(key);
+        }
+        gridState.grid[key].push(i);
       }
-      return { grid, cols };
     };
 
     const animate = () => {
@@ -103,8 +111,8 @@ const ParticleBackground = () => {
       }
 
       // Spatial-grid connections — only check neighboring cells
-      const { grid, cols } = getGrid();
-      const visited = new Set();
+      buildGrid();
+      const { grid, cols } = gridState;
       for (const key in grid) {
         const cell = grid[key];
         const k = +key;

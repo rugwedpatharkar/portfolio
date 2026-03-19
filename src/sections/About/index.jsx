@@ -1,7 +1,7 @@
 /* eslint-disable react/prop-types */
 /* eslint-disable react-refresh/only-export-components */
 import { useRef, useCallback, useEffect, useState, memo } from "react";
-import { motion, useScroll, useTransform, useInView } from "framer-motion";
+import { motion, useInView } from "framer-motion";
 import { styles } from "../../styles";
 import { services, personalInfo, sectionMeta, aboutStats, uiLabels } from "../../content";
 import { fadeIn, textVariant } from "../../utils/motion";
@@ -42,28 +42,68 @@ const CountUp = ({ end, suffix = "", duration = 2 }) => {
   );
 };
 
+/* ── Ticker label: scrolls on mobile only when text overflows its cell ── */
+const TickerLabel = ({ label, delay }) => {
+  const wrapRef = useRef(null);
+  const textRef = useRef(null);
+  const [tx, setTx] = useState(0);
+
+  useEffect(() => {
+    const measure = () => {
+      const wrap = wrapRef.current;
+      const text = textRef.current;
+      if (!wrap || !text) return;
+      // Only scroll on narrow screens (below sm = 640px)
+      if (window.innerWidth >= 640) {
+        setTx(0);
+        return;
+      }
+      const overflow = text.scrollWidth - wrap.clientWidth;
+      setTx(overflow > 4 ? -overflow : 0);
+    };
+    measure();
+    window.addEventListener("resize", measure);
+    return () => window.removeEventListener("resize", measure);
+  }, [label]);
+
+  return (
+    <div
+      ref={wrapRef}
+      className="stat-ticker-wrap w-full text-center"
+    >
+      <span
+        ref={textRef}
+        className={`stat-ticker-text font-mono text-[10px] xs:text-caption sm:text-body-sm text-secondary leading-tight${tx === 0 ? " no-scroll" : ""}`}
+        style={tx !== 0 ? { "--ticker-tx": `${tx}px`, "--ticker-delay": `${delay}s` } : {}}
+      >
+        {label}
+      </span>
+    </div>
+  );
+};
+
 const StatCounter = () => (
-  <div className="flex items-center gap-6 sm:gap-8 mt-5">
+  <div className="grid grid-cols-3 gap-2 sm:gap-8 mt-5">
     {aboutStats.map((stat, i) => (
-      <div key={stat.label} className="flex flex-col items-center">
+      <div key={stat.label} className="flex flex-col items-center min-w-0">
         <motion.span
           initial={{ opacity: 0, y: 10 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
           transition={{ delay: 0.3 + i * 0.15, duration: 0.5 }}
-          className="text-white font-heading font-bold text-heading-sm sm:text-heading"
+          className="text-white font-heading font-bold text-body-lg xs:text-heading-sm sm:text-heading"
         >
           <CountUp end={stat.value} suffix={stat.suffix} />
         </motion.span>
-        <motion.span
+        <motion.div
           initial={{ opacity: 0 }}
           whileInView={{ opacity: 1 }}
           viewport={{ once: true }}
           transition={{ delay: 0.5 + i * 0.15, duration: 0.5 }}
-          className="text-secondary text-caption sm:text-body-sm font-mono mt-1 whitespace-nowrap"
+          className="mt-1 w-full min-w-0"
         >
-          {stat.label}
-        </motion.span>
+          <TickerLabel label={stat.label} delay={i * 0.4} />
+        </motion.div>
       </div>
     ))}
   </div>
@@ -157,7 +197,7 @@ const Photo3D = () => {
       onMouseMove={handleMove}
       onMouseEnter={handleEnter}
       onMouseLeave={handleLeave}
-      className="w-56 xs:w-64 sm:w-72 md:w-[35%] lg:w-[32%] flex-shrink-0 relative group"
+      className="w-40 xs:w-48 sm:w-64 md:w-[35%] lg:w-[32%] flex-shrink-0 relative group"
       style={{ perspective: "800px" }}
     >
       {/* Animated glow rings behind photo */}
@@ -224,22 +264,6 @@ const Photo3D = () => {
   );
 };
 
-const ParallaxCard = ({ index, children }) => {
-  const ref = useRef(null);
-  const { scrollYProgress } = useScroll({
-    target: ref,
-    offset: ["start end", "end start"],
-  });
-  const offset = 10 + (index % 3) * 5; // 10px, 15px, or 20px
-  const direction = index % 2 === 0 ? 1 : -1;
-  const y = useTransform(scrollYProgress, [0, 1], [offset * direction, -offset * direction]);
-
-  return (
-    <motion.div ref={ref} style={{ y }}>
-      {children}
-    </motion.div>
-  );
-};
 
 const About = () => {
 
@@ -252,7 +276,7 @@ const About = () => {
 
       <motion.div
         variants={fadeIn("up", "spring", 0.2, 0.75)}
-        className="mt-8 sm:mt-12 glass-card rounded-2xl p-6 sm:p-10 relative overflow-visible"
+        className="mt-8 sm:mt-12 glass-card rounded-2xl p-4 sm:p-6 lg:p-10 relative overflow-visible"
       >
         {/* Accent glow behind the card */}
         <div className="absolute -top-20 -left-20 w-72 h-72 bg-[#915eff]/10 rounded-full blur-[100px] pointer-events-none" />
@@ -338,9 +362,7 @@ const About = () => {
         className="mt-12 sm:mt-20 grid grid-cols-2 xs:grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4 sm:gap-6 lg:gap-8"
       >
         {services.map((service, index) => (
-          <ParallaxCard key={service.title} index={index}>
-            <ServiceCard index={index} {...service} />
-          </ParallaxCard>
+          <ServiceCard key={service.title} index={index} {...service} />
         ))}
       </motion.div>
 

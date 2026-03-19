@@ -5,22 +5,25 @@ const CHARS = "!<>-_\\/[]{}—=+*^?#_abcdefghijklmnopqrstuvwxyz";
 
 const TextScramble = ({ text, className = "", as: Tag = "span", delay = 0 }) => {
   const [displayText, setDisplayText] = useState("");
-  const ref = useRef(null);
+  const tagRef = useRef(null);
   const frameRef = useRef(null);
   const hasAnimatedRef = useRef(false);
 
   useEffect(() => {
-    const el = ref.current;
+    const el = tagRef.current;
     if (!el) return;
     let mounted = true;
 
-    const prefersReducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    const prefersReducedMotion = window.matchMedia(
+      "(prefers-reduced-motion: reduce)"
+    ).matches;
 
     const scramble = () => {
       if (prefersReducedMotion) {
         setDisplayText(text);
         return;
       }
+
       const length = text.length;
       const duration = 800;
       const startTime = performance.now();
@@ -75,7 +78,7 @@ const TextScramble = ({ text, className = "", as: Tag = "span", delay = 0 }) => 
   }, [text, delay]);
 
   return (
-    <Tag ref={ref} className={className} aria-label={text}>
+    <Tag ref={tagRef} className={className} aria-label={text}>
       <span aria-hidden="true">{displayText || "\u00A0"}</span>
     </Tag>
   );

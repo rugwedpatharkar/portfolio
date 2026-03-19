@@ -60,6 +60,7 @@ export const navLinks = [
   { id: "skills", title: "Skills" },
   { id: "projects", title: "Projects" },
   { id: "education", title: "Education" },
+  { id: "hobbies", title: "Hobbies" },
   { id: "contact", title: "Contact" },
 ];
 
@@ -577,6 +578,73 @@ export const funFacts = [
   { label: "Bugs Squashed", value: 500, suffix: "+", icon: "🐛", detail: "From race conditions to timezone bugs — every squash is a war story." },
 ];
 
+export const hobbies = [
+  {
+    name: "Gaming",
+    icon: "🎮",
+    tagline: "Strategy, FPS & open-world adventures",
+    detail: "Whether it's a clutch round in an FPS or losing hours in a massive open-world RPG — gaming sharpens lateral thinking and decision-making under pressure.",
+    stat: { value: "500+", label: "Hours Played" },
+    tags: ["Strategy", "FPS", "RPG"],
+  },
+  {
+    name: "Music",
+    icon: "🎵",
+    tagline: "The ultimate debugging companion",
+    detail: "Lo-fi beats for deep focus, classic rock when energy spikes. There's a playlist for every kind of sprint — music makes the hours invisible.",
+    stat: { value: "8h", label: "Daily Listening" },
+    tags: ["Lo-fi", "Rock", "Electronic"],
+  },
+  {
+    name: "Gym",
+    icon: "💪",
+    tagline: "Discipline built outside the IDE",
+    detail: "Consistent strength training keeps the mind as sharp as the body. Fitness taught me that showing up every day beats one-time intensity — same rule applies to engineering.",
+    stat: { value: "3+", label: "Years Consistent" },
+    tags: ["Strength", "Cardio", "Discipline"],
+  },
+  {
+    name: "Cricket",
+    icon: "🏏",
+    tagline: "Weekend warrior & IPL season fanatic",
+    detail: "Weekend matches with the crew, IPL season tracking, match analysis — cricket is all about reading pressure, adapting strategy, and executing under the clock. Sound familiar?",
+    stat: { value: "IPL", label: "Season Tracker" },
+    tags: ["Batting", "Strategy", "IPL"],
+  },
+  {
+    name: "Travelling",
+    icon: "✈️",
+    tagline: "Every city is a new system to explore",
+    detail: "New cultures, unfamiliar streets, and local food reset the mind completely. Some of my best architectural ideas sparked mid-trip, wandering somewhere entirely unexpected.",
+    stat: { value: "5+", label: "Cities Explored" },
+    tags: ["Culture", "Adventure", "Food"],
+  },
+  {
+    name: "Reading",
+    icon: "📚",
+    tagline: "Tech books, sci-fi & self-growth",
+    detail: "From Clean Code to science fiction — reading feeds curiosity at both ends. Technical depth from one shelf, perspective and creativity from the other.",
+    stat: { value: "20+", label: "Books Devoured" },
+    tags: ["Tech", "Sci-Fi", "Self-Dev"],
+  },
+  {
+    name: "Photography",
+    icon: "📷",
+    tagline: "Framing stories one shot at a time",
+    detail: "Photography trained a different kind of vision — composition, light, and timing. Engineering and photography both reward patience and a relentless eye for detail.",
+    stat: { value: "500+", label: "Shots Captured" },
+    tags: ["Composition", "Street", "Nature"],
+  },
+  {
+    name: "Cooking",
+    icon: "🍳",
+    tagline: "Late-night kitchen experiments",
+    detail: "Cooking is just shipping in a different medium: gather ingredients (dependencies), execute the recipe (logic), improvise when needed, and deliver something delicious.",
+    stat: { value: "30+", label: "Recipes Tried" },
+    tags: ["Indian", "Fusion", "Experiment"],
+  },
+];
+
 // Blog tags use plain strings (e.g. "FastAPI") unlike project tags which use
 // objects (e.g. { name: "React" }). The Blog component renders them directly.
 export const blogPosts = [
@@ -614,6 +682,7 @@ export const sectionMeta = {
   projects: { sub: "Explore My Work", heading: "Projects", description: "Each project represents a distinct challenge — from building AI-powered systems to deploying cloud infrastructure. Tap any card to explore." },
   education: { sub: "Academic Journey", heading: "Education", description: "From foundational studies to advanced computer science — each milestone shaped my engineering journey." },
   achievements: { sub: "Milestones", heading: "Achievements", description: "Key milestones and recognitions from my academic and professional journey that keep me motivated to push further." },
+  hobbies: { sub: "Beyond the Code", heading: "Hobbies & Interests", description: "When I'm not building systems or pushing code, here's what keeps me curious, creative, and energized." },
   testimonials: { sub: "What Others Say", heading: "Testimonials", description: "Feedback from colleagues, mentors, and collaborators I've had the privilege of working with." },
   contact: { sub: "Get in Touch", heading: "Contact", description: "Have a project idea, collaboration opportunity, or just want to say hi? I'd love to hear from you." },
 };
@@ -685,7 +754,7 @@ export const heroContent = {
 export const aboutStats = [
   { value: 3, suffix: "+", label: "Years Experience" },
   { value: 10, suffix: "+", label: "Projects Built" },
-  { value: 5, suffix: "+", label: "Technologies" },
+  { value: 50, suffix: "+", label: "Technologies" },
 ];
 
 export const contactLinks = [
@@ -779,7 +848,7 @@ export const footerContent = {
   version: "v3.0",
   madeWith: "Designed & Developed with",
   portfolioDownload: "Download Portfolio",
-  portfolioFile: "/Rugwed-Patharkar-Portfolio.pdf",
+  portfolioFile: "/Rugwed-Patharkar-Resume.pdf",
 };
 
 export const navbarContent = {
@@ -833,6 +902,7 @@ export const sectionOrder = [
   "projects",
   "education",
   "achievements",
+  "hobbies",
   "testimonials",
   "contact",
 ];

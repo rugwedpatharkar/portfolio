@@ -77,7 +77,7 @@ const FunFactCard = memo(({ fact, index }) => {
         {/* Front face -- stays in flow so it sets the container height */}
         <TiltCard tiltStrength={6}>
           <div
-            className="glass-card rounded-2xl p-5 sm:p-7 text-center card-shine glow-hover border-glow relative overflow-hidden group hover:scale-[1.02] hover:border-white/[0.12] transition-transform duration-300"
+            className="glass-card rounded-2xl p-4 sm:p-5 md:p-7 text-center card-shine glow-hover border-glow relative overflow-hidden group hover:scale-[1.02] hover:border-white/[0.12] transition-transform duration-300"
             style={{ backfaceVisibility: "hidden" }}
           >
             <div
@@ -95,7 +95,7 @@ const FunFactCard = memo(({ fact, index }) => {
 
         {/* Back face -- absolute overlay, same size as front */}
         <div
-          className="absolute inset-0 glass-card rounded-2xl p-5 sm:p-7 text-center overflow-hidden flex flex-col items-center justify-center"
+          className="absolute inset-0 glass-card rounded-2xl p-4 sm:p-5 md:p-7 text-center overflow-hidden flex flex-col items-center justify-center"
           style={{
             backfaceVisibility: "hidden",
             transform: "rotateY(180deg)",

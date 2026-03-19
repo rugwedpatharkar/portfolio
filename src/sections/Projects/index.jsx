@@ -182,14 +182,14 @@ const ProjectCard = memo(forwardRef(({ project, index, isExpanded, onToggle, acc
         </div>
 
         {/* Name + highlight metric */}
-        <div className="flex items-start justify-between gap-3">
-          <h3 className="text-white font-heading font-bold text-body-lg sm:text-heading-sm leading-tight">
+        <div className="flex items-start justify-between gap-2 sm:gap-3">
+          <h3 className="text-white font-heading font-bold text-body sm:text-body-lg md:text-heading-sm leading-tight min-w-0">
             {project.name}
           </h3>
           {project.highlight && !isExpanded && (
             <div className="shrink-0 text-right">
               <div
-                className="font-heading font-bold text-subheading sm:text-heading-sm"
+                className="font-heading font-bold text-body-lg sm:text-heading-sm"
                 style={{ color: accent }}
               >
                 {project.highlight.value}

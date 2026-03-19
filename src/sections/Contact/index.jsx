@@ -477,7 +477,7 @@ const Contact = () => {
             {/* Terminal body containing the form */}
             <form
               onSubmit={handleSubmit}
-              className="contact-terminal-body p-5 sm:p-7 space-y-5"
+              className="contact-terminal-body p-4 sm:p-5 md:p-7 space-y-5"
             >
               {/* Terminal prompt line */}
               <div className="font-mono text-caption sm:text-body-sm">

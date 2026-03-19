@@ -115,7 +115,7 @@ const ExperienceCard = memo(({ experience, index, isLast }) => {
 
       {/* Card */}
       <div className="flex-1 pb-10 sm:pb-14">
-        <div className="glass-card rounded-2xl p-5 sm:p-7 relative overflow-hidden card-shine glow-hover border-glow">
+        <div className="glass-card rounded-2xl p-4 sm:p-5 md:p-7 relative overflow-hidden card-shine glow-hover border-glow">
           {/* Accent glow */}
           <div className="absolute -top-10 -right-10 w-40 h-40 bg-[#915eff]/5 rounded-full blur-[60px] pointer-events-none" />
 
@@ -175,10 +175,10 @@ const ExperienceCard = memo(({ experience, index, isLast }) => {
                 key={i}
                 className="exp-metric text-center p-2.5 rounded-xl bg-white/[0.03] border border-white/[0.06]"
               >
-                <div className="text-white font-heading font-bold text-body-lg sm:text-heading-sm">
+                <div className="text-white font-heading font-bold text-body sm:text-body-lg">
                   <AnimatedMetric value={m.value} />
                 </div>
-                <div className="text-secondary text-micro sm:text-caption font-mono mt-0.5">
+                <div className="text-secondary text-[10px] sm:text-micro md:text-caption font-mono mt-0.5 leading-tight">
                   {m.label}
                 </div>
               </div>

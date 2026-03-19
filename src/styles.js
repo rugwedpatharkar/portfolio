@@ -9,9 +9,9 @@ const styles = {
     "font-heading text-[#dfd9ff] font-medium text-body sm:text-subheading md:text-heading-sm lg:text-heading lg:leading-[40px]",
 
   sectionHeadText:
-    "font-heading text-white font-black text-heading-xl xs:text-display-sm sm:text-display md:text-display-xl drop-shadow-[0_0_25px_rgba(145,94,255,0.3)]",
+    "font-heading text-white font-black text-[clamp(22px,6.5vw,36px)] xs:text-display-sm sm:text-display md:text-display-xl drop-shadow-[0_0_25px_rgba(145,94,255,0.3)]",
   sectionSubText:
-    "font-mono text-body-sm sm:text-body text-[#b8a0ff] uppercase tracking-widest font-semibold drop-shadow-[0_0_10px_rgba(145,94,255,0.4)]",
+    "font-mono text-caption xs:text-body-sm sm:text-body text-[#b8a0ff] uppercase tracking-wide xs:tracking-wider sm:tracking-widest font-semibold drop-shadow-[0_0_10px_rgba(145,94,255,0.4)]",
   heroHeadTextCustom:
     "font-heading font-bold text-[#915eff] text-heading-xl xs:text-display-sm sm:text-display lg:text-display-xl lg:leading-[1.05] mt-2",
 };

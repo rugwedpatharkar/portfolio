@@ -138,7 +138,7 @@ const FloatingActionMenu = () => {
       initial={{ opacity: 0, scale: 0.5 }}
       animate={{ opacity: 1, scale: 1 }}
       transition={{ duration: 0.5, delay: 1 }}
-      className="fixed bottom-3 left-3 sm:bottom-4 sm:left-4 z-50 flex flex-col-reverse items-center gap-2"
+      className="fixed bottom-3 left-3 sm:bottom-4 sm:left-4 z-50 flex flex-col-reverse items-center gap-3"
     >
       <AnimatePresence>
         {open &&

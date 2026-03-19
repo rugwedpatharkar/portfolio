@@ -28,6 +28,7 @@ const Skills = lazy(() => import("./sections/Skills"));
 const Projects = lazy(() => import("./sections/Projects"));
 const Education = lazy(() => import("./sections/Education"));
 const Achievements = lazy(() => import("./sections/Achievements"));
+const Hobbies = lazy(() => import("./sections/Hobbies"));
 const Testimonials = lazy(() => import("./sections/Testimonials"));
 const Contact = lazy(() => import("./sections/Contact"));
 
@@ -40,6 +41,75 @@ const FloatingActionMenu = lazy(() => import("./components/FloatingActionMenu"))
 const CommandTerminal = lazy(() => import("./components/CommandTerminal"));
 const KeyboardHints = lazy(() => import("./components/KeyboardHints"));
 const SpotlightSearch = lazy(() => import("./components/SpotlightSearch"));
+
+/* ── Inner components defined at module level to prevent remount on App re-render ── */
+const AchievementTracker = () => {
+  const toast = useToast();
+  const unlock = useVisitorAchievements(toast);
+
+  useEffect(() => {
+    const handler = (e) => unlock(e.detail);
+    window.addEventListener("achievement", handler);
+    return () => window.removeEventListener("achievement", handler);
+  }, [unlock]);
+
+  return null;
+};
+
+const CopyBlocker = () => {
+  const toast = useToast();
+  useEffect(() => {
+    const isFormElement = (el) =>
+      el.tagName === "INPUT" || el.tagName === "TEXTAREA" || el.isContentEditable;
+
+    const blockCopy = (e) => {
+      if (!isFormElement(e.target)) {
+        e.preventDefault();
+        toast("Content copying is disabled on this site.", "warning", 2500);
+      }
+    };
+    const blockContext = (e) => {
+      if (!isFormElement(e.target)) {
+        e.preventDefault();
+        toast("Right-click is disabled on this site.", "warning", 2500);
+      }
+    };
+    const blockKeys = (e) => {
+      if (isFormElement(e.target)) return;
+      if ((e.ctrlKey || e.metaKey) && ["c", "a", "u", "s"].includes(e.key.toLowerCase())) {
+        e.preventDefault();
+        toast("This keyboard shortcut is disabled.", "warning", 2500);
+      }
+    };
+
+    document.addEventListener("copy", blockCopy);
+    document.addEventListener("cut", blockCopy);
+    document.addEventListener("contextmenu", blockContext);
+    document.addEventListener("keydown", blockKeys);
+    return () => {
+      document.removeEventListener("copy", blockCopy);
+      document.removeEventListener("cut", blockCopy);
+      document.removeEventListener("contextmenu", blockContext);
+      document.removeEventListener("keydown", blockKeys);
+    };
+  }, [toast]);
+  return null;
+};
+
+const ReferrerGreeting = () => {
+  const toast = useToast();
+  useEffect(() => {
+    if (sessionStorage.getItem("referrer-greeted")) return;
+    sessionStorage.setItem("referrer-greeted", "1");
+    const ref = document.referrer.toLowerCase();
+    if (ref.includes("linkedin")) {
+      toast("Welcome from LinkedIn! Thanks for visiting.", "success");
+    } else if (ref.includes("github")) {
+      toast("Hey fellow developer! Welcome from GitHub.", "success");
+    }
+  }, [toast]);
+  return null;
+};
 
 const App = () => {
   // Console easter eggs for devs who inspect
@@ -62,8 +132,6 @@ const App = () => {
     );
   }, []);
 
-  // Copy/context-menu blocking moved to CopyBlocker component (inside ToastProvider)
-
   // Add custom-cursor class to body for hiding default cursor on desktop
   useEffect(() => {
     const isDesktop = window.innerWidth >= 768;
@@ -81,75 +149,6 @@ const App = () => {
       window.removeEventListener("resize", handleResize);
     };
   }, []);
-
-  const AchievementTracker = () => {
-    const toast = useToast();
-    const unlock = useVisitorAchievements(toast);
-
-    // Listen for custom achievement events from other components
-    useEffect(() => {
-      const handler = (e) => unlock(e.detail);
-      window.addEventListener("achievement", handler);
-      return () => window.removeEventListener("achievement", handler);
-    }, [unlock]);
-
-    return null;
-  };
-
-  const CopyBlocker = () => {
-    const toast = useToast();
-    useEffect(() => {
-      const isFormElement = (el) =>
-        el.tagName === "INPUT" || el.tagName === "TEXTAREA" || el.isContentEditable;
-
-      const blockCopy = (e) => {
-        if (!isFormElement(e.target)) {
-          e.preventDefault();
-          toast("Content copying is disabled on this site.", "warning", 2500);
-        }
-      };
-      const blockContext = (e) => {
-        if (!isFormElement(e.target)) {
-          e.preventDefault();
-          toast("Right-click is disabled on this site.", "warning", 2500);
-        }
-      };
-      const blockKeys = (e) => {
-        if (isFormElement(e.target)) return;
-        if ((e.ctrlKey || e.metaKey) && ["c", "a", "u", "s"].includes(e.key.toLowerCase())) {
-          e.preventDefault();
-          toast("This keyboard shortcut is disabled.", "warning", 2500);
-        }
-      };
-
-      document.addEventListener("copy", blockCopy);
-      document.addEventListener("cut", blockCopy);
-      document.addEventListener("contextmenu", blockContext);
-      document.addEventListener("keydown", blockKeys);
-      return () => {
-        document.removeEventListener("copy", blockCopy);
-        document.removeEventListener("cut", blockCopy);
-        document.removeEventListener("contextmenu", blockContext);
-        document.removeEventListener("keydown", blockKeys);
-      };
-    }, [toast]);
-    return null;
-  };
-
-  const ReferrerGreeting = () => {
-    const toast = useToast();
-    useEffect(() => {
-      if (sessionStorage.getItem("referrer-greeted")) return;
-      sessionStorage.setItem("referrer-greeted", "1");
-      const ref = document.referrer.toLowerCase();
-      if (ref.includes("linkedin")) {
-        toast("Welcome from LinkedIn! Thanks for visiting.", "success");
-      } else if (ref.includes("github")) {
-        toast("Hey fellow developer! Welcome from GitHub.", "success");
-      }
-    }, [toast]);
-    return null;
-  };
 
   return (
     <ToastProvider>
@@ -221,6 +220,10 @@ const App = () => {
           <SectionDivider />
           <ErrorBoundary>
             <Achievements />
+          </ErrorBoundary>
+          <SectionDivider />
+          <ErrorBoundary>
+            <Hobbies />
           </ErrorBoundary>
           <SectionDivider />
           <ErrorBoundary>

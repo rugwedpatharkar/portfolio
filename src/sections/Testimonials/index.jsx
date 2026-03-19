@@ -292,7 +292,7 @@ const Testimonials = () => {
               dragConstraints={{ left: 0, right: 0 }}
               dragElastic={0.15}
               onDragEnd={handleDragEnd}
-              className="glass-card rounded-2xl p-5 sm:p-8 cursor-grab active:cursor-grabbing touch-pan-y card-shine glow-hover border-glow"
+              className="glass-card rounded-2xl p-4 sm:p-5 md:p-8 cursor-grab active:cursor-grabbing touch-pan-y card-shine glow-hover border-glow"
               style={{
                 x: dragX,
                 borderColor: `${accent}15`,
@@ -306,7 +306,7 @@ const Testimonials = () => {
               />
 
               {/* Quote */}
-              <p className="text-white text-body-sm sm:text-body leading-relaxed mt-4 sm:mt-5 italic">
+              <p className="text-white text-caption sm:text-body-sm md:text-body leading-relaxed mt-3 sm:mt-4 md:mt-5 italic">
                 &ldquo;{t.quote}&rdquo;
               </p>
 

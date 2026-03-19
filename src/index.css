@@ -22,6 +22,13 @@
 @tailwind components;
 @tailwind utilities;
 
+/* ── Prevent horizontal scroll on any screen size ── */
+html,
+body {
+  overflow-x: hidden;
+  max-width: 100%;
+}
+
 /* ── Disable text selection & copying on portfolio content ── */
 body {
   -webkit-user-select: none;
@@ -729,7 +736,7 @@ img {
 
 /* Fluid photo size — scales with viewport across ALL screen sizes */
 .hero-photo-frame {
-  --photo-size: clamp(240px, 60vw, 320px);
+  --photo-size: clamp(180px, 55vw, 280px);
   width: var(--photo-size);
   height: var(--photo-size);
 }
@@ -740,17 +747,22 @@ img {
 }
 @media (min-width: 768px) {
   .hero-photo-frame {
-    --photo-size: clamp(280px, 45vh, 500px);
+    --photo-size: clamp(260px, 40vh, 440px);
   }
 }
 @media (min-width: 1024px) {
   .hero-photo-frame {
-    --photo-size: clamp(320px, 50vh, 600px);
+    --photo-size: clamp(300px, 48vh, 560px);
   }
 }
 @media (min-width: 1440px) {
   .hero-photo-frame {
-    --photo-size: clamp(400px, 55vh, 800px);
+    --photo-size: clamp(380px, 52vh, 720px);
+  }
+}
+@media (min-width: 2560px) {
+  .hero-photo-frame {
+    --photo-size: clamp(500px, 40vh, 900px);
   }
 }
 
@@ -1292,5 +1304,72 @@ body.matrix-mode .bg-gradient-to-r {
 @keyframes labelFadeIn {
   from { opacity: 0; transform: translateY(-4px); }
   to { opacity: 1; transform: translateY(0); }
+}
+
+/* ── Section watermark marquee ── */
+.watermark-marquee-track {
+  display: inline-flex;
+  white-space: nowrap;
+}
+
+/* Second copy only needed for the seamless loop — hide on desktop */
+.watermark-marquee-item + .watermark-marquee-item {
+  display: none;
+}
+
+/* Mobile: animate and show second copy for seamless loop */
+@media (max-width: 639px) {
+  .watermark-marquee-track {
+    animation: watermarkMarquee 14s linear infinite;
+  }
+
+  .watermark-marquee-item + .watermark-marquee-item {
+    display: inline;
+    padding-left: 80px;
+  }
+}
+
+@keyframes watermarkMarquee {
+  from { transform: translateX(0); }
+  to   { transform: translateX(-50%); }
+}
+
+/* ── Stat label ticker: scroll then pause then return (mobile only) ── */
+.stat-ticker-wrap {
+  overflow: hidden;
+  /* Mask edges so text fades in/out gracefully */
+  -webkit-mask-image: linear-gradient(
+    to right,
+    transparent 0%,
+    black 8%,
+    black 92%,
+    transparent 100%
+  );
+  mask-image: linear-gradient(
+    to right,
+    transparent 0%,
+    black 8%,
+    black 92%,
+    transparent 100%
+  );
+}
+
+.stat-ticker-text {
+  display: inline-block;
+  white-space: nowrap;
+  animation: statTicker 4s ease-in-out infinite;
+  animation-delay: var(--ticker-delay, 0s);
+}
+
+/* No scroll when content fits */
+.stat-ticker-text.no-scroll {
+  animation: none;
+  white-space: normal;
+}
+
+@keyframes statTicker {
+  0%, 20%   { transform: translateX(0); }
+  60%, 80%  { transform: translateX(var(--ticker-tx, 0px)); }
+  100%      { transform: translateX(0); }
 }
 

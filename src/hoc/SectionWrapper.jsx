@@ -13,9 +13,8 @@ const SectionWrapper = (Component, idName, label) =>
 
     // Subtle parallax: section floats up 20px as it scrolls through viewport
     const y = useTransform(scrollYProgress, [0, 1], [20, -20]);
-    // Watermark moves slower — creates depth separation
-    const labelY = useTransform(scrollYProgress, [0, 1], [40, -40]);
-    const labelOpacity = useTransform(scrollYProgress, [0, 0.3, 0.7, 1], [0, 0.015, 0.015, 0]);
+    // Watermark: opacity only — no y transform to prevent bleed into adjacent sections
+    const labelOpacity = useTransform(scrollYProgress, [0, 0.3, 0.7, 1], [0, 0.06, 0.06, 0]);
 
     // Clip-path reveal: expands from center as section scrolls into view
     const clipInsetTop = useTransform(scrollYProgress, [0, 0.3], [5, 0]);
@@ -35,25 +34,34 @@ const SectionWrapper = (Component, idName, label) =>
         className="relative z-0"
         style={{ clipPath }}
       >
+        {/* Watermark clipped strictly within section bounds */}
         {label && (
-          <motion.span
-            style={{ y: labelY, opacity: labelOpacity }}
-            className="absolute -top-6 -left-4 sm:-left-8 font-heading font-black text-white text-[120px] sm:text-[180px] md:text-[220px] leading-none select-none pointer-events-none whitespace-nowrap overflow-hidden max-w-full"
+          <div
+            className="absolute inset-0 overflow-hidden pointer-events-none z-0"
             aria-hidden="true"
           >
-            {label}
-          </motion.span>
+            <motion.div
+              style={{ opacity: labelOpacity }}
+              className="absolute top-6 sm:top-8 md:top-10 left-0 w-full font-heading font-black text-white text-[120px] sm:text-[180px] md:text-[220px] leading-none select-none uppercase overflow-hidden"
+            >
+              <span className="watermark-marquee-track">
+                <span className="watermark-marquee-item">{label}</span>
+                <span className="watermark-marquee-item">{label}</span>
+              </span>
+            </motion.div>
+          </div>
         )}
         <span className="hash-span">
           &nbsp;
         </span>
+        {/* Content always renders above watermark */}
         <motion.div
           variants={staggerContainer()}
           initial="hidden"
           whileInView="show"
           viewport={{ once: true, amount: 0.15 }}
           style={{ y, opacity: contentOpacity }}
-          className={`${styles.padding} max-w-7xl 3xl:max-w-[2000px] mx-auto`}
+          className={`${styles.padding} max-w-7xl 3xl:max-w-[2000px] mx-auto relative z-[1]`}
         >
           <Component />
         </motion.div>

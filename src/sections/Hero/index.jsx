@@ -14,10 +14,10 @@ import TextScramble from "../../components/TextScramble";
 const allSkillIcons = Object.values(skills).flat();
 const TechMarquee = () => (
   <div className="absolute bottom-10 sm:bottom-14 left-0 right-0 z-[3] overflow-hidden pointer-events-none opacity-70">
-    <div className="hero-marquee flex gap-8 sm:gap-12 items-center w-max">
+    <div className="hero-marquee flex gap-4 sm:gap-8 md:gap-12 items-center w-max">
       {[...allSkillIcons, ...allSkillIcons].map((skill, i) => (
         <div key={`${skill.name}-${i}`} className="flex items-center gap-2 shrink-0">
-          <img src={skill.icon} alt="" className="w-5 h-5 sm:w-6 sm:h-6 object-contain" loading="lazy" />
+          <img src={skill.icon} alt={skill.name} className="w-5 h-5 sm:w-6 sm:h-6 object-contain" loading="lazy" />
           <span className="text-micro sm:text-caption font-mono text-white/70 whitespace-nowrap">{skill.name}</span>
         </div>
       ))}
@@ -181,7 +181,7 @@ const Hero = () => {
   }, []);
 
   return (
-    <section className="relative w-full h-screen mx-auto overflow-hidden">
+    <section className="relative w-full mx-auto overflow-hidden" style={{ height: "100dvh", minHeight: "100svh" }}>
       <ParticleBackground />
       {/* Cursor spotlight overlay */}
       <div ref={spotlightRef} className="absolute inset-0 z-[1] pointer-events-none" />
@@ -438,9 +438,9 @@ const Hero = () => {
               </div>
             ))}
 
-            {/* Orbiting code card — on middle ring (hidden on small screens) */}
+            {/* Orbiting code card — hidden on sm/md where photo is stacked above text (rings overflow) */}
             <div
-              className="hero-orbit-tag hero-orbit-code"
+              className="hero-orbit-tag hero-orbit-code hidden lg:block"
               style={{
                 "--orbit-r": `calc(var(--photo-size) * 0.75)`,
                 "--orbit-dur": "55s",

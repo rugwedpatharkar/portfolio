@@ -132,7 +132,7 @@ const DetailCard = ({ edu, color }) => (
     animate={{ opacity: 1, y: 0 }}
     exit={{ opacity: 0, y: -15 }}
     transition={{ duration: 0.35, ease: [0.04, 0.62, 0.23, 0.98] }}
-    className="glass-card rounded-2xl p-5 sm:p-7 relative overflow-hidden hover:border-white/[0.12] transition-colors duration-300"
+    className="glass-card rounded-2xl p-4 sm:p-5 md:p-7 relative overflow-hidden hover:border-white/[0.12] transition-colors duration-300"
   >
     {/* Accent glow */}
     <div
@@ -385,31 +385,21 @@ const Education = () => {
           <button
             onClick={goPrev}
             disabled={activeIndex === 0}
-            className="font-mono text-caption sm:text-body-sm text-white/45 hover:text-white/60 disabled:opacity-20 disabled:cursor-not-allowed transition-colors flex items-center gap-1.5 px-3 py-2.5 sm:py-2 rounded-lg hover:bg-white/[0.03] min-h-[44px]"
+            className="w-11 h-11 rounded-full glass-card border border-white/[0.08] hover:border-white/20 text-white/40 hover:text-white disabled:opacity-20 disabled:cursor-not-allowed flex items-center justify-center transition-colors shrink-0"
+            aria-label={uiLabels.education.prev}
           >
-            <svg
-              className="w-5 h-5 sm:w-4 sm:h-4"
-              fill="none"
-              viewBox="0 0 24 24"
-              stroke="currentColor"
-              strokeWidth={2}
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                d="M15 19l-7-7 7-7"
-              />
+            <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+              <path strokeLinecap="round" strokeLinejoin="round" d="M15 19l-7-7 7-7" />
             </svg>
-            {uiLabels.education.prev}
           </button>
 
           {/* Dot indicators */}
-          <div className="flex gap-2">
+          <div className="flex gap-1 xs:gap-2">
             {timeline.map((_, i) => (
               <button
                 key={i}
                 onClick={() => setActiveIndex(i)}
-                className="p-2.5 min-w-[44px] min-h-[44px] flex items-center justify-center"
+                className="p-2 min-w-[32px] xs:min-w-[44px] min-h-[44px] flex items-center justify-center"
                 aria-label={`Go to ${timeline[i].shortName}`}
               >
                 <span
@@ -431,21 +421,11 @@ const Education = () => {
           <button
             onClick={goNext}
             disabled={activeIndex === timeline.length - 1}
-            className="font-mono text-caption sm:text-body-sm text-white/45 hover:text-white/60 disabled:opacity-20 disabled:cursor-not-allowed transition-colors flex items-center gap-1.5 px-3 py-2.5 sm:py-2 rounded-lg hover:bg-white/[0.03] min-h-[44px]"
+            className="w-11 h-11 rounded-full glass-card border border-white/[0.08] hover:border-white/20 text-white/40 hover:text-white disabled:opacity-20 disabled:cursor-not-allowed flex items-center justify-center transition-colors shrink-0"
+            aria-label={uiLabels.education.next}
           >
-            {uiLabels.education.next}
-            <svg
-              className="w-5 h-5 sm:w-4 sm:h-4"
-              fill="none"
-              viewBox="0 0 24 24"
-              stroke="currentColor"
-              strokeWidth={2}
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                d="M9 5l7 7-7 7"
-              />
+            <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+              <path strokeLinecap="round" strokeLinejoin="round" d="M9 5l7 7-7 7" />
             </svg>
           </button>
         </div>
