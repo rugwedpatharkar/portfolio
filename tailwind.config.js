@@ -31,13 +31,12 @@ module.exports = {
         "black-200": "#090325",
         "white-100": "#f3f3f3",
       },
-      boxShadow: {},
       screens: {
         xs: "450px",
         "3xl": "1920px",
       },
       backgroundImage: {
-        "hero-pattern": "url('/src/assets/herobg.png')",
+        "hero-pattern": "url('/herobg.png')",
       },
     },
   },

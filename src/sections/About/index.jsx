@@ -151,39 +151,48 @@ const Photo3D = () => {
   const frameRef = useRef(null);
   const glowRef = useRef(null);
   const shineRef = useRef(null);
-  const isHovering = useRef(false);
+  const rafRef = useRef(null);
+  const pendingMouseRef = useRef(null);
 
   const handleMove = useCallback((e) => {
-    const el = containerRef.current;
-    if (!el) return;
-    const rect = el.getBoundingClientRect();
-    const x = (e.clientX - rect.left) / rect.width;   // 0-1
-    const y = (e.clientY - rect.top) / rect.height;    // 0-1
-    const rotateY = (x - 0.5) * 25;   // +/-12.5
-    const rotateX = (0.5 - y) * 20;   // +/-10
+    pendingMouseRef.current = { x: e.clientX, y: e.clientY };
+    if (rafRef.current) return;
+    rafRef.current = requestAnimationFrame(() => {
+      rafRef.current = null;
+      const el = containerRef.current;
+      const mouse = pendingMouseRef.current;
+      if (!el || !mouse) return;
+      const rect = el.getBoundingClientRect();
+      const x = (mouse.x - rect.left) / rect.width;   // 0-1
+      const y = (mouse.y - rect.top) / rect.height;    // 0-1
+      const rotateY = (x - 0.5) * 25;
+      const rotateX = (0.5 - y) * 20;
 
-    if (frameRef.current) {
-      frameRef.current.style.transform =
-        `rotateY(${rotateY}deg) rotateX(${rotateX}deg) translateZ(40px) scale(1.06)`;
-    }
-    if (glowRef.current) {
-      glowRef.current.style.opacity = "1";
-      glowRef.current.style.background =
-        `radial-gradient(circle at ${x * 100}% ${y * 100}%, rgba(145,94,255,0.35), transparent 60%)`;
-    }
-    if (shineRef.current) {
-      shineRef.current.style.opacity = "1";
-      shineRef.current.style.background =
-        `radial-gradient(circle at ${x * 100}% ${y * 100}%, rgba(255,255,255,0.12) 0%, transparent 50%)`;
-    }
+      if (frameRef.current) {
+        frameRef.current.style.transform =
+          `rotateY(${rotateY}deg) rotateX(${rotateX}deg) translateZ(40px) scale(1.06)`;
+      }
+      if (glowRef.current) {
+        glowRef.current.style.opacity = "1";
+        glowRef.current.style.background =
+          `radial-gradient(circle at ${x * 100}% ${y * 100}%, rgba(145,94,255,0.35), transparent 60%)`;
+      }
+      if (shineRef.current) {
+        shineRef.current.style.opacity = "1";
+        shineRef.current.style.background =
+          `radial-gradient(circle at ${x * 100}% ${y * 100}%, rgba(255,255,255,0.12) 0%, transparent 50%)`;
+      }
+    });
   }, []);
 
-  const handleEnter = useCallback(() => {
-    isHovering.current = true;
-  }, []);
+  const handleEnter = useCallback(() => {}, []);
 
   const handleLeave = useCallback(() => {
-    isHovering.current = false;
+    if (rafRef.current) {
+      cancelAnimationFrame(rafRef.current);
+      rafRef.current = null;
+    }
+    pendingMouseRef.current = null;
     if (frameRef.current) {
       frameRef.current.style.transform = "rotateY(0deg) rotateX(0deg) translateZ(0px) scale(1)";
     }

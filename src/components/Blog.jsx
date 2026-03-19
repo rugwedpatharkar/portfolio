@@ -151,7 +151,7 @@ const Blog = () => (
 
     <div className="mt-8 sm:mt-12 grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-5 sm:gap-7">
       {blogPosts.map((post, index) => (
-        <BlogCard key={index} post={post} index={index} />
+        <BlogCard key={post.title} post={post} index={index} />
       ))}
     </div>
   </div>

@@ -114,20 +114,34 @@ const SkillGlobe = () => {
     };
   }, []);
 
+  const mouseMoveRafRef = useRef(null);
   const handleMouseMove = (e) => {
-    if (!containerRef.current) return;
-    const rect = containerRef.current.getBoundingClientRect();
-    mouseRef.current = {
-      x: e.clientX - rect.left - rect.width / 2,
-      y: e.clientY - rect.top - rect.height / 2,
-    };
+    const cx = e.clientX;
+    const cy = e.clientY;
+    if (mouseMoveRafRef.current) return;
+    mouseMoveRafRef.current = requestAnimationFrame(() => {
+      mouseMoveRafRef.current = null;
+      const container = containerRef.current;
+      if (!container) return;
+      const rect = container.getBoundingClientRect();
+      mouseRef.current = {
+        x: cx - rect.left - rect.width / 2,
+        y: cy - rect.top - rect.height / 2,
+      };
+    });
   };
 
   return (
     <div
       ref={containerRef}
       onMouseMove={handleMouseMove}
-      onMouseLeave={() => { mouseRef.current = { x: 0, y: 0 }; }}
+      onMouseLeave={() => {
+        mouseRef.current = { x: 0, y: 0 };
+        if (mouseMoveRafRef.current) {
+          cancelAnimationFrame(mouseMoveRafRef.current);
+          mouseMoveRafRef.current = null;
+        }
+      }}
       className="relative w-full h-[400px] sm:h-[500px] flex items-center justify-center"
       style={{ perspective: 800 }}
     />

@@ -19,11 +19,16 @@ const AnimatedCounter = ({ value, suffix = "", duration = 2000 }) => {
     const el = ref.current;
     if (!el) return;
 
+    const prefersReducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
     let timer;
     const observer = new IntersectionObserver(
       ([entry]) => {
         if (entry.isIntersecting && !hasAnimatedRef.current) {
           hasAnimatedRef.current = true;
+          if (prefersReducedMotion) {
+            setCount(value);
+            return;
+          }
           let start = 0;
           const increment = value / (duration / 16);
           timer = setInterval(() => {
@@ -67,7 +72,15 @@ const FunFactCard = memo(forwardRef(({ fact, index }, ref) => {
       whileHover={{ y: -5 }}
       className="cursor-pointer h-full"
       style={{ perspective: "800px" }}
+      role="button"
+      tabIndex={0}
       onClick={() => setFlipped((f) => !f)}
+      onKeyDown={(e) => {
+        if (e.key === "Enter" || e.key === " ") {
+          e.preventDefault();
+          setFlipped((f) => !f);
+        }
+      }}
     >
       <div
         className="relative w-full h-full transition-transform duration-500 will-change-transform"

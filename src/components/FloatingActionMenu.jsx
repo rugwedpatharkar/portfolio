@@ -38,12 +38,14 @@ const FloatingActionMenu = () => {
 
   const toggleMusic = () => {
     if (!audioRef.current) return;
-    if (isPlaying) {
-      audioRef.current.pause();
-    } else {
-      audioRef.current.play().catch(() => {});
-    }
-    setIsPlaying(!isPlaying);
+    setIsPlaying((prev) => {
+      if (prev) {
+        audioRef.current.pause();
+      } else {
+        audioRef.current.play().catch(() => {});
+      }
+      return !prev;
+    });
     window.dispatchEvent(new CustomEvent("achievement", { detail: "musician" }));
   };
 

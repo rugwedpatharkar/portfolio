@@ -17,29 +17,6 @@ const buildWave = (t, amp, phase, speed) => {
   return pts.join(" ");
 };
 
-// Shared scroll state across all divider instances
-let scrollPos = 0;
-let scrollVelocity = 0;
-let lastScroll = 0;
-let scrollListenerAttached = false;
-
-const attachScrollListener = () => {
-  if (scrollListenerAttached) return;
-  scrollListenerAttached = true;
-  lastScroll = window.scrollY;
-  scrollPos = window.scrollY;
-
-  window.addEventListener(
-    "scroll",
-    () => {
-      const now = window.scrollY;
-      scrollVelocity = now - lastScroll;
-      scrollPos = now;
-      lastScroll = now;
-    },
-    { passive: true }
-  );
-};
 
 // Particle dot configuration — small floating circles for depth
 const PARTICLES = [
@@ -59,6 +36,10 @@ const SectionDivider = () => {
   const glowRef = useRef(null);
   const glowBrightRef = useRef(null);
   const dotsRef = useRef(null);
+  // Per-instance scroll state (not shared globals)
+  const scrollPosRef = useRef(0);
+  const scrollVelocityRef = useRef(0);
+  const lastScrollRef = useRef(0);
 
   const tick = useCallback((timestamp) => {
     const el = ref.current;
@@ -93,7 +74,7 @@ const SectionDivider = () => {
 
     // Glow follows scroll direction with momentum
     // scrollVelocity is positive (scrolling down) or negative (scrolling up)
-    const target = 50 + Math.max(-45, Math.min(45, scrollVelocity * 1.5));
+    const target = 50 + Math.max(-45, Math.min(45, scrollVelocityRef.current * 1.5));
     // Ease toward target for smooth motion, slowly drift back to center when idle
     glowPosRef.current += (target - glowPosRef.current) * 0.08;
 
@@ -119,7 +100,7 @@ const SectionDivider = () => {
     // Parallax depth — shift wave layers horizontally based on scroll position
     // Wave 2 (mid, index 1 in wavesRef which is ordered bg→mid→glow→primary)
     // wavesRef order: wave3(bg), wave2(mid), wave1-glow, wave1-primary
-    const parallaxScroll = scrollPos * 0.05; // scale factor for subtle shift
+    const parallaxScroll = scrollPosRef.current * 0.05; // scale factor for subtle shift
     const paths2 = wavesRef.current;
     if (paths2.length >= 4) {
       // Wave 2 (mid) — slight left shift
@@ -142,13 +123,22 @@ const SectionDivider = () => {
     }
 
     // Decay velocity when not scrolling
-    scrollVelocity *= 0.95;
+    scrollVelocityRef.current *= 0.95;
 
     rafRef.current = requestAnimationFrame(tick);
   }, []);
 
   useEffect(() => {
-    attachScrollListener();
+    lastScrollRef.current = window.scrollY;
+    scrollPosRef.current = window.scrollY;
+
+    const onScroll = () => {
+      const now = window.scrollY;
+      scrollVelocityRef.current = now - lastScrollRef.current;
+      scrollPosRef.current = now;
+      lastScrollRef.current = now;
+    };
+    window.addEventListener("scroll", onScroll, { passive: true });
 
     const el = ref.current;
     if (!el) return;
@@ -165,6 +155,7 @@ const SectionDivider = () => {
     obs.observe(el);
 
     return () => {
+      window.removeEventListener("scroll", onScroll);
       obs.disconnect();
       cancelAnimationFrame(rafRef.current);
       rafRef.current = 0;

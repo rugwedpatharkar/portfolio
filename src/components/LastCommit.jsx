@@ -16,9 +16,15 @@ const LastCommit = () => {
   const [commit, setCommit] = useState(null);
 
   useEffect(() => {
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), 5000);
+
     fetch(
       `https://api.github.com/users/${personalInfo.githubUsername}/events?per_page=20`,
-      { headers: { Accept: "application/vnd.github+json" } }
+      {
+        headers: { Accept: "application/vnd.github+json" },
+        signal: controller.signal,
+      }
     )
       .then((r) => r.json())
       .then((events) => {
@@ -32,7 +38,8 @@ const LastCommit = () => {
           });
         }
       })
-      .catch(() => {});
+      .catch(() => {})
+      .finally(() => clearTimeout(timeoutId));
   }, []);
 
   if (!commit) return null;

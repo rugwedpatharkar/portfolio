@@ -12,6 +12,13 @@ const MAX_RETRIES = 20;
 const useRetryObserver = (ids, callback, options, onReady) => {
   const observerRef = useRef(null);
   const retryTimerRef = useRef(null);
+  // Stable refs so changing these never triggers a re-run of the effect
+  const callbackRef = useRef(callback);
+  const optionsRef = useRef(options);
+  const onReadyRef = useRef(onReady);
+  callbackRef.current = callback;
+  optionsRef.current = options;
+  onReadyRef.current = onReady;
 
   useEffect(() => {
     let retryCount = 0;
@@ -29,10 +36,13 @@ const useRetryObserver = (ids, callback, options, onReady) => {
 
       if (elements.length === 0) return;
 
-      observerRef.current = new IntersectionObserver(callback, options);
+      observerRef.current = new IntersectionObserver(
+        (...args) => callbackRef.current(...args),
+        optionsRef.current
+      );
       elements.forEach((el) => observerRef.current.observe(el));
 
-      if (onReady) onReady(elements);
+      if (onReadyRef.current) onReadyRef.current(elements);
     };
 
     retryTimerRef.current = setTimeout(setup, 300);
@@ -41,7 +51,7 @@ const useRetryObserver = (ids, callback, options, onReady) => {
       clearTimeout(retryTimerRef.current);
       if (observerRef.current) observerRef.current.disconnect();
     };
-  }, [ids, callback, options, onReady]);
+  }, [ids]);
 };
 
 export default useRetryObserver;

@@ -144,7 +144,7 @@ const Hero = () => {
   const spotlightRef = useRef(null);
   const statusColor = useMemo(
     () => STATUS_COLORS[personalInfo.availabilityStatus] ?? STATUS_COLORS.available,
-    []
+    [personalInfo.availabilityStatus]
   );
 
   /* ── mouse parallax + spotlight — single RAF loop ── */

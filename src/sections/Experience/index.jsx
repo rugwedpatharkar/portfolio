@@ -28,6 +28,7 @@ function easeOut(t) {
 const AnimatedMetric = ({ value }) => {
   const ref = useRef(null);
   const hasAnimated = useRef(false);
+  const rafRef = useRef(null);
 
   const animate = useCallback(() => {
     const parsed = parseMetricValue(value);
@@ -37,6 +38,8 @@ const AnimatedMetric = ({ value }) => {
     const el = ref.current;
     const start = performance.now();
 
+    if (rafRef.current) cancelAnimationFrame(rafRef.current);
+
     const tick = (now) => {
       const elapsed = now - start;
       const progress = Math.min(elapsed / ANIM_DURATION, 1);
@@ -44,11 +47,13 @@ const AnimatedMetric = ({ value }) => {
       const current = eased * number;
       el.textContent = current.toFixed(decimals) + suffix;
       if (progress < 1) {
-        requestAnimationFrame(tick);
+        rafRef.current = requestAnimationFrame(tick);
+      } else {
+        rafRef.current = null;
       }
     };
 
-    requestAnimationFrame(tick);
+    rafRef.current = requestAnimationFrame(tick);
   }, [value]);
 
   useEffect(() => {
@@ -73,7 +78,10 @@ const AnimatedMetric = ({ value }) => {
     );
 
     observer.observe(el);
-    return () => observer.disconnect();
+    return () => {
+      observer.disconnect();
+      if (rafRef.current) cancelAnimationFrame(rafRef.current);
+    };
   }, [value, animate]);
 
   // Fallback for unparseable values
@@ -194,6 +202,7 @@ const ExperienceCard = memo(({ experience, index, isLast }) => {
               >
                 <button
                   onClick={() => toggleCat(ci)}
+                  aria-expanded={!!openCats[ci]}
                   className="w-full flex items-center justify-between px-4 py-3 text-left hover:bg-white/[0.03] transition-colors duration-200"
                 >
                   <span className="flex items-center gap-2.5 text-white text-body-sm sm:text-body font-medium">

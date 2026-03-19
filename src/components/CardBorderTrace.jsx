@@ -13,14 +13,22 @@ const CardBorderTrace = ({ color, borderRadius = 16 }) => {
   useEffect(() => {
     const el = wrapRef.current;
     if (!el) return;
+    let timer = null;
     const update = () => {
       const { width, height } = el.getBoundingClientRect();
       if (width > 0 && height > 0) setDims({ w: width, h: height });
     };
+    const debouncedUpdate = () => {
+      clearTimeout(timer);
+      timer = setTimeout(update, 100);
+    };
     update();
-    const ro = new ResizeObserver(update);
+    const ro = new ResizeObserver(debouncedUpdate);
     ro.observe(el);
-    return () => ro.disconnect();
+    return () => {
+      clearTimeout(timer);
+      ro.disconnect();
+    };
   }, []);
 
   const r = borderRadius;
