@@ -41,6 +41,7 @@ const FloatingActionMenu = lazy(() => import("./components/FloatingActionMenu"))
 const CommandTerminal = lazy(() => import("./components/CommandTerminal"));
 const KeyboardHints = lazy(() => import("./components/KeyboardHints"));
 const SpotlightSearch = lazy(() => import("./components/SpotlightSearch"));
+const CinemaMode = lazy(() => import("./components/CinemaMode"));
 
 /* ── Inner components defined at module level to prevent remount on App re-render ── */
 const AchievementTracker = () => {
@@ -241,6 +242,7 @@ const App = () => {
           <KeyboardHints />
           <SpotlightSearch />
           <BackToTop />
+          <CinemaMode />
         </Suspense>
       </main>
     </ToastProvider>

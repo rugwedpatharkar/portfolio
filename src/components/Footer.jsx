@@ -3,6 +3,7 @@ import { AiOutlineGithub } from "react-icons/ai";
 import { ImLinkedin } from "react-icons/im";
 import { navLinks, personalInfo, builtWith, footerContent } from "../content";
 import VisitorCounter from "./VisitorCounter";
+import LastCommit from "./LastCommit";
 
 
 const Footer = () => {
@@ -70,6 +71,8 @@ const Footer = () => {
                 <ImLinkedin className="text-body-sm group-hover:scale-110 transition-transform" />
               </a>
             </div>
+            {/* Last commit */}
+            <LastCommit />
           </div>
 
           {/* Column 2: Quick Links */}

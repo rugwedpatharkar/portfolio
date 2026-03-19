@@ -1,10 +1,16 @@
-import { useRef, useEffect } from "react";
+import { useRef, useEffect, useMemo } from "react";
 import { motion } from "framer-motion";
 import { styles } from "../../styles";
 import Typewriter from "typewriter-effect";
 import { AiOutlineGithub } from "react-icons/ai";
 import { ImLinkedin } from "react-icons/im";
 import { personalInfo, skills, heroContent, heroButtons } from "../../content";
+
+const STATUS_COLORS = {
+  available: "#00cea8",
+  busy: "#f8c555",
+  unavailable: "#ff6b6b",
+};
 import { heroPhoto, resume } from "../../assets";
 import ParticleBackground from "../../components/ParticleBackground";
 import MagneticButton from "../../components/MagneticButton";
@@ -136,6 +142,10 @@ const item = (y = 30) => ({
 const Hero = () => {
   const parallaxRef = useRef(null);
   const spotlightRef = useRef(null);
+  const statusColor = useMemo(
+    () => STATUS_COLORS[personalInfo.availabilityStatus] ?? STATUS_COLORS.available,
+    []
+  );
 
   /* ── mouse parallax + spotlight — single RAF loop ── */
   const rafIdRef = useRef(0);
@@ -307,9 +317,15 @@ const Hero = () => {
               variants={item()}
               className="mt-1 sm:mt-5 flex flex-wrap items-center gap-2 sm:gap-3 pointer-events-auto"
             >
-              <span className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-[#00cea8]/10 border border-[#00cea8]/30 status-pulse">
-                <span className="w-2 h-2 rounded-full bg-[#00cea8]" />
-                <span className="text-[#00cea8] text-caption sm:text-body-sm font-mono font-medium">
+              <span
+                className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full status-pulse"
+                style={{
+                  background: `${statusColor}12`,
+                  border: `1px solid ${statusColor}35`,
+                }}
+              >
+                <span className="w-2 h-2 rounded-full" style={{ background: statusColor }} />
+                <span className="text-caption sm:text-body-sm font-mono font-medium" style={{ color: statusColor }}>
                   {personalInfo.availability}
                 </span>
               </span>

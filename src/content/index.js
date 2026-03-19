@@ -415,6 +415,8 @@ export const personalInfo = {
   email: "rugwedspatharkar@gmail.com",
   role: "Software Engineer",
   availability: "Software Engineer @ Upswing",
+  // "available" → green, "busy" → yellow, "unavailable" → red
+  availabilityStatus: "available",
   github: "https://github.com/rugwedpatharkar",
   githubUsername: "rugwedpatharkar",
   linkedin: "https://www.linkedin.com/in/rugwed-patharkar/",

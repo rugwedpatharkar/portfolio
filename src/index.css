@@ -1105,6 +1105,12 @@ body.matrix-mode .bg-gradient-to-r {
   }
 }
 
+/* ===== PROJECT HOVER PREVIEW ENTER ANIMATION ===== */
+@keyframes proj-preview-in {
+  from { opacity: 0; transform: translateY(6px) scale(0.97); }
+  to   { opacity: 1; transform: translateY(0) scale(1); }
+}
+
 /* ===== PRINT-OPTIMIZED RESUME ===== */
 @media print {
   /* Reset background */

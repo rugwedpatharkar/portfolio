@@ -251,6 +251,13 @@ const ExperienceCard = memo(({ experience, index, isLast }) => {
 });
 
 const Experience = () => {
+  const cardRefs = useRef([]);
+
+  const jumpTo = (i) => {
+    const el = cardRefs.current[i];
+    if (el) el.scrollIntoView({ behavior: "smooth", block: "start" });
+  };
+
   return (
     <div className="relative">
       {/* Ambient glow blobs */}
@@ -273,6 +280,28 @@ const Experience = () => {
         {sectionMeta.experience.description}
       </motion.p>
 
+      {/* Timeline jump-nav */}
+      <motion.div
+        variants={fadeIn("", "", 0.2, 0.6)}
+        className="mt-6 flex flex-wrap items-center gap-2"
+      >
+        {experiences.map((exp, i) => (
+          <button
+            key={i}
+            onClick={() => jumpTo(i)}
+            className="flex items-center gap-2 px-3 py-1.5 rounded-full font-mono text-caption border border-white/[0.08] bg-white/[0.02] hover:border-[#915eff]/40 hover:bg-[#915eff]/[0.06] hover:text-[#915eff] text-white/45 transition-all duration-200 group"
+          >
+            <span
+              className="w-1.5 h-1.5 rounded-full shrink-0 transition-colors"
+              style={{ background: "#915eff50" }}
+            />
+            <span className="hidden sm:inline">{exp.companyName}</span>
+            <span className="sm:hidden">{exp.companyName.split(" ")[0]}</span>
+            <span className="text-[10px] text-white/25 group-hover:text-[#915eff]/50">{exp.date.split("–")[0].trim()}</span>
+          </button>
+        ))}
+      </motion.div>
+
       <motion.div
         className="mt-10 sm:mt-16"
         variants={staggerContainer(0.3, 0.2)}
@@ -281,12 +310,13 @@ const Experience = () => {
         viewport={{ once: true, amount: 0.1 }}
       >
         {experiences.map((exp, i) => (
-          <ExperienceCard
-            key={i}
-            experience={exp}
-            index={i}
-            isLast={i === experiences.length - 1}
-          />
+          <div key={i} ref={(el) => (cardRefs.current[i] = el)}>
+            <ExperienceCard
+              experience={exp}
+              index={i}
+              isLast={i === experiences.length - 1}
+            />
+          </div>
         ))}
       </motion.div>
     </div>

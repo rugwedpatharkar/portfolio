@@ -9,6 +9,7 @@ import { personalInfo, sectionMeta, contactContent, contactLinks } from "../../c
 import { resume } from "../../assets";
 import { useToast } from "../../components/Toast";
 import TextScramble from "../../components/TextScramble";
+import useConfetti from "../../hooks/useConfetti";
 
 const ACCENT = "#915eff";
 
@@ -257,6 +258,8 @@ const EmailPreview = ({ form, topic, sent }) => (
 /* ── Main Contact Component ── */
 const Contact = () => {
   const toast = useToast();
+  const fireConfetti = useConfetti();
+  const submitBtnRef = useRef(null);
   const [form, setForm] = useState(() => {
     try {
       const saved = sessionStorage.getItem("contact-form");
@@ -329,6 +332,7 @@ const Contact = () => {
         () => {
           setLoading(false);
           setSent(true);
+          fireConfetti(submitBtnRef.current);
           toast(contactContent.successMessage, "success");
           setForm({ name: "", email: "", message: "" });
           setTopic("");
@@ -553,6 +557,7 @@ const Contact = () => {
               {/* Submit button — animated states */}
               <div className="flex items-center justify-between gap-4">
                 <motion.button
+                  ref={submitBtnRef}
                   type="submit"
                   whileHover={{ scale: 1.05 }}
                   whileTap={{ scale: 0.97 }}

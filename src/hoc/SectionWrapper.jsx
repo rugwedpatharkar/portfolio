@@ -16,14 +16,6 @@ const SectionWrapper = (Component, idName, label) =>
     // Watermark: opacity only — no y transform to prevent bleed into adjacent sections
     const labelOpacity = useTransform(scrollYProgress, [0, 0.3, 0.7, 1], [0, 0.06, 0.06, 0]);
 
-    // Clip-path reveal: expands from center as section scrolls into view
-    const clipInsetTop = useTransform(scrollYProgress, [0, 0.3], [5, 0]);
-    const clipInsetSide = useTransform(scrollYProgress, [0, 0.3], [10, 0]);
-    const clipPath = useTransform(
-      [clipInsetTop, clipInsetSide],
-      ([top, side]) => `inset(${top}% ${side}%)`
-    );
-
     // Fade-in: opacity 0.3 to 1 as content enters viewport center
     const contentOpacity = useTransform(scrollYProgress, [0, 0.25, 0.5], [0.3, 0.8, 1]);
 
@@ -32,7 +24,6 @@ const SectionWrapper = (Component, idName, label) =>
         ref={ref}
         id={idName}
         className="relative z-0"
-        style={{ clipPath }}
       >
         {/* Watermark clipped strictly within section bounds */}
         {label && (

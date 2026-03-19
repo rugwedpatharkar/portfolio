@@ -44,6 +44,11 @@ const ProjectCard = memo(forwardRef(({ project, index, accent, dimmed }, ref) =>
   const imgRafRef = useRef(null);
   const imgMouseRef = useRef({ x: 0, y: 0 });
 
+  /* Hover preview state — for cards with project.image */
+  const [previewPos, setPreviewPos] = useState(null);
+  const previewRafRef = useRef(null);
+  const rawMouseRef = useRef({ x: 0, y: 0 });
+
   const handleImageMouseMove = useCallback((e) => {
     imgMouseRef.current.x = e.clientX;
     imgMouseRef.current.y = e.clientY;
@@ -75,14 +80,32 @@ const ProjectCard = memo(forwardRef(({ project, index, accent, dimmed }, ref) =>
     if (imgShineRef.current) imgShineRef.current.style.opacity = "0";
   }, []);
 
+  /* Track mouse for floating image preview */
+  const handlePreviewMouseMove = useCallback((e) => {
+    if (!project.image) return;
+    rawMouseRef.current = { x: e.clientX, y: e.clientY };
+    if (previewRafRef.current) return;
+    previewRafRef.current = requestAnimationFrame(() => {
+      previewRafRef.current = null;
+      setPreviewPos({ x: rawMouseRef.current.x, y: rawMouseRef.current.y });
+    });
+  }, [project.image]);
+
+  const handlePreviewMouseLeave = useCallback(() => {
+    if (!project.image) return;
+    cancelAnimationFrame(previewRafRef.current);
+    previewRafRef.current = null;
+    setPreviewPos(null);
+  }, [project.image]);
+
   return (
     <motion.div
-      layout="position"
       initial={{ opacity: 0, y: 30 }}
       animate={{ opacity: 1, y: 0 }}
       exit={{ opacity: 0, y: -20, transition: { duration: 0.2 } }}
       transition={{ duration: 0.4, delay: index * 0.08 }}
-      onMouseMove={handleCardMouse}
+      onMouseMove={(e) => { handleCardMouse(e); handlePreviewMouseMove(e); }}
+      onMouseLeave={handlePreviewMouseLeave}
       className="proj-card relative group h-full"
       style={{
         "--proj-accent": accent,
@@ -287,6 +310,34 @@ const ProjectCard = memo(forwardRef(({ project, index, accent, dimmed }, ref) =>
       </div>
       </div>
       <CardBorderTrace color={accent} />
+
+      {/* Floating image preview — fixed so it escapes all overflow/z-index */}
+      {project.image && previewPos && (
+        <div
+          className="fixed z-[200] rounded-xl overflow-hidden shadow-2xl border border-white/10 pointer-events-none"
+          style={{
+            width: 260,
+            left: previewPos.x + 18,
+            top: previewPos.y - 80,
+            transform: previewPos.x > window.innerWidth - 300 ? "translateX(-100%) translateX(-18px)" : "none",
+            animation: "proj-preview-in 0.18s ease-out",
+          }}
+          aria-hidden="true"
+        >
+          <img
+            src={project.image}
+            alt={`${project.name} preview`}
+            className="w-full h-auto object-cover block"
+            loading="lazy"
+          />
+          <div
+            className="px-3 py-1.5 text-[11px] font-mono font-medium truncate"
+            style={{ background: `${accent}18`, color: accent }}
+          >
+            {project.name}
+          </div>
+        </div>
+      )}
     </motion.div>
   );
 }));
