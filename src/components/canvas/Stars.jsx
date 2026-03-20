@@ -1,29 +1,42 @@
 /* eslint-disable react/no-unknown-property */
 import { useState, useRef, useMemo, useEffect, Suspense } from "react";
 import { Canvas, useFrame } from "@react-three/fiber";
-import { Points, PointMaterial, Preload } from "@react-three/drei";
+import { PointMaterial } from "@react-three/drei";
+import * as THREE from "three";
 import * as random from "maath/random/dist/maath-random.esm";
 
-const Stars = ({ paused = false, ...props }) => {
-  const ref = useRef();
+const Stars = ({ paused = false }) => {
+  const groupRef = useRef();
+  const pointsRef = useRef();
 
-  const sphere = useMemo(() => {
-    const positions = random.inSphere(new Float32Array(5000), { radius: 1.2 });
-    // Sanitize: replace any NaN values to prevent THREE.js bounding sphere errors
+  // Build geometry once with a pre-set valid bounding sphere.
+  // Using THREE.BufferGeometry directly lets us set boundingSphere BEFORE
+  // Three.js ever tries to compute it, eliminating the NaN warning entirely.
+  const geometry = useMemo(() => {
+    // 4998 = 1666 × 3 — always divisible by stride so no partial points
+    const positions = random.inSphere(new Float32Array(4998), { radius: 1.2 });
     for (let i = 0; i < positions.length; i++) {
-      if (Number.isNaN(positions[i])) positions[i] = 0;
+      if (!isFinite(positions[i])) positions[i] = 0;
     }
-    return positions;
+    const geo = new THREE.BufferGeometry();
+    geo.setAttribute("position", new THREE.BufferAttribute(positions, 3));
+    // Pre-set a valid bounding sphere — prevents Three.js from computing NaN
+    geo.boundingSphere = new THREE.Sphere(new THREE.Vector3(0, 0, 0), 1.5);
+    return geo;
   }, []);
-  useFrame((state, delta) => {
-    if (paused) return;
-    ref.current.rotation.x -= delta / 10;
-    ref.current.rotation.y -= delta / 15;
+
+  // Cleanup geometry on unmount
+  useEffect(() => () => geometry.dispose(), [geometry]);
+
+  useFrame((_state, delta) => {
+    if (paused || !groupRef.current) return;
+    groupRef.current.rotation.x -= delta / 10;
+    groupRef.current.rotation.y -= delta / 15;
   });
 
   return (
-    <group rotation={[0, 0, Math.PI / 4]}>
-      <Points ref={ref} positions={sphere} stride={3} frustumCulled {...props}>
+    <group ref={groupRef} rotation={[0, 0, Math.PI / 4]}>
+      <points ref={pointsRef} geometry={geometry} frustumCulled={false}>
         <PointMaterial
           transparent
           color="#f272c8"
@@ -31,7 +44,7 @@ const Stars = ({ paused = false, ...props }) => {
           sizeAttenuation={true}
           depthWrite={false}
         />
-      </Points>
+      </points>
     </group>
   );
 };
@@ -62,7 +75,9 @@ const StarsCanvas = ({ fixed = false }) => {
       className={fixed ? "fixed inset-0 w-full h-full z-[-1]" : "w-full h-auto absolute inset-0 z-[-1]"}
       aria-hidden="true"
     >
-      <Canvas camera={{ position: [0, 0, 1] }}>
+      {/* events={false} — purely decorative canvas needs no pointer event handling,
+          which also eliminates the "non-static position" scroll-offset warning */}
+      <Canvas camera={{ position: [0, 0, 1] }} events={false}>
         <Suspense fallback={null}>
           <Stars paused={!isVisible} />
         </Suspense>

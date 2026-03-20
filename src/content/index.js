@@ -575,9 +575,9 @@ export const testimonials = [
 
 export const funFacts = [
   { label: "Cups of Coffee", value: 1200, suffix: "+", icon: "☕", detail: "Fueled by filter coffee & chai — mostly during late-night debugging sessions." },
-  { label: "Git Commits", value: 3000, suffix: "+", icon: "📝", detail: "Across 30+ repos spanning Django, FastAPI, React, and infrastructure projects." },
-  { label: "APIs Deployed", value: 15, suffix: "+", icon: "🚀", detail: "REST & gRPC services running on GKE, serving millions of requests per day." },
-  { label: "Bugs Squashed", value: 500, suffix: "+", icon: "🐛", detail: "From race conditions to timezone bugs — every squash is a war story." },
+  { label: "Git Commits", value: 5000, suffix: "+", icon: "📝", detail: "Across 30+ repos spanning Django, FastAPI, React, and infrastructure projects." },
+  { label: "APIs Deployed", value: 500, suffix: "+", icon: "🚀", detail: "REST & gRPC services running on GKE, serving millions of requests per day." },
+  { label: "Bugs Squashed", value: 1200, suffix: "+", icon: "🐛", detail: "From race conditions to timezone bugs — every squash is a war story." },
 ];
 
 export const hobbies = [

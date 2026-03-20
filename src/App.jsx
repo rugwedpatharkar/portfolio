@@ -1,4 +1,4 @@
-import { Suspense, lazy, useEffect } from "react";
+import { Suspense, lazy, useEffect, useRef } from "react";
 import useVisitorAchievements from "./hooks/useVisitorAchievements";
 import {
   Navbar,
@@ -113,8 +113,11 @@ const ReferrerGreeting = () => {
 };
 
 const App = () => {
-  // Console easter eggs for devs who inspect
+  // Console easter eggs for devs who inspect — ref guard prevents StrictMode double-fire
+  const consoleLoggedRef = useRef(false);
   useEffect(() => {
+    if (consoleLoggedRef.current) return;
+    consoleLoggedRef.current = true;
     console.log(
       "%c\n" + easterEggs.ascii + " \n",
       "color: #915eff; font-size: 10px; font-family: monospace;"

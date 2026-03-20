@@ -28,6 +28,9 @@ body {
   overflow-x: hidden;
   max-width: 100%;
   background: #050816;
+  /* position: relative required by Framer Motion's useScroll to correctly
+     calculate scroll offsets when body is the scroll container */
+  position: relative;
 }
 
 /* ── Disable text selection & copying on portfolio content ── */

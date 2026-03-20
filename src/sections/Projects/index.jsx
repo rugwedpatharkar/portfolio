@@ -29,11 +29,18 @@ const FilterTab = ({ label, isActive, onClick, count }) => (
   </button>
 );
 
-/* ── Mouse-tracking glow for cards ── */
+/* ── Mouse-tracking glow for cards — RAF-throttled to avoid forced reflow ── */
+let _cardMouseRaf = null;
 const handleCardMouse = (e) => {
-  const rect = e.currentTarget.getBoundingClientRect();
-  e.currentTarget.style.setProperty("--mouse-x", `${e.clientX - rect.left}px`);
-  e.currentTarget.style.setProperty("--mouse-y", `${e.clientY - rect.top}px`);
+  const { clientX, clientY } = e;
+  const target = e.currentTarget;
+  if (_cardMouseRaf) return;
+  _cardMouseRaf = requestAnimationFrame(() => {
+    _cardMouseRaf = null;
+    const rect = target.getBoundingClientRect();
+    target.style.setProperty("--mouse-x", `${clientX - rect.left}px`);
+    target.style.setProperty("--mouse-y", `${clientY - rect.top}px`);
+  });
 };
 
 /* ── Project Card ── */
@@ -296,7 +303,7 @@ const ProjectCard = memo(forwardRef(({ project, index, accent, dimmed }, ref) =>
 
           {/* Tags */}
           <div className="flex flex-wrap gap-1.5">
-            {project.tags.map((tag, tagIndex) => (
+            {project.tags.map((tag) => (
               <span
                 key={tag.name}
                 className="font-mono text-micro sm:text-caption px-2 py-0.5 rounded-full border"

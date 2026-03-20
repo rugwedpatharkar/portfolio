@@ -23,6 +23,9 @@ self.addEventListener('activate', (event) => {
 
 self.addEventListener('fetch', (event) => {
   if (event.request.method !== 'GET') return;
+  // Skip non-http(s) schemes (chrome-extension, moz-extension, etc.)
+  const url = new URL(event.request.url);
+  if (!url.protocol.startsWith('http')) return;
   event.respondWith(
     fetch(event.request)
       .then((response) => {

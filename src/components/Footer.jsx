@@ -43,7 +43,7 @@ const Footer = () => {
         {/* Top section: 3 columns */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8 sm:gap-10">
           {/* Column 1: Brand */}
-          <div>
+          <div className="flex flex-col items-center sm:items-start text-center sm:text-left">
             <p className="text-white font-heading font-bold text-body-lg sm:text-subheading">
               {personalInfo.fullName}
             </p>
@@ -76,13 +76,13 @@ const Footer = () => {
           </div>
 
           {/* Column 2: Quick Links */}
-          <div>
+          <div className="flex flex-col items-center sm:items-start text-center sm:text-left">
             <h4 className="text-white/45 text-caption font-mono uppercase tracking-wider mb-3">
               {footerContent.navigateHeader}
             </h4>
-            <ul className="grid grid-cols-2 gap-x-4 gap-y-1.5">
+            <ul className="grid grid-cols-2 gap-x-4 gap-y-1.5 w-full">
               {navLinks.map((link) => (
-                <li key={link.id}>
+                <li key={link.id} className="flex justify-center sm:justify-start">
                   <a
                     href={`#${link.id}`}
                     className="text-secondary hover:text-[#915eff] text-body-sm transition-colors duration-200 inline-flex items-center gap-1.5 group"
@@ -98,11 +98,11 @@ const Footer = () => {
           </div>
 
           {/* Column 3: Built With */}
-          <div>
+          <div className="flex flex-col items-center sm:items-start text-center sm:text-left">
             <h4 className="text-white/45 text-caption font-mono uppercase tracking-wider mb-3">
               {footerContent.builtWithHeader}
             </h4>
-            <div className="flex flex-wrap gap-2" ref={pillsRef}>
+            <div className="flex flex-wrap gap-2 justify-center sm:justify-start" ref={pillsRef}>
               {builtWith.map((tech, index) => (
                 <span
                   key={tech.name}

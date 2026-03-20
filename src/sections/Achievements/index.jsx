@@ -172,9 +172,12 @@ const Achievements = () => {
     const equalize = () => {
       const els = cardRefs.current.filter(Boolean);
       if (!els.length) return;
+      // Reset all heights first (write), then measure in next frame (read) to avoid forced reflow
       els.forEach((el) => (el.style.minHeight = ""));
-      const max = Math.max(...els.map((el) => el.getBoundingClientRect().height));
-      els.forEach((el) => (el.style.minHeight = `${max}px`));
+      requestAnimationFrame(() => {
+        const max = Math.max(...els.map((el) => el.getBoundingClientRect().height));
+        els.forEach((el) => (el.style.minHeight = `${max}px`));
+      });
     };
     // Wait for entrance animations to settle before measuring
     const timer = setTimeout(equalize, 700);
