@@ -90,7 +90,7 @@ const CompanyBadge = ({ company, color }) => {
       }}
     >
       <span
-        className="w-5 h-5 rounded flex items-center justify-center text-[10px] font-bold"
+        className="w-5 h-5 rounded flex items-center justify-center text-[10px] font-bold shrink-0"
         style={{
           background: `${color}18`,
           color: color,
@@ -98,7 +98,8 @@ const CompanyBadge = ({ company, color }) => {
       >
         {initials}
       </span>
-      {company}
+      {/* Full name only on sm+ — avoids wrapping/overflow on mobile */}
+      <span className="hidden sm:inline">{company}</span>
     </div>
   );
 };
