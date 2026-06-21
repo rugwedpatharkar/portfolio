@@ -46,7 +46,7 @@ const TYPED = ({ text, speed = 18 }) => {
   return <span>{shown}</span>;
 };
 
-const stat = (label, value) => (
+const Stat = ({ label, value }) => (
   <div style={{ textAlign: "left" }}>
     <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 22, color: "white", fontWeight: 700, lineHeight: 1 }}>{value}</div>
     <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 9, color: "rgba(255,255,255,0.5)", textTransform: "uppercase", letterSpacing: "0.08em", marginTop: 4 }}>{label}</div>
@@ -118,7 +118,9 @@ const HeroContent = () => (
     </p>
     <SectionLede>{heroContent.tagline}</SectionLede>
     <div style={{ display: "flex", gap: 36, marginTop: 18 }}>
-      {heroContent.stats.map((s) => stat(s.label, `${s.value}${s.suffix}`))}
+      {heroContent.stats.map((s) => (
+        <Stat key={s.label} label={s.label} value={`${s.value}${s.suffix}`} />
+      ))}
     </div>
   </>
 );
@@ -159,7 +161,9 @@ const ExperienceContent = () => {
       <SectionTitle>{e.title} · {e.companyName}</SectionTitle>
       <p style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 12, color: "rgba(255,255,255,0.6)", margin: "0 0 14px 0" }}>{e.date}</p>
       <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(140px, 1fr))", gap: 14, margin: "0 0 18px 0" }}>
-        {e.metrics.map((m) => stat(m.label, m.value))}
+        {e.metrics.map((m) => (
+          <Stat key={m.label} label={m.label} value={m.value} />
+        ))}
       </div>
       <div>
         {e.categories[0].points.slice(0, 2).map((p, i) => (

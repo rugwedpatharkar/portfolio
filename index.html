@@ -60,16 +60,8 @@
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
 
-    <!-- Preload the AVIF hero bg — the rendered card behind hero text.
-         Saves ~200ms of LCP on cold loads. Browsers without AVIF ignore the
-         hint and fall back to herobg.png via the CSS image-set. -->
-    <link
-      rel="preload"
-      as="image"
-      type="image/avif"
-      href="/herobg-1600.avif"
-      fetchpriority="high"
-    />
+    <!-- Hero bg preload removed — Stellar 3D portfolio is the default surface;
+         /#legacy still works without the preload at slight LCP cost. -->
     <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&family=Sora:wght@500;600;700;800&display=swap" rel="stylesheet" />
 
     <title>Rugwed Patharkar | Portfolio</title>
