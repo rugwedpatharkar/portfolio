@@ -1,9 +1,17 @@
-import { useRef, useState, useCallback } from "react";
+import { useRef, useState, useCallback, useEffect } from "react";
 import BootSequence from "./BootSequence";
 import Scene from "./Scene";
 import Navigator from "./Navigator";
 import Minimap from "./Minimap";
+import ContentPanel from "./ContentPanel";
 import { DESTINATIONS, SCROLL_LENGTH_PER_DESTINATION } from "./config/destinations";
+
+/* Hash → destination utilities */
+const findDestinationIndexByHash = (hash) => {
+  const id = hash?.replace(/^#\/?stellar\/?/, "").replace(/^#/, "");
+  if (!id) return -1;
+  return DESTINATIONS.findIndex((d) => d.id === id || d.section === id);
+};
 
 /*
  * Root component of the Stellar 3D portfolio.
@@ -29,14 +37,46 @@ const StellarApp = () => {
 
   const handleDestinationChange = useCallback((dest) => {
     const idx = DESTINATIONS.findIndex((d) => d.id === dest.id);
-    if (idx !== -1) setActiveIdx(idx);
+    if (idx !== -1) {
+      setActiveIdx(idx);
+      /* Sync URL hash without re-scrolling */
+      const next = `#/stellar/${dest.id}`;
+      if (window.location.hash !== next) {
+        window.history.replaceState(null, "", next);
+      }
+    }
   }, []);
 
   const handleJump = useCallback((idx) => {
     const totalScroll = (DESTINATIONS.length * SCROLL_LENGTH_PER_DESTINATION) / 100;
     const targetY = (idx / (DESTINATIONS.length - 1)) * window.innerHeight * totalScroll;
-    window.scrollTo({ top: targetY, behavior: "smooth" });
+    if (window.__lenis) {
+      window.__lenis.scrollTo(targetY, { duration: 1.6 });
+    } else {
+      window.scrollTo({ top: targetY, behavior: "smooth" });
+    }
   }, []);
+
+  /* Read URL hash once boot is done, then jump there if matched */
+  useEffect(() => {
+    if (!bootDone) return;
+    const idx = findDestinationIndexByHash(window.location.hash);
+    if (idx > 0) {
+      /* Small delay so the boot transition finishes before camera flies */
+      const t = setTimeout(() => handleJump(idx), 350);
+      return () => clearTimeout(t);
+    }
+  }, [bootDone, handleJump]);
+
+  /* Browser back/forward should also navigate */
+  useEffect(() => {
+    const onHash = () => {
+      const idx = findDestinationIndexByHash(window.location.hash);
+      if (idx !== -1) handleJump(idx);
+    };
+    window.addEventListener("hashchange", onHash);
+    return () => window.removeEventListener("hashchange", onHash);
+  }, [handleJump]);
 
   return (
     <>
@@ -46,6 +86,7 @@ const StellarApp = () => {
         onDestinationChange={handleDestinationChange}
       />
       {bootDone && <Minimap activeIdx={activeIdx} onJump={handleJump} />}
+      {bootDone && <ContentPanel destination={DESTINATIONS[activeIdx]} />}
       {!bootDone && (
         <BootSequence sceneReady={sceneReady} onComplete={handleBootDone} />
       )}
