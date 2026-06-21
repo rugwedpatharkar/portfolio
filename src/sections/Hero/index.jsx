@@ -13,7 +13,7 @@ const STATUS_COLORS = {
 };
 import { heroPhotoSources, resume } from "../../assets";
 import ResponsiveImage from "../../components/ResponsiveImage";
-import ParticleBackground from "../../components/ParticleBackground";
+import AmbientDots from "../../components/AmbientDots";
 import MagneticButton from "../../components/MagneticButton";
 import TextScramble from "../../components/TextScramble";
 
@@ -63,64 +63,27 @@ const CountUp = ({ value, suffix = "" }) => {
   return <span ref={ref} className="text-white font-heading font-bold text-body-lg sm:text-heading-sm">{suffix}</span>;
 };
 
-/* ── Floating code card — auto-types a snippet, orbits around photo ── */
-const FloatingCode = () => {
-  const ref = useRef(null);
-  const started = useRef(false);
-  const timerRef = useRef(null);
-
-  useEffect(() => {
-    const el = ref.current;
-    if (!el) return;
-    let cancelled = false;
-
-    const obs = new IntersectionObserver(([e]) => {
-      if (e.isIntersecting && !started.current) {
-        started.current = true;
-        let charIdx = 0;
-        let tokenIdx = 0;
-        let currentSpan = null;
-
-        const type = () => {
-          if (cancelled || tokenIdx >= heroContent.codeSnippet.length) return;
-          const token = heroContent.codeSnippet[tokenIdx];
-          if (!currentSpan || currentSpan.dataset.ti !== String(tokenIdx)) {
-            currentSpan = document.createElement("span");
-            currentSpan.style.color = token.color;
-            currentSpan.dataset.ti = tokenIdx;
-            el.appendChild(currentSpan);
-          }
-          const ch = token.text[charIdx];
-          currentSpan.textContent += ch === "\n" ? "\n" : ch;
-          charIdx++;
-          if (charIdx >= token.text.length) {
-            tokenIdx++;
-            charIdx = 0;
-          }
-          timerRef.current = setTimeout(type, 40 + Math.random() * 30);
-        };
-        timerRef.current = setTimeout(type, 800);
-      }
-    }, { threshold: 0.3 });
-    obs.observe(el);
-    return () => {
-      cancelled = true;
-      clearTimeout(timerRef.current);
-      obs.disconnect();
-    };
-  }, []);
-
-  return (
-    <div className="glass-card-dark rounded-lg px-3 py-2 sm:px-4 sm:py-3 max-w-[200px] sm:max-w-[240px] pointer-events-none">
-      <div className="flex items-center gap-1.5 mb-1.5">
-        <span className="w-2 h-2 rounded-full bg-red-500/70" />
-        <span className="w-2 h-2 rounded-full bg-yellow-500/70" />
-        <span className="w-2 h-2 rounded-full bg-green-500/70" />
-      </div>
-      <pre ref={ref} className="font-mono text-micro sm:text-caption leading-relaxed whitespace-pre" />
+/*
+ * FloatingCode (auto-typewriter code snippet) removed — held a setTimeout
+ * chain typing ~100 chars at 40-70ms intervals. Visual was a decorative
+ * code window orbiting the photo. The orbital ring + photo are enough
+ * visual identity without the heavy typewriter loop. Replaced with a
+ * static code card below.
+ */
+const FloatingCode = () => (
+  <div className="glass-card-dark rounded-lg px-3 py-2 sm:px-4 sm:py-3 max-w-[200px] sm:max-w-[240px] pointer-events-none">
+    <div className="flex items-center gap-1.5 mb-1.5">
+      <span className="w-2 h-2 rounded-full bg-red-500/70" />
+      <span className="w-2 h-2 rounded-full bg-yellow-500/70" />
+      <span className="w-2 h-2 rounded-full bg-green-500/70" />
     </div>
-  );
-};
+    <pre className="font-mono text-micro sm:text-caption leading-relaxed whitespace-pre">
+      {heroContent.codeSnippet.map((t, i) => (
+        <span key={i} style={{ color: t.color }}>{t.text}</span>
+      ))}
+    </pre>
+  </div>
+);
 
 /* ── Time-based greeting ── */
 const getGreeting = () => {
@@ -148,48 +111,12 @@ const Hero = () => {
     [personalInfo.availabilityStatus]
   );
 
-  /* ── mouse parallax + spotlight — single RAF loop ── */
-  const rafIdRef = useRef(0);
-
-  useEffect(() => {
-    if (window.innerWidth < 768) return;
-
-    let latestX = 0;
-    let latestY = 0;
-
-    const el = parallaxRef.current;
-    const spot = spotlightRef.current;
-    if (!el) return;
-    const layers = el.querySelectorAll("[data-parallax]");
-    const speeds = Array.from(layers, (l) => parseFloat(l.dataset.parallax));
-
-    const onMouse = (e) => {
-      latestX = e.clientX;
-      latestY = e.clientY;
-      if (!rafIdRef.current) {
-        rafIdRef.current = requestAnimationFrame(() => {
-          const cx = window.innerWidth / 2;
-          const cy = window.innerHeight / 2;
-          const dx = (latestX - cx) / cx;
-          const dy = (latestY - cy) / cy;
-          for (let i = 0; i < layers.length; i++) {
-            layers[i].style.transform = `translate(${dx * speeds[i]}px, ${dy * speeds[i]}px)`;
-          }
-          // Spotlight follows cursor
-          if (spot) {
-            spot.style.background = `radial-gradient(600px circle at ${latestX}px ${latestY}px, rgba(145, 94, 255, 0.06), transparent 60%)`;
-          }
-          rafIdRef.current = 0;
-        });
-      }
-    };
-
-    window.addEventListener("mousemove", onMouse, { passive: true });
-    return () => {
-      window.removeEventListener("mousemove", onMouse);
-      cancelAnimationFrame(rafIdRef.current);
-    };
-  }, []);
+  /*
+   * Hero parallax mousemove removed — was firing a RAF callback on every
+   * mousemove and updating transforms on 4+ layers. Subtle effect, big
+   * cost. Hero now relies on the CSS orbital animations + ambient dots
+   * for depth (compositor thread only).
+   */
 
   /*
    * Pause hero CSS animations (orbit rings, floating photo, comets, tag orbits,
@@ -214,7 +141,7 @@ const Hero = () => {
 
   return (
     <section ref={heroRootRef} className="relative w-full mx-auto overflow-hidden hero-section" style={{ height: "100dvh", minHeight: "100svh" }}>
-      <ParticleBackground />
+      <AmbientDots />
       {/* Cursor spotlight overlay */}
       <div ref={spotlightRef} className="absolute inset-0 z-[1] pointer-events-none" />
 

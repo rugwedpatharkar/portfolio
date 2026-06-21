@@ -4,23 +4,18 @@ import Navbar from "./components/Navbar";
 import Footer from "./components/Footer";
 import { easterEggs } from "./content";
 import ErrorBoundary from "./components/ErrorBoundary";
-import ScrollProgressBar from "./components/ScrollProgressBar";
 import Preloader from "./components/Preloader";
 
 import SectionDivider from "./components/SectionDivider";
 import { ToastProvider, useToast } from "./components/Toast";
-import GradientMesh from "./components/GradientMesh";
-import ScrollDepthBlur from "./components/ScrollDepthBlur";
-import CodeRain from "./components/CodeRain";
 import DynamicTitle from "./components/DynamicTitle";
 import AnimatedFavicon from "./components/AnimatedFavicon";
 import ThemeSwitcher from "./components/ThemeSwitcher";
 import Hero from "./sections/Hero";
 
-// StarsCanvas is purely decorative + pulls in the 945 KB three.js chunk.
-// Lazy-load it so three.js stays out of the critical-path bundle and only
-// downloads after the page is interactive.
-const StarsCanvas = lazy(() => import("./components/canvas/Stars"));
+// Pure-CSS background effects — replaced canvas/three.js implementations
+// for buttery scroll. All animation runs on the compositor thread.
+import StarsBackground from "./components/StarsBackground";
 
 // Lazy-loaded below-fold sections
 const About = lazy(() => import("./sections/About"));
@@ -37,8 +32,6 @@ const Contact = lazy(() => import("./sections/Contact"));
 const Design = lazy(() => import("./sections/Design"));
 
 // Lazy-loaded interactive overlays (not needed at first paint)
-const ContextualCursor = lazy(() => import("./components/ContextualCursor"));
-const CursorTrail = lazy(() => import("./components/CursorTrail"));
 const BackToTop = lazy(() => import("./components/BackToTop"));
 const EasterEgg = lazy(() => import("./components/EasterEgg"));
 const FloatingActionMenu = lazy(() => import("./components/FloatingActionMenu"));
@@ -99,27 +92,10 @@ const App = () => {
     );
   }, []);
 
-  // Add custom-cursor class to body for hiding default cursor on devices with a precise pointer.
-  // matchMedia('(hover: hover) and (pointer: fine)') is the correct semantic check — it asks
-  // "does the user have a real mouse" — and fires once on change rather than on every resize.
-  useEffect(() => {
-    const mq = window.matchMedia("(hover: hover) and (pointer: fine)");
-    const apply = (matches) => {
-      document.body.classList.toggle("custom-cursor", matches);
-    };
-    apply(mq.matches);
-    const handleChange = (e) => apply(e.matches);
-    mq.addEventListener("change", handleChange);
-    return () => {
-      document.body.classList.remove("custom-cursor");
-      mq.removeEventListener("change", handleChange);
-    };
-  }, []);
-
-  // Theme-aware ambient background: GradientMesh for the default "space" theme,
-  // CodeRain for "cyber" / "matrix". Only one runs at a time — they paint the
-  // same surface and shouldn't compete for the frame budget.
-  const [theme, setTheme] = useState(() => {
+  // Theme state — still synced with localStorage so the theme switcher works.
+  // The ambient background no longer changes (the CSS gradient mesh is themeable
+  // via the existing data-theme color overrides).
+  const [, setTheme] = useState(() => {
     if (typeof window === "undefined") return "space";
     return localStorage.getItem("portfolio_theme") || "space";
   });
@@ -127,22 +103,6 @@ const App = () => {
     const handler = (e) => setTheme(e.detail || "space");
     window.addEventListener("portfolio-theme-change", handler);
     return () => window.removeEventListener("portfolio-theme-change", handler);
-  }, []);
-  const useCodeRain = theme === "cyber" || theme === "matrix";
-
-  // Defer StarsCanvas (945 KB three.js chunk) until after first paint.
-  // Without this, even though it's a lazy import, the Suspense renders
-  // immediately on mount and Vite preloads the chunk during initial load.
-  // Waiting for requestIdleCallback ensures three.js downloads after
-  // the page is interactive, not during LCP.
-  const [showStars, setShowStars] = useState(false);
-  useEffect(() => {
-    const ric = window.requestIdleCallback || ((cb) => setTimeout(cb, 1500));
-    const id = ric(() => setShowStars(true));
-    return () => {
-      if (window.cancelIdleCallback) window.cancelIdleCallback(id);
-      else clearTimeout(id);
-    };
   }, []);
 
   // Hash-route: '#design' opens the internal design-system page in place of the
@@ -177,19 +137,9 @@ const App = () => {
         <Preloader />
         <DynamicTitle />
         <AnimatedFavicon />
-        {showStars && (
-          <Suspense fallback={null}>
-            <StarsCanvas fixed />
-          </Suspense>
-        )}
-        {useCodeRain ? <CodeRain /> : <GradientMesh />}
-        <ScrollDepthBlur />
-        <Suspense fallback={null}>
-          <ContextualCursor />
-          <CursorTrail />
-          <EasterEgg />
-        </Suspense>
-        <ScrollProgressBar />
+        {/* Pure-CSS ambient background — no canvas, no RAF, no main-thread cost */}
+        <StarsBackground />
+        <div className="ambient-mesh" aria-hidden="true" />
         <ThemeSwitcher />
         <a
           href="#about"

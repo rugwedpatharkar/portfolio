@@ -22,15 +22,17 @@ const ProgressRing = ({ percent, color, size = 56, strokeWidth = 3, visible }) =
       className="w-full h-full transform -rotate-90"
       aria-hidden="true"
     >
-      {/* Track — visible enough to make the ring read as a complete circle
-          with progress, rather than a broken open arc */}
+      {/* Track — drawn in the SAME color as the progress arc at 0.22 opacity.
+          The ring now reads as "a colored circle with bright progress" rather
+          than a broken white ring with a colored bit. Convention used by iOS
+          activity rings, Stripe dashboard, Linear, etc. */}
       <circle
         cx={size / 2}
         cy={size / 2}
         r={r}
         fill="none"
-        stroke="white"
-        strokeOpacity={0.18}
+        stroke={color}
+        strokeOpacity={0.22}
         strokeWidth={strokeWidth}
       />
       {/* Fill */}
