@@ -2,25 +2,30 @@
 import { useRef } from "react";
 import { useFrame } from "@react-three/fiber";
 import * as THREE from "three";
+import PlanetMaterial from "./PlanetMaterial";
 
 /*
- * Generic planet primitive. Each destination renders one of these with its
- * own color + radius + optional rings + optional axial tilt + optional moons.
+ * Planet primitive. Wraps PlanetMaterial (procedural shader) with an
+ * optional ring system, axial tilt, and orbital moons.
  *
- * The surface uses meshStandardMaterial so it picks up light from the sun.
- * A subtle emissive tint at the chosen color so the planet reads on the
- * dark side too — visitors should always be able to see where they're
- * navigating to.
+ * Each planet rotates on its own axis. Moons orbit on a slightly inclined
+ * plane so they catch the camera at different heights as the visitor
+ * scrolls past.
  */
 
 const Planet = ({
   position = [0, 0, 0],
   radius = 1,
-  color = "#915eff",
+  type = "rocky",
+  color,
+  colorB,
   rotationSpeed = 0.1,
   rings = false,
+  ringColor,
   axialTilt = 0,
   moons = 0,
+  moonColor,
+  moonScale = 0.12,
 }) => {
   const groupRef = useRef();
   const planetRef = useRef();
@@ -33,18 +38,20 @@ const Planet = ({
         const t = m.userData.t + delta * (0.25 + (i % 3) * 0.05);
         m.userData.t = t;
         const orbitR = m.userData.orbit;
-        m.position.set(Math.cos(t) * orbitR, Math.sin(t * 0.7) * orbitR * 0.18, Math.sin(t) * orbitR);
+        m.position.set(
+          Math.cos(t) * orbitR,
+          Math.sin(t * 0.7) * orbitR * 0.22,
+          Math.sin(t) * orbitR
+        );
       }
     });
   });
 
-  const baseColor = new THREE.Color(color);
-  const emissive = baseColor.clone().multiplyScalar(0.45);
-
   const moonNodes = [];
+  const mColor = moonColor || color || "#cccccc";
   for (let i = 0; i < moons; i++) {
-    const orbit = radius * 1.8 + i * 0.18;
-    const initial = (i / moons) * Math.PI * 2;
+    const orbit = radius * 1.85 + i * 0.16 * radius;
+    const initial = (i / Math.max(1, moons)) * Math.PI * 2;
     moonNodes.push(
       <mesh
         key={i}
@@ -56,42 +63,63 @@ const Planet = ({
         }}
         position={[Math.cos(initial) * orbit, 0, Math.sin(initial) * orbit]}
       >
-        <sphereGeometry args={[radius * 0.12, 16, 16]} />
+        <sphereGeometry args={[radius * moonScale, 16, 16]} />
         <meshStandardMaterial
-          color={color}
-          emissive={emissive}
-          emissiveIntensity={0.6}
-          roughness={0.4}
+          color={mColor}
+          emissive={new THREE.Color(mColor).multiplyScalar(0.55)}
+          emissiveIntensity={0.7}
+          roughness={0.45}
           metalness={0.2}
         />
       </mesh>
     );
   }
 
+  const rColor = ringColor || color || "#f8c555";
+
   return (
     <group position={position} ref={groupRef} rotation={[0, 0, axialTilt]}>
       <mesh ref={planetRef}>
-        <sphereGeometry args={[radius, 48, 48]} />
-        <meshStandardMaterial
-          color={color}
-          emissive={emissive}
-          emissiveIntensity={0.18}
-          roughness={0.78}
-          metalness={0.12}
-        />
+        <sphereGeometry args={[radius, 64, 64]} />
+        <PlanetMaterial type={type} color={color} colorB={colorB} />
       </mesh>
 
       {rings && (
-        <mesh rotation={[Math.PI / 2.1, 0, 0]}>
-          <ringGeometry args={[radius * 1.4, radius * 2.05, 64]} />
-          <meshBasicMaterial
-            color={color}
-            transparent
-            opacity={0.42}
-            side={THREE.DoubleSide}
-            toneMapped={false}
-          />
-        </mesh>
+        <group rotation={[Math.PI / 2.1, 0, 0]}>
+          {/* Inner faint ring */}
+          <mesh>
+            <ringGeometry args={[radius * 1.32, radius * 1.55, 64]} />
+            <meshBasicMaterial
+              color={rColor}
+              transparent
+              opacity={0.18}
+              side={THREE.DoubleSide}
+              toneMapped={false}
+            />
+          </mesh>
+          {/* Main bright ring */}
+          <mesh>
+            <ringGeometry args={[radius * 1.58, radius * 1.92, 96]} />
+            <meshBasicMaterial
+              color={rColor}
+              transparent
+              opacity={0.55}
+              side={THREE.DoubleSide}
+              toneMapped={false}
+            />
+          </mesh>
+          {/* Outer thin ring */}
+          <mesh>
+            <ringGeometry args={[radius * 1.96, radius * 2.15, 96]} />
+            <meshBasicMaterial
+              color={rColor}
+              transparent
+              opacity={0.28}
+              side={THREE.DoubleSide}
+              toneMapped={false}
+            />
+          </mesh>
+        </group>
       )}
 
       {moonNodes}

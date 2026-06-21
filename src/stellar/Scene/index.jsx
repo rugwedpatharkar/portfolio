@@ -57,10 +57,15 @@ const Scene = ({ scrollT, onReady }) => {
                 key={d.id}
                 position={d.position}
                 radius={d.radius}
+                type={d.type || "rocky"}
                 color={d.color}
+                colorB={d.colorB}
                 rings={d.rings}
+                ringColor={d.ringColor}
                 axialTilt={d.axialTilt || 0}
                 moons={d.moons || 0}
+                moonColor={d.moonColor}
+                moonScale={d.moonScale || 0.12}
                 rotationSpeed={0.07 + (d.radius || 0) * 0.04}
               />
             );
