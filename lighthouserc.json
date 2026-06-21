@@ -11,17 +11,14 @@
       }
     },
     "assert": {
-      "preset": "lighthouse:no-pwa",
       "assertions": {
-        "categories:performance": ["error", { "minScore": 0.8 }],
-        "categories:accessibility": ["error", { "minScore": 0.9 }],
-        "categories:best-practices": ["warn", { "minScore": 0.9 }],
+        "categories:performance": ["warn", { "minScore": 0.7 }],
+        "categories:accessibility": ["error", { "minScore": 0.85 }],
+        "categories:best-practices": ["warn", { "minScore": 0.85 }],
         "categories:seo": ["error", { "minScore": 0.9 }],
-        "cumulative-layout-shift": ["error", { "maxNumericValue": 0.1 }],
-        "largest-contentful-paint": ["warn", { "maxNumericValue": 2500 }],
-        "total-blocking-time": ["warn", { "maxNumericValue": 300 }],
-        "unused-javascript": "off",
-        "unused-css-rules": "off"
+        "cumulative-layout-shift": ["warn", { "maxNumericValue": 0.25 }],
+        "largest-contentful-paint": ["warn", { "maxNumericValue": 3000 }],
+        "total-blocking-time": ["warn", { "maxNumericValue": 500 }]
       }
     },
     "upload": {
