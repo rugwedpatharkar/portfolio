@@ -4,6 +4,8 @@ import Scene from "./Scene";
 import Navigator from "./Navigator";
 import Minimap from "./Minimap";
 import ContentPanel from "./ContentPanel";
+import EasterEgg from "./EasterEgg";
+import { easterEggs } from "../content";
 import { DESTINATIONS, SCROLL_LENGTH_PER_DESTINATION } from "./config/destinations";
 
 /* Hash → destination utilities */
@@ -31,9 +33,20 @@ const StellarApp = () => {
   const [sceneReady, setSceneReady] = useState(false);
   const [bootDone, setBootDone] = useState(false);
   const [activeIdx, setActiveIdx] = useState(0);
+  const consoleLoggedRef = useRef(false);
 
   const handleSceneReady = useCallback(() => setSceneReady(true), []);
   const handleBootDone = useCallback(() => setBootDone(true), []);
+
+  /* Console easter egg for devs who open DevTools — once per session */
+  useEffect(() => {
+    if (consoleLoggedRef.current) return;
+    consoleLoggedRef.current = true;
+    console.log("%c\n" + easterEggs.ascii + "\n", "color: #ffb86b; font-size: 10px; font-family: monospace;");
+    console.log(`%c${easterEggs.greeting}`, "color: #00cea8; font-size: 16px; font-weight: bold;");
+    console.log(`%c${easterEggs.repoLink}`, "color: #aaa6c3; font-size: 12px;");
+    console.log("%c🛸  Try the Konami code. Click the sun. Drag to explore.", "color: #bf61ff; font-size: 12px;");
+  }, []);
 
   const handleDestinationChange = useCallback((dest) => {
     const idx = DESTINATIONS.findIndex((d) => d.id === dest.id);
@@ -80,13 +93,14 @@ const StellarApp = () => {
 
   return (
     <>
-      <Scene scrollT={scrollTRef} onReady={handleSceneReady} />
+      <Scene scrollT={scrollTRef} activeIdx={activeIdx} onJump={handleJump} onReady={handleSceneReady} />
       <Navigator
         scrollTRef={scrollTRef}
         onDestinationChange={handleDestinationChange}
       />
       {bootDone && <Minimap activeIdx={activeIdx} onJump={handleJump} />}
       {bootDone && <ContentPanel destination={DESTINATIONS[activeIdx]} />}
+      {bootDone && <EasterEgg />}
       {!bootDone && (
         <BootSequence sceneReady={sceneReady} onComplete={handleBootDone} />
       )}

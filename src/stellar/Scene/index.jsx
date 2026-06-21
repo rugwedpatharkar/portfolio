@@ -10,6 +10,7 @@ import Nebulae from "./Nebulae";
 import AlienShips from "./AlienShips";
 import Comets from "./Comets";
 import VisibilityController from "./VisibilityController";
+import PlanetLabels from "./PlanetLabels";
 import useViewport from "../useViewport";
 import { DESTINATIONS } from "../config/destinations";
 
@@ -25,9 +26,15 @@ import { DESTINATIONS } from "../config/destinations";
  * tune that based on viewport bucket.
  */
 
-const Scene = ({ scrollT, onReady }) => {
+const Scene = ({ scrollT, activeIdx, onJump, onReady }) => {
   const readyRef = useRef(false);
   const { isMobile, reducedMotion } = useViewport();
+
+  const setCursor = (val) => {
+    if (typeof document !== "undefined") document.body.style.cursor = val;
+  };
+  const handleHoverIn = () => setCursor("pointer");
+  const handleHoverOut = () => setCursor("");
 
   useEffect(() => {
     if (!readyRef.current && onReady) {
@@ -62,9 +69,27 @@ const Scene = ({ scrollT, onReady }) => {
         {showAliens && <AlienShips />}
         {showComets && <Comets />}
 
-        {DESTINATIONS.map((d) => {
+        {DESTINATIONS.map((d, idx) => {
+          const handleClick = (e) => {
+            e.stopPropagation();
+            onJump?.(idx);
+          };
           if (d.kind === "star") {
-            return <Sun key={d.id} position={d.position} radius={d.radius} />;
+            const handleSunClick = (e) => {
+              e.stopPropagation();
+              window.dispatchEvent(new CustomEvent("stellar:salute"));
+              onJump?.(idx);
+            };
+            return (
+              <Sun
+                key={d.id}
+                position={d.position}
+                radius={d.radius}
+                onClick={handleSunClick}
+                onPointerOver={handleHoverIn}
+                onPointerOut={handleHoverOut}
+              />
+            );
           }
           if (d.kind === "planet") {
             return (
@@ -82,6 +107,9 @@ const Scene = ({ scrollT, onReady }) => {
                 moonColor={d.moonColor}
                 moonScale={d.moonScale || 0.12}
                 rotationSpeed={0.07 + (d.radius || 0) * 0.04}
+                onClick={handleClick}
+                onPointerOver={handleHoverIn}
+                onPointerOut={handleHoverOut}
               />
             );
           }
@@ -108,12 +136,16 @@ const Scene = ({ scrollT, onReady }) => {
                 type="rocky"
                 color={d.color}
                 rotationSpeed={0.3}
+                onClick={handleClick}
+                onPointerOver={handleHoverIn}
+                onPointerOut={handleHoverOut}
               />
             );
           }
           return null;
         })}
 
+        <PlanetLabels activeIdx={activeIdx} />
         <CameraRig scrollT={scrollT} controlsEnabled={false} />
       </Suspense>
     </Canvas>

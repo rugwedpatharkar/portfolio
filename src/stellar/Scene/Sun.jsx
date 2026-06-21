@@ -12,7 +12,7 @@ import * as THREE from "three";
  * The corona is a flat sprite, not volumetric.
  */
 
-const Sun = ({ position = [0, 0, 0], radius = 2.2 }) => {
+const Sun = ({ position = [0, 0, 0], radius = 2.2, onClick, onPointerOver, onPointerOut }) => {
   const meshRef = useRef();
 
   useFrame((_, delta) => {
@@ -21,7 +21,12 @@ const Sun = ({ position = [0, 0, 0], radius = 2.2 }) => {
 
   return (
     <group position={position}>
-      <mesh ref={meshRef}>
+      <mesh
+        ref={meshRef}
+        onClick={onClick}
+        onPointerOver={onPointerOver}
+        onPointerOut={onPointerOut}
+      >
         <sphereGeometry args={[radius, 48, 48]} />
         <meshBasicMaterial color="#ffb86b" toneMapped={false} />
       </mesh>

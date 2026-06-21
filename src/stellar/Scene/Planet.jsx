@@ -26,6 +26,9 @@ const Planet = ({
   moons = 0,
   moonColor,
   moonScale = 0.12,
+  onClick,
+  onPointerOver,
+  onPointerOut,
 }) => {
   const groupRef = useRef();
   const planetRef = useRef();
@@ -79,7 +82,12 @@ const Planet = ({
 
   return (
     <group position={position} ref={groupRef} rotation={[0, 0, axialTilt]}>
-      <mesh ref={planetRef}>
+      <mesh
+        ref={planetRef}
+        onClick={onClick}
+        onPointerOver={onPointerOver}
+        onPointerOut={onPointerOut}
+      >
         <sphereGeometry args={[radius, 64, 64]} />
         <PlanetMaterial type={type} color={color} colorB={colorB} />
       </mesh>
