@@ -31,6 +31,9 @@ const Testimonials = lazy(() => import("./sections/Testimonials"));
 const Contact = lazy(() => import("./sections/Contact"));
 const Design = lazy(() => import("./sections/Design"));
 
+// Stellar 3D portfolio — preview at /#stellar during build. Phase 1+ replaces App entirely once approved.
+const StellarApp = lazy(() => import("./stellar/StellarApp"));
+
 // Lazy-loaded interactive overlays (not needed at first paint)
 const BackToTop = lazy(() => import("./components/BackToTop"));
 const EasterEgg = lazy(() => import("./components/EasterEgg"));
@@ -105,14 +108,20 @@ const App = () => {
     return () => window.removeEventListener("portfolio-theme-change", handler);
   }, []);
 
-  // Hash-route: '#design' opens the internal design-system page in place of the
-  // portfolio. Keeps everything in one bundle, no router dependency. Lazy-loaded
-  // so the design module is zero cost for normal visitors.
-  const [route, setRoute] = useState(() =>
-    typeof window !== "undefined" && window.location.hash === "#design" ? "design" : "home"
-  );
+  // Hash-route: '#design' opens the design-system page, '#stellar' opens the
+  // new 3D solar system portfolio (in active development). Default = current site.
+  const [route, setRoute] = useState(() => {
+    if (typeof window === "undefined") return "home";
+    if (window.location.hash === "#design") return "design";
+    if (window.location.hash === "#stellar") return "stellar";
+    return "home";
+  });
   useEffect(() => {
-    const onHash = () => setRoute(window.location.hash === "#design" ? "design" : "home");
+    const onHash = () => {
+      if (window.location.hash === "#design") setRoute("design");
+      else if (window.location.hash === "#stellar") setRoute("stellar");
+      else setRoute("home");
+    };
     window.addEventListener("hashchange", onHash);
     return () => window.removeEventListener("hashchange", onHash);
   }, []);
@@ -125,6 +134,13 @@ const App = () => {
           </Suspense>
         </main>
       </ToastProvider>
+    );
+  }
+  if (route === "stellar") {
+    return (
+      <Suspense fallback={null}>
+        <StellarApp />
+      </Suspense>
     );
   }
 
