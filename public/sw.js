@@ -1,38 +1,102 @@
-const CACHE_NAME = 'portfolio-v1';
-const ASSETS_TO_CACHE = [
+/* Portfolio service worker.
+ *
+ * Strategy:
+ *   - Precache the app shell (HTML + logo + manifest) so the page renders
+ *     instantly on repeat visits, even offline.
+ *   - Hashed Vite build assets (/assets/*) use cache-first — they're
+ *     content-addressed so they never go stale.
+ *   - Same-origin static images (.png/.jpg/.webp/.svg) use stale-while-revalidate
+ *     — repeat visits paint immediately, fresh copy is fetched in the background.
+ *   - HTML navigations use network-first with a cached fallback, so a deploy
+ *     ships its new HTML to anyone online but offline visitors still see the app.
+ *   - Cross-origin (fonts.googleapis.com, EmailJS) is left alone.
+ */
+
+const CACHE_VERSION = 'v2';
+const SHELL_CACHE = `portfolio-shell-${CACHE_VERSION}`;
+const ASSET_CACHE = `portfolio-assets-${CACHE_VERSION}`;
+const IMAGE_CACHE = `portfolio-images-${CACHE_VERSION}`;
+
+const APP_SHELL = [
   '/',
   '/index.html',
   '/logo.png',
+  '/manifest.json',
 ];
 
 self.addEventListener('install', (event) => {
   event.waitUntil(
-    caches.open(CACHE_NAME).then((cache) => cache.addAll(ASSETS_TO_CACHE))
+    caches.open(SHELL_CACHE).then((cache) => cache.addAll(APP_SHELL))
   );
   self.skipWaiting();
 });
 
 self.addEventListener('activate', (event) => {
+  const validCaches = new Set([SHELL_CACHE, ASSET_CACHE, IMAGE_CACHE]);
   event.waitUntil(
     caches.keys().then((keys) =>
-      Promise.all(keys.filter((k) => k !== CACHE_NAME).map((k) => caches.delete(k)))
-    )
+      Promise.all(keys.filter((k) => !validCaches.has(k)).map((k) => caches.delete(k)))
+    ).then(() => self.clients.claim())
   );
-  self.clients.claim();
 });
 
+const isHashedAsset = (url) => url.pathname.startsWith('/assets/');
+const isImage = (url) => /\.(png|jpe?g|webp|avif|svg|ico)$/i.test(url.pathname);
+const isNavigation = (request) => request.mode === 'navigate';
+
+const cacheFirst = async (request, cacheName) => {
+  const cache = await caches.open(cacheName);
+  const cached = await cache.match(request);
+  if (cached) return cached;
+  const fresh = await fetch(request);
+  if (fresh.ok) cache.put(request, fresh.clone());
+  return fresh;
+};
+
+const staleWhileRevalidate = async (request, cacheName) => {
+  const cache = await caches.open(cacheName);
+  const cached = await cache.match(request);
+  const network = fetch(request).then((res) => {
+    if (res.ok) cache.put(request, res.clone());
+    return res;
+  }).catch(() => null);
+  return cached || network || fetch(request);
+};
+
+const networkFirstNavigation = async (request) => {
+  try {
+    const fresh = await fetch(request);
+    const cache = await caches.open(SHELL_CACHE);
+    if (fresh.ok) cache.put('/index.html', fresh.clone());
+    return fresh;
+  } catch {
+    const cache = await caches.open(SHELL_CACHE);
+    return (await cache.match(request)) || (await cache.match('/index.html'));
+  }
+};
+
 self.addEventListener('fetch', (event) => {
-  if (event.request.method !== 'GET') return;
-  // Skip non-http(s) schemes (chrome-extension, moz-extension, etc.)
-  const url = new URL(event.request.url);
+  const { request } = event;
+  if (request.method !== 'GET') return;
+
+  const url = new URL(request.url);
   if (!url.protocol.startsWith('http')) return;
-  event.respondWith(
-    fetch(event.request)
-      .then((response) => {
-        const clone = response.clone();
-        caches.open(CACHE_NAME).then((cache) => cache.put(event.request, clone));
-        return response;
-      })
-      .catch(() => caches.match(event.request))
-  );
+  if (url.origin !== self.location.origin) return;
+
+  if (isNavigation(request)) {
+    event.respondWith(networkFirstNavigation(request));
+    return;
+  }
+  if (isHashedAsset(url)) {
+    event.respondWith(cacheFirst(request, ASSET_CACHE));
+    return;
+  }
+  if (isImage(url)) {
+    event.respondWith(staleWhileRevalidate(request, IMAGE_CACHE));
+    return;
+  }
+});
+
+self.addEventListener('message', (event) => {
+  if (event.data === 'SKIP_WAITING') self.skipWaiting();
 });

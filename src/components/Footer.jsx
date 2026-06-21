@@ -4,6 +4,7 @@ import { ImLinkedin } from "react-icons/im";
 import { navLinks, personalInfo, builtWith, footerContent } from "../content";
 import VisitorCounter from "./VisitorCounter";
 import LastCommit from "./LastCommit";
+import GitHubStatsLive from "./GitHubStatsLive";
 
 
 const Footer = () => {
@@ -39,7 +40,7 @@ const Footer = () => {
       {/* Scroll-to-top glowing line animation */}
       <div className="footer-glow-line absolute top-0 left-0 w-full h-px pointer-events-none" />
 
-      <div className="max-w-7xl 3xl:max-w-[2000px] mx-auto px-4 sm:px-6 pt-10 sm:pt-14 pb-6 sm:pb-8">
+      <div className="max-w-7xl 3xl:max-w-screen-3xl 4xl:max-w-screen-4xl 5xl:max-w-screen-5xl mx-auto px-4 sm:px-6 4xl:px-10 5xl:px-16 pt-10 sm:pt-14 pb-6 sm:pb-8">
         {/* Top section: 3 columns */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8 sm:gap-10">
           {/* Column 1: Brand */}
@@ -73,13 +74,17 @@ const Footer = () => {
             </div>
             {/* Last commit */}
             <LastCommit />
+            {/* Live GitHub stats — fetched from public API, cached 30 min */}
+            <div className="mt-5 w-full">
+              <GitHubStatsLive />
+            </div>
           </div>
 
           {/* Column 2: Quick Links */}
           <div className="flex flex-col items-center sm:items-start text-center sm:text-left">
-            <h4 className="text-white/45 text-caption font-mono uppercase tracking-wider mb-3">
+            <h3 className="text-white/45 text-caption font-mono uppercase tracking-wider mb-3">
               {footerContent.navigateHeader}
-            </h4>
+            </h3>
             <ul className="grid grid-cols-2 gap-x-4 gap-y-1.5 w-full">
               {navLinks.map((link) => (
                 <li key={link.id} className="flex justify-center sm:justify-start">
@@ -99,9 +104,9 @@ const Footer = () => {
 
           {/* Column 3: Built With */}
           <div className="flex flex-col items-center sm:items-start text-center sm:text-left">
-            <h4 className="text-white/45 text-caption font-mono uppercase tracking-wider mb-3">
+            <h3 className="text-white/45 text-caption font-mono uppercase tracking-wider mb-3">
               {footerContent.builtWithHeader}
-            </h4>
+            </h3>
             <div className="flex flex-wrap gap-2 justify-center sm:justify-start" ref={pillsRef}>
               {builtWith.map((tech, index) => (
                 <span

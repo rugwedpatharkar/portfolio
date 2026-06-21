@@ -1,5 +1,5 @@
 import { useState, useRef, useEffect } from "react";
-import { motion, AnimatePresence } from "framer-motion";
+import { motion, AnimatePresence } from "motion/react";
 import { personalInfo } from "../content";
 import { AiOutlineGithub, AiOutlineMail } from "react-icons/ai";
 import { ImLinkedin } from "react-icons/im";
@@ -49,6 +49,7 @@ const FloatingActionMenu = () => {
     window.dispatchEvent(new CustomEvent("achievement", { detail: "musician" }));
   };
 
+  // Opens the unified command palette in command-mode (Ctrl+` shortcut)
   const openTerminal = () => {
     window.dispatchEvent(new KeyboardEvent("keydown", { key: "`", ctrlKey: true }));
     setOpen(false);

@@ -1,5 +1,5 @@
 import { useRef } from "react";
-import { motion, useScroll, useTransform } from "framer-motion";
+import { motion, useScroll, useTransform } from "motion/react";
 import { styles } from "../styles";
 import { staggerContainer } from "../utils/motion";
 
@@ -52,7 +52,7 @@ const SectionWrapper = (Component, idName, label) =>
           whileInView="show"
           viewport={{ once: true, amount: 0.15 }}
           style={{ y, opacity: contentOpacity }}
-          className={`${styles.padding} max-w-7xl 3xl:max-w-[2000px] mx-auto relative z-[1]`}
+          className={`${styles.padding} max-w-7xl 3xl:max-w-screen-3xl 4xl:max-w-screen-4xl 5xl:max-w-screen-5xl mx-auto relative z-[1]`}
         >
           <Component />
         </motion.div>

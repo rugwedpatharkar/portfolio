@@ -1,6 +1,6 @@
 /* eslint-disable react-refresh/only-export-components */
 import { useState, useRef, useEffect } from "react";
-import { motion, AnimatePresence } from "framer-motion";
+import { motion, AnimatePresence } from "motion/react";
 import emailjs from "@emailjs/browser";
 import { styles } from "../../styles";
 import { SectionWrapper } from "../../hoc";

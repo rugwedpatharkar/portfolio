@@ -1,6 +1,6 @@
 /* eslint-disable react/prop-types */
 import { useRef, useCallback, useEffect, forwardRef } from "react";
-import { motion } from "framer-motion";
+import { motion } from "motion/react";
 import { styles } from "../../styles";
 import { SectionWrapper } from "../../hoc";
 import { achievements, sectionMeta } from "../../content";

@@ -51,6 +51,7 @@ const Stars = ({ paused = false }) => {
 
 const StarsCanvas = ({ fixed = false }) => {
   const [isVisible, setIsVisible] = useState(fixed ? true : false);
+  const [tabHidden, setTabHidden] = useState(false);
   const containerRef = useRef(null);
 
   useEffect(() => {
@@ -69,6 +70,14 @@ const StarsCanvas = ({ fixed = false }) => {
     return () => observer.disconnect();
   }, [fixed]);
 
+  // Pause the star rotation when the tab is hidden — saves CPU/battery on
+  // backgrounded tabs without tearing down the WebGL context.
+  useEffect(() => {
+    const handleVisibility = () => setTabHidden(document.hidden);
+    document.addEventListener("visibilitychange", handleVisibility);
+    return () => document.removeEventListener("visibilitychange", handleVisibility);
+  }, []);
+
   return (
     <div
       ref={containerRef}
@@ -76,10 +85,15 @@ const StarsCanvas = ({ fixed = false }) => {
       aria-hidden="true"
     >
       {/* events={false} — purely decorative canvas needs no pointer event handling,
-          which also eliminates the "non-static position" scroll-offset warning */}
-      <Canvas camera={{ position: [0, 0, 1] }} events={false}>
+          which also eliminates the "non-static position" scroll-offset warning.
+          frameloop="demand" when paused stops the render loop entirely. */}
+      <Canvas
+        camera={{ position: [0, 0, 1] }}
+        events={false}
+        frameloop={!isVisible || tabHidden ? "never" : "always"}
+      >
         <Suspense fallback={null}>
-          <Stars paused={!isVisible} />
+          <Stars paused={!isVisible || tabHidden} />
         </Suspense>
       </Canvas>
     </div>

@@ -9,8 +9,8 @@ const CursorTrail = () => {
   useEffect(() => {
     // Respect reduced motion preference
     if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
-    // Desktop only
-    if (window.innerWidth < 768) return;
+    // Precision pointer only — touchscreens have no cursor to trail behind.
+    if (!window.matchMedia("(hover: hover) and (pointer: fine)").matches) return;
 
     const container = containerRef.current;
     if (!container) return;
@@ -131,19 +131,16 @@ const CursorTrail = () => {
     };
     document.addEventListener("visibilitychange", handleVisibility);
 
-    // Handle resize — hide on mobile
-    const handleResize = () => {
-      if (window.innerWidth < 768) {
-        container.style.display = "none";
-      } else {
-        container.style.display = "";
-      }
+    // Pointer capability changes (e.g. external mouse plugged into iPad) — hide trail
+    const pointerMq = window.matchMedia("(hover: hover) and (pointer: fine)");
+    const handlePointerChange = (e) => {
+      container.style.display = e.matches ? "" : "none";
     };
-    window.addEventListener("resize", handleResize);
+    pointerMq.addEventListener("change", handlePointerChange);
 
     return () => {
       window.removeEventListener("mousemove", handleMove);
-      window.removeEventListener("resize", handleResize);
+      pointerMq.removeEventListener("change", handlePointerChange);
       document.removeEventListener("visibilitychange", handleVisibility);
       if (rafId) cancelAnimationFrame(rafId);
       observer.disconnect();

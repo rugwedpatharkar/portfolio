@@ -1,6 +1,6 @@
 /* eslint-disable react-refresh/only-export-components */
 import { useState } from "react";
-import { motion } from "framer-motion";
+import { motion } from "motion/react";
 import { fadeIn, textVariant } from "../../utils/motion";
 import { styles } from "../../styles";
 import { SectionWrapper } from "../../hoc";

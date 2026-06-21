@@ -4,26 +4,29 @@
     <meta charset="UTF-8" />
     <link rel="icon" type="image/png" sizes="32x32" href="/logo.png" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <meta name="description" content="Rugwed Patharkar — Software Engineer specializing in Python, React, and AI. Building scalable backend systems and modern web applications." />
-    <meta name="keywords" content="Rugwed Patharkar, Software Engineer, Portfolio, Python, FastAPI, gRPC, React, GCP, Docker, Kubernetes, LangChain, AI, Django, Spring Boot" />
+    <meta name="description" content="Rugwed Patharkar — Backend & Agentic AI engineer. Architected a 31-service Python/FastAPI/gRPC platform on GKE with 96% p95 latency cut, multi-agent LLM systems with MCP & hybrid RAG (Qdrant), and integrations with 7+ PMS/door-lock vendors." />
+    <meta name="keywords" content="Rugwed Patharkar, Backend Engineer, Agentic AI, Python, FastAPI, gRPC, LangGraph, MCP, Model Context Protocol, RAG, Qdrant, ChromaDB, OpenAI, Gemini, Claude, GKE, Kubernetes, Distributed Systems, Multi-tenant, Hospitality SaaS, Software Engineer Portfolio" />
     <meta name="author" content="Rugwed Patharkar" />
     <meta name="theme-color" content="#050816" />
     <link rel="canonical" href="https://rugwedpatharkar.vercel.app" />
 
     <!-- Open Graph / Social Media -->
     <meta property="og:type" content="website" />
-    <meta property="og:title" content="Rugwed Patharkar | Software Engineer Portfolio" />
-    <meta property="og:description" content="Rugwed Patharkar — Software Engineer specializing in Python, React, and AI. Building scalable backend systems and modern web applications." />
+    <meta property="og:title" content="Rugwed Patharkar | Backend & Agentic AI Engineer" />
+    <meta property="og:description" content="31-service Python/FastAPI/gRPC platform on GKE · 96% p95 latency cut · multi-agent LangGraph + MCP across 4 LLM providers · hybrid RAG on Qdrant." />
     <meta property="og:url" content="https://rugwedpatharkar.vercel.app" />
-    <meta property="og:image" content="/og-image.png" />
+    <!-- Dynamic OG generated via /api/og (Edge Function, @vercel/og). Falls back
+         to the static og-image.png when the function isn't available. -->
+    <meta property="og:image" content="/api/og?title=Rugwed+Patharkar&subtitle=Backend+%26+Agentic+AI+%C2%B7+31-service+platform+on+GKE+%C2%B7+96%25+p95+latency+cut" />
     <meta property="og:image:width" content="1200" />
     <meta property="og:image:height" content="630" />
+    <meta property="og:image:alt" content="Rugwed Patharkar — Software Engineer portfolio" />
 
     <!-- Twitter -->
     <meta name="twitter:card" content="summary_large_image" />
-    <meta name="twitter:title" content="Rugwed Patharkar | Software Engineer Portfolio" />
-    <meta name="twitter:description" content="Rugwed Patharkar — Software Engineer specializing in Python, React, and AI. Building scalable backend systems and modern web applications." />
-    <meta name="twitter:image" content="/og-image.png" />
+    <meta name="twitter:title" content="Rugwed Patharkar | Backend & Agentic AI Engineer" />
+    <meta name="twitter:description" content="31-service platform on GKE · 96% p95 latency cut · LangGraph multi-agent + MCP · Qdrant hybrid RAG." />
+    <meta name="twitter:image" content="/api/og?title=Rugwed+Patharkar&subtitle=Backend+%26+Agentic+AI+%C2%B7+31-service+platform+on+GKE+%C2%B7+96%25+p95+latency+cut" />
 
     <!-- PWA Manifest -->
     <link rel="manifest" href="/manifest.json" />
@@ -46,7 +49,7 @@
         "addressLocality": "Pune",
         "addressCountry": "India"
       },
-      "knowsAbout": ["Python", "FastAPI", "gRPC", "React", "GCP", "Docker", "Kubernetes", "LangChain", "AI/ML", "Java", "Django", "Spring Boot"]
+      "knowsAbout": ["Python", "FastAPI", "gRPC", "Protocol Buffers", "LangGraph", "Model Context Protocol", "Agentic AI", "Qdrant", "ChromaDB", "Hybrid RAG", "OpenAI", "Anthropic Claude", "Google Gemini", "Groq", "Google Vertex AI", "GCP", "GKE", "Kubernetes", "Docker", "Terraform", "Helm", "Apache Airflow", "Pants", "RabbitMQ", "Google Pub/Sub", "MongoDB", "Redis", "MQTT", "WebSockets", "Multi-tenant SaaS", "Distributed Systems", "Event-driven Architecture", "Java", "Spring Boot", "React"]
     }
     </script>
 
@@ -54,7 +57,18 @@
     <link rel="preconnect" href="https://api.emailjs.com" />
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,100..1000;1,9..40,100..1000&family=JetBrains+Mono:ital,wght@0,100..800;1,100..800&family=Sora:wght@100..800&display=swap" rel="stylesheet" />
+
+    <!-- Preload the AVIF hero bg — the rendered card behind hero text.
+         Saves ~200ms of LCP on cold loads. Browsers without AVIF ignore the
+         hint and fall back to herobg.png via the CSS image-set. -->
+    <link
+      rel="preload"
+      as="image"
+      type="image/avif"
+      href="/herobg-1600.avif"
+      fetchpriority="high"
+    />
+    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&family=Sora:wght@500;600;700;800&display=swap" rel="stylesheet" />
 
     <title>Rugwed Patharkar | Portfolio</title>
   </head>

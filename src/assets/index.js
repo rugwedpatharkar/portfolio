@@ -53,7 +53,27 @@ import vscode from "./skills/vscode.svg";
 
 // Other assets
 import photo from "./photo.png";
+import photoAvif480 from "./photo-480.avif";
+import photoAvif800 from "./photo-800.avif";
+import photoWebp480 from "./photo-480.webp";
+import photoWebp800 from "./photo-800.webp";
 import heroPhoto from "./hero-photo.png";
+import heroPhotoAvif640 from "./hero-photo-640.avif";
+import heroPhotoAvif1024 from "./hero-photo-1024.avif";
+import heroPhotoWebp640 from "./hero-photo-640.webp";
+import heroPhotoWebp1024 from "./hero-photo-1024.webp";
+
+export const heroPhotoSources = {
+  png: heroPhoto,
+  avif: { 640: heroPhotoAvif640, 1024: heroPhotoAvif1024 },
+  webp: { 640: heroPhotoWebp640, 1024: heroPhotoWebp1024 },
+};
+
+export const photoSources = {
+  png: photo,
+  avif: { 480: photoAvif480, 800: photoAvif800 },
+  webp: { 480: photoWebp480, 800: photoWebp800 },
+};
 import techentrepreneurs from "./company/te.png";
 import upswing from "./company/upswing.png";
 import gadgetgalaxy from "./gadgetgalaxy.png";

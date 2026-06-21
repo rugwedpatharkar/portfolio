@@ -1,4 +1,4 @@
-import { Suspense, lazy, useEffect, useRef } from "react";
+import { Suspense, lazy, useEffect, useRef, useState } from "react";
 import useVisitorAchievements from "./hooks/useVisitorAchievements";
 import {
   Navbar,
@@ -26,11 +26,13 @@ const FunFacts = lazy(() => import("./sections/FunFacts"));
 const Experience = lazy(() => import("./sections/Experience"));
 const Skills = lazy(() => import("./sections/Skills"));
 const Projects = lazy(() => import("./sections/Projects"));
+const Notes = lazy(() => import("./sections/Notes"));
 const Education = lazy(() => import("./sections/Education"));
 const Achievements = lazy(() => import("./sections/Achievements"));
 const Hobbies = lazy(() => import("./sections/Hobbies"));
 const Testimonials = lazy(() => import("./sections/Testimonials"));
 const Contact = lazy(() => import("./sections/Contact"));
+const Design = lazy(() => import("./sections/Design"));
 
 // Lazy-loaded interactive overlays (not needed at first paint)
 const ContextualCursor = lazy(() => import("./components/ContextualCursor"));
@@ -38,7 +40,6 @@ const CursorTrail = lazy(() => import("./components/CursorTrail"));
 const BackToTop = lazy(() => import("./components/BackToTop"));
 const EasterEgg = lazy(() => import("./components/EasterEgg"));
 const FloatingActionMenu = lazy(() => import("./components/FloatingActionMenu"));
-const CommandTerminal = lazy(() => import("./components/CommandTerminal"));
 const KeyboardHints = lazy(() => import("./components/KeyboardHints"));
 const SpotlightSearch = lazy(() => import("./components/SpotlightSearch"));
 const CinemaMode = lazy(() => import("./components/CinemaMode"));
@@ -54,46 +55,6 @@ const AchievementTracker = () => {
     return () => window.removeEventListener("achievement", handler);
   }, [unlock]);
 
-  return null;
-};
-
-const CopyBlocker = () => {
-  const toast = useToast();
-  useEffect(() => {
-    const isFormElement = (el) =>
-      el.tagName === "INPUT" || el.tagName === "TEXTAREA" || el.isContentEditable;
-
-    const blockCopy = (e) => {
-      if (!isFormElement(e.target)) {
-        e.preventDefault();
-        toast("Content copying is disabled on this site.", "warning", 2500);
-      }
-    };
-    const blockContext = (e) => {
-      if (!isFormElement(e.target)) {
-        e.preventDefault();
-        toast("Right-click is disabled on this site.", "warning", 2500);
-      }
-    };
-    const blockKeys = (e) => {
-      if (isFormElement(e.target)) return;
-      if ((e.ctrlKey || e.metaKey) && ["c", "a", "u", "s"].includes(e.key.toLowerCase())) {
-        e.preventDefault();
-        toast("This keyboard shortcut is disabled.", "warning", 2500);
-      }
-    };
-
-    document.addEventListener("copy", blockCopy);
-    document.addEventListener("cut", blockCopy);
-    document.addEventListener("contextmenu", blockContext);
-    document.addEventListener("keydown", blockKeys);
-    return () => {
-      document.removeEventListener("copy", blockCopy);
-      document.removeEventListener("cut", blockCopy);
-      document.removeEventListener("contextmenu", blockContext);
-      document.removeEventListener("keydown", blockKeys);
-    };
-  }, [toast]);
   return null;
 };
 
@@ -136,27 +97,62 @@ const App = () => {
     );
   }, []);
 
-  // Add custom-cursor class to body for hiding default cursor on desktop
+  // Add custom-cursor class to body for hiding default cursor on devices with a precise pointer.
+  // matchMedia('(hover: hover) and (pointer: fine)') is the correct semantic check — it asks
+  // "does the user have a real mouse" — and fires once on change rather than on every resize.
   useEffect(() => {
-    const isDesktop = window.innerWidth >= 768;
-    if (isDesktop) document.body.classList.add("custom-cursor");
-    const handleResize = () => {
-      if (window.innerWidth >= 768) {
-        document.body.classList.add("custom-cursor");
-      } else {
-        document.body.classList.remove("custom-cursor");
-      }
+    const mq = window.matchMedia("(hover: hover) and (pointer: fine)");
+    const apply = (matches) => {
+      document.body.classList.toggle("custom-cursor", matches);
     };
-    window.addEventListener("resize", handleResize);
+    apply(mq.matches);
+    const handleChange = (e) => apply(e.matches);
+    mq.addEventListener("change", handleChange);
     return () => {
       document.body.classList.remove("custom-cursor");
-      window.removeEventListener("resize", handleResize);
+      mq.removeEventListener("change", handleChange);
     };
   }, []);
 
+  // Theme-aware ambient background: GradientMesh for the default "space" theme,
+  // CodeRain for "cyber" / "matrix". Only one runs at a time — they paint the
+  // same surface and shouldn't compete for the frame budget.
+  const [theme, setTheme] = useState(() => {
+    if (typeof window === "undefined") return "space";
+    return localStorage.getItem("portfolio_theme") || "space";
+  });
+  useEffect(() => {
+    const handler = (e) => setTheme(e.detail || "space");
+    window.addEventListener("portfolio-theme-change", handler);
+    return () => window.removeEventListener("portfolio-theme-change", handler);
+  }, []);
+  const useCodeRain = theme === "cyber" || theme === "matrix";
+
+  // Hash-route: '#design' opens the internal design-system page in place of the
+  // portfolio. Keeps everything in one bundle, no router dependency. Lazy-loaded
+  // so the design module is zero cost for normal visitors.
+  const [route, setRoute] = useState(() =>
+    typeof window !== "undefined" && window.location.hash === "#design" ? "design" : "home"
+  );
+  useEffect(() => {
+    const onHash = () => setRoute(window.location.hash === "#design" ? "design" : "home");
+    window.addEventListener("hashchange", onHash);
+    return () => window.removeEventListener("hashchange", onHash);
+  }, []);
+  if (route === "design") {
+    return (
+      <ToastProvider>
+        <main id="main-content" className="relative z-0">
+          <Suspense fallback={null}>
+            <Design />
+          </Suspense>
+        </main>
+      </ToastProvider>
+    );
+  }
+
   return (
     <ToastProvider>
-      <CopyBlocker />
       <AchievementTracker />
       <ReferrerGreeting />
       <main id="main-content" className="relative z-0">
@@ -167,8 +163,7 @@ const App = () => {
         <Suspense fallback={null}>
           <StarsCanvas fixed />
         </Suspense>
-        <CodeRain />
-        <GradientMesh />
+        {useCodeRain ? <CodeRain /> : <GradientMesh />}
         <ScrollDepthBlur />
         <Suspense fallback={null}>
           <ContextualCursor />
@@ -196,7 +191,7 @@ const App = () => {
           <Hero />
         </div>
 
-        <div className="mt-16 sm:mt-24" />
+        <div className="mt-[clamp(4rem,8vw,6rem)]" />
         <Suspense fallback={null}>
           <ErrorBoundary>
             <About />
@@ -216,6 +211,10 @@ const App = () => {
           <SectionDivider />
           <ErrorBoundary>
             <Projects />
+          </ErrorBoundary>
+          <SectionDivider />
+          <ErrorBoundary>
+            <Notes />
           </ErrorBoundary>
           <SectionDivider />
           <ErrorBoundary>
@@ -241,7 +240,6 @@ const App = () => {
         <Footer />
         <Suspense fallback={null}>
           <FloatingActionMenu />
-          <CommandTerminal />
           <KeyboardHints />
           <SpotlightSearch />
           <BackToTop />

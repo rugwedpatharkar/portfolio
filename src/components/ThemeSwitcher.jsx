@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { motion, AnimatePresence } from "framer-motion";
+import { motion, AnimatePresence } from "motion/react";
 
 const THEMES = [
   { id: "space", label: "Deep Space", icon: "🌌", accent: "#915eff", bg: "#050816" },
@@ -30,6 +30,10 @@ const ThemeSwitcher = () => {
 
     localStorage.setItem("portfolio_theme", themeId);
     setActiveTheme(themeId);
+
+    // Notify the rest of the app so ambient backgrounds (GradientMesh / CodeRain)
+    // can swap. Keeps theme as a single source of truth without a context provider.
+    window.dispatchEvent(new CustomEvent("portfolio-theme-change", { detail: themeId }));
   };
 
   return (

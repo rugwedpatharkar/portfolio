@@ -206,7 +206,7 @@ const SkillTerminal = () => {
             </div>
             <div>
               <span className="text-white/55">Uptime:</span>{" "}
-              <span className="text-white/70">3+ years</span>
+              <span className="text-white/70">2+ years</span>
             </div>
             <div>
               <span className="text-white/55">Avg Level:</span>{" "}

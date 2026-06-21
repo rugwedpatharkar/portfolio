@@ -1,7 +1,7 @@
 /* eslint-disable react/prop-types */
 /* eslint-disable react-refresh/only-export-components */
 import { useState, useEffect, useMemo, memo, useRef, useCallback, forwardRef } from "react";
-import { motion, AnimatePresence } from "framer-motion";
+import { motion, AnimatePresence } from "motion/react";
 import { styles } from "../../styles";
 import { SectionWrapper } from "../../hoc";
 import { projects, sectionMeta, uiLabels } from "../../content";
@@ -16,13 +16,13 @@ const FilterTab = ({ label, isActive, onClick, count }) => (
     onClick={onClick}
     className={`px-3 sm:px-4 py-1.5 sm:py-2 rounded-full font-mono text-micro sm:text-caption transition-all duration-300 border ${
       isActive
-        ? "bg-[#915eff]/15 border-[#915eff]/40 text-[#915eff]"
-        : "bg-white/[0.02] border-white/[0.06] text-white/40 hover:text-white/60 hover:border-white/15"
+        ? "bg-[#915eff]/15 border-[#915eff]/40 text-[#a78bfa]"
+        : "bg-white/[0.04] border-white/[0.1] text-[#cbd5e1] hover:text-white hover:border-white/30"
     }`}
   >
     {label}
     <span
-      className={`ml-1.5 ${isActive ? "text-[#915eff]/60" : "text-white/20"}`}
+      className={`ml-1.5 ${isActive ? "text-[#a78bfa]/80" : "text-white/60"}`}
     >
       {count}
     </span>

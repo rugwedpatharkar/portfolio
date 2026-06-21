@@ -1,5 +1,5 @@
 import React, { useRef, useMemo } from "react";
-import { motion, useInView } from "framer-motion";
+import { motion, useInView } from "motion/react";
 
 const container = {
   hidden: { opacity: 0 },

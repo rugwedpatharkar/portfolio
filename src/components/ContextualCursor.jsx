@@ -46,11 +46,15 @@ const ContextualCursor = () => {
   const activeSectionRef = useRef("default");
   const [isDesktop, setIsDesktop] = useState(false);
 
+  // matchMedia is the correct semantic check for "has a real mouse" — it answers
+  // a capability question, not "is the viewport wide". Listening to `change`
+  // fires once on device-class change rather than on every resize tick.
   useEffect(() => {
-    const check = () => setIsDesktop(window.innerWidth >= 768);
-    check();
-    window.addEventListener("resize", check);
-    return () => window.removeEventListener("resize", check);
+    const mq = window.matchMedia("(hover: hover) and (pointer: fine)");
+    setIsDesktop(mq.matches);
+    const handle = (e) => setIsDesktop(e.matches);
+    mq.addEventListener("change", handle);
+    return () => mq.removeEventListener("change", handle);
   }, []);
 
   // IntersectionObserver to track which section is currently in view

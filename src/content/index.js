@@ -59,16 +59,17 @@ export const navLinks = [
   { id: "experience", title: "Experience" },
   { id: "skills", title: "Skills" },
   { id: "projects", title: "Projects" },
+  { id: "notes", title: "Notes" },
   { id: "education", title: "Education" },
   { id: "hobbies", title: "Hobbies" },
   { id: "contact", title: "Contact" },
 ];
 
 export const services = [
-  { title: "Software Engineer", icon: backend },
-  { title: "AI / ML Engineer", icon: fullstack },
-  { title: "Cloud & DevOps", icon: web },
-  { title: "Full Stack Developer", icon: frontend },
+  { title: "Backend & Distributed Systems", icon: backend },
+  { title: "Agentic AI (LangGraph · MCP)", icon: fullstack },
+  { title: "Hybrid RAG · Vector Search", icon: web },
+  { title: "Cloud-native on GKE", icon: frontend },
 ];
 
 export const skills = {
@@ -77,57 +78,105 @@ export const skills = {
     { name: "JavaScript", icon: javascript, level: 82 },
     { name: "TypeScript", icon: typescript, level: 75 },
     { name: "Java", icon: java, level: 80 },
+    { name: "Protocol Buffers", icon: grpc, level: 85 },
     { name: "SQL", icon: mysql, level: 85 },
+    { name: "Shell", icon: linux, level: 80 },
   ],
-  "Backend Frameworks": [
+  "AI & Agentic AI": [
+    { name: "LangChain", icon: langchain, level: 88 },
+    { name: "LangGraph", icon: langchain, level: 88 },
+    { name: "Model Context Protocol (MCP)", icon: openai, level: 88 },
+    { name: "FastMCP", icon: fastapi, level: 85 },
+    { name: "OpenAI", icon: openai, level: 85 },
+    { name: "Gemini · Vertex AI", icon: gcp, level: 82 },
+    { name: "Anthropic Claude", icon: openai, level: 82 },
+    { name: "Groq", icon: openai, level: 78 },
+    { name: "Google ADK", icon: gcp, level: 78 },
+    { name: "Hybrid RAG (Dense + BM25)", icon: langchain, level: 85 },
+    { name: "Embeddings · FastEmbed", icon: langchain, level: 82 },
+    { name: "Prompt Engineering", icon: langchain, level: 85 },
+    { name: "LangSmith", icon: langchain, level: 70 },
+    { name: "Vapi (Voice AI)", icon: openai, level: 65 },
+    { name: "Prophet (forecasting)", icon: python, level: 68 },
+  ],
+  "Backend": [
     { name: "FastAPI", icon: fastapi, level: 92 },
     { name: "gRPC", icon: grpc, level: 88 },
+    { name: "Pydantic", icon: fastapi, level: 90 },
+    { name: "asyncio", icon: python, level: 88 },
+    { name: "WebSockets · Socket.IO", icon: nodejs, level: 80 },
+    { name: "Celery", icon: celery, level: 80 },
     { name: "Django", icon: django, level: 78 },
     { name: "Spring Boot", icon: springboot, level: 72 },
-    { name: "REST API", icon: restapi, level: 92 },
-    { name: "SOAP API", icon: soapapi, level: 75 },
     { name: "Node.js", icon: nodejs, level: 75 },
-    { name: "Celery", icon: celery, level: 80 },
   ],
   "Frontend": [
     { name: "React JS", icon: reactjs, level: 82 },
     { name: "Next JS", icon: nextjs, level: 70 },
+    { name: "Vite", icon: reactjs, level: 80 },
+    { name: "Tailwind CSS", icon: tailwind, level: 82 },
+    { name: "Redux", icon: redux, level: 70 },
+    { name: "Three.js", icon: reactjs, level: 65 },
     { name: "HTML", icon: html, level: 90 },
     { name: "CSS", icon: css, level: 85 },
-    { name: "Tailwind CSS", icon: tailwind, level: 80 },
-    { name: "Bootstrap", icon: bootstrap, level: 78 },
-    { name: "Redux", icon: redux, level: 70 },
   ],
-  "AI & Emerging Tech": [
-    { name: "LangChain", icon: langchain, level: 88 },
-    { name: "OpenAI / LLMs", icon: openai, level: 85 },
-    { name: "RAG / Embeddings", icon: langchain, level: 82 },
-  ],
-  "Databases": [
-    { name: "MongoDB", icon: mongodb, level: 85 },
-    { name: "Redis", icon: redis, level: 85 },
+  "Databases & Search": [
+    { name: "MongoDB", icon: mongodb, level: 88 },
+    { name: "Redis (Cloud · multi-shard)", icon: redis, level: 88 },
+    { name: "Qdrant (Vector DB)", icon: mongodb, level: 82 },
+    { name: "ChromaDB", icon: mongodb, level: 82 },
+    { name: "Firebase Firestore", icon: firebase, level: 82 },
+    { name: "Google BigQuery", icon: bigquery, level: 80 },
     { name: "PostgreSQL", icon: postgresql, level: 78 },
-    { name: "Firebase Firestore", icon: firebase, level: 80 },
     { name: "MySQL", icon: mysql, level: 80 },
-    { name: "BigQuery", icon: bigquery, level: 78 },
+    { name: "FastEmbed", icon: openai, level: 78 },
+  ],
+  "Distributed Systems": [
+    { name: "Event-driven architecture", icon: rabbitmq, level: 88 },
+    { name: "Idempotency", icon: grpc, level: 88 },
+    { name: "Eventual consistency", icon: mongodb, level: 82 },
+    { name: "Multi-tenancy isolation", icon: gcp, level: 88 },
+    { name: "Caching & connection pooling", icon: redis, level: 90 },
+    { name: "Multi-region deployments", icon: gcp, level: 80 },
+    { name: "Observability (Prometheus / Grafana)", icon: prometheus, level: 80 },
+    { name: "On-call · incident response", icon: prometheus, level: 80 },
   ],
   "Cloud & DevOps": [
-    { name: "GCP", icon: gcp, level: 88 },
-    { name: "Docker", icon: docker, level: 88 },
-    { name: "Kubernetes", icon: kubernetes, level: 82 },
-    { name: "Terraform", icon: terraform, level: 75 },
-    { name: "Helm", icon: helm, level: 78 },
-    { name: "GitHub Actions", icon: github, level: 85 },
-    { name: "Prometheus/Grafana", icon: prometheus, level: 72 },
+    { name: "GCP (GKE, Pub/Sub, Cloud Storage, Vertex AI)", icon: gcp, level: 88 },
+    { name: "Docker", icon: docker, level: 90 },
+    { name: "Kubernetes", icon: kubernetes, level: 85 },
+    { name: "Helm · Helmfile", icon: helm, level: 80 },
+    { name: "Terraform", icon: terraform, level: 78 },
+    { name: "Pants (build system)", icon: python, level: 75 },
+    { name: "Apache Airflow", icon: python, level: 75 },
+    { name: "GitHub Actions (self-hosted)", icon: github, level: 88 },
+    { name: "GitLab CI/CD", icon: github, level: 78 },
+    { name: "Prometheus · Grafana", icon: prometheus, level: 78 },
+    { name: "Trivy (container scanning)", icon: docker, level: 78 },
   ],
-  "Tools & Platforms": [
-    { name: "Git", icon: git, level: 90 },
-    { name: "RabbitMQ", icon: rabbitmq, level: 82 },
-    { name: "Postman", icon: postman, level: 85 },
-    { name: "Linux", icon: linux, level: 80 },
-    { name: "VS Code", icon: vscode, level: 92 },
-    { name: "PyCharm", icon: pycharm, level: 75 },
-    { name: "Eclipse", icon: eclipse, level: 70 },
+  "Messaging & Integration": [
+    { name: "RabbitMQ", icon: rabbitmq, level: 85 },
+    { name: "Google Pub/Sub", icon: gcp, level: 82 },
+    { name: "MQTT", icon: rabbitmq, level: 72 },
+    { name: "Stripe", icon: nodejs, level: 75 },
+    { name: "SMTP · Resend", icon: nodejs, level: 80 },
+    { name: "Zoho CRM SDK", icon: nodejs, level: 70 },
+    { name: "Webhooks (idempotent)", icon: grpc, level: 88 },
+    { name: "REST API", icon: restapi, level: 92 },
+    { name: "SOAP API · XML", icon: soapapi, level: 75 },
+  ],
+  "Testing · Security · Practices": [
+    { name: "pytest", icon: python, level: 88 },
+    { name: "Integration & smoke testing", icon: python, level: 85 },
+    { name: "CI quality gates", icon: github, level: 85 },
+    { name: "TDD", icon: python, level: 78 },
+    { name: "Code review", icon: github, level: 90 },
+    { name: "Agile", icon: github, level: 85 },
+    { name: "JWT", icon: nodejs, level: 88 },
+    { name: "OAuth 2.1", icon: nodejs, level: 80 },
+    { name: "RBAC", icon: nodejs, level: 85 },
+    { name: "Firebase Authentication", icon: firebase, level: 82 },
+    { name: "AES Encryption", icon: nodejs, level: 80 },
   ],
 };
 
@@ -138,43 +187,55 @@ export const experiences = [
     icon: upswing,
     iconBg: "#ffffff",
     date: "May 2024 – Present",
-    tech: ["Python", "FastAPI", "gRPC", "GKE", "LangChain", "Redis", "RabbitMQ", "Terraform", "Docker", "Helm"],
+    tech: [
+      "Python", "FastAPI", "gRPC", "Protocol Buffers", "GKE", "Multi-region",
+      "LangGraph", "MCP", "Qdrant (Hybrid RAG)", "MongoDB", "Redis Cloud",
+      "RabbitMQ", "Pub/Sub", "BigQuery", "Airflow", "Terraform", "Helm", "Pants",
+    ],
     metrics: [
-      { value: "96%", label: "Latency Reduced" },
-      { value: "60%", label: "Code Reduced" },
-      { value: "6+", label: "Integrations" },
-      { value: "5", label: "AI Iterations" },
+      { value: "31", label: "Services Owned" },
+      { value: "96%", label: "p95 Latency Cut" },
+      { value: "~25%", label: "Compute Cost Saved" },
+      { value: "99.9%", label: "Availability" },
     ],
     achievement: "Awarded Star Performer of the Quarter",
     categories: [
       {
-        name: "Backend & Architecture",
+        name: "Platform & Architecture",
         points: [
-          "Architected and developed scalable backend microservices using Python, FastAPI, and gRPC deployed on Google Kubernetes Engine (GKE), supporting multi-tenant hospitality operations across multiple production environments.",
-          "Developed API Gateway service translating external REST requests to internal gRPC backend calls, providing a unified API surface for client applications via Protocol Buffers.",
-          "Engineered a unified abstraction layer integrating 6+ third-party Property Management Systems using base class inheritance and polymorphic design, reducing code redundancy by 60% and enabling zero-downtime provider switching.",
-          "Optimized API response latency by 96% (from 5s to 200ms) through Redis caching, connection pooling, query optimization, and efficient data serialization.",
+          "Architected and own end-to-end a 31-service, multi-tenant Python/FastAPI/gRPC backend on GKE with multi-region production deployments, including an API Gateway translating external REST to internal gRPC over Protocol Buffers.",
+          "Designed a multi-protocol communication layer (REST, gRPC, WebSockets, Server-Sent Events, Socket.IO) selected per latency and streaming requirement, with idempotent contracts at every external boundary.",
         ],
       },
       {
-        name: "AI & Machine Learning",
+        name: "Distributed Systems & Reliability",
         points: [
-          "Developed 5 iterations of an enterprise conversational AI agent using LangChain, LangGraph, and Agentic AI patterns, integrating 4 LLM providers (OpenAI, Gemini, Claude, Groq) with tool-calling via Model Context Protocol (MCP).",
-          "Built a RAG pipeline using ChromaDB vector database and sentence-transformer embeddings, enabling AI-driven knowledge retrieval and context-aware guest interactions.",
+          "Cut p95 API latency 96% (5s → 200ms) on availability and pricing endpoints via Redis caching, connection pooling, query optimization, and efficient serialization — reducing compute cost ~25%.",
+          "Migrated production Redis from self-hosted to a multi-shard Redis Cloud cluster and made the shared client cluster-safe (cross-slot handling); diagnosed and fixed distributed race conditions in inventory-hold and pricing consistency under concurrent booking flows.",
+          "Engineered event-driven architecture (RabbitMQ, Google Cloud Pub/Sub) with at-least-once delivery and idempotency; real-time Firebase Cloud Messaging and WebSocket updates with ~99.9% production availability.",
+          "Designed a dual-write strategy (MongoDB operational, BigQuery analytics) powering automated Excel/PDF reports and an Apache Airflow ETL ingesting documents/media into the vector store.",
         ],
       },
       {
-        name: "DevOps & Infrastructure",
+        name: "Integrations (PMS · Door-lock · GRMS)",
         points: [
-          "Deployed self-hosted GitHub Actions runner infrastructure, automating CI/CD pipelines for Docker image builds, semantic versioning, and Kubernetes deployments to GCP.",
-          "Engineered event-driven architecture using RabbitMQ and Google Cloud Pub/Sub for asynchronous inter-service communication and real-time notifications via Firebase Cloud Messaging.",
-          "Managed infrastructure provisioning using Terraform and Helm/Helmfile across GKE clusters with Prometheus/Grafana monitoring.",
+          "Engineered a unified abstraction integrating 7+ Property Management Systems (Apaleo, Opera/OHIP, Cloudbeds, RMS, Clock, Maxxton) via polymorphic base-class design with idempotent webhook processing and zero-downtime provider switching, cutting code redundancy 60%.",
+          "Spearheaded enterprise door-lock (ASSA ABLOY, Messerschmitt) and Guest Room Management System integrations with a template-driven architecture of abstract base classes and provider-specific implementations, reducing new-vendor onboarding time 50%.",
         ],
       },
       {
-        name: "Leadership & Impact",
+        name: "Agentic AI & Retrieval",
         points: [
-          "Led a team of 2+ developers on integration workstreams, establishing reusable code architecture patterns and coordinating parallel development across multiple codebases.",
+          "Built a production LangGraph multi-agent supervisor (staff, media, and booking agents) with MongoDB-checkpointed conversational state and MCP tool-calling across 4 LLM providers (OpenAI, Gemini, Claude, Groq); shipped 5 agent iterations and a versioned prompt-management system with context-aware chaining and dynamic composition.",
+          "Evolved the RAG stack from ChromaDB to Qdrant hybrid dense+sparse (BM25/FastEmbed) vector search with multi-tenant isolation, grounding context-aware guest interactions.",
+        ],
+      },
+      {
+        name: "DevOps · Quality · Leadership",
+        points: [
+          "Deployed self-hosted GitHub Actions runners automating Docker builds, semantic versioning, and Kubernetes rollouts to GCP; provisioned infrastructure with Terraform, Helm/Helmfile, and Pants under Prometheus/Grafana with production on-call and incident response; authored 500+ line Makefiles for deploy/log/pod operations.",
+          "Drove engineering rigor with pytest integration and smoke suites behind CI quality gates (~65% coverage on core services), Trivy container scanning, non-root containers, and AES-128 encryption at rest.",
+          "Led and mentored the 3-engineer integration team, establishing reusable architecture patterns and code-review standards and coordinating parallel development across multiple codebases.",
         ],
       },
     ],
@@ -294,30 +355,88 @@ export const projects = [
     highlight: { value: "10+", label: "Pipelines" },
   },
   {
-    name: "RAG Knowledge Retrieval Pipeline",
+    name: "RAG Knowledge Pipeline (ChromaDB → Qdrant Hybrid)",
     type: "professional",
-    status: "completed",
+    status: "production",
     year: "2024",
     team: "Team of 2",
     description:
-      "End-to-end Retrieval-Augmented Generation system using Playwright for web scraping, OpenAI for embeddings, and ChromaDB as the vector store.",
+      "End-to-end Retrieval-Augmented Generation system: Playwright/BeautifulSoup scrapers feed embeddings into a vector store, chunked and indexed for semantic search. Evolved the stack from ChromaDB to Qdrant hybrid (dense + BM25/FastEmbed) to fix recall on short queries, with multi-tenant isolation.",
     features: [
-      "Web scraping with Playwright & BeautifulSoup",
-      "OpenAI embeddings & semantic search",
-      "ChromaDB vector store with chunking & indexing",
-      "Context-aware AI response generation",
+      "Playwright + BeautifulSoup scraping into Airflow ETL",
+      "Dense embeddings + BM25/FastEmbed sparse (hybrid retrieval)",
+      "Qdrant vector store with multi-tenant isolation",
+      "Migration story: why ChromaDB stopped scaling for us",
     ],
     tags: [
       { name: "python" },
+      { name: "qdrant" },
       { name: "chromadb" },
       { name: "openai" },
       { name: "rag" },
+      { name: "airflow" },
     ],
     stats: [
-      { label: "Data Sources", value: "5+" },
-      { label: "Accuracy", value: "High" },
+      { label: "Retrieval", value: "Hybrid" },
+      { label: "Tenant Isolation", value: "Yes" },
     ],
-    highlight: { value: "5+", label: "Sources" },
+    highlight: { value: "Hybrid", label: "Dense + Sparse" },
+  },
+  {
+    name: "Custom MCP Server Suite",
+    type: "professional",
+    status: "production",
+    year: "2024",
+    team: "Solo",
+    description:
+      "Three standalone Model Context Protocol servers I built to make Kubernetes-native local dev workflows feel native to LLM agents: a Redis Sentinel inspector, a multi-target RabbitMQ controller, and a Pants service-runner. Each exposes async tool registries with kubectl port-forwarding automation so an agent can interact with cluster services as if they were local.",
+    features: [
+      "3 standalone MCP servers (Redis Sentinel, RabbitMQ, Pants runner)",
+      "kubectl port-forwarding automation built into each tool",
+      "Async tool registries with typed Pydantic schemas",
+      "Kubernetes-native local dev workflow for LLM agents",
+    ],
+    tags: [
+      { name: "python" },
+      { name: "mcp" },
+      { name: "fastmcp" },
+      { name: "kubernetes" },
+      { name: "redis" },
+      { name: "rabbitmq" },
+    ],
+    stats: [
+      { label: "MCP Servers", value: "3" },
+      { label: "Pattern", value: "Async tools" },
+    ],
+    highlight: { value: "3", label: "MCP Servers" },
+  },
+  {
+    name: "Accommodation Management Platform",
+    type: "professional",
+    status: "production",
+    year: "2024",
+    team: "Team of 4",
+    description:
+      "RBAC-driven backend with a shared-library architecture across 5+ FastAPI microservices: JWT auth, role-based permissions, multi-channel notifications (Firebase FCM, SMTP), and APScheduler-driven background jobs over MongoDB. The shared library is the load-bearing piece — keeps cross-service contracts honest without coupling deployments.",
+    features: [
+      "5+ FastAPI microservices on a shared internal library",
+      "JWT auth with multi-tenant RBAC permissions",
+      "Multi-channel notifications: Firebase FCM + SMTP",
+      "APScheduler background jobs over MongoDB",
+    ],
+    tags: [
+      { name: "python" },
+      { name: "fastapi" },
+      { name: "mongodb" },
+      { name: "firebase" },
+      { name: "jwt" },
+      { name: "rbac" },
+    ],
+    stats: [
+      { label: "Microservices", value: "5+" },
+      { label: "Auth", value: "JWT · RBAC" },
+    ],
+    highlight: { value: "5+", label: "Services" },
   },
   // --- Personal / Academic projects ---
   {
@@ -414,7 +533,7 @@ export const personalInfo = {
   fullName: "Rugwed Patharkar",
   email: "rugwedspatharkar@gmail.com",
   role: "Software Engineer",
-  availability: "Software Engineer @ Upswing",
+  availability: "Software Engineer @ Upswing · Backend & Agentic AI",
   // "available" → green, "busy" → yellow, "unavailable" → red
   availabilityStatus: "available",
   github: "https://github.com/rugwedpatharkar",
@@ -422,7 +541,7 @@ export const personalInfo = {
   linkedin: "https://www.linkedin.com/in/rugwed-patharkar/",
   location: "Pune, India",
   about:
-    "Backend Software Engineer with 2+ years of experience building scalable microservices and AI-powered systems for the hospitality SaaS industry. Expert in Python, FastAPI, gRPC, and Google Cloud Platform. Architected enterprise-grade integrations with 6+ third-party systems, achieving 96% reduction in API response latency. Developed multi-agent conversational AI using LangChain, LangGraph, and Model Context Protocol (MCP). Passionate about building full stack applications with Java, Python, React, and modern web technologies. Awarded Star Performer of the Quarter for delivering across multiple concurrent production projects.",
+    "I build the backend infrastructure that hospitality SaaS runs on. At Upswing I architected and own a 31-service Python/FastAPI/gRPC platform on GKE — multi-tenant, multi-region, integrated with 7+ PMS, door-lock, and GRMS vendors (Apaleo, Opera/OHIP, Cloudbeds, RMS, Clock, Maxxton, ASSA ABLOY, Messerschmitt). p95 API latency went from 5s to 200ms (96% cut); compute spend dropped ~25%. I also ship production agentic AI — multi-agent LangGraph supervisor with MCP tool-calling across 4 LLM providers (OpenAI, Gemini, Claude, Groq), grounded by Qdrant hybrid (dense + BM25/sparse) RAG. I lead a 3-engineer integration team and was named Star Performer of the Quarter. I care most about systems that recover gracefully, observability that earns its keep, and APIs that don't surprise the people who consume them.",
 };
 
 export const educations = [
@@ -573,11 +692,17 @@ export const testimonials = [
   },
 ];
 
+// "Numbers I've moved" — every value below is grounded in a specific Upswing
+// initiative documented in the experience entry above. Recruiter-scannable.
 export const funFacts = [
-  { label: "Cups of Coffee", value: 1200, suffix: "+", icon: "☕", detail: "Fueled by filter coffee & chai — mostly during late-night debugging sessions." },
-  { label: "Git Commits", value: 5000, suffix: "+", icon: "📝", detail: "Across 30+ repos spanning Django, FastAPI, React, and infrastructure projects." },
-  { label: "APIs Deployed", value: 500, suffix: "+", icon: "🚀", detail: "REST & gRPC services running on GKE, serving millions of requests per day." },
-  { label: "Bugs Squashed", value: 1200, suffix: "+", icon: "🐛", detail: "From race conditions to timezone bugs — every squash is a war story." },
+  { label: "Services Architected", value: 31, suffix: "", icon: "🛰️", detail: "Multi-tenant Python/FastAPI/gRPC platform on GKE with multi-region production deployments and an API Gateway translating REST to internal gRPC." },
+  { label: "p95 Latency Cut", value: 96, suffix: "%", icon: "⚡", detail: "From 5s to 200ms on availability and pricing endpoints via Redis caching, connection pooling, query optimization, and efficient serialization." },
+  { label: "Compute Cost Saved", value: 25, suffix: "%", icon: "💰", detail: "Direct outcome of the latency work — fewer wasted cycles per request, paid back in cloud bill." },
+  { label: "PMS / Hardware Vendors", value: 7, suffix: "+", icon: "🔌", detail: "Apaleo, Opera/OHIP, Cloudbeds, RMS, Clock, Maxxton — plus ASSA ABLOY and Messerschmitt for door-locks and GRMS." },
+  { label: "Production Availability", value: 99.9, suffix: "%", icon: "🟢", detail: "Backed by Prometheus/Grafana observability, on-call rotation, and incident response on the platform I own." },
+  { label: "Vendor Onboarding Speed", value: 50, suffix: "%", icon: "🚀", detail: "Faster, via a template-driven architecture of abstract base classes and provider-specific implementations." },
+  { label: "Code Redundancy Cut", value: 60, suffix: "%", icon: "🧹", detail: "Polymorphic base-class design across the PMS integration layer — one contract, many providers." },
+  { label: "Test Coverage on Core", value: 65, suffix: "%", icon: "🧪", detail: "pytest integration & smoke suites behind CI quality gates on the services that matter most." },
 ];
 
 export const hobbies = [
@@ -677,11 +802,12 @@ export const blogPosts = [
 ];
 
 export const sectionMeta = {
-  about: { sub: "Introduction", heading: "Overview", description: "A snapshot of who I am, what drives me, and the disciplines I bring to every project." },
-  funFacts: { sub: "Numbers That Define Me", heading: "Fun Facts", description: "A few numbers and fun stats from my journey so far — because every line of code tells a story." },
-  experience: { sub: "Where I've worked", heading: "Work Experience", description: "Building scalable microservices, AI-powered systems, and cloud-native solutions — here's where I've put my engineering skills to work." },
-  skills: { sub: "What I Bring to the Table", heading: "Technical Skills", description: "From Python and FastAPI to cloud infrastructure and AI — the tools and technologies I use to build production-grade software." },
+  about: { sub: "Introduction", heading: "Overview", description: "What I work on, what I lead, and the technical stance I bring to every system I touch." },
+  funFacts: { sub: "Numbers I've Moved", heading: "Impact in Production", description: "Every number below is grounded in a specific platform initiative — latency cuts, vendor onboarding speedups, code reductions. Receipts, not vibes." },
+  experience: { sub: "Where I've worked", heading: "Work Experience", description: "Backend systems, agentic AI, and platform ownership — organized by the discipline each bullet draws on." },
+  skills: { sub: "What I Bring to the Table", heading: "Technical Skills", description: "9 categories — from languages and backend frameworks to distributed-systems primitives, security, and the messaging fabric that holds it all together." },
   projects: { sub: "Explore My Work", heading: "Projects", description: "Each project represents a distinct challenge — from building AI-powered systems to deploying cloud infrastructure. Tap any card to explore." },
+  notes: { sub: "Working Notes", heading: "Notes & Writing", description: "Short technical notes, lessons from production, and ideas I'm wrestling with — published as I learn, not when they're polished." },
   education: { sub: "Academic Journey", heading: "Education", description: "From foundational studies to advanced computer science — each milestone shaped my engineering journey." },
   achievements: { sub: "Milestones", heading: "Achievements", description: "Key milestones and recognitions from my academic and professional journey that keep me motivated to push further." },
   hobbies: { sub: "Beyond the Code", heading: "Hobbies & Interests", description: "When I'm not building systems or pushing code, here's what keeps me curious, creative, and energized." },
@@ -691,16 +817,16 @@ export const sectionMeta = {
 
 export const heroContent = {
   stats: [
-    { value: 3, suffix: "+", label: "Years Exp." },
-    { value: 10, suffix: "+", label: "Projects" },
-    { value: 6, suffix: "+", label: "Integrations" },
+    { value: 31, suffix: "", label: "Services Architected" },
+    { value: 7, suffix: "+", label: "PMS / Hardware Vendors" },
+    { value: 96, suffix: "%", label: "p95 Latency Cut" },
   ],
   typewriterRoles: [
-    "Software Engineer",
-    "Backend \u0026 AI Engineer",
-    "Cloud \u0026 DevOps",
+    "Backend & Agentic AI Engineer",
+    "Distributed Systems @ GKE",
+    "LangGraph · MCP · Hybrid RAG",
   ],
-  tagline: "Building scalable microservices & AI-powered systems on the cloud.",
+  tagline: "31-service Python/FastAPI/gRPC platform on GKE · multi-agent LLM systems with MCP & hybrid RAG, in production.",
   codeSnippet: [
     { text: "const ", color: "#bf61ff" },
     { text: "rugwed", color: "#79c0ff" },
@@ -754,9 +880,9 @@ export const heroContent = {
 };
 
 export const aboutStats = [
-  { value: 3, suffix: "+", label: "Years Experience" },
-  { value: 10, suffix: "+", label: "Projects Built" },
-  { value: 50, suffix: "+", label: "Technologies" },
+  { value: 2, suffix: "+", label: "Years Building Production" },
+  { value: 31, suffix: "", label: "Services in One Platform" },
+  { value: 99.9, suffix: "%", label: "Production Availability" },
 ];
 
 export const contactLinks = [
@@ -896,12 +1022,17 @@ export const uiLabels = {
   },
 };
 
+// Notes data lives in its own module so the Notes section chunk owns it.
+// The barrel-re-export keeps the public API stable for SpotlightSearch.
+export { notes } from "./sections/notes";
+
 export const sectionOrder = [
   "about",
   "funFacts",
   "experience",
   "skills",
   "projects",
+  "notes",
   "education",
   "achievements",
   "hobbies",

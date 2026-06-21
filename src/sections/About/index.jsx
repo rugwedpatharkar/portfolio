@@ -2,12 +2,13 @@
 /* eslint-disable react-refresh/only-export-components */
 import { useRef, useCallback, useEffect, useState, memo, forwardRef } from "react";
 import CardBorderTrace from "../../components/CardBorderTrace";
-import { motion, useInView } from "framer-motion";
+import { motion, useInView } from "motion/react";
 import { styles } from "../../styles";
 import { services, personalInfo, sectionMeta, aboutStats, uiLabels } from "../../content";
 import { fadeIn, textVariant } from "../../utils/motion";
 import { SectionWrapper } from "../../hoc";
-import { photo, resume } from "../../assets";
+import { photoSources, resume } from "../../assets";
+import ResponsiveImage from "../../components/ResponsiveImage";
 import TextScramble from "../../components/TextScramble";
 import MagneticButton from "../../components/MagneticButton";
 import TiltCard from "../../components/TiltCard";
@@ -252,8 +253,9 @@ const Photo3D = () => {
           style={{ transform: "translateZ(-30px)" }}
         />
 
-        <img
-          src={photo}
+        <ResponsiveImage
+          sources={photoSources}
+          sizes="(max-width: 640px) 80vw, (max-width: 1024px) 40vw, 480px"
           alt={personalInfo.fullName}
           loading="lazy"
           className="object-cover w-full aspect-[3/4] rounded-2xl transition-all duration-500 group-hover:brightness-110"

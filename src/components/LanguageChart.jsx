@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from "react";
-import { motion } from "framer-motion";
+import { motion } from "motion/react";
 
 const LANGUAGES = [
   { name: "Java", percentage: 32, color: "#f89820" },

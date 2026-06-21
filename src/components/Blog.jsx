@@ -1,6 +1,6 @@
 /* eslint-disable react/prop-types */
 import { memo, useState, useCallback } from "react";
-import { motion, AnimatePresence } from "framer-motion";
+import { motion, AnimatePresence } from "motion/react";
 import { styles } from "../styles";
 import { SectionWrapper } from "../hoc";
 import { blogPosts } from "../content";

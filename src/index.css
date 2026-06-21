@@ -33,23 +33,9 @@ body {
   position: relative;
 }
 
-/* ── Disable text selection & copying on portfolio content ── */
-body {
-  -webkit-user-select: none;
-  -moz-user-select: none;
-  -ms-user-select: none;
-  user-select: none;
-}
-
-/* Allow selection in form inputs so users can still type/edit */
-input,
-textarea,
-[contenteditable="true"] {
-  -webkit-user-select: text;
-  -moz-user-select: text;
-  -ms-user-select: text;
-  user-select: text;
-}
+/* Text selection is allowed everywhere — recruiters need to copy email,
+   stack list, and project links. Decorative/UI-chrome elements can opt out
+   individually with .select-none on themselves. */
 
 /* Force JetBrains Mono on mono elements AND their children — * selector on body sets DM Sans
    directly on every element, which beats inheritance. This rule must also target children explicitly. */
@@ -94,6 +80,45 @@ textarea,
   color: #a78bfa;
 }
 
+/* Hero background — upgrade Tailwind's bg-hero-pattern to AVIF/WebP via
+   image-set. Browsers pick the first format they can decode, so AVIF wins
+   on modern Chrome/Edge/Safari/Firefox, WebP everywhere else, PNG on
+   ancient builds. herobg.png 908 KB → herobg-1600.avif 43 KB. */
+@supports (background-image: image-set(url("x") 1x)) {
+  .bg-hero-pattern {
+    background-image: image-set(
+      url("/herobg-1600.avif") type("image/avif") 1x,
+      url("/herobg-2400.avif") type("image/avif") 2x,
+      url("/herobg-1600.webp") type("image/webp") 1x,
+      url("/herobg-2400.webp") type("image/webp") 2x,
+      url("/herobg.png") 1x
+    );
+  }
+}
+@supports (background-image: -webkit-image-set(url("x") 1x)) {
+  .bg-hero-pattern {
+    background-image: -webkit-image-set(
+      url("/herobg-1600.avif") type("image/avif") 1x,
+      url("/herobg-1600.webp") type("image/webp") 1x,
+      url("/herobg.png") 1x
+    );
+  }
+}
+
+/* Pause all hero-only CSS animations when the user has scrolled past hero —
+   the orbit/comet/glow loops add up to ~12% main-thread CPU when running
+   continuously. The IntersectionObserver in Hero/index.jsx toggles this. */
+.hero-section.hero-paused .hero-photo-float,
+.hero-section.hero-paused .hero-glow-spin,
+.hero-section.hero-paused [class*="hero-orbit"],
+.hero-section.hero-paused [class*="hero-tag-orbit"],
+.hero-section.hero-paused [class*="hero-tag-counter"],
+.hero-section.hero-paused .hero-comet,
+.hero-section.hero-paused .hero-gradient-name,
+.hero-section.hero-paused .hero-marquee {
+  animation-play-state: paused !important;
+}
+
 /* Accessibility: bump low-opacity white text to meet WCAG AA (4.5:1) on dark bg */
 .text-white\/30 { color: rgba(255, 255, 255, 0.50) !important; }
 .text-white\/40 { color: rgba(255, 255, 255, 0.55) !important; }
@@ -103,12 +128,26 @@ textarea,
 
 html {
   scroll-behavior: smooth;
-  scroll-snap-type: y proximity;
 }
-section {
-  scroll-snap-align: start;
-  scroll-snap-stop: normal;
+
+/* View Transitions API — Chrome/Edge/Safari TP fade between section ledes.
+   The default crossfade is ~250ms; we shorten it because a portfolio scroll
+   shouldn't feel like a SPA route change. */
+@supports (view-transition-name: none) {
+  ::view-transition-old(root),
+  ::view-transition-new(root) {
+    animation-duration: 180ms;
+    animation-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+  }
 }
+@media (prefers-reduced-motion: reduce) {
+  ::view-transition-old(root),
+  ::view-transition-new(root) {
+    animation: none !important;
+  }
+}
+/* scroll-snap removed intentionally — proximity snap conflicts with
+   smooth-scroll on long-form pages and causes "sticky" trackpad behavior. */
 
 /* Theme overrides */
 [data-theme="cyber"] .text-\[\#915eff\] { color: #00f0ff !important; }

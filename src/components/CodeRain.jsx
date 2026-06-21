@@ -6,8 +6,9 @@ const CodeRain = () => {
   const canvasRef = useRef(null);
 
   useEffect(() => {
-    // Skip on mobile (saves GPU/CPU — ParticleBackground + GradientMesh still run)
-    if (window.innerWidth < 768) return;
+    // Desktop-with-mouse only — the matrix-rain effect is decorative chrome that
+    // would burn battery on phones and tablets without adding much.
+    if (!window.matchMedia("(hover: hover) and (pointer: fine)").matches) return;
     if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
     const canvas = canvasRef.current;
     const ctx = canvas.getContext("2d");

@@ -1,6 +1,6 @@
 /* eslint-disable react/prop-types */
 import { useState, useCallback, useRef, useEffect, createContext, useContext } from "react";
-import { motion, AnimatePresence } from "framer-motion";
+import { motion, AnimatePresence } from "motion/react";
 
 let toastIdCounter = 0;
 

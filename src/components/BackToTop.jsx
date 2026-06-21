@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from "react";
-import { motion, AnimatePresence } from "framer-motion";
+import { motion, AnimatePresence } from "motion/react";
 
 const CIRCLE_R = 18;
 const CIRCLE_C = 2 * Math.PI * CIRCLE_R;

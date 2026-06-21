@@ -9,7 +9,7 @@ export default defineConfig({
       output: {
         manualChunks: {
           three: ['three', '@react-three/fiber', '@react-three/drei'],
-          'framer-motion': ['framer-motion'],
+          motion: ['motion'],
           vendor: ['react', 'react-dom'],
         },
       },

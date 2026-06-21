@@ -1,10 +1,11 @@
 import { useEffect, useRef, useState, useMemo, useCallback } from "react";
-import { motion, AnimatePresence } from "framer-motion";
+import { motion, AnimatePresence } from "motion/react";
 import { styles } from "../styles";
 import { navLinks, navbarContent } from "../content";
 import { logo } from "../assets";
 import useRetryObserver from "../hooks/useRetryObserver";
 import useSoundEffects from "../hooks/useSoundEffects";
+import { scrollToSection } from "../utils/scrollTo";
 
 const Navbar = () => {
   const [active, setActive] = useState("");
@@ -124,10 +125,12 @@ const Navbar = () => {
     };
   }, [toggle]);
 
-  const handleItemClick = (link) => {
+  const handleItemClick = (link, e) => {
+    if (e) e.preventDefault();
     playClick();
     setActive(link.title);
     setToggle(false);
+    scrollToSection(link.id);
   };
 
   return (
@@ -138,7 +141,7 @@ const Navbar = () => {
           : "py-3 sm:py-5 bg-transparent"
       }`}
     >
-      <div className="flex items-center justify-between w-full mx-auto max-w-7xl 3xl:max-w-[2000px]">
+      <div className="flex items-center justify-between w-full mx-auto max-w-7xl 3xl:max-w-screen-3xl 4xl:max-w-screen-4xl 5xl:max-w-screen-5xl">
         {/* Logo */}
         <a
           href="#"
@@ -158,15 +161,16 @@ const Navbar = () => {
           </p>
         </a>
 
-        {/* Desktop nav links */}
-        <div className="hidden md:flex items-center">
+        {/* Desktop nav links — switch to nav at ml (896px). At plain md (768-895)
+            8 items don't fit in the pill row; mobile menu remains. */}
+        <div className="hidden ml:flex items-center">
           <ul ref={indicatorRef} className="list-none flex flex-row gap-1 p-1 rounded-full bg-white/[0.03] border border-white/[0.06]">
             {navLinks.map((link) => (
               <li key={link.id}>
                 <a
                   href={`#${link.id}`}
-                  onClick={() => handleItemClick(link)}
-                  className={`relative px-3 lg:px-4 py-1.5 rounded-full text-body-sm lg:text-body font-medium cursor-pointer transition-all duration-300 block ${
+                  onClick={(e) => handleItemClick(link, e)}
+                  className={`relative px-2.5 lg:px-4 py-1.5 rounded-full text-body-sm lg:text-body font-medium cursor-pointer transition-all duration-300 block ${
                     active === link.title
                       ? "text-white"
                       : "text-secondary hover:text-white/80"
@@ -196,8 +200,8 @@ const Navbar = () => {
           </ul>
         </div>
 
-        {/* Mobile menu toggle */}
-        <div className="md:hidden flex flex-1 justify-end items-center">
+        {/* Mobile menu toggle — kept until ml (896px) so 768-895px still uses it */}
+        <div className="ml:hidden flex flex-1 justify-end items-center">
           <button
             className="menu-toggle w-11 h-11 cursor-pointer rounded-xl border border-white/10 hover:border-[#915eff]/30 bg-white/5 flex items-center justify-center transition-colors duration-300"
             onClick={() => { playToggle(); setToggle(!toggle); }}
@@ -236,7 +240,7 @@ const Navbar = () => {
                     >
                       <a
                         href={`#${link.id}`}
-                        onClick={() => handleItemClick(link)}
+                        onClick={(e) => handleItemClick(link, e)}
                         className={`block px-4 py-2.5 rounded-xl text-body font-medium transition-all duration-200 ${
                           active === link.title
                             ? "text-white bg-[#915eff]/15"

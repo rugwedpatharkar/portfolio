@@ -1,7 +1,7 @@
 /* eslint-disable react/prop-types */
 import { useState, useEffect, useRef, memo, forwardRef } from "react";
 import CardBorderTrace from "../../components/CardBorderTrace";
-import { motion } from "framer-motion";
+import { motion } from "motion/react";
 import { funFacts, sectionMeta, uiLabels } from "../../content";
 import { fadeIn, textVariant } from "../../utils/motion";
 import { styles } from "../../styles";

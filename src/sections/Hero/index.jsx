@@ -1,5 +1,5 @@
 import { useRef, useEffect, useMemo } from "react";
-import { motion } from "framer-motion";
+import { motion } from "motion/react";
 import { styles } from "../../styles";
 import Typewriter from "typewriter-effect";
 import { AiOutlineGithub } from "react-icons/ai";
@@ -11,7 +11,8 @@ const STATUS_COLORS = {
   busy: "#f8c555",
   unavailable: "#ff6b6b",
 };
-import { heroPhoto, resume } from "../../assets";
+import { heroPhotoSources, resume } from "../../assets";
+import ResponsiveImage from "../../components/ResponsiveImage";
 import ParticleBackground from "../../components/ParticleBackground";
 import MagneticButton from "../../components/MagneticButton";
 import TextScramble from "../../components/TextScramble";
@@ -190,15 +191,36 @@ const Hero = () => {
     };
   }, []);
 
+  /*
+   * Pause hero CSS animations (orbit rings, floating photo, comets, tag orbits,
+   * gradient sweeps) when the hero is fully out of the viewport. Without this
+   * the GPU keeps compositing 8+ animations forever while the user reads the
+   * rest of the page — a meaningful share of the "still feels laggy" feeling.
+   * Pure CSS-toggle, zero impact when the user comes back to the hero.
+   */
+  const heroRootRef = useRef(null);
+  useEffect(() => {
+    const el = heroRootRef.current;
+    if (!el) return;
+    const io = new IntersectionObserver(
+      ([entry]) => {
+        el.classList.toggle("hero-paused", !entry.isIntersecting);
+      },
+      { threshold: 0, rootMargin: "100px" }
+    );
+    io.observe(el);
+    return () => io.disconnect();
+  }, []);
+
   return (
-    <section className="relative w-full mx-auto overflow-hidden" style={{ height: "100dvh", minHeight: "100svh" }}>
+    <section ref={heroRootRef} className="relative w-full mx-auto overflow-hidden hero-section" style={{ height: "100dvh", minHeight: "100svh" }}>
       <ParticleBackground />
       {/* Cursor spotlight overlay */}
       <div ref={spotlightRef} className="absolute inset-0 z-[1] pointer-events-none" />
 
       <div
         ref={parallaxRef}
-        className={`${styles.paddingX} absolute inset-0 top-[60px] sm:top-0 pb-14 sm:pb-0 max-w-[1800px] mx-auto flex flex-col lg:flex-row items-center lg:justify-center gap-0 sm:gap-8 z-[2] pointer-events-none`}
+        className={`${styles.paddingX} absolute inset-0 top-[72px] lg:top-0 pb-14 lg:pb-0 max-w-[1800px] mx-auto flex flex-col lg:flex-row items-center lg:justify-center gap-0 sm:gap-8 z-[2] pointer-events-none`}
       >
         {/* Left column: decorative line + text */}
         <div className="flex flex-row items-start gap-3 sm:gap-5 lg:flex-1 min-w-0">
@@ -468,14 +490,17 @@ const Hero = () => {
               </div>
             </div>
 
-            {/* Photo with bottom dissolve */}
+            {/* Photo with bottom dissolve. <ResponsiveImage> picks AVIF/WebP
+                where supported; PNG stays as fallback. Quality kept at AVIF
+                q70 / WebP q88 so photographic detail isn't visibly lost. */}
             <div className="relative rounded-full overflow-hidden hero-photo-float w-full h-full z-[2]">
-              <img
-                src={heroPhoto}
+              <ResponsiveImage
+                sources={heroPhotoSources}
+                sizes="(max-width: 768px) 65vw, (max-width: 1440px) 35vw, 720px"
                 alt={personalInfo.fullName}
                 className="w-full h-full object-cover object-top hero-photo-fade"
                 loading="eager"
-                fetchpriority="high"
+                fetchPriority="high"
               />
             </div>
           </div>
