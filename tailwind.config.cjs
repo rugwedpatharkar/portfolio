@@ -63,7 +63,10 @@ module.exports = {
         "fluid-2xl": "clamp(5rem, 10vw, 8rem)",
       },
       backgroundImage: {
-        "hero-pattern": "url('/herobg.png')",
+        // The hero background uses CSS image-set in index.css to pick AVIF/WebP.
+        // This class just turns on size+repeat. Browsers without image-set
+        // support fall back to the body bg color (--bg-color in :root).
+        "hero-pattern": "none",
       },
     },
   },

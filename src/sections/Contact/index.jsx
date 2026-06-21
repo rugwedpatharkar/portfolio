@@ -85,6 +85,12 @@ const ContactLinkCard = ({ link }) => {
 };
 
 /* ── Input Field with focus glow + validation ── */
+const AUTOCOMPLETE_MAP = {
+  name: "name",
+  email: "email",
+  message: "off",
+};
+
 const FormField = ({ label, name, type = "text", value, onChange, placeholder, disabled, isTextarea, maxLength }) => {
   const [focused, setFocused] = useState(false);
   const hasValue = value.length > 0;
@@ -92,20 +98,24 @@ const FormField = ({ label, name, type = "text", value, onChange, placeholder, d
   const isValid = isEmail
     ? /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value)
     : value.trim().length > 0;
+  const showError = hasValue && !isValid;
+  const fieldId = `contact-${name}`;
+  const errorId = `contact-${name}-error`;
 
   const InputTag = isTextarea ? "textarea" : "input";
 
   return (
     <div className="relative">
-      {/* Label */}
+      {/* Label — real <label htmlFor> for proper screen-reader + password-manager linkage */}
       <div className="flex items-center justify-between mb-2">
-        <span
+        <label
+          htmlFor={fieldId}
           className={`text-body-sm sm:text-body font-medium transition-colors duration-300 ${
             focused ? "text-[#915eff]" : "text-white"
           }`}
         >
           {label}
-        </span>
+        </label>
         {/* Validation indicator */}
         <AnimatePresence>
         {hasValue && (
@@ -115,6 +125,7 @@ const FormField = ({ label, name, type = "text", value, onChange, placeholder, d
             exit={{ scale: 0, opacity: 0 }}
             transition={{ duration: 0.2 }}
             className={`text-caption ${isValid ? "text-[#00cea8]" : "text-[#ff6b6b]"}`}
+            aria-hidden="true"
           >
             {isValid ? "✓" : "✗"}
           </motion.span>
@@ -130,6 +141,7 @@ const FormField = ({ label, name, type = "text", value, onChange, placeholder, d
         }}
       >
         <InputTag
+          id={fieldId}
           type={type}
           name={name}
           value={value}
@@ -139,13 +151,22 @@ const FormField = ({ label, name, type = "text", value, onChange, placeholder, d
           placeholder={placeholder}
           required
           aria-required="true"
-          aria-invalid={hasValue && !isValid}
+          aria-invalid={showError}
+          aria-describedby={showError ? errorId : undefined}
+          autoComplete={AUTOCOMPLETE_MAP[name] || "off"}
           disabled={disabled}
           rows={isTextarea ? 5 : undefined}
           maxLength={maxLength}
           className="w-full glass-card py-3 sm:py-4 px-4 sm:px-6 placeholder:text-white/40 text-white rounded-xl outline-none font-medium text-body-sm sm:text-body disabled:opacity-50 resize-none focus:ring-2 focus:ring-[#915eff]/30 focus:border-[#915eff]/40 transition-all duration-300"
         />
       </div>
+
+      {/* Screen-reader-announced error — invisible to sighted users but live for AT */}
+      {showError && (
+        <span id={errorId} role="alert" className="sr-only">
+          {isEmail ? "Please enter a valid email address." : `${label} is required.`}
+        </span>
+      )}
 
       {/* Character counter for textarea */}
       {isTextarea && maxLength && (

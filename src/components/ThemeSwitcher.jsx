@@ -63,13 +63,15 @@ const ThemeSwitcher = () => {
                   setOpen(false);
                   window.dispatchEvent(new CustomEvent("achievement", { detail: "timeTravel" }));
                 }}
+                aria-label={`Switch to ${theme.label} theme`}
+                aria-pressed={activeTheme === theme.id}
                 className={`w-full flex items-center gap-2 px-3 py-2 rounded-lg text-caption sm:text-body-sm transition-colors ${
                   activeTheme === theme.id
                     ? "text-white bg-white/10"
                     : "text-secondary hover:text-white hover:bg-white/5"
                 }`}
               >
-                <span>{theme.icon}</span>
+                <span aria-hidden="true">{theme.icon}</span>
                 <span className="font-mono">{theme.label}</span>
               </button>
             ))}

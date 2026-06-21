@@ -12,7 +12,10 @@
  *   - Cross-origin (fonts.googleapis.com, EmailJS) is left alone.
  */
 
-const CACHE_VERSION = 'v2';
+// Bump this on every deploy. With no auto-versioning we keep a manual counter;
+// users who arrive after a deploy will re-fetch index.html on first nav and
+// the new SW will swap in via skipWaiting.
+const CACHE_VERSION = 'v3';
 const SHELL_CACHE = `portfolio-shell-${CACHE_VERSION}`;
 const ASSET_CACHE = `portfolio-assets-${CACHE_VERSION}`;
 const IMAGE_CACHE = `portfolio-images-${CACHE_VERSION}`;
@@ -22,6 +25,7 @@ const APP_SHELL = [
   '/index.html',
   '/logo.png',
   '/manifest.json',
+  '/og-image.png',
 ];
 
 self.addEventListener('install', (event) => {

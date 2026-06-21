@@ -1,10 +1,7 @@
 import { Suspense, lazy, useEffect, useRef, useState } from "react";
 import useVisitorAchievements from "./hooks/useVisitorAchievements";
-import {
-  Navbar,
-  StarsCanvas,
-  Footer,
-} from "./components";
+import Navbar from "./components/Navbar";
+import Footer from "./components/Footer";
 import { easterEggs } from "./content";
 import ErrorBoundary from "./components/ErrorBoundary";
 import ScrollProgressBar from "./components/ScrollProgressBar";
@@ -19,6 +16,11 @@ import DynamicTitle from "./components/DynamicTitle";
 import AnimatedFavicon from "./components/AnimatedFavicon";
 import ThemeSwitcher from "./components/ThemeSwitcher";
 import Hero from "./sections/Hero";
+
+// StarsCanvas is purely decorative + pulls in the 945 KB three.js chunk.
+// Lazy-load it so three.js stays out of the critical-path bundle and only
+// downloads after the page is interactive.
+const StarsCanvas = lazy(() => import("./components/canvas/Stars"));
 
 // Lazy-loaded below-fold sections
 const About = lazy(() => import("./sections/About"));
@@ -128,6 +130,21 @@ const App = () => {
   }, []);
   const useCodeRain = theme === "cyber" || theme === "matrix";
 
+  // Defer StarsCanvas (945 KB three.js chunk) until after first paint.
+  // Without this, even though it's a lazy import, the Suspense renders
+  // immediately on mount and Vite preloads the chunk during initial load.
+  // Waiting for requestIdleCallback ensures three.js downloads after
+  // the page is interactive, not during LCP.
+  const [showStars, setShowStars] = useState(false);
+  useEffect(() => {
+    const ric = window.requestIdleCallback || ((cb) => setTimeout(cb, 1500));
+    const id = ric(() => setShowStars(true));
+    return () => {
+      if (window.cancelIdleCallback) window.cancelIdleCallback(id);
+      else clearTimeout(id);
+    };
+  }, []);
+
   // Hash-route: '#design' opens the internal design-system page in place of the
   // portfolio. Keeps everything in one bundle, no router dependency. Lazy-loaded
   // so the design module is zero cost for normal visitors.
@@ -160,9 +177,11 @@ const App = () => {
         <Preloader />
         <DynamicTitle />
         <AnimatedFavicon />
-        <Suspense fallback={null}>
-          <StarsCanvas fixed />
-        </Suspense>
+        {showStars && (
+          <Suspense fallback={null}>
+            <StarsCanvas fixed />
+          </Suspense>
+        )}
         {useCodeRain ? <CodeRain /> : <GradientMesh />}
         <ScrollDepthBlur />
         <Suspense fallback={null}>

@@ -152,7 +152,7 @@ const Navbar = () => {
           }}
         >
           <div className="relative">
-            <img src={logo} alt="logo" className="object-contain w-8 h-8 sm:w-9 sm:h-9 relative z-[1]" />
+            <img src={logo} alt="Rugwed Patharkar — Portfolio" className="object-contain w-8 h-8 sm:w-9 sm:h-9 relative z-[1]" />
             <div className="absolute inset-0 rounded-full bg-[#915eff]/20 blur-md opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
           </div>
           <p className="text-white text-body-sm sm:text-body font-heading font-bold cursor-pointer flex">
