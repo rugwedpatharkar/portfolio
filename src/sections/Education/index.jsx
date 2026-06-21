@@ -22,14 +22,15 @@ const ProgressRing = ({ percent, color, size = 56, strokeWidth = 3, visible }) =
       className="w-full h-full transform -rotate-90"
       aria-hidden="true"
     >
-      {/* Track */}
+      {/* Track — visible enough to make the ring read as a complete circle
+          with progress, rather than a broken open arc */}
       <circle
         cx={size / 2}
         cy={size / 2}
         r={r}
         fill="none"
         stroke="white"
-        strokeOpacity={0.06}
+        strokeOpacity={0.18}
         strokeWidth={strokeWidth}
       />
       {/* Fill */}

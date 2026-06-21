@@ -343,13 +343,19 @@ img {
   animation: shimmer 1.5s infinite;
 }
 
-/* Navbar scrolled glassmorphism */
+/* Navbar scrolled glassmorphism — denser on mobile because backdrop-filter
+   is unreliable on iOS Safari + small screens have less room to mask. */
 .navbar-scrolled {
-  background: rgba(5, 8, 22, 0.7);
+  background: rgba(5, 8, 22, 0.85);
   backdrop-filter: blur(16px) saturate(1.2);
   -webkit-backdrop-filter: blur(16px) saturate(1.2);
   border-bottom: 1px solid rgba(255, 255, 255, 0.04);
   box-shadow: 0 4px 30px rgba(0, 0, 0, 0.3);
+}
+@media (max-width: 895px) {
+  .navbar-scrolled {
+    background: rgba(5, 8, 22, 0.94);
+  }
 }
 
 /* Open to Work badge pulse */
