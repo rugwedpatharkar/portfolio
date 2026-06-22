@@ -38,6 +38,9 @@ const Planet = ({
   cloudTexture,
   ringTexture,
   moonTexture,
+  normalTexture,
+  specularTexture,
+  bumpTexture,
   rotationSpeed = 0.1,
   rings = false,
   ringColor,
@@ -54,25 +57,40 @@ const Planet = ({
   const cloudRef = useRef();
   const moonsRef = useRef([]);
 
-  /* Load textures via Suspense — Scene wraps in <Suspense> already */
-  const allTextureUrls = useMemo(
+  /* Load textures via Suspense — Scene wraps in <Suspense> already.
+     Normal + specular + bump maps must NOT be sRGB — they're data,
+     not colour. We mark them as Linear after load. */
+  const colorUrls = useMemo(
     () => [texture, nightTexture, cloudTexture, ringTexture, moonTexture].filter(Boolean),
     [texture, nightTexture, cloudTexture, ringTexture, moonTexture]
   );
-  const loadedTextures = useLoader(THREE.TextureLoader, allTextureUrls.length ? allTextureUrls : []);
+  const dataUrls = useMemo(
+    () => [normalTexture, specularTexture, bumpTexture].filter(Boolean),
+    [normalTexture, specularTexture, bumpTexture]
+  );
+  const loadedColor = useLoader(THREE.TextureLoader, colorUrls.length ? colorUrls : []);
+  const loadedData = useLoader(THREE.TextureLoader, dataUrls.length ? dataUrls : []);
+
   const textureMap = useMemo(() => {
     const out = {};
-    const order = [texture, nightTexture, cloudTexture, ringTexture, moonTexture].filter(Boolean);
-    order.forEach((url, i) => {
-      const tex = loadedTextures[i];
+    colorUrls.forEach((url, i) => {
+      const tex = loadedColor[i];
       if (tex) {
         tex.colorSpace = THREE.SRGBColorSpace;
-        tex.anisotropy = 4;
+        tex.anisotropy = 8;
+      }
+      out[url] = tex;
+    });
+    dataUrls.forEach((url, i) => {
+      const tex = loadedData[i];
+      if (tex) {
+        tex.colorSpace = THREE.NoColorSpace;
+        tex.anisotropy = 8;
       }
       out[url] = tex;
     });
     return out;
-  }, [loadedTextures, texture, nightTexture, cloudTexture, ringTexture, moonTexture]);
+  }, [loadedColor, loadedData, colorUrls, dataUrls]);
 
   useFrame((_, delta) => {
     if (planetRef.current) planetRef.current.rotation.y += delta * rotationSpeed;
@@ -140,11 +158,19 @@ const Planet = ({
         {hasTexture ? (
           <meshStandardMaterial
             map={textureMap[texture]}
+            normalMap={textureMap[normalTexture] || null}
+            normalScale={textureMap[normalTexture] ? new THREE.Vector2(0.85, 0.85) : undefined}
+            /* Specular map carries Earth's ocean mask — bright on water,
+               dark on land. We feed it to roughnessMap inverted so oceans
+               are smooth (low roughness, mirror-like) and land is rough. */
+            roughnessMap={textureMap[specularTexture] || null}
+            bumpMap={textureMap[bumpTexture] || null}
+            bumpScale={textureMap[bumpTexture] ? 0.04 : 0}
             emissiveMap={isEarth ? textureMap[nightTexture] : null}
             emissive={isEarth ? new THREE.Color("#ffc480") : new THREE.Color("#000000")}
             emissiveIntensity={isEarth ? 1.6 : 0}
-            roughness={isEarth ? 0.75 : 0.85}
-            metalness={isEarth ? 0.08 : 0.05}
+            roughness={isEarth ? 0.7 : 0.85}
+            metalness={isEarth ? 0.12 : 0.05}
           />
         ) : (
           <PlanetMaterial type={type} color={color} colorB={colorB} />

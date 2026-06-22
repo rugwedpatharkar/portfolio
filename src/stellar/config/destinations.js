@@ -70,6 +70,8 @@ export const DESTINATIONS = [
     texture: "/textures/planets/earth_atmos.jpg",
     nightTexture: "/textures/planets/earth_lights.png",
     cloudTexture: "/textures/planets/earthcloudmap.jpg",
+    normalTexture: "/textures/planets/earth_normal.jpg",
+    specularTexture: "/textures/planets/earth_specular.jpg",
     section: "experience",
     cameraTarget: { position: [12.9, 0.9, -0.1], lookAt: [11.4, 0, -1.4] },
   },

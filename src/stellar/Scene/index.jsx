@@ -14,6 +14,7 @@ import Comets from "./Comets";
 import VisibilityController from "./VisibilityController";
 import PlanetLabels from "./PlanetLabels";
 import Skybox from "./Skybox";
+import LensFlare from "./LensFlare";
 import useViewport from "../useViewport";
 import { DESTINATIONS } from "../config/destinations";
 
@@ -126,6 +127,10 @@ const Scene = ({ scrollT, activeIdx, onJump, onReady }) => {
                 nightTexture={d.nightTexture}
                 cloudTexture={d.cloudTexture}
                 ringTexture={d.ringTexture}
+                normalTexture={d.normalTexture}
+                specularTexture={d.specularTexture}
+                bumpTexture={d.bumpTexture}
+                moonTexture={d.moonTexture}
                 rings={d.rings}
                 ringColor={d.ringColor}
                 axialTilt={d.axialTilt || 0}
@@ -171,6 +176,7 @@ const Scene = ({ scrollT, activeIdx, onJump, onReady }) => {
           return null;
         })}
 
+        {!isMobile && <LensFlare position={[0, 0, 0]} />}
         <PlanetLabels activeIdx={activeIdx} />
         <CameraRig scrollT={scrollT} controlsEnabled={false} />
       </Suspense>
@@ -190,7 +196,7 @@ const Scene = ({ scrollT, activeIdx, onJump, onReady }) => {
           mipmapBlur
           radius={0.85}
         />
-        <Vignette offset={0.28} darkness={0.7} />
+        <Vignette offset={0.28} darkness={0.72} />
       </EffectComposer>
     </Canvas>
   );
