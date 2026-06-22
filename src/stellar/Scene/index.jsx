@@ -21,6 +21,8 @@ import DustParticles from "./DustParticles";
 import AdaptiveQuality from "./AdaptiveQuality";
 import MouseParallax from "./MouseParallax";
 import FreeRoam from "./FreeRoam";
+import ScaleGhost from "./ScaleGhost";
+import Constellations from "./Constellations";
 import useViewport from "../useViewport";
 import { DESTINATIONS } from "../config/destinations";
 
@@ -203,6 +205,8 @@ const Scene = ({ scrollT, activeIdx, onJump, onReady, freeRoamEnabled }) => {
         {!isMobile && <LensFlare position={[0, 0, 0]} />}
         {!isMobile && !reducedMotion && <DustParticles />}
         <PlanetLabels activeIdx={activeIdx} />
+        <Constellations scrollTRef={scrollT} />
+        <ScaleGhost activeIdx={activeIdx} />
         {!isMobile && !reducedMotion && <MouseParallax offsetRef={parallaxOffsetRef} />}
         <FreeRoam enabled={freeRoamEnabled} offsetRef={freeRoamOffsetRef} />
         <CameraRig

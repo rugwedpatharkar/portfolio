@@ -1,6 +1,7 @@
 /* eslint-disable react/prop-types */
 import { useEffect, useMemo, useState } from "react";
 import useViewport from "./useViewport";
+import { PLANET_FACTS } from "./data/planetFacts";
 import {
   personalInfo,
   experiences,
@@ -381,6 +382,72 @@ const RENDERERS = {
   contact: ContactContent,
 };
 
+const PlanetFactsAccordion = ({ destination }) => {
+  const [open, setOpen] = useState(false);
+  const facts = PLANET_FACTS[destination?.id];
+  if (!facts) return null;
+  const rows = [
+    ["Body", facts.body],
+    ["Distance", facts.distance],
+    ["Diameter", facts.diameter],
+    ["Year", facts.year],
+    ["Day", facts.day],
+    ["Gravity", facts.gravity],
+    ["Atmosphere", facts.atmosphere],
+    ["Moons", facts.moons],
+  ];
+  return (
+    <div style={{ marginTop: 14, borderTop: "1px solid rgba(255,255,255,0.08)", paddingTop: 12 }}>
+      <button
+        onClick={() => setOpen((v) => !v)}
+        style={{
+          all: "unset",
+          cursor: "pointer",
+          display: "flex",
+          alignItems: "center",
+          gap: 8,
+          fontFamily: "'JetBrains Mono', monospace",
+          fontSize: 10.5,
+          color: destination.color,
+          letterSpacing: "0.1em",
+          textTransform: "uppercase",
+        }}
+      >
+        <span>{open ? "▼" : "▶"}</span>
+        <span>Planet facts · real data</span>
+      </button>
+      {open && (
+        <div style={{ marginTop: 10 }}>
+          <div style={{ display: "grid", gridTemplateColumns: "auto 1fr", gap: "5px 16px", fontSize: 11.5 }}>
+            {rows.map(([k, v]) => (
+              <div key={k} style={{ display: "contents" }}>
+                <span style={{ color: "rgba(255,255,255,0.42)", fontFamily: "'JetBrains Mono', monospace", textTransform: "uppercase", fontSize: 9.5, letterSpacing: "0.08em" }}>{k}</span>
+                <span style={{ color: "rgba(255,255,255,0.82)" }}>{v}</span>
+              </div>
+            ))}
+          </div>
+          <div
+            style={{
+              marginTop: 12,
+              padding: "10px 12px",
+              background: `${destination.color}10`,
+              border: `1px solid ${destination.color}30`,
+              borderRadius: 8,
+              fontSize: 12,
+              color: "rgba(255,255,255,0.85)",
+              lineHeight: 1.55,
+              fontStyle: "italic",
+            }}
+          >
+            <span style={{ color: destination.color, fontWeight: 600, fontStyle: "normal" }}>★ </span>
+            {facts.wow}
+          </div>
+        </div>
+      )}
+    </div>
+  );
+};
+
 const ContentPanel = ({ destination }) => {
   const Renderer = useMemo(() => RENDERERS[destination?.section] || null, [destination]);
   const { isMobile, isCompact } = useViewport();
@@ -413,6 +480,7 @@ const ContentPanel = ({ destination }) => {
       }}
     >
       <Renderer />
+      <PlanetFactsAccordion destination={destination} />
     </div>
   );
 };

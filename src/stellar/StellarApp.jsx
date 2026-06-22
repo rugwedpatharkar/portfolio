@@ -13,6 +13,7 @@ import WarpOpening from "./WarpOpening";
 import AmbientAudio from "./AmbientAudio";
 import CockpitFrame from "./CockpitFrame";
 import StardustTrail from "./StardustTrail";
+import Breadcrumb from "./Breadcrumb";
 import { easterEggs } from "../content";
 import { DESTINATIONS, SCROLL_LENGTH_PER_DESTINATION } from "./config/destinations";
 
@@ -134,6 +135,7 @@ const StellarApp = () => {
           <StardustTrail />
           <Minimap activeIdx={activeIdx} onJump={handleJump} />
           <SideRail activeIdx={activeIdx} onJump={handleJump} />
+          <Breadcrumb activeIdx={activeIdx} />
           <PlanetHUD destination={DESTINATIONS[activeIdx]} />
           <ContentPanel destination={DESTINATIONS[activeIdx]} />
           <CockpitFrame enabled={cockpit} scrollTRef={scrollTRef} />
