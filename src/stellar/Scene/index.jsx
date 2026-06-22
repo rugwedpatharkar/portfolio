@@ -127,7 +127,7 @@ const Scene = ({ scrollT, activeIdx, onJump, onReady, freeRoamEnabled, wideRef, 
             zero-length direction → no diffuse.)
           - Cool RIM from the sun side (−x), back-left: silhouette pop
             against the dark starfield, the classic space-movie edge. */}
-      <ambientLight intensity={0.18} color="#9bb0d8" />
+      <ambientLight intensity={0.34} color="#a9bce0" />
       {/* Sun-direction key + shadow caster, follows the active planet. */}
       <KeyLight scrollT={scrollT} castShadow={!isMobile} />
       <directionalLight position={[-30, 10, -25]} intensity={0.5} color="#6f8cff" />
@@ -301,16 +301,17 @@ const Scene = ({ scrollT, activeIdx, onJump, onReady, freeRoamEnabled, wideRef, 
           mipmapBlur
           radius={0.45}
         />
-        {/* Filmic grade: deep blacks + a touch more contrast, saturation
-            pulled slightly NEGATIVE for the restrained near-monochrome look
-            of real space imagery — but only −0.05 (not a full bleach) so
-            planets keep their identity and it stays eye-soothing. */}
+        {/* Grade: gentle and TRUE-TO-COLOUR. Earlier deep-blacks + high
+            contrast + desaturation read as dark/murky with off colours;
+            dialed back to a light touch (slightly lifted, mild contrast,
+            a hint MORE saturation so planet colours read accurately and
+            vividly) with a soft vignette. Eye-soothing over "photoreal". */}
         <CinematicGrade
-          brightness={-0.03}
-          contrast={0.17}
-          saturation={-0.05}
-          vigOffset={0.3}
-          vigDarkness={0.9}
+          brightness={0.01}
+          contrast={0.06}
+          saturation={0.06}
+          vigOffset={0.32}
+          vigDarkness={0.62}
         />
       </EffectComposer>
     </Canvas>

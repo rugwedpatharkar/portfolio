@@ -17,8 +17,10 @@ import * as THREE from "three";
  * (see CinematicGrade.jsx). Eased so it breathes, never snaps.
  */
 
-const EXP_DARK = 1.15; // open aperture — deep space
-const EXP_SUN = 0.68; // stopped down — staring at the sun
+/* Kept gentle: an aggressive stop-down read as "too dark". The floor is
+   high so planet shots stay bright; only a direct sun-stare dims a little. */
+const EXP_DARK = 1.3; // open aperture — deep space / planets
+const EXP_SUN = 1.0; // mild stop-down when staring into the sun
 const EASE_60 = 0.05;
 
 const _fwd = new THREE.Vector3();
