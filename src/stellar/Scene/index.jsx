@@ -121,7 +121,7 @@ const Scene = ({ scrollT, activeIdx, onJump, onReady, freeRoamEnabled, wideRef, 
             zero-length direction → no diffuse.)
           - Cool RIM from the sun side (−x), back-left: silhouette pop
             against the dark starfield, the classic space-movie edge. */}
-      <ambientLight intensity={0.28} color="#9bb0d8" />
+      <ambientLight intensity={0.18} color="#9bb0d8" />
       <directionalLight position={[55, 28, 42]} intensity={1.2} color="#fff2d8" />
       <directionalLight position={[-30, 10, -25]} intensity={0.5} color="#6f8cff" />
 
@@ -294,12 +294,16 @@ const Scene = ({ scrollT, activeIdx, onJump, onReady, freeRoamEnabled, wideRef, 
           mipmapBlur
           radius={0.45}
         />
+        {/* Filmic grade: deep blacks + a touch more contrast, saturation
+            pulled slightly NEGATIVE for the restrained near-monochrome look
+            of real space imagery — but only −0.05 (not a full bleach) so
+            planets keep their identity and it stays eye-soothing. */}
         <CinematicGrade
-          brightness={-0.02}
-          contrast={0.14}
-          saturation={0.12}
+          brightness={-0.03}
+          contrast={0.17}
+          saturation={-0.05}
           vigOffset={0.3}
-          vigDarkness={0.82}
+          vigDarkness={0.9}
         />
       </EffectComposer>
     </Canvas>

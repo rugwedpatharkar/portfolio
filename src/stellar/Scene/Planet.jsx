@@ -4,6 +4,7 @@ import { useFrame, useLoader } from "@react-three/fiber";
 import * as THREE from "three";
 import PlanetMaterial from "./PlanetMaterial";
 import AtmosphereGlow from "./AtmosphereGlow";
+import RingSystem from "./RingSystem";
 
 /* Atmosphere preset per planet type. With bloom on, the rim will glow
    secondarily on its own — keep intensities moderate so atmospheres
@@ -249,20 +250,11 @@ const Planet = ({
 
       {rings && (
         <group rotation={[Math.PI / 2.05, 0, 0]}>
-          {/* Textured ring (Saturn) — use the ring image as both color and alpha */}
+          {/* Realistic ring system (Saturn) — concentric ringlets, Cassini
+              Division, granular particle shimmer. Falls back to simple
+              banded discs when no ring texture is supplied. */}
           {textureMap[ringTexture] ? (
-            <mesh>
-              <ringGeometry args={[radius * 1.35, radius * 2.25, 96]} />
-              <meshBasicMaterial
-                map={textureMap[ringTexture]}
-                alphaMap={textureMap[ringTexture]}
-                transparent
-                opacity={0.95}
-                side={THREE.DoubleSide}
-                toneMapped={false}
-                depthWrite={false}
-              />
-            </mesh>
+            <RingSystem radius={radius} texture={textureMap[ringTexture]} tint={rColor} />
           ) : (
             <>
               <mesh>
