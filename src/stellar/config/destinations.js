@@ -128,7 +128,8 @@ export const DESTINATIONS = [
     radius: 1.7,
     color: "#915eff",
     colorB: "#3d2370",
-    texture: "/textures/planets/jupitermap.jpg",
+    texture: "/textures/planets/jupitermap_hd.jpg",
+    bumpTexture: "/textures/planets/jupiter_bump.jpg",
     section: "skills",
     /* Jupiter — wide + slight roll to sell the scale */
     cameraTarget: { position: [27.4, 1.2, 0.6], lookAt: [24.6, 0.1, -1.8], fov: 52, roll: -0.05 },
@@ -146,7 +147,8 @@ export const DESTINATIONS = [
     radius: 1.15,
     color: "#e3c485",
     colorB: "#a07a3a",
-    texture: "/textures/planets/saturnmap.jpg",
+    texture: "/textures/planets/saturnmap_hd.jpg",
+    bumpTexture: "/textures/planets/saturn_bump.jpg",
     section: "notes",
     /* Saturn — dutch tilt to throw the rings across the frame */
     cameraTarget: { position: [32.6, 1.8, 3.7], lookAt: [30.2, 0, 1.5], fov: 50, roll: 0.11 },
@@ -163,7 +165,8 @@ export const DESTINATIONS = [
     radius: 1.0,
     color: "#bf61ff",
     colorB: "#7e3eab",
-    texture: "/textures/planets/uranusmap.jpg",
+    texture: "/textures/planets/uranusmap_hd.jpg",
+    bumpTexture: "/textures/planets/uranus_bump.jpg",
     section: "education",
     /* Uranus — strong dutch tilt, echoing the planet's 98° axis */
     cameraTarget: { position: [37.0, 1.5, 0.9], lookAt: [34.8, 0, -1.0], fov: 46, roll: 0.17 },
@@ -182,7 +185,8 @@ export const DESTINATIONS = [
     radius: 1.05,
     color: "#1a73d8",
     colorB: "#0a3a72",
-    texture: "/textures/planets/neptunemap.jpg",
+    texture: "/textures/planets/neptunemap_hd.jpg",
+    bumpTexture: "/textures/planets/neptune_bump.jpg",
     section: "hobbies",
     /* Neptune — pulled back, lonely framing in the deep dark */
     cameraTarget: { position: [41.3, 1.4, 3.1], lookAt: [39.0, 0, 0.8], fov: 44 },
