@@ -297,7 +297,7 @@ const Scene = ({ scrollT, activeIdx, onJump, onReady, freeRoamEnabled, wideRef, 
           (the single most expensive pass). */}
       <EffectComposer multisampling={0} disableNormalPass>
         <Bloom
-          intensity={isMobile ? 0.7 : 1.0}
+          intensity={isMobile ? 0.6 : 0.8}
           luminanceThreshold={0.9}
           luminanceSmoothing={0.5}
           mipmapBlur
@@ -310,17 +310,18 @@ const Scene = ({ scrollT, activeIdx, onJump, onReady, freeRoamEnabled, wideRef, 
         {!isMobile && (
           <DepthOfField target={DOF_TARGET} focalLength={0.04} bokehScale={2.2} height={480} />
         )}
-        {/* Grade: gentle and TRUE-TO-COLOUR. Earlier deep-blacks + high
-            contrast + desaturation read as dark/murky with off colours;
-            dialed back to a light touch (slightly lifted, mild contrast,
-            a hint MORE saturation so planet colours read accurately and
-            vividly) with a soft vignette. Eye-soothing over "photoreal". */}
+        {/* Grade: bright base (the real fix for the earlier "too dark"),
+            but saturation pulled NEGATIVE — pixel analysis showed planets
+            at 0.6–0.9 HSV saturation (cartoonish; real space sits ~0.3).
+            −0.12 brings colours back to natural without going grey because
+            the base stays bright. Mild contrast, soft vignette so the
+            background doesn't read as high-contrast. */}
         <CinematicGrade
-          brightness={0.01}
-          contrast={0.06}
-          saturation={0.06}
-          vigOffset={0.32}
-          vigDarkness={0.62}
+          brightness={0.015}
+          contrast={0.04}
+          saturation={-0.12}
+          vigOffset={0.34}
+          vigDarkness={0.5}
         />
       </EffectComposer>
     </Canvas>

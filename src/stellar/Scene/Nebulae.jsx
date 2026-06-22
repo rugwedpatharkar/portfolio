@@ -34,9 +34,13 @@ void main() {
   float lum = max(c.r, max(c.g, c.b));
   float a = smoothstep(uLumThresholdLow, uLumThresholdHigh, lum) * uOpacity;
   if (a < 0.005) discard;
-  /* Mild contrast lift so colors don't wash out under additive blend */
+  /* DESATURATE the nebula (pixel analysis flagged the sky band at ~0.6
+     saturation — too punchy). Pull toward luminance so they read as soft
+     cosmic haze, not neon clouds; the old pow(0.85) boosted saturation,
+     removed. */
   vec3 col = c.rgb;
-  col = pow(col, vec3(0.85));
+  float g = dot(col, vec3(0.299, 0.587, 0.114));
+  col = mix(vec3(g), col, 0.6);
   gl_FragColor = vec4(col, a);
 }
 `;
@@ -45,11 +49,11 @@ void main() {
    not in front of it. Bloom amplifies the bright cores anyway, so we
    don't need raw opacity for impact. */
 const NEBULAE = [
-  { url: "/textures/nebulae/eagle.jpg", position: [-38, 8, -28], scale: 30, opacity: 0.72 },
-  { url: "/textures/nebulae/carina.jpg", position: [50, -6, 22], scale: 34, opacity: 0.62 },
-  { url: "/textures/nebulae/crab.jpg", position: [22, 12, -36], scale: 22, opacity: 0.68 },
-  { url: "/textures/nebulae/helix.jpg", position: [-60, -10, 30], scale: 24, opacity: 0.52 },
-  { url: "/textures/nebulae/orion.jpg", position: [70, 14, -10], scale: 28, opacity: 0.55 },
+  { url: "/textures/nebulae/eagle.jpg", position: [-38, 8, -28], scale: 30, opacity: 0.42 },
+  { url: "/textures/nebulae/carina.jpg", position: [50, -6, 22], scale: 34, opacity: 0.36 },
+  { url: "/textures/nebulae/crab.jpg", position: [22, 12, -36], scale: 22, opacity: 0.4 },
+  { url: "/textures/nebulae/helix.jpg", position: [-60, -10, 30], scale: 24, opacity: 0.3 },
+  { url: "/textures/nebulae/orion.jpg", position: [70, 14, -10], scale: 28, opacity: 0.32 },
 ];
 
 const NebulaPlane = ({ url, position, scale, opacity }) => {
@@ -61,8 +65,8 @@ const NebulaPlane = ({ url, position, scale, opacity }) => {
     return {
       uMap: { value: tex },
       uOpacity: { value: opacity },
-      uLumThresholdLow: { value: 0.08 },
-      uLumThresholdHigh: { value: 0.42 },
+      uLumThresholdLow: { value: 0.16 },
+      uLumThresholdHigh: { value: 0.5 },
     };
   }, [tex, opacity]);
 
