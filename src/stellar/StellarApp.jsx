@@ -21,6 +21,8 @@ import SpeedRun from "./SpeedRun";
 import QuoteFeed from "./QuoteFeed";
 import VisitorLog from "./VisitorLog";
 import AnswerListener from "./AnswerListener";
+import VoiceNav from "./VoiceNav";
+import FpsMonitor from "./FpsMonitor";
 import { easterEggs } from "../content";
 import { DESTINATIONS, SCROLL_LENGTH_PER_DESTINATION } from "./config/destinations";
 
@@ -152,6 +154,8 @@ const StellarApp = () => {
           <QuoteFeed />
           <VisitorLog />
           <AnswerListener />
+          <VoiceNav onJump={handleJump} />
+          <FpsMonitor />
           <PlanetHUD destination={DESTINATIONS[activeIdx]} />
           <ContentPanel destination={DESTINATIONS[activeIdx]} />
           <CockpitFrame enabled={cockpit} scrollTRef={scrollTRef} />
