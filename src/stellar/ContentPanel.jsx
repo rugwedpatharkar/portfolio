@@ -482,14 +482,14 @@ const ContentPanel = ({ destination }) => {
         fontSize: isCompact ? "13.5px" : "14.5px",
       }}
     >
-      <div key={fadeKey} style={{ animation: "stellarPanelIn 480ms cubic-bezier(0.16, 1, 0.3, 1)" }}>
+      <div key={fadeKey} style={{ animation: "stellarPanelIn 280ms cubic-bezier(0.16, 1, 0.3, 1)" }}>
         <Renderer />
         <PlanetFactsAccordion destination={destination} />
       </div>
       <style>{`
         @keyframes stellarPanelIn {
-          0% { opacity: 0; transform: translateY(10px); filter: blur(4px); }
-          100% { opacity: 1; transform: translateY(0); filter: blur(0); }
+          0% { opacity: 0; transform: translateY(6px); }
+          100% { opacity: 1; transform: translateY(0); }
         }
       `}</style>
     </div>

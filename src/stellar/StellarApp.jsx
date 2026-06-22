@@ -23,6 +23,7 @@ import AnswerListener from "./AnswerListener";
 import VoiceNav from "./VoiceNav";
 import FpsMonitor from "./FpsMonitor";
 import HelpOverlay from "./HelpOverlay";
+import CinematicLayer from "./CinematicLayer";
 import { easterEggs } from "../content";
 import { DESTINATIONS, SCROLL_LENGTH_PER_DESTINATION } from "./config/destinations";
 
@@ -100,10 +101,13 @@ const StellarApp = () => {
     const totalScroll = (DESTINATIONS.length * SCROLL_LENGTH_PER_DESTINATION) / 100;
     const targetY = (idx / (DESTINATIONS.length - 1)) * window.innerHeight * totalScroll;
     if (window.__lenis) {
-      window.__lenis.scrollTo(targetY, { duration: 1.6 });
+      /* Jump duration 1.6 → 1.0s — feels like a punchier hyperjump */
+      window.__lenis.scrollTo(targetY, { duration: 1.0 });
     } else {
       window.scrollTo({ top: targetY, behavior: "smooth" });
     }
+    /* Camera shake on jump for tactile arrival */
+    window.dispatchEvent(new CustomEvent("stellar:shake", { detail: { amp: 0.12, duration: 0.3 } }));
   }, []);
 
   /* Read URL hash once the countdown finishes (full intro complete),
@@ -155,6 +159,7 @@ const StellarApp = () => {
           <AnswerListener />
           <FpsMonitor />
           <HelpOverlay />
+          <CinematicLayer getDestinationLabel={(id) => DESTINATIONS.find((d) => d.id === id)?.label} />
           <PlanetHUD destination={DESTINATIONS[activeIdx]} />
           <ContentPanel destination={DESTINATIONS[activeIdx]} />
           <CockpitFrame enabled={cockpit} scrollTRef={scrollTRef} />

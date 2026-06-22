@@ -53,13 +53,13 @@ const CameraRig = ({ scrollT, controlsEnabled, parallaxOffsetRef, freeRoamOffset
   useFrame(() => {
     if (controlsEnabled) return;
     const rawT = THREE.MathUtils.clamp(scrollT.current ?? 0, 0, 1);
-    /* Per-segment easing: find which segment we're in (N-1 segments
-       across N destinations), apply easeOut within the segment. */
+    /* Per-segment easing — eased curve softened from quart to cubic
+       so arrival isn't as sluggish at the tail. */
     const segCount = DESTINATIONS.length - 1;
     const segT = rawT * segCount;
     const segIdx = Math.floor(segT);
     const innerT = THREE.MathUtils.clamp(segT - segIdx, 0, 1);
-    const easedInner = easeOutQuart(innerT);
+    const easedInner = 1 - Math.pow(1 - innerT, 3); // easeOutCubic — snappier than quart
     const t = THREE.MathUtils.clamp((segIdx + easedInner) / segCount, 0, 1);
 
     const camP = splines.current.cam.getPoint(t);
@@ -76,9 +76,10 @@ const CameraRig = ({ scrollT, controlsEnabled, parallaxOffsetRef, freeRoamOffset
       basePos.current.add(freeRoamOffsetRef.current);
     }
 
-    /* Slower lerp (0.12 vs 0.18) for a more cinematic settle */
-    camera.position.lerp(basePos.current, freeRoamEnabled ? 0.55 : 0.12);
-    lookAtTarget.current.lerp(lookP, 0.12);
+    /* Camera lerp bumped 0.12 → 0.18 — snappier settle, less "I'm
+       still catching up to where I'm supposed to be looking". */
+    camera.position.lerp(basePos.current, freeRoamEnabled ? 0.55 : 0.18);
+    lookAtTarget.current.lerp(lookP, 0.18);
     camera.lookAt(lookAtTarget.current);
   });
 

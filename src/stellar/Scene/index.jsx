@@ -21,6 +21,7 @@ import DustParticles from "./DustParticles";
 import AdaptiveQuality from "./AdaptiveQuality";
 import MouseParallax from "./MouseParallax";
 import FreeRoam from "./FreeRoam";
+import CameraShake from "./CameraShake";
 import ScaleGhost from "./ScaleGhost";
 import Constellations from "./Constellations";
 import Voyager from "./Voyager";
@@ -226,6 +227,7 @@ const Scene = ({ scrollT, activeIdx, onJump, onReady, freeRoamEnabled }) => {
         <WatneyPotato />
         {!isMobile && !reducedMotion && <MouseParallax offsetRef={parallaxOffsetRef} />}
         <FreeRoam enabled={freeRoamEnabled} offsetRef={freeRoamOffsetRef} />
+        <CameraShake parallaxOffsetRef={parallaxOffsetRef} />
         <CameraRig
           scrollT={scrollT}
           controlsEnabled={false}

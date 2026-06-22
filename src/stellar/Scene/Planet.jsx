@@ -111,8 +111,8 @@ const Planet = ({
       planetRef.current.rotation.y += delta * rotationSpeed + dragSpinRef.current * delta;
     }
     if (cloudRef.current) cloudRef.current.rotation.y += delta * rotationSpeed * 1.35;
-    /* Hover lerp — never trigger a React re-render */
-    hoverScaleRef.current += (targetHoverRef.current - hoverScaleRef.current) * 0.12;
+    /* Hover lerp — snappier (0.12 → 0.22) so the pop reads cleanly */
+    hoverScaleRef.current += (targetHoverRef.current - hoverScaleRef.current) * 0.22;
     if (groupRef.current) groupRef.current.scale.setScalar(hoverScaleRef.current);
     moonsRef.current.forEach((m, i) => {
       if (m) {

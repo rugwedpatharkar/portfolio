@@ -19,11 +19,14 @@ const Navigator = ({ scrollTRef, onDestinationChange }) => {
   const lenisRef = useRef(null);
 
   useEffect(() => {
+    /* Lerp bumped from 0.085 → 0.14 for snappier wheel response —
+       still smooth but reaches target ~40% faster, removes the
+       slightly molasses feel on fast scrolls. */
     const lenis = new Lenis({
       smoothWheel: true,
-      lerp: 0.085,
-      wheelMultiplier: 1.0,
-      touchMultiplier: 1.4,
+      lerp: 0.14,
+      wheelMultiplier: 1.1,
+      touchMultiplier: 1.5,
     });
     lenisRef.current = lenis;
     // Expose for debugging — usable in DevTools as `window.__lenis.scrollTo(targetY)`

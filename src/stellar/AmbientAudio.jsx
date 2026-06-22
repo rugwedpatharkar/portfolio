@@ -1,5 +1,6 @@
 /* eslint-disable react/prop-types */
 import { useEffect, useRef, useState } from "react";
+import { r2Affirm, r2Excited, r2Hello, r2Sad, r2Whoosh } from "./r2d2";
 
 /*
  * Brian-Eno-style synthesized space drone — no external audio file,
@@ -18,7 +19,12 @@ const FREQS = [55, 82.5, 110]; // A1, ~E2, A2 — a tonic-fifth-octave drone
 
 const AmbientAudio = () => {
   const [enabled, setEnabled] = useState(false);
+  /* R2 mode is global — listens for window 'stellar:r2d2:*' events
+     even when drone is off, so the toggle below can flip on R2 chirps
+     independently of the drone. Defaults true (R2 is the fun bit). */
+  const r2On = useRef(true);
   const ctxRef = useRef(null);
+  const r2GainRef = useRef(null);
   const masterGainRef = useRef(null);
   const oscRefs = useRef([]);
   const noiseGainRef = useRef(null);
@@ -92,28 +98,42 @@ const AmbientAudio = () => {
     masterGain.gain.setValueAtTime(0, ctx.currentTime);
     masterGain.gain.linearRampToValueAtTime(0.45, ctx.currentTime + 2.4);
 
-    /* Whoosh on destination change */
+    /* R2 sounds — route through their own gain bus so they're audible
+       even if the drone gain is low. Always plays when ambient audio
+       is on; bypass when off. */
+    const r2Gain = ctx.createGain();
+    r2Gain.gain.value = 0.9;
+    r2Gain.connect(ctx.destination);
+    r2GainRef.current = r2Gain;
+
     const onWhoosh = () => {
-      const burst = ctx.createBufferSource();
-      const bbuf = ctx.createBuffer(1, ctx.sampleRate * 0.6, ctx.sampleRate);
-      const bd = bbuf.getChannelData(0);
-      for (let i = 0; i < bd.length; i++) bd[i] = (Math.random() * 2 - 1) * (1 - i / bd.length);
-      burst.buffer = bbuf;
-      const bgain = ctx.createGain();
-      bgain.gain.value = 0.12;
-      const filt = ctx.createBiquadFilter();
-      filt.type = "bandpass";
-      filt.frequency.value = 600;
-      filt.Q.value = 4;
-      filt.frequency.linearRampToValueAtTime(2200, ctx.currentTime + 0.5);
-      burst.connect(filt).connect(bgain).connect(masterGain);
-      burst.start();
-      burst.stop(ctx.currentTime + 0.6);
+      if (!ctxRef.current) return;
+      /* Use R2's astromech whoosh — descending sweep */
+      r2Whoosh(ctx, r2Gain);
+    };
+    const onR2 = (type) => () => {
+      if (!ctxRef.current) return;
+      const fn = {
+        affirm: r2Affirm, hello: r2Hello, excited: r2Excited,
+        sad: r2Sad, whoosh: r2Whoosh,
+      }[type] || r2Affirm;
+      fn(ctx, r2Gain);
     };
     window.addEventListener("stellar:whoosh", onWhoosh);
+    window.addEventListener("stellar:r2:affirm", onR2("affirm"));
+    window.addEventListener("stellar:r2:hello", onR2("hello"));
+    window.addEventListener("stellar:r2:excited", onR2("excited"));
+    window.addEventListener("stellar:r2:sad", onR2("sad"));
+
+    /* Greet visitor on enable */
+    setTimeout(() => r2Hello(ctx, r2Gain), 800);
 
     return () => {
       window.removeEventListener("stellar:whoosh", onWhoosh);
+      window.removeEventListener("stellar:r2:affirm", onR2("affirm"));
+      window.removeEventListener("stellar:r2:hello", onR2("hello"));
+      window.removeEventListener("stellar:r2:excited", onR2("excited"));
+      window.removeEventListener("stellar:r2:sad", onR2("sad"));
       try {
         masterGain.gain.cancelScheduledValues(ctx.currentTime);
         masterGain.gain.linearRampToValueAtTime(0, ctx.currentTime + 0.4);
