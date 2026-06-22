@@ -108,14 +108,21 @@ const Scene = ({ scrollT, activeIdx, onJump, onReady, freeRoamEnabled, wideRef, 
       <color attach="background" args={["#03050d"]} />
       <VisibilityController />
       <AdaptiveQuality scrollTRef={scrollT} highDpr={dprCap} lowDpr={isMobile ? 1.0 : 1.2} />
-      {/* Ambient — slight blue tilt for cinema "shadows are cool" */}
-      <ambientLight intensity={0.55} color="#9bb0d8" />
-      {/* Sun-direction key light. ACES tone-maps the highlight roll-off
-          so we can push intensity up without clipping. */}
-      <directionalLight position={[0, 0, 0]} intensity={1.6} color="#fff0c8" />
-      {/* Rim back-light — picks out planet silhouettes from the dark
-          starfield, the classic "space movie" two-light setup. */}
-      <directionalLight position={[-25, 8, -20]} intensity={0.5} color="#7090ff" />
+      {/* Vacuum-lean three-point lighting. Every planet sits on +x with
+          the camera on the FAR (anti-sun) side, so a literal sun-at-origin
+          key would throw every hero shot into shadow. Instead:
+
+          - Low ambient (0.55 → 0.28): real dimension, deep-but-readable
+            shadow sides instead of the old flat fully-lit look.
+          - KEY from the camera-side octant (+x +y +z): rakes the visible
+            face so planets read as 3D spheres with a terminator, not flat
+            discs. (The dead directional at [0,0,0] did literally nothing —
+            zero-length direction → no diffuse.)
+          - Cool RIM from the sun side (−x), back-left: silhouette pop
+            against the dark starfield, the classic space-movie edge. */}
+      <ambientLight intensity={0.28} color="#9bb0d8" />
+      <directionalLight position={[55, 28, 42]} intensity={1.2} color="#fff2d8" />
+      <directionalLight position={[-30, 10, -25]} intensity={0.5} color="#6f8cff" />
 
       <Suspense fallback={null}>
         <Skybox />
@@ -275,10 +282,10 @@ const Scene = ({ scrollT, activeIdx, onJump, onReady, freeRoamEnabled, wideRef, 
       <EffectComposer multisampling={0} disableNormalPass>
         <Bloom
           intensity={isMobile ? 0.7 : 1.0}
-          luminanceThreshold={0.68}
-          luminanceSmoothing={0.6}
+          luminanceThreshold={0.9}
+          luminanceSmoothing={0.5}
           mipmapBlur
-          radius={0.6}
+          radius={0.45}
         />
         <CinematicGrade
           brightness={-0.02}

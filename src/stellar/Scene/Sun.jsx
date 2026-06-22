@@ -92,7 +92,11 @@ const Sun = ({
           toneMapped={false}
         />
       </mesh>
-      <pointLight color="#ffe5b0" intensity={2.4} distance={80} decay={1.1} />
+      {/* Warm sun-side fill for the inner planets. Trimmed (was 2.4) and
+          given faster decay so it no longer stacks with the directional
+          key to over-expose the outer gas giants — those sit far enough
+          out that this contributes little, which is physically right. */}
+      <pointLight color="#ffe5b0" intensity={1.1} distance={60} decay={1.5} />
     </group>
   );
 };
