@@ -22,6 +22,9 @@ const Sun = ({
   onPointerOut,
 }) => {
   const meshRef = useRef();
+  const innerCoronaRef = useRef();
+  const outerCoronaRef = useRef();
+  const tRef = useRef(0);
 
   const urls = useMemo(() => (texture ? [texture] : []), [texture]);
   const loaded = useLoader(THREE.TextureLoader, urls);
@@ -32,7 +35,21 @@ const Sun = ({
   }
 
   useFrame((_, delta) => {
+    tRef.current += delta;
+    const t = tRef.current;
     if (meshRef.current) meshRef.current.rotation.y += delta * 0.04;
+    /* Subtle breathing — corona opacity + scale oscillate at different
+       frequencies so the sun feels alive without a obvious sine-wave. */
+    if (innerCoronaRef.current) {
+      const pulse = 1 + Math.sin(t * 0.9) * 0.04 + Math.sin(t * 2.3 + 1.7) * 0.02;
+      innerCoronaRef.current.scale.setScalar(pulse);
+      innerCoronaRef.current.material.opacity = 0.45 + Math.sin(t * 1.3) * 0.08;
+    }
+    if (outerCoronaRef.current) {
+      const pulse = 1 + Math.sin(t * 0.55 + 0.8) * 0.05;
+      outerCoronaRef.current.scale.setScalar(pulse);
+      outerCoronaRef.current.material.opacity = 0.22 + Math.sin(t * 0.7 + 2.1) * 0.05;
+    }
   });
 
   return (
@@ -52,8 +69,9 @@ const Sun = ({
           toneMapped={false}
         />
       </mesh>
-      {/* Inner corona — close, bright halo that bloom grabs first */}
-      <mesh>
+      {/* Inner corona — close, bright halo that bloom grabs first.
+          Subtly breathes via useFrame above. */}
+      <mesh ref={innerCoronaRef}>
         <sphereGeometry args={[radius * 1.08, 32, 32]} />
         <meshBasicMaterial
           color="#fff0c0"
@@ -64,7 +82,7 @@ const Sun = ({
         />
       </mesh>
       {/* Outer corona — softer, wider falloff that bloom smears out */}
-      <mesh>
+      <mesh ref={outerCoronaRef}>
         <sphereGeometry args={[radius * 1.45, 32, 32]} />
         <meshBasicMaterial
           color="#ffa040"
