@@ -24,7 +24,7 @@ import FpsMonitor from "./FpsMonitor";
 import HelpOverlay from "./HelpOverlay";
 import CinematicLayer from "./CinematicLayer";
 import { easterEggs } from "../content";
-import { DESTINATIONS, SCROLL_LENGTH_PER_DESTINATION } from "./config/destinations";
+import { DESTINATIONS } from "./config/destinations";
 
 /* Hash → destination utilities */
 const findDestinationIndexByHash = (hash) => {
@@ -115,8 +115,15 @@ const StellarApp = () => {
   }, []);
 
   const handleJump = useCallback((idx) => {
-    const totalScroll = (DESTINATIONS.length * SCROLL_LENGTH_PER_DESTINATION) / 100;
-    const targetY = (idx / (DESTINATIONS.length - 1)) * window.innerHeight * totalScroll;
+    /* Map destination index → exact scroll position. Progress runs 0..1
+       over (scrollHeight − viewport), so targetY = frac × that range. The
+       old formula scaled by the viewport-count (12) instead of the real
+       scroll range and overshot by ~1 destination — the cause of jumps /
+       hash nav landing one planet past the target. */
+    const max =
+      (document.scrollingElement || document.documentElement).scrollHeight -
+      window.innerHeight;
+    const targetY = (idx / (DESTINATIONS.length - 1)) * max;
     if (window.__lenis) {
       /* Jump duration 1.6 → 1.0s — feels like a punchier hyperjump */
       window.__lenis.scrollTo(targetY, { duration: 1.0 });
