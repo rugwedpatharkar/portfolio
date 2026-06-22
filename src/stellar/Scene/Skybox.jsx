@@ -79,10 +79,14 @@ const Skybox = () => {
           the sky washed out to near-WHITE. Disabling tone-mapping here +
           a directly-dimmed colour makes the backdrop deterministic
           everywhere. The color grade still applies as a post pass. */}
+      {/* IN-BETWEEN brightness: the leveled texture keeps its baked navy
+          floor (never pure-black), but this colour dims it back partway —
+          between the old dead-black skybox and the full-bright leveled one.
+          Tune this single value to taste: 1.0 = brightest, ~0.3 = dim. */}
       <meshBasicMaterial
         map={map}
         side={THREE.BackSide}
-        color="#ffffff"
+        color="#73778a"
         toneMapped={false}
         depthWrite={false}
       />
