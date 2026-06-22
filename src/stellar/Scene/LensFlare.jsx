@@ -81,16 +81,24 @@ const LensFlare = ({ position = [0, 0, 0] }) => {
   const sunPos = useMemo(() => new THREE.Vector3(...position), [position]);
   const ndc = useMemo(() => new THREE.Vector3(), []);
   const tmp = useMemo(() => new THREE.Vector3(), []);
+  const camFwd = useMemo(() => new THREE.Vector3(), []);
+  const toSun = useMemo(() => new THREE.Vector3(), []);
 
   useFrame(({ camera }) => {
-    /* Project sun to NDC. behind = z>1; in-front and visible if -1<x<1 */
-    ndc.copy(sunPos).project(camera);
-    const behind = ndc.z > 1;
+    /* Reliable behind-check: dot(camera_forward, sun - camera_position).
+       Positive = sun is in front of the camera. */
+    camera.getWorldDirection(camFwd);
+    toSun.subVectors(sunPos, camera.position).normalize();
+    const forwardDot = camFwd.dot(toSun);
+    const behind = forwardDot < 0.05; // very narrow FOV cone
 
-    /* Falloff: brightest when sun is centred, fades toward edges + off-screen */
+    /* Project sun to NDC for screen-space ghost placement */
+    ndc.copy(sunPos).project(camera);
+
+    /* Falloff: only visible when sun is in front AND on screen */
     const r = Math.sqrt(ndc.x * ndc.x + ndc.y * ndc.y);
-    const onScreen = !behind && r < 1.4;
-    const visibility = onScreen ? Math.max(0, 1 - r * 0.55) : 0;
+    const onScreen = !behind && r < 1.0;
+    const visibility = onScreen ? Math.max(0, 1 - r) * forwardDot : 0;
 
     /* Place glare AT the sun in world space */
     if (glareRef.current) {
@@ -111,13 +119,13 @@ const LensFlare = ({ position = [0, 0, 0] }) => {
        cast back into world space at a constant depth from the camera. */
     ghostRefs.current.forEach((g, i) => {
       if (!g) return;
-      const t = (i + 1) * 0.35; // 0.35, 0.7, 1.05 — past centre = "before" sun
+      const t = (i + 1) * 0.35;
       const gx = ndc.x * (1 - 2 * t);
       const gy = ndc.y * (1 - 2 * t);
       tmp.set(gx, gy, 0.85).unproject(camera);
       g.position.copy(tmp);
-      g.material.opacity = visibility * (0.45 - i * 0.07);
-      g.visible = visibility > 0.05;
+      g.material.opacity = visibility * (0.35 - i * 0.06);
+      g.visible = visibility > 0.1;
     });
   });
 
