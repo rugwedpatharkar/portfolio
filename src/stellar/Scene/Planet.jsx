@@ -51,11 +51,17 @@ const Planet = ({
   onClick,
   onPointerOver,
   onPointerOut,
+  draggable = true,
 }) => {
   const groupRef = useRef();
   const planetRef = useRef();
   const cloudRef = useRef();
   const moonsRef = useRef([]);
+  /* Drag spin: extra rotation accumulator + decay back to natural */
+  const dragSpinRef = useRef(0);
+  const isDraggingRef = useRef(false);
+  const dragStartXRef = useRef(0);
+  const dragStartSpinRef = useRef(0);
 
   /* Load textures via Suspense — Scene wraps in <Suspense> already.
      Normal + specular + bump maps must NOT be sRGB — they're data,
@@ -93,7 +99,13 @@ const Planet = ({
   }, [loadedColor, loadedData, colorUrls, dataUrls]);
 
   useFrame((_, delta) => {
-    if (planetRef.current) planetRef.current.rotation.y += delta * rotationSpeed;
+    /* Natural rotation + drag-imparted spin that decays back gently */
+    if (!isDraggingRef.current) {
+      dragSpinRef.current *= 0.96;
+    }
+    if (planetRef.current) {
+      planetRef.current.rotation.y += delta * rotationSpeed + dragSpinRef.current * delta;
+    }
     if (cloudRef.current) cloudRef.current.rotation.y += delta * rotationSpeed * 1.35;
     moonsRef.current.forEach((m, i) => {
       if (m) {
@@ -153,7 +165,23 @@ const Planet = ({
         onClick={onClick}
         onPointerOver={onPointerOver}
         onPointerOut={onPointerOut}
-      >
+        onPointerDown={(e) => {
+          if (!draggable) return;
+          e.stopPropagation();
+          isDraggingRef.current = true;
+          dragStartXRef.current = e.clientX;
+          dragStartSpinRef.current = dragSpinRef.current;
+          e.target.setPointerCapture?.(e.pointerId);
+        }}
+        onPointerMove={(e) => {
+          if (!isDraggingRef.current || !draggable) return;
+          const dx = e.clientX - dragStartXRef.current;
+          dragSpinRef.current = dragStartSpinRef.current + dx * 0.04;
+        }}
+        onPointerUp={(e) => {
+          isDraggingRef.current = false;
+          e.target.releasePointerCapture?.(e.pointerId);
+        }}>
         <sphereGeometry args={[radius, 64, 64]} />
         {hasTexture ? (
           <meshStandardMaterial

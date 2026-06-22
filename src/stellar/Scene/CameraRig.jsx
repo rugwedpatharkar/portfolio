@@ -17,9 +17,10 @@ import { DESTINATIONS } from "../config/destinations";
  * Camera matrix update is ~0.1 ms. Cheap.
  */
 
-const CameraRig = ({ scrollT, controlsEnabled }) => {
+const CameraRig = ({ scrollT, controlsEnabled, parallaxOffsetRef, freeRoamOffsetRef, freeRoamEnabled }) => {
   const { camera } = useThree();
   const lookAtTarget = useRef(new THREE.Vector3(0, 0, 0));
+  const basePos = useRef(new THREE.Vector3());
 
   // Build splines once
   const splines = useRef(null);
@@ -64,8 +65,19 @@ const CameraRig = ({ scrollT, controlsEnabled }) => {
     const camP = splines.current.cam.getPoint(t);
     const lookP = splines.current.look.getPoint(t);
 
+    /* Build the base + parallax + free-roam composite. Parallax stays
+       small; free-roam is unbounded but only when toggled on. */
+    basePos.current.copy(camP);
+    if (parallaxOffsetRef?.current) {
+      basePos.current.x += parallaxOffsetRef.current.x;
+      basePos.current.y += parallaxOffsetRef.current.y;
+    }
+    if (freeRoamEnabled && freeRoamOffsetRef?.current) {
+      basePos.current.add(freeRoamOffsetRef.current);
+    }
+
     /* Slower lerp (0.12 vs 0.18) for a more cinematic settle */
-    camera.position.lerp(camP, 0.12);
+    camera.position.lerp(basePos.current, freeRoamEnabled ? 0.55 : 0.12);
     lookAtTarget.current.lerp(lookP, 0.12);
     camera.lookAt(lookAtTarget.current);
   });

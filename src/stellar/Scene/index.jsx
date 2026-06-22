@@ -19,6 +19,8 @@ import SolarProminences from "./SolarProminences";
 import EarthAurora from "./EarthAurora";
 import DustParticles from "./DustParticles";
 import AdaptiveQuality from "./AdaptiveQuality";
+import MouseParallax from "./MouseParallax";
+import FreeRoam from "./FreeRoam";
 import useViewport from "../useViewport";
 import { DESTINATIONS } from "../config/destinations";
 
@@ -34,9 +36,14 @@ import { DESTINATIONS } from "../config/destinations";
  * tune that based on viewport bucket.
  */
 
-const Scene = ({ scrollT, activeIdx, activeDestination, onJump, onReady }) => {
+const Scene = ({ scrollT, activeIdx, onJump, onReady, freeRoamEnabled }) => {
   const readyRef = useRef(false);
   const { isMobile, reducedMotion } = useViewport();
+  /* Camera offsets — kept in refs so React state doesn't re-render
+     the whole tree on every frame. Mouse parallax and free-roam each
+     own their own offset; CameraRig sums them. */
+  const parallaxOffsetRef = useRef(new THREE.Vector3());
+  const freeRoamOffsetRef = useRef(new THREE.Vector3());
 
   const setCursor = (val) => {
     if (typeof document !== "undefined") document.body.style.cursor = val;
@@ -196,7 +203,15 @@ const Scene = ({ scrollT, activeIdx, activeDestination, onJump, onReady }) => {
         {!isMobile && <LensFlare position={[0, 0, 0]} />}
         {!isMobile && !reducedMotion && <DustParticles />}
         <PlanetLabels activeIdx={activeIdx} />
-        <CameraRig scrollT={scrollT} controlsEnabled={false} />
+        {!isMobile && !reducedMotion && <MouseParallax offsetRef={parallaxOffsetRef} />}
+        <FreeRoam enabled={freeRoamEnabled} offsetRef={freeRoamOffsetRef} />
+        <CameraRig
+          scrollT={scrollT}
+          controlsEnabled={false}
+          parallaxOffsetRef={parallaxOffsetRef}
+          freeRoamOffsetRef={freeRoamOffsetRef}
+          freeRoamEnabled={freeRoamEnabled}
+        />
       </Suspense>
 
       {/* Cinematic post-processing — the biggest visual upgrade.
