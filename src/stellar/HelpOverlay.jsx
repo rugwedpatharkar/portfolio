@@ -46,6 +46,7 @@ const SECTIONS = [
   {
     title: "Tools",
     rows: [
+      ["Z", "Wide pull-back · system overview"],
       ["Shift + F", "FPS monitor"],
       ["? (any time)", "This help overlay"],
     ],

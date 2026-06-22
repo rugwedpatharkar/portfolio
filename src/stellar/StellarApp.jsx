@@ -55,6 +55,10 @@ const StellarApp = () => {
   const [activeIdx, setActiveIdx] = useState(0);
   const [freeRoam, setFreeRoam] = useState(false);
   const [cockpit, setCockpit] = useState(false);
+  /* Wide pull-back mode — Z key toggle. Ref-driven so CameraRig can
+     read it per frame without re-renders. */
+  const wideRef = useRef(false);
+  const [, forceWideRender] = useState(0);
   const consoleLoggedRef = useRef(false);
 
   /* Esc to exit free-roam */
@@ -64,6 +68,20 @@ const StellarApp = () => {
     window.addEventListener("keydown", onKey);
     return () => window.removeEventListener("keydown", onKey);
   }, [freeRoam]);
+
+  /* Z toggles wide pull-back view */
+  useEffect(() => {
+    const onKey = (e) => {
+      const inField = e.target?.tagName === "INPUT" || e.target?.tagName === "TEXTAREA";
+      if (inField) return;
+      if (e.key === "z" || e.key === "Z") {
+        wideRef.current = !wideRef.current;
+        forceWideRender((v) => v + 1);
+      }
+    };
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  }, []);
 
   /* Scene mounts/loads textures behind the warp + countdown overlays,
      so we no longer need an explicit sceneReady gate. */
@@ -139,6 +157,7 @@ const StellarApp = () => {
         onJump={handleJump}
         onReady={handleSceneReady}
         freeRoamEnabled={freeRoam}
+        wideRef={wideRef}
       />
       <Navigator
         scrollTRef={scrollTRef}

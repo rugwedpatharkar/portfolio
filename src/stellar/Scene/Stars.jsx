@@ -15,19 +15,27 @@ import * as THREE from "three";
 const STAR_COUNT = 1200;
 const SPREAD = 120;
 
+/* Sharper sprite — tight bright core, fast falloff so each star reads
+   as a crisp pinprick instead of a soft blob. Bloom in post-processing
+   gives the glow; the sprite itself should be precise. */
 const SPRITE_TEXTURE = (() => {
   if (typeof document === "undefined") return null;
-  const size = 32;
+  const size = 64;
   const c = document.createElement("canvas");
   c.width = c.height = size;
   const ctx = c.getContext("2d");
   const g = ctx.createRadialGradient(size / 2, size / 2, 0, size / 2, size / 2, size / 2);
   g.addColorStop(0, "rgba(255,255,255,1)");
-  g.addColorStop(0.5, "rgba(255,255,255,0.35)");
+  g.addColorStop(0.16, "rgba(255,255,255,0.92)");
+  g.addColorStop(0.35, "rgba(255,255,255,0.32)");
+  g.addColorStop(0.75, "rgba(255,255,255,0.04)");
   g.addColorStop(1, "rgba(255,255,255,0)");
   ctx.fillStyle = g;
   ctx.fillRect(0, 0, size, size);
   const t = new THREE.CanvasTexture(c);
+  t.minFilter = THREE.LinearMipmapLinearFilter;
+  t.magFilter = THREE.LinearFilter;
+  t.anisotropy = 8;
   t.needsUpdate = true;
   return t;
 })();
@@ -76,14 +84,15 @@ const Stars = () => {
           <bufferAttribute attach="attributes-color" count={STAR_COUNT} array={colors} itemSize={3} />
         </bufferGeometry>
         <pointsMaterial
-          size={0.55}
+          size={0.42}
           sizeAttenuation
           vertexColors
           transparent
-          opacity={0.9}
+          opacity={0.92}
           depthWrite={false}
           map={SPRITE_TEXTURE}
           alphaTest={0.01}
+          toneMapped={false}
         />
       </points>
     </group>

@@ -1,32 +1,45 @@
 /* eslint-disable react/no-unknown-property */
-import { useMemo } from "react";
-import { useLoader } from "@react-three/fiber";
+import { useEffect, useMemo } from "react";
+import { useLoader, useThree } from "@react-three/fiber";
 import * as THREE from "three";
+import useViewport from "../useViewport";
 
 /*
- * Real Milky Way skybox.
+ * Real Milky Way skybox — NASA Tycho catalog all-sky panorama.
  *
- * A giant inverted sphere wraps the scene with an equirectangular
- * Milky-Way panorama (Tycho catalog, ESO licensed). Camera sits inside
- * looking out at the back side of the sphere — Three.js needs
- * `side: THREE.BackSide`.
- *
- * Radius is chosen to sit outside every destination's camera-far plane
- * but inside the renderer's far-clip (600). Texture is gently dimmed
- * via material color so planets pop against it.
+ * 8K source (8192×4096, ~8 MB) on desktop; 4K on mobile.
+ * Anisotropic filtering at max so stars stay sharp even at grazing
+ * angles. We tone-map THIS texture so it integrates with ACES on
+ * the renderer; raw sRGB upload would clip the bright Milky Way
+ * band against bloom.
  */
 
 const Skybox = () => {
-  const tex = useLoader(THREE.TextureLoader, "/textures/space/milkyway.jpg");
-  const map = useMemo(() => {
+  const { isMobile } = useViewport();
+  const url = isMobile ? "/textures/space/milkyway.jpg" : "/textures/space/milkyway-8k.jpg";
+  const tex = useLoader(THREE.TextureLoader, url);
+  const { gl } = useThree();
+
+  /* Apply quality settings once the texture lands */
+  useEffect(() => {
+    if (!tex) return;
     tex.colorSpace = THREE.SRGBColorSpace;
-    tex.mapping = THREE.EquirectangularReflectionMapping;
-    return tex;
-  }, [tex]);
+    tex.anisotropy = gl.capabilities.getMaxAnisotropy?.() ?? 16;
+    tex.minFilter = THREE.LinearMipmapLinearFilter;
+    tex.magFilter = THREE.LinearFilter;
+    tex.generateMipmaps = true;
+    tex.needsUpdate = true;
+  }, [tex, gl]);
+
+  /* Reuse the same Texture instance; useMemo gives a stable handle. */
+  const map = useMemo(() => tex, [tex]);
 
   return (
     <mesh>
-      <sphereGeometry args={[400, 96, 64]} />
+      {/* Tighter segment counts only for skybox — high-segment sphere
+          eats memory without quality benefit on a constant-distance
+          texture. */}
+      <sphereGeometry args={[400, 64, 32]} />
       <meshBasicMaterial
         map={map}
         side={THREE.BackSide}

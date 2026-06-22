@@ -28,7 +28,7 @@ export const DESTINATIONS = [
     color: "#ff9a3c",
     texture: "/textures/planets/sunmap.jpg",
     section: "hero",
-    cameraTarget: { position: [0, 2.5, 11], lookAt: [0, 0, 0] },
+    cameraTarget: { position: [0, 2.5, 11], lookAt: [0, 0, 0], fov: 60 },
   },
 
   // Inner system
@@ -43,7 +43,7 @@ export const DESTINATIONS = [
     colorB: "#2f3138",
     texture: "/textures/planets/mercurymap.jpg",
     section: "about",
-    cameraTarget: { position: [6.6, 0.7, 1.8], lookAt: [5.5, 0, 0.3] },
+    cameraTarget: { position: [6.6, 0.7, 1.8], lookAt: [5.5, 0, 0.3], fov: 44 },
   },
   {
     id: "funfacts",
@@ -56,7 +56,7 @@ export const DESTINATIONS = [
     colorB: "#a0651a",
     texture: "/textures/planets/venusmap.jpg",
     section: "funfacts",
-    cameraTarget: { position: [9.5, 0.6, 2.6], lookAt: [8.2, 0, 1.0] },
+    cameraTarget: { position: [9.5, 0.6, 2.6], lookAt: [8.2, 0, 1.0], fov: 46 },
   },
   {
     id: "experience",
@@ -73,7 +73,7 @@ export const DESTINATIONS = [
     normalTexture: "/textures/planets/earth_normal.jpg",
     specularTexture: "/textures/planets/earth_specular.jpg",
     section: "experience",
-    cameraTarget: { position: [12.9, 0.9, -0.1], lookAt: [11.4, 0, -1.4] },
+    cameraTarget: { position: [12.9, 0.9, -0.1], lookAt: [11.4, 0, -1.4], fov: 42 },
   },
   {
     id: "projects",
@@ -86,7 +86,7 @@ export const DESTINATIONS = [
     colorB: "#5d2317",
     texture: "/textures/planets/marsmap1k.jpg",
     section: "projects",
-    cameraTarget: { position: [16.9, 1.1, 2.4], lookAt: [15.3, 0, 0.6] },
+    cameraTarget: { position: [16.9, 1.1, 2.4], lookAt: [15.3, 0, 0.6], fov: 44 },
   },
 
   // Asteroid belt — Achievements
@@ -99,7 +99,7 @@ export const DESTINATIONS = [
     outerRadius: 20.5,
     color: "#f8c555",
     section: "achievements",
-    cameraTarget: { position: [19.5, 2.5, 4.5], lookAt: [19.5, 0, 0] },
+    cameraTarget: { position: [19.5, 2.5, 4.5], lookAt: [19.5, 0, 0], fov: 56 },
   },
 
   // Outer system
@@ -114,7 +114,7 @@ export const DESTINATIONS = [
     colorB: "#3d2370",
     texture: "/textures/planets/jupitermap.jpg",
     section: "skills",
-    cameraTarget: { position: [27.4, 1.6, 0.4], lookAt: [24.6, 0, -1.8] },
+    cameraTarget: { position: [27.4, 1.6, 0.4], lookAt: [24.6, 0, -1.8], fov: 50 },
     moons: 9,
     moonColor: "#cfc6e0",
     moonTexture: "/textures/planets/moonmap1k.jpg",
@@ -131,7 +131,7 @@ export const DESTINATIONS = [
     colorB: "#a07a3a",
     texture: "/textures/planets/saturnmap.jpg",
     section: "notes",
-    cameraTarget: { position: [32.6, 1.8, 3.7], lookAt: [30.2, 0, 1.5] },
+    cameraTarget: { position: [32.6, 1.8, 3.7], lookAt: [30.2, 0, 1.5], fov: 52 },
     rings: true,
     ringTexture: "/textures/planets/saturnringcolor.jpg",
     ringColor: "#f8c555",
@@ -147,7 +147,7 @@ export const DESTINATIONS = [
     colorB: "#7e3eab",
     texture: "/textures/planets/uranusmap.jpg",
     section: "education",
-    cameraTarget: { position: [37.0, 1.5, 0.9], lookAt: [34.8, 0, -1.0] },
+    cameraTarget: { position: [37.0, 1.5, 0.9], lookAt: [34.8, 0, -1.0], fov: 46 },
     axialTilt: 60 * DEG,
     moons: 4,
     moonColor: "#d0ccea",
@@ -165,7 +165,7 @@ export const DESTINATIONS = [
     colorB: "#0a3a72",
     texture: "/textures/planets/neptunemap.jpg",
     section: "hobbies",
-    cameraTarget: { position: [41.3, 1.4, 2.9], lookAt: [39.0, 0, 0.8] },
+    cameraTarget: { position: [41.3, 1.4, 2.9], lookAt: [39.0, 0, 0.8], fov: 48 },
     moons: 6,
     moonColor: "#b8d4ee",
     moonTexture: "/textures/planets/moonmap1k.jpg",
@@ -182,7 +182,7 @@ export const DESTINATIONS = [
     outerRadius: 45,
     color: "#b4b4ff",
     section: "testimonials",
-    cameraTarget: { position: [44, 2.6, 3.7], lookAt: [44, 0, 0] },
+    cameraTarget: { position: [44, 2.6, 3.7], lookAt: [44, 0, 0], fov: 58 },
   },
 
   // Edge beacon — Contact
@@ -194,7 +194,7 @@ export const DESTINATIONS = [
     radius: 0.4,
     color: "#ff6b6b",
     section: "contact",
-    cameraTarget: { position: [49, 1.1, 2.2], lookAt: [49, 0, 0.5] },
+    cameraTarget: { position: [49, 1.1, 2.2], lookAt: [49, 0, 0.5], fov: 48 },
   },
 ];
 

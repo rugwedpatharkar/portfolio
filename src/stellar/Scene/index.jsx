@@ -47,7 +47,7 @@ import { DESTINATIONS } from "../config/destinations";
  * tune that based on viewport bucket.
  */
 
-const Scene = ({ scrollT, activeIdx, onJump, onReady, freeRoamEnabled }) => {
+const Scene = ({ scrollT, activeIdx, onJump, onReady, freeRoamEnabled, wideRef }) => {
   const readyRef = useRef(false);
   const { isMobile, reducedMotion } = useViewport();
   /* Camera offsets — kept in refs so React state doesn't re-render
@@ -234,6 +234,7 @@ const Scene = ({ scrollT, activeIdx, onJump, onReady, freeRoamEnabled }) => {
           parallaxOffsetRef={parallaxOffsetRef}
           freeRoamOffsetRef={freeRoamOffsetRef}
           freeRoamEnabled={freeRoamEnabled}
+          wideRef={wideRef}
         />
       </Suspense>
 
