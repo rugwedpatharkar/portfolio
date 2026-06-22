@@ -138,6 +138,8 @@ const Planet = ({
     moonNodes.push(
       <mesh
         key={i}
+        castShadow
+        receiveShadow
         ref={(el) => {
           if (el) {
             el.userData = { orbit, t: initial };
@@ -173,6 +175,8 @@ const Planet = ({
     <group position={position} ref={groupRef} rotation={[0, 0, axialTilt]}>
       <mesh
         ref={planetRef}
+        castShadow
+        receiveShadow
         onClick={onClick}
         onPointerOver={(e) => {
           targetHoverRef.current = 1.05;

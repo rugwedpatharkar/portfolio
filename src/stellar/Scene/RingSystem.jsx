@@ -100,7 +100,7 @@ const RingSystem = ({ radius, texture, tint = "#f5e2b8" }) => {
   });
 
   return (
-    <mesh ref={matRef}>
+    <mesh ref={matRef} castShadow receiveShadow>
       <ringGeometry args={[inner, outer, 196, 4]} />
       <primitive object={material} attach="material" />
     </mesh>

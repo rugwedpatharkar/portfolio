@@ -22,6 +22,7 @@ import EarthAurora from "./EarthAurora";
 import DustParticles from "./DustParticles";
 import AdaptiveQuality from "./AdaptiveQuality";
 import AutoExposure from "./AutoExposure";
+import KeyLight from "./KeyLight";
 import MouseParallax from "./MouseParallax";
 import FreeRoam from "./FreeRoam";
 import CameraShake from "./CameraShake";
@@ -83,6 +84,9 @@ const Scene = ({ scrollT, activeIdx, onJump, onReady, freeRoamEnabled, wideRef, 
     <Canvas
       frameloop="always"
       dpr={[1, dprCap]}
+      /* Soft shadows on desktop only — the key light (KeyLight) follows
+         the active planet so the map stays sharp + cheap. */
+      shadows={isMobile ? false : "soft"}
       gl={{
         antialias: !isMobile,
         alpha: false,
@@ -124,7 +128,8 @@ const Scene = ({ scrollT, activeIdx, onJump, onReady, freeRoamEnabled, wideRef, 
           - Cool RIM from the sun side (−x), back-left: silhouette pop
             against the dark starfield, the classic space-movie edge. */}
       <ambientLight intensity={0.18} color="#9bb0d8" />
-      <directionalLight position={[55, 28, 42]} intensity={1.2} color="#fff2d8" />
+      {/* Sun-direction key + shadow caster, follows the active planet. */}
+      <KeyLight scrollT={scrollT} castShadow={!isMobile} />
       <directionalLight position={[-30, 10, -25]} intensity={0.5} color="#6f8cff" />
 
       <Suspense fallback={null}>
