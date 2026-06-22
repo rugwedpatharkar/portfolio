@@ -25,6 +25,7 @@ const SideRail = ({ activeIdx, onJump }) => (
       fontFamily: "'JetBrains Mono', monospace",
     }}
   >
+    {/* Hint at the bottom — surfaces the "?" shortcut without crowding */}
     {DESTINATIONS.map((d, i) => {
       const active = i === activeIdx;
       return (
@@ -81,6 +82,24 @@ const SideRail = ({ activeIdx, onJump }) => (
         </button>
       );
     })}
+    <div style={{
+      marginTop: 10,
+      padding: "4px 8px",
+      display: "flex",
+      alignItems: "center",
+      gap: 8,
+      fontSize: 9,
+      color: "rgba(255,255,255,0.32)",
+      letterSpacing: "0.1em",
+    }}>
+      <span style={{
+        padding: "1px 5px",
+        border: "1px solid rgba(255,255,255,0.22)",
+        borderRadius: 3,
+        fontSize: 9.5,
+      }}>?</span>
+      <span>HELP</span>
+    </div>
   </div>
 );
 
