@@ -114,9 +114,11 @@ const CommitComets = () => {
   const stateRefs = useRef([]);
 
   useEffect(() => {
-    fetchGithubEvents().then((events) => {
-      if (events?.length) setCommits(events);
-    });
+    fetchGithubEvents()
+      .then((events) => {
+        if (events?.length) setCommits(events);
+      })
+      .catch(() => { /* render nothing — graceful no-op */ });
   }, []);
 
   /* Initialise comet states whenever commits load */

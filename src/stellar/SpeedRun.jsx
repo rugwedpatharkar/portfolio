@@ -61,16 +61,15 @@ const SpeedRun = ({ activeIdx }) => {
     }
   }, [activeIdx, enabled, done, best]);
 
-  /* Tick the clock */
+  /* Tick the clock at ~10 Hz instead of 60 — the display only shows
+     two decimal places, so updating every frame burns reconciliation
+     for invisible precision. */
   useEffect(() => {
     if (!enabled || done || startRef.current === 0) return;
-    let raf = 0;
-    const tick = () => {
+    const id = setInterval(() => {
       setElapsed(performance.now() - startRef.current);
-      raf = requestAnimationFrame(tick);
-    };
-    raf = requestAnimationFrame(tick);
-    return () => cancelAnimationFrame(raf);
+    }, 100);
+    return () => clearInterval(id);
   }, [enabled, done]);
 
   return (

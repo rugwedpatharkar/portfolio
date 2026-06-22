@@ -25,9 +25,20 @@ const AmbientAudio = () => {
 
   useEffect(() => {
     if (!enabled) return;
-    if (typeof window === "undefined" || typeof AudioContext === "undefined") return;
+    if (typeof window === "undefined") return;
+    const AC = window.AudioContext || window.webkitAudioContext;
+    if (!AC) return;
 
-    const ctx = new (window.AudioContext || window.webkitAudioContext)();
+    let ctx;
+    try {
+      ctx = new AC();
+    } catch (err) {
+      /* AudioContext creation can fail on iOS Lockdown Mode + a few
+         hardened browser configs. Toggle off silently. */
+      console.warn("Stellar audio: AudioContext unavailable", err);
+      setEnabled(false);
+      return;
+    }
     ctxRef.current = ctx;
 
     const masterGain = ctx.createGain();

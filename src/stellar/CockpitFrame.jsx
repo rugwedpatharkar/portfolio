@@ -1,5 +1,5 @@
 /* eslint-disable react/prop-types */
-import { useEffect, useState } from "react";
+import { useEffect, useRef } from "react";
 
 /*
  * Full-screen cockpit overlay — corner brackets, top crosshair,
@@ -35,17 +35,21 @@ const Bracket = ({ corner }) => {
 };
 
 const CockpitFrame = ({ enabled, scrollTRef }) => {
-  const [speed, setSpeed] = useState(0);
+  const speedTextRef = useRef(null);
 
+  /* Write velocity directly to the DOM each frame — keeping it out of
+     React state avoids ~60 reconciliations per second. */
   useEffect(() => {
     if (!enabled) return;
     let last = scrollTRef.current ?? 0;
+    let speed = 0;
     let raf = 0;
     const tick = () => {
       const t = scrollTRef.current ?? 0;
       const dt = Math.abs(t - last);
       last = t;
-      setSpeed((s) => s * 0.85 + dt * 9000);
+      speed = speed * 0.85 + dt * 9000;
+      if (speedTextRef.current) speedTextRef.current.textContent = `VEL ${Math.round(speed)} U/S`;
       raf = requestAnimationFrame(tick);
     };
     raf = requestAnimationFrame(tick);
@@ -103,7 +107,7 @@ const CockpitFrame = ({ enabled, scrollTRef }) => {
           gap: 14,
         }}
       >
-        <span>VEL {Math.round(speed)} U/S</span>
+        <span ref={speedTextRef}>VEL 0 U/S</span>
         <span style={{ opacity: 0.55 }}>·</span>
         <span>SYSTEM NOMINAL</span>
       </div>
