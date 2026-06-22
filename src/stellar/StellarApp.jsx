@@ -9,6 +9,7 @@ import PlanetHUD from "./PlanetHUD";
 import MissionCountdown from "./MissionCountdown";
 import SideRail from "./SideRail";
 import WarpOpening from "./WarpOpening";
+import ShipWarp from "./ShipWarp";
 import AmbientAudio from "./AmbientAudio";
 import CockpitFrame from "./CockpitFrame";
 import StardustTrail from "./StardustTrail";
@@ -51,6 +52,10 @@ const StellarApp = () => {
   const scrollTRef = useRef(0);
   const [warpDone, setWarpDone] = useState(false);
   const [countdownDone, setCountdownDone] = useState(false);
+  /* Cinematic launch after the countdown: establish (reveal the tilted
+     system) → warp (dive into Sol) → done (hand over to the tour). */
+  const [launchPhase, setLaunchPhase] = useState(null);
+  const [shipWarpDone, setShipWarpDone] = useState(false);
   const [activeIdx, setActiveIdx] = useState(0);
   const [freeRoam, setFreeRoam] = useState(false);
   const [cockpit, setCockpit] = useState(false);
@@ -98,6 +103,30 @@ const StellarApp = () => {
     console.log("%c🛸  Try the Konami code. Click the sun. Drag to explore.", "color: #bf61ff; font-size: 12px;");
   }, []);
 
+  /* Run the launch sequence once the countdown completes. Reduced-motion
+     users skip straight into the tour. Timings match CameraRig's
+     ESTABLISH_DUR (2.2s) + WARP_DUR (1.15s). */
+  useEffect(() => {
+    if (!countdownDone) return undefined;
+    const reduced =
+      typeof window !== "undefined" &&
+      window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    if (reduced) {
+      setShipWarpDone(true);
+      return undefined;
+    }
+    setLaunchPhase("establish");
+    const t1 = setTimeout(() => setLaunchPhase("warp"), 2200);
+    const t2 = setTimeout(() => {
+      setLaunchPhase(null);
+      setShipWarpDone(true);
+    }, 2200 + 1150);
+    return () => {
+      clearTimeout(t1);
+      clearTimeout(t2);
+    };
+  }, [countdownDone]);
+
   const handleDestinationChange = useCallback((dest) => {
     const idx = DESTINATIONS.findIndex((d) => d.id === dest.id);
     if (idx !== -1) {
@@ -137,13 +166,13 @@ const StellarApp = () => {
   /* Read URL hash once the countdown finishes (full intro complete),
      then jump there if it points to a non-Sol destination. */
   useEffect(() => {
-    if (!countdownDone) return;
+    if (!shipWarpDone) return;
     const idx = findDestinationIndexByHash(window.location.hash);
     if (idx > 0) {
       const t = setTimeout(() => handleJump(idx), 350);
       return () => clearTimeout(t);
     }
-  }, [countdownDone, handleJump]);
+  }, [shipWarpDone, handleJump]);
 
   /* Browser back/forward should also navigate */
   useEffect(() => {
@@ -165,12 +194,13 @@ const StellarApp = () => {
         freeRoamEnabled={freeRoam}
         wideRef={wideRef}
         showExtras={countdownDone}
+        launchPhase={launchPhase}
       />
       <Navigator
         scrollTRef={scrollTRef}
         onDestinationChange={handleDestinationChange}
       />
-      {countdownDone && (
+      {shipWarpDone && (
         <>
           <Cursor />
           <StardustTrail />
@@ -254,6 +284,7 @@ const StellarApp = () => {
           step. Scene textures stream in behind these overlays. */}
       {!warpDone && <WarpOpening onComplete={handleWarpDone} />}
       {warpDone && !countdownDone && <MissionCountdown onComplete={handleCountdownDone} />}
+      {launchPhase === "warp" && <ShipWarp />}
     </>
   );
 };

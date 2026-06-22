@@ -52,7 +52,7 @@ import { DESTINATIONS } from "../config/destinations";
  * tune that based on viewport bucket.
  */
 
-const Scene = ({ scrollT, activeIdx, onJump, onReady, freeRoamEnabled, wideRef, showExtras = true }) => {
+const Scene = ({ scrollT, activeIdx, onJump, onReady, freeRoamEnabled, wideRef, showExtras = true, launchPhase = null }) => {
   const readyRef = useRef(false);
   const { isMobile, reducedMotion } = useViewport();
   /* Set true only when AdaptiveQuality drops to its potato tier on a weak
@@ -288,6 +288,7 @@ const Scene = ({ scrollT, activeIdx, onJump, onReady, freeRoamEnabled, wideRef, 
           freeRoamOffsetRef={freeRoamOffsetRef}
           freeRoamEnabled={freeRoamEnabled}
           wideRef={wideRef}
+          launchPhase={launchPhase}
         />
       </Suspense>
 

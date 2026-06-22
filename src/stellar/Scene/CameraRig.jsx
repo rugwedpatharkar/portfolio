@@ -43,6 +43,18 @@ const WIDE_POSITION = new THREE.Vector3(0, 34, 86);
 const WIDE_LOOK = new THREE.Vector3(20, 0, 0);
 const WIDE_FOV = 34;
 
+/* Cinematic launch (intro): a far, oblique establishing shot of the whole
+   tilted system, then an accelerating warp-dive into Sol. */
+const ESTABLISH_POS = new THREE.Vector3(-22, 34, 78);
+const ESTABLISH_LOOK = new THREE.Vector3(22, -2, -4);
+const ESTABLISH_FOV = 30;
+const ESTABLISH_DUR = 2.2; // seconds — pull back + reveal
+const WARP_DUR = 1.15; // seconds — dive into Sol
+const SOL_CAM = DESTINATIONS[0].cameraTarget;
+const SOL_POS = new THREE.Vector3(...SOL_CAM.position);
+const SOL_LOOK = new THREE.Vector3(...SOL_CAM.lookAt);
+const SOL_FOV = SOL_CAM.fov ?? FOV_DEFAULT;
+
 const UP = new THREE.Vector3(0, 1, 0);
 const _p = new THREE.Vector3();
 const _po = new THREE.Vector3();
@@ -59,10 +71,14 @@ const CameraRig = ({
   freeRoamOffsetRef,
   freeRoamEnabled,
   wideRef,
+  launchPhase,
 }) => {
   const { camera, clock } = useThree();
   const lookAtTarget = useRef(new THREE.Vector3(0, 0, 0));
   const rollCurrent = useRef(0);
+  /* Launch state — captures the from-pose at each phase change so the
+     scripted establish/warp moves are deterministic and smooth. */
+  const launch = useRef({ phase: null, t0: 0, fromPos: new THREE.Vector3(), fromLook: new THREE.Vector3(), fromFov: FOV_DEFAULT });
 
   /* Per-destination framing offsets (camera + aim relative to the planet),
      captured once from the authored cameraTarget values. */
@@ -94,6 +110,40 @@ const CameraRig = ({
     const d = Math.min(dt || 1 / 60, 1 / 20);
     const t = clock.elapsedTime;
     const rawT = THREE.MathUtils.clamp(scrollT.current ?? 0, 0, 1);
+
+    /* ── Cinematic launch override (intro) ──
+       establish: pull back from Sol to reveal the tilted system (ease-out);
+       warp: accelerate back into Sol (ease-in), synced with the streak burst. */
+    if (launchPhase === "establish" || launchPhase === "warp") {
+      const L = launch.current;
+      if (L.phase !== launchPhase) {
+        L.phase = launchPhase;
+        L.t0 = t;
+        L.fromPos.copy(camera.position);
+        L.fromLook.copy(lookAtTarget.current);
+        L.fromFov = camera.fov;
+      }
+      let toPos, toLook, toFov, e;
+      if (launchPhase === "establish") {
+        const p = Math.min(1, (t - L.t0) / ESTABLISH_DUR);
+        e = 1 - Math.pow(1 - p, 3); // ease-out — decelerate into the reveal
+        toPos = ESTABLISH_POS; toLook = ESTABLISH_LOOK; toFov = ESTABLISH_FOV;
+      } else {
+        const p = Math.min(1, (t - L.t0) / WARP_DUR);
+        e = p * p; // ease-in — accelerate the dive
+        toPos = SOL_POS; toLook = SOL_LOOK; toFov = SOL_FOV;
+      }
+      _camTarget.copy(L.fromPos).lerp(toPos, e);
+      if (launchPhase === "establish") _camTarget.x += Math.sin(t * 0.25) * 1.4 * e; // slow drift
+      _lookTarget.copy(L.fromLook).lerp(toLook, e);
+      camera.position.copy(_camTarget);
+      lookAtTarget.current.copy(_lookTarget);
+      camera.lookAt(lookAtTarget.current);
+      const fv = L.fromFov + (toFov - L.fromFov) * e;
+      if (Math.abs(camera.fov - fv) > 0.01) { camera.fov = fv; camera.updateProjectionMatrix(); }
+      return;
+    }
+    if (launch.current.phase) launch.current.phase = null;
 
     /* SNAP — nearest destination, never between/inside. */
     const idx = Math.round(rawT * (DESTINATIONS.length - 1));
