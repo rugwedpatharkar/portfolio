@@ -1,5 +1,4 @@
 import { useRef, useState, useCallback, useEffect } from "react";
-import BootSequence from "./BootSequence";
 import Scene from "./Scene";
 import Navigator from "./Navigator";
 import Minimap from "./Minimap";
@@ -37,20 +36,19 @@ const findDestinationIndexByHash = (hash) => {
 /*
  * Root component of the Stellar 3D portfolio.
  *
- * Layout layers (bottom → top):
- *   1. Three.js canvas (position: fixed inset)
- *   2. Navigator (invisible scroll sentinel, drives scroll progress)
- *   3. Minimap (top-right HUD)
- *   4. BootSequence (full-screen overlay, dismisses after scene mounts)
+ * Visitor flow:
+ *   0. WarpOpening (immediate on mount — hyperspace streaks ~2.8s)
+ *   1. MissionCountdown (T-5 → GO, ~4s)
+ *   2. Main UI reveals — scene is mounting + loading textures the
+ *      whole time behind the overlay, so it's ready when countdown
+ *      ends.
  *
- * Phase 5 adds the content overlay layer; for now we just have the scene
- * + navigation working.
+ * BootSequence (typed log) was removed — the warp + countdown
+ * already provide enough drama; the typed log was redundant.
  */
 
 const StellarApp = () => {
   const scrollTRef = useRef(0);
-  const [sceneReady, setSceneReady] = useState(false);
-  const [bootDone, setBootDone] = useState(false);
   const [warpDone, setWarpDone] = useState(false);
   const [countdownDone, setCountdownDone] = useState(false);
   const [activeIdx, setActiveIdx] = useState(0);
@@ -66,8 +64,9 @@ const StellarApp = () => {
     return () => window.removeEventListener("keydown", onKey);
   }, [freeRoam]);
 
-  const handleSceneReady = useCallback(() => setSceneReady(true), []);
-  const handleBootDone = useCallback(() => setBootDone(true), []);
+  /* Scene mounts/loads textures behind the warp + countdown overlays,
+     so we no longer need an explicit sceneReady gate. */
+  const handleSceneReady = useCallback(() => {}, []);
   const handleWarpDone = useCallback(() => setWarpDone(true), []);
   const handleCountdownDone = useCallback(() => setCountdownDone(true), []);
 
@@ -107,16 +106,16 @@ const StellarApp = () => {
     }
   }, []);
 
-  /* Read URL hash once boot is done, then jump there if matched */
+  /* Read URL hash once the countdown finishes (full intro complete),
+     then jump there if it points to a non-Sol destination. */
   useEffect(() => {
-    if (!bootDone) return;
+    if (!countdownDone) return;
     const idx = findDestinationIndexByHash(window.location.hash);
     if (idx > 0) {
-      /* Small delay so the boot transition finishes before camera flies */
       const t = setTimeout(() => handleJump(idx), 350);
       return () => clearTimeout(t);
     }
-  }, [bootDone, handleJump]);
+  }, [countdownDone, handleJump]);
 
   /* Browser back/forward should also navigate */
   useEffect(() => {
@@ -141,7 +140,7 @@ const StellarApp = () => {
         scrollTRef={scrollTRef}
         onDestinationChange={handleDestinationChange}
       />
-      {bootDone && countdownDone && (
+      {countdownDone && (
         <>
           <Cursor />
           <StardustTrail />
@@ -221,11 +220,10 @@ const StellarApp = () => {
           `}</style>
         </>
       )}
-      {bootDone && !warpDone && <WarpOpening onComplete={handleWarpDone} />}
-      {bootDone && warpDone && !countdownDone && <MissionCountdown onComplete={handleCountdownDone} />}
-      {!bootDone && (
-        <BootSequence sceneReady={sceneReady} onComplete={handleBootDone} />
-      )}
+      {/* Warp + countdown play immediately on mount — no BootSequence
+          step. Scene textures stream in behind these overlays. */}
+      {!warpDone && <WarpOpening onComplete={handleWarpDone} />}
+      {warpDone && !countdownDone && <MissionCountdown onComplete={handleCountdownDone} />}
     </>
   );
 };
