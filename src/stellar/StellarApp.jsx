@@ -20,6 +20,7 @@ import Achievements from "./Achievements";
 import SpeedRun from "./SpeedRun";
 import QuoteFeed from "./QuoteFeed";
 import VisitorLog from "./VisitorLog";
+import AnswerListener from "./AnswerListener";
 import { easterEggs } from "../content";
 import { DESTINATIONS, SCROLL_LENGTH_PER_DESTINATION } from "./config/destinations";
 
@@ -150,6 +151,7 @@ const StellarApp = () => {
           <SpeedRun activeIdx={activeIdx} />
           <QuoteFeed />
           <VisitorLog />
+          <AnswerListener />
           <PlanetHUD destination={DESTINATIONS[activeIdx]} />
           <ContentPanel destination={DESTINATIONS[activeIdx]} />
           <CockpitFrame enabled={cockpit} scrollTRef={scrollTRef} />

@@ -1,0 +1,45 @@
+/* eslint-disable react/no-unknown-property */
+import { useRef } from "react";
+import { useFrame } from "@react-three/fiber";
+import { Html } from "@react-three/drei";
+import * as THREE from "three";
+
+/*
+ * Mark Watney's potato — a tiny brown sphere near Mars's north pole.
+ * Visible only when Mars is reasonably close to the camera.
+ */
+
+const MARS_POS = [15.3, 0.3, 0.6];
+const POSITION = [MARS_POS[0] - 0.1, MARS_POS[1] + 0.95, MARS_POS[2]];
+
+const WatneyPotato = () => {
+  const groupRef = useRef();
+  useFrame(({ camera }) => {
+    const d = camera.position.distanceTo(new THREE.Vector3(...POSITION));
+    if (groupRef.current) groupRef.current.visible = d < 5.5;
+  });
+
+  return (
+    <group ref={groupRef} position={POSITION}>
+      <mesh>
+        <sphereGeometry args={[0.04, 10, 8]} />
+        <meshStandardMaterial color="#a07a4a" roughness={0.95} />
+      </mesh>
+      <Html
+        center
+        distanceFactor={4}
+        style={{
+          pointerEvents: "none",
+          fontFamily: "'JetBrains Mono', monospace",
+          fontSize: 9,
+          color: "#a07a4a",
+          textShadow: "0 1px 6px rgba(0,0,0,0.8)",
+          letterSpacing: "0.1em",
+          transform: "translateY(-12px)",
+        }}
+      >POTATO</Html>
+    </group>
+  );
+};
+
+export default WatneyPotato;

@@ -1,0 +1,55 @@
+/* eslint-disable react/no-unknown-property */
+import { useRef } from "react";
+import { useFrame } from "@react-three/fiber";
+
+/*
+ * The TARDIS — small blue box near Saturn that fades in/out every
+ * 90 s with a brief flicker (the "vworp" tell). Two small light
+ * panels glow at the top.
+ *
+ * Visibility cycle: 4 s visible → 86 s gone, repeats. Triggers on
+ * page load.
+ */
+
+const POSITION = [32, 2.4, 4];
+const CYCLE = 90;
+const VISIBLE_FOR = 4;
+
+const Tardis = () => {
+  const groupRef = useRef();
+  const tRef = useRef(60); // first appearance 30s after load
+
+  useFrame((_, dt) => {
+    tRef.current += dt;
+    if (tRef.current > CYCLE) tRef.current = 0;
+    const phase = tRef.current % CYCLE;
+    const visible = phase < VISIBLE_FOR;
+    /* Flicker on enter + exit (vworp) */
+    const flicker = visible
+      ? (phase < 0.5 ? Math.sin(phase * 40) * 0.5 + 0.5 : phase > 3.5 ? Math.sin((4 - phase) * 40) * 0.5 + 0.5 : 1)
+      : 0;
+    if (groupRef.current) {
+      groupRef.current.visible = visible;
+      groupRef.current.scale.setScalar(0.5 + flicker * 0.5);
+      groupRef.current.rotation.y += dt * 0.2;
+    }
+  });
+
+  return (
+    <group ref={groupRef} position={POSITION}>
+      {/* Box body */}
+      <mesh>
+        <boxGeometry args={[0.32, 0.55, 0.32]} />
+        <meshStandardMaterial color="#1a4090" emissive="#3a60c0" emissiveIntensity={0.5} />
+      </mesh>
+      {/* Roof light panels */}
+      <mesh position={[0, 0.28, 0]}>
+        <boxGeometry args={[0.34, 0.06, 0.34]} />
+        <meshBasicMaterial color="#fff0c0" />
+      </mesh>
+      <pointLight color="#fff0c0" intensity={0.5} distance={2} decay={2} position={[0, 0.32, 0]} />
+    </group>
+  );
+};
+
+export default Tardis;

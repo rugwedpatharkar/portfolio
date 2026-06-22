@@ -25,6 +25,12 @@ import ScaleGhost from "./ScaleGhost";
 import Constellations from "./Constellations";
 import Voyager from "./Voyager";
 import CommitComets from "./CommitComets";
+import DeathStar from "./easter/DeathStar";
+import Tardis from "./easter/Tardis";
+import HalEye from "./easter/HalEye";
+import WallE from "./easter/WallE";
+import CooperStation from "./easter/CooperStation";
+import WatneyPotato from "./easter/WatneyPotato";
 import useViewport from "../useViewport";
 import { DESTINATIONS } from "../config/destinations";
 
@@ -211,6 +217,13 @@ const Scene = ({ scrollT, activeIdx, onJump, onReady, freeRoamEnabled }) => {
         <ScaleGhost activeIdx={activeIdx} />
         <Voyager />
         {!isMobile && <CommitComets />}
+        {/* Easter eggs — all lightweight, no per-frame raycast cost */}
+        <DeathStar />
+        <Tardis />
+        <HalEye />
+        <WallE />
+        <CooperStation />
+        <WatneyPotato />
         {!isMobile && !reducedMotion && <MouseParallax offsetRef={parallaxOffsetRef} />}
         <FreeRoam enabled={freeRoamEnabled} offsetRef={freeRoamOffsetRef} />
         <CameraRig
