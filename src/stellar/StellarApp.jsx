@@ -10,6 +10,7 @@ import PlanetHUD from "./PlanetHUD";
 import MissionCountdown from "./MissionCountdown";
 import SideRail from "./SideRail";
 import WarpOpening from "./WarpOpening";
+import AmbientAudio from "./AmbientAudio";
 import { easterEggs } from "../content";
 import { DESTINATIONS, SCROLL_LENGTH_PER_DESTINATION } from "./config/destinations";
 
@@ -66,6 +67,8 @@ const StellarApp = () => {
       if (window.location.hash !== next) {
         window.history.replaceState(null, "", next);
       }
+      /* Audio cue — AmbientAudio listens if enabled */
+      window.dispatchEvent(new CustomEvent("stellar:whoosh"));
     }
   }, []);
 
@@ -114,6 +117,7 @@ const StellarApp = () => {
           <SideRail activeIdx={activeIdx} onJump={handleJump} />
           <PlanetHUD destination={DESTINATIONS[activeIdx]} />
           <ContentPanel destination={DESTINATIONS[activeIdx]} />
+          <AmbientAudio />
           <EasterEgg />
         </>
       )}
