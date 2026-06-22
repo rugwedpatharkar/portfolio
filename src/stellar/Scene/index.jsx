@@ -85,6 +85,7 @@ const Scene = ({ scrollT, activeIdx, onJump, onReady }) => {
                 key={d.id}
                 position={d.position}
                 radius={d.radius}
+                texture={d.texture}
                 onClick={handleSunClick}
                 onPointerOver={handleHoverIn}
                 onPointerOut={handleHoverOut}
@@ -100,6 +101,10 @@ const Scene = ({ scrollT, activeIdx, onJump, onReady }) => {
                 type={d.type || "rocky"}
                 color={d.color}
                 colorB={d.colorB}
+                texture={d.texture}
+                nightTexture={d.nightTexture}
+                cloudTexture={d.cloudTexture}
+                ringTexture={d.ringTexture}
                 rings={d.rings}
                 ringColor={d.ringColor}
                 axialTilt={d.axialTilt || 0}

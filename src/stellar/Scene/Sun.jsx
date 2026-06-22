@@ -1,22 +1,38 @@
-import { useRef } from "react";
-import { useFrame } from "@react-three/fiber";
+/* eslint-disable react/no-unknown-property */
+import { useMemo, useRef } from "react";
+import { useFrame, useLoader } from "@react-three/fiber";
 import * as THREE from "three";
 
 /*
- * The sun — the visitor's starting point. A glowing sphere with a corona
- * billboard sprite around it, slow rotation. Tints to brand orange.
+ * The sun — visitor's starting point. Glowing sphere with photosphere
+ * texture (granulation pattern), corona halo, and a pointlight that
+ * spills onto nearby planets.
  *
- * This is YOU. The camera lands here, the system's center of gravity.
- *
- * Performance: simple emissive material, no PBR, no expensive lighting.
- * The corona is a flat sprite, not volumetric.
+ * Texture is optional; if `texture` is omitted the sun falls back to a
+ * flat orange. We multiply the texture by warm orange in shader-color
+ * to keep the brand palette consistent.
  */
 
-const Sun = ({ position = [0, 0, 0], radius = 2.2, onClick, onPointerOver, onPointerOut }) => {
+const Sun = ({
+  position = [0, 0, 0],
+  radius = 2.2,
+  texture,
+  onClick,
+  onPointerOver,
+  onPointerOut,
+}) => {
   const meshRef = useRef();
 
+  const urls = useMemo(() => (texture ? [texture] : []), [texture]);
+  const loaded = useLoader(THREE.TextureLoader, urls);
+  const sunTex = loaded[0];
+  if (sunTex) {
+    sunTex.colorSpace = THREE.SRGBColorSpace;
+    sunTex.anisotropy = 4;
+  }
+
   useFrame((_, delta) => {
-    if (meshRef.current) meshRef.current.rotation.y += delta * 0.08;
+    if (meshRef.current) meshRef.current.rotation.y += delta * 0.04;
   });
 
   return (
@@ -27,8 +43,12 @@ const Sun = ({ position = [0, 0, 0], radius = 2.2, onClick, onPointerOver, onPoi
         onPointerOver={onPointerOver}
         onPointerOut={onPointerOut}
       >
-        <sphereGeometry args={[radius, 48, 48]} />
-        <meshBasicMaterial color="#ffb86b" toneMapped={false} />
+        <sphereGeometry args={[radius, 64, 64]} />
+        <meshBasicMaterial
+          map={sunTex || null}
+          color={sunTex ? "#ffa040" : "#ffb86b"}
+          toneMapped={false}
+        />
       </mesh>
       <mesh>
         <sphereGeometry args={[radius * 1.08, 32, 32]} />
