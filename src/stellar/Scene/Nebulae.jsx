@@ -1,87 +1,93 @@
 /* eslint-disable react/no-unknown-property */
 import { useMemo, useRef } from "react";
-import { useFrame } from "@react-three/fiber";
+import { useFrame, useLoader } from "@react-three/fiber";
 import * as THREE from "three";
 
 /*
- * Faint nebulae as billboarded soft-glow particle clouds.
+ * Real Hubble nebulae as billboarded sprite planes.
  *
- * The pointsMaterial gets a tiny radial-gradient sprite (built once via
- * canvas) so each point reads as a glowing blob, not a square. Additive
- * blending means colors stack toward the bright center of each cloud.
+ * Each nebula is a sprite that always faces the camera. To handle the
+ * black background that ships with NASA's JPEGs, we use a custom shader
+ * that thresholds the texture luminance so only bright nebula material
+ * contributes — additive-blended over the skybox.
  *
- * The clouds drift slowly to keep the system feeling alive at idle.
+ * Image credits: ESA/Hubble + NASA, CC-BY-4.0
  */
 
-const SPRITE_TEXTURE = (() => {
-  if (typeof document === "undefined") return null;
-  const size = 64;
-  const canvas = document.createElement("canvas");
-  canvas.width = canvas.height = size;
-  const ctx = canvas.getContext("2d");
-  const grad = ctx.createRadialGradient(size / 2, size / 2, 0, size / 2, size / 2, size / 2);
-  grad.addColorStop(0, "rgba(255,255,255,1)");
-  grad.addColorStop(0.35, "rgba(255,255,255,0.45)");
-  grad.addColorStop(0.75, "rgba(255,255,255,0.08)");
-  grad.addColorStop(1, "rgba(255,255,255,0)");
-  ctx.fillStyle = grad;
-  ctx.fillRect(0, 0, size, size);
-  const tex = new THREE.CanvasTexture(canvas);
-  tex.needsUpdate = true;
-  return tex;
-})();
+const NEBULA_VERTEX = `
+varying vec2 vUv;
+void main() {
+  vUv = uv;
+  vec4 mvPos = modelViewMatrix * vec4(position, 1.0);
+  gl_Position = projectionMatrix * mvPos;
+}
+`;
 
-const Nebula = ({ position, color, count = 250, spread = 8, opacity = 0.18, size = 4.2 }) => {
-  const groupRef = useRef();
-  const positions = useMemo(() => {
-    const a = new Float32Array(count * 3);
-    for (let i = 0; i < count; i++) {
-      const r = Math.random() * spread;
-      const theta = Math.random() * Math.PI * 2;
-      const phi = Math.acos(2 * Math.random() - 1);
-      a[i * 3 + 0] = r * Math.sin(phi) * Math.cos(theta);
-      a[i * 3 + 1] = r * Math.sin(phi) * Math.sin(theta) * 0.55;
-      a[i * 3 + 2] = r * Math.cos(phi) * 0.7;
-    }
-    return a;
-  }, [count, spread]);
+const NEBULA_FRAGMENT = `
+varying vec2 vUv;
+uniform sampler2D uMap;
+uniform float uOpacity;
+uniform float uLumThresholdLow;
+uniform float uLumThresholdHigh;
+void main() {
+  vec4 c = texture2D(uMap, vUv);
+  float lum = max(c.r, max(c.g, c.b));
+  float a = smoothstep(uLumThresholdLow, uLumThresholdHigh, lum) * uOpacity;
+  if (a < 0.005) discard;
+  /* Mild contrast lift so colors don't wash out under additive blend */
+  vec3 col = c.rgb;
+  col = pow(col, vec3(0.85));
+  gl_FragColor = vec4(col, a);
+}
+`;
 
-  useFrame((_, delta) => {
-    if (groupRef.current) groupRef.current.rotation.y += delta * 0.005;
+const NEBULAE = [
+  { url: "/textures/nebulae/eagle.jpg", position: [-38, 8, -28], scale: 32, opacity: 0.95 },
+  { url: "/textures/nebulae/carina.jpg", position: [50, -6, 22], scale: 36, opacity: 0.85 },
+  { url: "/textures/nebulae/crab.jpg", position: [22, 12, -36], scale: 24, opacity: 0.9 },
+  { url: "/textures/nebulae/helix.jpg", position: [-60, -10, 30], scale: 26, opacity: 0.7 },
+  { url: "/textures/nebulae/orion.jpg", position: [70, 14, -10], scale: 30, opacity: 0.7 },
+];
+
+const NebulaPlane = ({ url, position, scale, opacity }) => {
+  const tex = useLoader(THREE.TextureLoader, url);
+  const meshRef = useRef();
+
+  const uniforms = useMemo(() => {
+    tex.colorSpace = THREE.SRGBColorSpace;
+    return {
+      uMap: { value: tex },
+      uOpacity: { value: opacity },
+      uLumThresholdLow: { value: 0.08 },
+      uLumThresholdHigh: { value: 0.42 },
+    };
+  }, [tex, opacity]);
+
+  useFrame(({ camera }) => {
+    if (meshRef.current) meshRef.current.lookAt(camera.position);
   });
 
   return (
-    <group ref={groupRef} position={position}>
-      <points>
-        <bufferGeometry>
-          <bufferAttribute
-            attach="attributes-position"
-            count={count}
-            array={positions}
-            itemSize={3}
-          />
-        </bufferGeometry>
-        <pointsMaterial
-          color={color}
-          size={size}
-          sizeAttenuation
-          transparent
-          opacity={opacity}
-          depthWrite={false}
-          blending={THREE.AdditiveBlending}
-          map={SPRITE_TEXTURE}
-          alphaTest={0.001}
-        />
-      </points>
-    </group>
+    <mesh ref={meshRef} position={position}>
+      <planeGeometry args={[scale, scale]} />
+      <shaderMaterial
+        vertexShader={NEBULA_VERTEX}
+        fragmentShader={NEBULA_FRAGMENT}
+        uniforms={uniforms}
+        transparent
+        depthWrite={false}
+        blending={THREE.AdditiveBlending}
+        side={THREE.DoubleSide}
+      />
+    </mesh>
   );
 };
 
 const Nebulae = () => (
   <>
-    <Nebula position={[-32, 6, -22]} color="#915eff" count={320} spread={14} opacity={0.20} size={5.5} />
-    <Nebula position={[55, -4, 18]} color="#00cea8" count={260} spread={12} opacity={0.16} size={4.8} />
-    <Nebula position={[22, 9, -30]} color="#bf61ff" count={200} spread={9} opacity={0.14} size={4.0} />
+    {NEBULAE.map((n) => (
+      <NebulaPlane key={n.url} {...n} />
+    ))}
   </>
 );
 

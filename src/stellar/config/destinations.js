@@ -114,7 +114,8 @@ export const DESTINATIONS = [
     section: "skills",
     cameraTarget: { position: [27.4, 1.6, 0.4], lookAt: [24.6, 0, -1.8] },
     moons: 9,
-    moonColor: "#bf61ff",
+    moonColor: "#cfc6e0",
+    moonTexture: "/textures/planets/moonmap1k.jpg",
     moonScale: 0.09,
   },
   {
@@ -147,7 +148,8 @@ export const DESTINATIONS = [
     cameraTarget: { position: [37.0, 1.5, 0.9], lookAt: [34.8, 0, -1.0] },
     axialTilt: 60 * DEG,
     moons: 4,
-    moonColor: "#915eff",
+    moonColor: "#d0ccea",
+    moonTexture: "/textures/planets/moonmap1k.jpg",
     moonScale: 0.1,
   },
   {
@@ -163,7 +165,8 @@ export const DESTINATIONS = [
     section: "hobbies",
     cameraTarget: { position: [41.3, 1.4, 2.9], lookAt: [39.0, 0, 0.8] },
     moons: 6,
-    moonColor: "#61dafb",
+    moonColor: "#b8d4ee",
+    moonTexture: "/textures/planets/moonmap1k.jpg",
     moonScale: 0.09,
   },
 

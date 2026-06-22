@@ -1,18 +1,36 @@
+/* eslint-disable react/no-unknown-property */
 import { useMemo, useRef } from "react";
 import { useFrame } from "@react-three/fiber";
 import * as THREE from "three";
 
 /*
- * 5,000 instanced stars as a single Points buffer. One draw call, ~1.5 MB
- * GPU memory, renders in <0.5 ms even on mid-range mobile.
+ * Foreground sparkle stars — a thin layer of close-in pinpricks that
+ * sit IN FRONT of the Milky Way skybox. The skybox is the actual deep
+ * sky; this gives parallax depth (close stars vs distant stars).
  *
- * Slowly rotates on the Y axis for parallax depth — gives the scene a
- * sense of "you are inside something vast" without distracting from the
- * sun + planets.
+ * Count is reduced from 5000 → 1200 since the skybox carries the
+ * heavy lifting now.
  */
 
-const STAR_COUNT = 5000;
-const SPREAD = 250;
+const STAR_COUNT = 1200;
+const SPREAD = 120;
+
+const SPRITE_TEXTURE = (() => {
+  if (typeof document === "undefined") return null;
+  const size = 32;
+  const c = document.createElement("canvas");
+  c.width = c.height = size;
+  const ctx = c.getContext("2d");
+  const g = ctx.createRadialGradient(size / 2, size / 2, 0, size / 2, size / 2, size / 2);
+  g.addColorStop(0, "rgba(255,255,255,1)");
+  g.addColorStop(0.5, "rgba(255,255,255,0.35)");
+  g.addColorStop(1, "rgba(255,255,255,0)");
+  ctx.fillStyle = g;
+  ctx.fillRect(0, 0, size, size);
+  const t = new THREE.CanvasTexture(c);
+  t.needsUpdate = true;
+  return t;
+})();
 
 const Stars = () => {
   const groupRef = useRef();
@@ -22,24 +40,22 @@ const Stars = () => {
     const colors = new Float32Array(STAR_COUNT * 3);
     const tmp = new THREE.Vector3();
     for (let i = 0; i < STAR_COUNT; i++) {
-      // Uniform distribution on a sphere shell
       const u = Math.random();
       const v = Math.random();
       const theta = 2 * Math.PI * u;
       const phi = Math.acos(2 * v - 1);
-      const r = SPREAD * (0.6 + Math.random() * 0.4);
+      const r = SPREAD * (0.7 + Math.random() * 0.3);
       tmp.setFromSphericalCoords(r, phi, theta);
       positions[i * 3 + 0] = tmp.x;
       positions[i * 3 + 1] = tmp.y;
       positions[i * 3 + 2] = tmp.z;
 
-      // Slight color variance — most white, some bluish, some gold
       const t = Math.random();
       const c =
-        t < 0.05
-          ? new THREE.Color("#ffd47a")
-          : t < 0.15
-            ? new THREE.Color("#9bb4ff")
+        t < 0.06
+          ? new THREE.Color("#ffe1a0")
+          : t < 0.18
+            ? new THREE.Color("#a0bcff")
             : new THREE.Color("#ffffff");
       colors[i * 3 + 0] = c.r;
       colors[i * 3 + 1] = c.g;
@@ -49,33 +65,25 @@ const Stars = () => {
   }, []);
 
   useFrame((_, delta) => {
-    if (groupRef.current) groupRef.current.rotation.y += delta * 0.005;
+    if (groupRef.current) groupRef.current.rotation.y += delta * 0.003;
   });
 
   return (
     <group ref={groupRef}>
       <points>
         <bufferGeometry>
-          <bufferAttribute
-            attach="attributes-position"
-            count={STAR_COUNT}
-            array={positions}
-            itemSize={3}
-          />
-          <bufferAttribute
-            attach="attributes-color"
-            count={STAR_COUNT}
-            array={colors}
-            itemSize={3}
-          />
+          <bufferAttribute attach="attributes-position" count={STAR_COUNT} array={positions} itemSize={3} />
+          <bufferAttribute attach="attributes-color" count={STAR_COUNT} array={colors} itemSize={3} />
         </bufferGeometry>
         <pointsMaterial
-          size={0.4}
+          size={0.55}
           sizeAttenuation
           vertexColors
           transparent
-          opacity={0.85}
+          opacity={0.9}
           depthWrite={false}
+          map={SPRITE_TEXTURE}
+          alphaTest={0.01}
         />
       </points>
     </group>

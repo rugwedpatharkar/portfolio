@@ -3,6 +3,18 @@ import { useMemo, useRef } from "react";
 import { useFrame, useLoader } from "@react-three/fiber";
 import * as THREE from "three";
 import PlanetMaterial from "./PlanetMaterial";
+import AtmosphereGlow from "./AtmosphereGlow";
+
+/* Atmosphere preset per planet type — color + intensity tuned per planet */
+const ATMOSPHERE_PRESETS = {
+  earth: { color: "#7aa8ff", intensity: 0.95, power: 2.6, scale: 1.07 },
+  warm: { color: "#ffd99a", intensity: 0.65, power: 2.2, scale: 1.04 },
+  rust: { color: "#ff9070", intensity: 0.40, power: 2.8, scale: 1.04 },
+  gas: { color: "#caa6ff", intensity: 0.50, power: 2.4, scale: 1.04 },
+  golden: { color: "#ffe9a8", intensity: 0.55, power: 2.4, scale: 1.04 },
+  ice: { color: "#a6d8ff", intensity: 0.60, power: 2.6, scale: 1.05 },
+  abyss: { color: "#7ad0ff", intensity: 0.70, power: 2.6, scale: 1.05 },
+};
 
 /*
  * Planet primitive. Renders a textured sphere when a `texture` URL is
@@ -23,6 +35,7 @@ const Planet = ({
   nightTexture,
   cloudTexture,
   ringTexture,
+  moonTexture,
   rotationSpeed = 0.1,
   rings = false,
   ringColor,
@@ -41,13 +54,13 @@ const Planet = ({
 
   /* Load textures via Suspense — Scene wraps in <Suspense> already */
   const allTextureUrls = useMemo(
-    () => [texture, nightTexture, cloudTexture, ringTexture].filter(Boolean),
-    [texture, nightTexture, cloudTexture, ringTexture]
+    () => [texture, nightTexture, cloudTexture, ringTexture, moonTexture].filter(Boolean),
+    [texture, nightTexture, cloudTexture, ringTexture, moonTexture]
   );
   const loadedTextures = useLoader(THREE.TextureLoader, allTextureUrls.length ? allTextureUrls : []);
   const textureMap = useMemo(() => {
     const out = {};
-    const order = [texture, nightTexture, cloudTexture, ringTexture].filter(Boolean);
+    const order = [texture, nightTexture, cloudTexture, ringTexture, moonTexture].filter(Boolean);
     order.forEach((url, i) => {
       const tex = loadedTextures[i];
       if (tex) {
@@ -57,7 +70,7 @@ const Planet = ({
       out[url] = tex;
     });
     return out;
-  }, [loadedTextures, texture, nightTexture, cloudTexture, ringTexture]);
+  }, [loadedTextures, texture, nightTexture, cloudTexture, ringTexture, moonTexture]);
 
   useFrame((_, delta) => {
     if (planetRef.current) planetRef.current.rotation.y += delta * rotationSpeed;
@@ -92,13 +105,14 @@ const Planet = ({
         }}
         position={[Math.cos(initial) * orbit, 0, Math.sin(initial) * orbit]}
       >
-        <sphereGeometry args={[radius * moonScale, 16, 16]} />
+        <sphereGeometry args={[radius * moonScale, 24, 24]} />
         <meshStandardMaterial
           color={mColor}
-          emissive={new THREE.Color(mColor).multiplyScalar(0.35)}
-          emissiveIntensity={0.5}
-          roughness={0.55}
-          metalness={0.15}
+          map={textureMap[moonTexture] || null}
+          emissive={new THREE.Color(mColor).multiplyScalar(textureMap[moonTexture] ? 0.05 : 0.35)}
+          emissiveIntensity={textureMap[moonTexture] ? 0.15 : 0.5}
+          roughness={textureMap[moonTexture] ? 0.95 : 0.55}
+          metalness={textureMap[moonTexture] ? 0.04 : 0.15}
         />
       </mesh>
     );
@@ -148,6 +162,11 @@ const Planet = ({
             metalness={0}
           />
         </mesh>
+      )}
+
+      {/* Atmosphere rim glow — earth-blue by default, custom per planet */}
+      {hasTexture && ATMOSPHERE_PRESETS[type] && (
+        <AtmosphereGlow radius={radius} {...ATMOSPHERE_PRESETS[type]} />
       )}
 
       {rings && (

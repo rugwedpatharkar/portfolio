@@ -11,6 +11,7 @@ import AlienShips from "./AlienShips";
 import Comets from "./Comets";
 import VisibilityController from "./VisibilityController";
 import PlanetLabels from "./PlanetLabels";
+import Skybox from "./Skybox";
 import useViewport from "../useViewport";
 import { DESTINATIONS } from "../config/destinations";
 
@@ -64,6 +65,7 @@ const Scene = ({ scrollT, activeIdx, onJump, onReady }) => {
       <ambientLight intensity={0.18} />
 
       <Suspense fallback={null}>
+        <Skybox />
         <Stars />
         <Nebulae />
         {showAliens && <AlienShips />}
