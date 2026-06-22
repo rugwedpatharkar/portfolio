@@ -1,0 +1,55 @@
+/*
+ * Achievement registry. Each achievement has:
+ *   - id        unique stable key for localStorage
+ *   - label     short user-facing title
+ *   - icon      single character / glyph
+ *   - color     mission-patch tint
+ *   - hint      one-line how-to (shown when locked + hovered)
+ */
+
+export const ACHIEVEMENTS = [
+  { id: "first_light", label: "First Light", icon: "☀", color: "#ffb86b",
+    hint: "Reach the sun." },
+  { id: "inner_tour", label: "Inner System", icon: "◐", color: "#7faaff",
+    hint: "Visit Mercury, Venus, Earth, and Mars." },
+  { id: "belt_crossed", label: "Belt Crossed", icon: "⬡", color: "#f8c555",
+    hint: "Pass through the asteroid belt." },
+  { id: "gas_giants", label: "Gas Giant Tour", icon: "◯", color: "#915eff",
+    hint: "See Jupiter, Saturn, Uranus, and Neptune." },
+  { id: "edge_beacon", label: "Edge Beacon", icon: "▲", color: "#ff6b6b",
+    hint: "Reach the heliopause." },
+  { id: "all_destinations", label: "Solar Tourist", icon: "✦", color: "#00cea8",
+    hint: "Visit all 12 destinations." },
+  { id: "konami", label: "Konami Decoded", icon: "🛸", color: "#bf61ff",
+    hint: "↑↑↓↓←→←→ba" },
+  { id: "salute", label: "Sun Salute", icon: "★", color: "#ffd47a",
+    hint: "Click the sun directly." },
+  { id: "death_star", label: "That's No Moon", icon: "☠", color: "#cccccc",
+    hint: "Find the Death Star." },
+  { id: "the_answer", label: "42", icon: "42", color: "#7df2c0",
+    hint: "Type the answer." },
+  { id: "speed_runner", label: "Hyperjump", icon: "⚡", color: "#ffe066",
+    hint: "Visit all 12 destinations in under 60 seconds." },
+  { id: "explorer", label: "Free Roamer", icon: "⌖", color: "#ffb86b",
+    hint: "Enable free roam and fly the system." },
+];
+
+export const ACHIEVEMENTS_BY_ID = Object.fromEntries(ACHIEVEMENTS.map((a) => [a.id, a]));
+
+const KEY = "stellar:achievements";
+
+export const unlockedSet = () => {
+  if (typeof window === "undefined") return new Set();
+  try {
+    return new Set(JSON.parse(localStorage.getItem(KEY) || "[]"));
+  } catch {
+    return new Set();
+  }
+};
+
+export const persistUnlocked = (set) => {
+  if (typeof window === "undefined") return;
+  try {
+    localStorage.setItem(KEY, JSON.stringify(Array.from(set)));
+  } catch { /* ignore */ }
+};

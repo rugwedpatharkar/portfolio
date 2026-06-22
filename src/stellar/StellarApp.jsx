@@ -16,6 +16,10 @@ import StardustTrail from "./StardustTrail";
 import Breadcrumb from "./Breadcrumb";
 import LiveStats from "./LiveStats";
 import TimeScrubber from "./TimeScrubber";
+import Achievements from "./Achievements";
+import SpeedRun from "./SpeedRun";
+import QuoteFeed from "./QuoteFeed";
+import VisitorLog from "./VisitorLog";
 import { easterEggs } from "../content";
 import { DESTINATIONS, SCROLL_LENGTH_PER_DESTINATION } from "./config/destinations";
 
@@ -84,6 +88,8 @@ const StellarApp = () => {
       }
       /* Audio cue — AmbientAudio listens if enabled */
       window.dispatchEvent(new CustomEvent("stellar:whoosh"));
+      /* Visitor-log + achievements listen */
+      window.dispatchEvent(new CustomEvent("stellar:destination", { detail: { id: dest.id, idx } }));
     }
   }, []);
 
@@ -140,6 +146,10 @@ const StellarApp = () => {
           <Breadcrumb activeIdx={activeIdx} />
           <LiveStats />
           <TimeScrubber />
+          <Achievements activeIdx={activeIdx} />
+          <SpeedRun activeIdx={activeIdx} />
+          <QuoteFeed />
+          <VisitorLog />
           <PlanetHUD destination={DESTINATIONS[activeIdx]} />
           <ContentPanel destination={DESTINATIONS[activeIdx]} />
           <CockpitFrame enabled={cockpit} scrollTRef={scrollTRef} />
