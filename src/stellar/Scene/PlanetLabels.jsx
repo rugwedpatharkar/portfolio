@@ -1,19 +1,28 @@
 /* eslint-disable react/prop-types */
 /* eslint-disable react/no-unknown-property */
+import { useRef } from "react";
+import { useFrame } from "@react-three/fiber";
 import { Html } from "@react-three/drei";
 import { DESTINATIONS } from "../config/destinations";
+import { orbitalPosition } from "../config/orbits";
 
 /*
  * One small HTML label per destination, anchored to its scene position.
  * The active destination's label is fully visible; nearby ones are dimmed;
  * far ones fade out completely. Lightweight CSS opacity transition does
- * the work — no per-frame JS.
+ * the work. The anchor group rides the planet's live orbit so the label
+ * stays pinned to the moving body.
  */
 
 const Label = ({ d }) => {
+  const ref = useRef();
+  useFrame(({ clock }) => {
+    if (ref.current) orbitalPosition(d, clock.elapsedTime, ref.current.position);
+  });
   return (
+    <group ref={ref}>
     <Html
-      position={d.position}
+      position={[0, 0, 0]}
       center
       /* Lower distanceFactor so a close camera doesn't balloon the
          label to fill the screen. Offset well clear of the planet body
@@ -55,6 +64,7 @@ const Label = ({ d }) => {
         {d.section}
       </div>
     </Html>
+    </group>
   );
 };
 

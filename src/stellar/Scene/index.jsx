@@ -15,6 +15,7 @@ import Comets from "./Comets";
 import VisibilityController from "./VisibilityController";
 import PlanetLabels from "./PlanetLabels";
 import Skybox from "./Skybox";
+import OrbitGroup from "./OrbitGroup";
 import LensFlare from "./LensFlare";
 import SolarProminences from "./SolarProminences";
 import EarthAurora from "./EarthAurora";
@@ -159,10 +160,12 @@ const Scene = ({ scrollT, activeIdx, onJump, onReady, freeRoamEnabled, wideRef, 
             );
           }
           if (d.kind === "planet") {
+            /* position is [0,0,0] — the OrbitGroup wrapper places the
+               whole body on its live orbit around the sun. */
             const planetEl = (
               <Planet
                 key={d.id}
-                position={d.position}
+                position={[0, 0, 0]}
                 radius={d.radius}
                 type={d.type || "rocky"}
                 color={d.color}
@@ -191,13 +194,17 @@ const Scene = ({ scrollT, activeIdx, onJump, onReady, freeRoamEnabled, wideRef, 
             /* Earth gets aurora rings at the poles */
             if (d.type === "earth") {
               return (
-                <group key={d.id}>
+                <OrbitGroup key={d.id} dest={d}>
                   {planetEl}
-                  <EarthAurora position={d.position} radius={d.radius} />
-                </group>
+                  <EarthAurora position={[0, 0, 0]} radius={d.radius} />
+                </OrbitGroup>
               );
             }
-            return <group key={d.id}>{planetEl}</group>;
+            return (
+              <OrbitGroup key={d.id} dest={d}>
+                {planetEl}
+              </OrbitGroup>
+            );
           }
           if (d.kind === "belt") {
             const count = beltCounts[d.id] ?? 200;
