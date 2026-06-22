@@ -39,3 +39,4 @@ firebase-debug.log
 
 # Lighthouse CI local reports
 /.lighthouseci/
+/*.png
