@@ -78,7 +78,10 @@ export const DESTINATIONS = [
     nightTexture: "/textures/planets/earth_lights.png",
     cloudTexture: "/textures/planets/earthcloudmap.jpg",
     normalTexture: "/textures/planets/earth_normal.jpg",
-    specularTexture: "/textures/planets/earth_specular.jpg",
+    /* Inverted ocean mask used as a roughnessMap: oceans dark → low
+       roughness → mirror-like → catch a sharp sun-glint; land bright →
+       matte. (The raw spec map had oceans bright = the wrong way round.) */
+    specularTexture: "/textures/planets/earth_roughness.jpg",
     section: "experience",
     /* Earth — the standout hero shot. These exact values frame the
        day/night terminator without the sun flooding the lens; do not

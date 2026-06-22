@@ -10,7 +10,7 @@ import RingSystem from "./RingSystem";
    secondarily on its own — keep intensities moderate so atmospheres
    don't drown the surface texture. */
 const ATMOSPHERE_PRESETS = {
-  earth: { color: "#6aa0ff", intensity: 0.55, power: 3.2, scale: 1.045 },
+  earth: { color: "#6aa0ff", intensity: 0.6, power: 3.0, scale: 1.05, terminator: 1, termColor: "#ff8a4a" },
   warm: { color: "#ffd99a", intensity: 0.40, power: 2.8, scale: 1.035 },
   rust: { color: "#ff9070", intensity: 0.28, power: 3.0, scale: 1.035 },
   gas: { color: "#caa6ff", intensity: 0.35, power: 2.8, scale: 1.035 },
@@ -216,9 +216,12 @@ const Planet = ({
             bumpScale={textureMap[bumpTexture] ? (isEarth ? 0.04 : 0.08) : 0}
             emissiveMap={isEarth ? textureMap[nightTexture] : null}
             emissive={isEarth ? new THREE.Color("#ffc480") : new THREE.Color("#000000")}
-            emissiveIntensity={isEarth ? 1.6 : 0}
-            roughness={isEarth ? 0.7 : 0.85}
-            metalness={isEarth ? 0.12 : 0.05}
+            emissiveIntensity={isEarth ? 1.2 : 0}
+            /* Earth: low base roughness + the inverted ocean roughnessMap
+               makes oceans mirror-like (sharp sun-glint slides across the
+               sea as it rotates) while land stays matte. */
+            roughness={isEarth ? 0.5 : 0.85}
+            metalness={isEarth ? 0.1 : 0.05}
           />
         ) : (
           <PlanetMaterial type={type} color={color} colorB={colorB} />
