@@ -95,8 +95,18 @@ const Scene = ({ scrollT, activeIdx, onJump, onReady, freeRoamEnabled, wideRef }
       }}
       camera={{ position: [0, 2.5, 11], fov: 52, near: 0.1, far: 600 }}
       style={{ position: "fixed", inset: 0, background: "#03050d" }}
-      onCreated={() => invalidate()}
+      onCreated={({ gl, scene }) => {
+        /* Hard guarantee a dark backdrop: explicit clear colour + a
+           scene.background colour. If the skybox texture ever fails to
+           load or render, we fall back to deep space — never white. */
+        gl.setClearColor(0x03050d, 1);
+        scene.background = new THREE.Color(0x03050d);
+        invalidate();
+      }}
     >
+      {/* Declarative dark backdrop — renders behind the skybox sphere so
+          there is always deep space, regardless of texture state. */}
+      <color attach="background" args={["#03050d"]} />
       <VisibilityController />
       <AdaptiveQuality scrollTRef={scrollT} highDpr={dprCap} lowDpr={isMobile ? 1.0 : 1.2} />
       {/* Ambient — slight blue tilt for cinema "shadows are cool" */}

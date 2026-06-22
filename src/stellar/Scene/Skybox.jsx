@@ -68,12 +68,18 @@ const Skybox = () => {
     <mesh rotation={[0.3, 2.4, 0]}>
       <sphereGeometry args={[400, 64, 32]} />
       {/* Dimmed hard so the dense Tycho star field recedes into a
-          backdrop instead of fighting the planets. */}
+          backdrop instead of fighting the planets.
+
+          toneMapped={false}: render the texture as-authored. With ACES
+          tone-mapping ON, the result was GPU-dependent — on some drivers
+          the sky washed out to near-WHITE. Disabling tone-mapping here +
+          a directly-dimmed colour makes the backdrop deterministic
+          everywhere. The color grade still applies as a post pass. */}
       <meshBasicMaterial
         map={map}
         side={THREE.BackSide}
-        color="#474f6b"
-        toneMapped
+        color="#2e3448"
+        toneMapped={false}
         depthWrite={false}
       />
     </mesh>
