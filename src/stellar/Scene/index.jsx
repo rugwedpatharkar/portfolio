@@ -21,6 +21,7 @@ import SolarProminences from "./SolarProminences";
 import EarthAurora from "./EarthAurora";
 import DustParticles from "./DustParticles";
 import AdaptiveQuality from "./AdaptiveQuality";
+import AutoExposure from "./AutoExposure";
 import MouseParallax from "./MouseParallax";
 import FreeRoam from "./FreeRoam";
 import CameraShake from "./CameraShake";
@@ -109,6 +110,7 @@ const Scene = ({ scrollT, activeIdx, onJump, onReady, freeRoamEnabled, wideRef, 
       <color attach="background" args={["#03050d"]} />
       <VisibilityController />
       <AdaptiveQuality scrollTRef={scrollT} highDpr={dprCap} lowDpr={isMobile ? 1.0 : 1.2} />
+      <AutoExposure />
       {/* Vacuum-lean three-point lighting. Every planet sits on +x with
           the camera on the FAR (anti-sun) side, so a literal sun-at-origin
           key would throw every hero shot into shadow. Instead:
