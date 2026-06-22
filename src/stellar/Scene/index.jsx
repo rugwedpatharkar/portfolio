@@ -308,7 +308,7 @@ const Scene = ({ scrollT, activeIdx, onJump, onReady, freeRoamEnabled, wideRef, 
             convolution effect (own passes) so it never merges with the
             single mainImage grade. Desktop only. */}
         {!isMobile && (
-          <DepthOfField target={DOF_TARGET} focalLength={0.04} bokehScale={2.2} height={480} />
+          <DepthOfField target={DOF_TARGET} focalLength={0.035} bokehScale={1.6} height={360} />
         )}
         {/* Grade: bright base (the real fix for the earlier "too dark"),
             but saturation pulled NEGATIVE — pixel analysis showed planets

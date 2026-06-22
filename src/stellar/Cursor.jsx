@@ -25,8 +25,16 @@ const Cursor = () => {
     document.body.classList.add("stellar-cursor-active");
 
     const onMove = (e) => {
-      stateRef.current.tx = e.clientX;
-      stateRef.current.ty = e.clientY;
+      const s = stateRef.current;
+      s.tx = e.clientX;
+      s.ty = e.clientY;
+      /* The DOT tracks the pointer INSTANTLY (set in the move handler, not
+         the rAF loop) so it never lags or stutters when the 3D scene drops
+         a frame — that trailing lerp was the "laggy cursor". Only the ring
+         smooths, and tightly. */
+      if (dotRef.current) {
+        dotRef.current.style.transform = `translate3d(${e.clientX}px, ${e.clientY}px, 0) translate(-50%, -50%)`;
+      }
     };
     const onOver = (e) => {
       const interactive = e.target?.closest?.("a, button, [data-cursor='hover'], canvas");
@@ -36,11 +44,10 @@ const Cursor = () => {
     let raf = 0;
     const tick = () => {
       const s = stateRef.current;
-      s.x += (s.tx - s.x) * 0.32;
-      s.y += (s.ty - s.y) * 0.32;
-      if (dotRef.current) {
-        dotRef.current.style.transform = `translate3d(${s.x}px, ${s.y}px, 0) translate(-50%, -50%)`;
-      }
+      /* Ring trails the dot with a tight lerp (0.55) — close enough to feel
+         responsive, loose enough to read as a reticle settling on target. */
+      s.x += (s.tx - s.x) * 0.55;
+      s.y += (s.ty - s.y) * 0.55;
       if (ringRef.current) {
         ringRef.current.style.transform = `translate3d(${s.x}px, ${s.y}px, 0) translate(-50%, -50%) scale(${s.hover ? 1.55 : 1}) rotate(${performance.now() * (s.hover ? 0.18 : 0.04)}deg)`;
         ringRef.current.style.opacity = s.hover ? 0.95 : 0.6;

@@ -46,8 +46,8 @@ const KeyLight = ({ scrollT, castShadow = true }) => {
       intensity={1.2}
       color="#fff2d8"
       castShadow={castShadow}
-      shadow-mapSize-width={1024}
-      shadow-mapSize-height={1024}
+      shadow-mapSize-width={512}
+      shadow-mapSize-height={512}
       shadow-camera-near={1}
       shadow-camera-far={D * 2 + 14}
       shadow-camera-left={-8}

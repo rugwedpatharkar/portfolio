@@ -10,7 +10,7 @@ import { useEffect, useRef } from "react";
  * touch / reduced-motion.
  */
 
-const MAX_DUST = 90;
+const MAX_DUST = 48;
 
 const StardustTrail = () => {
   const canvasRef = useRef(null);
@@ -23,7 +23,10 @@ const StardustTrail = () => {
     const canvas = canvasRef.current;
     if (!canvas) return;
     const ctx = canvas.getContext("2d");
-    const dpr = Math.min(window.devicePixelRatio || 1, 2);
+    /* DPR capped at 1.25 (was 2): this is a full-screen mix-blend-screen
+       overlay, so every device pixel is re-composited each frame — halving
+       the pixel count roughly halves that cost and kills the trail lag. */
+    const dpr = Math.min(window.devicePixelRatio || 1, 1.25);
     let w, h;
     const setSize = () => {
       w = window.innerWidth;

@@ -1,101 +1,171 @@
 /* eslint-disable react/no-unknown-property */
 import { useMemo, useRef } from "react";
-import { useFrame, useLoader } from "@react-three/fiber";
+import { useFrame } from "@react-three/fiber";
 import * as THREE from "three";
 
 /*
- * The sun — visitor's starting point. Glowing sphere with photosphere
- * texture (granulation pattern), corona halo, and a pointlight that
- * spills onto nearby planets.
+ * The sun — a LIVING star, not a textured ball.
  *
- * Texture is optional; if `texture` is omitted the sun falls back to a
- * flat orange. We multiply the texture by warm orange in shader-color
- * to keep the brand palette consistent.
+ * The surface is fully procedural: domain-warped FBM noise drives
+ * convection granulation that churns over time, low-frequency noise
+ * carves drifting sunspots (umbra + penumbra), a hot→cool colour ramp
+ * paints the plasma, and limb darkening dims the edge the way a real
+ * photosphere does. Output is over-bright + toneMapped:false so bloom
+ * turns it into a true glowing star. Corona shells breathe around it and
+ * a pointlight spills warm light onto the inner planets.
  */
+
+const SUN_VERT = /* glsl */ `
+  varying vec3 vPos;
+  varying vec3 vNormal;
+  varying vec3 vWorldPos;
+  void main() {
+    vPos = position;
+    vNormal = normalize(normalMatrix * normal);
+    vec4 wp = modelMatrix * vec4(position, 1.0);
+    vWorldPos = wp.xyz;
+    gl_Position = projectionMatrix * viewMatrix * wp;
+  }
+`;
+
+const SUN_FRAG = /* glsl */ `
+  varying vec3 vPos;
+  varying vec3 vNormal;
+  varying vec3 vWorldPos;
+  uniform float uTime;
+  uniform vec3 uCameraPos;
+  uniform vec3 uHot;
+  uniform vec3 uMid;
+  uniform vec3 uCool;
+
+  vec3 mod289(vec3 x){return x-floor(x*(1.0/289.0))*289.0;}
+  vec4 mod289(vec4 x){return x-floor(x*(1.0/289.0))*289.0;}
+  vec4 permute(vec4 x){return mod289(((x*34.0)+1.0)*x);}
+  vec4 taylorInvSqrt(vec4 r){return 1.79284291400159 - 0.85373472095314 * r;}
+  float snoise(vec3 v){
+    const vec2 C = vec2(1.0/6.0, 1.0/3.0); const vec4 D = vec4(0.0, 0.5, 1.0, 2.0);
+    vec3 i = floor(v + dot(v, C.yyy));
+    vec3 x0 = v - i + dot(i, C.xxx);
+    vec3 g = step(x0.yzx, x0.xyz); vec3 l = 1.0 - g;
+    vec3 i1 = min(g.xyz, l.zxy); vec3 i2 = max(g.xyz, l.zxy);
+    vec3 x1 = x0 - i1 + C.xxx; vec3 x2 = x0 - i2 + C.yyy; vec3 x3 = x0 - D.yyy;
+    i = mod289(i);
+    vec4 p = permute(permute(permute(i.z + vec4(0.0, i1.z, i2.z, 1.0)) + i.y + vec4(0.0, i1.y, i2.y, 1.0)) + i.x + vec4(0.0, i1.x, i2.x, 1.0));
+    float n_ = 0.142857142857; vec3 ns = n_ * D.wyz - D.xzx;
+    vec4 j = p - 49.0 * floor(p * ns.z * ns.z);
+    vec4 x_ = floor(j * ns.z); vec4 y_ = floor(j - 7.0 * x_);
+    vec4 x = x_ * ns.x + ns.yyyy; vec4 y = y_ * ns.x + ns.yyyy; vec4 h = 1.0 - abs(x) - abs(y);
+    vec4 b0 = vec4(x.xy, y.xy); vec4 b1 = vec4(x.zw, y.zw);
+    vec4 s0 = floor(b0) * 2.0 + 1.0; vec4 s1 = floor(b1) * 2.0 + 1.0; vec4 sh = -step(h, vec4(0.0));
+    vec4 a0 = b0.xzyw + s0.xzyw * sh.xxyy; vec4 a1 = b1.xzyw + s1.xzyw * sh.zzww;
+    vec3 p0 = vec3(a0.xy, h.x); vec3 p1 = vec3(a0.zw, h.y); vec3 p2 = vec3(a1.xy, h.z); vec3 p3 = vec3(a1.zw, h.w);
+    vec4 norm = taylorInvSqrt(vec4(dot(p0, p0), dot(p1, p1), dot(p2, p2), dot(p3, p3)));
+    p0 *= norm.x; p1 *= norm.y; p2 *= norm.z; p3 *= norm.w;
+    vec4 m = max(0.6 - vec4(dot(x0, x0), dot(x1, x1), dot(x2, x2), dot(x3, x3)), 0.0); m = m * m;
+    return 42.0 * dot(m * m, vec4(dot(p0, x0), dot(p1, x1), dot(p2, x2), dot(p3, x3)));
+  }
+  float fbm(vec3 p){ float v=0.0, a=0.5; for(int i=0;i<3;i++){ v += a*snoise(p); p*=2.05; a*=0.5; } return v; }
+
+  void main() {
+    vec3 dir = normalize(vPos);
+
+    /* Domain-warped convection granulation, slowly boiling. Warp uses two
+       cheap snoise samples (not full FBM) to keep the fragment cost low —
+       the sun fills the hero shot, so noise calls dominate the frame. */
+    vec3 q = dir * 3.0;
+    float w1 = snoise(q + vec3(0.0, uTime * 0.05, 0.0));
+    float w2 = snoise(q * 1.3 + vec3(3.1, uTime * 0.04, 1.0));
+    vec3 warp = vec3(w1, w2, w1 * w2);
+    float gran = fbm(q * 2.0 + warp * 1.4 + vec3(uTime * 0.06)) * 0.5 + 0.5;
+    float fine = snoise(dir * 8.0 + warp * 1.5 + vec3(uTime * 0.13)) * 0.5 + 0.5;
+    float surface = mix(gran, fine, 0.35);
+
+    /* Drifting sunspots — low-freq mask, darkened umbra. */
+    float spotN = snoise(dir * 1.7 + vec3(uTime * 0.015, 0.0, 0.0));
+    float spot = smoothstep(0.30, 0.48, spotN);
+    float spotDark = 1.0 - spot * 0.78;
+
+    /* Colour ramp cool → mid → hot. */
+    vec3 col = mix(uCool, uMid, smoothstep(0.18, 0.55, surface));
+    col = mix(col, uHot, smoothstep(0.55, 0.92, surface));
+    col *= spotDark;
+
+    /* Limb darkening — photosphere centre is brighter than the edge. */
+    float ndv = max(dot(normalize(vNormal), normalize(uCameraPos - vWorldPos)), 0.0);
+    col *= 0.5 + 0.5 * pow(ndv, 0.5);
+
+    col *= 1.55; // over-bright so bloom blooms it into a star
+    gl_FragColor = vec4(col, 1.0);
+  }
+`;
 
 const Sun = ({
   position = [0, 0, 0],
   radius = 2.2,
-  texture,
   onClick,
   onPointerOver,
   onPointerOut,
 }) => {
   const meshRef = useRef();
+  const matRef = useRef();
   const innerCoronaRef = useRef();
   const outerCoronaRef = useRef();
   const tRef = useRef(0);
 
-  const urls = useMemo(() => (texture ? [texture] : []), [texture]);
-  const loaded = useLoader(THREE.TextureLoader, urls);
-  const sunTex = loaded[0];
-  if (sunTex) {
-    sunTex.colorSpace = THREE.SRGBColorSpace;
-    sunTex.anisotropy = 4;
-  }
+  const uniforms = useMemo(
+    () => ({
+      uTime: { value: 0 },
+      uCameraPos: { value: new THREE.Vector3() },
+      uHot: { value: new THREE.Color("#fff4d6") },
+      uMid: { value: new THREE.Color("#ffae33") },
+      uCool: { value: new THREE.Color("#f0631a") },
+    }),
+    []
+  );
 
-  useFrame((_, delta) => {
-    tRef.current += delta;
-    const t = tRef.current;
-    if (meshRef.current) meshRef.current.rotation.y += delta * 0.04;
-    /* Subtle breathing — corona opacity + scale oscillate at different
-       frequencies so the sun feels alive without a obvious sine-wave. */
+  useFrame(({ clock, camera }) => {
+    tRef.current += 0; // keep ref alive
+    const t = clock.elapsedTime;
+    if (meshRef.current) meshRef.current.rotation.y += 0.0006;
+    if (matRef.current) {
+      matRef.current.uniforms.uTime.value = t;
+      matRef.current.uniforms.uCameraPos.value.copy(camera.position);
+    }
     if (innerCoronaRef.current) {
       const pulse = 1 + Math.sin(t * 0.9) * 0.04 + Math.sin(t * 2.3 + 1.7) * 0.02;
       innerCoronaRef.current.scale.setScalar(pulse);
-      innerCoronaRef.current.material.opacity = 0.45 + Math.sin(t * 1.3) * 0.08;
+      innerCoronaRef.current.material.opacity = 0.42 + Math.sin(t * 1.3) * 0.08;
     }
     if (outerCoronaRef.current) {
       const pulse = 1 + Math.sin(t * 0.55 + 0.8) * 0.05;
       outerCoronaRef.current.scale.setScalar(pulse);
-      outerCoronaRef.current.material.opacity = 0.22 + Math.sin(t * 0.7 + 2.1) * 0.05;
+      outerCoronaRef.current.material.opacity = 0.2 + Math.sin(t * 0.7 + 2.1) * 0.05;
     }
   });
 
   return (
     <group position={position}>
-      {/* The sun body is heavily over-bright so bloom catches it and
-          turns the surface into a true glowing star, not a flat ball. */}
-      <mesh
-        ref={meshRef}
-        onClick={onClick}
-        onPointerOver={onPointerOver}
-        onPointerOut={onPointerOut}
-      >
-        <sphereGeometry args={[radius, 48, 48]} />
-        <meshBasicMaterial
-          map={sunTex || null}
-          color={sunTex ? "#ffb060" : "#ffb86b"}
+      {/* Procedural photosphere */}
+      <mesh ref={meshRef} onClick={onClick} onPointerOver={onPointerOver} onPointerOut={onPointerOut}>
+        <sphereGeometry args={[radius, 64, 64]} />
+        <shaderMaterial
+          ref={matRef}
+          vertexShader={SUN_VERT}
+          fragmentShader={SUN_FRAG}
+          uniforms={uniforms}
           toneMapped={false}
         />
       </mesh>
-      {/* Inner corona — close, bright halo that bloom grabs first.
-          Subtly breathes via useFrame above. */}
+      {/* Inner corona — chromospheric glow that bloom grabs first */}
       <mesh ref={innerCoronaRef}>
-        <sphereGeometry args={[radius * 1.08, 32, 32]} />
-        <meshBasicMaterial
-          color="#fff0c0"
-          transparent
-          opacity={0.45}
-          side={THREE.BackSide}
-          toneMapped={false}
-        />
+        <sphereGeometry args={[radius * 1.09, 32, 32]} />
+        <meshBasicMaterial color="#ffdca0" transparent opacity={0.42} side={THREE.BackSide} toneMapped={false} depthWrite={false} />
       </mesh>
-      {/* Outer corona — softer, wider falloff that bloom smears out */}
+      {/* Outer corona — wide soft falloff */}
       <mesh ref={outerCoronaRef}>
-        <sphereGeometry args={[radius * 1.45, 32, 32]} />
-        <meshBasicMaterial
-          color="#ffa040"
-          transparent
-          opacity={0.22}
-          side={THREE.BackSide}
-          toneMapped={false}
-        />
+        <sphereGeometry args={[radius * 1.5, 32, 32]} />
+        <meshBasicMaterial color="#ff9a3c" transparent opacity={0.2} side={THREE.BackSide} toneMapped={false} depthWrite={false} />
       </mesh>
-      {/* Warm sun-side fill for the inner planets. Trimmed (was 2.4) and
-          given faster decay so it no longer stacks with the directional
-          key to over-expose the outer gas giants — those sit far enough
-          out that this contributes little, which is physically right. */}
       <pointLight color="#ffe5b0" intensity={1.1} distance={60} decay={1.5} />
     </group>
   );
