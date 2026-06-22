@@ -2,7 +2,8 @@
 import { Suspense, useEffect, useRef } from "react";
 import { Canvas, invalidate } from "@react-three/fiber";
 import * as THREE from "three";
-import { EffectComposer, Bloom, Vignette, BrightnessContrast, HueSaturation } from "@react-three/postprocessing";
+import { EffectComposer, Bloom } from "@react-three/postprocessing";
+import CinematicGrade from "./CinematicGrade";
 import Stars from "./Stars";
 import Sun from "./Sun";
 import Planet from "./Planet";
@@ -257,14 +258,20 @@ const Scene = ({ scrollT, activeIdx, onJump, onReady, freeRoamEnabled, wideRef, 
           Bloom makes the sun + nebulae glow properly, ACES tone-maps
           highlights into a film-like curve, vignette adds depth, SMAA
           provides edge-aware AA without MSAA overhead. */}
-      {/* Cinematic color pipeline — order matters:
-          1. Bloom (HDR highlights bloom into halos)
-          2. BrightnessContrast (lift the contrast so shadows feel deep)
-          3. HueSaturation (slight saturation lift for richness)
-          4. Vignette (anchor the eye)
-          ChromaticAberration was dropped — a full-screen pass for a
-          near-invisible effect. Bloom radius trimmed 0.78 → 0.6 (the
-          single most expensive pass). All skipped on mobile. */}
+      {/* Cinematic color pipeline:
+          1. Bloom — HDR highlights bloom into halos (its own convolution
+             pass; never merges with the grade below).
+          2. CinematicGrade — ONE custom effect doing brightness/contrast
+             + saturation + vignette in a single mainImage.
+
+          Why one combined effect instead of the three stock effects:
+          @react-three/postprocessing renders the whole frame WHITE when
+          2+ mainImage effects merge into one EffectPass (proven by
+          bisect — see CinematicGrade.jsx). Collapsing the three grades
+          into one effect sidesteps the merge bug entirely and is a pass
+          cheaper. ChromaticAberration was dropped earlier (full-screen
+          pass for a near-invisible effect); Bloom radius trimmed to 0.6
+          (the single most expensive pass). */}
       <EffectComposer multisampling={0} disableNormalPass>
         <Bloom
           intensity={isMobile ? 0.7 : 1.0}
@@ -273,9 +280,13 @@ const Scene = ({ scrollT, activeIdx, onJump, onReady, freeRoamEnabled, wideRef, 
           mipmapBlur
           radius={0.6}
         />
-        <BrightnessContrast brightness={-0.02} contrast={0.14} />
-        <HueSaturation hue={0} saturation={0.12} />
-        <Vignette offset={0.30} darkness={0.82} />
+        <CinematicGrade
+          brightness={-0.02}
+          contrast={0.14}
+          saturation={0.12}
+          vigOffset={0.3}
+          vigDarkness={0.82}
+        />
       </EffectComposer>
     </Canvas>
   );
