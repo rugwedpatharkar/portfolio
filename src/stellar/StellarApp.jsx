@@ -9,6 +9,7 @@ import Cursor from "./Cursor";
 import PlanetHUD from "./PlanetHUD";
 import MissionCountdown from "./MissionCountdown";
 import SideRail from "./SideRail";
+import WarpOpening from "./WarpOpening";
 import { easterEggs } from "../content";
 import { DESTINATIONS, SCROLL_LENGTH_PER_DESTINATION } from "./config/destinations";
 
@@ -36,12 +37,14 @@ const StellarApp = () => {
   const scrollTRef = useRef(0);
   const [sceneReady, setSceneReady] = useState(false);
   const [bootDone, setBootDone] = useState(false);
+  const [warpDone, setWarpDone] = useState(false);
   const [countdownDone, setCountdownDone] = useState(false);
   const [activeIdx, setActiveIdx] = useState(0);
   const consoleLoggedRef = useRef(false);
 
   const handleSceneReady = useCallback(() => setSceneReady(true), []);
   const handleBootDone = useCallback(() => setBootDone(true), []);
+  const handleWarpDone = useCallback(() => setWarpDone(true), []);
   const handleCountdownDone = useCallback(() => setCountdownDone(true), []);
 
   /* Console easter egg for devs who open DevTools — once per session */
@@ -114,7 +117,8 @@ const StellarApp = () => {
           <EasterEgg />
         </>
       )}
-      {bootDone && !countdownDone && <MissionCountdown onComplete={handleCountdownDone} />}
+      {bootDone && !warpDone && <WarpOpening onComplete={handleWarpDone} />}
+      {bootDone && warpDone && !countdownDone && <MissionCountdown onComplete={handleCountdownDone} />}
       {!bootDone && (
         <BootSequence sceneReady={sceneReady} onComplete={handleBootDone} />
       )}

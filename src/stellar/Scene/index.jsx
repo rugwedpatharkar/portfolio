@@ -18,6 +18,7 @@ import LensFlare from "./LensFlare";
 import SolarProminences from "./SolarProminences";
 import EarthAurora from "./EarthAurora";
 import DustParticles from "./DustParticles";
+import AdaptiveQuality from "./AdaptiveQuality";
 import useViewport from "../useViewport";
 import { DESTINATIONS } from "../config/destinations";
 
@@ -33,7 +34,7 @@ import { DESTINATIONS } from "../config/destinations";
  * tune that based on viewport bucket.
  */
 
-const Scene = ({ scrollT, activeIdx, onJump, onReady }) => {
+const Scene = ({ scrollT, activeIdx, activeDestination, onJump, onReady }) => {
   const readyRef = useRef(false);
   const { isMobile, reducedMotion } = useViewport();
 
@@ -78,6 +79,7 @@ const Scene = ({ scrollT, activeIdx, onJump, onReady }) => {
       onCreated={() => invalidate()}
     >
       <VisibilityController />
+      <AdaptiveQuality scrollTRef={scrollT} highDpr={dprCap} lowDpr={isMobile ? 1.0 : 1.2} />
       {/* Ambient — slight blue tilt for cinema "shadows are cool" */}
       <ambientLight intensity={0.55} color="#9bb0d8" />
       {/* Sun-direction key light. ACES tone-maps the highlight roll-off
@@ -202,9 +204,6 @@ const Scene = ({ scrollT, activeIdx, onJump, onReady }) => {
           highlights into a film-like curve, vignette adds depth, SMAA
           provides edge-aware AA without MSAA overhead. */}
       <EffectComposer multisampling={0} disableNormalPass>
-        {/* Bloom: lower threshold so the sun's corona and nebula bright
-            cores trigger the glow; intensity higher for the cinematic
-            star-shimmer look. */}
         <Bloom
           intensity={isMobile ? 0.85 : 1.35}
           luminanceThreshold={0.42}

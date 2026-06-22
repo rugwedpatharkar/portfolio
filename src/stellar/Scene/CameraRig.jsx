@@ -44,15 +44,29 @@ const CameraRig = ({ scrollT, controlsEnabled }) => {
     camera.lookAt(lookAtTarget.current);
   }, [camera]);
 
+  /* Custom ease curve: ease-out-quart for smoother destination arrival.
+     Pure scroll-T sampling gives constant velocity (jarring at start/end).
+     This re-maps t through a soft curve before sampling the spline. */
+  const easeOutQuart = (x) => 1 - Math.pow(1 - x, 4);
+
   useFrame(() => {
-    if (controlsEnabled) return; // OrbitControls owns the camera
-    const t = THREE.MathUtils.clamp(scrollT.current ?? 0, 0, 1);
+    if (controlsEnabled) return;
+    const rawT = THREE.MathUtils.clamp(scrollT.current ?? 0, 0, 1);
+    /* Per-segment easing: find which segment we're in (N-1 segments
+       across N destinations), apply easeOut within the segment. */
+    const segCount = DESTINATIONS.length - 1;
+    const segT = rawT * segCount;
+    const segIdx = Math.floor(segT);
+    const innerT = THREE.MathUtils.clamp(segT - segIdx, 0, 1);
+    const easedInner = easeOutQuart(innerT);
+    const t = THREE.MathUtils.clamp((segIdx + easedInner) / segCount, 0, 1);
+
     const camP = splines.current.cam.getPoint(t);
     const lookP = splines.current.look.getPoint(t);
 
-    // Smooth approach — damped lerp toward sampled point
-    camera.position.lerp(camP, 0.18);
-    lookAtTarget.current.lerp(lookP, 0.18);
+    /* Slower lerp (0.12 vs 0.18) for a more cinematic settle */
+    camera.position.lerp(camP, 0.12);
+    lookAtTarget.current.lerp(lookP, 0.12);
     camera.lookAt(lookAtTarget.current);
   });
 
