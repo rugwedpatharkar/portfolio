@@ -15,6 +15,9 @@ import VisibilityController from "./VisibilityController";
 import PlanetLabels from "./PlanetLabels";
 import Skybox from "./Skybox";
 import LensFlare from "./LensFlare";
+import SolarProminences from "./SolarProminences";
+import EarthAurora from "./EarthAurora";
+import DustParticles from "./DustParticles";
 import useViewport from "../useViewport";
 import { DESTINATIONS } from "../config/destinations";
 
@@ -103,19 +106,21 @@ const Scene = ({ scrollT, activeIdx, onJump, onReady }) => {
               onJump?.(idx);
             };
             return (
-              <Sun
-                key={d.id}
-                position={d.position}
-                radius={d.radius}
-                texture={d.texture}
-                onClick={handleSunClick}
-                onPointerOver={handleHoverIn}
-                onPointerOut={handleHoverOut}
-              />
+              <group key={d.id}>
+                <Sun
+                  position={d.position}
+                  radius={d.radius}
+                  texture={d.texture}
+                  onClick={handleSunClick}
+                  onPointerOver={handleHoverIn}
+                  onPointerOut={handleHoverOut}
+                />
+                <SolarProminences position={d.position} radius={d.radius} />
+              </group>
             );
           }
           if (d.kind === "planet") {
-            return (
+            const planetEl = (
               <Planet
                 key={d.id}
                 position={d.position}
@@ -143,6 +148,16 @@ const Scene = ({ scrollT, activeIdx, onJump, onReady }) => {
                 onPointerOut={handleHoverOut}
               />
             );
+            /* Earth gets aurora rings at the poles */
+            if (d.type === "earth") {
+              return (
+                <group key={d.id}>
+                  {planetEl}
+                  <EarthAurora position={d.position} radius={d.radius} />
+                </group>
+              );
+            }
+            return <group key={d.id}>{planetEl}</group>;
           }
           if (d.kind === "belt") {
             const count = beltCounts[d.id] ?? 200;
@@ -177,6 +192,7 @@ const Scene = ({ scrollT, activeIdx, onJump, onReady }) => {
         })}
 
         {!isMobile && <LensFlare position={[0, 0, 0]} />}
+        {!isMobile && !reducedMotion && <DustParticles />}
         <PlanetLabels activeIdx={activeIdx} />
         <CameraRig scrollT={scrollT} controlsEnabled={false} />
       </Suspense>

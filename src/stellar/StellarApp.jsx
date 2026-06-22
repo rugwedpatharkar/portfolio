@@ -5,6 +5,10 @@ import Navigator from "./Navigator";
 import Minimap from "./Minimap";
 import ContentPanel from "./ContentPanel";
 import EasterEgg from "./EasterEgg";
+import Cursor from "./Cursor";
+import PlanetHUD from "./PlanetHUD";
+import MissionCountdown from "./MissionCountdown";
+import SideRail from "./SideRail";
 import { easterEggs } from "../content";
 import { DESTINATIONS, SCROLL_LENGTH_PER_DESTINATION } from "./config/destinations";
 
@@ -32,11 +36,13 @@ const StellarApp = () => {
   const scrollTRef = useRef(0);
   const [sceneReady, setSceneReady] = useState(false);
   const [bootDone, setBootDone] = useState(false);
+  const [countdownDone, setCountdownDone] = useState(false);
   const [activeIdx, setActiveIdx] = useState(0);
   const consoleLoggedRef = useRef(false);
 
   const handleSceneReady = useCallback(() => setSceneReady(true), []);
   const handleBootDone = useCallback(() => setBootDone(true), []);
+  const handleCountdownDone = useCallback(() => setCountdownDone(true), []);
 
   /* Console easter egg for devs who open DevTools — once per session */
   useEffect(() => {
@@ -98,9 +104,17 @@ const StellarApp = () => {
         scrollTRef={scrollTRef}
         onDestinationChange={handleDestinationChange}
       />
-      {bootDone && <Minimap activeIdx={activeIdx} onJump={handleJump} />}
-      {bootDone && <ContentPanel destination={DESTINATIONS[activeIdx]} />}
-      {bootDone && <EasterEgg />}
+      {bootDone && countdownDone && (
+        <>
+          <Cursor />
+          <Minimap activeIdx={activeIdx} onJump={handleJump} />
+          <SideRail activeIdx={activeIdx} onJump={handleJump} />
+          <PlanetHUD destination={DESTINATIONS[activeIdx]} />
+          <ContentPanel destination={DESTINATIONS[activeIdx]} />
+          <EasterEgg />
+        </>
+      )}
+      {bootDone && !countdownDone && <MissionCountdown onComplete={handleCountdownDone} />}
       {!bootDone && (
         <BootSequence sceneReady={sceneReady} onComplete={handleBootDone} />
       )}
