@@ -1,5 +1,6 @@
 /* eslint-disable react/prop-types */
 import { useEffect, useMemo, useState } from "react";
+import useViewport from "./useViewport";
 
 /*
  * Holographic data card pinned to the top-left when a destination is
@@ -46,7 +47,44 @@ const Typed = ({ text, speed = 18, deps = [] }) => {
 
 const PlanetHUD = ({ destination }) => {
   const facts = useMemo(() => PLANET_FACTS[destination?.id] || null, [destination]);
+  const { isMobile } = useViewport();
   if (!destination || !facts) return null;
+
+  /* Mobile: a compact single chip — target dot + planet name + class.
+     The full data grid is redundant on a small screen (the content
+     panel + scene label carry it) and the wide card collided with the
+     top-right nav. */
+  if (isMobile) {
+    return (
+      <div
+        style={{
+          position: "fixed",
+          top: 12,
+          left: 12,
+          maxWidth: "58vw",
+          padding: "7px 11px",
+          background: "rgba(6, 9, 22, 0.7)",
+          backdropFilter: "blur(12px)",
+          WebkitBackdropFilter: "blur(12px)",
+          border: `1px solid ${destination.color}55`,
+          borderRadius: 8,
+          color: "white",
+          fontFamily: "'JetBrains Mono', monospace",
+          zIndex: 45,
+          pointerEvents: "none",
+        }}
+      >
+        <div style={{ display: "flex", alignItems: "center", gap: 7 }}>
+          <span style={{ width: 6, height: 6, background: destination.color, borderRadius: "50%", flexShrink: 0, animation: "hudpulse 1.4s ease-in-out infinite" }} />
+          <span style={{ fontSize: 14, fontWeight: 700, fontFamily: "'Sora', sans-serif" }}>{destination.label || destination.id}</span>
+        </div>
+        <div style={{ fontSize: 8.5, color: destination.color, letterSpacing: "0.1em", marginTop: 2, textTransform: "uppercase", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>
+          {facts.class}
+        </div>
+        <style>{`@keyframes hudpulse { 0%,100% { opacity: 1; } 50% { opacity: 0.55; } }`}</style>
+      </div>
+    );
+  }
 
   return (
     <div

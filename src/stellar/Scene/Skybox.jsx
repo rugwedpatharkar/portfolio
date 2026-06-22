@@ -1,5 +1,5 @@
 /* eslint-disable react/no-unknown-property */
-import { useEffect, useMemo } from "react";
+import { useEffect, useMemo, useRef } from "react";
 import { useLoader, useThree } from "@react-three/fiber";
 import * as THREE from "three";
 import useViewport from "../useViewport";
@@ -7,46 +7,75 @@ import useViewport from "../useViewport";
 /*
  * Real Milky Way skybox — NASA Tycho catalog all-sky panorama.
  *
- * 8K source (8192×4096, ~8 MB) on desktop; 4K on mobile.
- * Anisotropic filtering at max so stars stay sharp even at grazing
- * angles. We tone-map THIS texture so it integrates with ACES on
- * the renderer; raw sRGB upload would clip the bright Milky Way
- * band against bloom.
+ * Progressive load: the 4K (~4 MB) loads first and is shown immediately
+ * via Suspense. On desktop the 8K (~8 MB) then streams in the background
+ * and swaps onto the material when ready — so first paint never waits on
+ * the full 8 MB download.
+ *
+ * Anisotropic filtering at max keeps stars sharp at grazing angles. The
+ * texture is tone-mapped so it integrates with the renderer's ACES curve.
  */
+
+const FOURK = "/textures/space/milkyway.jpg";
+const EIGHTK = "/textures/space/milkyway-8k.jpg";
+
+const applyQuality = (tex, gl) => {
+  if (!tex) return;
+  tex.colorSpace = THREE.SRGBColorSpace;
+  tex.anisotropy = gl.capabilities.getMaxAnisotropy?.() ?? 16;
+  tex.minFilter = THREE.LinearMipmapLinearFilter;
+  tex.magFilter = THREE.LinearFilter;
+  tex.generateMipmaps = true;
+  tex.needsUpdate = true;
+};
 
 const Skybox = () => {
   const { isMobile } = useViewport();
-  const url = isMobile ? "/textures/space/milkyway.jpg" : "/textures/space/milkyway-8k.jpg";
-  const tex = useLoader(THREE.TextureLoader, url);
-  const { gl } = useThree();
+  const { gl, invalidate } = useThree();
+  const matRef = useRef();
 
-  /* Apply quality settings once the texture lands */
+  /* Always load the 4K first — this is what Suspense waits on. */
+  const tex4k = useLoader(THREE.TextureLoader, FOURK);
+
   useEffect(() => {
-    if (!tex) return;
-    tex.colorSpace = THREE.SRGBColorSpace;
-    tex.anisotropy = gl.capabilities.getMaxAnisotropy?.() ?? 16;
-    tex.minFilter = THREE.LinearMipmapLinearFilter;
-    tex.magFilter = THREE.LinearFilter;
-    tex.generateMipmaps = true;
-    tex.needsUpdate = true;
-  }, [tex, gl]);
+    applyQuality(tex4k, gl);
+  }, [tex4k, gl]);
 
-  /* Reuse the same Texture instance; useMemo gives a stable handle. */
-  const map = useMemo(() => tex, [tex]);
+  /* Desktop only: stream the 8K in the background and hot-swap it onto
+     the live material when it finishes decoding. */
+  useEffect(() => {
+    if (isMobile) return;
+    let cancelled = false;
+    const loader = new THREE.TextureLoader();
+    loader.load(EIGHTK, (tex8k) => {
+      if (cancelled) {
+        tex8k.dispose();
+        return;
+      }
+      applyQuality(tex8k, gl);
+      if (matRef.current) {
+        const old = matRef.current.map;
+        matRef.current.map = tex8k;
+        matRef.current.needsUpdate = true;
+        /* Free the 4K now that the 8K is live */
+        if (old && old !== tex8k) old.dispose();
+        invalidate();
+      }
+    });
+    return () => { cancelled = true; };
+  }, [isMobile, gl, invalidate]);
+
+  const map = useMemo(() => tex4k, [tex4k]);
 
   return (
     /* Rotated so the bright galactic-core bulge swings away from the
-       inner-planet sightlines (which look back toward the sun on −x).
-       The dense band now sits behind/below the tour route. */
+       inner-planet sightlines (which look back toward the sun on −x). */
     <mesh rotation={[0.3, 2.4, 0]}>
-      {/* Tighter segment counts only for skybox — high-segment sphere
-          eats memory without quality benefit on a constant-distance
-          texture. */}
       <sphereGeometry args={[400, 64, 32]} />
-      {/* Dimmed hard so the dense Tycho star field — especially the
-          bright galactic-core bulge — recedes into a backdrop instead
-          of fighting the planets for attention. */}
+      {/* Dimmed hard so the dense Tycho star field recedes into a
+          backdrop instead of fighting the planets. */}
       <meshBasicMaterial
+        ref={matRef}
         map={map}
         side={THREE.BackSide}
         color="#474f6b"

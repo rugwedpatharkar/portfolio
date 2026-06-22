@@ -1,6 +1,7 @@
 /* eslint-disable react/prop-types */
 import { useEffect, useRef, useState } from "react";
 import { DESTINATIONS } from "./config/destinations";
+import useViewport from "./useViewport";
 
 /*
  * Speed-run mode. Toggle on → stopwatch starts when activeIdx changes
@@ -20,6 +21,7 @@ const fmt = (ms) => {
 };
 
 const SpeedRun = ({ activeIdx }) => {
+  const { isMobile } = useViewport();
   const [enabled, setEnabled] = useState(false);
   const [elapsed, setElapsed] = useState(0);
   const [done, setDone] = useState(false);
@@ -71,6 +73,11 @@ const SpeedRun = ({ activeIdx }) => {
     }, 100);
     return () => clearInterval(id);
   }, [enabled, done]);
+
+  /* Speed-run is a desktop affordance — racing 12 destinations by scroll
+     is awkward on a phone and the chip collided with the top nav. Hidden
+     on mobile (after all hooks, to respect rules-of-hooks). */
+  if (isMobile) return null;
 
   return (
     <div

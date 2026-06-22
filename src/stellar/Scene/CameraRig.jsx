@@ -124,15 +124,22 @@ const CameraRig = ({
     }
     tmpLook.current.copy(lookP);
 
-    /* Wide pull-back override (Z) — easeStart at WIDE_LERP per frame */
-    if (wideRef?.current) {
-      basePos.current.lerp(WIDE_POSITION, WIDE_LERP);
-      tmpLook.current.lerp(WIDE_LOOK, WIDE_LERP);
+    /* Wide pull-back override (Z) — replace the target entirely with the
+       fixed system-wide shot. (The old code lerped basePos toward wide
+       each frame then reset it from the spline, so it never actually
+       reached the wide position — the camera barely moved.) The slow
+       per-frame camera lerp below eases the pull-back cinematically. */
+    const wide = !!wideRef?.current;
+    if (wide) {
+      basePos.current.copy(WIDE_POSITION);
+      tmpLook.current.copy(WIDE_LOOK);
     }
 
-    /* Final camera mutation */
-    camera.position.lerp(basePos.current, freeRoamEnabled ? 0.55 : 0.18);
-    lookAtTarget.current.lerp(tmpLook.current, 0.18);
+    /* Final camera mutation — wide uses a gentle lerp for a slow
+       cinematic pull-back; free-roam snaps responsively; tour eases. */
+    const posLerp = wide ? WIDE_LERP : (freeRoamEnabled ? 0.55 : 0.18);
+    camera.position.lerp(basePos.current, posLerp);
+    lookAtTarget.current.lerp(tmpLook.current, wide ? WIDE_LERP : 0.18);
     camera.lookAt(lookAtTarget.current);
 
     /* Dutch-tilt roll — applied after lookAt (which resets up to world
