@@ -30,8 +30,8 @@ const Skybox = () => {
       <meshBasicMaterial
         map={map}
         side={THREE.BackSide}
-        color="#a8b0d0"
-        toneMapped={false}
+        color="#ffffff"
+        toneMapped
         depthWrite={false}
       />
     </mesh>

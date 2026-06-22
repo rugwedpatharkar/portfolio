@@ -1,6 +1,8 @@
 /* eslint-disable react/no-unknown-property */
 import { Suspense, useEffect, useRef } from "react";
 import { Canvas, invalidate } from "@react-three/fiber";
+import * as THREE from "three";
+import { EffectComposer, Bloom, Vignette } from "@react-three/postprocessing";
 import Stars from "./Stars";
 import Sun from "./Sun";
 import Planet from "./Planet";
@@ -56,13 +58,30 @@ const Scene = ({ scrollT, activeIdx, onJump, onReady }) => {
     <Canvas
       frameloop="always"
       dpr={[1, dprCap]}
-      gl={{ antialias: !isMobile, alpha: false, powerPreference: "high-performance" }}
+      gl={{
+        antialias: !isMobile,
+        alpha: false,
+        powerPreference: "high-performance",
+        /* ACES Filmic tone mapping on the renderer side — single
+           pipeline, no post-processing ToneMapping pass (that one
+           had API issues in v3). */
+        toneMapping: THREE.ACESFilmicToneMapping,
+        toneMappingExposure: 1.05,
+        outputColorSpace: THREE.SRGBColorSpace,
+      }}
       camera={{ position: [0, 2.5, 11], fov: 52, near: 0.1, far: 600 }}
-      style={{ position: "fixed", inset: 0, background: "#050816" }}
+      style={{ position: "fixed", inset: 0, background: "#03050d" }}
       onCreated={() => invalidate()}
     >
       <VisibilityController />
-      <ambientLight intensity={0.18} />
+      {/* Ambient — slight blue tilt for cinema "shadows are cool" */}
+      <ambientLight intensity={0.55} color="#9bb0d8" />
+      {/* Sun-direction key light. ACES tone-maps the highlight roll-off
+          so we can push intensity up without clipping. */}
+      <directionalLight position={[0, 0, 0]} intensity={1.6} color="#fff0c8" />
+      {/* Rim back-light — picks out planet silhouettes from the dark
+          starfield, the classic "space movie" two-light setup. */}
+      <directionalLight position={[-25, 8, -20]} intensity={0.5} color="#7090ff" />
 
       <Suspense fallback={null}>
         <Skybox />
@@ -155,6 +174,24 @@ const Scene = ({ scrollT, activeIdx, onJump, onReady }) => {
         <PlanetLabels activeIdx={activeIdx} />
         <CameraRig scrollT={scrollT} controlsEnabled={false} />
       </Suspense>
+
+      {/* Cinematic post-processing — the biggest visual upgrade.
+          Bloom makes the sun + nebulae glow properly, ACES tone-maps
+          highlights into a film-like curve, vignette adds depth, SMAA
+          provides edge-aware AA without MSAA overhead. */}
+      <EffectComposer multisampling={0} disableNormalPass>
+        {/* Bloom: lower threshold so the sun's corona and nebula bright
+            cores trigger the glow; intensity higher for the cinematic
+            star-shimmer look. */}
+        <Bloom
+          intensity={isMobile ? 0.85 : 1.35}
+          luminanceThreshold={0.42}
+          luminanceSmoothing={0.65}
+          mipmapBlur
+          radius={0.85}
+        />
+        <Vignette offset={0.28} darkness={0.7} />
+      </EffectComposer>
     </Canvas>
   );
 };

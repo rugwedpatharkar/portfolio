@@ -5,15 +5,17 @@ import * as THREE from "three";
 import PlanetMaterial from "./PlanetMaterial";
 import AtmosphereGlow from "./AtmosphereGlow";
 
-/* Atmosphere preset per planet type — color + intensity tuned per planet */
+/* Atmosphere preset per planet type. With bloom on, the rim will glow
+   secondarily on its own — keep intensities moderate so atmospheres
+   don't drown the surface texture. */
 const ATMOSPHERE_PRESETS = {
-  earth: { color: "#7aa8ff", intensity: 0.95, power: 2.6, scale: 1.07 },
-  warm: { color: "#ffd99a", intensity: 0.65, power: 2.2, scale: 1.04 },
-  rust: { color: "#ff9070", intensity: 0.40, power: 2.8, scale: 1.04 },
-  gas: { color: "#caa6ff", intensity: 0.50, power: 2.4, scale: 1.04 },
-  golden: { color: "#ffe9a8", intensity: 0.55, power: 2.4, scale: 1.04 },
-  ice: { color: "#a6d8ff", intensity: 0.60, power: 2.6, scale: 1.05 },
-  abyss: { color: "#7ad0ff", intensity: 0.70, power: 2.6, scale: 1.05 },
+  earth: { color: "#6aa0ff", intensity: 0.55, power: 3.2, scale: 1.045 },
+  warm: { color: "#ffd99a", intensity: 0.40, power: 2.8, scale: 1.035 },
+  rust: { color: "#ff9070", intensity: 0.28, power: 3.0, scale: 1.035 },
+  gas: { color: "#caa6ff", intensity: 0.35, power: 2.8, scale: 1.035 },
+  golden: { color: "#ffe9a8", intensity: 0.40, power: 2.8, scale: 1.035 },
+  ice: { color: "#a6d8ff", intensity: 0.40, power: 2.8, scale: 1.04 },
+  abyss: { color: "#7ad0ff", intensity: 0.50, power: 2.8, scale: 1.045 },
 };
 
 /*
@@ -139,24 +141,27 @@ const Planet = ({
           <meshStandardMaterial
             map={textureMap[texture]}
             emissiveMap={isEarth ? textureMap[nightTexture] : null}
-            emissive={isEarth ? new THREE.Color("#ffe089") : new THREE.Color("#000000")}
-            emissiveIntensity={isEarth ? 1.2 : 0}
-            roughness={isEarth ? 0.85 : 0.95}
-            metalness={isEarth ? 0.05 : 0.05}
+            emissive={isEarth ? new THREE.Color("#ffc480") : new THREE.Color("#000000")}
+            emissiveIntensity={isEarth ? 1.6 : 0}
+            roughness={isEarth ? 0.75 : 0.85}
+            metalness={isEarth ? 0.08 : 0.05}
           />
         ) : (
           <PlanetMaterial type={type} color={color} colorB={colorB} />
         )}
       </mesh>
 
-      {/* Cloud layer for Earth — slightly larger sphere with cloud texture */}
+      {/* Cloud layer for Earth — slightly larger sphere with cloud texture.
+          Opacity is lower so continents remain the focal point through the
+          haze; the planet, not the weather, is the subject. */}
       {isEarth && textureMap[cloudTexture] && (
         <mesh ref={cloudRef}>
-          <sphereGeometry args={[radius * 1.012, 48, 48]} />
+          <sphereGeometry args={[radius * 1.008, 48, 48]} />
           <meshStandardMaterial
             map={textureMap[cloudTexture]}
+            alphaMap={textureMap[cloudTexture]}
             transparent
-            opacity={0.45}
+            opacity={0.55}
             depthWrite={false}
             roughness={1}
             metalness={0}

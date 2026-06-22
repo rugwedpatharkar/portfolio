@@ -37,6 +37,8 @@ const Sun = ({
 
   return (
     <group position={position}>
+      {/* The sun body is heavily over-bright so bloom catches it and
+          turns the surface into a true glowing star, not a flat ball. */}
       <mesh
         ref={meshRef}
         onClick={onClick}
@@ -46,31 +48,33 @@ const Sun = ({
         <sphereGeometry args={[radius, 64, 64]} />
         <meshBasicMaterial
           map={sunTex || null}
-          color={sunTex ? "#ffa040" : "#ffb86b"}
+          color={sunTex ? "#ffb060" : "#ffb86b"}
           toneMapped={false}
         />
       </mesh>
+      {/* Inner corona — close, bright halo that bloom grabs first */}
       <mesh>
         <sphereGeometry args={[radius * 1.08, 32, 32]} />
         <meshBasicMaterial
-          color="#ffd47a"
+          color="#fff0c0"
           transparent
-          opacity={0.25}
+          opacity={0.45}
           side={THREE.BackSide}
           toneMapped={false}
         />
       </mesh>
+      {/* Outer corona — softer, wider falloff that bloom smears out */}
       <mesh>
-        <sphereGeometry args={[radius * 1.5, 32, 32]} />
+        <sphereGeometry args={[radius * 1.45, 32, 32]} />
         <meshBasicMaterial
-          color="#ff9a3c"
+          color="#ffa040"
           transparent
-          opacity={0.12}
+          opacity={0.22}
           side={THREE.BackSide}
           toneMapped={false}
         />
       </mesh>
-      <pointLight color="#ffd47a" intensity={1.5} distance={60} decay={1.2} />
+      <pointLight color="#ffe5b0" intensity={2.4} distance={80} decay={1.1} />
     </group>
   );
 };
