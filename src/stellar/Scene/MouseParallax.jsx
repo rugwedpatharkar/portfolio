@@ -14,20 +14,22 @@ import * as THREE from "three";
  */
 
 const MAX_OFFSET_XY = 0.45;
-const LERP = 0.06;
+const LERP_60 = 0.06; // alpha at 60fps; rescaled by delta-time below
 
 const MouseParallax = ({ offsetRef }) => {
   const target = useRef(new THREE.Vector3());
   const { pointer } = useThree();
 
-  useFrame(() => {
+  useFrame((_, dt) => {
+    const d = Math.min(dt || 1 / 60, 1 / 20);
     /* pointer.x/y are normalised -1..1 across the canvas */
     target.current.set(
       pointer.x * MAX_OFFSET_XY,
       pointer.y * MAX_OFFSET_XY * 0.6,
       0
     );
-    offsetRef.current.lerp(target.current, LERP);
+    /* Frame-rate-independent so parallax feel matches every display. */
+    offsetRef.current.lerp(target.current, 1 - Math.pow(1 - LERP_60, d * 60));
   });
 
   return null;

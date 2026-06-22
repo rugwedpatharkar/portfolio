@@ -13,7 +13,7 @@ import * as THREE from "three";
  */
 
 const CameraShake = ({ parallaxOffsetRef }) => {
-  const state = useRef({ amp: 0, until: 0 });
+  const state = useRef({ amp: 0, until: 0, dur: 0.4 });
   const tmp = useRef(new THREE.Vector3());
   const { clock } = useThree();
 
@@ -22,6 +22,7 @@ const CameraShake = ({ parallaxOffsetRef }) => {
       const amp = e.detail?.amp ?? 0.18;
       const dur = e.detail?.duration ?? 0.4;
       state.current.amp = amp;
+      state.current.dur = dur;
       state.current.until = clock.elapsedTime + dur;
     };
     window.addEventListener("stellar:shake", onShake);
@@ -37,8 +38,9 @@ const CameraShake = ({ parallaxOffsetRef }) => {
       s.amp = 0;
       return;
     }
-    /* Decay amplitude with remaining time */
-    const a = s.amp * (remaining / 0.4);
+    /* Decay amplitude over the shake's OWN duration (was hardcoded /0.4,
+       which over- or under-shot whenever duration ≠ 0.4). */
+    const a = s.amp * (remaining / s.dur);
     tmp.current.set(
       (Math.random() - 0.5) * a * 2,
       (Math.random() - 0.5) * a * 2,

@@ -23,11 +23,36 @@ const PUSH_IN_FACTOR = 0.06;   // 6% closer to lookAt — subtle, and keeps
 const PUSH_IN_DURATION = 1.4;  // seconds to ease into push
 const SETTLE_THRESHOLD = 0.0005; // |dt| below which we consider "settled"
 const SETTLE_DELAY = 0.4;       // wait before push starts
-const WIDE_LERP = 0.04;         // wide-view ease speed
+
+/* All lerp constants below are expressed as the alpha they'd use AT
+   60fps. fAlpha() rescales them by real delta-time so the camera feel
+   is identical on 30/60/144Hz displays (the previous fixed-alpha lerps
+   moved 2.4× faster on a 144Hz screen). */
+const POS_LERP_60 = 0.12;   // tour position settle
+const LOOK_LERP_60 = 0.15;  // aim lags position slightly → lead-in feel
+const FOV_LERP_60 = 0.14;   // zoom resolves with arrival, not after
+const ROLL_LERP_60 = 0.05;  // dutch-tilt ease
+const WIDE_LERP_60 = 0.09;  // wide pull-back ease (was a sluggish 0.04)
+const FREEROAM_LERP_60 = 0.55;
+
+/* Orbital sway — a slow cinematic drift around the planet once the
+   camera settles, so each stop feels like a living "shot" instead of a
+   frozen frame. ~±2.5° azimuth + a tiny vertical bob, eased in. */
+const SWAY_AZIMUTH = 0.045;  // radians (~2.6°)
+const SWAY_BOB = 0.05;       // world units
+const SWAY_SPEED = 0.16;
 
 const WIDE_POSITION = new THREE.Vector3(0, 30, 80);
 const WIDE_LOOK = new THREE.Vector3(20, 0, 0);
 const WIDE_FOV = 32; // narrow FOV at distance compresses depth like a long lens
+
+/* Module scratch — avoids per-frame allocation in the sway math. */
+const _offset = new THREE.Vector3();
+const UP = new THREE.Vector3(0, 1, 0);
+
+/* Frame-rate-independent lerp alpha. base is the alpha you'd want at
+   60fps; this rescales it for the actual frame delta. */
+const fAlpha = (base, dt) => 1 - Math.pow(1 - base, dt * 60);
 
 const CameraRig = ({
   scrollT,
@@ -80,24 +105,29 @@ const CameraRig = ({
     camera.lookAt(lookAtTarget.current);
   }, [camera]);
 
-  useFrame(() => {
+  useFrame((_, dt) => {
     if (controlsEnabled) return;
+    /* Guard against huge dt after a tab-switch / pause so the camera
+       doesn't teleport on the first frame back. */
+    const d = Math.min(dt || 1 / 60, 1 / 20);
     const rawT = THREE.MathUtils.clamp(scrollT.current ?? 0, 0, 1);
 
     /* Settle detection — track scroll-T velocity to know when to push */
-    const dt = Math.abs(rawT - lastRawT.current);
+    const vel = Math.abs(rawT - lastRawT.current);
     lastRawT.current = rawT;
-    if (dt > SETTLE_THRESHOLD) {
+    if (vel > SETTLE_THRESHOLD) {
       settledAt.current = clock.elapsedTime;
     }
 
-    /* Per-segment easing — easeOutCubic for snappy arrival */
+    /* Raw per-segment t — NO easeOutCubic here anymore. The old code
+       eased the spline param AND lerped the camera, so velocity was
+       discontinuous at every destination boundary (a jerk ×11). The
+       single delta-time camera lerp below now owns all the easing. */
     const segCount = DESTINATIONS.length - 1;
     const segT = rawT * segCount;
     const segIdx = Math.floor(segT);
     const innerT = THREE.MathUtils.clamp(segT - segIdx, 0, 1);
-    const easedInner = 1 - Math.pow(1 - innerT, 3);
-    const t = THREE.MathUtils.clamp((segIdx + easedInner) / segCount, 0, 1);
+    const t = THREE.MathUtils.clamp((segIdx + innerT) / segCount, 0, 1);
 
     /* Sample splines */
     const camP = splines.current.cam.getPoint(t);
@@ -105,16 +135,30 @@ const CameraRig = ({
     const fovP = splines.current.fov.getPoint(t).x;
     const rollP = splines.current.roll.getPoint(t).x;
 
-    /* Push-in dolly: once settled for > SETTLE_DELAY, ease camera
-       forward along the look direction by up to PUSH_IN_FACTOR. */
     const settledFor = clock.elapsedTime - settledAt.current;
+
+    /* Push-in dolly: once settled, ease camera forward along the look
+       direction by up to PUSH_IN_FACTOR (easeOutQuad). */
     const pushProgress = Math.max(0, Math.min(1, (settledFor - SETTLE_DELAY) / PUSH_IN_DURATION));
-    /* easeOutQuad on push */
     const push = 1 - Math.pow(1 - pushProgress, 2);
     tmpFwd.current.copy(lookP).sub(camP).multiplyScalar(PUSH_IN_FACTOR * push);
 
-    /* Composite the final base position */
+    /* Composite base position = spline point + push-in */
     basePos.current.copy(camP).add(tmpFwd.current);
+
+    /* Orbital sway — once settled, slowly arc the camera around the
+       planet + a gentle vertical bob. Eased in over ~1.5s so it starts
+       only after arrival. This is the "living tour" motion. */
+    const swayEase = THREE.MathUtils.clamp((settledFor - SETTLE_DELAY) / 1.5, 0, 1);
+    if (swayEase > 0.001) {
+      const e = clock.elapsedTime;
+      const az = Math.sin(e * SWAY_SPEED) * SWAY_AZIMUTH * swayEase;
+      _offset.copy(basePos.current).sub(lookP);
+      _offset.applyAxisAngle(UP, az);
+      basePos.current.copy(lookP).add(_offset);
+      basePos.current.y += Math.sin(e * SWAY_SPEED * 0.7 + 1.3) * SWAY_BOB * swayEase;
+    }
+
     if (parallaxOffsetRef?.current) {
       basePos.current.x += parallaxOffsetRef.current.x;
       basePos.current.y += parallaxOffsetRef.current.y;
@@ -124,39 +168,34 @@ const CameraRig = ({
     }
     tmpLook.current.copy(lookP);
 
-    /* Wide pull-back override (Z) — replace the target entirely with the
-       fixed system-wide shot. (The old code lerped basePos toward wide
-       each frame then reset it from the spline, so it never actually
-       reached the wide position — the camera barely moved.) The slow
-       per-frame camera lerp below eases the pull-back cinematically. */
+    /* Wide pull-back override (Z) — replace the target with the fixed
+       system-wide shot; the gentle wide lerp eases the pull-back. */
     const wide = !!wideRef?.current;
     if (wide) {
       basePos.current.copy(WIDE_POSITION);
       tmpLook.current.copy(WIDE_LOOK);
     }
 
-    /* Final camera mutation — wide uses a gentle lerp for a slow
-       cinematic pull-back; free-roam snaps responsively; tour eases. */
-    const posLerp = wide ? WIDE_LERP : (freeRoamEnabled ? 0.55 : 0.18);
-    camera.position.lerp(basePos.current, posLerp);
-    lookAtTarget.current.lerp(tmpLook.current, wide ? WIDE_LERP : 0.18);
+    /* Final camera mutation — all delta-time normalized. */
+    const posBase = wide ? WIDE_LERP_60 : (freeRoamEnabled ? FREEROAM_LERP_60 : POS_LERP_60);
+    const lookBase = wide ? WIDE_LERP_60 : LOOK_LERP_60;
+    camera.position.lerp(basePos.current, fAlpha(posBase, d));
+    lookAtTarget.current.lerp(tmpLook.current, fAlpha(lookBase, d));
     camera.lookAt(lookAtTarget.current);
 
     /* Dutch-tilt roll — applied after lookAt (which resets up to world
-       up). Damped toward the target roll so it eases in/out. Disabled
-       in free-roam + wide so they stay level. */
-    const targetRoll = (freeRoamEnabled || wideRef?.current) ? 0 : rollP;
-    rollCurrent.current += (targetRoll - rollCurrent.current) * 0.06;
+       up). Disabled in free-roam + wide so they stay level. */
+    const targetRoll = (freeRoamEnabled || wide) ? 0 : rollP;
+    rollCurrent.current += (targetRoll - rollCurrent.current) * fAlpha(ROLL_LERP_60, d);
     if (Math.abs(rollCurrent.current) > 0.0005) {
       camera.rotateZ(rollCurrent.current);
     }
 
-    /* FOV interpolation — separate lerp from position so zooms feel
-       distinct from pans. */
-    const targetFov = wideRef?.current ? WIDE_FOV : fovP;
+    /* FOV — delta-time lerp so the zoom resolves with the arrival. */
+    const targetFov = wide ? WIDE_FOV : fovP;
     const fovDelta = targetFov - camera.fov;
     if (Math.abs(fovDelta) > 0.02) {
-      camera.fov += fovDelta * 0.08;
+      camera.fov += fovDelta * fAlpha(FOV_LERP_60, d);
       camera.updateProjectionMatrix();
     }
   });
