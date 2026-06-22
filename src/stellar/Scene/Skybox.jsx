@@ -1,5 +1,5 @@
 /* eslint-disable react/no-unknown-property */
-import { useEffect, useMemo, useRef } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useLoader, useThree } from "@react-three/fiber";
 import * as THREE from "three";
 import useViewport from "../useViewport";
@@ -7,65 +7,60 @@ import useViewport from "../useViewport";
 /*
  * Real Milky Way skybox — NASA Tycho catalog all-sky panorama.
  *
- * Progressive load: the 4K (~4 MB) loads first and is shown immediately
- * via Suspense. On desktop the 8K (~8 MB) then streams in the background
- * and swaps onto the material when ready — so first paint never waits on
- * the full 8 MB download.
+ * Progressive load, done DECLARATIVELY: the 4K (~4 MB) loads first via
+ * Suspense and is shown immediately. On desktop the 8K (~8 MB) then
+ * streams in the background; once decoded it goes into React state and
+ * the material's `map` switches to it on the next render.
  *
- * Anisotropic filtering at max keeps stars sharp at grazing angles. The
- * texture is tone-mapped so it integrates with the renderer's ACES curve.
+ * IMPORTANT: we do NOT imperatively mutate material.map or dispose the
+ * 4K. An earlier version did both — but the JSX prop still bound the 4K,
+ * so any re-render (resize / HMR) reset map back to the disposed 4K and
+ * the whole sky rendered WHITE. Keeping it declarative (map = hiRes ||
+ * tex4k, both kept alive) avoids that entirely.
  */
 
 const FOURK = "/textures/space/milkyway.jpg";
 const EIGHTK = "/textures/space/milkyway-8k.jpg";
 
-const applyQuality = (tex, gl) => {
-  if (!tex) return;
+const configure = (tex, gl) => {
+  if (!tex) return tex;
   tex.colorSpace = THREE.SRGBColorSpace;
   tex.anisotropy = gl.capabilities.getMaxAnisotropy?.() ?? 16;
   tex.minFilter = THREE.LinearMipmapLinearFilter;
   tex.magFilter = THREE.LinearFilter;
   tex.generateMipmaps = true;
   tex.needsUpdate = true;
+  return tex;
 };
 
 const Skybox = () => {
   const { isMobile } = useViewport();
   const { gl, invalidate } = useThree();
-  const matRef = useRef();
-
-  /* Always load the 4K first — this is what Suspense waits on. */
   const tex4k = useLoader(THREE.TextureLoader, FOURK);
+  const [hiRes, setHiRes] = useState(null);
 
-  useEffect(() => {
-    applyQuality(tex4k, gl);
-  }, [tex4k, gl]);
+  /* Configure the 4K synchronously during render so its colorSpace is
+     correct on the very first frame (no wrong-colorspace flash). */
+  useMemo(() => configure(tex4k, gl), [tex4k, gl]);
 
-  /* Desktop only: stream the 8K in the background and hot-swap it onto
-     the live material when it finishes decoding. */
+  /* Desktop: stream the 8K, then flip it in via state (declarative). */
   useEffect(() => {
-    if (isMobile) return;
+    if (isMobile) return undefined;
     let cancelled = false;
-    const loader = new THREE.TextureLoader();
-    loader.load(EIGHTK, (tex8k) => {
+    new THREE.TextureLoader().load(EIGHTK, (t) => {
       if (cancelled) {
-        tex8k.dispose();
+        t.dispose();
         return;
       }
-      applyQuality(tex8k, gl);
-      if (matRef.current) {
-        const old = matRef.current.map;
-        matRef.current.map = tex8k;
-        matRef.current.needsUpdate = true;
-        /* Free the 4K now that the 8K is live */
-        if (old && old !== tex8k) old.dispose();
-        invalidate();
-      }
+      configure(t, gl);
+      setHiRes(t);
+      invalidate();
     });
     return () => { cancelled = true; };
   }, [isMobile, gl, invalidate]);
 
-  const map = useMemo(() => tex4k, [tex4k]);
+  /* Both textures stay alive; React owns which one is bound. */
+  const map = hiRes || tex4k;
 
   return (
     /* Rotated so the bright galactic-core bulge swings away from the
@@ -75,7 +70,6 @@ const Skybox = () => {
       {/* Dimmed hard so the dense Tycho star field recedes into a
           backdrop instead of fighting the planets. */}
       <meshBasicMaterial
-        ref={matRef}
         map={map}
         side={THREE.BackSide}
         color="#474f6b"
