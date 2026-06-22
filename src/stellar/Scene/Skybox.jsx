@@ -19,8 +19,12 @@ import useViewport from "../useViewport";
  * tex4k, both kept alive) avoids that entirely.
  */
 
-const FOURK = "/textures/space/milkyway.jpg";
-const EIGHTK = "/textures/space/milkyway-8k.jpg";
+/* Leveled skybox: dimmed to a backdrop with a deep-NAVY floor baked in so
+   the void reads as deep space, not dead pure-black ("background too dark"
+   fix). Level baked into the image → meshBasicMaterial colour stays white,
+   GPU-pipeline-independent. */
+const FOURK = "/textures/space/milkyway-space.jpg";
+const EIGHTK = "/textures/space/milkyway-8k-space.jpg";
 
 const configure = (tex, gl) => {
   if (!tex) return tex;
@@ -78,7 +82,7 @@ const Skybox = () => {
       <meshBasicMaterial
         map={map}
         side={THREE.BackSide}
-        color="#2e3448"
+        color="#ffffff"
         toneMapped={false}
         depthWrite={false}
       />

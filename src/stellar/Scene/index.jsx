@@ -317,11 +317,11 @@ const Scene = ({ scrollT, activeIdx, onJump, onReady, freeRoamEnabled, wideRef, 
             the base stays bright. Mild contrast, soft vignette so the
             background doesn't read as high-contrast. */}
         <CinematicGrade
-          brightness={0.015}
+          brightness={0.025}
           contrast={0.04}
-          saturation={-0.12}
-          vigOffset={0.34}
-          vigDarkness={0.5}
+          saturation={-0.02}
+          vigOffset={0.36}
+          vigDarkness={0.38}
         />
       </EffectComposer>
     </Canvas>
