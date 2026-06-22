@@ -10,19 +10,20 @@ import { DESTINATIONS } from "../config/destinations";
  * the work — no per-frame JS.
  */
 
-const Label = ({ d, active, near }) => {
-  const opacity = active ? 0.95 : near ? 0.45 : 0;
-  const scale = active ? 1.04 : 1.0;
+const Label = ({ d }) => {
   return (
     <Html
       position={d.position}
       center
-      distanceFactor={10}
+      /* Lower distanceFactor so a close camera doesn't balloon the
+         label to fill the screen. Offset well clear of the planet body
+         (above its north pole) so name + planet never overlap. */
+      distanceFactor={7}
       style={{
         pointerEvents: "none",
-        opacity,
-        transform: `translateY(-${(d.radius || 0.5) * 18 + 10}px) scale(${scale})`,
-        transition: "opacity 280ms ease, transform 280ms ease",
+        opacity: 0.92,
+        transform: `translateY(-${(d.radius || 0.5) * 26 + 26}px)`,
+        transition: "opacity 320ms ease",
         whiteSpace: "nowrap",
         textAlign: "center",
         userSelect: "none",
@@ -57,16 +58,13 @@ const Label = ({ d, active, near }) => {
   );
 };
 
-const PlanetLabels = ({ activeIdx }) => (
-  <>
-    {DESTINATIONS.map((d, i) => {
-      const dist = Math.abs(i - activeIdx);
-      const active = dist === 0;
-      const near = dist === 1;
-      if (dist > 1) return null;
-      return <Label key={d.id} d={d} active={active} near={near} />;
-    })}
-  </>
-);
+const PlanetLabels = ({ activeIdx }) => {
+  /* Only the active destination's label renders — adjacent labels used
+     to overlap and balloon when the camera was close. The CinematicLayer
+     title card + PlanetHUD cover orientation during transitions. */
+  const d = DESTINATIONS[activeIdx];
+  if (!d) return null;
+  return <Label key={d.id} d={d} />;
+};
 
 export default PlanetLabels;

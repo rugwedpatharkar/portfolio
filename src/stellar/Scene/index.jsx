@@ -157,6 +157,7 @@ const Scene = ({ scrollT, activeIdx, onJump, onReady, freeRoamEnabled, wideRef }
                 specularTexture={d.specularTexture}
                 bumpTexture={d.bumpTexture}
                 moonTexture={d.moonTexture}
+                tint={d.tint}
                 rings={d.rings}
                 ringColor={d.ringColor}
                 axialTilt={d.axialTilt || 0}
@@ -251,9 +252,9 @@ const Scene = ({ scrollT, activeIdx, onJump, onReady, freeRoamEnabled, wideRef }
           All effects skipped on mobile for budget. */}
       <EffectComposer multisampling={0} disableNormalPass>
         <Bloom
-          intensity={isMobile ? 0.7 : 1.05}
-          luminanceThreshold={0.55}
-          luminanceSmoothing={0.7}
+          intensity={isMobile ? 0.7 : 1.0}
+          luminanceThreshold={0.68}
+          luminanceSmoothing={0.6}
           mipmapBlur
           radius={0.78}
         />

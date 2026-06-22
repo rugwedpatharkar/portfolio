@@ -17,7 +17,9 @@ import { DESTINATIONS } from "../config/destinations";
  */
 
 const FOV_DEFAULT = 52;
-const PUSH_IN_FACTOR = 0.10;   // 10% closer to lookAt
+const PUSH_IN_FACTOR = 0.06;   // 6% closer to lookAt — subtle, and keeps
+                               // sun-backed shots (Earth) from pushing the
+                               // sun's glow into frame
 const PUSH_IN_DURATION = 1.4;  // seconds to ease into push
 const SETTLE_THRESHOLD = 0.0005; // |dt| below which we consider "settled"
 const SETTLE_DELAY = 0.4;       // wait before push starts
@@ -44,6 +46,8 @@ const CameraRig = ({
   /* Settle tracker for push-in dolly */
   const settledAt = useRef(0);
   const lastRawT = useRef(0);
+  /* Damped current roll for dutch-tilt easing */
+  const rollCurrent = useRef(0);
 
   /* Build splines once */
   const splines = useRef(null);
@@ -54,10 +58,15 @@ const CameraRig = ({
        along the same scroll t. We use a Spline through scalar values
        represented as Vector3 (x = fov). */
     const fovPoints = DESTINATIONS.map((d) => new THREE.Vector3(d.cameraTarget.fov ?? FOV_DEFAULT, 0, 0));
+    /* Roll curve — camera Z rotation per destination for dutch-tilt
+       drama on a couple of shots. Stored as x of a Vector3 so it rides
+       the same Catmull-Rom machinery as fov. */
+    const rollPoints = DESTINATIONS.map((d) => new THREE.Vector3(d.cameraTarget.roll ?? 0, 0, 0));
     splines.current = {
       cam: new THREE.CatmullRomCurve3(camPoints, false, "catmullrom", 0.4),
       look: new THREE.CatmullRomCurve3(lookPoints, false, "catmullrom", 0.4),
       fov: new THREE.CatmullRomCurve3(fovPoints, false, "catmullrom", 0.4),
+      roll: new THREE.CatmullRomCurve3(rollPoints, false, "catmullrom", 0.4),
     };
   }
 
@@ -94,6 +103,7 @@ const CameraRig = ({
     const camP = splines.current.cam.getPoint(t);
     const lookP = splines.current.look.getPoint(t);
     const fovP = splines.current.fov.getPoint(t).x;
+    const rollP = splines.current.roll.getPoint(t).x;
 
     /* Push-in dolly: once settled for > SETTLE_DELAY, ease camera
        forward along the look direction by up to PUSH_IN_FACTOR. */
@@ -124,6 +134,15 @@ const CameraRig = ({
     camera.position.lerp(basePos.current, freeRoamEnabled ? 0.55 : 0.18);
     lookAtTarget.current.lerp(tmpLook.current, 0.18);
     camera.lookAt(lookAtTarget.current);
+
+    /* Dutch-tilt roll — applied after lookAt (which resets up to world
+       up). Damped toward the target roll so it eases in/out. Disabled
+       in free-roam + wide so they stay level. */
+    const targetRoll = (freeRoamEnabled || wideRef?.current) ? 0 : rollP;
+    rollCurrent.current += (targetRoll - rollCurrent.current) * 0.06;
+    if (Math.abs(rollCurrent.current) > 0.0005) {
+      camera.rotateZ(rollCurrent.current);
+    }
 
     /* FOV interpolation — separate lerp from position so zooms feel
        distinct from pans. */

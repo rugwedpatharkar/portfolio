@@ -52,6 +52,7 @@ const Planet = ({
   onPointerOver,
   onPointerOut,
   draggable = true,
+  tint,
 }) => {
   const groupRef = useRef();
   const planetRef = useRef();
@@ -148,9 +149,11 @@ const Planet = ({
         <meshStandardMaterial
           color={mColor}
           map={textureMap[moonTexture] || null}
-          emissive={new THREE.Color(mColor).multiplyScalar(textureMap[moonTexture] ? 0.05 : 0.35)}
-          emissiveIntensity={textureMap[moonTexture] ? 0.15 : 0.5}
-          roughness={textureMap[moonTexture] ? 0.95 : 0.55}
+          /* Lifted emissive floor so moons far from the sun still read
+             as lit bodies instead of black dots. */
+          emissive={new THREE.Color(mColor).multiplyScalar(textureMap[moonTexture] ? 0.16 : 0.4)}
+          emissiveIntensity={textureMap[moonTexture] ? 0.32 : 0.6}
+          roughness={textureMap[moonTexture] ? 0.9 : 0.55}
           metalness={textureMap[moonTexture] ? 0.04 : 0.15}
         />
       </mesh>
@@ -199,6 +202,9 @@ const Planet = ({
         {hasTexture ? (
           <meshStandardMaterial
             map={textureMap[texture]}
+            /* tint multiplies the texture — used to knock back Venus,
+               which otherwise blooms to pure white. Defaults to neutral. */
+            color={tint || "#ffffff"}
             normalMap={textureMap[normalTexture] || null}
             normalScale={textureMap[normalTexture] ? new THREE.Vector2(0.85, 0.85) : undefined}
             /* Specular map carries Earth's ocean mask — bright on water,

@@ -12,9 +12,13 @@ import * as THREE from "three";
  * field stays dense regardless of where the camera flies.
  */
 
-const COUNT = 220;
-const SPAWN_RADIUS = 14;
-const DRIFT_SPEED = 0.6;
+/* Reduced from 220 → 70 and pushed farther out. The old dense field
+   read as TV-static noise in the foreground. Now it's a sparse,
+   subtle parallax layer. */
+const COUNT = 70;
+const SPAWN_RADIUS = 22;
+const NEAR_CLEAR = 6; // keep dust out of this bubble around the camera
+const DRIFT_SPEED = 0.4;
 
 const SPRITE_TEXTURE = (() => {
   if (typeof document === "undefined") return null;
@@ -61,17 +65,25 @@ const DustParticles = () => {
     const cam = state.camera.position;
     particles.forEach((p, i) => {
       p.position.add(p.velocity.clone().multiplyScalar(delta));
-      /* Respawn if drifted too far from camera */
-      if (p.position.distanceTo(cam) > SPAWN_RADIUS) {
-        p.position.copy(cam);
-        p.position.x += (Math.random() - 0.5) * SPAWN_RADIUS;
-        p.position.y += (Math.random() - 0.5) * SPAWN_RADIUS * 0.7;
-        p.position.z += (Math.random() - 0.5) * SPAWN_RADIUS;
+      const dist = p.position.distanceTo(cam);
+      /* Respawn if drifted too far OR too close (keeps the near bubble
+         clear so dust never smears across the lens). */
+      if (dist > SPAWN_RADIUS || dist < NEAR_CLEAR) {
+        const r = NEAR_CLEAR + Math.random() * (SPAWN_RADIUS - NEAR_CLEAR);
+        const theta = Math.random() * Math.PI * 2;
+        const phi = Math.acos(2 * Math.random() - 1);
+        p.position.set(
+          cam.x + r * Math.sin(phi) * Math.cos(theta),
+          cam.y + r * Math.sin(phi) * Math.sin(theta) * 0.7,
+          cam.z + r * Math.cos(phi)
+        );
       }
       dummy.position.copy(p.position);
-      /* Always face camera (sprite-like) by zeroing rotation */
       dummy.lookAt(cam);
-      dummy.scale.setScalar(p.scale);
+      /* Fade scale with distance so near dust is tiny, far dust larger
+         — reads as depth, not noise. */
+      const fade = THREE.MathUtils.clamp((dist - NEAR_CLEAR) / 8, 0, 1);
+      dummy.scale.setScalar(p.scale * fade);
       dummy.updateMatrix();
       meshRef.current.setMatrixAt(i, dummy.matrix);
     });
@@ -84,7 +96,7 @@ const DustParticles = () => {
       <meshBasicMaterial
         map={SPRITE_TEXTURE}
         transparent
-        opacity={0.4}
+        opacity={0.18}
         depthWrite={false}
         blending={THREE.AdditiveBlending}
         toneMapped={false}

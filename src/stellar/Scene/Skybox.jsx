@@ -35,15 +35,21 @@ const Skybox = () => {
   const map = useMemo(() => tex, [tex]);
 
   return (
-    <mesh>
+    /* Rotated so the bright galactic-core bulge swings away from the
+       inner-planet sightlines (which look back toward the sun on −x).
+       The dense band now sits behind/below the tour route. */
+    <mesh rotation={[0.3, 2.4, 0]}>
       {/* Tighter segment counts only for skybox — high-segment sphere
           eats memory without quality benefit on a constant-distance
           texture. */}
       <sphereGeometry args={[400, 64, 32]} />
+      {/* Dimmed hard so the dense Tycho star field — especially the
+          bright galactic-core bulge — recedes into a backdrop instead
+          of fighting the planets for attention. */}
       <meshBasicMaterial
         map={map}
         side={THREE.BackSide}
-        color="#ffffff"
+        color="#474f6b"
         toneMapped
         depthWrite={false}
       />

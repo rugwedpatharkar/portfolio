@@ -12,8 +12,11 @@ import * as THREE from "three";
  * heavy lifting now.
  */
 
-const STAR_COUNT = 1200;
-const SPREAD = 120;
+/* Reduced 1200 → 650 — the 8K skybox carries the real star detail
+   now; this layer is just near-field parallax sparkle. Fewer + dimmer
+   so they don't compound into foreground static. */
+const STAR_COUNT = 380;
+const SPREAD = 150;
 
 /* Sharper sprite — tight bright core, fast falloff so each star reads
    as a crisp pinprick instead of a soft blob. Bloom in post-processing
@@ -84,11 +87,11 @@ const Stars = () => {
           <bufferAttribute attach="attributes-color" count={STAR_COUNT} array={colors} itemSize={3} />
         </bufferGeometry>
         <pointsMaterial
-          size={0.42}
+          size={0.5}
           sizeAttenuation
           vertexColors
           transparent
-          opacity={0.92}
+          opacity={0.5}
           depthWrite={false}
           map={SPRITE_TEXTURE}
           alphaTest={0.01}

@@ -44,7 +44,8 @@ export const DESTINATIONS = [
     texture: "/textures/planets/mercurymap.jpg",
     bumpTexture: "/textures/planets/moonbump1k.jpg",
     section: "about",
-    cameraTarget: { position: [6.6, 0.7, 1.8], lookAt: [5.5, 0, 0.3], fov: 44 },
+    /* Mercury — slight low angle */
+    cameraTarget: { position: [6.6, 0.3, 1.9], lookAt: [5.5, 0.1, 0.3], fov: 44 },
   },
   {
     id: "funfacts",
@@ -57,8 +58,12 @@ export const DESTINATIONS = [
     colorB: "#a0651a",
     texture: "/textures/planets/venusmap.jpg",
     bumpTexture: "/textures/planets/venusbump.jpg",
+    /* Venus's map is near-white and blooms to a featureless disc.
+       Knock it back so the cloud banding survives the bloom pass. */
+    tint: "#c9b48a",
     section: "funfacts",
-    cameraTarget: { position: [9.5, 0.6, 2.6], lookAt: [8.2, 0, 1.0], fov: 46 },
+    /* Venus — high 3/4 looking down through the haze */
+    cameraTarget: { position: [9.5, 1.3, 2.6], lookAt: [8.2, -0.15, 1.0], fov: 46 },
   },
   {
     id: "experience",
@@ -75,6 +80,9 @@ export const DESTINATIONS = [
     normalTexture: "/textures/planets/earth_normal.jpg",
     specularTexture: "/textures/planets/earth_specular.jpg",
     section: "experience",
+    /* Earth — the standout hero shot. These exact values frame the
+       day/night terminator without the sun flooding the lens; do not
+       move the position or the sun glares the frame orange. */
     cameraTarget: { position: [12.9, 0.9, -0.1], lookAt: [11.4, 0, -1.4], fov: 42 },
   },
   {
@@ -89,7 +97,8 @@ export const DESTINATIONS = [
     texture: "/textures/planets/marsmap1k.jpg",
     bumpTexture: "/textures/planets/marsbump1k.jpg",
     section: "projects",
-    cameraTarget: { position: [16.9, 1.1, 2.4], lookAt: [15.3, 0, 0.6], fov: 44 },
+    /* Mars — slight low angle, rust planet leaning in */
+    cameraTarget: { position: [16.9, 0.4, 2.5], lookAt: [15.3, 0.2, 0.6], fov: 44 },
   },
 
   // Asteroid belt — Achievements
@@ -102,7 +111,8 @@ export const DESTINATIONS = [
     outerRadius: 20.5,
     color: "#f8c555",
     section: "achievements",
-    cameraTarget: { position: [19.5, 2.5, 4.5], lookAt: [19.5, 0, 0], fov: 56 },
+    /* Asteroid belt — high banking sweep over the field */
+    cameraTarget: { position: [19.5, 3.4, 4.0], lookAt: [19.5, 0, 0], fov: 56 },
   },
 
   // Outer system
@@ -117,7 +127,8 @@ export const DESTINATIONS = [
     colorB: "#3d2370",
     texture: "/textures/planets/jupitermap.jpg",
     section: "skills",
-    cameraTarget: { position: [27.4, 1.6, 0.4], lookAt: [24.6, 0, -1.8], fov: 50 },
+    /* Jupiter — wide + slight roll to sell the scale */
+    cameraTarget: { position: [27.4, 1.2, 0.6], lookAt: [24.6, 0.1, -1.8], fov: 52, roll: -0.05 },
     moons: 9,
     moonColor: "#cfc6e0",
     moonTexture: "/textures/planets/moonmap1k.jpg",
@@ -134,7 +145,8 @@ export const DESTINATIONS = [
     colorB: "#a07a3a",
     texture: "/textures/planets/saturnmap.jpg",
     section: "notes",
-    cameraTarget: { position: [32.6, 1.8, 3.7], lookAt: [30.2, 0, 1.5], fov: 52 },
+    /* Saturn — dutch tilt to throw the rings across the frame */
+    cameraTarget: { position: [32.6, 1.8, 3.7], lookAt: [30.2, 0, 1.5], fov: 50, roll: 0.11 },
     rings: true,
     ringTexture: "/textures/planets/saturnringcolor.jpg",
     ringColor: "#f8c555",
@@ -150,7 +162,8 @@ export const DESTINATIONS = [
     colorB: "#7e3eab",
     texture: "/textures/planets/uranusmap.jpg",
     section: "education",
-    cameraTarget: { position: [37.0, 1.5, 0.9], lookAt: [34.8, 0, -1.0], fov: 46 },
+    /* Uranus — strong dutch tilt, echoing the planet's 98° axis */
+    cameraTarget: { position: [37.0, 1.5, 0.9], lookAt: [34.8, 0, -1.0], fov: 46, roll: 0.17 },
     axialTilt: 60 * DEG,
     moons: 4,
     moonColor: "#d0ccea",
@@ -168,7 +181,8 @@ export const DESTINATIONS = [
     colorB: "#0a3a72",
     texture: "/textures/planets/neptunemap.jpg",
     section: "hobbies",
-    cameraTarget: { position: [41.3, 1.4, 2.9], lookAt: [39.0, 0, 0.8], fov: 48 },
+    /* Neptune — pulled back, lonely framing in the deep dark */
+    cameraTarget: { position: [41.3, 1.4, 3.1], lookAt: [39.0, 0, 0.8], fov: 44 },
     moons: 6,
     moonColor: "#b8d4ee",
     moonTexture: "/textures/planets/moonmap1k.jpg",
@@ -185,7 +199,8 @@ export const DESTINATIONS = [
     outerRadius: 45,
     color: "#b4b4ff",
     section: "testimonials",
-    cameraTarget: { position: [44, 2.6, 3.7], lookAt: [44, 0, 0], fov: 58 },
+    /* Kuiper belt — high top-down drift over the debris */
+    cameraTarget: { position: [44, 3.4, 3.4], lookAt: [44, 0, 0], fov: 56 },
   },
 
   // Edge beacon — Contact
@@ -197,7 +212,8 @@ export const DESTINATIONS = [
     radius: 0.4,
     color: "#ff6b6b",
     section: "contact",
-    cameraTarget: { position: [49, 1.1, 2.2], lookAt: [49, 0, 0.5], fov: 48 },
+    /* Edge beacon — pulled back, tiny signal in vast emptiness */
+    cameraTarget: { position: [49, 1.1, 2.4], lookAt: [49, 0, 0.5], fov: 46 },
   },
 ];
 
