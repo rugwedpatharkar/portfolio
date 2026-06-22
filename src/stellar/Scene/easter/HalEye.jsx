@@ -10,7 +10,9 @@ import { useFrame } from "@react-three/fiber";
  * React state. State-in-useFrame triggers 60 reconciliations/s.
  */
 
-const POSITION = [22.8, 1.3, -3.0];
+/* Slightly out from the belt so it doesn't get occluded by passing
+   asteroids — still in the Jupiter neighbourhood (Discovery One). */
+const POSITION = [23.6, 2.2, -3.4];
 
 const HalEye = () => {
   const irisRef = useRef();
@@ -30,20 +32,20 @@ const HalEye = () => {
   return (
     <group position={POSITION} onClick={handleClick}>
       <mesh>
-        <boxGeometry args={[0.45, 0.45, 0.04]} />
+        <boxGeometry args={[0.7, 0.7, 0.06]} />
         <meshStandardMaterial color="#0a0a0a" metalness={0.6} roughness={0.4} />
       </mesh>
-      <mesh ref={irisRef} position={[0, 0, 0.03]}>
-        <circleGeometry args={[0.1, 24]} />
-        <meshStandardMaterial color="#ff2020" emissive="#ff2020" emissiveIntensity={2} />
+      <mesh ref={irisRef} position={[0, 0, 0.04]}>
+        <circleGeometry args={[0.18, 24]} />
+        <meshStandardMaterial color="#ff2020" emissive="#ff2020" emissiveIntensity={2.5} />
       </mesh>
       <pointLight
         ref={lightRef}
         color="#ff3030"
         intensity={0.6}
-        distance={1.6}
+        distance={2.4}
         decay={2}
-        position={[0, 0, 0.1]}
+        position={[0, 0, 0.12]}
       />
     </group>
   );

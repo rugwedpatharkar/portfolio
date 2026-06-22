@@ -11,9 +11,12 @@ import { useFrame } from "@react-three/fiber";
  * page load.
  */
 
-const POSITION = [32, 2.4, 4];
+/* Bigger + closer to Saturn so the vworp is visible from the scroll
+   tour camera, not just from free-roam. */
+const POSITION = [31.2, 2.0, 3.2];
 const CYCLE = 90;
-const VISIBLE_FOR = 4;
+const VISIBLE_FOR = 5;
+const SCALE = 1.8;
 
 const Tardis = () => {
   const groupRef = useRef();
@@ -30,7 +33,7 @@ const Tardis = () => {
       : 0;
     if (groupRef.current) {
       groupRef.current.visible = visible;
-      groupRef.current.scale.setScalar(0.5 + flicker * 0.5);
+      groupRef.current.scale.setScalar(SCALE * (0.5 + flicker * 0.5));
       groupRef.current.rotation.y += dt * 0.2;
     }
   });
