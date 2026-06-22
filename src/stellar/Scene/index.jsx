@@ -17,6 +17,7 @@ import VisibilityController from "./VisibilityController";
 import PlanetLabels from "./PlanetLabels";
 import Skybox from "./Skybox";
 import OrbitGroup from "./OrbitGroup";
+import BlackHole from "./BlackHole";
 import LensFlare from "./LensFlare";
 import SolarProminences from "./SolarProminences";
 import EarthAurora from "./EarthAurora";
@@ -142,6 +143,10 @@ const Scene = ({ scrollT, activeIdx, onJump, onReady, freeRoamEnabled, wideRef, 
             countdown window light and trim initial scene-graph build. */}
         {showExtras && showAliens && <AlienShips />}
         {showExtras && showComets && <Comets />}
+        {/* The edge anomaly — a black hole beyond the contact beacon: you
+            reach the edge of the system and there it is, pulling at the
+            void. Framed behind the beacon on the contact stop. */}
+        {showExtras && <BlackHole position={[49, -6, -15]} radius={1.9} />}
 
         {DESTINATIONS.map((d, idx) => {
           const handleClick = (e) => {
