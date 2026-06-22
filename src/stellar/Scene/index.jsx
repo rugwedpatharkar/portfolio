@@ -2,8 +2,9 @@
 import { Suspense, useEffect, useRef } from "react";
 import { Canvas, invalidate } from "@react-three/fiber";
 import * as THREE from "three";
-import { EffectComposer, Bloom } from "@react-three/postprocessing";
+import { EffectComposer, Bloom, DepthOfField } from "@react-three/postprocessing";
 import CinematicGrade from "./CinematicGrade";
+import DepthFocus, { DOF_TARGET } from "./DepthFocus";
 import Stars from "./Stars";
 import Sun from "./Sun";
 import Planet from "./Planet";
@@ -115,6 +116,7 @@ const Scene = ({ scrollT, activeIdx, onJump, onReady, freeRoamEnabled, wideRef, 
       <VisibilityController />
       <AdaptiveQuality scrollTRef={scrollT} highDpr={dprCap} lowDpr={isMobile ? 1.0 : 1.2} />
       <AutoExposure />
+      <DepthFocus scrollT={scrollT} />
       {/* Vacuum-lean three-point lighting. Every planet sits on +x with
           the camera on the FAR (anti-sun) side, so a literal sun-at-origin
           key would throw every hero shot into shadow. Instead:
@@ -301,6 +303,13 @@ const Scene = ({ scrollT, activeIdx, onJump, onReady, freeRoamEnabled, wideRef, 
           mipmapBlur
           radius={0.45}
         />
+        {/* DOF: active planet sharp, everything else softly out of focus.
+            Focus tracks the planet's live position (DepthFocus → DOF_TARGET);
+            convolution effect (own passes) so it never merges with the
+            single mainImage grade. Desktop only. */}
+        {!isMobile && (
+          <DepthOfField target={DOF_TARGET} focalLength={0.04} bokehScale={2.2} height={480} />
+        )}
         {/* Grade: gentle and TRUE-TO-COLOUR. Earlier deep-blacks + high
             contrast + desaturation read as dark/murky with off colours;
             dialed back to a light touch (slightly lifted, mild contrast,
