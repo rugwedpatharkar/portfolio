@@ -206,7 +206,7 @@ const Planet = ({
                are smooth (low roughness, mirror-like) and land is rough. */
             roughnessMap={textureMap[specularTexture] || null}
             bumpMap={textureMap[bumpTexture] || null}
-            bumpScale={textureMap[bumpTexture] ? 0.04 : 0}
+            bumpScale={textureMap[bumpTexture] ? (isEarth ? 0.04 : 0.08) : 0}
             emissiveMap={isEarth ? textureMap[nightTexture] : null}
             emissive={isEarth ? new THREE.Color("#ffc480") : new THREE.Color("#000000")}
             emissiveIntensity={isEarth ? 1.6 : 0}

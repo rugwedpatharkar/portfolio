@@ -2,7 +2,9 @@
 import { Suspense, useEffect, useRef } from "react";
 import { Canvas, invalidate } from "@react-three/fiber";
 import * as THREE from "three";
-import { EffectComposer, Bloom, Vignette } from "@react-three/postprocessing";
+import { EffectComposer, Bloom, Vignette, BrightnessContrast, HueSaturation, ChromaticAberration } from "@react-three/postprocessing";
+import { BlendFunction } from "postprocessing";
+import { Vector2 } from "three";
 import Stars from "./Stars";
 import Sun from "./Sun";
 import Planet from "./Planet";
@@ -22,7 +24,6 @@ import AdaptiveQuality from "./AdaptiveQuality";
 import MouseParallax from "./MouseParallax";
 import FreeRoam from "./FreeRoam";
 import CameraShake from "./CameraShake";
-import ScaleGhost from "./ScaleGhost";
 import Constellations from "./Constellations";
 import Voyager from "./Voyager";
 import CommitComets from "./CommitComets";
@@ -215,7 +216,6 @@ const Scene = ({ scrollT, activeIdx, onJump, onReady, freeRoamEnabled, wideRef }
         {!isMobile && !reducedMotion && <DustParticles />}
         <PlanetLabels activeIdx={activeIdx} />
         <Constellations scrollTRef={scrollT} />
-        <ScaleGhost activeIdx={activeIdx} />
         <Voyager />
         {!isMobile && <CommitComets />}
         {/* Easter eggs — all lightweight, no per-frame raycast cost */}
@@ -242,11 +242,14 @@ const Scene = ({ scrollT, activeIdx, onJump, onReady, freeRoamEnabled, wideRef }
           Bloom makes the sun + nebulae glow properly, ACES tone-maps
           highlights into a film-like curve, vignette adds depth, SMAA
           provides edge-aware AA without MSAA overhead. */}
+      {/* Cinematic color pipeline — order matters:
+          1. Bloom (HDR highlights bloom into halos)
+          2. BrightnessContrast (lift the contrast so shadows feel deep)
+          3. HueSaturation (slight saturation lift for richness)
+          4. ChromaticAberration (subtle edge tint for lens character)
+          5. Vignette (anchor the eye)
+          All effects skipped on mobile for budget. */}
       <EffectComposer multisampling={0} disableNormalPass>
-        {/* Bloom is the single biggest cinematic tool — tuned so bright
-            sources (sun, lensflare) glow firmly but the threshold is
-            high enough that nebulae + earth atmosphere don't get
-            blown to white. */}
         <Bloom
           intensity={isMobile ? 0.7 : 1.05}
           luminanceThreshold={0.55}
@@ -254,7 +257,17 @@ const Scene = ({ scrollT, activeIdx, onJump, onReady, freeRoamEnabled, wideRef }
           mipmapBlur
           radius={0.78}
         />
-        <Vignette offset={0.32} darkness={0.78} />
+        <BrightnessContrast brightness={-0.02} contrast={0.14} />
+        <HueSaturation hue={0} saturation={0.12} />
+        {!isMobile && (
+          <ChromaticAberration
+            blendFunction={BlendFunction.NORMAL}
+            offset={new Vector2(0.0008, 0.0008)}
+            radialModulation={true}
+            modulationOffset={0.35}
+          />
+        )}
+        <Vignette offset={0.30} darkness={0.82} />
       </EffectComposer>
     </Canvas>
   );
