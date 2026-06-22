@@ -57,6 +57,11 @@ const StellarApp = () => {
   const [launchPhase, setLaunchPhase] = useState(null);
   const [shipWarpDone, setShipWarpDone] = useState(false);
   const [activeIdx, setActiveIdx] = useState(0);
+  /* Star-Trek warp burst for far nav-jumps (>2 destinations away). Ref
+     mirrors activeIdx so handleJump can read the current stop without
+     re-creating the callback (it's wired into many child props + effects). */
+  const [jumpWarp, setJumpWarp] = useState(false);
+  const activeIdxRef = useRef(0);
   const [freeRoam, setFreeRoam] = useState(false);
   const [cockpit, setCockpit] = useState(false);
   /* Wide pull-back mode — Z key toggle. Ref-driven so CameraRig can
@@ -131,6 +136,7 @@ const StellarApp = () => {
     const idx = DESTINATIONS.findIndex((d) => d.id === dest.id);
     if (idx !== -1) {
       setActiveIdx(idx);
+      activeIdxRef.current = idx;
       /* Sync URL hash without re-scrolling */
       const next = `#/stellar/${dest.id}`;
       if (window.location.hash !== next) {
@@ -144,6 +150,16 @@ const StellarApp = () => {
   }, []);
 
   const handleJump = useCallback((idx) => {
+    /* Far nav-jumps (>2 stops away) fire the Star-Trek warp burst: the
+       continuous camera flies through the intermediate planets fast while
+       the streaks overlay on top, so a menu jump reads as a hyperjump.
+       Neighbour hops (≤2) just glide. Reduced-motion skips the burst. */
+    const reduced =
+      typeof window !== "undefined" &&
+      window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    if (!reduced && Math.abs(idx - activeIdxRef.current) > 2) {
+      setJumpWarp(true);
+    }
     /* Map destination index → exact scroll position. Progress runs 0..1
        over (scrollHeight − viewport), so targetY = frac × that range. The
        old formula scaled by the viewport-count (12) instead of the real
@@ -285,6 +301,7 @@ const StellarApp = () => {
       {!warpDone && <WarpOpening onComplete={handleWarpDone} />}
       {warpDone && !countdownDone && <MissionCountdown onComplete={handleCountdownDone} />}
       {launchPhase === "warp" && <ShipWarp />}
+      {jumpWarp && <ShipWarp onComplete={() => setJumpWarp(false)} />}
     </>
   );
 };

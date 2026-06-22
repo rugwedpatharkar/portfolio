@@ -61,8 +61,25 @@ const _po = new THREE.Vector3();
 const _lo = new THREE.Vector3();
 const _camTarget = new THREE.Vector3();
 const _lookTarget = new THREE.Vector3();
+const _camA = new THREE.Vector3();
+const _lookA = new THREE.Vector3();
+const _camB = new THREE.Vector3();
+const _lookB = new THREE.Vector3();
 
 const fAlpha = (base, dt) => 1 - Math.pow(1 - base, dt * 60);
+
+/* Dwell-ease: hold (plateau) near each planet so you settle there and can
+   read, glide (smoothstep) through the middle of a segment. Keeps the
+   "always framed on a planet" property while making the tour continuous. */
+const DWELL = 0.24;
+const dwellEase = (f) => {
+  if (f <= DWELL) return 0;
+  if (f >= 1 - DWELL) return 1;
+  const x = (f - DWELL) / (1 - 2 * DWELL);
+  return x * x * (3 - 2 * x);
+};
+const BANK_GAIN = 0.04; // roll per (destination-unit / second) of travel
+const BANK_MAX = 0.085;
 
 const CameraRig = ({
   scrollT,
@@ -76,6 +93,8 @@ const CameraRig = ({
   const { camera, clock } = useThree();
   const lookAtTarget = useRef(new THREE.Vector3(0, 0, 0));
   const rollCurrent = useRef(0);
+  const lastPos = useRef(0); // continuous destination position, for banking
+  const bankCurrent = useRef(0);
   /* Launch state — captures the from-pose at each phase change so the
      scripted establish/warp moves are deterministic and smooth. */
   const launch = useRef({ phase: null, t0: 0, fromPos: new THREE.Vector3(), fromLook: new THREE.Vector3(), fromFov: FOV_DEFAULT });
@@ -145,20 +164,39 @@ const CameraRig = ({
     }
     if (launch.current.phase) launch.current.phase = null;
 
-    /* SNAP — nearest destination, never between/inside. */
-    const idx = Math.round(rawT * (DESTINATIONS.length - 1));
-    const dest = DESTINATIONS[idx];
-    const frame = frames.current[idx];
-    const { omega } = getOrbit(dest);
-    const delta = omega * t; // orbital angle advanced since t=0
+    /* ── HYBRID GLIDE — continuous position along the destination chain
+       with an eased DWELL at each planet (settle there, read the panel),
+       gliding through the middle of each segment. Far nav-jumps sweep
+       through fast (the warp). Each segment endpoint keeps the live
+       orbital tracking, so planets stay framed as they revolve. */
+    const N = DESTINATIONS.length;
+    const pos = rawT * (N - 1);
+    const i = Math.min(N - 2, Math.max(0, Math.floor(pos)));
+    const fe = dwellEase(pos - i);
 
-    /* Live planet centre + offsets rotated by the same delta → the shot
-       rigidly follows the orbiting planet. */
-    orbitalPosition(dest, t, _p);
-    _po.copy(frame.posOffset).applyAxisAngle(UP, delta);
-    _lo.copy(frame.lookOffset).applyAxisAngle(UP, delta);
-    _camTarget.copy(_p).add(_po);
-    _lookTarget.copy(_p).add(_lo);
+    const blendFrame = (j, outPos, outLook) => {
+      const dst = DESTINATIONS[j];
+      const fr = frames.current[j];
+      const dl = getOrbit(dst).omega * t;
+      orbitalPosition(dst, t, _p);
+      _po.copy(fr.posOffset).applyAxisAngle(UP, dl);
+      _lo.copy(fr.lookOffset).applyAxisAngle(UP, dl);
+      outPos.copy(_p).add(_po);
+      outLook.copy(_p).add(_lo);
+      return fr;
+    };
+    const frA = blendFrame(i, _camA, _lookA);
+    const frB = blendFrame(i + 1, _camB, _lookB);
+    _camTarget.copy(_camA).lerp(_camB, fe);
+    _lookTarget.copy(_lookA).lerp(_lookB, fe);
+    const fovTarget = frA.fov + (frB.fov - frA.fov) * fe;
+    const rollTarget = frA.roll + (frB.roll - frA.roll) * fe;
+
+    /* Banking — a subtle roll into the direction of travel, smoothed. */
+    const posVel = (pos - lastPos.current) / d;
+    lastPos.current = pos;
+    const targetBank = THREE.MathUtils.clamp(-posVel * BANK_GAIN, -BANK_MAX, BANK_MAX);
+    bankCurrent.current += (targetBank - bankCurrent.current) * fAlpha(0.1, d);
 
     const wide = !!wideRef?.current;
     if (wide) {
@@ -180,13 +218,13 @@ const CameraRig = ({
     lookAtTarget.current.lerp(_lookTarget, fAlpha(lookBase, d));
     camera.lookAt(lookAtTarget.current);
 
-    /* Dutch-tilt roll — after lookAt (which resets up to world up). */
-    const targetRoll = freeRoamEnabled || wide ? 0 : frame.roll;
+    /* Dutch-tilt roll + travel bank — after lookAt (resets up to world up). */
+    const targetRoll = freeRoamEnabled || wide ? 0 : rollTarget + bankCurrent.current;
     rollCurrent.current += (targetRoll - rollCurrent.current) * fAlpha(ROLL_LERP_60, d);
     if (Math.abs(rollCurrent.current) > 0.0005) camera.rotateZ(rollCurrent.current);
 
     /* FOV */
-    const targetFov = wide ? WIDE_FOV : frame.fov;
+    const targetFov = wide ? WIDE_FOV : fovTarget;
     const fovDelta = targetFov - camera.fov;
     if (Math.abs(fovDelta) > 0.02) {
       camera.fov += fovDelta * fAlpha(FOV_LERP_60, d);
