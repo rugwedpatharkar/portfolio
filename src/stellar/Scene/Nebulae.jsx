@@ -41,12 +41,15 @@ void main() {
 }
 `;
 
+/* Opacity dropped across the board so the nebulae sit behind action,
+   not in front of it. Bloom amplifies the bright cores anyway, so we
+   don't need raw opacity for impact. */
 const NEBULAE = [
-  { url: "/textures/nebulae/eagle.jpg", position: [-38, 8, -28], scale: 32, opacity: 0.95 },
-  { url: "/textures/nebulae/carina.jpg", position: [50, -6, 22], scale: 36, opacity: 0.85 },
-  { url: "/textures/nebulae/crab.jpg", position: [22, 12, -36], scale: 24, opacity: 0.9 },
-  { url: "/textures/nebulae/helix.jpg", position: [-60, -10, 30], scale: 26, opacity: 0.7 },
-  { url: "/textures/nebulae/orion.jpg", position: [70, 14, -10], scale: 30, opacity: 0.7 },
+  { url: "/textures/nebulae/eagle.jpg", position: [-38, 8, -28], scale: 30, opacity: 0.72 },
+  { url: "/textures/nebulae/carina.jpg", position: [50, -6, 22], scale: 34, opacity: 0.62 },
+  { url: "/textures/nebulae/crab.jpg", position: [22, 12, -36], scale: 22, opacity: 0.68 },
+  { url: "/textures/nebulae/helix.jpg", position: [-60, -10, 30], scale: 24, opacity: 0.52 },
+  { url: "/textures/nebulae/orion.jpg", position: [70, 14, -10], scale: 28, opacity: 0.55 },
 ];
 
 const NebulaPlane = ({ url, position, scale, opacity }) => {

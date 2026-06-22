@@ -62,6 +62,10 @@ const Planet = ({
   const isDraggingRef = useRef(false);
   const dragStartXRef = useRef(0);
   const dragStartSpinRef = useRef(0);
+  /* Hover state — used to scale the atmosphere ring up subtly so the
+     planet feels "highlighted" without a tacky outline. */
+  const hoverScaleRef = useRef(1);
+  const targetHoverRef = useRef(1);
 
   /* Load textures via Suspense — Scene wraps in <Suspense> already.
      Normal + specular + bump maps must NOT be sRGB — they're data,
@@ -107,6 +111,9 @@ const Planet = ({
       planetRef.current.rotation.y += delta * rotationSpeed + dragSpinRef.current * delta;
     }
     if (cloudRef.current) cloudRef.current.rotation.y += delta * rotationSpeed * 1.35;
+    /* Hover lerp — never trigger a React re-render */
+    hoverScaleRef.current += (targetHoverRef.current - hoverScaleRef.current) * 0.12;
+    if (groupRef.current) groupRef.current.scale.setScalar(hoverScaleRef.current);
     moonsRef.current.forEach((m, i) => {
       if (m) {
         const t = m.userData.t + delta * (0.25 + (i % 3) * 0.05);
@@ -163,8 +170,14 @@ const Planet = ({
       <mesh
         ref={planetRef}
         onClick={onClick}
-        onPointerOver={onPointerOver}
-        onPointerOut={onPointerOut}
+        onPointerOver={(e) => {
+          targetHoverRef.current = 1.05;
+          onPointerOver?.(e);
+        }}
+        onPointerOut={(e) => {
+          targetHoverRef.current = 1.0;
+          onPointerOut?.(e);
+        }}
         onPointerDown={(e) => {
           if (!draggable) return;
           e.stopPropagation();

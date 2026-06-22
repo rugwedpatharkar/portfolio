@@ -451,6 +451,9 @@ const PlanetFactsAccordion = ({ destination }) => {
 const ContentPanel = ({ destination }) => {
   const Renderer = useMemo(() => RENDERERS[destination?.section] || null, [destination]);
   const { isMobile, isCompact } = useViewport();
+  /* Cross-fade key — re-mounts the inner content on destination change
+     for a clean slide-up transition. */
+  const fadeKey = destination?.id || "none";
   if (!Renderer) return null;
 
   return (
@@ -460,7 +463,7 @@ const ContentPanel = ({ destination }) => {
         position: "fixed",
         left: isMobile ? "12px" : "max(24px, calc((100vw - 1200px) / 2 + 24px))",
         right: isMobile ? "12px" : "max(24px, calc((100vw - 1200px) / 2 + 24px))",
-        bottom: isMobile ? "12px" : "32px",
+        bottom: isMobile ? "12px" : "62px",
         maxWidth: 1200,
         margin: "0 auto",
         padding: isMobile ? "16px 18px" : "22px 28px",
@@ -479,8 +482,16 @@ const ContentPanel = ({ destination }) => {
         fontSize: isCompact ? "13.5px" : "14.5px",
       }}
     >
-      <Renderer />
-      <PlanetFactsAccordion destination={destination} />
+      <div key={fadeKey} style={{ animation: "stellarPanelIn 480ms cubic-bezier(0.16, 1, 0.3, 1)" }}>
+        <Renderer />
+        <PlanetFactsAccordion destination={destination} />
+      </div>
+      <style>{`
+        @keyframes stellarPanelIn {
+          0% { opacity: 0; transform: translateY(10px); filter: blur(4px); }
+          100% { opacity: 1; transform: translateY(0); filter: blur(0); }
+        }
+      `}</style>
     </div>
   );
 };

@@ -240,14 +240,18 @@ const Scene = ({ scrollT, activeIdx, onJump, onReady, freeRoamEnabled }) => {
           highlights into a film-like curve, vignette adds depth, SMAA
           provides edge-aware AA without MSAA overhead. */}
       <EffectComposer multisampling={0} disableNormalPass>
+        {/* Bloom is the single biggest cinematic tool — tuned so bright
+            sources (sun, lensflare) glow firmly but the threshold is
+            high enough that nebulae + earth atmosphere don't get
+            blown to white. */}
         <Bloom
-          intensity={isMobile ? 0.85 : 1.35}
-          luminanceThreshold={0.42}
-          luminanceSmoothing={0.65}
+          intensity={isMobile ? 0.7 : 1.05}
+          luminanceThreshold={0.55}
+          luminanceSmoothing={0.7}
           mipmapBlur
-          radius={0.85}
+          radius={0.78}
         />
-        <Vignette offset={0.28} darkness={0.72} />
+        <Vignette offset={0.32} darkness={0.78} />
       </EffectComposer>
     </Canvas>
   );
