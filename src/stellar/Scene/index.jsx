@@ -1,5 +1,5 @@
 /* eslint-disable react/no-unknown-property */
-import { Suspense, useEffect, useRef } from "react";
+import { Suspense, useEffect, useRef, useState } from "react";
 import { Canvas, invalidate } from "@react-three/fiber";
 import * as THREE from "three";
 import { EffectComposer, Bloom, DepthOfField } from "@react-three/postprocessing";
@@ -55,6 +55,10 @@ import { DESTINATIONS } from "../config/destinations";
 const Scene = ({ scrollT, activeIdx, onJump, onReady, freeRoamEnabled, wideRef, showExtras = true }) => {
   const readyRef = useRef(false);
   const { isMobile, reducedMotion } = useViewport();
+  /* Set true only when AdaptiveQuality drops to its potato tier on a weak
+     GPU — used to shed the expensive Depth-of-Field pass. Toggles rarely
+     (strong hysteresis), so the EffectComposer rebuild is a non-issue. */
+  const [lowPerf, setLowPerf] = useState(false);
   /* Camera offsets — kept in refs so React state doesn't re-render
      the whole tree on every frame. Mouse parallax and free-roam each
      own their own offset; CameraRig sums them. */
@@ -115,7 +119,12 @@ const Scene = ({ scrollT, activeIdx, onJump, onReady, freeRoamEnabled, wideRef, 
           there is always deep space, regardless of texture state. */}
       <color attach="background" args={["#03050d"]} />
       <VisibilityController />
-      <AdaptiveQuality scrollTRef={scrollT} highDpr={dprCap} lowDpr={isMobile ? 1.0 : 1.2} />
+      <AdaptiveQuality
+        scrollTRef={scrollT}
+        highDpr={dprCap}
+        lowDpr={isMobile ? 1.0 : 1.2}
+        onPerf={(t) => setLowPerf(t === "low")}
+      />
       <AutoExposure />
       <DepthFocus scrollT={scrollT} />
       {/* Vacuum-lean three-point lighting. Every planet sits on +x with
@@ -312,7 +321,7 @@ const Scene = ({ scrollT, activeIdx, onJump, onReady, freeRoamEnabled, wideRef, 
             Focus tracks the planet's live position (DepthFocus → DOF_TARGET);
             convolution effect (own passes) so it never merges with the
             single mainImage grade. Desktop only. */}
-        {!isMobile && (
+        {!isMobile && !lowPerf && (
           <DepthOfField target={DOF_TARGET} focalLength={0.035} bokehScale={1.6} height={360} />
         )}
         {/* Grade: bright base (the real fix for the earlier "too dark"),

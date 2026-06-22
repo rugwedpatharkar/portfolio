@@ -24,9 +24,9 @@ const Navigator = ({ scrollTRef, onDestinationChange }) => {
        slightly molasses feel on fast scrolls. */
     const lenis = new Lenis({
       smoothWheel: true,
-      lerp: 0.14,
-      wheelMultiplier: 1.1,
-      touchMultiplier: 1.5,
+      lerp: 0.16,
+      wheelMultiplier: 1.15,
+      touchMultiplier: 1.6,
     });
     lenisRef.current = lenis;
     // Expose for debugging — usable in DevTools as `window.__lenis.scrollTo(targetY)`
