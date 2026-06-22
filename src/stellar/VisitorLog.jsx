@@ -34,20 +34,7 @@ const VisitorLog = () => {
       <button
         onClick={() => setOpen(true)}
         title="Open mission report"
-        style={{
-          position: "fixed",
-          bottom: 18,
-          right: 154,
-          width: 38, height: 38, borderRadius: "50%",
-          background: "rgba(6, 9, 22, 0.7)",
-          backdropFilter: "blur(10px)",
-          border: "1px solid rgba(255, 255, 255, 0.18)",
-          color: "rgba(255, 255, 255, 0.6)",
-          fontFamily: "'JetBrains Mono', monospace", fontSize: 14,
-          display: "flex", alignItems: "center", justifyContent: "center",
-          cursor: "pointer",
-          zIndex: 50,
-        }}
+        className="stellar-dock-btn"
       >▤</button>
 
       {open && (

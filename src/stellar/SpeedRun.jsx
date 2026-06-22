@@ -77,7 +77,7 @@ const SpeedRun = ({ activeIdx }) => {
       style={{
         position: "fixed",
         top: 16,
-        left: 290,
+        right: 220,
         display: "flex",
         alignItems: "center",
         gap: 10,
@@ -89,9 +89,10 @@ const SpeedRun = ({ activeIdx }) => {
         fontFamily: "'JetBrains Mono', monospace",
         fontSize: 10,
         color: enabled ? "#ffe066" : "rgba(255, 255, 255, 0.55)",
-        zIndex: 35,
+        zIndex: 36,
         cursor: "pointer",
         userSelect: "none",
+        transition: "background 200ms ease, border 200ms ease, color 200ms ease",
       }}
       onClick={() => setEnabled((v) => !v)}
       title={enabled ? "Click to disable speed run" : "Toggle speed run — race all 12 destinations"}

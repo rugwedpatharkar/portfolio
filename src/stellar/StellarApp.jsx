@@ -152,46 +152,71 @@ const StellarApp = () => {
           <Achievements activeIdx={activeIdx} />
           <SpeedRun activeIdx={activeIdx} />
           <QuoteFeed />
-          <VisitorLog />
           <AnswerListener />
-          <VoiceNav onJump={handleJump} />
           <FpsMonitor />
           <PlanetHUD destination={DESTINATIONS[activeIdx]} />
           <ContentPanel destination={DESTINATIONS[activeIdx]} />
           <CockpitFrame enabled={cockpit} scrollTRef={scrollTRef} />
-          <AmbientAudio />
           <EasterEgg />
-          {/* Mode toggles bottom-right */}
-          <div style={{ position: "fixed", bottom: 18, right: 66, display: "flex", gap: 8, zIndex: 50 }}>
+          {/* Right-edge vertical control dock — single column for all
+              toggles to avoid the previous horizontal collisions. */}
+          <div className="stellar-control-dock">
+            <AmbientAudio />
+            <VoiceNav onJump={handleJump} />
+            <VisitorLog />
+            <button
+              onClick={() => {
+                setFreeRoam((v) => {
+                  if (!v) window.dispatchEvent(new CustomEvent("stellar:freeroam"));
+                  return !v;
+                });
+              }}
+              aria-label={freeRoam ? "Exit free roam" : "Enter free roam"}
+              title={freeRoam ? "Exit free roam (WASD + arrows)" : "Free roam — WASD/arrows to fly"}
+              className="stellar-dock-btn"
+              data-active={freeRoam}
+              style={{
+                background: freeRoam ? "rgba(255, 184, 107, 0.2)" : "rgba(6, 9, 22, 0.7)",
+                border: freeRoam ? "1px solid rgba(255, 184, 107, 0.6)" : "1px solid rgba(255, 255, 255, 0.18)",
+                color: freeRoam ? "#ffb86b" : "rgba(255, 255, 255, 0.6)",
+              }}
+            >⌖</button>
             <button
               onClick={() => setCockpit((v) => !v)}
               aria-label={cockpit ? "Disable cockpit" : "Enable cockpit"}
               title={cockpit ? "Hide cockpit HUD" : "Show cockpit HUD"}
+              className="stellar-dock-btn"
+              data-active={cockpit}
               style={{
-                width: 38, height: 38, borderRadius: "50%", cursor: "pointer",
                 background: cockpit ? "rgba(0, 206, 168, 0.18)" : "rgba(6, 9, 22, 0.7)",
                 border: cockpit ? "1px solid rgba(0, 206, 168, 0.55)" : "1px solid rgba(255, 255, 255, 0.18)",
                 color: cockpit ? "#00cea8" : "rgba(255, 255, 255, 0.6)",
-                fontFamily: "'JetBrains Mono', monospace", fontSize: 11,
-                backdropFilter: "blur(10px)",
-                display: "flex", alignItems: "center", justifyContent: "center",
               }}
             >⊕</button>
-            <button
-              onClick={() => setFreeRoam((v) => !v)}
-              aria-label={freeRoam ? "Exit free roam" : "Enter free roam"}
-              title={freeRoam ? "Exit free roam (WASD + arrows)" : "Free roam — WASD/arrows to fly"}
-              style={{
-                width: 38, height: 38, borderRadius: "50%", cursor: "pointer",
-                background: freeRoam ? "rgba(255, 184, 107, 0.2)" : "rgba(6, 9, 22, 0.7)",
-                border: freeRoam ? "1px solid rgba(255, 184, 107, 0.6)" : "1px solid rgba(255, 255, 255, 0.18)",
-                color: freeRoam ? "#ffb86b" : "rgba(255, 255, 255, 0.6)",
-                fontFamily: "'JetBrains Mono', monospace", fontSize: 11,
-                backdropFilter: "blur(10px)",
-                display: "flex", alignItems: "center", justifyContent: "center",
-              }}
-            >⌖</button>
           </div>
+          <style>{`
+            .stellar-control-dock {
+              position: fixed;
+              bottom: 18px;
+              right: 18px;
+              display: flex;
+              flex-direction: column-reverse;
+              gap: 8px;
+              z-index: 50;
+            }
+            .stellar-dock-btn {
+              width: 38px; height: 38px;
+              border-radius: 50%;
+              cursor: pointer;
+              font-family: 'JetBrains Mono', monospace;
+              font-size: 14px;
+              backdrop-filter: blur(10px);
+              -webkit-backdrop-filter: blur(10px);
+              display: flex; align-items: center; justify-content: center;
+              transition: background 200ms ease, border 200ms ease, color 200ms ease, transform 200ms ease;
+            }
+            .stellar-dock-btn:hover { transform: scale(1.06); }
+          `}</style>
         </>
       )}
       {bootDone && !warpDone && <WarpOpening onComplete={handleWarpDone} />}

@@ -31,7 +31,7 @@ const TimeScrubber = ({ dateOffsetDaysRef, onChange }) => {
     <div
       style={{
         position: "fixed",
-        bottom: 64,
+        bottom: 282,
         right: 18,
         display: "flex",
         flexDirection: "column",

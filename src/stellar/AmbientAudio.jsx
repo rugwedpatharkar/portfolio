@@ -126,26 +126,14 @@ const AmbientAudio = () => {
     <button
       onClick={() => setEnabled((v) => !v)}
       aria-label={enabled ? "Mute ambient" : "Enable ambient"}
+      className="stellar-dock-btn"
+      data-active={enabled}
       style={{
-        position: "fixed",
-        bottom: 18,
-        right: 18,
-        width: 38,
-        height: 38,
-        borderRadius: "50%",
         background: enabled ? "rgba(0, 206, 168, 0.18)" : "rgba(6, 9, 22, 0.7)",
-        backdropFilter: "blur(10px)",
         border: enabled
           ? "1px solid rgba(0, 206, 168, 0.55)"
           : "1px solid rgba(255, 255, 255, 0.18)",
         color: enabled ? "#00cea8" : "rgba(255, 255, 255, 0.6)",
-        cursor: "pointer",
-        display: "flex",
-        alignItems: "center",
-        justifyContent: "center",
-        fontSize: 18,
-        zIndex: 50,
-        transition: "background 200ms ease, color 200ms ease, border 200ms ease",
       }}
       title={enabled ? "Mute ambient drone" : "Play ambient drone"}
     >

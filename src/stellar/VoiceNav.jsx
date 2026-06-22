@@ -64,19 +64,12 @@ const VoiceNav = ({ onJump }) => {
         onClick={toggle}
         aria-label={listening ? "Stop listening" : "Voice navigation"}
         title={listening ? "Listening… say a destination" : "Voice nav — say 'take me to Earth'"}
+        className="stellar-dock-btn"
+        data-active={listening}
         style={{
-          position: "fixed",
-          bottom: 18, right: 200,
-          width: 38, height: 38, borderRadius: "50%",
           background: listening ? "rgba(255, 107, 107, 0.2)" : "rgba(6, 9, 22, 0.7)",
-          backdropFilter: "blur(10px)",
           border: listening ? "1px solid rgba(255, 107, 107, 0.6)" : "1px solid rgba(255, 255, 255, 0.18)",
           color: listening ? "#ff6b6b" : "rgba(255, 255, 255, 0.6)",
-          cursor: "pointer",
-          display: "flex", alignItems: "center", justifyContent: "center",
-          fontSize: 14,
-          zIndex: 50,
-          transition: "background 200ms ease, border 200ms ease, color 200ms ease",
         }}
       >
         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
@@ -89,7 +82,7 @@ const VoiceNav = ({ onJump }) => {
       {(listening || lastHeard) && (
         <div style={{
           position: "fixed",
-          bottom: 64, right: 200,
+          bottom: 18, right: 76,
           padding: "5px 10px",
           background: "rgba(6, 9, 22, 0.85)",
           backdropFilter: "blur(10px)",
@@ -100,7 +93,7 @@ const VoiceNav = ({ onJump }) => {
           color: "rgba(255, 255, 255, 0.7)",
           letterSpacing: "0.08em",
           zIndex: 50,
-          maxWidth: 220,
+          maxWidth: 200,
           pointerEvents: "none",
           whiteSpace: "nowrap",
           overflow: "hidden",

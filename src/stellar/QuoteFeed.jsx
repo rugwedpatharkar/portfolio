@@ -35,22 +35,23 @@ const QuoteFeed = () => {
   return (
     <div
       style={{
+        /* Anchored above the breadcrumb dots which sit at bottom:12 */
         position: "fixed",
-        bottom: 36,
+        bottom: 32,
         left: "50%",
         transform: "translateX(-50%)",
-        maxWidth: "min(720px, 90vw)",
-        padding: "6px 18px",
+        maxWidth: "min(640px, 78vw)",
+        padding: "4px 16px",
         fontFamily: "'DM Sans', sans-serif",
-        fontSize: 12.5,
-        color: "rgba(255, 255, 255, 0.65)",
+        fontSize: 11.5,
+        color: "rgba(255, 255, 255, 0.55)",
         fontStyle: "italic",
         textAlign: "center",
         opacity: visible ? 1 : 0,
         transition: "opacity 480ms ease",
         zIndex: 28,
         pointerEvents: "none",
-        textShadow: "0 1px 8px rgba(0,0,0,0.85)",
+        textShadow: "0 1px 8px rgba(0,0,0,0.9)",
       }}
     >
       <span style={{ color: "#00cea8", marginRight: 6, opacity: 0.7 }}>"</span>
