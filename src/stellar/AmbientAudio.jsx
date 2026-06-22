@@ -106,34 +106,25 @@ const AmbientAudio = () => {
     r2Gain.connect(ctx.destination);
     r2GainRef.current = r2Gain;
 
-    const onWhoosh = () => {
-      if (!ctxRef.current) return;
-      /* Use R2's astromech whoosh — descending sweep */
-      r2Whoosh(ctx, r2Gain);
+    /* Build a STABLE map of handlers once so add/removeEventListener
+       reference the exact same functions. The previous onR2(type)
+       factory returned a fresh closure each call, so removeEventListener
+       never matched what was registered → leak + stacking duplicates on
+       every re-toggle. */
+    const handlers = {
+      "stellar:whoosh": () => { if (ctxRef.current) r2Whoosh(ctx, r2Gain); },
+      "stellar:r2:affirm": () => { if (ctxRef.current) r2Affirm(ctx, r2Gain); },
+      "stellar:r2:hello": () => { if (ctxRef.current) r2Hello(ctx, r2Gain); },
+      "stellar:r2:excited": () => { if (ctxRef.current) r2Excited(ctx, r2Gain); },
+      "stellar:r2:sad": () => { if (ctxRef.current) r2Sad(ctx, r2Gain); },
     };
-    const onR2 = (type) => () => {
-      if (!ctxRef.current) return;
-      const fn = {
-        affirm: r2Affirm, hello: r2Hello, excited: r2Excited,
-        sad: r2Sad, whoosh: r2Whoosh,
-      }[type] || r2Affirm;
-      fn(ctx, r2Gain);
-    };
-    window.addEventListener("stellar:whoosh", onWhoosh);
-    window.addEventListener("stellar:r2:affirm", onR2("affirm"));
-    window.addEventListener("stellar:r2:hello", onR2("hello"));
-    window.addEventListener("stellar:r2:excited", onR2("excited"));
-    window.addEventListener("stellar:r2:sad", onR2("sad"));
+    Object.entries(handlers).forEach(([evt, fn]) => window.addEventListener(evt, fn));
 
     /* Greet visitor on enable */
     setTimeout(() => r2Hello(ctx, r2Gain), 800);
 
     return () => {
-      window.removeEventListener("stellar:whoosh", onWhoosh);
-      window.removeEventListener("stellar:r2:affirm", onR2("affirm"));
-      window.removeEventListener("stellar:r2:hello", onR2("hello"));
-      window.removeEventListener("stellar:r2:excited", onR2("excited"));
-      window.removeEventListener("stellar:r2:sad", onR2("sad"));
+      Object.entries(handlers).forEach(([evt, fn]) => window.removeEventListener(evt, fn));
       try {
         masterGain.gain.cancelScheduledValues(ctx.currentTime);
         masterGain.gain.linearRampToValueAtTime(0, ctx.currentTime + 0.4);

@@ -27,7 +27,9 @@ const VisitorLog = () => {
   const elapsedMs = typeof performance !== "undefined" ? performance.now() - startRef.current : 0;
   const mins = Math.floor(elapsedMs / 60000);
   const secs = Math.floor((elapsedMs % 60000) / 1000);
-  const u = unlockedSet();
+  /* Only hit localStorage when the report is actually open, not on every
+     render of the always-mounted dock button. */
+  const u = open ? unlockedSet() : null;
 
   return (
     <>

@@ -35,10 +35,14 @@ const EasterEgg = () => {
 
     let pressed = [];
     const onKey = (e) => {
-      pressed.push(e.key);
+      /* Case-insensitive so Caps Lock doesn't silently break b / a */
+      pressed.push(e.key.length === 1 ? e.key.toLowerCase() : e.key);
       if (pressed.length > KONAMI.length) pressed.shift();
       if (pressed.length === KONAMI.length && pressed.every((k, i) => k === KONAMI[i])) {
         onKonami();
+        /* Dispatch so the Achievements panel can unlock the badge —
+           this event was never fired before, leaving it unreachable. */
+        window.dispatchEvent(new CustomEvent("stellar:konami"));
         pressed = [];
       }
     };

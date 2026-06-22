@@ -14,7 +14,6 @@ import CockpitFrame from "./CockpitFrame";
 import StardustTrail from "./StardustTrail";
 import Breadcrumb from "./Breadcrumb";
 import LiveStats from "./LiveStats";
-import TimeScrubber from "./TimeScrubber";
 import Achievements from "./Achievements";
 import SpeedRun from "./SpeedRun";
 import QuoteFeed from "./QuoteFeed";
@@ -171,7 +170,6 @@ const StellarApp = () => {
           <SideRail activeIdx={activeIdx} onJump={handleJump} />
           <Breadcrumb activeIdx={activeIdx} />
           <LiveStats />
-          <TimeScrubber />
           <Achievements activeIdx={activeIdx} />
           <SpeedRun activeIdx={activeIdx} />
           <QuoteFeed />
