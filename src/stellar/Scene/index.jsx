@@ -23,6 +23,8 @@ import MouseParallax from "./MouseParallax";
 import FreeRoam from "./FreeRoam";
 import ScaleGhost from "./ScaleGhost";
 import Constellations from "./Constellations";
+import Voyager from "./Voyager";
+import CommitComets from "./CommitComets";
 import useViewport from "../useViewport";
 import { DESTINATIONS } from "../config/destinations";
 
@@ -207,6 +209,8 @@ const Scene = ({ scrollT, activeIdx, onJump, onReady, freeRoamEnabled }) => {
         <PlanetLabels activeIdx={activeIdx} />
         <Constellations scrollTRef={scrollT} />
         <ScaleGhost activeIdx={activeIdx} />
+        <Voyager />
+        {!isMobile && <CommitComets />}
         {!isMobile && !reducedMotion && <MouseParallax offsetRef={parallaxOffsetRef} />}
         <FreeRoam enabled={freeRoamEnabled} offsetRef={freeRoamOffsetRef} />
         <CameraRig
