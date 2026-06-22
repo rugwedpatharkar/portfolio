@@ -425,8 +425,14 @@ const ContactContent = () => (
     <SectionTitle>{sectionMeta.contact.heading}</SectionTitle>
     <SectionLede>{sectionMeta.contact.description}</SectionLede>
     <div style={{ display: "flex", gap: 14, flexWrap: "wrap" }}>
-      {contactLinks.slice(0, 4).map((c) => (
-        <a key={c.label} href={c.href} target="_blank" rel="noopener noreferrer" style={{
+      {contactLinks.slice(0, 5).map((c) => (
+        <a
+          key={c.label}
+          href={c.href}
+          target="_blank"
+          rel="noopener noreferrer"
+          {...(c.download ? { download: "" } : {})}
+          style={{
           display: "inline-flex",
           alignItems: "center",
           gap: 8,

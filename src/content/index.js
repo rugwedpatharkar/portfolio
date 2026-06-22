@@ -911,6 +911,13 @@ export const contactLinks = [
     href: personalInfo.linkedin,
     iconType: "linkedin",
   },
+  {
+    label: "Resume",
+    value: "Download PDF",
+    href: "/Rugwed-Patharkar-Resume.pdf",
+    iconType: "resume",
+    download: true,
+  },
 ];
 
 export const contactContent = {
