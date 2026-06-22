@@ -145,7 +145,7 @@ const Planet = ({
         }}
         position={[Math.cos(initial) * orbit, 0, Math.sin(initial) * orbit]}
       >
-        <sphereGeometry args={[radius * moonScale, 24, 24]} />
+        <sphereGeometry args={[radius * moonScale, 16, 16]} />
         <meshStandardMaterial
           color={mColor}
           map={textureMap[moonTexture] || null}
@@ -198,7 +198,7 @@ const Planet = ({
           isDraggingRef.current = false;
           e.target.releasePointerCapture?.(e.pointerId);
         }}>
-        <sphereGeometry args={[radius, 64, 64]} />
+        <sphereGeometry args={[radius, 48, 48]} />
         {hasTexture ? (
           <meshStandardMaterial
             map={textureMap[texture]}
@@ -229,7 +229,7 @@ const Planet = ({
           haze; the planet, not the weather, is the subject. */}
       {isEarth && textureMap[cloudTexture] && (
         <mesh ref={cloudRef}>
-          <sphereGeometry args={[radius * 1.008, 48, 48]} />
+          <sphereGeometry args={[radius * 1.008, 32, 32]} />
           <meshStandardMaterial
             map={textureMap[cloudTexture]}
             alphaMap={textureMap[cloudTexture]}

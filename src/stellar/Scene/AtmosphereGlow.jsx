@@ -49,7 +49,7 @@ const AtmosphereGlow = ({ radius = 1, color = "#7aa8ff", intensity = 0.9, power 
 
   return (
     <mesh>
-      <sphereGeometry args={[radius * scale, 64, 48]} />
+      <sphereGeometry args={[radius * scale, 48, 32]} />
       <shaderMaterial
         attach="material"
         vertexShader={ATMOSPHERE_VERTEX}

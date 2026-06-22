@@ -106,7 +106,7 @@ const SolarProminences = ({ position = [0, 0, 0], radius = 1.6 }) => {
 
   return (
     <mesh position={position}>
-      <sphereGeometry args={[radius * 1.03, 96, 64]} />
+      <sphereGeometry args={[radius * 1.03, 64, 48]} />
       <shaderMaterial
         ref={matRef}
         vertexShader={VERTEX}

@@ -11,12 +11,13 @@ import * as THREE from "three";
 
 const MARS_POS = [15.3, 0.3, 0.6];
 const POSITION = [MARS_POS[0] - 0.1, MARS_POS[1] + 0.95, MARS_POS[2]];
+/* Hoisted once — was rebuilt as new THREE.Vector3(...POSITION) every frame */
+const POSITION_VEC = new THREE.Vector3(...POSITION);
 
 const WatneyPotato = () => {
   const groupRef = useRef();
   useFrame(({ camera }) => {
-    const d = camera.position.distanceTo(new THREE.Vector3(...POSITION));
-    if (groupRef.current) groupRef.current.visible = d < 5.5;
+    if (groupRef.current) groupRef.current.visible = camera.position.distanceTo(POSITION_VEC) < 5.5;
   });
 
   return (

@@ -2,9 +2,7 @@
 import { Suspense, useEffect, useRef } from "react";
 import { Canvas, invalidate } from "@react-three/fiber";
 import * as THREE from "three";
-import { EffectComposer, Bloom, Vignette, BrightnessContrast, HueSaturation, ChromaticAberration } from "@react-three/postprocessing";
-import { BlendFunction } from "postprocessing";
-import { Vector2 } from "three";
+import { EffectComposer, Bloom, Vignette, BrightnessContrast, HueSaturation } from "@react-three/postprocessing";
 import Stars from "./Stars";
 import Sun from "./Sun";
 import Planet from "./Planet";
@@ -48,7 +46,7 @@ import { DESTINATIONS } from "../config/destinations";
  * tune that based on viewport bucket.
  */
 
-const Scene = ({ scrollT, activeIdx, onJump, onReady, freeRoamEnabled, wideRef }) => {
+const Scene = ({ scrollT, activeIdx, onJump, onReady, freeRoamEnabled, wideRef, showExtras = true }) => {
   const readyRef = useRef(false);
   const { isMobile, reducedMotion } = useViewport();
   /* Camera offsets — kept in refs so React state doesn't re-render
@@ -122,8 +120,10 @@ const Scene = ({ scrollT, activeIdx, onJump, onReady, freeRoamEnabled, wideRef }
         <Skybox />
         <Stars />
         <Nebulae />
-        {showAliens && <AlienShips />}
-        {showComets && <Comets />}
+        {/* Ambient motion — only after the intro to keep the warp +
+            countdown window light and trim initial scene-graph build. */}
+        {showExtras && showAliens && <AlienShips />}
+        {showExtras && showComets && <Comets />}
 
         {DESTINATIONS.map((d, idx) => {
           const handleClick = (e) => {
@@ -226,16 +226,20 @@ const Scene = ({ scrollT, activeIdx, onJump, onReady, freeRoamEnabled, wideRef }
         {!isMobile && <LensFlare position={[0, 0, 0]} />}
         {!isMobile && !reducedMotion && <DustParticles />}
         <PlanetLabels activeIdx={activeIdx} />
-        <Constellations scrollTRef={scrollT} />
-        <Voyager />
-        {!isMobile && <CommitComets />}
-        {/* Easter eggs — all lightweight, no per-frame raycast cost */}
-        <DeathStar />
-        <Tardis />
-        <HalEye />
-        <WallE />
-        <CooperStation />
-        <WatneyPotato />
+        {/* Non-essential extras defer-mount until the intro completes —
+            keeps the warp/countdown window + LCP light, and trims the
+            initial scene-graph build. */}
+        {showExtras && <Constellations scrollTRef={scrollT} />}
+        {showExtras && <Voyager />}
+        {showExtras && !isMobile && <CommitComets />}
+        {/* Easter eggs — lightweight, but no reason to build them during
+            the intro. */}
+        {showExtras && <DeathStar />}
+        {showExtras && <Tardis />}
+        {showExtras && <HalEye />}
+        {showExtras && <WallE />}
+        {showExtras && <CooperStation />}
+        {showExtras && <WatneyPotato />}
         {!isMobile && !reducedMotion && <MouseParallax offsetRef={parallaxOffsetRef} />}
         <FreeRoam enabled={freeRoamEnabled} offsetRef={freeRoamOffsetRef} />
         <CameraShake parallaxOffsetRef={parallaxOffsetRef} />
@@ -257,27 +261,20 @@ const Scene = ({ scrollT, activeIdx, onJump, onReady, freeRoamEnabled, wideRef }
           1. Bloom (HDR highlights bloom into halos)
           2. BrightnessContrast (lift the contrast so shadows feel deep)
           3. HueSaturation (slight saturation lift for richness)
-          4. ChromaticAberration (subtle edge tint for lens character)
-          5. Vignette (anchor the eye)
-          All effects skipped on mobile for budget. */}
+          4. Vignette (anchor the eye)
+          ChromaticAberration was dropped — a full-screen pass for a
+          near-invisible effect. Bloom radius trimmed 0.78 → 0.6 (the
+          single most expensive pass). All skipped on mobile. */}
       <EffectComposer multisampling={0} disableNormalPass>
         <Bloom
           intensity={isMobile ? 0.7 : 1.0}
           luminanceThreshold={0.68}
           luminanceSmoothing={0.6}
           mipmapBlur
-          radius={0.78}
+          radius={0.6}
         />
         <BrightnessContrast brightness={-0.02} contrast={0.14} />
         <HueSaturation hue={0} saturation={0.12} />
-        {!isMobile && (
-          <ChromaticAberration
-            blendFunction={BlendFunction.NORMAL}
-            offset={new Vector2(0.0008, 0.0008)}
-            radialModulation={true}
-            modulationOffset={0.35}
-          />
-        )}
         <Vignette offset={0.30} darkness={0.82} />
       </EffectComposer>
     </Canvas>

@@ -64,7 +64,9 @@ const DustParticles = () => {
     if (!meshRef.current) return;
     const cam = state.camera.position;
     particles.forEach((p, i) => {
-      p.position.add(p.velocity.clone().multiplyScalar(delta));
+      /* addScaledVector avoids a per-particle, per-frame Vector3 alloc
+         (was p.velocity.clone() — 70 allocations every frame → GC saw). */
+      p.position.addScaledVector(p.velocity, delta);
       const dist = p.position.distanceTo(cam);
       /* Respawn if drifted too far OR too close (keeps the near bubble
          clear so dust never smears across the lens). */

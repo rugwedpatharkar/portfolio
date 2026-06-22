@@ -53,7 +53,10 @@ const EarthAurora = ({ position = [0, 0, 0], radius = 0.75 }) => {
   );
 
   useFrame(({ clock, camera }) => {
-    const dist = camera.position.distanceTo(groupRef.current?.position || new THREE.Vector3());
+    if (!groupRef.current) return;
+    /* distanceTo the group's own position — no per-frame Vector3 alloc
+       (was `|| new THREE.Vector3()` every frame). */
+    const dist = camera.position.distanceTo(groupRef.current.position);
     const visible = dist < 12;
     if (groupRef.current) groupRef.current.visible = visible;
     if (!visible) return;

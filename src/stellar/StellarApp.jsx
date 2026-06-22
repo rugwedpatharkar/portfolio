@@ -157,6 +157,7 @@ const StellarApp = () => {
         onReady={handleSceneReady}
         freeRoamEnabled={freeRoam}
         wideRef={wideRef}
+        showExtras={countdownDone}
       />
       <Navigator
         scrollTRef={scrollTRef}

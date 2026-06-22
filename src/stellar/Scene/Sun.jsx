@@ -62,7 +62,7 @@ const Sun = ({
         onPointerOver={onPointerOver}
         onPointerOut={onPointerOut}
       >
-        <sphereGeometry args={[radius, 64, 64]} />
+        <sphereGeometry args={[radius, 48, 48]} />
         <meshBasicMaterial
           map={sunTex || null}
           color={sunTex ? "#ffb060" : "#ffb86b"}
