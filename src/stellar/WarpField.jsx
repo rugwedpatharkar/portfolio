@@ -12,9 +12,11 @@ import { useEffect, useRef } from "react";
  * reduced-motion. Sits under the content overlay so text stays readable.
  */
 
-const STAR_COUNT = 160;
+const STAR_COUNT = 260;
 
-const introBoost = (phase) => (phase === "warp" ? 1 : phase === "establish" ? 0.4 : 0);
+/* Push the launch warp past 1 so cur (and accel = cur²) climb higher — longer,
+   denser, brighter streaks for a properly intense hyperjump. */
+const introBoost = (phase) => (phase === "warp" ? 1.25 : phase === "establish" ? 0.45 : 0);
 
 const WarpField = ({ velocityRef, launchPhase }) => {
   const canvasRef = useRef(null);
@@ -64,10 +66,11 @@ const WarpField = ({ velocityRef, launchPhase }) => {
       if (cur > 0.015) {
         ctx.lineCap = "round";
         const accel = cur * cur;
+        const op = Math.min(1, 0.92 * cur);
         for (let i = 0; i < stars.length; i++) {
           const s = stars[i];
-          const r = (s.r0 + accel * 0.7 * s.v) * R;
-          const len = 10 + accel * 230 * s.v;
+          const r = (s.r0 + accel * 0.95 * s.v) * R;
+          const len = 14 + accel * 340 * s.v;
           const ca = Math.cos(s.angle);
           const sa = Math.sin(s.angle);
           const x0 = cx + ca * r;
@@ -76,9 +79,10 @@ const WarpField = ({ velocityRef, launchPhase }) => {
           const y1 = cy + sa * (r + len);
           const g = ctx.createLinearGradient(x0, y0, x1, y1);
           g.addColorStop(0, `hsla(${s.hue}, 90%, 82%, 0)`);
-          g.addColorStop(1, `hsla(${s.hue}, 95%, 88%, ${0.82 * cur})`);
+          g.addColorStop(0.7, `hsla(${s.hue}, 95%, 86%, ${0.5 * op})`);
+          g.addColorStop(1, `hsla(${s.hue}, 100%, 95%, ${op})`);
           ctx.strokeStyle = g;
-          ctx.lineWidth = 1 + accel * 1.5;
+          ctx.lineWidth = 1.2 + accel * 2.3;
           ctx.beginPath();
           ctx.moveTo(x0, y0);
           ctx.lineTo(x1, y1);

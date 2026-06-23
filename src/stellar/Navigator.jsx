@@ -15,7 +15,7 @@ import { DESTINATIONS, SCROLL_LENGTH_PER_DESTINATION } from "./config/destinatio
  * the browser has real scroll content to drive Lenis.
  */
 
-const Navigator = ({ scrollTRef, onDestinationChange, velocityRef }) => {
+const Navigator = ({ scrollTRef, onDestinationChange }) => {
   const lenisRef = useRef(null);
 
   useEffect(() => {
@@ -69,8 +69,9 @@ const Navigator = ({ scrollTRef, onDestinationChange, velocityRef }) => {
       // Lenis v1.x: progress is a getter on the instance
       const progress = lenis.progress;
       scrollTRef.current = progress;
-      /* Feed travel speed to the hyperspeed warp field (normalised). */
-      if (velocityRef) velocityRef.current = Math.min(1, Math.abs(lenis.velocity || 0) / 55);
+      /* No warp streaks on ordinary scrolling — a single scroll is a smooth
+         planet-to-planet glide. The hyperspeed warp is reserved for the intro
+         launch + deliberate far jumps (handleJump). */
       invalidate(); // request a Three.js render
 
       // Detect which destination we're focused on
@@ -90,7 +91,7 @@ const Navigator = ({ scrollTRef, onDestinationChange, velocityRef }) => {
       lenis.destroy();
       lenisRef.current = null;
     };
-  }, [scrollTRef, onDestinationChange, velocityRef]);
+  }, [scrollTRef, onDestinationChange]);
 
   const totalVh = DESTINATIONS.length * SCROLL_LENGTH_PER_DESTINATION;
 

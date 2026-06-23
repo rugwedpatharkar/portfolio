@@ -8,7 +8,7 @@ import PlanetHUD from "./PlanetHUD";
 import MissionCountdown from "./MissionCountdown";
 import WarpField from "./WarpField";
 import AmbientAudio from "./AmbientAudio";
-import { ProgressRail, ScrollHint } from "./Wayfinding";
+import { ScrollHint } from "./Wayfinding";
 import OverviewMap from "./OverviewMap";
 import StellarUIContext from "./ui/StellarUIContext";
 import { OBJECTS } from "./config/objects";
@@ -478,7 +478,6 @@ const StellarApp = () => {
       <Navigator
         scrollTRef={scrollTRef}
         onDestinationChange={handleDestinationChange}
-        velocityRef={warpVelRef}
       />
       {/* Hyperspeed streaks — driven by travel speed (scroll velocity +
           launch warp). Sits under the content overlay. */}
@@ -521,7 +520,6 @@ const StellarApp = () => {
               {mode === "tour" && <PlanetHUD destination={DESTINATIONS[activeIdx]} />}
               {mode === "tour" && <ContentPanel destination={DESTINATIONS[activeIdx]} />}
               <OverviewHud overview={overview} />
-              {mode === "tour" && <ProgressRail destinations={DESTINATIONS} activeIdx={activeIdx} onJump={handleJump} />}
               {mode === "tour" && <ScrollHint visible={activeIdx === 0 && !interacted} />}
               <OverviewMap objects={OBJECTS} cameraRef={cameraRef} visible={overview && !focusedObj} onPick={handlePick} />
               {focusedObj && <FocusCard obj={focusedObj} onBack={clearFocus} />}
