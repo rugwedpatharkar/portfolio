@@ -3,6 +3,7 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import useViewport from "./useViewport";
 import { PLANET_FACTS } from "./data/planetFacts";
 import heroPhoto from "../assets/hero-photo-1024.webp";
+import aboutPhoto from "../assets/photo-800.webp";
 import {
   personalInfo,
   experiences,
@@ -56,19 +57,21 @@ const SectionLabel = ({ children, color = "#b8a0ff" }) => (
 
 const SectionTitle = ({ children }) => (
   <h2 style={{
-    fontFamily: "'Sora', sans-serif",
-    fontSize: 36,
-    fontWeight: 800,
+    fontFamily: "'Michroma', sans-serif",
+    fontSize: "clamp(18px, 1.6vw, 25px)",
+    fontWeight: 400,
     color: "white",
-    margin: "0 0 14px 0",
-    letterSpacing: "-0.02em",
-    lineHeight: 1.1,
+    margin: "0 0 13px 0",
+    letterSpacing: "0.04em",
+    lineHeight: 1.26,
+    textTransform: "uppercase",
+    textWrap: "balance",
   }}>{children}</h2>
 );
 
 const SectionLede = ({ children }) => (
   <p style={{
-    fontFamily: "'DM Sans', sans-serif",
+    fontFamily: "'Space Grotesk', sans-serif",
     fontSize: 14.5,
     lineHeight: 1.7,
     color: "rgba(255,255,255,0.75)",
@@ -80,7 +83,7 @@ const SectionLede = ({ children }) => (
 /* Rugwed's portrait — a cut-out webp framed in a glowing ring. Shown only
    on Sol + About (the "who is this" stops). The ring tint matches the
    destination colour so it reads as part of the cockpit palette. */
-const Portrait = ({ size = 120, color = "#ffb86b" }) => (
+const Portrait = ({ size = 120, color = "#ffb86b", src = heroPhoto, focus = "center 16%" }) => (
   <div
     style={{
       width: size,
@@ -89,16 +92,16 @@ const Portrait = ({ size = 120, color = "#ffb86b" }) => (
       flexShrink: 0,
       overflow: "hidden",
       border: `2px solid ${color}77`,
-      boxShadow: `0 0 0 5px ${color}14, 0 0 34px ${color}40, 0 14px 40px rgba(0,0,0,0.55)`,
+      boxShadow: `0 0 0 5px ${color}14, 0 0 42px ${color}40, 0 16px 48px rgba(0,0,0,0.6)`,
       background: `radial-gradient(circle at 50% 24%, ${color}2e, rgba(8,10,26,0.7))`,
     }}
   >
     <img
-      src={heroPhoto}
+      src={src}
       alt="Rugwed Patharkar"
       loading="lazy"
       draggable={false}
-      style={{ width: "100%", height: "100%", objectFit: "cover", objectPosition: "center 16%" }}
+      style={{ width: "100%", height: "100%", objectFit: "cover", objectPosition: focus }}
     />
   </div>
 );
@@ -106,18 +109,18 @@ const Portrait = ({ size = 120, color = "#ffb86b" }) => (
 /* Panel-less card: bare content over the scrim — no box, no border, just
    padding so the grid breathes. Grouping reads from the coloured heading +
    the accent bars/tags + spacing, matching the "no panels" direction. */
-const bareCard = { padding: "1px 2px 12px" };
+const bareCard = { padding: "1px 2px 8px" };
 
 /* ── Per-destination renderers ─────────────────────────────────────── */
 
 const HeroContent = () => (
   <>
     <SectionLabel color="#ffb86b">SOL · The center</SectionLabel>
-    <div style={{ display: "flex", gap: 18, alignItems: "center", margin: "0 0 14px 0" }}>
-      <Portrait size={118} color="#ffb86b" />
+    <div style={{ display: "flex", gap: 24, alignItems: "center", margin: "0 0 16px 0" }}>
+      <Portrait size={170} color="#ffb86b" />
       <div>
-        <SectionTitle>{personalInfo.fullName}</SectionTitle>
-        <p style={{ fontFamily: "'Sora', sans-serif", fontSize: 18, color: "#00cea8", margin: "6px 0 0 0", fontWeight: 600 }}>
+        <h1 style={{ fontFamily: "'Michroma', sans-serif", fontSize: "clamp(22px, 2.1vw, 33px)", fontWeight: 400, color: "white", margin: 0, letterSpacing: "0.03em", lineHeight: 1.2, textTransform: "uppercase", textWrap: "balance" }}>{personalInfo.fullName}</h1>
+        <p style={{ fontFamily: "'Space Grotesk', sans-serif", fontSize: 17, color: "#00cea8", margin: "9px 0 0 0", fontWeight: 600 }}>
           Backend &amp; Agentic AI Engineer
         </p>
       </div>
@@ -134,8 +137,8 @@ const HeroContent = () => (
 const AboutContent = () => (
   <>
     <SectionLabel>MERCURY · Introduction</SectionLabel>
-    <div style={{ display: "flex", gap: 16, alignItems: "center", margin: "0 0 12px 0" }}>
-      <Portrait size={88} color="#9aa7c4" />
+    <div style={{ display: "flex", gap: 20, alignItems: "center", margin: "0 0 14px 0" }}>
+      <Portrait size={142} color="#7c9bd6" src={aboutPhoto} focus="center 18%" />
       <SectionTitle>{sectionMeta.about.heading}</SectionTitle>
     </div>
     <SectionLede>{personalInfo.about}</SectionLede>
@@ -147,7 +150,7 @@ const AboutContent = () => (
       ].map(([k, v]) => (
         <div key={k}>
           <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 9, color: "rgba(255,255,255,0.4)", textTransform: "uppercase", letterSpacing: "0.08em", marginBottom: 3 }}>{k}</div>
-          <div style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 13, color: "rgba(255,255,255,0.85)" }}>{v}</div>
+          <div style={{ fontFamily: "'Space Grotesk', sans-serif", fontSize: 13, color: "rgba(255,255,255,0.85)" }}>{v}</div>
         </div>
       ))}
     </div>
@@ -171,7 +174,7 @@ const FunFactsContent = () => (
           </div>
           {/* The "receipt" — the specific initiative behind the number */}
           {f.detail && (
-            <div style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 10.5, color: "rgba(255,255,255,0.5)", marginTop: 6, lineHeight: 1.45 }}>
+            <div style={{ fontFamily: "'Space Grotesk', sans-serif", fontSize: 10.5, color: "rgba(255,255,255,0.5)", marginTop: 6, lineHeight: 1.45 }}>
               {f.detail}
             </div>
           )}
@@ -192,7 +195,7 @@ const ExperienceContent = () => (
         key={e.companyName}
         style={{ marginBottom: 18, paddingTop: ei ? 16 : 4, borderTop: ei ? "1px solid rgba(255,255,255,0.1)" : "none" }}
       >
-        <div style={{ fontFamily: "'Sora', sans-serif", fontSize: 19, fontWeight: 700, color: "white", lineHeight: 1.2 }}>{e.title}</div>
+        <div style={{ fontFamily: "'Space Grotesk', sans-serif", fontSize: 19, fontWeight: 700, color: "white", lineHeight: 1.2 }}>{e.title}</div>
         <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 12.5, color: "#61dafb", marginTop: 3 }}>{e.companyName}</div>
         <div style={{ display: "flex", alignItems: "center", gap: 12, flexWrap: "wrap", margin: "7px 0 12px 0" }}>
           <span style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 12, color: "rgba(255,255,255,0.6)" }}>{e.date}</span>
@@ -207,14 +210,19 @@ const ExperienceContent = () => (
             <Stat key={m.label} label={m.label} value={m.value} />
           ))}
         </div>
-        {e.categories.map((c) => (
-          <div key={c.name} style={{ marginBottom: 11 }}>
-            <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 10.5, color: "#61dafb", letterSpacing: "0.06em", textTransform: "uppercase", marginBottom: 5 }}>{c.name}</div>
-            {c.points.map((p, pi) => (
-              <p key={pi} style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 12.5, color: "rgba(255,255,255,0.74)", margin: "0 0 6px 0", lineHeight: 1.5 }}>• {p}</p>
-            ))}
-          </div>
-        ))}
+        {/* Disciplines flow into responsive columns (≈2 on a wide desktop
+            panel, 1 on a narrow/compact sheet) so both roles fit on one
+            screen without scrolling. */}
+        <div style={{ columns: "212px", columnGap: 22 }}>
+          {e.categories.map((c) => (
+            <div key={c.name} style={{ marginBottom: 9, breakInside: "avoid", WebkitColumnBreakInside: "avoid" }}>
+              <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 10, color: "#61dafb", letterSpacing: "0.06em", textTransform: "uppercase", marginBottom: 4 }}>{c.name}</div>
+              {c.points.map((p, pi) => (
+                <p key={pi} style={{ fontFamily: "'Space Grotesk', sans-serif", fontSize: 12, color: "rgba(255,255,255,0.76)", margin: "0 0 5px 0", lineHeight: 1.46 }}>• {p}</p>
+              ))}
+            </div>
+          ))}
+        </div>
       </div>
     ))}
   </>
@@ -224,16 +232,16 @@ const ProjectsContent = () => (
   <>
     <SectionLabel color="#ff6b6b">MARS · Things I&apos;ve shipped</SectionLabel>
     <SectionTitle>{sectionMeta.projects.heading}</SectionTitle>
-    <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(180px, 1fr))", gap: 14 }}>
+    <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(158px, 1fr))", gap: "10px 14px" }}>
       {projects.map((p) => (
         <div key={p.name} style={{ ...bareCard, display: "flex", flexDirection: "column" }}>
           <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 8, marginBottom: 4 }}>
-            <span style={{ fontFamily: "'Sora', sans-serif", fontSize: 13, color: "white", fontWeight: 600 }}>{p.name}</span>
+            <span style={{ fontFamily: "'Space Grotesk', sans-serif", fontSize: 13, color: "white", fontWeight: 600 }}>{p.name}</span>
             {p.status && (
               <span style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 8, color: p.status === "production" ? "#00cea8" : "#f8c555", textTransform: "uppercase", letterSpacing: "0.06em", whiteSpace: "nowrap" }}>● {p.status}</span>
             )}
           </div>
-          <div style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 11.5, color: "rgba(255,255,255,0.62)", lineHeight: 1.45, marginBottom: 8 }}>
+          <div style={{ fontFamily: "'Space Grotesk', sans-serif", fontSize: 10.8, color: "rgba(255,255,255,0.64)", lineHeight: 1.4, marginBottom: 6 }}>
             {p.description}
           </div>
           {p.tags && (
@@ -262,11 +270,11 @@ const AchievementsContent = () => (
         <div key={a.title} style={bareCard}>
           <div style={{ display: "flex", alignItems: "center", gap: 6, marginBottom: 4 }}>
             <span style={{ fontSize: 14 }}>{a.icon}</span>
-            <div style={{ fontFamily: "'Sora', sans-serif", fontSize: 13, color: "white", fontWeight: 600 }}>{a.title}</div>
+            <div style={{ fontFamily: "'Space Grotesk', sans-serif", fontSize: 13, color: "white", fontWeight: 600 }}>{a.title}</div>
             {a.year && <span style={{ marginLeft: "auto", fontFamily: "'JetBrains Mono', monospace", fontSize: 9, color: "rgba(255,255,255,0.4)" }}>{a.year}</span>}
           </div>
           {a.description && (
-            <div style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 11.5, color: "rgba(255,255,255,0.6)", lineHeight: 1.5 }}>{a.description}</div>
+            <div style={{ fontFamily: "'Space Grotesk', sans-serif", fontSize: 11.5, color: "rgba(255,255,255,0.6)", lineHeight: 1.5 }}>{a.description}</div>
           )}
         </div>
       ))}
@@ -281,15 +289,15 @@ const SkillsContent = () => {
       <SectionLabel>JUPITER · The galaxy of skills</SectionLabel>
       <SectionTitle>{sectionMeta.skills.heading}</SectionTitle>
       <SectionLede>{sectionMeta.skills.description}</SectionLede>
-      <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(200px, 1fr))", gap: 14 }}>
+      <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(150px, 1fr))", gap: "9px 14px" }}>
         {categories.map(([cat, items]) => (
-          <div key={cat} style={bareCard}>
-            <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 10, color: "#b8a0ff", marginBottom: 7, textTransform: "uppercase", letterSpacing: "0.06em" }}>{cat}</div>
+          <div key={cat} style={{ padding: "1px 2px 6px", breakInside: "avoid" }}>
+            <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 10, color: "#b8a0ff", marginBottom: 6, textTransform: "uppercase", letterSpacing: "0.06em" }}>{cat}</div>
             {/* Every skill in the category, each with a proficiency bar. */}
-            <div style={{ display: "flex", flexDirection: "column", gap: 5 }}>
+            <div style={{ display: "flex", flexDirection: "column", gap: 4 }}>
               {items.map((s) => (
                 <div key={s.name}>
-                  <div style={{ display: "flex", justifyContent: "space-between", fontFamily: "'DM Sans', sans-serif", fontSize: 10.5, color: "rgba(255,255,255,0.78)", marginBottom: 2 }}>
+                  <div style={{ display: "flex", justifyContent: "space-between", fontFamily: "'Space Grotesk', sans-serif", fontSize: 10.5, color: "rgba(255,255,255,0.78)", marginBottom: 2 }}>
                     <span style={{ whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis", maxWidth: "78%" }}>{s.name}</span>
                     <span style={{ color: "rgba(255,255,255,0.4)", fontFamily: "'JetBrains Mono', monospace", fontSize: 9 }}>{s.level}</span>
                   </div>
@@ -316,8 +324,8 @@ const NotesContent = () => (
         <div key={n.title} style={{ display: "flex", gap: 14, padding: "10px 0", borderTop: i === 0 ? "none" : "1px solid rgba(255,255,255,0.08)" }}>
           <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 11, color: "rgba(255,255,255,0.35)", minWidth: 24 }}>{String(i + 1).padStart(2, "0")}</div>
           <div style={{ flex: 1 }}>
-            <div style={{ fontFamily: "'Sora', sans-serif", fontSize: 14, color: "white", fontWeight: 600, marginBottom: 3 }}>{n.title}</div>
-            <div style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 12, color: "rgba(255,255,255,0.6)", lineHeight: 1.5 }}>{n.description}</div>
+            <div style={{ fontFamily: "'Space Grotesk', sans-serif", fontSize: 14, color: "white", fontWeight: 600, marginBottom: 3 }}>{n.title}</div>
+            <div style={{ fontFamily: "'Space Grotesk', sans-serif", fontSize: 12, color: "rgba(255,255,255,0.6)", lineHeight: 1.5 }}>{n.description}</div>
           </div>
         </div>
       ))}
@@ -333,8 +341,8 @@ const EducationContent = () => (
       {educations.map((edu) => (
         <div key={edu.degree} style={bareCard}>
           <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 18, color: "#bf61ff", fontWeight: 700 }}>{edu.percentage}%</div>
-          <div style={{ fontFamily: "'Sora', sans-serif", fontSize: 11, color: "white", fontWeight: 600, marginTop: 4 }}>{edu.shortName}</div>
-          <div style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 10.5, color: "rgba(255,255,255,0.55)", marginTop: 2 }}>{edu.year}</div>
+          <div style={{ fontFamily: "'Space Grotesk', sans-serif", fontSize: 11, color: "white", fontWeight: 600, marginTop: 4 }}>{edu.shortName}</div>
+          <div style={{ fontFamily: "'Space Grotesk', sans-serif", fontSize: 10.5, color: "rgba(255,255,255,0.55)", marginTop: 2 }}>{edu.year}</div>
         </div>
       ))}
     </div>
@@ -351,16 +359,16 @@ const HobbiesContent = () => (
           <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 8, marginBottom: 4 }}>
             <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
               <span style={{ fontSize: 18 }}>{h.icon}</span>
-              <span style={{ fontFamily: "'Sora', sans-serif", fontSize: 13, color: "white", fontWeight: 600 }}>{h.name}</span>
+              <span style={{ fontFamily: "'Space Grotesk', sans-serif", fontSize: 13, color: "white", fontWeight: 600 }}>{h.name}</span>
             </div>
             {h.stat && (
               <span style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 9.5, color: "#61dafb", whiteSpace: "nowrap" }}>{h.stat.value}</span>
             )}
           </div>
-          <div style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 11.5, color: "rgba(255,255,255,0.68)", marginBottom: h.detail ? 5 : 0 }}>{h.tagline}</div>
+          <div style={{ fontFamily: "'Space Grotesk', sans-serif", fontSize: 11.5, color: "rgba(255,255,255,0.68)", marginBottom: h.detail ? 5 : 0 }}>{h.tagline}</div>
           {/* The engineering-analogy detail — connects hobby → how he thinks */}
           {h.detail && (
-            <div style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 10.5, color: "rgba(255,255,255,0.45)", lineHeight: 1.45, fontStyle: "italic" }}>{h.detail}</div>
+            <div style={{ fontFamily: "'Space Grotesk', sans-serif", fontSize: 10.5, color: "rgba(255,255,255,0.45)", lineHeight: 1.45, fontStyle: "italic" }}>{h.detail}</div>
           )}
         </div>
       ))}
@@ -375,7 +383,7 @@ const TestimonialsContent = () => (
     <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(240px, 1fr))", gap: 14 }}>
       {testimonials.map((t) => (
         <div key={t.name} style={bareCard}>
-          <div style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 12.5, color: "rgba(255,255,255,0.78)", lineHeight: 1.55, fontStyle: "italic" }}>
+          <div style={{ fontFamily: "'Space Grotesk', sans-serif", fontSize: 12.5, color: "rgba(255,255,255,0.78)", lineHeight: 1.55, fontStyle: "italic" }}>
             “{t.quote}”
           </div>
           <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 10, color: "rgba(255,255,255,0.55)", marginTop: 10 }}>
@@ -521,7 +529,9 @@ const ContentPanel = ({ destination }) => {
     el.scrollTop = 0;
     const update = () => {
       const overflow = el.scrollHeight - el.clientHeight;
-      setHasMore(overflow > 8 && el.scrollTop < overflow - 6);
+      /* Only signal "more" for a real overflow (>26px) — a few px of slack on
+         a section that essentially fits shouldn't nag with a scroll cue. */
+      setHasMore(overflow > 26 && el.scrollTop < overflow - 6);
     };
     update();
     const raf = requestAnimationFrame(update);
@@ -592,14 +602,15 @@ const ContentPanel = ({ destination }) => {
           left: 0,
           top: 0,
           bottom: 0,
-          width: "62%",
+          width: "66%",
           pointerEvents: "none",
           zIndex: 38,
           /* Pure-horizontal (no tilt) and fully transparent well before the
              div edge, so there's no visible panel boundary — just a soft
-             readability wash that dissolves into the scene. */
+             readability wash that dissolves into the scene. Darker + reaching
+             a little further right now the info column is wider. */
           background:
-            "linear-gradient(90deg, rgba(4,6,16,0.82) 0%, rgba(4,6,16,0.58) 30%, rgba(4,6,16,0.22) 56%, rgba(4,6,16,0) 80%)",
+            "linear-gradient(90deg, rgba(3,5,14,0.92) 0%, rgba(3,5,14,0.82) 34%, rgba(3,5,14,0.55) 53%, rgba(3,5,14,0.2) 72%, rgba(3,5,14,0) 100%)",
         }}
       />
       {/* Fixed frame — auto height (capped by the scroll area's max-height) so
@@ -607,9 +618,9 @@ const ContentPanel = ({ destination }) => {
       <div
         style={{
           position: "fixed",
-          left: "clamp(168px, 12.5vw, 230px)",
-          top: "9vh",
-          width: "clamp(360px, 36vw, 552px)",
+          left: "clamp(32px, 3vw, 60px)",
+          top: "6vh",
+          width: "clamp(480px, 44vw, 920px)",
           zIndex: 40,
           pointerEvents: "none",
         }}
@@ -618,9 +629,10 @@ const ContentPanel = ({ destination }) => {
           ref={scrollRef}
           className="stellar-content-left"
           style={{
-            maxHeight: "82vh",
+            maxHeight: "89vh",
             overflowY: "auto",
             overflowX: "hidden",
+            paddingLeft: 4,
             paddingRight: 14,
             color: "white",
             pointerEvents: "auto",
@@ -680,8 +692,8 @@ const ContentPanel = ({ destination }) => {
       </div>
       <style>{`
         @keyframes stellarContentIn {
-          0% { opacity: 0; transform: translateX(-12px); }
-          100% { opacity: 1; transform: translateX(0); }
+          0% { opacity: 0; transform: translateY(10px); }
+          100% { opacity: 1; transform: translateY(0); }
         }
         @keyframes stellarScrollCue {
           0%, 100% { opacity: 0.3; transform: translateY(0); }

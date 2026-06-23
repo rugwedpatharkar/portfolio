@@ -56,10 +56,11 @@ const MissionCountdown = ({ onComplete }) => {
       <div
         key={Math.max(n, 0)}
         style={{
-          fontSize: "clamp(72px, 14vw, 140px)",
-          fontWeight: 800,
+          fontSize: "clamp(64px, 12vw, 124px)",
+          fontWeight: 400,
           lineHeight: 1,
-          fontFamily: "'Sora', sans-serif",
+          fontFamily: "'Michroma', sans-serif",
+          letterSpacing: "0.02em",
           color: n <= 0 ? "#00cea8" : "#ffb86b",
           textShadow: `0 0 38px ${n <= 0 ? "#00cea899" : "#ffb86b88"}`,
           animation: "countdownPop 600ms cubic-bezier(0.25, 1.4, 0.5, 1)",

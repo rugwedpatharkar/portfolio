@@ -78,7 +78,7 @@ const PlanetHUD = ({ destination }) => {
       >
         <div style={{ display: "flex", alignItems: "center", gap: 7 }}>
           <span style={{ width: 6, height: 6, background: destination.color, borderRadius: "50%", flexShrink: 0, animation: "hudpulse 1.4s ease-in-out infinite" }} />
-          <span style={{ fontSize: 14, fontWeight: 700, fontFamily: "'Sora', sans-serif" }}>{destination.label || destination.id}</span>
+          <span style={{ fontSize: 12, fontFamily: "'Michroma', sans-serif", textTransform: "uppercase", letterSpacing: "0.03em" }}>{destination.label || destination.id}</span>
         </div>
         <div style={{ fontSize: 8.5, color: destination.color, letterSpacing: "0.1em", marginTop: 2, textTransform: "uppercase", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>
           {facts.class}
@@ -130,7 +130,7 @@ const PlanetHUD = ({ destination }) => {
         <span style={{ fontSize: 9, color: "rgba(255,255,255,0.4)" }}>{destination.id.toUpperCase()}</span>
       </div>
       {/* Big label */}
-      <div style={{ fontSize: 22, fontWeight: 700, color: "white", marginBottom: 2, fontFamily: "'Sora', sans-serif" }}>
+      <div style={{ fontSize: 16, color: "white", marginBottom: 5, fontFamily: "'Michroma', sans-serif", textTransform: "uppercase", letterSpacing: "0.04em", lineHeight: 1.18 }}>
         <Typed text={destination.label || destination.id} speed={28} deps={[destination.id]} />
       </div>
       <div style={{ fontSize: 9.5, color: destination.color, letterSpacing: "0.12em", marginBottom: 10, textTransform: "uppercase" }}>
@@ -187,7 +187,7 @@ const PlanetHUD = ({ destination }) => {
         </div>
         <span style={{ fontSize: 9, color: "rgba(255,255,255,0.4)" }}>{destination.id.toUpperCase()}</span>
       </div>
-      <div style={{ fontSize: 22, fontWeight: 700, color: "white", marginBottom: 2, fontFamily: "'Sora', sans-serif" }}>
+      <div style={{ fontSize: 16, color: "white", marginBottom: 5, fontFamily: "'Michroma', sans-serif", textTransform: "uppercase", letterSpacing: "0.04em", lineHeight: 1.18 }}>
         <Typed text={destination.label || destination.id} speed={28} deps={[destination.id]} />
       </div>
       <div style={{ fontSize: 9.5, color: destination.color, letterSpacing: "0.12em", marginBottom: 10, textTransform: "uppercase" }}>{facts.class}</div>
@@ -211,7 +211,7 @@ const PlanetHUD = ({ destination }) => {
               </div>
             ))}
           </div>
-          <div style={{ marginTop: 10, padding: "9px 11px", background: `${destination.color}12`, border: `1px solid ${destination.color}30`, borderRadius: 8, fontSize: 11, color: "rgba(255,255,255,0.86)", lineHeight: 1.5, fontStyle: "italic", fontFamily: "'DM Sans', sans-serif" }}>
+          <div style={{ marginTop: 10, padding: "9px 11px", background: `${destination.color}12`, border: `1px solid ${destination.color}30`, borderRadius: 8, fontSize: 11, color: "rgba(255,255,255,0.86)", lineHeight: 1.5, fontStyle: "italic", fontFamily: "'Space Grotesk', sans-serif" }}>
             <span style={{ color: destination.color, fontWeight: 600, fontStyle: "normal" }}>★ </span>{real.wow}
           </div>
         </div>
