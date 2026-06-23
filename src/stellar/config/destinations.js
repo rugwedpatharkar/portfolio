@@ -82,6 +82,14 @@ export const DESTINATIONS = [
        roughness → mirror-like → catch a sharp sun-glint; land bright →
        matte. (The raw spec map had oceans bright = the wrong way round.) */
     specularTexture: "/textures/planets/earth_roughness.jpg",
+    /* The Moon — one prominent satellite at ~0.27 Earth radius (the real
+       ratio, so it reads as THE Moon, not a pebble). Planet.jsx's moon loop
+       orbits + textures it; it rides Earth's OrbitGroup, so it follows Earth
+       around the sun while circling the planet. */
+    moons: 1,
+    moonColor: "#cfcdc9",
+    moonTexture: "/textures/planets/moonmap1k.jpg",
+    moonScale: 0.27,
     section: "experience",
     /* Earth — the standout hero shot. These exact values frame the
        day/night terminator without the sun flooding the lens; do not

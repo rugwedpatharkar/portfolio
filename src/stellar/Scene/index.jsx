@@ -21,6 +21,7 @@ import BlackHole from "./BlackHole";
 import LensFlare from "./LensFlare";
 import SolarProminences from "./SolarProminences";
 import EarthAurora from "./EarthAurora";
+import EarthStation from "./EarthStation";
 import DustParticles from "./DustParticles";
 import AdaptiveQuality from "./AdaptiveQuality";
 import AutoExposure from "./AutoExposure";
@@ -220,6 +221,11 @@ const Scene = ({ scrollT, activeIdx, onJump, onReady, freeRoamEnabled, wideRef, 
                 <OrbitGroup key={d.id} dest={d}>
                   {planetEl}
                   <EarthAurora position={[0, 0, 0]} radius={d.radius} />
+                  {/* ISS on low Earth orbit — inherits Earth's live solar
+                      position from the OrbitGroup, runs its own fast LEO. */}
+                  {showExtras && !isMobile && (
+                    <EarthStation planetRadius={d.radius} animate={!reducedMotion} />
+                  )}
                 </OrbitGroup>
               );
             }
