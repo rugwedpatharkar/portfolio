@@ -69,19 +69,31 @@ const DISK_FRAG = /* glsl */ `
 
 const BlackHole = ({ position = [0, 0, 0], radius = 2.2 }) => {
   const diskMat = useRef();
+  const haloMat = useRef();
   const diskGroup = useRef();
   const ringRef = useRef();
+  const haloRef = useRef();
 
   const diskUniforms = useMemo(
     () => ({ uTime: { value: 0 }, uInner: { value: radius * 1.25 }, uOuter: { value: radius * 4.2 } }),
     [radius]
   );
+  /* Lensed-halo uniforms — the bright wrap that arcs over/under the horizon
+     (the gravitationally lensed image of the far side of the disk). */
+  const haloUniforms = useMemo(
+    () => ({ uTime: { value: 0 }, uInner: { value: radius * 1.14 }, uOuter: { value: radius * 2.7 } }),
+    [radius]
+  );
 
   useFrame(({ clock, camera }) => {
     if (diskMat.current) diskMat.current.uniforms.uTime.value = clock.elapsedTime;
+    if (haloMat.current) haloMat.current.uniforms.uTime.value = clock.elapsedTime * 0.6;
     if (diskGroup.current) diskGroup.current.rotation.z = clock.elapsedTime * 0.05;
-    /* Photon ring billboards to the camera — it's the lensed light circle. */
+    /* Photon ring + lensed halo both billboard to the camera — the halo is
+       the Interstellar "wrap": the disk's far side bent up and over the hole
+       so it appears to ring the black sphere from every angle. */
     if (ringRef.current) ringRef.current.lookAt(camera.position);
+    if (haloRef.current) haloRef.current.lookAt(camera.position);
   });
 
   return (
@@ -92,10 +104,28 @@ const BlackHole = ({ position = [0, 0, 0], radius = 2.2 }) => {
         <meshBasicMaterial color="#000000" toneMapped={false} />
       </mesh>
 
-      {/* Photon ring — thin bright lensed circle, always facing camera. */}
+      {/* Lensed halo — the gravitational "wrap": the far side of the disk
+          bent up and over the horizon so the glow rings the black sphere
+          from any angle. Camera-facing, runs the disk shader. */}
+      <mesh ref={haloRef}>
+        <ringGeometry args={[radius * 1.14, radius * 2.7, 128, 4]} />
+        <shaderMaterial
+          ref={haloMat}
+          vertexShader={DISK_VERT}
+          fragmentShader={DISK_FRAG}
+          uniforms={haloUniforms}
+          transparent
+          depthWrite={false}
+          side={THREE.DoubleSide}
+          blending={THREE.AdditiveBlending}
+          toneMapped={false}
+        />
+      </mesh>
+
+      {/* Photon ring — thin, intense lensed circle hugging the horizon. */}
       <mesh ref={ringRef}>
-        <ringGeometry args={[radius * 1.02, radius * 1.12, 96]} />
-        <meshBasicMaterial color="#ffd9a0" transparent opacity={0.9} side={THREE.DoubleSide} toneMapped={false} depthWrite={false} blending={THREE.AdditiveBlending} />
+        <ringGeometry args={[radius * 1.03, radius * 1.13, 128]} />
+        <meshBasicMaterial color="#ffe7bd" transparent opacity={1} side={THREE.DoubleSide} toneMapped={false} depthWrite={false} blending={THREE.AdditiveBlending} />
       </mesh>
 
       {/* Accretion disk — tilted, swirling, Doppler-beamed. */}

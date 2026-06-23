@@ -18,6 +18,10 @@ import PlanetLabels from "./PlanetLabels";
 import Skybox from "./Skybox";
 import OrbitGroup from "./OrbitGroup";
 import BlackHole from "./BlackHole";
+import Comet from "./Comet";
+import Meteors from "./Meteors";
+import Pulsar from "./Pulsar";
+import Wormhole from "./Wormhole";
 import LensFlare from "./LensFlare";
 import SolarProminences from "./SolarProminences";
 import EarthAurora from "./EarthAurora";
@@ -157,6 +161,13 @@ const Scene = ({ scrollT, activeIdx, onJump, onReady, freeRoamEnabled, wideRef, 
             reach the edge of the system and there it is, pulling at the
             void. Framed behind the beacon on the contact stop. */}
         {showExtras && <BlackHole position={[49, -6, -15]} radius={1.9} />}
+        {/* Anomaly suite — the discoverable spectacle. All deferred behind
+            showExtras; motion-heavy ones respect reduced-motion + device. */}
+        {showExtras && !reducedMotion && <Comet />}
+        {showExtras && !isMobile && !reducedMotion && <Meteors />}
+        {showExtras && !isMobile && !reducedMotion && <Pulsar />}
+        {/* Wormhole "Beam aboard" portal at the Contact edge — the booking CTA. */}
+        {showExtras && <Wormhole />}
 
         {DESTINATIONS.map((d, idx) => {
           const handleClick = (e) => {
