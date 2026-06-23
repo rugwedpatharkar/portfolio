@@ -113,26 +113,132 @@ const bareCard = { padding: "1px 2px 8px" };
 
 /* ── Per-destination renderers ─────────────────────────────────────── */
 
-const HeroContent = () => (
-  <>
-    <SectionLabel color="#ffb86b">SOL · The center</SectionLabel>
-    <div style={{ display: "flex", gap: 24, alignItems: "center", margin: "0 0 16px 0" }}>
-      <Portrait size={170} color="#ffb86b" />
-      <div>
-        <h1 style={{ fontFamily: "'Michroma', sans-serif", fontSize: "clamp(22px, 2.1vw, 33px)", fontWeight: 400, color: "white", margin: 0, letterSpacing: "0.03em", lineHeight: 1.2, textTransform: "uppercase", textWrap: "balance" }}>{personalInfo.fullName}</h1>
-        <p style={{ fontFamily: "'Exo 2', sans-serif", fontSize: 17, color: "#ffd9a0", margin: "9px 0 0 0", fontWeight: 600, letterSpacing: "0.01em" }}>
-          Backend &amp; Agentic AI Engineer
-        </p>
+/* Scroll the tour to a stop index (Lenis if present). */
+const scrollToStop = (idx, total = 12) => {
+  if (typeof window === "undefined") return;
+  const max = (document.scrollingElement || document.documentElement).scrollHeight - window.innerHeight;
+  const y = (idx / (total - 1)) * max;
+  if (window.__lenis) window.__lenis.scrollTo(y, { duration: 1.3 });
+  else window.scrollTo({ top: y, behavior: "smooth" });
+};
+
+/* Typewriter that cycles the hero's specialties (frozen under reduced-motion). */
+const RoleRotator = () => {
+  const { reducedMotion } = useViewport();
+  const roles = heroContent.typewriterRoles;
+  const [i, setI] = useState(0);
+  const [shown, setShown] = useState(reducedMotion ? roles[0] : "");
+  const [deleting, setDeleting] = useState(false);
+  useEffect(() => {
+    if (reducedMotion) return undefined;
+    const full = roles[i];
+    let t;
+    if (!deleting) {
+      if (shown.length < full.length) t = setTimeout(() => setShown(full.slice(0, shown.length + 1)), 52);
+      else t = setTimeout(() => setDeleting(true), 1900);
+    } else if (shown.length > 0) {
+      t = setTimeout(() => setShown(full.slice(0, shown.length - 1)), 26);
+    } else {
+      setDeleting(false);
+      setI((p) => (p + 1) % roles.length);
+    }
+    return () => clearTimeout(t);
+  }, [shown, deleting, i, reducedMotion, roles]);
+  return (
+    <p style={{ fontFamily: "'Exo 2', sans-serif", fontSize: 17, color: "#ffd9a0", margin: "9px 0 0 0", fontWeight: 600, letterSpacing: "0.01em", minHeight: 24 }}>
+      {shown}
+      {!reducedMotion && <span style={{ opacity: 0.75, animation: "stellarCaret 1s step-end infinite" }}>▍</span>}
+    </p>
+  );
+};
+
+/* Count-up number for the hero stats (instant under reduced-motion). */
+const CountUp = ({ to, suffix }) => {
+  const { reducedMotion } = useViewport();
+  const [n, setN] = useState(reducedMotion ? to : 0);
+  useEffect(() => {
+    if (reducedMotion) return undefined;
+    let raf;
+    const start = performance.now();
+    const tick = (now) => {
+      const p = Math.min(1, (now - start) / 1200);
+      setN(Math.round(to * (1 - Math.pow(1 - p, 3))));
+      if (p < 1) raf = requestAnimationFrame(tick);
+    };
+    raf = requestAnimationFrame(tick);
+    return () => cancelAnimationFrame(raf);
+  }, [to, reducedMotion]);
+  return <>{n}{suffix}</>;
+};
+
+const HeroChip = ({ children, href, onClick, primary }) => {
+  const style = {
+    all: "unset",
+    boxSizing: "border-box",
+    display: "inline-flex",
+    alignItems: "center",
+    gap: 7,
+    padding: "9px 15px",
+    minHeight: 40,
+    borderRadius: 999,
+    cursor: "pointer",
+    fontFamily: "'JetBrains Mono', monospace",
+    fontSize: 11.5,
+    letterSpacing: "0.04em",
+    transition: "background 0.18s ease, border-color 0.18s ease",
+    background: primary ? "rgba(255,184,107,0.16)" : "rgba(255,255,255,0.05)",
+    border: `1px solid ${primary ? "rgba(255,184,107,0.5)" : "rgba(255,255,255,0.16)"}`,
+    color: primary ? "#ffd9a0" : "rgba(255,255,255,0.85)",
+  };
+  return href ? (
+    <a href={href} target="_blank" rel="noopener noreferrer" style={{ ...style, textDecoration: "none" }}>{children}</a>
+  ) : (
+    <button onClick={onClick} style={style}>{children}</button>
+  );
+};
+
+const HeroContent = () => {
+  const link = (label) => contactLinks.find((c) => c.label === label)?.href;
+  return (
+    <>
+      <SectionLabel color="#ffb86b">SOL · The center</SectionLabel>
+      <div style={{ display: "flex", gap: 24, alignItems: "center", margin: "0 0 16px 0" }}>
+        <Portrait size={170} color="#ffb86b" />
+        <div>
+          <h1 style={{ fontFamily: "'Michroma', sans-serif", fontSize: "clamp(22px, 2.1vw, 33px)", fontWeight: 400, color: "white", margin: 0, letterSpacing: "0.03em", lineHeight: 1.2, textTransform: "uppercase", textWrap: "balance" }}>{personalInfo.fullName}</h1>
+          <RoleRotator />
+        </div>
       </div>
-    </div>
-    <SectionLede>{heroContent.tagline}</SectionLede>
-    <div style={{ display: "flex", gap: 36, marginTop: 18, flexWrap: "wrap" }}>
-      {heroContent.stats.map((s) => (
-        <Stat key={s.label} label={s.label} value={`${s.value}${s.suffix}`} />
-      ))}
-    </div>
-  </>
-);
+      <SectionLede>{heroContent.tagline}</SectionLede>
+      <div style={{ display: "flex", gap: 36, marginTop: 16, flexWrap: "wrap" }}>
+        {heroContent.stats.map((s) => (
+          <div key={s.label} style={{ textAlign: "left" }}>
+            <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 22, color: "white", fontWeight: 700, lineHeight: 1 }}>
+              <CountUp to={s.value} suffix={s.suffix} />
+            </div>
+            <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 9.5, color: "rgba(255,255,255,0.6)", textTransform: "uppercase", letterSpacing: "0.08em", marginTop: 4 }}>{s.label}</div>
+          </div>
+        ))}
+      </div>
+      {/* Availability + location — a live, professional status line. */}
+      <div style={{ display: "flex", alignItems: "center", gap: 9, marginTop: 18, flexWrap: "wrap", fontFamily: "'JetBrains Mono', monospace", fontSize: 11, color: "rgba(255,255,255,0.62)" }}>
+        <span style={{ width: 7, height: 7, borderRadius: "50%", background: "#00cea8", boxShadow: "0 0 9px #00cea8", animation: "stellarStatusPulse 1.8s ease-in-out infinite", flexShrink: 0 }} />
+        <span style={{ color: "#7fe9cf" }}>Available for opportunities</span>
+        <span style={{ opacity: 0.4 }}>·</span>
+        <span>{personalInfo.location}</span>
+        <span style={{ opacity: 0.4 }}>·</span>
+        <span>{personalInfo.yearsExperience} yrs in production</span>
+      </div>
+      {/* Quick actions — clear next steps for a recruiter. */}
+      <div style={{ display: "flex", flexWrap: "wrap", gap: 9, marginTop: 18 }}>
+        <HeroChip primary onClick={() => scrollToStop(3)}>Explore my work ↓</HeroChip>
+        {link("GitHub") && <HeroChip href={link("GitHub")}>→ GitHub</HeroChip>}
+        {link("LinkedIn") && <HeroChip href={link("LinkedIn")}>→ LinkedIn</HeroChip>}
+        {link("Book a Call") && <HeroChip href={link("Book a Call")}>Book a call</HeroChip>}
+      </div>
+    </>
+  );
+};
 
 const AboutContent = () => (
   <>
@@ -675,10 +781,14 @@ const ContentPanel = ({ destination }) => {
                 left: 0,
                 right: 0,
                 bottom: 0,
-                height: 92,
+                height: 96,
                 pointerEvents: "none",
+                /* Matches the scrim colour, and masked to dissolve toward the
+                   right so there's no hard panel edge over the planet. */
                 background:
-                  "linear-gradient(to bottom, rgba(4,6,16,0) 0%, rgba(4,6,16,0.66) 64%, rgba(4,6,16,0.9) 100%)",
+                  "linear-gradient(to bottom, rgba(3,5,14,0) 0%, rgba(3,5,14,0.6) 60%, rgba(3,5,14,0.9) 100%)",
+                maskImage: "linear-gradient(to right, #000 28%, transparent 88%)",
+                WebkitMaskImage: "linear-gradient(to right, #000 28%, transparent 88%)",
               }}
             />
             <div

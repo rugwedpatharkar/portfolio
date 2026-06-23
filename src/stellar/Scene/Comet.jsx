@@ -37,8 +37,8 @@ const SUN = new THREE.Vector3(0, 0, 0);
 
 /* Slow drift across the inner system (sun at origin), so it's on-frame during
    the inner stops. Respawns to the start when it runs out the far side. */
-const START = new THREE.Vector3(20, 6, -12);
-const VEL = new THREE.Vector3(-2.0, -1.05, 2.45); // ~3.4 u/s — lingering
+const START = new THREE.Vector3(22, 9, -16);
+const VEL = new THREE.Vector3(-2.1, -0.7, 0.7); // crosses the mid-ground, not the foreground
 
 const Comet = () => {
   const headRef = useRef();
@@ -60,20 +60,22 @@ const Comet = () => {
     const p = pos.current;
     p.addScaledVector(VEL, d);
     /* Respawn once it has crossed to the far side. */
-    if (p.x < -18 || p.z > 18 || p.y < -14) p.copy(START);
+    if (p.x < -20 || p.z > 16 || p.y < -12) p.copy(START);
 
     if (headRef.current) headRef.current.position.copy(p);
 
-    /* ion tail — straight, anti-solar */
+    /* Both tails stream BEHIND the motion so the trail clearly follows the
+       trajectory (no "pointing the wrong way" confusion). The ion tail is thin
+       and dead-straight anti-velocity; the dust tail is broader with a slight
+       anti-solar lean for a touch of the real two-tail spread. */
+    antiVel.copy(VEL).normalize().multiplyScalar(-1);
     antiSun.copy(p).sub(SUN).normalize();
     if (ionRef.current) {
       ionRef.current.position.copy(p);
-      q.setFromUnitVectors(UP, antiSun);
+      q.setFromUnitVectors(UP, antiVel);
       ionRef.current.quaternion.copy(q);
     }
-    /* dust tail — curved: blend of anti-solar and anti-velocity (the lag) */
-    antiVel.copy(VEL).normalize().multiplyScalar(-1);
-    dustDir.copy(antiSun).multiplyScalar(0.68).addScaledVector(antiVel, 0.55).normalize();
+    dustDir.copy(antiVel).multiplyScalar(0.84).addScaledVector(antiSun, 0.26).normalize();
     if (dustRef.current) {
       dustRef.current.position.copy(p);
       q.setFromUnitVectors(UP, dustDir);
@@ -81,8 +83,8 @@ const Comet = () => {
     }
   });
 
-  const ionLen = 5.2;
-  const dustLen = 3.4;
+  const ionLen = 4.6;
+  const dustLen = 3.0;
 
   return (
     <group>
@@ -96,7 +98,7 @@ const Comet = () => {
           nucleus), apex out along the tail direction. */}
       <group ref={ionRef}>
         <mesh position={[0, ionLen / 2, 0]}>
-          <coneGeometry args={[0.16, ionLen, 14, 1, true]} />
+          <coneGeometry args={[0.09, ionLen, 14, 1, true]} />
           <shaderMaterial
             vertexShader={TAIL_VERT}
             fragmentShader={TAIL_FRAG}
@@ -113,7 +115,7 @@ const Comet = () => {
       {/* Dust tail — broader, shorter, curved. */}
       <group ref={dustRef}>
         <mesh position={[0, dustLen / 2, 0]}>
-          <coneGeometry args={[0.42, dustLen, 16, 1, true]} />
+          <coneGeometry args={[0.17, dustLen, 16, 1, true]} />
           <shaderMaterial
             vertexShader={TAIL_VERT}
             fragmentShader={TAIL_FRAG}

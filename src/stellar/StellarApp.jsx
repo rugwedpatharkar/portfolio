@@ -337,6 +337,8 @@ const StellarApp = () => {
           border-radius: 5px;
         }
         @keyframes stellarChevron { 0%, 100% { transform: translateY(0); opacity: 0.55; } 50% { transform: translateY(4px); opacity: 1; } }
+        @keyframes stellarCaret { 50% { opacity: 0; } }
+        @keyframes stellarStatusPulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.45; } }
         @media (prefers-reduced-motion: reduce) { * { animation-duration: 0.001ms !important; animation-iteration-count: 1 !important; } }
       `}</style>
       <Scene

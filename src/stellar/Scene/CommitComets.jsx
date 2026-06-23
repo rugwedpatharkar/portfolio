@@ -134,7 +134,7 @@ const Comet = ({ state, onRespawn }) => {
         <spriteMaterial map={HEAD_TEX} color={s.color} transparent opacity={0.95} depthWrite={false} depthTest={false} blending={THREE.AdditiveBlending} />
       </sprite>
       <mesh ref={tailRef} position={[0, TAIL_H / 2, 0]}>
-        <coneGeometry args={[0.14, TAIL_H, 18, 1, true]} />
+        <coneGeometry args={[0.085, TAIL_H, 18, 1, true]} />
         <shaderMaterial
           vertexShader={TAIL_VERT}
           fragmentShader={TAIL_FRAG}
