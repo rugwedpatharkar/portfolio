@@ -50,7 +50,6 @@ const PlanetHUD = ({ destination }) => {
   const facts = useMemo(() => PLANET_FACTS[destination?.id] || null, [destination]);
   const real = useMemo(() => REAL_FACTS[destination?.id] || null, [destination]);
   const { isMobile, isCompact } = useViewport();
-  const [factsOpen, setFactsOpen] = useState(false);
   if (!destination || !facts) return null;
 
   /* Mobile: a compact single chip — target dot + planet name + class.
@@ -173,7 +172,9 @@ const PlanetHUD = ({ destination }) => {
         color: "white",
         fontFamily: "'JetBrains Mono', monospace",
         zIndex: 45,
-        pointerEvents: "auto",
+        /* No interactive controls now (Real Data is always open), so let
+           wheel/drag pass through to the scene for camera navigation. */
+        pointerEvents: "none",
         /* Panel-less — bare text like the left column, with a soft shadow so
            it stays legible over the scene. */
         textShadow: "0 1px 10px rgba(0,0,0,0.9), 0 0 3px rgba(0,0,0,0.7)",
@@ -198,27 +199,21 @@ const PlanetHUD = ({ destination }) => {
       <div style={{ marginTop: 9, paddingTop: 8, borderTop: `1px dashed ${destination.color}33`, fontSize: 10, color: "rgba(255,255,255,0.55)", fontStyle: "italic" }}>{facts.note}</div>
       {real && (
         <div style={{ marginTop: 10, paddingTop: 9, borderTop: "1px solid rgba(255,255,255,0.08)" }}>
-          <button
-            onClick={() => setFactsOpen((v) => !v)}
-            style={{ all: "unset", cursor: "pointer", display: "flex", alignItems: "center", gap: 7, fontFamily: "'JetBrains Mono', monospace", fontSize: 9.5, color: destination.color, letterSpacing: "0.1em", textTransform: "uppercase" }}
-          >
-            <span>{factsOpen ? "▼" : "▶"}</span><span>Real data</span>
-          </button>
-          {factsOpen && (
-            <div style={{ marginTop: 9 }}>
-              <div style={{ display: "grid", gridTemplateColumns: "auto 1fr", gap: "4px 12px", fontSize: 10 }}>
-                {realRows.map(([k, v]) => (
-                  <div key={k} style={{ display: "contents" }}>
-                    <span style={{ color: "rgba(255,255,255,0.4)", textTransform: "uppercase", letterSpacing: "0.06em" }}>{k}</span>
-                    <span style={{ color: "rgba(255,255,255,0.82)" }}>{v}</span>
-                  </div>
-                ))}
+          <div style={{ display: "flex", alignItems: "center", gap: 7, fontFamily: "'JetBrains Mono', monospace", fontSize: 9.5, color: destination.color, letterSpacing: "0.1em", textTransform: "uppercase", marginBottom: 9 }}>
+            <span style={{ width: 5, height: 5, borderRadius: "50%", background: destination.color }} />
+            <span>Real data</span>
+          </div>
+          <div style={{ display: "grid", gridTemplateColumns: "auto 1fr", gap: "4px 12px", fontSize: 10 }}>
+            {realRows.map(([k, v]) => (
+              <div key={k} style={{ display: "contents" }}>
+                <span style={{ color: "rgba(255,255,255,0.4)", textTransform: "uppercase", letterSpacing: "0.06em" }}>{k}</span>
+                <span style={{ color: "rgba(255,255,255,0.82)" }}>{v}</span>
               </div>
-              <div style={{ marginTop: 10, padding: "9px 11px", background: `${destination.color}12`, border: `1px solid ${destination.color}30`, borderRadius: 8, fontSize: 11, color: "rgba(255,255,255,0.86)", lineHeight: 1.5, fontStyle: "italic", fontFamily: "'DM Sans', sans-serif" }}>
-                <span style={{ color: destination.color, fontWeight: 600, fontStyle: "normal" }}>★ </span>{real.wow}
-              </div>
-            </div>
-          )}
+            ))}
+          </div>
+          <div style={{ marginTop: 10, padding: "9px 11px", background: `${destination.color}12`, border: `1px solid ${destination.color}30`, borderRadius: 8, fontSize: 11, color: "rgba(255,255,255,0.86)", lineHeight: 1.5, fontStyle: "italic", fontFamily: "'DM Sans', sans-serif" }}>
+            <span style={{ color: destination.color, fontWeight: 600, fontStyle: "normal" }}>★ </span>{real.wow}
+          </div>
         </div>
       )}
       <style>{`@keyframes hudpulse { 0%,100% { opacity: 1; } 50% { opacity: 0.6; } }`}</style>

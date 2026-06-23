@@ -1,5 +1,5 @@
 /* eslint-disable react/prop-types */
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import useViewport from "./useViewport";
 import { PLANET_FACTS } from "./data/planetFacts";
 import heroPhoto from "../assets/hero-photo-1024.webp";
@@ -31,43 +31,11 @@ import {
  * the planet metaphor — not a copy-paste of the original section HTML.
  */
 
-const TYPED = ({ text, speed = 18 }) => {
-  const [shown, setShown] = useState("");
-  useEffect(() => {
-    let i = 0;
-    let cancelled = false;
-    const tick = () => {
-      if (cancelled) return;
-      i++;
-      setShown(text.slice(0, i));
-      if (i < text.length) setTimeout(tick, speed);
-    };
-    setTimeout(tick, speed);
-    return () => { cancelled = true; };
-  }, [text, speed]);
-  return <span>{shown}</span>;
-};
-
 const Stat = ({ label, value }) => (
   <div style={{ textAlign: "left" }}>
     <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 22, color: "white", fontWeight: 700, lineHeight: 1 }}>{value}</div>
     <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 9, color: "rgba(255,255,255,0.5)", textTransform: "uppercase", letterSpacing: "0.08em", marginTop: 4 }}>{label}</div>
   </div>
-);
-
-const PILL = ({ children, color = "#915eff" }) => (
-  <span style={{
-    display: "inline-flex",
-    alignItems: "center",
-    padding: "3px 9px",
-    borderRadius: 12,
-    background: `${color}1f`,
-    border: `1px solid ${color}40`,
-    color,
-    fontFamily: "'JetBrains Mono', monospace",
-    fontSize: 10,
-    margin: "0 4px 4px 0",
-  }}>{children}</span>
 );
 
 const SectionLabel = ({ children, color = "#b8a0ff" }) => (
@@ -540,6 +508,32 @@ const ContentPanel = ({ destination }) => {
   /* Cross-fade key — re-mounts the inner content on destination change
      for a clean slide-up transition. */
   const fadeKey = destination?.id || "none";
+
+  /* Desktop left-column scroll affordance: reset to the top on every
+     destination change, and surface a bottom fade + "scroll" cue while
+     there's more content below. Lenis (allowNestedScroll) chains back to
+     camera-navigation once the column hits its bottom. */
+  const scrollRef = useRef(null);
+  const [hasMore, setHasMore] = useState(false);
+  useEffect(() => {
+    const el = scrollRef.current;
+    if (!el) return undefined;
+    el.scrollTop = 0;
+    const update = () => {
+      const overflow = el.scrollHeight - el.clientHeight;
+      setHasMore(overflow > 8 && el.scrollTop < overflow - 6);
+    };
+    update();
+    const raf = requestAnimationFrame(update);
+    el.addEventListener("scroll", update, { passive: true });
+    window.addEventListener("resize", update);
+    return () => {
+      cancelAnimationFrame(raf);
+      el.removeEventListener("scroll", update);
+      window.removeEventListener("resize", update);
+    };
+  }, [fadeKey, isCompact]);
+
   if (!Renderer) return null;
 
   /* Compact (<1024px): the original centred bottom-sheet — the side-by-side
@@ -608,37 +602,95 @@ const ContentPanel = ({ destination }) => {
             "linear-gradient(90deg, rgba(4,6,16,0.82) 0%, rgba(4,6,16,0.58) 30%, rgba(4,6,16,0.22) 56%, rgba(4,6,16,0) 80%)",
         }}
       />
+      {/* Fixed frame — auto height (capped by the scroll area's max-height) so
+          the bottom fade + scroll cue sit at the column's real bottom edge. */}
       <div
-        className="stellar-content-left"
         style={{
           position: "fixed",
           left: "clamp(168px, 12.5vw, 230px)",
-          top: "11vh",
+          top: "9vh",
           width: "clamp(360px, 36vw, 552px)",
-          maxHeight: "72vh",
-          overflowY: "auto",
-          overflowX: "hidden",
-          paddingRight: 16,
-          color: "white",
           zIndex: 40,
-          pointerEvents: "auto",
-          fontSize: "14.5px",
-          WebkitOverflowScrolling: "touch",
+          pointerEvents: "none",
         }}
       >
-        <div key={fadeKey} style={{ animation: "stellarContentIn 340ms cubic-bezier(0.16, 1, 0.3, 1)" }}>
-          <Renderer />
+        <div
+          ref={scrollRef}
+          className="stellar-content-left"
+          style={{
+            maxHeight: "82vh",
+            overflowY: "auto",
+            overflowX: "hidden",
+            paddingRight: 14,
+            color: "white",
+            pointerEvents: "auto",
+            fontSize: "14.5px",
+            WebkitOverflowScrolling: "touch",
+          }}
+        >
+          <div key={fadeKey} style={{ animation: "stellarContentIn 340ms cubic-bezier(0.16, 1, 0.3, 1)" }}>
+            <Renderer />
+          </div>
         </div>
+        {/* More-content affordance — only while the column can scroll further.
+            Fixes "it's only showing half the information": the fade hints
+            depth, the cue invites the scroll. */}
+        {hasMore && (
+          <>
+            <div
+              aria-hidden
+              style={{
+                position: "absolute",
+                left: 0,
+                right: 0,
+                bottom: 0,
+                height: 92,
+                pointerEvents: "none",
+                background:
+                  "linear-gradient(to bottom, rgba(4,6,16,0) 0%, rgba(4,6,16,0.66) 64%, rgba(4,6,16,0.9) 100%)",
+              }}
+            />
+            <div
+              aria-hidden
+              style={{
+                position: "absolute",
+                left: 0,
+                right: 14,
+                bottom: 6,
+                display: "flex",
+                justifyContent: "center",
+                pointerEvents: "none",
+              }}
+            >
+              <span
+                style={{
+                  fontFamily: "'JetBrains Mono', monospace",
+                  fontSize: 9.5,
+                  letterSpacing: "0.16em",
+                  textTransform: "uppercase",
+                  color: "rgba(255,255,255,0.55)",
+                  animation: "stellarScrollCue 1.8s ease-in-out infinite",
+                }}
+              >
+                scroll ↓
+              </span>
+            </div>
+          </>
+        )}
       </div>
       <style>{`
         @keyframes stellarContentIn {
           0% { opacity: 0; transform: translateX(-12px); }
           100% { opacity: 1; transform: translateX(0); }
         }
-        .stellar-content-left::-webkit-scrollbar { width: 5px; }
-        .stellar-content-left::-webkit-scrollbar-track { background: transparent; }
-        .stellar-content-left::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.14); border-radius: 3px; }
-        .stellar-content-left { scrollbar-width: thin; scrollbar-color: rgba(255,255,255,0.14) transparent; }
+        @keyframes stellarScrollCue {
+          0%, 100% { opacity: 0.3; transform: translateY(0); }
+          50% { opacity: 0.85; transform: translateY(3px); }
+        }
+        /* Clean UI — hide the column scrollbar; the bottom fade + cue carry
+           the "there's more" signal instead. */
+        .stellar-content-left::-webkit-scrollbar { width: 0; height: 0; display: none; }
+        .stellar-content-left { scrollbar-width: none; }
       `}</style>
     </>
   );

@@ -27,6 +27,11 @@ const Navigator = ({ scrollTRef, onDestinationChange, velocityRef }) => {
       lerp: 0.16,
       wheelMultiplier: 1.15,
       touchMultiplier: 1.6,
+      /* Let the left info column (overflow-y:auto) scroll natively under the
+         wheel/touch, and CHAIN back to camera-navigation at its top/bottom
+         edge. Without this Lenis swallows every wheel event for the camera,
+         so the tall section content was unreachable ("half information"). */
+      allowNestedScroll: true,
     });
     lenisRef.current = lenis;
     // Expose for debugging — usable in DevTools as `window.__lenis.scrollTo(targetY)`
