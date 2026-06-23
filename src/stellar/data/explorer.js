@@ -91,3 +91,104 @@ export const saveProgress = (patch) => {
   write(p);
   return p;
 };
+
+/* ── Discovery / Explorer Rank model ──────────────────────────────────────
+ *
+ * The off-rail objects that count toward Explorer Rank. The 12 résumé planets
+ * are the mandatory scroll tour, so they DON'T count — rank rewards leaving the
+ * rail and exploring. `hunt: true` marks the 9 homage ships that form the
+ * "anomalies X / 9" scavenger hunt (masked + cryptic-hinted until found); the 4
+ * plain anomalies are self-evident on the map so they count but aren't hunted.
+ */
+export const DISCOVERABLE = [
+  { id: "blackhole", label: "Gargantua", color: "#ffb066", hunt: false },
+  { id: "wormhole", label: "Wormhole", color: "#9a7dff", hunt: false },
+  { id: "pulsar", label: "Pulsar", color: "#9fd0ff", hunt: false },
+  { id: "voyager", label: "Voyager Probes", color: "#ffd9a0", hunt: false },
+  { id: "deathstar", label: "Death Star", color: "#c9ccd6", hunt: true, hint: "That's no moon — it shadows the asteroid belt." },
+  { id: "enterprise", label: "USS Enterprise", color: "#9fc8ff", hunt: true, hint: "Boldly going, high over the inner planets." },
+  { id: "endurance", label: "Endurance", color: "#cfd6e0", hunt: true, hint: "A slowly spinning ring on the long voyage out." },
+  { id: "stardestroyer", label: "Star Destroyer", color: "#aeb6c4", hunt: true, hint: "An Imperial wedge looms in the deep field." },
+  { id: "cooperstation", label: "Cooper Station", color: "#d0d6dd", hunt: true, hint: "Humanity's cylinder, turning near the rings." },
+  { id: "tardis", label: "TARDIS", color: "#5b8dff", hunt: true, hint: "A blue box by Saturn. Blink and it's gone." },
+  { id: "hal", label: "HAL 9000", color: "#ff5a4d", hunt: true, hint: "An unblinking red eye near the giant." },
+  { id: "walle", label: "WALL·E", color: "#e2a85a", hunt: true, hint: "A lonely worker, far past the blue giant." },
+  { id: "watney", label: "Watney's Potato", color: "#c1632e", hunt: true, hint: "Someone grew dinner on the red planet." },
+];
+
+const DISCOVERABLE_IDS = new Set(DISCOVERABLE.map((d) => d.id));
+export const HUNT_IDS = DISCOVERABLE.filter((d) => d.hunt).map((d) => d.id);
+const N_DISCOVERABLE = DISCOVERABLE.length; // 13
+
+/* Rank tiers keyed off how many objects you've charted. */
+export const RANK_TIERS = [
+  { tier: 0, label: "Cadet", min: 0 },
+  { tier: 1, label: "Ensign", min: 2 },
+  { tier: 2, label: "Pilot", min: 4 },
+  { tier: 3, label: "Navigator", min: 6 },
+  { tier: 4, label: "Commander", min: 9 },
+  { tier: 5, label: "Captain", min: 11 },
+  { tier: 6, label: "Fleet Admiral", min: 13 },
+];
+
+/* Fired whenever progress changes (a new chart, visit, or badge) so the rank
+   meter + discoveries view refresh without prop-drilling. */
+const announce = () => {
+  if (typeof window !== "undefined") window.dispatchEvent(new CustomEvent("stellar:progress"));
+};
+
+export const chartedSet = () =>
+  new Set(loadProgress().charted.filter((id) => DISCOVERABLE_IDS.has(id)));
+export const chartedCount = () => chartedSet().size;
+
+/* Record a newly-discovered object. Idempotent; returns true only on a NEW
+   discovery (so callers can fire a one-shot cue). Announces progress. */
+export const markCharted = (id) => {
+  if (!DISCOVERABLE_IDS.has(id)) return false;
+  const p = loadProgress();
+  if (p.charted.includes(id)) return false;
+  saveProgress({ charted: [...p.charted, id] });
+  announce();
+  return true;
+};
+
+/* Record a visited résumé stop (powers the greeting + "stops X / 12"). */
+export const markVisited = (id) => {
+  const p = loadProgress();
+  if (p.visited[id]) return false;
+  saveProgress({ visited: { ...p.visited, [id]: true } });
+  announce();
+  return true;
+};
+export const visitedCount = () => Object.keys(loadProgress().visited).length;
+
+export const rankFor = (count = chartedCount()) => {
+  let cur = RANK_TIERS[0];
+  for (const t of RANK_TIERS) if (count >= t.min) cur = t;
+  const next = RANK_TIERS.find((t) => t.min > count) || null;
+  return {
+    tier: cur.tier,
+    label: cur.label,
+    count,
+    total: N_DISCOVERABLE,
+    next: next ? next.label : null,
+    remaining: next ? next.min - count : 0,
+  };
+};
+
+/* Everything the Discoveries view renders. Badges are composed separately by
+   the UI (from the achievements registry) to avoid a circular import. */
+export const getDiscoveriesModel = () => {
+  const charted = chartedSet();
+  const hunt = DISCOVERABLE.filter((d) => d.hunt).map((d) => {
+    const found = charted.has(d.id);
+    return { id: d.id, color: d.color, found, hint: d.hint, label: found ? d.label : "???" };
+  });
+  return {
+    rank: rankFor(charted.size),
+    hunt: { found: hunt.filter((h) => h.found).length, total: HUNT_IDS.length, items: hunt },
+    anomalies: DISCOVERABLE.map((d) => ({
+      id: d.id, label: d.label, color: d.color, found: charted.has(d.id), hunt: d.hunt,
+    })),
+  };
+};

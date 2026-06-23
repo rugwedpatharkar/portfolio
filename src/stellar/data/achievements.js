@@ -34,6 +34,16 @@ export const ACHIEVEMENTS = [
     hint: "Visit all 12 destinations in under 60 seconds." },
   { id: "explorer", label: "Free Roamer", icon: "⌖", color: "#ffb86b",
     hint: "Enable free roam and fly the system." },
+  { id: "enterprise", label: "Boldly Gone", icon: "🖖", color: "#9fc8ff",
+    hint: "Find the USS Enterprise." },
+  { id: "endurance", label: "Docking Sequence", icon: "◍", color: "#cfd6e0",
+    hint: "Find the Endurance." },
+  { id: "stardestroyer", label: "Imperial Sighting", icon: "◤", color: "#aeb6c4",
+    hint: "Spot the Star Destroyer in the deep field." },
+  { id: "hal", label: "Open the Pod Bay", icon: "⊙", color: "#ff5a4d",
+    hint: "Find HAL 9000." },
+  { id: "anomaly_hunter", label: "Anomaly Hunter", icon: "✦", color: "#7df2c0",
+    hint: "Chart all 9 hidden anomalies." },
 ];
 
 export const ACHIEVEMENTS_BY_ID = Object.fromEntries(ACHIEVEMENTS.map((a) => [a.id, a]));

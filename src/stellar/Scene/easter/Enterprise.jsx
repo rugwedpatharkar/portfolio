@@ -33,7 +33,15 @@ const Enterprise = () => {
   };
 
   return (
-    <group ref={ref} position={POSITION} rotation={[0.1, -0.6, 0.05]} scale={0.9} onClick={handleClick}>
+    <group
+      ref={ref}
+      position={POSITION}
+      rotation={[0.1, -0.6, 0.05]}
+      scale={0.9}
+      onClick={handleClick}
+      onPointerOver={() => { document.body.style.cursor = "pointer"; }}
+      onPointerOut={() => { document.body.style.cursor = ""; }}
+    >
       {/* Saucer — primary hull */}
       <mesh position={[0.28, 0.04, 0]}>
         <cylinderGeometry args={[0.3, 0.3, 0.055, 28]} />

@@ -10,6 +10,8 @@ export const CMD = {
   DESTINATION: "stellar:destination",
   WHOOSH: "stellar:whoosh",
   SHAKE: "stellar:shake",
+  /* Gamification progress changed (chart / visit / badge) — UI re-reads */
+  PROGRESS: "stellar:progress",
   /* Achievements + challenges (already wired listeners) */
   SALUTE: "stellar:salute",
   KONAMI: "stellar:konami",

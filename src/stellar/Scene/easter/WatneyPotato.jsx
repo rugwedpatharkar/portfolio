@@ -20,9 +20,18 @@ const WatneyPotato = () => {
     if (groupRef.current) groupRef.current.visible = camera.position.distanceTo(POSITION_VEC) < 5.5;
   });
 
+  const handleClick = (e) => {
+    e.stopPropagation();
+    window.dispatchEvent(new CustomEvent("stellar:watney"));
+  };
+
   return (
     <group ref={groupRef} position={POSITION}>
-      <mesh>
+      <mesh
+        onClick={handleClick}
+        onPointerOver={() => { document.body.style.cursor = "pointer"; }}
+        onPointerOut={() => { document.body.style.cursor = ""; }}
+      >
         <sphereGeometry args={[0.04, 10, 8]} />
         <meshStandardMaterial color="#a07a4a" roughness={0.95} />
       </mesh>

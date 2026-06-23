@@ -38,8 +38,23 @@ const Tardis = () => {
     }
   });
 
+  /* R3F already suppresses pointer events on meshes whose object.visible
+     is false, so this only fires while the TARDIS is phased in. We also
+     mirror the visibility check off the ref as an explicit guard. */
+  const handleClick = (e) => {
+    e.stopPropagation();
+    if (!groupRef.current?.visible) return;
+    window.dispatchEvent(new CustomEvent("stellar:tardis"));
+  };
+
   return (
-    <group ref={groupRef} position={POSITION}>
+    <group
+      ref={groupRef}
+      position={POSITION}
+      onClick={handleClick}
+      onPointerOver={() => { document.body.style.cursor = "pointer"; }}
+      onPointerOut={() => { document.body.style.cursor = ""; }}
+    >
       {/* Box body */}
       <mesh>
         <boxGeometry args={[0.32, 0.55, 0.32]} />

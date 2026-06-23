@@ -26,11 +26,17 @@ const HalEye = () => {
 
   const handleClick = (e) => {
     e.stopPropagation();
+    window.dispatchEvent(new CustomEvent("stellar:hal"));
     console.log("%c\"I'm sorry, Dave. I'm afraid I can't do that.\"", "color: #ff4040; font-size: 13px; font-family: monospace;");
   };
 
   return (
-    <group position={POSITION} onClick={handleClick}>
+    <group
+      position={POSITION}
+      onClick={handleClick}
+      onPointerOver={() => { document.body.style.cursor = "pointer"; }}
+      onPointerOut={() => { document.body.style.cursor = ""; }}
+    >
       <mesh>
         <boxGeometry args={[0.7, 0.7, 0.06]} />
         <meshStandardMaterial color="#0a0a0a" metalness={0.6} roughness={0.4} />

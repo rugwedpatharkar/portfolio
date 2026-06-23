@@ -16,8 +16,20 @@ const CooperStation = () => {
     if (cylRef.current) cylRef.current.rotation.z += dt * 0.6;
   });
 
+  const handleClick = (e) => {
+    e.stopPropagation();
+    window.dispatchEvent(new CustomEvent("stellar:cooperstation"));
+  };
+
   return (
-    <group ref={cylRef} position={POSITION} rotation={[0, 0, Math.PI / 4]}>
+    <group
+      ref={cylRef}
+      position={POSITION}
+      rotation={[0, 0, Math.PI / 4]}
+      onClick={handleClick}
+      onPointerOver={() => { document.body.style.cursor = "pointer"; }}
+      onPointerOut={() => { document.body.style.cursor = ""; }}
+    >
       <mesh>
         <cylinderGeometry args={[0.16, 0.16, 0.6, 18]} />
         <meshStandardMaterial color="#d8d8d8" roughness={0.4} metalness={0.6} />

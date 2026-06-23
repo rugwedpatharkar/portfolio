@@ -28,7 +28,13 @@ const Endurance = () => {
   };
 
   return (
-    <group position={POSITION} rotation={[Math.PI * 0.34, 0.35, 0]} onClick={handleClick}>
+    <group
+      position={POSITION}
+      rotation={[Math.PI * 0.34, 0.35, 0]}
+      onClick={handleClick}
+      onPointerOver={() => { document.body.style.cursor = "pointer"; }}
+      onPointerOut={() => { document.body.style.cursor = ""; }}
+    >
       <group ref={ringRef}>
         {/* Connecting ring */}
         <mesh>

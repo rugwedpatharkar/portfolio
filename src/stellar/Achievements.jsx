@@ -2,6 +2,7 @@
 import { useEffect, useRef, useState } from "react";
 import { DESTINATIONS } from "./config/destinations";
 import { ACHIEVEMENTS, ACHIEVEMENTS_BY_ID, persistUnlocked, unlockedSet } from "./data/achievements";
+import { markCharted, chartedSet, HUNT_IDS } from "./data/explorer";
 
 /*
  * Listens to navigation + custom events, tracks unlocked achievements
@@ -26,7 +27,7 @@ import { ACHIEVEMENTS, ACHIEVEMENTS_BY_ID, persistUnlocked, unlockedSet } from "
 const INNER = new Set(["about", "funfacts", "experience", "projects"]);
 const GIANTS = new Set(["skills", "notes", "education", "hobbies"]);
 
-const Achievements = ({ activeIdx }) => {
+const Achievements = ({ activeIdx, showStrip = true }) => {
   const [unlocked, setUnlocked] = useState(() => unlockedSet());
   const [toast, setToast] = useState(null);
   const visitedRef = useRef(new Set());
@@ -61,23 +62,48 @@ const Achievements = ({ activeIdx }) => {
     if (DESTINATIONS.every((d) => v.has(d.id))) unlock("all_destinations");
   }, [activeIdx]);
 
-  /* Custom event triggers */
+  /* Custom event triggers — badges + discovery charting. */
   useEffect(() => {
+    /* Charting a homage ship advances Explorer Rank; five of them also unlock a
+       named badge (the other four count only toward rank + the meta-badge). */
+    const find = (chartId, badgeId) => () => {
+      markCharted(chartId);
+      if (badgeId) unlock(badgeId);
+    };
     const evts = [
       ["stellar:konami", () => unlock("konami")],
       ["stellar:salute", () => unlock("salute")],
-      ["stellar:deathstar", () => unlock("death_star")],
       ["stellar:answer42", () => unlock("the_answer")],
       ["stellar:freeroam", () => unlock("explorer")],
       ["stellar:speedrun", (e) => { if (e.detail?.seconds && e.detail.seconds < 60) unlock("speed_runner"); }],
+      ["stellar:deathstar", find("deathstar", "death_star")],
+      ["stellar:enterprise", find("enterprise", "enterprise")],
+      ["stellar:endurance", find("endurance", "endurance")],
+      ["stellar:stardestroyer", find("stardestroyer", "stardestroyer")],
+      ["stellar:hal", find("hal", "hal")],
+      ["stellar:cooperstation", find("cooperstation")],
+      ["stellar:walle", find("walle")],
+      ["stellar:tardis", find("tardis")],
+      ["stellar:watney", find("watney")],
+      /* Meta-badge: all 9 hidden anomalies charted. Listens to the generic
+         progress event so it also catches charting done via the overview map. */
+      ["stellar:progress", () => { if (HUNT_IDS.every((id) => chartedSet().has(id))) unlock("anomaly_hunter"); }],
     ];
     evts.forEach(([k, fn]) => window.addEventListener(k, fn));
     return () => evts.forEach(([k, fn]) => window.removeEventListener(k, fn));
   }, []);
 
+  /* Announce badge changes AFTER commit (never during render) so the rank meter
+     + log refresh without a cross-component setState-in-render warning. */
+  useEffect(() => {
+    window.dispatchEvent(new CustomEvent("stellar:progress"));
+  }, [unlocked]);
+
   return (
     <>
-      {/* Mission patch strip — top-right under the minimap */}
+      {/* Mission-patch strip — top-right. Hidden by default when mounted next
+          to the Discoveries log (which renders the full badge grid). */}
+      {showStrip && (
       <div
         style={{
           position: "fixed",
@@ -118,6 +144,7 @@ const Achievements = ({ activeIdx }) => {
           );
         })}
       </div>
+      )}
 
       {/* Unlock toast */}
       {toast && (

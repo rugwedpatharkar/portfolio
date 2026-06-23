@@ -39,7 +39,15 @@ const StarDestroyer = () => {
   };
 
   return (
-    <group ref={ref} position={POSITION} rotation={[0.18, -0.5, 0]} scale={1.1} onClick={handleClick}>
+    <group
+      ref={ref}
+      position={POSITION}
+      rotation={[0.18, -0.5, 0]}
+      scale={1.1}
+      onClick={handleClick}
+      onPointerOver={() => { document.body.style.cursor = "pointer"; }}
+      onPointerOut={() => { document.body.style.cursor = ""; }}
+    >
       {/* Hull — geometry lies in XY; rotate so it spreads in the XZ plane,
           thin axis vertical. */}
       <mesh geometry={hull} rotation={[-Math.PI / 2, 0, 0]}>

@@ -19,8 +19,19 @@ const WallE = () => {
     }
   });
 
+  const handleClick = (e) => {
+    e.stopPropagation();
+    window.dispatchEvent(new CustomEvent("stellar:walle"));
+  };
+
   return (
-    <group ref={groupRef} position={POSITION}>
+    <group
+      ref={groupRef}
+      position={POSITION}
+      onClick={handleClick}
+      onPointerOver={() => { document.body.style.cursor = "pointer"; }}
+      onPointerOut={() => { document.body.style.cursor = ""; }}
+    >
       {/* Body */}
       <mesh>
         <boxGeometry args={[0.35, 0.4, 0.35]} />

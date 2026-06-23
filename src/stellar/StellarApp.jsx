@@ -14,6 +14,13 @@ import StellarUIContext from "./ui/StellarUIContext";
 import { OBJECTS } from "./config/objects";
 import { easterEggs } from "../content";
 import { DESTINATIONS } from "./config/destinations";
+import Achievements from "./Achievements";
+import RankMeter from "./RankMeter";
+import DiscoveriesView from "./DiscoveriesView";
+import EasterEgg from "./EasterEgg";
+import AnswerListener from "./AnswerListener";
+import useViewport from "./useViewport";
+import { markCharted, markVisited } from "./data/explorer";
 
 /* Hash → destination utilities */
 const findDestinationIndexByHash = (hash) => {
@@ -118,6 +125,9 @@ const StellarApp = () => {
   const [interacted, setInteracted] = useState(false);
   /* Object currently being visited from the overview map (the free fly-to). */
   const [focusedObj, setFocusedObj] = useState(null);
+  /* Explorer Log (Discoveries) panel open state. */
+  const [logOpen, setLogOpen] = useState(false);
+  const { reducedMotion } = useViewport();
   const [activeIdx, setActiveIdx] = useState(0);
   const activeIdxRef = useRef(0);
   /* Hyperspeed warp intensity (0..1): scroll velocity during the tour + a
@@ -190,6 +200,8 @@ const StellarApp = () => {
       window.dispatchEvent(new CustomEvent("stellar:whoosh"));
       /* Visitor-log + achievements listen */
       window.dispatchEvent(new CustomEvent("stellar:destination", { detail: { id: dest.id, idx } }));
+      /* Persist visited stops (powers "stops X/12" + the return greeting). */
+      markVisited(dest.id);
     }
   }, []);
 
@@ -262,6 +274,8 @@ const StellarApp = () => {
       } else {
         setFocusedObj(o);
         focusRef.current = o.visit.cameraTarget;
+        /* Visiting an anomaly from the map charts it toward Explorer Rank. */
+        markCharted(o.id);
       }
     },
     [handleJump]
@@ -292,6 +306,11 @@ const StellarApp = () => {
       const k = e.key.toLowerCase();
       const N = DESTINATIONS.length;
       const cur = activeIdxRef.current;
+      /* The Explorer Log captures keys while open (Esc closes it). */
+      if (logOpen) {
+        if (k === "escape") setLogOpen(false);
+        return;
+      }
       if (k === "z") {
         e.preventDefault();
         setMode((m) => (m === "overview" ? "tour" : "overview"));
@@ -319,7 +338,7 @@ const StellarApp = () => {
     };
     window.addEventListener("keydown", onKey);
     return () => window.removeEventListener("keydown", onKey);
-  }, [shipWarpDone, handleJump, focusedObj, clearFocus]);
+  }, [shipWarpDone, handleJump, focusedObj, clearFocus, logOpen]);
 
   /* Browser back/forward should also navigate */
   useEffect(() => {
@@ -395,6 +414,13 @@ const StellarApp = () => {
               visit (planets → résumé stop, anomalies → free fly-to). */}
           <OverviewMap objects={OBJECTS} cameraRef={cameraRef} visible={overview && !focusedObj} onPick={handlePick} />
           {focusedObj && <FocusCard obj={focusedObj} onBack={clearFocus} />}
+          {/* Explorer Layer — discovery rank + log, achievement toasts, and the
+              konami / sun-salute / "42" easter eggs. */}
+          <Achievements activeIdx={activeIdx} showStrip={false} />
+          <EasterEgg />
+          <AnswerListener />
+          <RankMeter onOpen={() => setLogOpen((v) => !v)} animate={!reducedMotion} />
+          <DiscoveriesView open={logOpen} onClose={() => setLogOpen(false)} animate={!reducedMotion} />
         </>
       )}
       {/* Countdown plays FIRST on mount; the warp fly-in (WarpField streaks
