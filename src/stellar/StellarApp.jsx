@@ -24,6 +24,7 @@ import SpeedRun from "./SpeedRun";
 import CockpitFrame from "./CockpitFrame";
 import FragmentToast from "./FragmentToast";
 import HazardBanner from "./HazardBanner";
+import EclipseDimmer from "./EclipseDimmer";
 import Radar from "./Radar";
 import GameCockpit from "./game/GameCockpit";
 import { markCharted, markVisited } from "./data/explorer";
@@ -150,6 +151,8 @@ const StellarApp = () => {
   /* Autopilot target id (a body) — voice ("take me to Earth") or a radar tap
      sets it; GameFlight glides the ship there and clears it on arrival. */
   const flyToRef = useRef(null);
+  /* Live eclipse totality (0..1), written by SolarEclipse, read by the sky dimmer. */
+  const eclipseRef = useRef(0);
   /* Shared virtual-clock handle { t, scale, danger }, created once and shared
      by identity across the canvas boundary: the scene writes `t` (scaled
      orbital world-time) + `danger` (black-hole proximity); the DOM time
@@ -467,6 +470,7 @@ const StellarApp = () => {
         speedRef={pilotSpeedRef}
         thrustRef={thrustRef}
         flyToRef={flyToRef}
+        eclipseRef={eclipseRef}
         wideRef={wideRef}
         wideOrbitRef={wideOrbitRef}
         focusRef={focusRef}
@@ -486,6 +490,8 @@ const StellarApp = () => {
         <>
           <Cursor />
           <AmbientAudio />
+          {/* Sky darkens toward totality during an eclipse (scene only; HUD stays lit). */}
+          <EclipseDimmer eclipseRef={eclipseRef} />
           {/* Discovery + toasts — shared by both modes. */}
           <Achievements activeIdx={activeIdx} showStrip={false} />
           <EasterEgg />

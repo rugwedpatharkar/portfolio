@@ -50,6 +50,7 @@ const Planet = ({
   moons = 0,
   moonColor,
   moonScale = 0.12,
+  satelliteRef, // optional: receives the first moon's live WORLD position (for eclipses)
   onClick,
   onPointerOver,
   onPointerOut,
@@ -129,6 +130,9 @@ const Planet = ({
           Math.sin(t * 0.7) * orbitR * 0.22,
           Math.sin(t) * orbitR
         );
+        /* Publish the primary moon's WORLD position so the eclipse system can
+           use the real Moon as an occluder (no duplicate satellite). */
+        if (satelliteRef && i === 0) m.getWorldPosition(satelliteRef.current);
       }
     });
   });

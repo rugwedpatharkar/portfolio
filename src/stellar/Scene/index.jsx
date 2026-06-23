@@ -67,7 +67,7 @@ import { DESTINATIONS } from "../config/destinations";
  * tune that based on viewport bucket.
  */
 
-const Scene = ({ scrollT, activeIdx, onJump, onReady, freeRoamEnabled, gameActive = false, speedRef, thrustRef, flyToRef, wideRef, wideOrbitRef, focusRef, cameraRef, clock, showExtras = true, launchPhase = null }) => {
+const Scene = ({ scrollT, activeIdx, onJump, onReady, freeRoamEnabled, gameActive = false, speedRef, thrustRef, flyToRef, wideRef, wideOrbitRef, focusRef, cameraRef, eclipseRef, clock, showExtras = true, launchPhase = null }) => {
   const readyRef = useRef(false);
   const { isMobile, isCompact, reducedMotion } = useViewport();
   /* Camera offsets — kept in refs so React state doesn't re-render
@@ -75,6 +75,8 @@ const Scene = ({ scrollT, activeIdx, onJump, onReady, freeRoamEnabled, gameActiv
      own their own offset; CameraRig sums them. */
   const parallaxOffsetRef = useRef(new THREE.Vector3());
   const freeRoamOffsetRef = useRef(new THREE.Vector3());
+  /* Earth's Moon world position, published by its Planet, read by SolarEclipse. */
+  const moonWorldRef = useRef(new THREE.Vector3());
 
   const setCursor = (val) => {
     if (typeof document !== "undefined") document.body.style.cursor = val;
@@ -249,8 +251,9 @@ const Scene = ({ scrollT, activeIdx, onJump, onReady, freeRoamEnabled, gameActiv
             if (d.type === "earth") {
               return (
                 <OrbitGroup key={d.id} dest={d} animate={!reducedMotion}>
-                  {/* The Pune "I'm here" pin rides Earth's rotating mesh. */}
-                  {cloneElement(planetEl, {}, <HomePin radius={d.radius} animate={!reducedMotion} />)}
+                  {/* The Pune "I'm here" pin rides Earth's rotating mesh; the
+                      Moon publishes its world position for the eclipse system. */}
+                  {cloneElement(planetEl, { satelliteRef: moonWorldRef }, <HomePin radius={d.radius} animate={!reducedMotion} />)}
                   {/* ISS on low Earth orbit — inherits Earth's live solar
                       position from the OrbitGroup, runs its own fast LEO. */}
                   {showExtras && !isMobile && (
@@ -319,9 +322,9 @@ const Scene = ({ scrollT, activeIdx, onJump, onReady, freeRoamEnabled, gameActiv
         {!isMobile && <LensFlare position={[0, 0, 0]} />}
         {/* Orrery rings — the real orbital structure, shown in the system view. */}
         {showExtras && <OrbitRings wideRef={wideRef} />}
-        {/* Real solar eclipses — Earth's Moon + fly-behind occlusion (game),
-            and a staged Moon transit at the Sol view (read). */}
-        {showExtras && <SolarEclipse reducedMotion={reducedMotion} />}
+        {/* Real solar eclipses — Earth's actual Moon + any planet you fly
+            behind occlude the Sun (corona + chromosphere + diamond-ring). */}
+        {showExtras && <SolarEclipse satelliteRef={moonWorldRef} eclipseRef={eclipseRef} reducedMotion={reducedMotion} />}
         {!isMobile && !reducedMotion && <DustParticles />}
         {/* Non-essential extras defer-mount until the intro completes —
             keeps the warp/countdown window + LCP light, and trims the
