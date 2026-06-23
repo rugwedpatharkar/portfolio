@@ -171,6 +171,18 @@ const AboutContent = () => (
       <SectionTitle>{sectionMeta.about.heading}</SectionTitle>
     </div>
     <SectionLede>{personalInfo.about}</SectionLede>
+    <div style={{ display: "flex", gap: 30, flexWrap: "wrap", marginTop: 2 }}>
+      {[
+        ["Languages", personalInfo.languages],
+        ["Experience", `${personalInfo.yearsExperience} years`],
+        ["Based in", personalInfo.location],
+      ].map(([k, v]) => (
+        <div key={k}>
+          <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 9, color: "rgba(255,255,255,0.4)", textTransform: "uppercase", letterSpacing: "0.08em", marginBottom: 3 }}>{k}</div>
+          <div style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 13, color: "rgba(255,255,255,0.85)" }}>{v}</div>
+        </div>
+      ))}
+    </div>
   </>
 );
 
@@ -201,67 +213,51 @@ const FunFactsContent = () => (
   </>
 );
 
-const ExperienceContent = () => {
-  const e = experiences[0];
-  const prev = experiences[1];
-  const [openCat, setOpenCat] = useState(0);
-  return (
-    <>
-      <SectionLabel color="#61dafb">EARTH · Where I work</SectionLabel>
-      <SectionTitle>{e.title} · {e.companyName}</SectionTitle>
-      <div style={{ display: "flex", alignItems: "center", gap: 12, flexWrap: "wrap", margin: "0 0 12px 0" }}>
-        <span style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 12, color: "rgba(255,255,255,0.6)" }}>{e.date}</span>
-        {e.achievement && (
-          <span style={{ display: "inline-flex", alignItems: "center", gap: 5, padding: "3px 9px", background: "rgba(248,197,85,0.12)", border: "1px solid rgba(248,197,85,0.35)", borderRadius: 12, fontFamily: "'JetBrains Mono', monospace", fontSize: 10, color: "#f8c555" }}>
-            ⭐ {e.achievement}
-          </span>
-        )}
-      </div>
-      <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(120px, 1fr))", gap: 14, margin: "0 0 16px 0" }}>
-        {e.metrics.map((m) => (
-          <Stat key={m.label} label={m.label} value={m.value} />
-        ))}
-      </div>
-      {/* All 5 engineering disciplines — click a tab to expand its work */}
-      <div style={{ display: "flex", gap: 6, flexWrap: "wrap", marginBottom: 10 }}>
-        {e.categories.map((c, i) => (
-          <button
-            key={c.name}
-            onClick={() => setOpenCat(i)}
-            style={{
-              all: "unset", cursor: "pointer",
-              padding: "4px 10px", borderRadius: 12,
-              fontFamily: "'JetBrains Mono', monospace", fontSize: 9.5, letterSpacing: "0.04em",
-              background: i === openCat ? "rgba(97,218,251,0.16)" : "rgba(255,255,255,0.04)",
-              border: `1px solid ${i === openCat ? "rgba(97,218,251,0.5)" : "rgba(255,255,255,0.1)"}`,
-              color: i === openCat ? "#61dafb" : "rgba(255,255,255,0.55)",
-              transition: "all 180ms ease",
-            }}
-          >{c.name}</button>
-        ))}
-      </div>
-      <div style={{ minHeight: 76 }}>
-        {e.categories[openCat].points.map((p, i) => (
-          <p key={i} style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 12.5, color: "rgba(255,255,255,0.74)", margin: "0 0 7px 0", lineHeight: 1.5 }}>
-            • {p}
-          </p>
-        ))}
-      </div>
-      {prev && (
-        <div style={{ marginTop: 12, paddingTop: 10, borderTop: "1px solid rgba(255,255,255,0.08)", fontFamily: "'JetBrains Mono', monospace", fontSize: 11, color: "rgba(255,255,255,0.5)" }}>
-          <span style={{ color: "rgba(255,255,255,0.75)" }}>{prev.title}</span> · {prev.companyName} · {prev.date}
+/* Both roles, fully expanded — every discipline + every bullet visible
+   (max-informative; the left column scrolls). */
+const ExperienceContent = () => (
+  <>
+    <SectionLabel color="#61dafb">EARTH · Where I work</SectionLabel>
+    <SectionTitle>{sectionMeta.experience.heading}</SectionTitle>
+    {experiences.map((e, ei) => (
+      <div
+        key={e.companyName}
+        style={{ marginBottom: 18, paddingTop: ei ? 16 : 4, borderTop: ei ? "1px solid rgba(255,255,255,0.1)" : "none" }}
+      >
+        <div style={{ fontFamily: "'Sora', sans-serif", fontSize: 19, fontWeight: 700, color: "white", lineHeight: 1.2 }}>{e.title}</div>
+        <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 12.5, color: "#61dafb", marginTop: 3 }}>{e.companyName}</div>
+        <div style={{ display: "flex", alignItems: "center", gap: 12, flexWrap: "wrap", margin: "7px 0 12px 0" }}>
+          <span style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 12, color: "rgba(255,255,255,0.6)" }}>{e.date}</span>
+          {e.achievement && (
+            <span style={{ display: "inline-flex", alignItems: "center", gap: 5, padding: "3px 9px", background: "rgba(248,197,85,0.12)", border: "1px solid rgba(248,197,85,0.35)", borderRadius: 12, fontFamily: "'JetBrains Mono', monospace", fontSize: 10, color: "#f8c555" }}>
+              ⭐ {e.achievement}
+            </span>
+          )}
         </div>
-      )}
-    </>
-  );
-};
+        <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(110px, 1fr))", gap: 14, margin: "0 0 14px 0" }}>
+          {e.metrics.map((m) => (
+            <Stat key={m.label} label={m.label} value={m.value} />
+          ))}
+        </div>
+        {e.categories.map((c) => (
+          <div key={c.name} style={{ marginBottom: 11 }}>
+            <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 10.5, color: "#61dafb", letterSpacing: "0.06em", textTransform: "uppercase", marginBottom: 5 }}>{c.name}</div>
+            {c.points.map((p, pi) => (
+              <p key={pi} style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 12.5, color: "rgba(255,255,255,0.74)", margin: "0 0 6px 0", lineHeight: 1.5 }}>• {p}</p>
+            ))}
+          </div>
+        ))}
+      </div>
+    ))}
+  </>
+);
 
 const ProjectsContent = () => (
   <>
     <SectionLabel color="#ff6b6b">MARS · Things I&apos;ve shipped</SectionLabel>
     <SectionTitle>{sectionMeta.projects.heading}</SectionTitle>
     <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(180px, 1fr))", gap: 14 }}>
-      {projects.slice(0, 6).map((p) => (
+      {projects.map((p) => (
         <div key={p.name} style={{ ...bareCard, display: "flex", flexDirection: "column" }}>
           <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 8, marginBottom: 4 }}>
             <span style={{ fontFamily: "'Sora', sans-serif", fontSize: 13, color: "white", fontWeight: 600 }}>{p.name}</span>
@@ -269,12 +265,12 @@ const ProjectsContent = () => (
               <span style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 8, color: p.status === "production" ? "#00cea8" : "#f8c555", textTransform: "uppercase", letterSpacing: "0.06em", whiteSpace: "nowrap" }}>● {p.status}</span>
             )}
           </div>
-          <div style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 11.5, color: "rgba(255,255,255,0.6)", lineHeight: 1.4, marginBottom: 8 }}>
-            {p.description?.slice(0, 100)}{p.description?.length > 100 ? "…" : ""}
+          <div style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 11.5, color: "rgba(255,255,255,0.62)", lineHeight: 1.45, marginBottom: 8 }}>
+            {p.description}
           </div>
           {p.tags && (
             <div style={{ display: "flex", flexWrap: "wrap", gap: 4, marginTop: "auto" }}>
-              {p.tags.slice(0, 4).map((tag) => (
+              {p.tags.map((tag) => (
                 <span key={tag.name} style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 8.5, padding: "1px 6px", borderRadius: 8, background: "rgba(145,94,255,0.12)", border: "1px solid rgba(145,94,255,0.25)", color: "#b8a0ff" }}>{tag.name}</span>
               ))}
             </div>
@@ -318,13 +314,12 @@ const SkillsContent = () => {
       <SectionTitle>{sectionMeta.skills.heading}</SectionTitle>
       <SectionLede>{sectionMeta.skills.description}</SectionLede>
       <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(200px, 1fr))", gap: 14 }}>
-        {categories.slice(0, 9).map(([cat, items]) => (
+        {categories.map(([cat, items]) => (
           <div key={cat} style={bareCard}>
             <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 10, color: "#b8a0ff", marginBottom: 7, textTransform: "uppercase", letterSpacing: "0.06em" }}>{cat}</div>
-            {/* Top 4 skills with proficiency bars — the depth a backend
-                engineer's skill set should actually show. */}
+            {/* Every skill in the category, each with a proficiency bar. */}
             <div style={{ display: "flex", flexDirection: "column", gap: 5 }}>
-              {items.slice(0, 4).map((s) => (
+              {items.map((s) => (
                 <div key={s.name}>
                   <div style={{ display: "flex", justifyContent: "space-between", fontFamily: "'DM Sans', sans-serif", fontSize: 10.5, color: "rgba(255,255,255,0.78)", marginBottom: 2 }}>
                     <span style={{ whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis", maxWidth: "78%" }}>{s.name}</span>
@@ -335,9 +330,6 @@ const SkillsContent = () => {
                   </div>
                 </div>
               ))}
-              {items.length > 4 && (
-                <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 9, color: "rgba(255,255,255,0.4)", marginTop: 1 }}>+{items.length - 4} more</div>
-              )}
             </div>
           </div>
         ))}
@@ -352,7 +344,7 @@ const NotesContent = () => (
     <SectionTitle>{sectionMeta.notes.heading}</SectionTitle>
     <SectionLede>{sectionMeta.notes.description}</SectionLede>
     <div>
-      {blogPosts.slice(0, 4).map((n, i) => (
+      {blogPosts.map((n, i) => (
         <div key={n.title} style={{ display: "flex", gap: 14, padding: "10px 0", borderTop: i === 0 ? "none" : "1px solid rgba(255,255,255,0.08)" }}>
           <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 11, color: "rgba(255,255,255,0.35)", minWidth: 24 }}>{String(i + 1).padStart(2, "0")}</div>
           <div style={{ flex: 1 }}>
@@ -386,7 +378,7 @@ const HobbiesContent = () => (
     <SectionLabel color="#61dafb">NEPTUNE · Beyond the code</SectionLabel>
     <SectionTitle>{sectionMeta.hobbies.heading}</SectionTitle>
     <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(180px, 1fr))", gap: 14 }}>
-      {hobbies.slice(0, 6).map((h) => (
+      {hobbies.map((h) => (
         <div key={h.name} style={bareCard}>
           <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 8, marginBottom: 4 }}>
             <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
@@ -413,10 +405,10 @@ const TestimonialsContent = () => (
     <SectionLabel color="rgba(180,180,255,0.8)">KUIPER BELT · Voices from afar</SectionLabel>
     <SectionTitle>{sectionMeta.testimonials.heading}</SectionTitle>
     <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(240px, 1fr))", gap: 14 }}>
-      {testimonials.slice(0, 2).map((t) => (
+      {testimonials.map((t) => (
         <div key={t.name} style={bareCard}>
           <div style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 12.5, color: "rgba(255,255,255,0.78)", lineHeight: 1.55, fontStyle: "italic" }}>
-            “{(t.quote || "").slice(0, 180)}{(t.quote || "").length > 180 ? "…" : ""}”
+            “{t.quote}”
           </div>
           <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 10, color: "rgba(255,255,255,0.55)", marginTop: 10 }}>
             — {t.name}{t.role ? ` · ${t.role}` : ""}

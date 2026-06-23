@@ -540,6 +540,8 @@ export const personalInfo = {
   githubUsername: "rugwedpatharkar",
   linkedin: "https://www.linkedin.com/in/rugwed-patharkar/",
   location: "Pune, India",
+  languages: "English · Hindi · Marathi",
+  yearsExperience: "2+",
   about:
     "I build the backend infrastructure that hospitality SaaS runs on. At Upswing I architected and own a 31-service Python/FastAPI/gRPC platform on GKE — multi-tenant, multi-region, integrated with 7+ PMS, door-lock, and GRMS vendors (Apaleo, Opera/OHIP, Cloudbeds, RMS, Clock, Maxxton, ASSA ABLOY, Messerschmitt). p95 API latency went from 5s to 200ms (96% cut); compute spend dropped ~25%. I also ship production agentic AI — multi-agent LangGraph supervisor with MCP tool-calling across 4 LLM providers (OpenAI, Gemini, Claude, Groq), grounded by Qdrant hybrid (dense + BM25/sparse) RAG. I lead a 3-engineer integration team and was named Star Performer of the Quarter. I care most about systems that recover gracefully, observability that earns its keep, and APIs that don't surprise the people who consume them.",
 };
@@ -774,30 +776,32 @@ export const hobbies = [
 
 // Blog tags use plain strings (e.g. "FastAPI") unlike project tags which use
 // objects (e.g. { name: "React" }). The Blog component renders them directly.
+// Working notes — short, specific lessons pulled straight from production work.
+// Not blog placeholders: each one is a real insight from a system I shipped.
 export const blogPosts = [
   {
-    title: "Building Scalable Microservices with FastAPI & gRPC",
+    title: "Idempotency is the only thing that lets you sleep",
     description:
-      "A deep dive into architecting high-performance backend services using FastAPI for REST and gRPC for inter-service communication on GKE.",
-    link: "#", // placeholder — Blog component renders "Coming soon" for "#" links
+      "Every external boundary in the PMS layer — 7+ webhooks, door-lock callbacks — processes at-least-once. The polymorphic base class gives one idempotent contract for N providers; designing the dedup key before the happy path is what made zero-downtime provider switching and safe replay-after-incident possible.",
+    link: "#",
     date: "2024",
-    tags: ["FastAPI", "gRPC", "GCP"],
+    tags: ["Idempotency", "Webhooks", "Integration"],
   },
   {
-    title: "Multi-Agent AI with LangChain & MCP",
+    title: "Where the 5 seconds went",
     description:
-      "How I built an enterprise conversational AI through 5 iterations using LangChain, LangGraph, and Model Context Protocol for tool calling.",
-    link: "#", // placeholder — Blog component renders "Coming soon" for "#" links
+      "Cutting p95 from 5s to 200ms was three things stacked: N+1 queries hidden behind an ORM, missing Redis caching on hot read paths, and connection-pool starvation under concurrent bookings. The same concurrency surfaced inventory-hold race conditions that only appeared under real load — latency and correctness bugs hide in the same place.",
+    link: "#",
     date: "2024",
-    tags: ["LangChain", "AI", "MCP"],
+    tags: ["Performance", "Redis", "Concurrency"],
   },
   {
-    title: "RAG Pipeline: From Scraping to Semantic Search",
+    title: "Why we migrated off ChromaDB",
     description:
-      "End-to-end guide on building a Retrieval-Augmented Generation system with ChromaDB, OpenAI embeddings, and context-aware responses.",
-    link: "#", // placeholder — Blog component renders "Coming soon" for "#" links
+      "ChromaDB shipped the prototype, then stalled: dense-only embeddings dropped recall on short, keyword-heavy guest queries, and we needed hard multi-tenant isolation. Qdrant hybrid (dense + BM25/FastEmbed sparse) restored recall; named collections + payload filters gave per-tenant isolation. Hybrid retrieval isn't a luxury when queries are short.",
+    link: "#",
     date: "2024",
-    tags: ["RAG", "ChromaDB", "OpenAI"],
+    tags: ["RAG", "Qdrant", "Vector Search"],
   },
 ];
 
