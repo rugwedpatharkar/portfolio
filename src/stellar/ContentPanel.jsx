@@ -135,6 +135,11 @@ const Portrait = ({ size = 120, color = "#ffb86b" }) => (
   </div>
 );
 
+/* Panel-less card: bare content over the scrim — no box, no border, just
+   padding so the grid breathes. Grouping reads from the coloured heading +
+   the accent bars/tags + spacing, matching the "no panels" direction. */
+const bareCard = { padding: "1px 2px 12px" };
+
 /* ── Per-destination renderers ─────────────────────────────────────── */
 
 const HeroContent = () => (
@@ -176,7 +181,7 @@ const FunFactsContent = () => (
     <SectionLede>{sectionMeta.funFacts.description}</SectionLede>
     <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(150px, 1fr))", gap: 16, marginTop: 6 }}>
       {funFacts.map((f) => (
-        <div key={f.label} style={{ padding: "10px 12px", background: "rgba(248,197,85,0.04)", border: "1px solid rgba(248,197,85,0.14)", borderRadius: 8 }}>
+        <div key={f.label} style={bareCard}>
           <div style={{ display: "flex", alignItems: "baseline", gap: 6 }}>
             <span style={{ fontSize: 14 }}>{f.icon}</span>
             <span style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 24, color: "white", fontWeight: 700, lineHeight: 1 }}>{f.value}{f.suffix}</span>
@@ -257,14 +262,7 @@ const ProjectsContent = () => (
     <SectionTitle>{sectionMeta.projects.heading}</SectionTitle>
     <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(180px, 1fr))", gap: 14 }}>
       {projects.slice(0, 6).map((p) => (
-        <div key={p.name} style={{
-          padding: "12px 14px",
-          background: "rgba(145, 94, 255, 0.05)",
-          border: "1px solid rgba(255, 255, 255, 0.07)",
-          borderRadius: 10,
-          display: "flex",
-          flexDirection: "column",
-        }}>
+        <div key={p.name} style={{ ...bareCard, display: "flex", flexDirection: "column" }}>
           <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 8, marginBottom: 4 }}>
             <span style={{ fontFamily: "'Sora', sans-serif", fontSize: 13, color: "white", fontWeight: 600 }}>{p.name}</span>
             {p.status && (
@@ -297,12 +295,7 @@ const AchievementsContent = () => (
     <SectionLede>{sectionMeta.achievements.description}</SectionLede>
     <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(240px, 1fr))", gap: 14 }}>
       {achievements.map((a) => (
-        <div key={a.title} style={{
-          padding: "12px 14px",
-          background: "rgba(248, 197, 85, 0.06)",
-          border: "1px solid rgba(248, 197, 85, 0.18)",
-          borderRadius: 10,
-        }}>
+        <div key={a.title} style={bareCard}>
           <div style={{ display: "flex", alignItems: "center", gap: 6, marginBottom: 4 }}>
             <span style={{ fontSize: 14 }}>{a.icon}</span>
             <div style={{ fontFamily: "'Sora', sans-serif", fontSize: 13, color: "white", fontWeight: 600 }}>{a.title}</div>
@@ -326,12 +319,7 @@ const SkillsContent = () => {
       <SectionLede>{sectionMeta.skills.description}</SectionLede>
       <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(200px, 1fr))", gap: 14 }}>
         {categories.slice(0, 9).map(([cat, items]) => (
-          <div key={cat} style={{
-            padding: "10px 12px",
-            background: "rgba(145, 94, 255, 0.05)",
-            border: "1px solid rgba(145, 94, 255, 0.18)",
-            borderRadius: 8,
-          }}>
+          <div key={cat} style={bareCard}>
             <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 10, color: "#b8a0ff", marginBottom: 7, textTransform: "uppercase", letterSpacing: "0.06em" }}>{cat}</div>
             {/* Top 4 skills with proficiency bars — the depth a backend
                 engineer's skill set should actually show. */}
@@ -383,12 +371,7 @@ const EducationContent = () => (
     <SectionTitle>{sectionMeta.education.heading}</SectionTitle>
     <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(140px, 1fr))", gap: 14 }}>
       {educations.map((edu) => (
-        <div key={edu.degree} style={{
-          padding: "10px 12px",
-          background: "rgba(191, 97, 255, 0.06)",
-          border: "1px solid rgba(191, 97, 255, 0.18)",
-          borderRadius: 8,
-        }}>
+        <div key={edu.degree} style={bareCard}>
           <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 18, color: "#bf61ff", fontWeight: 700 }}>{edu.percentage}%</div>
           <div style={{ fontFamily: "'Sora', sans-serif", fontSize: 11, color: "white", fontWeight: 600, marginTop: 4 }}>{edu.shortName}</div>
           <div style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 10.5, color: "rgba(255,255,255,0.55)", marginTop: 2 }}>{edu.year}</div>
@@ -404,12 +387,7 @@ const HobbiesContent = () => (
     <SectionTitle>{sectionMeta.hobbies.heading}</SectionTitle>
     <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(180px, 1fr))", gap: 14 }}>
       {hobbies.slice(0, 6).map((h) => (
-        <div key={h.name} style={{
-          padding: "12px 14px",
-          background: "rgba(26, 115, 216, 0.07)",
-          border: "1px solid rgba(26, 115, 216, 0.22)",
-          borderRadius: 10,
-        }}>
+        <div key={h.name} style={bareCard}>
           <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 8, marginBottom: 4 }}>
             <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
               <span style={{ fontSize: 18 }}>{h.icon}</span>
@@ -436,12 +414,7 @@ const TestimonialsContent = () => (
     <SectionTitle>{sectionMeta.testimonials.heading}</SectionTitle>
     <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(240px, 1fr))", gap: 14 }}>
       {testimonials.slice(0, 2).map((t) => (
-        <div key={t.name} style={{
-          padding: "14px 16px",
-          background: "rgba(180, 180, 255, 0.05)",
-          border: "1px solid rgba(180, 180, 255, 0.15)",
-          borderRadius: 10,
-        }}>
+        <div key={t.name} style={bareCard}>
           <div style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 12.5, color: "rgba(255,255,255,0.78)", lineHeight: 1.55, fontStyle: "italic" }}>
             “{(t.quote || "").slice(0, 180)}{(t.quote || "").length > 180 ? "…" : ""}”
           </div>

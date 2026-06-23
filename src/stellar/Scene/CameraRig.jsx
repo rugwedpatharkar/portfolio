@@ -49,7 +49,7 @@ const ESTABLISH_POS = new THREE.Vector3(-22, 34, 78);
 const ESTABLISH_LOOK = new THREE.Vector3(22, -2, -4);
 const ESTABLISH_FOV = 30;
 const ESTABLISH_DUR = 2.2; // seconds — pull back + reveal
-const WARP_DUR = 1.15; // seconds — dive into Sol
+const WARP_DUR = 2.2; // seconds — hyperspeed fly-in from the system edge to Sol
 const SOL_CAM = DESTINATIONS[0].cameraTarget;
 const SOL_POS = new THREE.Vector3(...SOL_CAM.position);
 const SOL_LOOK = new THREE.Vector3(...SOL_CAM.lookAt);
@@ -148,9 +148,19 @@ const CameraRig = ({
       if (L.phase !== launchPhase) {
         L.phase = launchPhase;
         L.t0 = t;
-        L.fromPos.copy(camera.position);
-        L.fromLook.copy(lookAtTarget.current);
-        L.fromFov = camera.fov;
+        /* The warp always begins at the far establishing pose, so it reads
+           as a hyperspeed fly-in from the edge of the system into Sol (the
+           streaks come from WarpField). Establish (if used) starts wherever
+           the camera currently is. */
+        if (launchPhase === "warp") {
+          L.fromPos.copy(ESTABLISH_POS);
+          L.fromLook.copy(ESTABLISH_LOOK);
+          L.fromFov = ESTABLISH_FOV;
+        } else {
+          L.fromPos.copy(camera.position);
+          L.fromLook.copy(lookAtTarget.current);
+          L.fromFov = camera.fov;
+        }
       }
       let toPos, toLook, toFov, e;
       if (launchPhase === "establish") {
@@ -159,7 +169,7 @@ const CameraRig = ({
         toPos = ESTABLISH_POS; toLook = ESTABLISH_LOOK; toFov = ESTABLISH_FOV;
       } else {
         const p = Math.min(1, (t - L.t0) / WARP_DUR);
-        e = p * p; // ease-in — accelerate the dive
+        e = p * p * (3 - 2 * p); // smoothstep — fast through the middle, eased arrival
         toPos = SOL_POS; toLook = SOL_LOOK; toFov = SOL_FOV;
       }
       _camTarget.copy(L.fromPos).lerp(toPos, e);

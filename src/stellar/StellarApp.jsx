@@ -8,8 +8,7 @@ import Cursor from "./Cursor";
 import PlanetHUD from "./PlanetHUD";
 import MissionCountdown from "./MissionCountdown";
 import SideRail from "./SideRail";
-import WarpOpening from "./WarpOpening";
-import ShipWarp from "./ShipWarp";
+import WarpField from "./WarpField";
 import AmbientAudio from "./AmbientAudio";
 import CockpitFrame from "./CockpitFrame";
 import StardustTrail from "./StardustTrail";
@@ -38,30 +37,25 @@ const findDestinationIndexByHash = (hash) => {
  * Root component of the Stellar 3D portfolio.
  *
  * Visitor flow:
- *   0. WarpOpening (immediate on mount — hyperspace streaks ~2.8s)
- *   1. MissionCountdown (T-5 → GO, ~4s)
- *   2. Main UI reveals — scene is mounting + loading textures the
- *      whole time behind the overlay, so it's ready when countdown
- *      ends.
- *
- * BootSequence (typed log) was removed — the warp + countdown
- * already provide enough drama; the typed log was redundant.
+ *   0. MissionCountdown (T-5 → GO) — FIRST, building anticipation.
+ *   1. Launch warp — a hyperspeed fly-in from the edge of the system into
+ *      Sol (WarpField streaks + the camera flying in).
+ *   2. Main UI reveals — the scene mounts + loads textures behind the
+ *      overlays the whole time, so it's ready when the warp ends.
  */
 
 const StellarApp = () => {
   const scrollTRef = useRef(0);
-  const [warpDone, setWarpDone] = useState(false);
   const [countdownDone, setCountdownDone] = useState(false);
-  /* Cinematic launch after the countdown: establish (reveal the tilted
-     system) → warp (dive into Sol) → done (hand over to the tour). */
+  /* Cinematic launch after the countdown: warp (hyperspeed fly-in to Sol)
+     → done (hand over to the tour). */
   const [launchPhase, setLaunchPhase] = useState(null);
   const [shipWarpDone, setShipWarpDone] = useState(false);
   const [activeIdx, setActiveIdx] = useState(0);
-  /* Star-Trek warp burst for far nav-jumps (>2 destinations away). Ref
-     mirrors activeIdx so handleJump can read the current stop without
-     re-creating the callback (it's wired into many child props + effects). */
-  const [jumpWarp, setJumpWarp] = useState(false);
   const activeIdxRef = useRef(0);
+  /* Hyperspeed warp intensity (0..1): scroll velocity during the tour + a
+     kick on far nav-jumps. Read by WarpField, written by Navigator. */
+  const warpVelRef = useRef(0);
   const [freeRoam, setFreeRoam] = useState(false);
   const [cockpit, setCockpit] = useState(false);
   /* Wide pull-back mode — Z key toggle. Ref-driven so CameraRig can
@@ -95,7 +89,6 @@ const StellarApp = () => {
   /* Scene mounts/loads textures behind the warp + countdown overlays,
      so we no longer need an explicit sceneReady gate. */
   const handleSceneReady = useCallback(() => {}, []);
-  const handleWarpDone = useCallback(() => setWarpDone(true), []);
   const handleCountdownDone = useCallback(() => setCountdownDone(true), []);
 
   /* Console easter egg for devs who open DevTools — once per session */
@@ -108,9 +101,10 @@ const StellarApp = () => {
     console.log("%c🛸  Try the Konami code. Click the sun. Drag to explore.", "color: #bf61ff; font-size: 12px;");
   }, []);
 
-  /* Run the launch sequence once the countdown completes. Reduced-motion
-     users skip straight into the tour. Timings match CameraRig's
-     ESTABLISH_DUR (2.2s) + WARP_DUR (1.15s). */
+  /* After the countdown, run the warp: a hyperspeed fly-in from the edge of
+     the system into Sol (CameraRig drives the camera from the establishing
+     pose → Sol; WarpField draws the streaks). Reduced-motion skips it.
+     Duration matches CameraRig's WARP_DUR (2.2s). */
   useEffect(() => {
     if (!countdownDone) return undefined;
     const reduced =
@@ -120,16 +114,12 @@ const StellarApp = () => {
       setShipWarpDone(true);
       return undefined;
     }
-    setLaunchPhase("establish");
-    const t1 = setTimeout(() => setLaunchPhase("warp"), 2200);
-    const t2 = setTimeout(() => {
+    setLaunchPhase("warp");
+    const t = setTimeout(() => {
       setLaunchPhase(null);
       setShipWarpDone(true);
-    }, 2200 + 1150);
-    return () => {
-      clearTimeout(t1);
-      clearTimeout(t2);
-    };
+    }, 2200);
+    return () => clearTimeout(t);
   }, [countdownDone]);
 
   const handleDestinationChange = useCallback((dest) => {
@@ -150,15 +140,11 @@ const StellarApp = () => {
   }, []);
 
   const handleJump = useCallback((idx) => {
-    /* Far nav-jumps (>2 stops away) fire the Star-Trek warp burst: the
-       continuous camera flies through the intermediate planets fast while
-       the streaks overlay on top, so a menu jump reads as a hyperjump.
-       Neighbour hops (≤2) just glide. Reduced-motion skips the burst. */
-    const reduced =
-      typeof window !== "undefined" &&
-      window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-    if (!reduced && Math.abs(idx - activeIdxRef.current) > 2) {
-      setJumpWarp(true);
+    /* Far nav-jumps (>2 stops away) fly through many bodies fast — kick the
+       hyperspeed warp field so the jump immediately reads as a warp (the
+       continuous camera + scroll velocity carry the rest). */
+    if (Math.abs(idx - activeIdxRef.current) > 2) {
+      warpVelRef.current = 1;
     }
     /* Map destination index → exact scroll position. Progress runs 0..1
        over (scrollHeight − viewport), so targetY = frac × that range. The
@@ -215,7 +201,11 @@ const StellarApp = () => {
       <Navigator
         scrollTRef={scrollTRef}
         onDestinationChange={handleDestinationChange}
+        velocityRef={warpVelRef}
       />
+      {/* Hyperspeed streaks — driven by travel speed (scroll velocity +
+          launch warp). Sits under the content overlay. */}
+      <WarpField velocityRef={warpVelRef} launchPhase={launchPhase} />
       {shipWarpDone && (
         <>
           <Cursor />
@@ -296,12 +286,9 @@ const StellarApp = () => {
           `}</style>
         </>
       )}
-      {/* Warp + countdown play immediately on mount — no BootSequence
-          step. Scene textures stream in behind these overlays. */}
-      {!warpDone && <WarpOpening onComplete={handleWarpDone} />}
-      {warpDone && !countdownDone && <MissionCountdown onComplete={handleCountdownDone} />}
-      {launchPhase === "warp" && <ShipWarp />}
-      {jumpWarp && <ShipWarp onComplete={() => setJumpWarp(false)} />}
+      {/* Countdown plays FIRST on mount; the warp fly-in (WarpField streaks
+          + CameraRig) follows. Scene textures stream in behind both. */}
+      {!countdownDone && <MissionCountdown onComplete={handleCountdownDone} />}
     </>
   );
 };

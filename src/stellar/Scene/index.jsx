@@ -30,7 +30,6 @@ import KeyLight from "./KeyLight";
 import MouseParallax from "./MouseParallax";
 import FreeRoam from "./FreeRoam";
 import CameraShake from "./CameraShake";
-import Constellations from "./Constellations";
 import Voyager from "./Voyager";
 import CommitComets from "./CommitComets";
 import DeathStar from "./easter/DeathStar";
@@ -283,7 +282,6 @@ const Scene = ({ scrollT, activeIdx, onJump, onReady, freeRoamEnabled, wideRef, 
         {/* Non-essential extras defer-mount until the intro completes —
             keeps the warp/countdown window + LCP light, and trims the
             initial scene-graph build. */}
-        {showExtras && <Constellations scrollTRef={scrollT} />}
         {showExtras && <Voyager />}
         {showExtras && !isMobile && <CommitComets />}
         {/* Easter eggs — lightweight, but no reason to build them during
