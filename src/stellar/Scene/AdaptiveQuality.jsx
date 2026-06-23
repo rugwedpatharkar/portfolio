@@ -10,20 +10,25 @@ import { useFrame, useThree } from "@react-three/fiber";
  *    still-frame. (Original behaviour, retained.)
  *
  * 2. POTATO MODE — a safety net for genuinely weak GPUs. We smooth the
- *    real per-frame time (EMA) and, only if it stays bad (< ~25fps) for a
+ *    real per-frame time (EMA) and, only if it stays genuinely bad for a
  *    sustained window, step DOWN: floor the DPR, switch off shadows, and
- *    tell the parent to drop the (expensive) Depth-of-Field pass. We
- *    restore just as conservatively (sustained > ~35fps). Strong
- *    hysteresis + a high trigger threshold mean a healthy machine NEVER
- *    degrades — it only ever helps a struggling one. (Note: a headless /
- *    DevTools-driven Chrome is vsync-capped at 30fps ≈ 33ms, which sits
- *    BELOW the 40ms trigger, so automated screenshots don't false-trip it.)
+ *    tell the parent to drop the (expensive) Depth-of-Field pass.
+ *
+ *    Two fixes for a "quality stuck low forever" bug:
+ *    a) GRACE — never degrade during the first ~8s. The intro warp + the
+ *       one-time texture decode spike frame time well past the trigger; the
+ *       old code dropped to potato there and then couldn't climb back out.
+ *    b) Forgiving, near-symmetric restore — the old band (drop >40ms/1.5s,
+ *       restore <28ms/5s) left a huge 25–36fps DEAD ZONE: a machine settling
+ *       anywhere in it could never restore. Now drop and restore sit close
+ *       together, and restore is quick, so a decent machine always recovers.
  */
 
-const LOW_MS = 40; // ~25fps — below this (worse) for a while → degrade
-const HIGH_MS = 28; // ~36fps — above this (better) for a while → restore
-const DROP_AFTER = 1500;
-const RESTORE_AFTER = 5000;
+const LOW_MS = 46; // ~22fps — only degrade if genuinely struggling
+const HIGH_MS = 38; // ~26fps — restore as soon as it's merely OK
+const DROP_AFTER = 2500;
+const RESTORE_AFTER = 1800;
+const GRACE = 8000; // ms after mount during which we never degrade
 
 const AdaptiveQuality = ({ scrollTRef, highDpr = 1.75, lowDpr = 1.0, onPerf }) => {
   const { gl } = useThree();
@@ -34,6 +39,7 @@ const AdaptiveQuality = ({ scrollTRef, highDpr = 1.75, lowDpr = 1.0, onPerf }) =
   const tier = useRef("high");
   const badSince = useRef(0);
   const goodSince = useRef(0);
+  const startAt = useRef(0);
 
   const setDpr = (mode) => {
     if (dprState.current === mode) return;
@@ -44,6 +50,7 @@ const AdaptiveQuality = ({ scrollTRef, highDpr = 1.75, lowDpr = 1.0, onPerf }) =
 
   useFrame((_, dt) => {
     const now = performance.now();
+    if (!startAt.current) startAt.current = now;
     const ms = Math.min((dt || 1 / 60) * 1000, 100);
     ema.current = ema.current * 0.9 + ms * 0.1;
 
@@ -54,27 +61,31 @@ const AdaptiveQuality = ({ scrollTRef, highDpr = 1.75, lowDpr = 1.0, onPerf }) =
     const scrolling = vel > 0.0008;
     if (scrolling) idleAt.current = now;
 
-    /* potato-tier hysteresis */
-    if (ema.current > LOW_MS) {
-      goodSince.current = 0;
-      if (!badSince.current) badSince.current = now;
-      if (tier.current === "high" && now - badSince.current > DROP_AFTER) {
-        tier.current = "low";
-        gl.shadowMap.enabled = false;
-        onPerf?.("low");
+    /* Potato-tier hysteresis — skipped entirely during the grace window so
+       the intro + texture-decode spike never drops us into potato. */
+    if (now - startAt.current > GRACE) {
+      if (ema.current > LOW_MS) {
+        goodSince.current = 0;
+        if (!badSince.current) badSince.current = now;
+        if (tier.current === "high" && now - badSince.current > DROP_AFTER) {
+          tier.current = "low";
+          gl.shadowMap.enabled = false;
+          onPerf?.("low");
+        }
+      } else if (ema.current < HIGH_MS) {
+        badSince.current = 0;
+        if (!goodSince.current) goodSince.current = now;
+        if (tier.current === "low" && now - goodSince.current > RESTORE_AFTER) {
+          tier.current = "high";
+          gl.shadowMap.enabled = true;
+          gl.shadowMap.needsUpdate = true;
+          onPerf?.("high");
+        }
+      } else {
+        /* In the (now narrow) dead zone, hold the timers rather than reset —
+           a brief excursion shouldn't erase progress toward a restore. */
+        badSince.current = 0;
       }
-    } else if (ema.current < HIGH_MS) {
-      badSince.current = 0;
-      if (!goodSince.current) goodSince.current = now;
-      if (tier.current === "low" && now - goodSince.current > RESTORE_AFTER) {
-        tier.current = "high";
-        gl.shadowMap.enabled = true;
-        gl.shadowMap.needsUpdate = true;
-        onPerf?.("high");
-      }
-    } else {
-      badSince.current = 0;
-      goodSince.current = 0;
     }
 
     /* DPR: low while scrolling or in potato tier; else restore after idle */

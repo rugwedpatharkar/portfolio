@@ -1,28 +1,12 @@
 import { useRef, useState, useCallback, useEffect } from "react";
 import Scene from "./Scene";
 import Navigator from "./Navigator";
-import Minimap from "./Minimap";
 import ContentPanel from "./ContentPanel";
-import EasterEgg from "./EasterEgg";
 import Cursor from "./Cursor";
 import PlanetHUD from "./PlanetHUD";
 import MissionCountdown from "./MissionCountdown";
-import SideRail from "./SideRail";
 import WarpField from "./WarpField";
 import AmbientAudio from "./AmbientAudio";
-import CockpitFrame from "./CockpitFrame";
-import StardustTrail from "./StardustTrail";
-import Breadcrumb from "./Breadcrumb";
-import LiveStats from "./LiveStats";
-import Achievements from "./Achievements";
-import SpeedRun from "./SpeedRun";
-import QuoteFeed from "./QuoteFeed";
-import VisitorLog from "./VisitorLog";
-import AnswerListener from "./AnswerListener";
-import VoiceNav from "./VoiceNav";
-import FpsMonitor from "./FpsMonitor";
-import HelpOverlay from "./HelpOverlay";
-import CinematicLayer from "./CinematicLayer";
 import { easterEggs } from "../content";
 import { DESTINATIONS } from "./config/destinations";
 
@@ -56,40 +40,26 @@ const StellarApp = () => {
   /* Hyperspeed warp intensity (0..1): scroll velocity during the tour + a
      kick on far nav-jumps. Read by WarpField, written by Navigator. */
   const warpVelRef = useRef(0);
-  const [freeRoam, setFreeRoam] = useState(false);
-  const [cockpit, setCockpit] = useState(false);
-  /* Wide pull-back mode — Z key toggle. Ref-driven so CameraRig can
-     read it per frame without re-renders. */
+  /* Wide pull-back ref kept permanently off — there's no toggle in the
+     minimal UI, but CameraRig still reads it, so this keeps its wide branch
+     a harmless no-op without touching the rig. */
   const wideRef = useRef(false);
-  const [, forceWideRender] = useState(0);
   const consoleLoggedRef = useRef(false);
-
-  /* Esc to exit free-roam */
-  useEffect(() => {
-    if (!freeRoam) return;
-    const onKey = (e) => { if (e.key === "Escape") setFreeRoam(false); };
-    window.addEventListener("keydown", onKey);
-    return () => window.removeEventListener("keydown", onKey);
-  }, [freeRoam]);
-
-  /* Z toggles wide pull-back view */
-  useEffect(() => {
-    const onKey = (e) => {
-      const inField = e.target?.tagName === "INPUT" || e.target?.tagName === "TEXTAREA";
-      if (inField) return;
-      if (e.key === "z" || e.key === "Z") {
-        wideRef.current = !wideRef.current;
-        forceWideRender((v) => v + 1);
-      }
-    };
-    window.addEventListener("keydown", onKey);
-    return () => window.removeEventListener("keydown", onKey);
-  }, []);
 
   /* Scene mounts/loads textures behind the warp + countdown overlays,
      so we no longer need an explicit sceneReady gate. */
   const handleSceneReady = useCallback(() => {}, []);
-  const handleCountdownDone = useCallback(() => setCountdownDone(true), []);
+  /* Finish the countdown and START the warp in the SAME update, so there's no
+     frame where the cover is gone but the warp hasn't begun (which would flash
+     the Sol close-up). Reduced-motion drops straight into the tour. */
+  const handleCountdownDone = useCallback(() => {
+    const reduced =
+      typeof window !== "undefined" &&
+      window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    setCountdownDone(true);
+    if (reduced) setShipWarpDone(true);
+    else setLaunchPhase("warp");
+  }, []);
 
   /* Console easter egg for devs who open DevTools — once per session */
   useEffect(() => {
@@ -101,26 +71,17 @@ const StellarApp = () => {
     console.log("%c🛸  Try the Konami code. Click the sun. Drag to explore.", "color: #bf61ff; font-size: 12px;");
   }, []);
 
-  /* After the countdown, run the warp: a hyperspeed fly-in from the edge of
-     the system into Sol (CameraRig drives the camera from the establishing
-     pose → Sol; WarpField draws the streaks). Reduced-motion skips it.
-     Duration matches CameraRig's WARP_DUR (2.2s). */
+  /* End the warp after WARP_DUR (2.2s) and hand over to the tour. The warp
+     itself is started in handleCountdownDone (same update as countdownDone)
+     so the scene never flashes before it begins. */
   useEffect(() => {
-    if (!countdownDone) return undefined;
-    const reduced =
-      typeof window !== "undefined" &&
-      window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-    if (reduced) {
-      setShipWarpDone(true);
-      return undefined;
-    }
-    setLaunchPhase("warp");
+    if (launchPhase !== "warp") return undefined;
     const t = setTimeout(() => {
       setLaunchPhase(null);
       setShipWarpDone(true);
     }, 2200);
     return () => clearTimeout(t);
-  }, [countdownDone]);
+  }, [launchPhase]);
 
   const handleDestinationChange = useCallback((dest) => {
     const idx = DESTINATIONS.findIndex((d) => d.id === dest.id);
@@ -193,7 +154,7 @@ const StellarApp = () => {
         activeIdx={activeIdx}
         onJump={handleJump}
         onReady={handleSceneReady}
-        freeRoamEnabled={freeRoam}
+        freeRoamEnabled={false}
         wideRef={wideRef}
         showExtras={countdownDone}
         launchPhase={launchPhase}
@@ -208,82 +169,13 @@ const StellarApp = () => {
       <WarpField velocityRef={warpVelRef} launchPhase={launchPhase} />
       {shipWarpDone && (
         <>
+          {/* Minimal UI — only the solar system, its data, and my info.
+              Ambient sound is on by default (no toggle; resumes on the first
+              user gesture, per browser autoplay policy). */}
           <Cursor />
-          <StardustTrail />
-          <Minimap activeIdx={activeIdx} onJump={handleJump} />
-          <SideRail activeIdx={activeIdx} onJump={handleJump} />
-          <Breadcrumb activeIdx={activeIdx} />
-          <LiveStats />
-          <Achievements activeIdx={activeIdx} />
-          <SpeedRun activeIdx={activeIdx} />
-          <QuoteFeed />
-          <AnswerListener />
-          <FpsMonitor />
-          <HelpOverlay />
-          <CinematicLayer getDestinationLabel={(id) => DESTINATIONS.find((d) => d.id === id)?.label} />
           <PlanetHUD destination={DESTINATIONS[activeIdx]} />
           <ContentPanel destination={DESTINATIONS[activeIdx]} />
-          <CockpitFrame enabled={cockpit} scrollTRef={scrollTRef} />
-          <EasterEgg />
-          {/* Right-edge vertical control dock — single column for all
-              toggles to avoid the previous horizontal collisions. */}
-          <div className="stellar-control-dock">
-            <AmbientAudio />
-            <VoiceNav onJump={handleJump} />
-            <VisitorLog />
-            <button
-              onClick={() => {
-                setFreeRoam((v) => {
-                  if (!v) window.dispatchEvent(new CustomEvent("stellar:freeroam"));
-                  return !v;
-                });
-              }}
-              aria-label={freeRoam ? "Exit free roam" : "Enter free roam"}
-              title={freeRoam ? "Exit free roam (WASD + arrows)" : "Free roam — WASD/arrows to fly"}
-              className="stellar-dock-btn"
-              data-active={freeRoam}
-              style={{
-                background: freeRoam ? "rgba(255, 184, 107, 0.2)" : "rgba(6, 9, 22, 0.7)",
-                border: freeRoam ? "1px solid rgba(255, 184, 107, 0.6)" : "1px solid rgba(255, 255, 255, 0.18)",
-                color: freeRoam ? "#ffb86b" : "rgba(255, 255, 255, 0.6)",
-              }}
-            >⌖</button>
-            <button
-              onClick={() => setCockpit((v) => !v)}
-              aria-label={cockpit ? "Disable cockpit" : "Enable cockpit"}
-              title={cockpit ? "Hide cockpit HUD" : "Show cockpit HUD"}
-              className="stellar-dock-btn"
-              data-active={cockpit}
-              style={{
-                background: cockpit ? "rgba(0, 206, 168, 0.18)" : "rgba(6, 9, 22, 0.7)",
-                border: cockpit ? "1px solid rgba(0, 206, 168, 0.55)" : "1px solid rgba(255, 255, 255, 0.18)",
-                color: cockpit ? "#00cea8" : "rgba(255, 255, 255, 0.6)",
-              }}
-            >⊕</button>
-          </div>
-          <style>{`
-            .stellar-control-dock {
-              position: fixed;
-              bottom: 18px;
-              right: 18px;
-              display: flex;
-              flex-direction: column-reverse;
-              gap: 8px;
-              z-index: 50;
-            }
-            .stellar-dock-btn {
-              width: 38px; height: 38px;
-              border-radius: 50%;
-              cursor: pointer;
-              font-family: 'JetBrains Mono', monospace;
-              font-size: 14px;
-              backdrop-filter: blur(10px);
-              -webkit-backdrop-filter: blur(10px);
-              display: flex; align-items: center; justify-content: center;
-              transition: background 200ms ease, border 200ms ease, color 200ms ease, transform 200ms ease;
-            }
-            .stellar-dock-btn:hover { transform: scale(1.06); }
-          `}</style>
+          <AmbientAudio />
         </>
       )}
       {/* Countdown plays FIRST on mount; the warp fly-in (WarpField streaks

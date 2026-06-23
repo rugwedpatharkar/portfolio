@@ -18,7 +18,9 @@ import { r2Affirm, r2Excited, r2Hello, r2Sad, r2Whoosh } from "./r2d2";
 const FREQS = [55, 82.5, 110]; // A1, ~E2, A2 — a tonic-fifth-octave drone
 
 const AmbientAudio = () => {
-  const [enabled, setEnabled] = useState(false);
+  /* On by default — no toggle. The context is created up front and resumed
+     on the first user gesture (browser autoplay policy). */
+  const [enabled, setEnabled] = useState(true);
   /* R2 mode is global — listens for window 'stellar:r2d2:*' events
      even when drone is off, so the toggle below can flip on R2 chirps
      independently of the drone. Defaults true (R2 is the fun bit). */
@@ -120,10 +122,23 @@ const AmbientAudio = () => {
     };
     Object.entries(handlers).forEach(([evt, fn]) => window.addEventListener(evt, fn));
 
-    /* Greet visitor on enable */
-    setTimeout(() => r2Hello(ctx, r2Gain), 800);
+    /* Resume + greet on the first user gesture (the context starts suspended
+       under the autoplay policy). Fires once, then unbinds. */
+    let greeted = false;
+    const gestureEvents = ["pointerdown", "keydown", "wheel", "touchstart"];
+    const resumeOnce = () => {
+      if (greeted) return;
+      greeted = true;
+      Promise.resolve(ctx.resume?.())
+        .then(() => setTimeout(() => r2Hello(ctx, r2Gain), 400))
+        .catch(() => {});
+      gestureEvents.forEach((evt) => window.removeEventListener(evt, resumeOnce));
+    };
+    gestureEvents.forEach((evt) => window.addEventListener(evt, resumeOnce, { passive: true }));
+    if (ctx.state === "running") resumeOnce();
 
     return () => {
+      gestureEvents.forEach((evt) => window.removeEventListener(evt, resumeOnce));
       Object.entries(handlers).forEach(([evt, fn]) => window.removeEventListener(evt, fn));
       try {
         masterGain.gain.cancelScheduledValues(ctx.currentTime);
@@ -133,38 +148,8 @@ const AmbientAudio = () => {
     };
   }, [enabled]);
 
-  return (
-    <button
-      onClick={() => setEnabled((v) => !v)}
-      aria-label={enabled ? "Mute ambient" : "Enable ambient"}
-      className="stellar-dock-btn"
-      data-active={enabled}
-      style={{
-        background: enabled ? "rgba(0, 206, 168, 0.18)" : "rgba(6, 9, 22, 0.7)",
-        border: enabled
-          ? "1px solid rgba(0, 206, 168, 0.55)"
-          : "1px solid rgba(255, 255, 255, 0.18)",
-        color: enabled ? "#00cea8" : "rgba(255, 255, 255, 0.6)",
-      }}
-      title={enabled ? "Mute ambient drone" : "Play ambient drone"}
-    >
-      {enabled ? (
-        /* speaker on */
-        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-          <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5" />
-          <path d="M15.54 8.46a5 5 0 0 1 0 7.07" />
-          <path d="M19.07 4.93a10 10 0 0 1 0 14.14" />
-        </svg>
-      ) : (
-        /* speaker off */
-        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-          <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5" />
-          <line x1="22" y1="9" x2="16" y2="15" />
-          <line x1="16" y1="9" x2="22" y2="15" />
-        </svg>
-      )}
-    </button>
-  );
+  /* No visible control — sound is always on. */
+  return null;
 };
 
 export default AmbientAudio;
