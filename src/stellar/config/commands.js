@@ -45,6 +45,7 @@ export const buildCommands = (ctx) => {
     { id: "act:map", group: "Navigate", icon: "⊕", title: "System map", subtitle: "Pull back to the whole system", shortcut: "Z", keywords: ["map", "overview", "system", "zoom out"], run: ctx.toggleMap },
     { id: "act:speedrun", group: "Challenge", icon: "⚡", title: "Start speed run", subtitle: "All 12 stops, against the clock", keywords: ["speed", "run", "timer", "race", "challenge"], run: ctx.startSpeedRun },
     { id: "act:pilot", group: "Modes", icon: "✈", title: "Take the controls (pilot)", subtitle: "Free-flight — fly the system", keywords: ["pilot", "fly", "free", "roam", "controls", "flight"], shortcut: "P", run: ctx.enterPilot },
+    { id: "act:game", group: "Modes", icon: "▣", title: "Enter the cockpit (game)", subtitle: "Play the space-game", keywords: ["game", "cockpit", "play", "mission", "fly"], run: ctx.enterGame },
     { id: "act:voice", group: "Modes", icon: "🎙", title: "Voice navigation", subtitle: "\"Take me to Earth\"", keywords: ["voice", "speech", "mic", "talk"], run: ctx.startVoice },
     { id: "time:pause", group: "Playback", icon: "⏸", title: "Pause orbits", keywords: ["pause", "stop", "freeze", "time", "orbit"], run: () => ctx.setTimeScale(0) },
     { id: "time:half", group: "Playback", icon: "◑", title: "Orbit speed ×0.5", keywords: ["slow", "half", "time", "orbit"], run: () => ctx.setTimeScale(0.5) },

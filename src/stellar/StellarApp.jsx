@@ -28,6 +28,7 @@ import CockpitFrame from "./CockpitFrame";
 import FragmentToast from "./FragmentToast";
 import HazardBanner from "./HazardBanner";
 import Radar from "./Radar";
+import GameCockpit from "./game/GameCockpit";
 import { markCharted, markVisited } from "./data/explorer";
 import { buildCommands } from "./config/commands";
 
@@ -109,6 +110,11 @@ const StellarApp = () => {
      CameraRig reads stay unchanged. */
   const [mode, setMode] = useState("tour");
   const overview = mode === "overview";
+  /* Top-level experience: "game" (cockpit flight-sim — desktop default) vs
+     "read" (the scroll-tour résumé — the fast path + mobile/reduced-motion
+     default). `flying` is true whenever the ship is under manual control. */
+  const [gameMode, setGameMode] = useState("game");
+  const flying = gameMode === "game" || mode === "pilot";
   /* First-interaction flag — fades the hero "scroll to explore" hint once the
      visitor scrolls / keys / touches (or after a timeout). */
   const [interacted, setInteracted] = useState(false);
@@ -166,9 +172,14 @@ const StellarApp = () => {
   /* Pilot freezes the scroll tour (so scroll can't fight the flight) and clears
      any stale on-screen thruster input. */
   useEffect(() => {
-    if (mode === "pilot") { window.__lenis?.stop(); thrustRef.current = {}; }
+    if (flying) { window.__lenis?.stop(); thrustRef.current = {}; }
     else window.__lenis?.start();
-  }, [mode]);
+  }, [flying]);
+
+  /* Mobile + reduced-motion default to READ mode (no flight). */
+  useEffect(() => {
+    if (isMobile || reducedMotion) setGameMode("read");
+  }, [isMobile, reducedMotion]);
 
   /* Scene mounts/loads textures behind the warp + countdown overlays,
      so we no longer need an explicit sceneReady gate. */
@@ -342,6 +353,7 @@ const StellarApp = () => {
       startVoice: () => setVoiceNonce((n) => n + 1),
       setTimeScale: handleTimeScale,
       enterPilot: togglePilot,
+      enterGame: () => setGameMode("game"),
     }),
     [handleJump, handlePick, handleTimeScale, togglePilot]
   );
@@ -387,6 +399,9 @@ const StellarApp = () => {
         if (k === "escape") setLogOpen(false);
         return;
       }
+      /* In game mode FreeRoam owns the flight keys; the hub yields (⌘K + "/" +
+         the log above still work). */
+      if (gameMode === "game") return;
       /* P toggles free-flight. While piloting, FreeRoam owns WASD/arrows — the
          hub only listens for Esc / P to dock. */
       if (k === "p") { e.preventDefault(); togglePilot(); return; }
@@ -418,7 +433,7 @@ const StellarApp = () => {
     };
     window.addEventListener("keydown", onKey);
     return () => window.removeEventListener("keydown", onKey);
-  }, [shipWarpDone, handleJump, focusedObj, clearFocus, logOpen, paletteOpen, mode, togglePilot]);
+  }, [shipWarpDone, handleJump, focusedObj, clearFocus, logOpen, paletteOpen, mode, togglePilot, gameMode]);
 
   /* Browser back/forward should also navigate */
   useEffect(() => {
@@ -462,7 +477,7 @@ const StellarApp = () => {
         activeIdx={activeIdx}
         onJump={handleJump}
         onReady={handleSceneReady}
-        freeRoamEnabled={mode === "pilot"}
+        freeRoamEnabled={flying}
         speedRef={pilotSpeedRef}
         thrustRef={thrustRef}
         wideRef={wideRef}
@@ -483,51 +498,65 @@ const StellarApp = () => {
       <WarpField velocityRef={warpVelRef} launchPhase={launchPhase} />
       {shipWarpDone && (
         <>
-          {/* Minimal UI — only the solar system, its data, and my info.
-              Ambient sound is on by default (no toggle; resumes on the first
-              user gesture, per browser autoplay policy). */}
           <Cursor />
-          {mode === "tour" && <PlanetHUD destination={DESTINATIONS[activeIdx]} />}
-          {mode === "tour" && <ContentPanel destination={DESTINATIONS[activeIdx]} />}
           <AmbientAudio />
-          <OverviewHud overview={overview} />
-          {mode === "tour" && <ProgressRail destinations={DESTINATIONS} activeIdx={activeIdx} onJump={handleJump} />}
-          {mode === "tour" && <ScrollHint visible={activeIdx === 0 && !interacted} />}
-          {/* Interactive overview map — hover any object for info, click to
-              visit (planets → résumé stop, anomalies → free fly-to). */}
-          <OverviewMap objects={OBJECTS} cameraRef={cameraRef} visible={overview && !focusedObj} onPick={handlePick} />
-          {focusedObj && <FocusCard obj={focusedObj} onBack={clearFocus} />}
-          {/* Explorer Layer — discovery rank + log, achievement toasts, and the
-              konami / sun-salute / "42" easter eggs. */}
+          {/* Discovery + toasts + palette — shared by both modes. */}
           <Achievements activeIdx={activeIdx} showStrip={false} />
           <EasterEgg />
           <AnswerListener />
-          <RankMeter onOpen={() => setLogOpen((v) => !v)} animate={!reducedMotion} />
           <DiscoveriesView open={logOpen} onClose={() => setLogOpen(false)} animate={!reducedMotion} />
-          {/* Mission Control — on-screen Nav Console + ⌘K command palette +
-              voice nav + opt-in speed run. */}
-          <NavConsole
-            mode={mode}
-            destinations={DESTINATIONS}
-            activeIdx={activeIdx}
-            onPrev={() => handleJump(Math.max(0, activeIdxRef.current - 1))}
-            onNext={() => handleJump(Math.min(DESTINATIONS.length - 1, activeIdxRef.current + 1))}
-            onMap={() => setMode((m) => (m === "overview" ? "tour" : "overview"))}
-            overview={overview}
-            timeScale={timeScale}
-            onTimeScale={handleTimeScale}
-            onTogglePilot={togglePilot}
-            thrustRef={thrustRef}
-            isMobile={isMobile}
-            animate={!reducedMotion}
-          />
-          <CockpitFrame enabled={mode === "pilot"} speedRef={pilotSpeedRef} />
+          <CommandPalette open={paletteOpen} onClose={() => setPaletteOpen(false)} commands={commands} />
           <FragmentToast />
           <HazardBanner clock={sceneClockRef.current} />
-          <Radar objects={OBJECTS} cameraRef={cameraRef} visible={mode === "pilot"} onPick={handlePick} />
-          <CommandPalette open={paletteOpen} onClose={() => setPaletteOpen(false)} commands={commands} />
-          <VoiceNav onJump={handleJump} startSignal={voiceNonce} hideButton />
-          <SpeedRun activeIdx={activeIdx} active={speedRunOn} onToggle={() => setSpeedRunOn((v) => !v)} />
+          {/* Cockpit canopy HUD + radar show whenever the ship is under control. */}
+          <CockpitFrame enabled={flying} speedRef={pilotSpeedRef} />
+          <Radar objects={OBJECTS} cameraRef={cameraRef} visible={flying} onPick={handlePick} />
+
+          {gameMode === "game" ? (
+            /* GAME — the cockpit flight-sim. */
+            <GameCockpit
+              targetId={DESTINATIONS[activeIdx]?.id}
+              thrustRef={thrustRef}
+              onReadMode={() => setGameMode("read")}
+            />
+          ) : (
+            /* READ — the scroll-tour résumé (the fast path + mobile/reduced default). */
+            <>
+              {mode === "tour" && <PlanetHUD destination={DESTINATIONS[activeIdx]} />}
+              {mode === "tour" && <ContentPanel destination={DESTINATIONS[activeIdx]} />}
+              <OverviewHud overview={overview} />
+              {mode === "tour" && <ProgressRail destinations={DESTINATIONS} activeIdx={activeIdx} onJump={handleJump} />}
+              {mode === "tour" && <ScrollHint visible={activeIdx === 0 && !interacted} />}
+              <OverviewMap objects={OBJECTS} cameraRef={cameraRef} visible={overview && !focusedObj} onPick={handlePick} />
+              {focusedObj && <FocusCard obj={focusedObj} onBack={clearFocus} />}
+              <RankMeter onOpen={() => setLogOpen((v) => !v)} animate={!reducedMotion} />
+              <NavConsole
+                mode={mode}
+                destinations={DESTINATIONS}
+                activeIdx={activeIdx}
+                onPrev={() => handleJump(Math.max(0, activeIdxRef.current - 1))}
+                onNext={() => handleJump(Math.min(DESTINATIONS.length - 1, activeIdxRef.current + 1))}
+                onMap={() => setMode((m) => (m === "overview" ? "tour" : "overview"))}
+                overview={overview}
+                timeScale={timeScale}
+                onTimeScale={handleTimeScale}
+                onTogglePilot={togglePilot}
+                thrustRef={thrustRef}
+                isMobile={isMobile}
+                animate={!reducedMotion}
+              />
+              <VoiceNav onJump={handleJump} startSignal={voiceNonce} hideButton />
+              <SpeedRun activeIdx={activeIdx} active={speedRunOn} onToggle={() => setSpeedRunOn((v) => !v)} />
+              {/* Enter the game (desktop only — flight is disabled on mobile/reduced). */}
+              {!isMobile && !reducedMotion && (
+                <button
+                  onClick={() => setGameMode("game")}
+                  aria-label="Enter the cockpit and fly the system"
+                  style={{ position: "fixed", top: 16, left: "50%", transform: "translateX(-50%)", zIndex: 47, cursor: "pointer", padding: "6px 14px", borderRadius: 999, background: "rgba(0,206,168,0.16)", border: "1px solid rgba(0,206,168,0.5)", color: "#fff", fontFamily: "'JetBrains Mono', monospace", fontSize: 10, letterSpacing: "0.12em" }}
+                >✈ FLY THE SYSTEM</button>
+              )}
+            </>
+          )}
         </>
       )}
       {/* Countdown plays FIRST on mount; the warp fly-in (WarpField streaks
