@@ -115,6 +115,9 @@ const StellarApp = () => {
      default). `flying` is true whenever the ship is under manual control. */
   const [gameMode, setGameMode] = useState("game");
   const flying = gameMode === "game" || mode === "pilot";
+  /* True free-look flight (mouse + WASD) owns the camera once the warp-in has
+     handed over. The read-mode pilot keeps the older camera-relative FreeRoam. */
+  const gameActive = gameMode === "game" && shipWarpDone;
   /* First-interaction flag — fades the hero "scroll to explore" hint once the
      visitor scrolls / keys / touches (or after a timeout). */
   const [interacted, setInteracted] = useState(false);
@@ -399,8 +402,8 @@ const StellarApp = () => {
         if (k === "escape") setLogOpen(false);
         return;
       }
-      /* In game mode FreeRoam owns the flight keys; the hub yields (⌘K + "/" +
-         the log above still work). */
+      /* In game mode GameFlight owns the flight keys (mouse-look + WASD); the
+         hub yields (⌘K + "/" + the log above still work). */
       if (gameMode === "game") return;
       /* P toggles free-flight. While piloting, FreeRoam owns WASD/arrows — the
          hub only listens for Esc / P to dock. */
@@ -477,7 +480,8 @@ const StellarApp = () => {
         activeIdx={activeIdx}
         onJump={handleJump}
         onReady={handleSceneReady}
-        freeRoamEnabled={flying}
+        freeRoamEnabled={mode === "pilot"}
+        gameActive={gameActive}
         speedRef={pilotSpeedRef}
         thrustRef={thrustRef}
         wideRef={wideRef}
@@ -508,15 +512,18 @@ const StellarApp = () => {
           <CommandPalette open={paletteOpen} onClose={() => setPaletteOpen(false)} commands={commands} />
           <FragmentToast />
           <HazardBanner clock={sceneClockRef.current} />
-          {/* Cockpit canopy HUD + radar show whenever the ship is under control. */}
-          <CockpitFrame enabled={flying} speedRef={pilotSpeedRef} />
+          {/* Minimal canopy HUD for the read-mode pilot; the game has its own
+              full cockpit (GameCockpit) so we don't double up the reticle. */}
+          <CockpitFrame enabled={mode === "pilot"} speedRef={pilotSpeedRef} />
           <Radar objects={OBJECTS} cameraRef={cameraRef} visible={flying} onPick={handlePick} />
 
           {gameMode === "game" ? (
-            /* GAME — the cockpit flight-sim. */
+            /* GAME — the cockpit flight-sim (free-look: mouse + WASD). The
+               cockpit tracks the nearest body live from cameraRef. */
             <GameCockpit
-              targetId={DESTINATIONS[activeIdx]?.id}
-              thrustRef={thrustRef}
+              cameraRef={cameraRef}
+              clock={sceneClockRef.current}
+              speedRef={pilotSpeedRef}
               onReadMode={() => setGameMode("read")}
             />
           ) : (

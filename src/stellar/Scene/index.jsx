@@ -38,6 +38,7 @@ import AutoExposure from "./AutoExposure";
 import KeyLight from "./KeyLight";
 import MouseParallax from "./MouseParallax";
 import FreeRoam from "./FreeRoam";
+import GameFlight from "./GameFlight";
 import CameraShake from "./CameraShake";
 import Voyager from "./Voyager";
 import CommitComets from "./CommitComets";
@@ -65,7 +66,7 @@ import { DESTINATIONS } from "../config/destinations";
  * tune that based on viewport bucket.
  */
 
-const Scene = ({ scrollT, activeIdx, onJump, onReady, freeRoamEnabled, speedRef, thrustRef, wideRef, wideOrbitRef, focusRef, cameraRef, clock, showExtras = true, launchPhase = null }) => {
+const Scene = ({ scrollT, activeIdx, onJump, onReady, freeRoamEnabled, gameActive = false, speedRef, thrustRef, wideRef, wideOrbitRef, focusRef, cameraRef, clock, showExtras = true, launchPhase = null }) => {
   const readyRef = useRef(false);
   const { isMobile, isCompact, reducedMotion } = useViewport();
   /* Camera offsets — kept in refs so React state doesn't re-render
@@ -172,8 +173,8 @@ const Scene = ({ scrollT, activeIdx, onJump, onReady, freeRoamEnabled, speedRef,
         {showExtras && <BlackHole position={[49, -6, -15]} radius={1.9} animate={!reducedMotion} onPointerOver={handleHoverIn} onPointerOut={handleHoverOut} />}
         {/* Spaghettification dread near Gargantua — writes clock.danger. */}
         {showExtras && <DangerField animate={!reducedMotion} />}
-        {/* Flyable résumé collectibles — collected only while piloting. */}
-        {showExtras && <DataFragments active={freeRoamEnabled} animate={!reducedMotion} />}
+        {/* Flyable résumé collectibles — collected while piloting or in the game. */}
+        {showExtras && <DataFragments active={freeRoamEnabled || gameActive} animate={!reducedMotion} />}
         {/* Anomaly suite — the discoverable spectacle. All deferred behind
             showExtras; motion-heavy ones respect reduced-motion + device. */}
         {showExtras && !reducedMotion && <Comet />}
@@ -338,10 +339,13 @@ const Scene = ({ scrollT, activeIdx, onJump, onReady, freeRoamEnabled, speedRef,
         {showExtras && <Enterprise />}
         {!isMobile && !reducedMotion && <MouseParallax offsetRef={parallaxOffsetRef} />}
         <FreeRoam enabled={freeRoamEnabled} offsetRef={freeRoamOffsetRef} speedRef={speedRef} thrustRef={thrustRef} />
+        {/* Game mode: a true free-look (mouse + WASD) flight that OWNS the
+            camera; CameraRig yields (controlsEnabled). */}
+        <GameFlight enabled={gameActive} speedRef={speedRef} cameraRef={cameraRef} thrustRef={thrustRef} />
         <CameraShake parallaxOffsetRef={parallaxOffsetRef} />
         <CameraRig
           scrollT={scrollT}
-          controlsEnabled={false}
+          controlsEnabled={gameActive}
           parallaxOffsetRef={parallaxOffsetRef}
           freeRoamOffsetRef={freeRoamOffsetRef}
           freeRoamEnabled={freeRoamEnabled}
