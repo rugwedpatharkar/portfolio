@@ -24,7 +24,6 @@ import { markCharted, markVisited, rankFor, chartedCount } from "../data/explore
 
 const MONO = "'JetBrains Mono', monospace";
 const TITLE = "'Michroma', sans-serif";
-const BODYF = "'Exo 2', sans-serif";
 const TEAL = "#00cea8";
 const STATUS_COLOR = { available: "#00cea8", busy: "#f8c555", unavailable: "#ff6b6b" };
 
@@ -239,6 +238,8 @@ const GameCockpit = ({ cameraRef, clock, speedRef, onReadMode }) => {
               <div style={{ height: "100%", width: `${Math.round(THREE.MathUtils.clamp(1 - target.dist / 40, 0, 1) * 100)}%`,
                 background: scanState === "charted" ? TEAL : scanState === "scanning" ? "#f8c555" : "#4a6fb0", transition: "width 0.12s linear" }} />
             </div>
+            {/* Physical scan data — about the celestial body, not personal
+                info (the résumé "my info" lives in Read mode, not the game). */}
             {content.facts && (
               <div style={{ marginTop: 9, display: "flex", flexDirection: "column", gap: 3 }}>
                 {content.facts.distance && <Fact k="DISTANCE" v={content.facts.distance} />}
@@ -246,14 +247,9 @@ const GameCockpit = ({ cameraRef, clock, speedRef, onReadMode }) => {
                 {content.facts.gravity && <Fact k="GRAVITY" v={content.facts.gravity} />}
               </div>
             )}
-            <div style={{ fontFamily: BODYF, fontSize: 11, color: "rgba(255,255,255,0.84)", lineHeight: 1.5, marginTop: 9 }}>
-              {content.facts?.wow || content.info}
+            <div style={{ fontFamily: MONO, fontSize: 8.5, letterSpacing: "0.1em", marginTop: 10, color: scanState === "charted" ? TEAL : "rgba(0,206,168,0.65)" }}>
+              {scanState === "charted" ? "● SCAN COMPLETE" : scanState === "scanning" ? "◉ SCANNING…" : "▸ FLY CLOSER TO SCAN"}
             </div>
-            {content.section && (
-              <div style={{ fontFamily: MONO, fontSize: 8.5, letterSpacing: "0.1em", color: scanState === "charted" ? TEAL : "rgba(0,206,168,0.6)", marginTop: 9 }}>
-                ▸ {content.section.toUpperCase()} {scanState === "charted" ? "LOGGED ✓" : "— FLY CLOSER"}
-              </div>
-            )}
           </>
         ) : (
           <div style={{ fontFamily: MONO, fontSize: 10, color: "rgba(255,255,255,0.5)", marginTop: 12, lineHeight: 1.6 }}>ACQUIRING…</div>

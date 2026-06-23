@@ -110,10 +110,11 @@ const StellarApp = () => {
      CameraRig reads stay unchanged. */
   const [mode, setMode] = useState("tour");
   const overview = mode === "overview";
-  /* Top-level experience: "game" (cockpit flight-sim — desktop default) vs
-     "read" (the scroll-tour résumé — the fast path + mobile/reduced-motion
-     default). `flying` is true whenever the ship is under manual control. */
-  const [gameMode, setGameMode] = useState("game");
+  /* Top-level experience: "read" (the scroll-tour résumé — the DEFAULT for
+     everyone) vs "game" (the cockpit flight-sim — an opt-in choice via the
+     "Become a Space Explorer" CTA, desktop only). `flying` is true whenever
+     the ship is under manual control. */
+  const [gameMode, setGameMode] = useState("read");
   const flying = gameMode === "game" || mode === "pilot";
   /* True free-look flight (mouse + WASD) owns the camera once the warp-in has
      handed over. The read-mode pilot keeps the older camera-relative FreeRoam. */
@@ -179,7 +180,8 @@ const StellarApp = () => {
     else window.__lenis?.start();
   }, [flying]);
 
-  /* Mobile + reduced-motion default to READ mode (no flight). */
+  /* The game is desktop-only: if the viewport becomes mobile or reduced-motion
+     turns on (e.g. a resize / device rotate while flying), drop back to READ. */
   useEffect(() => {
     if (isMobile || reducedMotion) setGameMode("read");
   }, [isMobile, reducedMotion]);
@@ -473,6 +475,7 @@ const StellarApp = () => {
         @keyframes stellarChevron { 0%, 100% { transform: translateY(0); opacity: 0.55; } 50% { transform: translateY(4px); opacity: 1; } }
         @keyframes stellarCaret { 50% { opacity: 0; } }
         @keyframes stellarStatusPulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.45; } }
+        @keyframes stellarGlow { 0%, 100% { box-shadow: 0 0 18px rgba(0,206,168,0.2); } 50% { box-shadow: 0 0 30px rgba(0,206,168,0.42); } }
         @media (prefers-reduced-motion: reduce) { * { animation-duration: 0.001ms !important; animation-iteration-count: 1 !important; } }
       `}</style>
       <Scene
@@ -554,14 +557,33 @@ const StellarApp = () => {
               />
               <VoiceNav onJump={handleJump} startSignal={voiceNonce} hideButton />
               <SpeedRun activeIdx={activeIdx} active={speedRunOn} onToggle={() => setSpeedRunOn((v) => !v)} />
-              {/* Enter the game (desktop only — flight is disabled on mobile/reduced). */}
-              {!isMobile && !reducedMotion && (
+              {/* Become a Space Explorer — the game is an OPT-IN choice; the
+                  résumé tour is the default. Desktop only (flight is disabled
+                  on mobile / reduced-motion). Prominent on the hero (the
+                  starting page); a slim re-entry pill once you've scrolled in. */}
+              {!isMobile && !reducedMotion && (activeIdx === 0 ? (
                 <button
                   onClick={() => setGameMode("game")}
-                  aria-label="Enter the cockpit and fly the system"
+                  aria-label="Become a Space Explorer — fly the system as a playable game"
+                  style={{ position: "fixed", top: 18, left: "50%", transform: "translateX(-50%)", zIndex: 47, cursor: "pointer",
+                    display: "flex", alignItems: "center", gap: 11, padding: "9px 16px 9px 13px", borderRadius: 999,
+                    background: "linear-gradient(90deg, rgba(0,206,168,0.2), rgba(145,94,255,0.2))",
+                    border: "1px solid rgba(0,206,168,0.6)", color: "#fff", animation: "stellarGlow 2.6s ease-in-out infinite" }}
+                >
+                  <span style={{ fontSize: 17, lineHeight: 1 }}>🚀</span>
+                  <span style={{ textAlign: "left" }}>
+                    <span style={{ display: "block", fontFamily: "'Michroma', sans-serif", fontSize: 11.5, letterSpacing: "0.07em" }}>BECOME A SPACE EXPLORER</span>
+                    <span style={{ display: "block", fontFamily: "'JetBrains Mono', monospace", fontSize: 8.5, color: "rgba(223,217,255,0.78)", marginTop: 2 }}>fly the system — playable cockpit</span>
+                  </span>
+                  <span style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 9, letterSpacing: "0.1em", color: "#00cea8" }}>▸ PLAY</span>
+                </button>
+              ) : (
+                <button
+                  onClick={() => setGameMode("game")}
+                  aria-label="Become a Space Explorer — enter the cockpit game"
                   style={{ position: "fixed", top: 16, left: "50%", transform: "translateX(-50%)", zIndex: 47, cursor: "pointer", padding: "6px 14px", borderRadius: 999, background: "rgba(0,206,168,0.16)", border: "1px solid rgba(0,206,168,0.5)", color: "#fff", fontFamily: "'JetBrains Mono', monospace", fontSize: 10, letterSpacing: "0.12em" }}
-                >✈ FLY THE SYSTEM</button>
-              )}
+                >🚀 SPACE EXPLORER</button>
+              ))}
             </>
           )}
         </>
