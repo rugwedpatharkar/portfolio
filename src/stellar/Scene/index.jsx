@@ -23,6 +23,7 @@ import LensFlare from "./LensFlare";
 import OrbitRings from "./OrbitRings";
 import Beacon from "./Beacon";
 import SolarProminences from "./SolarProminences";
+import SolarEclipse from "./SolarEclipse";
 import EarthStation from "./EarthStation";
 import { HomePin, HomeCallout } from "./HomeMarker";
 import IsroProbe from "./IsroProbe";
@@ -318,6 +319,9 @@ const Scene = ({ scrollT, activeIdx, onJump, onReady, freeRoamEnabled, gameActiv
         {!isMobile && <LensFlare position={[0, 0, 0]} />}
         {/* Orrery rings — the real orbital structure, shown in the system view. */}
         {showExtras && <OrbitRings wideRef={wideRef} />}
+        {/* Real solar eclipses — Earth's Moon + fly-behind occlusion (game),
+            and a staged Moon transit at the Sol view (read). */}
+        {showExtras && <SolarEclipse reducedMotion={reducedMotion} />}
         {!isMobile && !reducedMotion && <DustParticles />}
         {/* Non-essential extras defer-mount until the intro completes —
             keeps the warp/countdown window + LCP light, and trims the

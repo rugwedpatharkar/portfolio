@@ -3,25 +3,163 @@ import { useMemo, useRef } from "react";
 import { useFrame } from "@react-three/fiber";
 import * as THREE from "three";
 import { useSceneClock } from "./SceneClock";
+import { DESTINATIONS } from "../config/destinations";
+import { liveBodyPosition } from "../data/bodies";
 
 /*
- * A periodic solar eclipse over the sun.
+ * REAL solar eclipses — totality is computed from actual geometry, not a fake
+ * fixed sweep (the reason the old version was retired: it eclipsed constantly
+ * from a wrong angle).
  *
- * A dark moon disc drifts across the camera→sun sightline. It's pure black,
- * so against empty space it's invisible — you only see it as a dark bite out
- * of the bright sun as it transits, exactly like a real eclipse. At totality
- * a cool corona ring + diamond-ring glint flare around the silhouette.
+ * An occluder eclipses the Sun when, FROM THE CAMERA, it (a) sits in front of
+ * the Sun and (b) its apparent disc covers the Sun's. We score every candidate
+ * — a Moon that genuinely orbits Earth, and every planet — by
+ *   alignment (angular) × size-coverage × in-front
+ * and drive a corona / chromosphere / diamond-ring at the Sun by the best one.
  *
- * Cheap: one unlit sphere + two billboards, driven by screen-space alignment
- * so it stays correct under camera parallax. Frozen under reduced-motion.
+ * This means it works in BOTH modes for real:
+ *   • Game: fly so a planet (or Earth's Moon) covers the Sun → total eclipse.
+ *   • Read: planets transit the Sun as they orbit; plus a guaranteed, occasional
+ *     close Moon transit staged at the Sol view so visitors actually see one.
+ *
+ * Cheap: a handful of vector ops + three billboards. Frozen on reduced-motion.
  */
 
-const CORONA_TEXTURE = (() => {
+const SUN = new THREE.Vector3(0, 0, 0);
+const SUN_R = DESTINATIONS[0].radius; // 1.6
+const HERO_CAM = new THREE.Vector3(0, 2.5, 11);
+const NEAR_SOL = 6.5; // camera within this of the hero pose → stage the Read eclipse
+
+const EARTH = DESTINATIONS.find((d) => d.type === "earth");
+const PLANETS = DESTINATIONS.filter((d) => d.kind === "planet").map((d) => ({ id: d.id, r: d.radius }));
+
+/* Earth's Moon — a real satellite. */
+const MOON_R = 0.2;
+const MOON_ORBIT = EARTH.radius * 2.7;
+const MOON_OMEGA = 0.45;
+const MOON_TILT = 0.42;
+
+/* The staged Read transit at the Sol view (camera ≈ hero). Tuned so the disc
+   lands dead-centre on the Sun at totality and matches its apparent size. */
+const CROSS_Y = 0.9, CROSS_Z = 4.2, SWEEP_X = 9, SCRIPT_R = 0.98;
+const SCRIPT_PERIOD = 26;   // seconds between staged eclipses
+const SCRIPT_WINDOW = 0.17; // phase half-width the disc is in play (else hidden)
+
+const corona = makeCorona();
+const chromo = makeChromo();
+const glint = makeGlint();
+
+const SolarEclipse = ({ reducedMotion = false }) => {
+  const scriptMoon = useRef();
+  const earthMoon = useRef();
+  const coronaRef = useRef();
+  const chromoRef = useRef();
+  const glintRef = useRef();
+  const sceneClock = useSceneClock();
+
+  const v = useMemo(() => ({
+    occ: new THREE.Vector3(), dir: new THREE.Vector3(), sunDir: new THREE.Vector3(),
+    earth: new THREE.Vector3(), scr: new THREE.Vector3(),
+  }), []);
+
+  useFrame(({ camera }) => {
+    const t = reducedMotion ? 0 : sceneClock.t;
+    const cam = camera.position;
+    const sunDist = cam.distanceTo(SUN);
+    const sunAppR = SUN_R / sunDist;
+    v.sunDir.copy(SUN).sub(cam).normalize();
+
+    /* Earth's Moon rides Earth's live orbital position. */
+    liveBodyPosition(EARTH.id, t, v.earth);
+    const ma = t * MOON_OMEGA;
+    v.occ.set(Math.cos(ma) * MOON_ORBIT, Math.sin(ma) * MOON_ORBIT * MOON_TILT, Math.sin(ma) * MOON_ORBIT);
+    v.earth.add(v.occ); // Moon world position
+    if (earthMoon.current) earthMoon.current.position.copy(v.earth);
+
+    /* Staged Read transit — only near the Sol view, only during its window. */
+    const nearSol = cam.distanceTo(HERO_CAM) < NEAR_SOL;
+    const ph = (t % SCRIPT_PERIOD) / SCRIPT_PERIOD;          // 0..1, totality at 0.5
+    const scriptActive = nearSol && Math.abs(ph - 0.5) < SCRIPT_WINDOW;
+    const mx = (ph * 2 - 1) * SWEEP_X;
+    v.scr.set(mx, CROSS_Y, CROSS_Z);
+    if (scriptMoon.current) {
+      scriptMoon.current.position.copy(v.scr);
+      scriptMoon.current.visible = scriptActive;
+    }
+
+    /* Best totality over all real candidates (+ the staged disc when active). */
+    let best = 0;
+    const consider = (pos, r) => {
+      v.dir.copy(pos).sub(cam);
+      const dist = v.dir.length();
+      if (dist >= sunDist) return;                 // behind the Sun → can't occlude
+      v.dir.divideScalar(dist);
+      const occAppR = r / dist;
+      const ang = Math.acos(THREE.MathUtils.clamp(v.dir.dot(v.sunDir), -1, 1));
+      const alignment = THREE.MathUtils.clamp(1 - ang / (sunAppR + occAppR), 0, 1);
+      const cover = THREE.MathUtils.clamp(occAppR / sunAppR, 0, 1);
+      const tot = alignment * alignment * cover; // sharper falloff → crisp totality
+      if (tot > best) best = tot;
+    };
+    consider(v.earth, MOON_R);
+    for (const p of PLANETS) consider(liveBodyPosition(p.id, t, v.occ), p.r);
+    if (scriptActive) consider(v.scr, SCRIPT_R);
+
+    const force = typeof window !== "undefined" ? window.__forceEclipse : undefined;
+    const totality = force != null ? force : best;
+
+    if (coronaRef.current) {
+      coronaRef.current.position.copy(SUN);
+      coronaRef.current.material.opacity = totality * 0.95;
+      coronaRef.current.material.rotation += reducedMotion ? 0 : 0.0007;
+      coronaRef.current.visible = totality > 0.01;
+    }
+    if (chromoRef.current) {
+      chromoRef.current.position.copy(SUN);
+      chromoRef.current.material.opacity = Math.max(0, totality - 0.4) * 1.4;
+      chromoRef.current.visible = totality > 0.4;
+    }
+    if (glintRef.current) {
+      /* Diamond-ring: a bright glint at the last sliver before/after totality. */
+      const g = Math.max(0, 1 - Math.abs(totality - 0.85) / 0.12);
+      glintRef.current.position.copy(SUN);
+      glintRef.current.material.opacity = g;
+      glintRef.current.visible = g > 0.02;
+    }
+  });
+
+  return (
+    <group>
+      {/* Earth's real Moon (also a fly-behind eclipse occluder in the game). */}
+      <mesh ref={earthMoon}>
+        <sphereGeometry args={[MOON_R, 32, 32]} />
+        <meshStandardMaterial color="#b9bcc6" roughness={1} metalness={0} />
+      </mesh>
+      {/* Staged transit disc — pure black, invisible against space, only a dark
+          bite out of the Sun while it crosses. */}
+      <mesh ref={scriptMoon} visible={false}>
+        <sphereGeometry args={[SCRIPT_R, 48, 48]} />
+        <meshBasicMaterial color="#04050a" />
+      </mesh>
+      <sprite ref={chromoRef} scale={[5.6, 5.6, 1]}>
+        <spriteMaterial map={chromo} transparent opacity={0} depthWrite={false} depthTest={false} blending={THREE.AdditiveBlending} />
+      </sprite>
+      <sprite ref={coronaRef} scale={[6.2, 6.2, 1]}>
+        <spriteMaterial map={corona} transparent opacity={0} depthWrite={false} depthTest={false} blending={THREE.AdditiveBlending} />
+      </sprite>
+      <sprite ref={glintRef} scale={[1.6, 1.6, 1]}>
+        <spriteMaterial map={glint} transparent opacity={0} depthWrite={false} depthTest={false} blending={THREE.AdditiveBlending} />
+      </sprite>
+    </group>
+  );
+};
+
+/* ── Corona / chromosphere / diamond-ring textures (additive sprites). ── */
+function makeCorona() {
   if (typeof document === "undefined") return null;
   const c = document.createElement("canvas");
   c.width = c.height = 256;
   const ctx = c.getContext("2d");
-  /* Bright inner ring (the sun's edge) fading to a soft outer glow. */
   const g = ctx.createRadialGradient(128, 128, 46, 128, 128, 128);
   g.addColorStop(0, "rgba(255,255,255,0)");
   g.addColorStop(0.38, "rgba(255,255,255,0)");
@@ -30,7 +168,6 @@ const CORONA_TEXTURE = (() => {
   g.addColorStop(1, "rgba(135,182,255,0)");
   ctx.fillStyle = g;
   ctx.fillRect(0, 0, 256, 256);
-  /* Irregular radial streamers — the real corona's wispy spikes. */
   ctx.translate(128, 128);
   ctx.globalCompositeOperation = "lighter";
   const N = 44;
@@ -51,10 +188,8 @@ const CORONA_TEXTURE = (() => {
   const t = new THREE.CanvasTexture(c);
   t.needsUpdate = true;
   return t;
-})();
-
-/* Thin reddish chromosphere ring that flashes at the sun's limb at totality. */
-const CHROMO_TEXTURE = (() => {
+}
+function makeChromo() {
   if (typeof document === "undefined") return null;
   const c = document.createElement("canvas");
   c.width = c.height = 256;
@@ -68,9 +203,8 @@ const CHROMO_TEXTURE = (() => {
   const t = new THREE.CanvasTexture(c);
   t.needsUpdate = true;
   return t;
-})();
-
-const GLINT_TEXTURE = (() => {
+}
+function makeGlint() {
   if (typeof document === "undefined") return null;
   const c = document.createElement("canvas");
   c.width = c.height = 128;
@@ -84,106 +218,6 @@ const GLINT_TEXTURE = (() => {
   const t = new THREE.CanvasTexture(c);
   t.needsUpdate = true;
   return t;
-})();
-
-const SUN = new THREE.Vector3(0, 0, 0);
-/* The transit crossing point sits on the hero camera→sun sightline, so the
-   moon lands dead-centre on the sun at totality. */
-const CROSS_Y = 0.96;
-const CROSS_Z = 4.2;
-const SWEEP_X = 8.5;
-
-const SolarEclipse = ({ period = 22, reducedMotion = false }) => {
-  const moonRef = useRef();
-  const coronaRef = useRef();
-  const chromoRef = useRef();
-  const glintRef = useRef();
-  const _m = useMemo(() => new THREE.Vector3(), []);
-  const _s = useMemo(() => new THREE.Vector3(), []);
-  const sceneClock = useSceneClock();
-
-  useFrame(({ camera }) => {
-    /* Phase 0..1; ph=0.5 is totality. A window override lets us pin a phase
-       for visual verification; otherwise it's clock-driven (frozen if the
-       user prefers reduced motion). */
-    const override = typeof window !== "undefined" ? window.__eclipsePhase : undefined;
-    const ph =
-      override != null
-        ? override
-        : reducedMotion
-          ? 0.18 // a static, far-from-totality partial when motion is reduced
-          : (sceneClock.t % period) / period;
-
-    const mx = (ph * 2 - 1) * SWEEP_X; // linear sweep -SWEEP_X..SWEEP_X
-    if (moonRef.current) moonRef.current.position.set(mx, CROSS_Y, CROSS_Z);
-
-    /* Totality from screen-space distance between moon + sun (parallax-safe). */
-    _m.set(mx, CROSS_Y, CROSS_Z).project(camera);
-    _s.copy(SUN).project(camera);
-    const d = Math.hypot(_m.x - _s.x, _m.y - _s.y);
-    const totality = Math.max(0, 1 - d / 0.11);
-
-    if (coronaRef.current) {
-      coronaRef.current.position.copy(SUN);
-      coronaRef.current.material.opacity = totality * 0.95;
-      coronaRef.current.material.rotation += reducedMotion ? 0 : 0.0008;
-      coronaRef.current.visible = totality > 0.01;
-    }
-    if (chromoRef.current) {
-      chromoRef.current.position.copy(SUN);
-      chromoRef.current.material.opacity = totality * 0.85;
-      chromoRef.current.visible = totality > 0.2;
-    }
-    if (glintRef.current) {
-      /* Diamond-ring glint: a bright point that peaks just off perfect
-         alignment (the last/first sliver of sun). */
-      const glint = Math.max(0, 1 - Math.abs(totality - 0.82) / 0.12);
-      glintRef.current.position.copy(SUN);
-      glintRef.current.material.opacity = glint;
-      glintRef.current.visible = glint > 0.02;
-    }
-  });
-
-  return (
-    <group>
-      <mesh ref={moonRef}>
-        {/* Sized so the moon fully covers the sun's disc at totality (total
-            eclipse — black disc + corona), not an annular ring. */}
-        <sphereGeometry args={[0.98, 48, 48]} />
-        <meshBasicMaterial color="#04050a" />
-      </mesh>
-      <sprite ref={chromoRef} scale={[5.7, 5.7, 1]}>
-        <spriteMaterial
-          map={CHROMO_TEXTURE}
-          transparent
-          opacity={0}
-          depthWrite={false}
-          depthTest={false}
-          blending={THREE.AdditiveBlending}
-        />
-      </sprite>
-      <sprite ref={coronaRef} scale={[6.0, 6.0, 1]}>
-        <spriteMaterial
-          map={CORONA_TEXTURE}
-          transparent
-          opacity={0}
-          depthWrite={false}
-          depthTest={false}
-          blending={THREE.AdditiveBlending}
-        />
-      </sprite>
-      <sprite ref={glintRef} scale={[1.5, 1.5, 1]}>
-        <spriteMaterial
-          map={GLINT_TEXTURE}
-          transparent
-          opacity={0}
-          depthWrite={false}
-          depthTest={false}
-          blending={THREE.AdditiveBlending}
-        />
-      </sprite>
-    </group>
-  );
-};
+}
 
 export default SolarEclipse;
