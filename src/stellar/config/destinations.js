@@ -24,13 +24,17 @@ export const DESTINATIONS = [
     kind: "star",
     label: "Sol",
     position: [0, 0, 0],
-    radius: 1.6,
+    /* TRUE-SCALE pass: the Sun is the biggest body by far (≈109× Earth, ≈10×
+       Jupiter in reality). Capped at 4.0 here — a fully accurate Sun would be
+       ~20 units and swallow the inner planets' orbits — but it's now clearly
+       larger than every planet. */
+    radius: 4.0,
     color: "#ff9a3c",
     texture: "/textures/planets/sunmap.jpg",
     section: "hero",
-    /* A LOW angle — near the ecliptic — so the inner planets cross the Sun's
-       disc from here (real transits → eclipses) instead of passing above it. */
-    cameraTarget: { position: [0, 0.9, 11], lookAt: [0, 0, 0], fov: 60 },
+    /* Pulled back + low so the (now much larger) Sun frames cleanly and inner
+       planets still cross its disc near the ecliptic. */
+    cameraTarget: { position: [0, 1.6, 20], lookAt: [0, 0, 0], fov: 60 },
   },
 
   // Inner system
@@ -40,14 +44,14 @@ export const DESTINATIONS = [
     type: "rocky",
     label: "Mercury",
     position: [5.5, 0.1, 0.3],
-    radius: 0.5,
+    radius: 0.07, // 2,439 km — smallest planet, ~0.38× Earth
     color: "#7a7d85",
     colorB: "#2f3138",
     texture: "/textures/planets/mercurymap.jpg",
     bumpTexture: "/textures/planets/moonbump1k.jpg",
     section: "about",
-    /* Mercury — slight low angle */
-    cameraTarget: { position: [6.6, 0.3, 1.9], lookAt: [5.5, 0.1, 0.3], fov: 44 },
+    /* Camera closes in to frame the now-tiny world (offset scaled to radius). */
+    cameraTarget: { position: [5.65, 0.13, 0.52], lookAt: [5.5, 0.1, 0.3], fov: 44 },
   },
   {
     id: "funfacts",
@@ -55,7 +59,7 @@ export const DESTINATIONS = [
     type: "warm",
     label: "Venus",
     position: [8.2, -0.2, 1.0],
-    radius: 0.6,
+    radius: 0.173, // 6,052 km — Earth's near-twin
     color: "#f8c555",
     colorB: "#a0651a",
     texture: "/textures/planets/venusmap.jpg",
@@ -65,8 +69,8 @@ export const DESTINATIONS = [
     tint: "#c9b48a",
     axialTilt: 177.4 * DEG, // Venus spins retrograde — effectively upside-down
     section: "funfacts",
-    /* Venus — high 3/4 looking down through the haze */
-    cameraTarget: { position: [9.5, 1.3, 2.6], lookAt: [8.2, -0.15, 1.0], fov: 46 },
+    /* Venus — high 3/4 looking down through the haze (offset scaled to radius) */
+    cameraTarget: { position: [8.57, 0.27, 1.46], lookAt: [8.2, -0.15, 1.0], fov: 46 },
   },
   {
     id: "experience",
@@ -74,7 +78,7 @@ export const DESTINATIONS = [
     type: "earth",
     label: "Earth",
     position: [11.4, 0.0, -1.4],
-    radius: 0.75,
+    radius: 0.182, // 6,371 km — the reference world
     color: "#3b6ea8",
     colorB: "#1d3a5e",
     texture: "/textures/planets/earth_atmos.jpg",
@@ -98,7 +102,7 @@ export const DESTINATIONS = [
     /* Earth — the standout hero shot. These exact values frame the
        day/night terminator without the sun flooding the lens; do not
        move the position or the sun glares the frame orange. */
-    cameraTarget: { position: [12.9, 0.9, -0.1], lookAt: [11.4, 0, -1.4], fov: 42 },
+    cameraTarget: { position: [11.76, 0.22, -1.08], lookAt: [11.4, 0, -1.4], fov: 42 },
   },
   {
     id: "projects",
@@ -106,15 +110,15 @@ export const DESTINATIONS = [
     type: "rust",
     label: "Mars",
     position: [15.3, 0.3, 0.6],
-    radius: 0.9,
+    radius: 0.097, // 3,390 km — about half Earth
     color: "#c2553e",
     colorB: "#5d2317",
     texture: "/textures/planets/marsmap1k.jpg",
     bumpTexture: "/textures/planets/marsbump1k.jpg",
     axialTilt: 25.2 * DEG, // near-Earth obliquity — the polar caps sit off-vertical
     section: "projects",
-    /* Mars — slight low angle, rust planet leaning in */
-    cameraTarget: { position: [16.9, 0.4, 2.5], lookAt: [15.3, 0.2, 0.6], fov: 44 },
+    /* Mars — slight low angle (offset scaled to radius) */
+    cameraTarget: { position: [15.47, 0.22, 0.81], lookAt: [15.3, 0.2, 0.6], fov: 44 },
   },
 
   // Asteroid belt — Achievements
@@ -139,14 +143,14 @@ export const DESTINATIONS = [
     type: "gas",
     label: "Jupiter",
     position: [24.6, -0.4, -1.8],
-    radius: 1.7,
+    radius: 2.0, // 69,911 km — the giant; ~11× Earth
     color: "#915eff",
     colorB: "#3d2370",
     texture: "/textures/planets/jupitermap_hd.jpg",
     bumpTexture: "/textures/planets/jupiter_bump.jpg",
     section: "skills",
-    /* Jupiter — wide + slight roll to sell the scale */
-    cameraTarget: { position: [27.4, 1.2, 0.6], lookAt: [24.6, 0.1, -1.8], fov: 52, roll: -0.05 },
+    /* Jupiter — wide + slight roll to sell the scale (offset scaled to radius) */
+    cameraTarget: { position: [27.89, 1.39, 1.02], lookAt: [24.6, 0.1, -1.8], fov: 52, roll: -0.05 },
     axialTilt: 3.1 * DEG, // Jupiter spins nearly upright
     moons: 9,
     moonColor: "#cfc6e0",
@@ -159,14 +163,14 @@ export const DESTINATIONS = [
     type: "golden",
     label: "Saturn",
     position: [30.2, 0.6, 1.5],
-    radius: 1.15,
+    radius: 1.666, // 58,232 km — second-largest (excl. rings)
     color: "#e3c485",
     colorB: "#a07a3a",
     texture: "/textures/planets/saturnmap_hd.jpg",
     bumpTexture: "/textures/planets/saturn_bump.jpg",
     section: "notes",
-    /* Saturn — dutch tilt to throw the rings across the frame */
-    cameraTarget: { position: [32.6, 1.8, 3.7], lookAt: [30.2, 0, 1.5], fov: 50, roll: 0.11 },
+    /* Saturn — dutch tilt to throw the rings across the frame (offset scaled) */
+    cameraTarget: { position: [33.68, 2.61, 4.69], lookAt: [30.2, 0, 1.5], fov: 50, roll: 0.11 },
     axialTilt: 26.7 * DEG, // Saturn's obliquity — tilts the ring plane across the frame
     rings: true,
     ringTexture: "/textures/planets/saturnringcolor.jpg",
@@ -178,7 +182,7 @@ export const DESTINATIONS = [
     type: "ice",
     label: "Uranus",
     position: [34.8, -0.2, -1.0],
-    radius: 1.0,
+    radius: 0.726, // 25,362 km — ice giant
     color: "#bf61ff",
     colorB: "#7e3eab",
     texture: "/textures/planets/uranusmap_hd.jpg",
@@ -186,7 +190,7 @@ export const DESTINATIONS = [
     section: "education",
     /* Uranus — closer + tighter fov so the planet fills the negative space
        (Education read as empty), with the strong dutch tilt for its 98° axis. */
-    cameraTarget: { position: [36.5, 1.2, 0.4], lookAt: [34.8, 0, -1.0], fov: 40, roll: 0.17 },
+    cameraTarget: { position: [36.03, 0.87, 0.02], lookAt: [34.8, 0, -1.0], fov: 40, roll: 0.17 },
     axialTilt: 97.8 * DEG, // Uranus rolls on its side — the real ~98° obliquity
 
     moons: 4,
@@ -200,14 +204,14 @@ export const DESTINATIONS = [
     type: "abyss",
     label: "Neptune",
     position: [39.0, 0.4, 0.8],
-    radius: 1.05,
+    radius: 0.704, // 24,622 km — Uranus's near-twin
     color: "#1a73d8",
     colorB: "#0a3a72",
     texture: "/textures/planets/neptunemap_hd.jpg",
     bumpTexture: "/textures/planets/neptune_bump.jpg",
     section: "hobbies",
-    /* Neptune — pulled back, lonely framing in the deep dark */
-    cameraTarget: { position: [41.3, 1.4, 3.1], lookAt: [39.0, 0, 0.8], fov: 44 },
+    /* Neptune — pulled back, lonely framing in the deep dark (offset scaled) */
+    cameraTarget: { position: [40.54, 0.94, 2.34], lookAt: [39.0, 0, 0.8], fov: 44 },
     axialTilt: 28.3 * DEG, // Neptune's obliquity, close to Earth's
     moons: 6,
     moonColor: "#b8d4ee",
