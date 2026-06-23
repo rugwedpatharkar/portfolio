@@ -1,3 +1,4 @@
+/* eslint-disable react/prop-types */
 import { useRef, useState, useCallback, useEffect } from "react";
 import Scene from "./Scene";
 import Navigator from "./Navigator";
@@ -28,6 +29,38 @@ const findDestinationIndexByHash = (hash) => {
  *      overlays the whole time, so it's ready when the warp ends.
  */
 
+/* The only persistent on-screen control in the minimal UI: a subtle pill that
+   toggles the system overview (and teaches the Z shortcut / supports click +
+   touch). When overview is active it also shows a centred return hint. */
+const OverviewHud = ({ overview, onToggle }) => (
+  <>
+    {overview && (
+      <div style={{ position: "fixed", top: "7.5vh", left: 0, right: 0, zIndex: 50, pointerEvents: "none", display: "flex", flexDirection: "column", alignItems: "center", gap: 6, textAlign: "center" }}>
+        <div style={{ fontFamily: "'Michroma', sans-serif", fontSize: 17, letterSpacing: "0.16em", color: "white", textTransform: "uppercase", textShadow: "0 2px 20px rgba(0,0,0,0.85)" }}>System Overview</div>
+        <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 11, letterSpacing: "0.1em", color: "rgba(255,255,255,0.6)" }}>press Z or Esc to return</div>
+      </div>
+    )}
+    <button
+      onClick={onToggle}
+      aria-label={overview ? "Exit system overview" : "Show system overview"}
+      style={{
+        position: "fixed", bottom: 18, left: "50%", transform: "translateX(-50%)",
+        zIndex: 50, cursor: "pointer",
+        display: "inline-flex", alignItems: "center", gap: 8,
+        padding: "7px 14px", borderRadius: 999,
+        background: overview ? "rgba(120,170,255,0.18)" : "rgba(8,12,26,0.42)",
+        border: `1px solid ${overview ? "rgba(150,195,255,0.5)" : "rgba(255,255,255,0.14)"}`,
+        backdropFilter: "blur(10px)", WebkitBackdropFilter: "blur(10px)",
+        color: "rgba(255,255,255,0.8)", fontFamily: "'JetBrains Mono', monospace",
+        fontSize: 10, letterSpacing: "0.12em", textTransform: "uppercase",
+      }}
+    >
+      <kbd style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 9.5, padding: "1px 5px", borderRadius: 4, border: "1px solid rgba(255,255,255,0.28)", color: "white", lineHeight: 1.4 }}>Z</kbd>
+      <span>{overview ? "Exit overview" : "System map"}</span>
+    </button>
+  </>
+);
+
 const StellarApp = () => {
   const scrollTRef = useRef(0);
   const [countdownDone, setCountdownDone] = useState(false);
@@ -35,6 +68,9 @@ const StellarApp = () => {
      → done (hand over to the tour). */
   const [launchPhase, setLaunchPhase] = useState(null);
   const [shipWarpDone, setShipWarpDone] = useState(false);
+  /* System-overview ("wide pull-back") — Z / ⌘Z toggles the camera all the
+     way out to see the whole solar system. CameraRig already reads wideRef. */
+  const [overview, setOverview] = useState(false);
   const [activeIdx, setActiveIdx] = useState(0);
   const activeIdxRef = useRef(0);
   /* Hyperspeed warp intensity (0..1): scroll velocity during the tour + a
@@ -137,6 +173,29 @@ const StellarApp = () => {
     }
   }, [shipWarpDone, handleJump]);
 
+  /* Keep the wide-pullback ref in sync with the overview toggle (CameraRig
+     reads wideRef.current each frame). */
+  useEffect(() => {
+    wideRef.current = overview;
+  }, [overview]);
+
+  /* Z (or ⌘/Ctrl+Z) toggles the system overview; Esc exits it. No text inputs
+     exist in the app, so capturing plain "z" is safe. */
+  useEffect(() => {
+    if (!shipWarpDone) return undefined;
+    const onKey = (e) => {
+      const k = e.key.toLowerCase();
+      if (k === "z") {
+        e.preventDefault();
+        setOverview((o) => !o);
+      } else if (k === "escape") {
+        setOverview(false);
+      }
+    };
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  }, [shipWarpDone]);
+
   /* Browser back/forward should also navigate */
   useEffect(() => {
     const onHash = () => {
@@ -179,9 +238,10 @@ const StellarApp = () => {
               Ambient sound is on by default (no toggle; resumes on the first
               user gesture, per browser autoplay policy). */}
           <Cursor />
-          <PlanetHUD destination={DESTINATIONS[activeIdx]} />
-          <ContentPanel destination={DESTINATIONS[activeIdx]} />
+          {!overview && <PlanetHUD destination={DESTINATIONS[activeIdx]} />}
+          {!overview && <ContentPanel destination={DESTINATIONS[activeIdx]} />}
           <AmbientAudio />
+          <OverviewHud overview={overview} onToggle={() => setOverview((o) => !o)} />
         </>
       )}
       {/* Countdown plays FIRST on mount; the warp fly-in (WarpField streaks

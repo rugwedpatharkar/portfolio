@@ -211,7 +211,7 @@ const PlanetHUD = ({ destination }) => {
               </div>
             ))}
           </div>
-          <div style={{ marginTop: 10, padding: "9px 11px", background: `${destination.color}12`, border: `1px solid ${destination.color}30`, borderRadius: 8, fontSize: 11, color: "rgba(255,255,255,0.86)", lineHeight: 1.5, fontStyle: "italic", fontFamily: "'Space Grotesk', sans-serif" }}>
+          <div style={{ marginTop: 10, padding: "9px 11px", background: `${destination.color}12`, border: `1px solid ${destination.color}30`, borderRadius: 8, fontSize: 11, color: "rgba(255,255,255,0.86)", lineHeight: 1.5, fontStyle: "italic", fontFamily: "'Exo 2', sans-serif" }}>
             <span style={{ color: destination.color, fontWeight: 600, fontStyle: "normal" }}>★ </span>{real.wow}
           </div>
         </div>

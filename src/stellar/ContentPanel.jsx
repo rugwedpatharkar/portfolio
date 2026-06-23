@@ -35,7 +35,7 @@ import {
 const Stat = ({ label, value }) => (
   <div style={{ textAlign: "left" }}>
     <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 22, color: "white", fontWeight: 700, lineHeight: 1 }}>{value}</div>
-    <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 9, color: "rgba(255,255,255,0.5)", textTransform: "uppercase", letterSpacing: "0.08em", marginTop: 4 }}>{label}</div>
+    <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 9.5, color: "rgba(255,255,255,0.6)", textTransform: "uppercase", letterSpacing: "0.08em", marginTop: 4 }}>{label}</div>
   </div>
 );
 
@@ -71,12 +71,12 @@ const SectionTitle = ({ children }) => (
 
 const SectionLede = ({ children }) => (
   <p style={{
-    fontFamily: "'Space Grotesk', sans-serif",
-    fontSize: 14.5,
-    lineHeight: 1.7,
-    color: "rgba(255,255,255,0.75)",
-    margin: "0 0 18px 0",
-    maxWidth: "62ch",
+    fontFamily: "'Exo 2', sans-serif",
+    fontSize: 15.5,
+    lineHeight: 1.65,
+    color: "rgba(255,255,255,0.82)",
+    margin: "0 0 16px 0",
+    maxWidth: "60ch",
   }}>{children}</p>
 );
 
@@ -120,7 +120,7 @@ const HeroContent = () => (
       <Portrait size={170} color="#ffb86b" />
       <div>
         <h1 style={{ fontFamily: "'Michroma', sans-serif", fontSize: "clamp(22px, 2.1vw, 33px)", fontWeight: 400, color: "white", margin: 0, letterSpacing: "0.03em", lineHeight: 1.2, textTransform: "uppercase", textWrap: "balance" }}>{personalInfo.fullName}</h1>
-        <p style={{ fontFamily: "'Space Grotesk', sans-serif", fontSize: 17, color: "#00cea8", margin: "9px 0 0 0", fontWeight: 600 }}>
+        <p style={{ fontFamily: "'Exo 2', sans-serif", fontSize: 17, color: "#00cea8", margin: "9px 0 0 0", fontWeight: 600 }}>
           Backend &amp; Agentic AI Engineer
         </p>
       </div>
@@ -150,7 +150,7 @@ const AboutContent = () => (
       ].map(([k, v]) => (
         <div key={k}>
           <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 9, color: "rgba(255,255,255,0.4)", textTransform: "uppercase", letterSpacing: "0.08em", marginBottom: 3 }}>{k}</div>
-          <div style={{ fontFamily: "'Space Grotesk', sans-serif", fontSize: 13, color: "rgba(255,255,255,0.85)" }}>{v}</div>
+          <div style={{ fontFamily: "'Exo 2', sans-serif", fontSize: 13, color: "rgba(255,255,255,0.85)" }}>{v}</div>
         </div>
       ))}
     </div>
@@ -174,7 +174,7 @@ const FunFactsContent = () => (
           </div>
           {/* The "receipt" — the specific initiative behind the number */}
           {f.detail && (
-            <div style={{ fontFamily: "'Space Grotesk', sans-serif", fontSize: 10.5, color: "rgba(255,255,255,0.5)", marginTop: 6, lineHeight: 1.45 }}>
+            <div style={{ fontFamily: "'Exo 2', sans-serif", fontSize: 10.5, color: "rgba(255,255,255,0.5)", marginTop: 6, lineHeight: 1.45 }}>
               {f.detail}
             </div>
           )}
@@ -195,7 +195,7 @@ const ExperienceContent = () => (
         key={e.companyName}
         style={{ marginBottom: 18, paddingTop: ei ? 16 : 4, borderTop: ei ? "1px solid rgba(255,255,255,0.1)" : "none" }}
       >
-        <div style={{ fontFamily: "'Space Grotesk', sans-serif", fontSize: 19, fontWeight: 700, color: "white", lineHeight: 1.2 }}>{e.title}</div>
+        <div style={{ fontFamily: "'Exo 2', sans-serif", fontSize: 19, fontWeight: 700, color: "white", lineHeight: 1.2 }}>{e.title}</div>
         <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 12.5, color: "#61dafb", marginTop: 3 }}>{e.companyName}</div>
         <div style={{ display: "flex", alignItems: "center", gap: 12, flexWrap: "wrap", margin: "7px 0 12px 0" }}>
           <span style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 12, color: "rgba(255,255,255,0.6)" }}>{e.date}</span>
@@ -218,7 +218,7 @@ const ExperienceContent = () => (
             <div key={c.name} style={{ marginBottom: 9, breakInside: "avoid", WebkitColumnBreakInside: "avoid" }}>
               <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 10, color: "#61dafb", letterSpacing: "0.06em", textTransform: "uppercase", marginBottom: 4 }}>{c.name}</div>
               {c.points.map((p, pi) => (
-                <p key={pi} style={{ fontFamily: "'Space Grotesk', sans-serif", fontSize: 12, color: "rgba(255,255,255,0.76)", margin: "0 0 5px 0", lineHeight: 1.46 }}>• {p}</p>
+                <p key={pi} style={{ fontFamily: "'Exo 2', sans-serif", fontSize: 12.5, color: "rgba(255,255,255,0.8)", margin: "0 0 5px 0", lineHeight: 1.45 }}>• {p}</p>
               ))}
             </div>
           ))}
@@ -236,12 +236,12 @@ const ProjectsContent = () => (
       {projects.map((p) => (
         <div key={p.name} style={{ ...bareCard, display: "flex", flexDirection: "column" }}>
           <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 8, marginBottom: 4 }}>
-            <span style={{ fontFamily: "'Space Grotesk', sans-serif", fontSize: 13, color: "white", fontWeight: 600 }}>{p.name}</span>
+            <span style={{ fontFamily: "'Exo 2', sans-serif", fontSize: 13, color: "white", fontWeight: 600 }}>{p.name}</span>
             {p.status && (
               <span style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 8, color: p.status === "production" ? "#00cea8" : "#f8c555", textTransform: "uppercase", letterSpacing: "0.06em", whiteSpace: "nowrap" }}>● {p.status}</span>
             )}
           </div>
-          <div style={{ fontFamily: "'Space Grotesk', sans-serif", fontSize: 10.8, color: "rgba(255,255,255,0.64)", lineHeight: 1.4, marginBottom: 6 }}>
+          <div style={{ fontFamily: "'Exo 2', sans-serif", fontSize: 11.5, color: "rgba(255,255,255,0.7)", lineHeight: 1.42, marginBottom: 6 }}>
             {p.description}
           </div>
           {p.tags && (
@@ -270,11 +270,11 @@ const AchievementsContent = () => (
         <div key={a.title} style={bareCard}>
           <div style={{ display: "flex", alignItems: "center", gap: 6, marginBottom: 4 }}>
             <span style={{ fontSize: 14 }}>{a.icon}</span>
-            <div style={{ fontFamily: "'Space Grotesk', sans-serif", fontSize: 13, color: "white", fontWeight: 600 }}>{a.title}</div>
+            <div style={{ fontFamily: "'Exo 2', sans-serif", fontSize: 13, color: "white", fontWeight: 600 }}>{a.title}</div>
             {a.year && <span style={{ marginLeft: "auto", fontFamily: "'JetBrains Mono', monospace", fontSize: 9, color: "rgba(255,255,255,0.4)" }}>{a.year}</span>}
           </div>
           {a.description && (
-            <div style={{ fontFamily: "'Space Grotesk', sans-serif", fontSize: 11.5, color: "rgba(255,255,255,0.6)", lineHeight: 1.5 }}>{a.description}</div>
+            <div style={{ fontFamily: "'Exo 2', sans-serif", fontSize: 12, color: "rgba(255,255,255,0.68)", lineHeight: 1.5 }}>{a.description}</div>
           )}
         </div>
       ))}
@@ -297,7 +297,7 @@ const SkillsContent = () => {
             <div style={{ display: "flex", flexDirection: "column", gap: 4 }}>
               {items.map((s) => (
                 <div key={s.name}>
-                  <div style={{ display: "flex", justifyContent: "space-between", fontFamily: "'Space Grotesk', sans-serif", fontSize: 10.5, color: "rgba(255,255,255,0.78)", marginBottom: 2 }}>
+                  <div style={{ display: "flex", justifyContent: "space-between", fontFamily: "'Exo 2', sans-serif", fontSize: 11.5, color: "rgba(255,255,255,0.82)", marginBottom: 2 }}>
                     <span style={{ whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis", maxWidth: "78%" }}>{s.name}</span>
                     <span style={{ color: "rgba(255,255,255,0.4)", fontFamily: "'JetBrains Mono', monospace", fontSize: 9 }}>{s.level}</span>
                   </div>
@@ -324,8 +324,8 @@ const NotesContent = () => (
         <div key={n.title} style={{ display: "flex", gap: 14, padding: "10px 0", borderTop: i === 0 ? "none" : "1px solid rgba(255,255,255,0.08)" }}>
           <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 11, color: "rgba(255,255,255,0.35)", minWidth: 24 }}>{String(i + 1).padStart(2, "0")}</div>
           <div style={{ flex: 1 }}>
-            <div style={{ fontFamily: "'Space Grotesk', sans-serif", fontSize: 14, color: "white", fontWeight: 600, marginBottom: 3 }}>{n.title}</div>
-            <div style={{ fontFamily: "'Space Grotesk', sans-serif", fontSize: 12, color: "rgba(255,255,255,0.6)", lineHeight: 1.5 }}>{n.description}</div>
+            <div style={{ fontFamily: "'Exo 2', sans-serif", fontSize: 14, color: "white", fontWeight: 600, marginBottom: 3 }}>{n.title}</div>
+            <div style={{ fontFamily: "'Exo 2', sans-serif", fontSize: 12.5, color: "rgba(255,255,255,0.68)", lineHeight: 1.5 }}>{n.description}</div>
           </div>
         </div>
       ))}
@@ -341,8 +341,8 @@ const EducationContent = () => (
       {educations.map((edu) => (
         <div key={edu.degree} style={bareCard}>
           <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 18, color: "#bf61ff", fontWeight: 700 }}>{edu.percentage}%</div>
-          <div style={{ fontFamily: "'Space Grotesk', sans-serif", fontSize: 11, color: "white", fontWeight: 600, marginTop: 4 }}>{edu.shortName}</div>
-          <div style={{ fontFamily: "'Space Grotesk', sans-serif", fontSize: 10.5, color: "rgba(255,255,255,0.55)", marginTop: 2 }}>{edu.year}</div>
+          <div style={{ fontFamily: "'Exo 2', sans-serif", fontSize: 11, color: "white", fontWeight: 600, marginTop: 4 }}>{edu.shortName}</div>
+          <div style={{ fontFamily: "'Exo 2', sans-serif", fontSize: 10.5, color: "rgba(255,255,255,0.55)", marginTop: 2 }}>{edu.year}</div>
         </div>
       ))}
     </div>
@@ -359,16 +359,16 @@ const HobbiesContent = () => (
           <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 8, marginBottom: 4 }}>
             <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
               <span style={{ fontSize: 18 }}>{h.icon}</span>
-              <span style={{ fontFamily: "'Space Grotesk', sans-serif", fontSize: 13, color: "white", fontWeight: 600 }}>{h.name}</span>
+              <span style={{ fontFamily: "'Exo 2', sans-serif", fontSize: 13, color: "white", fontWeight: 600 }}>{h.name}</span>
             </div>
             {h.stat && (
               <span style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 9.5, color: "#61dafb", whiteSpace: "nowrap" }}>{h.stat.value}</span>
             )}
           </div>
-          <div style={{ fontFamily: "'Space Grotesk', sans-serif", fontSize: 11.5, color: "rgba(255,255,255,0.68)", marginBottom: h.detail ? 5 : 0 }}>{h.tagline}</div>
+          <div style={{ fontFamily: "'Exo 2', sans-serif", fontSize: 12, color: "rgba(255,255,255,0.74)", marginBottom: h.detail ? 5 : 0 }}>{h.tagline}</div>
           {/* The engineering-analogy detail — connects hobby → how he thinks */}
           {h.detail && (
-            <div style={{ fontFamily: "'Space Grotesk', sans-serif", fontSize: 10.5, color: "rgba(255,255,255,0.45)", lineHeight: 1.45, fontStyle: "italic" }}>{h.detail}</div>
+            <div style={{ fontFamily: "'Exo 2', sans-serif", fontSize: 10.5, color: "rgba(255,255,255,0.45)", lineHeight: 1.45, fontStyle: "italic" }}>{h.detail}</div>
           )}
         </div>
       ))}
@@ -383,7 +383,7 @@ const TestimonialsContent = () => (
     <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(240px, 1fr))", gap: 14 }}>
       {testimonials.map((t) => (
         <div key={t.name} style={bareCard}>
-          <div style={{ fontFamily: "'Space Grotesk', sans-serif", fontSize: 12.5, color: "rgba(255,255,255,0.78)", lineHeight: 1.55, fontStyle: "italic" }}>
+          <div style={{ fontFamily: "'Exo 2', sans-serif", fontSize: 13.5, color: "rgba(255,255,255,0.82)", lineHeight: 1.55, fontStyle: "italic" }}>
             “{t.quote}”
           </div>
           <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 10, color: "rgba(255,255,255,0.55)", marginTop: 10 }}>
