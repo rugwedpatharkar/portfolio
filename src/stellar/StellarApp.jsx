@@ -24,6 +24,7 @@ import CommandPalette from "./ui/CommandPalette";
 import NavConsole from "./NavConsole";
 import VoiceNav from "./VoiceNav";
 import SpeedRun from "./SpeedRun";
+import CockpitFrame from "./CockpitFrame";
 import { markCharted, markVisited } from "./data/explorer";
 import { buildCommands } from "./config/commands";
 
@@ -138,6 +139,10 @@ const StellarApp = () => {
      live-camera handle the overview map projects object positions through. */
   const focusRef = useRef(null);
   const cameraRef = useRef(null);
+  /* Pilot free-flight: live speed (CockpitFrame gauge) + on-screen thruster
+     input written by the Nav Console pad, both read by the FreeRoam rig. */
+  const pilotSpeedRef = useRef(0);
+  const thrustRef = useRef({});
   /* Shared virtual-clock handle { t, scale, danger }, created once and shared
      by identity across the canvas boundary: the scene writes `t` (scaled
      orbital world-time) + `danger` (black-hole proximity); the DOM time
@@ -145,6 +150,19 @@ const StellarApp = () => {
   const sceneClockRef = useRef(null);
   if (!sceneClockRef.current) sceneClockRef.current = { t: 0, scale: 1, danger: 0 };
   const consoleLoggedRef = useRef(false);
+
+  /* Toggle free-flight (pilot) — desktop only; reduced-motion stays docked. */
+  const togglePilot = useCallback(() => {
+    if (isMobile || reducedMotion) return;
+    setMode((m) => (m === "pilot" ? "tour" : "pilot"));
+  }, [isMobile, reducedMotion]);
+
+  /* Pilot freezes the scroll tour (so scroll can't fight the flight) and clears
+     any stale on-screen thruster input. */
+  useEffect(() => {
+    if (mode === "pilot") { window.__lenis?.stop(); thrustRef.current = {}; }
+    else window.__lenis?.start();
+  }, [mode]);
 
   /* Scene mounts/loads textures behind the warp + countdown overlays,
      so we no longer need an explicit sceneReady gate. */
@@ -289,8 +307,9 @@ const StellarApp = () => {
       startSpeedRun: () => setSpeedRunOn((v) => !v),
       startVoice: () => setVoiceNonce((n) => n + 1),
       setTimeScale: handleTimeScale,
+      enterPilot: togglePilot,
     }),
-    [handleJump, handlePick, handleTimeScale]
+    [handleJump, handlePick, handleTimeScale, togglePilot]
   );
 
   /* Fade the scroll hint on the first real interaction (or after 8s). */
@@ -334,6 +353,10 @@ const StellarApp = () => {
         if (k === "escape") setLogOpen(false);
         return;
       }
+      /* P toggles free-flight. While piloting, FreeRoam owns WASD/arrows — the
+         hub only listens for Esc / P to dock. */
+      if (k === "p") { e.preventDefault(); togglePilot(); return; }
+      if (mode === "pilot") { if (k === "escape") setMode("tour"); return; }
       if (k === "z") {
         e.preventDefault();
         setMode((m) => (m === "overview" ? "tour" : "overview"));
@@ -361,7 +384,7 @@ const StellarApp = () => {
     };
     window.addEventListener("keydown", onKey);
     return () => window.removeEventListener("keydown", onKey);
-  }, [shipWarpDone, handleJump, focusedObj, clearFocus, logOpen, paletteOpen]);
+  }, [shipWarpDone, handleJump, focusedObj, clearFocus, logOpen, paletteOpen, mode, togglePilot]);
 
   /* Browser back/forward should also navigate */
   useEffect(() => {
@@ -405,7 +428,9 @@ const StellarApp = () => {
         activeIdx={activeIdx}
         onJump={handleJump}
         onReady={handleSceneReady}
-        freeRoamEnabled={false}
+        freeRoamEnabled={mode === "pilot"}
+        speedRef={pilotSpeedRef}
+        thrustRef={thrustRef}
         wideRef={wideRef}
         focusRef={focusRef}
         cameraRef={cameraRef}
@@ -427,12 +452,12 @@ const StellarApp = () => {
               Ambient sound is on by default (no toggle; resumes on the first
               user gesture, per browser autoplay policy). */}
           <Cursor />
-          {!overview && <PlanetHUD destination={DESTINATIONS[activeIdx]} />}
-          {!overview && <ContentPanel destination={DESTINATIONS[activeIdx]} />}
+          {mode === "tour" && <PlanetHUD destination={DESTINATIONS[activeIdx]} />}
+          {mode === "tour" && <ContentPanel destination={DESTINATIONS[activeIdx]} />}
           <AmbientAudio />
           <OverviewHud overview={overview} />
-          {!overview && <ProgressRail destinations={DESTINATIONS} activeIdx={activeIdx} onJump={handleJump} />}
-          {!overview && <ScrollHint visible={activeIdx === 0 && !interacted} />}
+          {mode === "tour" && <ProgressRail destinations={DESTINATIONS} activeIdx={activeIdx} onJump={handleJump} />}
+          {mode === "tour" && <ScrollHint visible={activeIdx === 0 && !interacted} />}
           {/* Interactive overview map — hover any object for info, click to
               visit (planets → résumé stop, anomalies → free fly-to). */}
           <OverviewMap objects={OBJECTS} cameraRef={cameraRef} visible={overview && !focusedObj} onPick={handlePick} />
@@ -447,6 +472,7 @@ const StellarApp = () => {
           {/* Mission Control — on-screen Nav Console + ⌘K command palette +
               voice nav + opt-in speed run. */}
           <NavConsole
+            mode={mode}
             destinations={DESTINATIONS}
             activeIdx={activeIdx}
             onPrev={() => handleJump(Math.max(0, activeIdxRef.current - 1))}
@@ -455,9 +481,12 @@ const StellarApp = () => {
             overview={overview}
             timeScale={timeScale}
             onTimeScale={handleTimeScale}
+            onTogglePilot={togglePilot}
+            thrustRef={thrustRef}
             isMobile={isMobile}
             animate={!reducedMotion}
           />
+          <CockpitFrame enabled={mode === "pilot"} speedRef={pilotSpeedRef} />
           <CommandPalette open={paletteOpen} onClose={() => setPaletteOpen(false)} commands={commands} />
           <VoiceNav onJump={handleJump} startSignal={voiceNonce} hideButton />
           <SpeedRun activeIdx={activeIdx} active={speedRunOn} onToggle={() => setSpeedRunOn((v) => !v)} />

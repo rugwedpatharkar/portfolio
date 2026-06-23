@@ -34,27 +34,24 @@ const Bracket = ({ corner }) => {
   );
 };
 
-const CockpitFrame = ({ enabled, scrollTRef }) => {
+const CockpitFrame = ({ enabled, speedRef }) => {
   const speedTextRef = useRef(null);
 
-  /* Write velocity directly to the DOM each frame — keeping it out of
-     React state avoids ~60 reconciliations per second. */
+  /* Write the live pilot velocity straight to the DOM each frame — keeping it
+     out of React state avoids ~60 reconciliations per second. */
   useEffect(() => {
-    if (!enabled) return;
-    let last = scrollTRef.current ?? 0;
-    let speed = 0;
+    if (!enabled) return undefined;
+    let shown = 0;
     let raf = 0;
     const tick = () => {
-      const t = scrollTRef.current ?? 0;
-      const dt = Math.abs(t - last);
-      last = t;
-      speed = speed * 0.85 + dt * 9000;
-      if (speedTextRef.current) speedTextRef.current.textContent = `VEL ${Math.round(speed)} U/S`;
+      const v = speedRef?.current ?? 0;
+      shown = shown * 0.8 + v * 0.2;
+      if (speedTextRef.current) speedTextRef.current.textContent = `VEL ${Math.round(shown * 10)} U/S`;
       raf = requestAnimationFrame(tick);
     };
     raf = requestAnimationFrame(tick);
     return () => cancelAnimationFrame(raf);
-  }, [enabled, scrollTRef]);
+  }, [enabled, speedRef]);
 
   if (!enabled) return null;
 
@@ -90,9 +87,8 @@ const CockpitFrame = ({ enabled, scrollTRef }) => {
       <div
         style={{
           position: "fixed",
-          bottom: 16,
-          left: "50%",
-          transform: "translateX(-50%)",
+          bottom: 18,
+          left: 76,
           padding: "5px 12px",
           background: "rgba(6, 9, 22, 0.6)",
           border: "1px solid rgba(0, 206, 168, 0.4)",
@@ -109,7 +105,7 @@ const CockpitFrame = ({ enabled, scrollTRef }) => {
       >
         <span ref={speedTextRef}>VEL 0 U/S</span>
         <span style={{ opacity: 0.55 }}>·</span>
-        <span>SYSTEM NOMINAL</span>
+        <span>PILOT · ESC TO DOCK</span>
       </div>
     </>
   );

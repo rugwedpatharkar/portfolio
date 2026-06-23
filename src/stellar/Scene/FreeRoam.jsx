@@ -13,8 +13,10 @@ import * as THREE from "three";
 
 const SPEED = 6.0;
 const BOOST = 2.5;
+const LEASH = 14; // max distance from the tour framing — keeps the pilot from getting lost
+const EMPTY_THRUST = {};
 
-const FreeRoam = ({ enabled, offsetRef }) => {
+const FreeRoam = ({ enabled, offsetRef, speedRef, thrustRef }) => {
   const keys = useRef({});
   const { camera } = useThree();
   const fwd = useRef(new THREE.Vector3());
@@ -27,6 +29,8 @@ const FreeRoam = ({ enabled, offsetRef }) => {
       keys.current = {};
       return;
     }
+    /* Start each flight from the tour framing. */
+    offsetRef.current.set(0, 0, 0);
     const down = (e) => { keys.current[e.code] = true; };
     const upE = (e) => { keys.current[e.code] = false; };
     window.addEventListener("keydown", down);
@@ -35,26 +39,37 @@ const FreeRoam = ({ enabled, offsetRef }) => {
       window.removeEventListener("keydown", down);
       window.removeEventListener("keyup", upE);
     };
-  }, [enabled]);
+  }, [enabled, offsetRef]);
 
   useFrame((_, dt) => {
-    if (!enabled) return;
+    const off = offsetRef.current;
+    /* Auto-return: when not flying, glide the offset back to the tour framing. */
+    if (!enabled) {
+      if (off.lengthSq() > 1e-4) off.multiplyScalar(Math.pow(0.04, Math.min(dt, 1 / 20)));
+      else off.set(0, 0, 0);
+      if (speedRef) speedRef.current = 0;
+      return;
+    }
     const k = keys.current;
-    const boost = k["ShiftLeft"] || k["ShiftRight"] ? BOOST : 1;
-    const step = SPEED * boost * dt;
+    const tr = thrustRef?.current || EMPTY_THRUST;
+    const boost = k["ShiftLeft"] || k["ShiftRight"] || tr.boost ? BOOST : 1;
+    const step = SPEED * boost * Math.min(dt, 1 / 20);
 
     camera.getWorldDirection(fwd.current);
     right.current.crossVectors(fwd.current, up.current).normalize();
 
     delta.current.set(0, 0, 0);
-    if (k["KeyW"] || k["ArrowUp"]) delta.current.addScaledVector(fwd.current, step);
-    if (k["KeyS"] || k["ArrowDown"]) delta.current.addScaledVector(fwd.current, -step);
-    if (k["KeyD"] || k["ArrowRight"]) delta.current.addScaledVector(right.current, step);
-    if (k["KeyA"] || k["ArrowLeft"]) delta.current.addScaledVector(right.current, -step);
-    if (k["KeyE"] || k["Space"]) delta.current.addScaledVector(up.current, step);
-    if (k["KeyQ"]) delta.current.addScaledVector(up.current, -step);
+    if (k["KeyW"] || k["ArrowUp"] || tr.fwd) delta.current.addScaledVector(fwd.current, step);
+    if (k["KeyS"] || k["ArrowDown"] || tr.back) delta.current.addScaledVector(fwd.current, -step);
+    if (k["KeyD"] || k["ArrowRight"] || tr.right) delta.current.addScaledVector(right.current, step);
+    if (k["KeyA"] || k["ArrowLeft"] || tr.left) delta.current.addScaledVector(right.current, -step);
+    if (k["KeyE"] || k["Space"] || tr.up) delta.current.addScaledVector(up.current, step);
+    if (k["KeyQ"] || tr.down) delta.current.addScaledVector(up.current, -step);
 
-    offsetRef.current.add(delta.current);
+    off.add(delta.current);
+    /* Leash — clamp to a sphere so you can explore but never get lost. */
+    if (off.length() > LEASH) off.setLength(LEASH);
+    if (speedRef) speedRef.current = delta.current.length() / Math.max(dt, 1e-3);
   });
 
   return null;
