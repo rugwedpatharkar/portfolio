@@ -50,13 +50,14 @@ const Beacon = ({ position, radius = 0.4, color = "#ff6b6b", animate = true, onC
 
   return (
     <group position={position} onClick={onClick} onPointerOver={onPointerOver} onPointerOut={onPointerOut}>
-      {/* Over-bright emissive core → bloom turns it into a glowing signal point */}
+      {/* White-hot emissive core → bloom turns it into a brilliant signal
+          point (not a flat coloured ball). */}
       <mesh ref={coreRef}>
-        <sphereGeometry args={[radius * 0.34, 32, 32]} />
-        <meshBasicMaterial color={color} toneMapped={false} />
+        <sphereGeometry args={[radius * 0.24, 32, 32]} />
+        <meshBasicMaterial color="#fff2ea" toneMapped={false} />
       </mesh>
-      {/* Soft additive halo — kept compact (the contact camera sits close). */}
-      <sprite ref={glowRef} scale={[radius * 1.7, radius * 1.7, 1]}>
+      {/* Soft coloured halo — kept compact (the contact camera sits close). */}
+      <sprite ref={glowRef} scale={[radius * 1.35, radius * 1.35, 1]}>
         <spriteMaterial map={GLOW_TEXTURE} color={color} transparent opacity={0.4} depthWrite={false} depthTest={false} blending={THREE.AdditiveBlending} />
       </sprite>
       {/* Expanding transmission ping */}

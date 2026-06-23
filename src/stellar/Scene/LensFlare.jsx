@@ -144,22 +144,27 @@ const LensFlare = ({ position = [0, 0, 0] }) => {
     const r = Math.sqrt(ndc.x * ndc.x + ndc.y * ndc.y);
     const onScreen = !behind && r < 1.0;
     const visibility = onScreen ? Math.max(0, 1 - r) * forwardDot : 0;
-    const on = visibility > 0.01;
+    /* Fade the whole flare out in the pulled-back overview (low FOV magnifies
+       it and the sun is tiny there): full at the tour's ~44-60° FOV, gone by
+       the overview's 34°. */
+    const fovFade = Math.max(0, Math.min(1, (camera.fov - 36) / 12));
+    const vis = visibility * fovFade;
+    const on = vis > 0.01;
 
     if (glareRef.current) {
       glareRef.current.position.copy(sunPos);
-      glareRef.current.material.opacity = visibility * 0.6;
+      glareRef.current.material.opacity = vis * 0.6;
       glareRef.current.visible = on;
     }
     if (raysRef.current) {
       raysRef.current.position.copy(sunPos);
-      raysRef.current.material.opacity = visibility * 0.5;
+      raysRef.current.material.opacity = vis * 0.5;
       raysRef.current.material.rotation += 0.0016; // slow living spin
       raysRef.current.visible = on;
     }
     if (streakRef.current) {
       streakRef.current.position.copy(sunPos);
-      streakRef.current.material.opacity = visibility * 0.5;
+      streakRef.current.material.opacity = vis * 0.5;
       streakRef.current.visible = on;
     }
     /* Chain-link bokeh ghosts strung along the sun→screen-centre axis, cast
@@ -169,8 +174,10 @@ const LensFlare = ({ position = [0, 0, 0] }) => {
       const tg = (i + 1) * 0.35;
       tmp.set(ndc.x * (1 - 2 * tg), ndc.y * (1 - 2 * tg), 0.85).unproject(camera);
       g.position.copy(tmp);
-      g.material.opacity = visibility * (0.4 - i * 0.07);
-      g.visible = visibility > 0.05;
+      /* Subtle — a lens artifact, not a feature. (The wide overview's narrow
+         FOV magnifies them, so keep them faint.) */
+      g.material.opacity = vis * (0.24 - i * 0.05);
+      g.visible = vis > 0.04;
     });
   });
 
@@ -211,7 +218,7 @@ const LensFlare = ({ position = [0, 0, 0] }) => {
       </sprite>
       {/* Chain-link bokeh ghost rings strung along the lens axis — blue, additive */}
       {GHOST_COLORS.map((color, i) => (
-        <sprite key={i} ref={(el) => { ghostRefs.current[i] = el; }} scale={[0.85 + i * 0.28, 0.85 + i * 0.28, 1]}>
+        <sprite key={i} ref={(el) => { ghostRefs.current[i] = el; }} scale={[0.66 + i * 0.2, 0.66 + i * 0.2, 1]}>
           <spriteMaterial
             map={RING_TEXTURE}
             color={color}
