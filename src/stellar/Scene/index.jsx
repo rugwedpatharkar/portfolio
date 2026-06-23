@@ -1,5 +1,5 @@
 /* eslint-disable react/no-unknown-property */
-import { Suspense, useEffect, useRef } from "react";
+import { Suspense, useEffect, useRef, cloneElement } from "react";
 import { Canvas, invalidate } from "@react-three/fiber";
 import * as THREE from "three";
 import { EffectComposer, Bloom } from "@react-three/postprocessing";
@@ -24,6 +24,8 @@ import SolarEclipse from "./SolarEclipse";
 import Beacon from "./Beacon";
 import SolarProminences from "./SolarProminences";
 import EarthStation from "./EarthStation";
+import { HomePin, HomeCallout } from "./HomeMarker";
+import IsroProbe from "./IsroProbe";
 import DustParticles from "./DustParticles";
 import AdaptiveQuality from "./AdaptiveQuality";
 import AutoExposure from "./AutoExposure";
@@ -229,11 +231,20 @@ const Scene = ({ scrollT, activeIdx, onJump, onReady, freeRoamEnabled, wideRef, 
             if (d.type === "earth") {
               return (
                 <OrbitGroup key={d.id} dest={d} animate={!reducedMotion}>
-                  {planetEl}
+                  {/* The Pune "I'm here" pin rides Earth's rotating mesh. */}
+                  {cloneElement(planetEl, {}, <HomePin radius={d.radius} animate={!reducedMotion} />)}
                   {/* ISS on low Earth orbit — inherits Earth's live solar
                       position from the OrbitGroup, runs its own fast LEO. */}
                   {showExtras && !isMobile && (
                     <EarthStation planetRadius={d.radius} animate={!reducedMotion} />
+                  )}
+                  {showExtras && <HomeCallout earthRadius={d.radius} />}
+                  {showExtras && (
+                    <IsroProbe
+                      orbitRadius={d.radius * 2.2} speed={0.22} tilt={0.4} phase={1.2} scale={d.radius * 0.18}
+                      event="stellar:chandrayaan" animate={!reducedMotion}
+                      onPointerOver={handleHoverIn} onPointerOut={handleHoverOut}
+                    />
                   )}
                 </OrbitGroup>
               );
@@ -241,6 +252,14 @@ const Scene = ({ scrollT, activeIdx, onJump, onReady, freeRoamEnabled, wideRef, 
             return (
               <OrbitGroup key={d.id} dest={d} animate={!reducedMotion}>
                 {planetEl}
+                {/* Mangalyaan (Mars Orbiter Mission) rides Mars's group. */}
+                {d.id === "projects" && showExtras && (
+                  <IsroProbe
+                    orbitRadius={d.radius * 1.9} speed={0.26} tilt={0.5} phase={0.4} scale={d.radius * 0.15}
+                    event="stellar:mangalyaan" animate={!reducedMotion}
+                    onPointerOver={handleHoverIn} onPointerOut={handleHoverOut}
+                  />
+                )}
               </OrbitGroup>
             );
           }

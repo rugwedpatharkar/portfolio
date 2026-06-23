@@ -114,6 +114,8 @@ export const DISCOVERABLE = [
   { id: "hal", label: "HAL 9000", color: "#ff5a4d", hunt: true, hint: "An unblinking red eye near the giant." },
   { id: "walle", label: "WALL·E", color: "#e2a85a", hunt: true, hint: "A lonely worker, far past the blue giant." },
   { id: "watney", label: "Watney's Potato", color: "#c1632e", hunt: true, hint: "Someone grew dinner on the red planet." },
+  { id: "chandrayaan", label: "Chandrayaan", color: "#ffcf6b", hunt: true, hint: "ISRO's orbiter, circling the Moon by Earth." },
+  { id: "mangalyaan", label: "Mangalyaan (MOM)", color: "#ff9d5c", hunt: true, hint: "India's Mars Orbiter — success on the first try." },
 ];
 
 const DISCOVERABLE_IDS = new Set(DISCOVERABLE.map((d) => d.id));

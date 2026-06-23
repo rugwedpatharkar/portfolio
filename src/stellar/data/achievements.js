@@ -43,7 +43,9 @@ export const ACHIEVEMENTS = [
   { id: "hal", label: "Open the Pod Bay", icon: "⊙", color: "#ff5a4d",
     hint: "Find HAL 9000." },
   { id: "anomaly_hunter", label: "Anomaly Hunter", icon: "✦", color: "#7df2c0",
-    hint: "Chart all 9 hidden anomalies." },
+    hint: "Chart every hidden anomaly." },
+  { id: "isro", label: "Jai Vigyan", icon: "🛰", color: "#ff9933",
+    hint: "Find both ISRO missions — Chandrayaan + Mangalyaan." },
 ];
 
 export const ACHIEVEMENTS_BY_ID = Object.fromEntries(ACHIEVEMENTS.map((a) => [a.id, a]));

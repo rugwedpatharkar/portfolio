@@ -55,6 +55,7 @@ const Planet = ({
   onPointerOut,
   draggable = true,
   tint,
+  children,
 }) => {
   const groupRef = useRef();
   const planetRef = useRef();
@@ -232,6 +233,9 @@ const Planet = ({
         ) : (
           <PlanetMaterial type={type} color={color} colorB={colorB} />
         )}
+        {/* Surface markers (e.g. the Pune pin) ride here so they inherit the
+            planet's daily rotation + axial tilt. */}
+        {children}
       </mesh>
 
       {/* Cloud layer for Earth — slightly larger sphere with cloud texture.

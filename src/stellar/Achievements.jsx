@@ -85,9 +85,14 @@ const Achievements = ({ activeIdx, showStrip = true }) => {
       ["stellar:walle", find("walle")],
       ["stellar:tardis", find("tardis")],
       ["stellar:watney", find("watney")],
-      /* Meta-badge: all 9 hidden anomalies charted. Listens to the generic
-         progress event so it also catches charting done via the overview map. */
-      ["stellar:progress", () => { if (HUNT_IDS.every((id) => chartedSet().has(id))) unlock("anomaly_hunter"); }],
+      ["stellar:chandrayaan", find("chandrayaan")],
+      ["stellar:mangalyaan", find("mangalyaan")],
+      /* Meta-badges (also catch map-visit charting via the generic event). */
+      ["stellar:progress", () => {
+        const c = chartedSet();
+        if (HUNT_IDS.every((id) => c.has(id))) unlock("anomaly_hunter");
+        if (c.has("chandrayaan") && c.has("mangalyaan")) unlock("isro");
+      }],
     ];
     evts.forEach(([k, fn]) => window.addEventListener(k, fn));
     return () => evts.forEach(([k, fn]) => window.removeEventListener(k, fn));
