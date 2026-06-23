@@ -20,6 +20,7 @@ import Meteors from "./Meteors";
 import Pulsar from "./Pulsar";
 import Wormhole from "./Wormhole";
 import LensFlare from "./LensFlare";
+import SolarEclipse from "./SolarEclipse";
 import SolarProminences from "./SolarProminences";
 import EarthStation from "./EarthStation";
 import DustParticles from "./DustParticles";
@@ -272,6 +273,7 @@ const Scene = ({ scrollT, activeIdx, onJump, onReady, freeRoamEnabled, wideRef, 
         })}
 
         {!isMobile && <LensFlare position={[0, 0, 0]} />}
+        {!isMobile && showExtras && <SolarEclipse reducedMotion={reducedMotion} />}
         {!isMobile && !reducedMotion && <DustParticles />}
         {/* Non-essential extras defer-mount until the intro completes —
             keeps the warp/countdown window + LCP light, and trims the
