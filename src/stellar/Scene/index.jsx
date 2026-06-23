@@ -22,7 +22,6 @@ import Pulsar from "./Pulsar";
 import Wormhole from "./Wormhole";
 import LensFlare from "./LensFlare";
 import SolarProminences from "./SolarProminences";
-import EarthAurora from "./EarthAurora";
 import EarthStation from "./EarthStation";
 import DustParticles from "./DustParticles";
 import AdaptiveQuality from "./AdaptiveQuality";
@@ -233,7 +232,6 @@ const Scene = ({ scrollT, activeIdx, onJump, onReady, freeRoamEnabled, wideRef, 
               return (
                 <OrbitGroup key={d.id} dest={d}>
                   {planetEl}
-                  <EarthAurora position={[0, 0, 0]} radius={d.radius} />
                   {/* ISS on low Earth orbit — inherits Earth's live solar
                       position from the OrbitGroup, runs its own fast LEO. */}
                   {showExtras && !isMobile && (

@@ -33,6 +33,11 @@ void main() {
   vec4 c = texture2D(uMap, vUv);
   float lum = max(c.r, max(c.g, c.b));
   float a = smoothstep(uLumThresholdLow, uLumThresholdHigh, lum) * uOpacity;
+  /* Radial edge fade — dissolve the sprite into space toward its rim so the
+     square plane boundary (and any nebula material that runs to the image
+     edge) never shows as a hard border. */
+  float r = length(vUv - 0.5);
+  a *= smoothstep(0.5, 0.3, r);
   if (a < 0.005) discard;
   /* DESATURATE the nebula (pixel analysis flagged the sky band at ~0.6
      saturation — too punchy). Pull toward luminance so they read as soft
