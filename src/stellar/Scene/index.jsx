@@ -62,7 +62,7 @@ import { DESTINATIONS } from "../config/destinations";
 
 const Scene = ({ scrollT, activeIdx, onJump, onReady, freeRoamEnabled, wideRef, showExtras = true, launchPhase = null }) => {
   const readyRef = useRef(false);
-  const { isMobile, reducedMotion } = useViewport();
+  const { isMobile, isCompact, reducedMotion } = useViewport();
   /* Set true only when AdaptiveQuality drops to its potato tier on a weak
      GPU — used to shed the expensive Depth-of-Field pass. Toggles rarely
      (strong hysteresis), so the EffectComposer rebuild is a non-issue. */
@@ -314,6 +314,9 @@ const Scene = ({ scrollT, activeIdx, onJump, onReady, freeRoamEnabled, wideRef, 
           freeRoamEnabled={freeRoamEnabled}
           wideRef={wideRef}
           launchPhase={launchPhase}
+          /* Desktop frames the planet right-of-centre to clear the left
+             content column; compact/mobile keep it centred (stacked layout). */
+          frameShift={isCompact ? 0 : 0.3}
         />
       </Suspense>
 

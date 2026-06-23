@@ -2,6 +2,7 @@
 import { useEffect, useMemo, useState } from "react";
 import useViewport from "./useViewport";
 import { PLANET_FACTS } from "./data/planetFacts";
+import heroPhoto from "../assets/hero-photo-1024.webp";
 import {
   personalInfo,
   experiences,
@@ -108,17 +109,48 @@ const SectionLede = ({ children }) => (
   }}>{children}</p>
 );
 
+/* Rugwed's portrait — a cut-out webp framed in a glowing ring. Shown only
+   on Sol + About (the "who is this" stops). The ring tint matches the
+   destination colour so it reads as part of the cockpit palette. */
+const Portrait = ({ size = 120, color = "#ffb86b" }) => (
+  <div
+    style={{
+      width: size,
+      height: size,
+      borderRadius: "50%",
+      flexShrink: 0,
+      overflow: "hidden",
+      border: `2px solid ${color}77`,
+      boxShadow: `0 0 0 5px ${color}14, 0 0 34px ${color}40, 0 14px 40px rgba(0,0,0,0.55)`,
+      background: `radial-gradient(circle at 50% 24%, ${color}2e, rgba(8,10,26,0.7))`,
+    }}
+  >
+    <img
+      src={heroPhoto}
+      alt="Rugwed Patharkar"
+      loading="lazy"
+      draggable={false}
+      style={{ width: "100%", height: "100%", objectFit: "cover", objectPosition: "center 16%" }}
+    />
+  </div>
+);
+
 /* ── Per-destination renderers ─────────────────────────────────────── */
 
 const HeroContent = () => (
   <>
     <SectionLabel color="#ffb86b">SOL · The center</SectionLabel>
-    <SectionTitle>{personalInfo.fullName}</SectionTitle>
-    <p style={{ fontFamily: "'Sora', sans-serif", fontSize: 20, color: "#00cea8", margin: "0 0 14px 0", fontWeight: 600 }}>
-      Backend &amp; Agentic AI Engineer
-    </p>
+    <div style={{ display: "flex", gap: 18, alignItems: "center", margin: "0 0 14px 0" }}>
+      <Portrait size={118} color="#ffb86b" />
+      <div>
+        <SectionTitle>{personalInfo.fullName}</SectionTitle>
+        <p style={{ fontFamily: "'Sora', sans-serif", fontSize: 18, color: "#00cea8", margin: "6px 0 0 0", fontWeight: 600 }}>
+          Backend &amp; Agentic AI Engineer
+        </p>
+      </div>
+    </div>
     <SectionLede>{heroContent.tagline}</SectionLede>
-    <div style={{ display: "flex", gap: 36, marginTop: 18 }}>
+    <div style={{ display: "flex", gap: 36, marginTop: 18, flexWrap: "wrap" }}>
       {heroContent.stats.map((s) => (
         <Stat key={s.label} label={s.label} value={`${s.value}${s.suffix}`} />
       ))}
@@ -129,7 +161,10 @@ const HeroContent = () => (
 const AboutContent = () => (
   <>
     <SectionLabel>MERCURY · Introduction</SectionLabel>
-    <SectionTitle>{sectionMeta.about.heading}</SectionTitle>
+    <div style={{ display: "flex", gap: 16, alignItems: "center", margin: "0 0 12px 0" }}>
+      <Portrait size={88} color="#9aa7c4" />
+      <SectionTitle>{sectionMeta.about.heading}</SectionTitle>
+    </div>
     <SectionLede>{personalInfo.about}</SectionLede>
   </>
 );
@@ -542,43 +577,102 @@ const ContentPanel = ({ destination }) => {
   const fadeKey = destination?.id || "none";
   if (!Renderer) return null;
 
+  /* Compact (<1024px): the original centred bottom-sheet — the side-by-side
+     split needs desktop width, so small screens keep the working layout.
+     Planet facts ride along here (the bottom-right readout is a chip then). */
+  if (isCompact) {
+    return (
+      <div
+        className="stellar-content-panel"
+        style={{
+          position: "fixed",
+          left: isMobile ? "12px" : "max(24px, calc((100vw - 1200px) / 2 + 24px))",
+          right: isMobile ? "12px" : "max(24px, calc((100vw - 1200px) / 2 + 24px))",
+          bottom: isMobile ? "12px" : "62px",
+          maxWidth: 1200,
+          margin: "0 auto",
+          padding: isMobile ? "16px 18px" : "22px 28px",
+          background: "rgba(8, 10, 26, 0.78)",
+          backdropFilter: "blur(18px) saturate(1.2)",
+          WebkitBackdropFilter: "blur(18px) saturate(1.2)",
+          border: "1px solid rgba(255, 255, 255, 0.08)",
+          borderRadius: 14,
+          color: "white",
+          zIndex: 40,
+          pointerEvents: "auto",
+          maxHeight: isMobile ? "48vh" : "55vh",
+          overflowY: "auto",
+          boxShadow: "0 24px 80px rgba(0, 0, 0, 0.5)",
+          WebkitOverflowScrolling: "touch",
+          fontSize: isMobile ? "13.5px" : "14.5px",
+        }}
+      >
+        <div key={fadeKey} style={{ animation: "stellarPanelIn 280ms cubic-bezier(0.16, 1, 0.3, 1)" }}>
+          <Renderer />
+          <PlanetFactsAccordion destination={destination} />
+        </div>
+        <style>{`
+          @keyframes stellarPanelIn {
+            0% { opacity: 0; transform: translateY(6px); }
+            100% { opacity: 1; transform: translateY(0); }
+          }
+        `}</style>
+      </div>
+    );
+  }
+
+  /* Desktop: my info as a LEFT column floating over a left-edge gradient
+     scrim — no boxy panel, the planet stays clear on the right. Planet data
+     lives in the bottom-right readout (PlanetHUD), not here. */
   return (
-    <div
-      className="stellar-content-panel"
-      style={{
-        position: "fixed",
-        left: isMobile ? "12px" : "max(24px, calc((100vw - 1200px) / 2 + 24px))",
-        right: isMobile ? "12px" : "max(24px, calc((100vw - 1200px) / 2 + 24px))",
-        bottom: isMobile ? "12px" : "62px",
-        maxWidth: 1200,
-        margin: "0 auto",
-        padding: isMobile ? "16px 18px" : "22px 28px",
-        background: "rgba(8, 10, 26, 0.78)",
-        backdropFilter: "blur(18px) saturate(1.2)",
-        WebkitBackdropFilter: "blur(18px) saturate(1.2)",
-        border: "1px solid rgba(255, 255, 255, 0.08)",
-        borderRadius: 14,
-        color: "white",
-        zIndex: 40,
-        pointerEvents: "auto",
-        maxHeight: isMobile ? "48vh" : "55vh",
-        overflowY: "auto",
-        boxShadow: "0 24px 80px rgba(0, 0, 0, 0.5)",
-        WebkitOverflowScrolling: "touch",
-        fontSize: isCompact ? "13.5px" : "14.5px",
-      }}
-    >
-      <div key={fadeKey} style={{ animation: "stellarPanelIn 280ms cubic-bezier(0.16, 1, 0.3, 1)" }}>
-        <Renderer />
-        <PlanetFactsAccordion destination={destination} />
+    <>
+      <div
+        aria-hidden
+        style={{
+          position: "fixed",
+          left: 0,
+          top: 0,
+          bottom: 0,
+          width: "55%",
+          pointerEvents: "none",
+          zIndex: 38,
+          background:
+            "linear-gradient(96deg, rgba(4,6,16,0.95) 0%, rgba(4,6,16,0.86) 26%, rgba(4,6,16,0.5) 58%, rgba(4,6,16,0) 100%)",
+        }}
+      />
+      <div
+        className="stellar-content-left"
+        style={{
+          position: "fixed",
+          left: "clamp(168px, 12.5vw, 230px)",
+          top: "11vh",
+          width: "clamp(360px, 36vw, 552px)",
+          maxHeight: "72vh",
+          overflowY: "auto",
+          overflowX: "hidden",
+          paddingRight: 16,
+          color: "white",
+          zIndex: 40,
+          pointerEvents: "auto",
+          fontSize: "14.5px",
+          WebkitOverflowScrolling: "touch",
+        }}
+      >
+        <div key={fadeKey} style={{ animation: "stellarContentIn 340ms cubic-bezier(0.16, 1, 0.3, 1)" }}>
+          <Renderer />
+        </div>
       </div>
       <style>{`
-        @keyframes stellarPanelIn {
-          0% { opacity: 0; transform: translateY(6px); }
-          100% { opacity: 1; transform: translateY(0); }
+        @keyframes stellarContentIn {
+          0% { opacity: 0; transform: translateX(-12px); }
+          100% { opacity: 1; transform: translateX(0); }
         }
+        .stellar-content-left::-webkit-scrollbar { width: 5px; }
+        .stellar-content-left::-webkit-scrollbar-track { background: transparent; }
+        .stellar-content-left::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.14); border-radius: 3px; }
+        .stellar-content-left { scrollbar-width: thin; scrollbar-color: rgba(255,255,255,0.14) transparent; }
       `}</style>
-    </div>
+    </>
   );
 };
 

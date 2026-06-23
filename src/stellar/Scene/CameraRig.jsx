@@ -65,6 +65,8 @@ const _camA = new THREE.Vector3();
 const _lookA = new THREE.Vector3();
 const _camB = new THREE.Vector3();
 const _lookB = new THREE.Vector3();
+const _viewDir = new THREE.Vector3();
+const _right = new THREE.Vector3();
 
 const fAlpha = (base, dt) => 1 - Math.pow(1 - base, dt * 60);
 
@@ -89,6 +91,7 @@ const CameraRig = ({
   freeRoamEnabled,
   wideRef,
   launchPhase,
+  frameShift = 0,
 }) => {
   const { camera, clock } = useThree();
   const lookAtTarget = useRef(new THREE.Vector3(0, 0, 0));
@@ -210,6 +213,21 @@ const CameraRig = ({
       if (freeRoamEnabled && freeRoamOffsetRef?.current) {
         _camTarget.add(freeRoamOffsetRef.current);
       }
+    }
+
+    /* Frame the planet to the RIGHT of centre so the left column has room
+       for the content overlay. We aim a fraction of the view's half-width to
+       the LEFT of the subject, which slides the subject right on screen
+       without moving the camera or changing the planet's size. Desktop only
+       (frameShift is 0 on compact/mobile, where the layout stacks); skipped
+       in wide + free-roam. */
+    if (!wide && !freeRoamEnabled && frameShift) {
+      _viewDir.copy(_lookTarget).sub(_camTarget);
+      const dist = _viewDir.length() || 1;
+      _viewDir.divideScalar(dist);
+      _right.crossVectors(_viewDir, UP).normalize();
+      const halfW = Math.tan(THREE.MathUtils.degToRad(fovTarget * 0.5)) * dist * camera.aspect;
+      _lookTarget.addScaledVector(_right, -halfW * frameShift);
     }
 
     const posBase = wide ? WIDE_LERP_60 : freeRoamEnabled ? FREEROAM_LERP_60 : POS_LERP_60;

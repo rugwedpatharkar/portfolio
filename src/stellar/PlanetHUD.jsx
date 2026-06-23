@@ -1,6 +1,7 @@
 /* eslint-disable react/prop-types */
 import { useEffect, useMemo, useState } from "react";
 import useViewport from "./useViewport";
+import { PLANET_FACTS as REAL_FACTS } from "./data/planetFacts";
 
 /*
  * Holographic data card pinned to the top-left when a destination is
@@ -47,7 +48,9 @@ const Typed = ({ text, speed = 18, deps = [] }) => {
 
 const PlanetHUD = ({ destination }) => {
   const facts = useMemo(() => PLANET_FACTS[destination?.id] || null, [destination]);
-  const { isMobile } = useViewport();
+  const real = useMemo(() => REAL_FACTS[destination?.id] || null, [destination]);
+  const { isMobile, isCompact } = useViewport();
+  const [factsOpen, setFactsOpen] = useState(false);
   if (!destination || !facts) return null;
 
   /* Mobile: a compact single chip — target dot + planet name + class.
@@ -86,7 +89,9 @@ const PlanetHUD = ({ destination }) => {
     );
   }
 
-  return (
+  /* Tablet (768–1023px): keep the original top-left card (the layout is the
+     stacked bottom-sheet there, so the corner is free). */
+  if (isCompact) return (
     <div
       style={{
         position: "fixed",
@@ -148,6 +153,81 @@ const PlanetHUD = ({ destination }) => {
           50% { opacity: 0.6; box-shadow: 0 0 0 4px transparent; }
         }
       `}</style>
+    </div>
+  );
+
+  /* Desktop (≥1024px): the planet readout moves to the lower-right, beneath
+     the planet (which is now framed right-of-centre). It carries the full
+     planet data plus an expandable "real data" panel — so everything about
+     the planet lives on the right, and the left column is purely about me. */
+  const realRows = real
+    ? [["Year", real.year], ["Day", real.day], ["Gravity", real.gravity], ["Atmosphere", real.atmosphere], ["Moons", real.moons]]
+    : [];
+  return (
+    <div
+      style={{
+        position: "fixed",
+        right: 74,
+        bottom: 80,
+        width: 276,
+        padding: "12px 16px 14px",
+        background: "rgba(6, 9, 22, 0.72)",
+        backdropFilter: "blur(14px) saturate(1.2)",
+        WebkitBackdropFilter: "blur(14px) saturate(1.2)",
+        border: `1px solid ${destination.color}55`,
+        borderRadius: 10,
+        color: "white",
+        fontFamily: "'JetBrains Mono', monospace",
+        zIndex: 45,
+        pointerEvents: "auto",
+        boxShadow: `0 18px 50px rgba(0,0,0,0.55), inset 0 0 60px ${destination.color}10`,
+        overflow: "hidden",
+      }}
+    >
+      <div style={{ position: "absolute", inset: 0, backgroundImage: "linear-gradient(rgba(255,255,255,0.025) 50%, transparent 50%)", backgroundSize: "100% 4px", pointerEvents: "none" }} />
+      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 6 }}>
+        <div style={{ display: "flex", alignItems: "center", gap: 6, fontSize: 9.5, color: destination.color, letterSpacing: "0.12em" }}>
+          <span style={{ display: "inline-block", width: 6, height: 6, background: destination.color, borderRadius: "50%", animation: "hudpulse 1.4s ease-in-out infinite" }} />
+          <span>TARGET ACQUIRED</span>
+        </div>
+        <span style={{ fontSize: 9, color: "rgba(255,255,255,0.4)" }}>{destination.id.toUpperCase()}</span>
+      </div>
+      <div style={{ fontSize: 22, fontWeight: 700, color: "white", marginBottom: 2, fontFamily: "'Sora', sans-serif" }}>
+        <Typed text={destination.label || destination.id} speed={28} deps={[destination.id]} />
+      </div>
+      <div style={{ fontSize: 9.5, color: destination.color, letterSpacing: "0.12em", marginBottom: 10, textTransform: "uppercase" }}>{facts.class}</div>
+      <div style={{ display: "grid", gridTemplateColumns: "auto 1fr", gap: "3px 12px", fontSize: 10.5, color: "rgba(255,255,255,0.72)" }}>
+        <span style={{ color: "rgba(255,255,255,0.4)" }}>DISTANCE</span><span>{facts.dist}</span>
+        <span style={{ color: "rgba(255,255,255,0.4)" }}>DIAMETER</span><span>{facts.diameter}</span>
+        <span style={{ color: "rgba(255,255,255,0.4)" }}>SECTION</span><span style={{ color: destination.color }}>{destination.section}</span>
+      </div>
+      <div style={{ marginTop: 9, paddingTop: 8, borderTop: `1px dashed ${destination.color}33`, fontSize: 10, color: "rgba(255,255,255,0.55)", fontStyle: "italic" }}>{facts.note}</div>
+      {real && (
+        <div style={{ marginTop: 10, paddingTop: 9, borderTop: "1px solid rgba(255,255,255,0.08)" }}>
+          <button
+            onClick={() => setFactsOpen((v) => !v)}
+            style={{ all: "unset", cursor: "pointer", display: "flex", alignItems: "center", gap: 7, fontFamily: "'JetBrains Mono', monospace", fontSize: 9.5, color: destination.color, letterSpacing: "0.1em", textTransform: "uppercase" }}
+          >
+            <span>{factsOpen ? "▼" : "▶"}</span><span>Real data</span>
+          </button>
+          {factsOpen && (
+            <div style={{ marginTop: 9 }}>
+              <div style={{ display: "grid", gridTemplateColumns: "auto 1fr", gap: "4px 12px", fontSize: 10 }}>
+                {realRows.map(([k, v]) => (
+                  <div key={k} style={{ display: "contents" }}>
+                    <span style={{ color: "rgba(255,255,255,0.4)", textTransform: "uppercase", letterSpacing: "0.06em" }}>{k}</span>
+                    <span style={{ color: "rgba(255,255,255,0.82)" }}>{v}</span>
+                  </div>
+                ))}
+              </div>
+              <div style={{ marginTop: 10, padding: "9px 11px", background: `${destination.color}12`, border: `1px solid ${destination.color}30`, borderRadius: 8, fontSize: 11, color: "rgba(255,255,255,0.86)", lineHeight: 1.5, fontStyle: "italic", fontFamily: "'DM Sans', sans-serif" }}>
+                <span style={{ color: destination.color, fontWeight: 600, fontStyle: "normal" }}>★ </span>{real.wow}
+              </div>
+            </div>
+          )}
+        </div>
+      )}
+      <style>{`@keyframes hudpulse { 0%,100% { opacity: 1; } 50% { opacity: 0.6; } }`}</style>
     </div>
   );
 };
