@@ -87,6 +87,7 @@ const Achievements = ({ activeIdx, showStrip = true }) => {
       ["stellar:watney", find("watney")],
       ["stellar:chandrayaan", find("chandrayaan")],
       ["stellar:mangalyaan", find("mangalyaan")],
+      ["stellar:pulsar", () => { markCharted("pulsar"); unlock("codebreaker"); }],
       /* Meta-badges (also catch map-visit charting via the generic event). */
       ["stellar:progress", () => {
         const c = chartedSet();

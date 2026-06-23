@@ -46,6 +46,8 @@ export const ACHIEVEMENTS = [
     hint: "Chart every hidden anomaly." },
   { id: "isro", label: "Jai Vigyan", icon: "🛰", color: "#ff9933",
     hint: "Find both ISRO missions — Chandrayaan + Mangalyaan." },
+  { id: "codebreaker", label: "Codebreaker", icon: "⠿", color: "#9fd2ff",
+    hint: "Decode the pulsar's signal." },
 ];
 
 export const ACHIEVEMENTS_BY_ID = Object.fromEntries(ACHIEVEMENTS.map((a) => [a.id, a]));

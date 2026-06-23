@@ -1,5 +1,5 @@
 /* eslint-disable react/prop-types */
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { getDiscoveriesModel } from "./data/explorer";
 import useViewport from "./useViewport";
 
@@ -21,20 +21,34 @@ const RankMeter = ({ onOpen, animate = true }) => {
   const { isMobile } = useViewport();
   const [{ rank, hunt }, setState] = useState(read);
   const [hover, setHover] = useState(false);
+  const [rankUp, setRankUp] = useState(null);
+  const prevTierRef = useRef(null);
+  const upTimer = useRef(null);
 
   useEffect(() => {
-    const refresh = () => setState(read());
+    const refresh = () => {
+      const next = read();
+      setState(next);
+      /* Rank-gated reveal — a celebratory promotion toast on tier climb. */
+      if (prevTierRef.current != null && next.rank.tier > prevTierRef.current) {
+        setRankUp(next.rank.label);
+        clearTimeout(upTimer.current);
+        upTimer.current = setTimeout(() => setRankUp(null), 4500);
+      }
+      prevTierRef.current = next.rank.tier;
+    };
     window.addEventListener("stellar:progress", refresh);
     /* Re-read once on mount in case progress was hydrated after first paint. */
     refresh();
-    return () => window.removeEventListener("stellar:progress", refresh);
+    return () => { window.removeEventListener("stellar:progress", refresh); clearTimeout(upTimer.current); };
   }, []);
 
   const pct = Math.round((rank.count / rank.total) * 100);
   const accent = "#915eff";
 
   return (
-    <button
+    <>
+      <button
       onClick={onOpen}
       onMouseEnter={() => setHover(true)}
       onMouseLeave={() => setHover(false)}
@@ -95,7 +109,24 @@ const RankMeter = ({ onOpen, animate = true }) => {
         <span>{rank.next ? `${rank.remaining} to ${rank.next}` : "MAX RANK"}</span>
         <span>{hunt.found}/{hunt.total} anomalies</span>
       </div>
-    </button>
+      </button>
+      {rankUp && (
+        <div style={{
+          position: "fixed", top: 96, left: "50%", transform: "translateX(-50%)",
+          zIndex: 60, pointerEvents: "none", textAlign: "center",
+          padding: "12px 30px", borderRadius: 14,
+          background: "rgba(8,11,24,0.92)", border: "1px solid rgba(145,94,255,0.6)",
+          backdropFilter: "blur(12px)", WebkitBackdropFilter: "blur(12px)",
+          boxShadow: "0 16px 50px rgba(0,0,0,0.55), 0 0 40px rgba(145,94,255,0.3)",
+          animation: animate ? "rankUpPop 4.5s ease-in-out" : "none",
+        }}>
+          <div style={{ fontFamily: MONO, fontSize: 9.5, letterSpacing: "0.25em", color: "#00cea8" }}>⬆ PROMOTION</div>
+          <div style={{ fontFamily: "'Michroma', sans-serif", fontSize: 20, letterSpacing: "0.08em", textTransform: "uppercase", color: "white", marginTop: 4 }}>{rankUp}</div>
+          <div style={{ fontFamily: MONO, fontSize: 9, color: "rgba(223,217,255,0.6)", marginTop: 3 }}>explorer rank advanced</div>
+        </div>
+      )}
+      <style>{`@keyframes rankUpPop { 0% { opacity: 0; transform: translateX(-50%) translateY(-10px) scale(0.95); } 12%, 82% { opacity: 1; transform: translateX(-50%) translateY(0) scale(1); } 100% { opacity: 0; transform: translateX(-50%) translateY(-10px) scale(0.97); } }`}</style>
+    </>
   );
 };
 

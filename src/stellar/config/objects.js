@@ -49,7 +49,7 @@ const ANOMALY_OBJECTS = [
   },
   {
     id: "pulsar", label: "Pulsar", category: "Neutron star", color: "#9fd0ff", position: [-26, 16, -34],
-    info: "A rapidly spinning neutron star sweeping twin lighthouse beams across the void — a teaspoon of it would weigh billions of tonnes.",
+    info: "A rapidly spinning neutron star sweeping twin lighthouse beams across the void — a teaspoon of it would weigh billions of tonnes. Its sweep blinks Morse: ·-- ·- ···- · — click it to decode.",
     visit: { kind: "focus", cameraTarget: frame([-26, 16, -34], 7, 1.6, 44) },
   },
   {

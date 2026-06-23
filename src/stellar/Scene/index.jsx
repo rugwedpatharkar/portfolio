@@ -26,6 +26,9 @@ import SolarProminences from "./SolarProminences";
 import EarthStation from "./EarthStation";
 import { HomePin, HomeCallout } from "./HomeMarker";
 import IsroProbe from "./IsroProbe";
+import MilkyWay from "./MilkyWay";
+import ShootingStars from "./ShootingStars";
+import RocketLaunch from "./RocketLaunch";
 import DustParticles from "./DustParticles";
 import AdaptiveQuality from "./AdaptiveQuality";
 import AutoExposure from "./AutoExposure";
@@ -156,6 +159,8 @@ const Scene = ({ scrollT, activeIdx, onJump, onReady, freeRoamEnabled, wideRef, 
         <Skybox />
         <Stars />
         <Nebulae />
+        {/* Grand faint galactic band — far backdrop for depth. */}
+        <MilkyWay animate={!reducedMotion} />
         {/* The edge anomaly — a black hole beyond the contact beacon: you
             reach the edge of the system and there it is, pulling at the
             void. Framed behind the beacon on the contact stop. */}
@@ -163,6 +168,8 @@ const Scene = ({ scrollT, activeIdx, onJump, onReady, freeRoamEnabled, wideRef, 
         {/* Anomaly suite — the discoverable spectacle. All deferred behind
             showExtras; motion-heavy ones respect reduced-motion + device. */}
         {showExtras && !reducedMotion && <Comet />}
+        {/* Clickable wishing meteors. */}
+        {showExtras && !reducedMotion && <ShootingStars animate={!reducedMotion} />}
         {showExtras && !isMobile && !reducedMotion && <Meteors />}
         {showExtras && !isMobile && !reducedMotion && <Pulsar />}
         {/* Wormhole "Beam aboard" portal at the Contact edge — the booking CTA. */}
@@ -237,6 +244,9 @@ const Scene = ({ scrollT, activeIdx, onJump, onReady, freeRoamEnabled, wideRef, 
                       position from the OrbitGroup, runs its own fast LEO. */}
                   {showExtras && !isMobile && (
                     <EarthStation planetRadius={d.radius} animate={!reducedMotion} />
+                  )}
+                  {showExtras && !isMobile && (
+                    <RocketLaunch earthRadius={d.radius} animate={!reducedMotion} />
                   )}
                   {showExtras && <HomeCallout earthRadius={d.radius} />}
                   {showExtras && (

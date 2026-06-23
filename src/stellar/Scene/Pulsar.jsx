@@ -61,6 +61,15 @@ const Pulsar = ({ position = [-26, 16, -34], radius = 0.18 }) => {
         <sphereGeometry args={[radius * 2.4, 16, 16]} />
         <meshBasicMaterial color="#5aa0ff" transparent opacity={0.22} side={THREE.BackSide} blending={THREE.AdditiveBlending} depthWrite={false} toneMapped={false} />
       </mesh>
+      {/* Generous invisible hit area — click to "decode" the pulsar's signal. */}
+      <mesh
+        onClick={(e) => { e.stopPropagation(); window.dispatchEvent(new CustomEvent("stellar:pulsar")); }}
+        onPointerOver={() => { if (typeof document !== "undefined") document.body.style.cursor = "pointer"; }}
+        onPointerOut={() => { if (typeof document !== "undefined") document.body.style.cursor = ""; }}
+      >
+        <sphereGeometry args={[radius * 12, 12, 12]} />
+        <meshBasicMaterial transparent opacity={0} depthWrite={false} />
+      </mesh>
 
       {/* Spinning, tilted beam axis → lighthouse sweep */}
       <group ref={spinRef}>

@@ -11,6 +11,11 @@ import { useSceneClock } from "./SceneClock";
  * over the surface, with a brightness boost at random "flare hot spots"
  * that drift around the sphere.
  *
+ * On top of the constant seething, a periodic CME flare erupts: roughly
+ * every ~10–18s a hot spot on the limb swells, peaks, and fades on a slow
+ * envelope — a tasteful eruption, not a constant blaze. Driven by the
+ * shared virtual clock so time-control (pause/×2) affects it too.
+ *
  * The shader is additive so it stacks cleanly on bloom.
  */
 
@@ -35,6 +40,8 @@ uniform float uTime;
 uniform vec3 uColorA;
 uniform vec3 uColorB;
 uniform vec3 uCameraPos;
+uniform vec3 uFlareDir;    // unit dir of the current CME eruption on the limb
+uniform float uFlareAmp;   // 0..1 rise→peak→fade envelope of the eruption
 
 /* iqilez 3D simplex noise — compact */
 vec3 mod289(vec3 x){return x-floor(x*(1.0/289.0))*289.0;}
@@ -80,12 +87,23 @@ void main() {
   float noise = (n * 0.6 + n2 * 0.4);
   /* Punch up the limb where rim is strong */
   float intensity = rim * (0.4 + noise * 0.9);
-  vec3 col = mix(uColorB, uColorA, smoothstep(0.3, 1.0, noise));
+
+  /* CME flare — a localized eruption arcing off the limb. uFlareDir marks
+     the hot spot; flare fades with angular distance from it and rides the
+     uFlareAmp rise→peak→fade envelope. Fine turbulence makes the loop
+     seethe; the rim mask keeps it hugging the limb like a real prominence. */
+  float aim = max(dot(normalize(vNormal), normalize(uFlareDir)), 0.0);
+  float spot = pow(aim, 8.0);
+  float loop = snoise(p * 1.7 + vec3(0.0, uTime * 0.5, 0.0)) * 0.5 + 0.5;
+  float flare = uFlareAmp * spot * rim * (0.6 + loop * 0.9);
+  intensity += flare * 1.8;
+
+  vec3 col = mix(uColorB, uColorA, smoothstep(0.3, 1.0, noise + flare));
   gl_FragColor = vec4(col * intensity * 1.6, intensity);
 }
 `;
 
-const SolarProminences = ({ position = [0, 0, 0], radius = 1.6 }) => {
+const SolarProminences = ({ position = [0, 0, 0], radius = 1.6, animate = true }) => {
   const matRef = useRef();
   const sceneClock = useSceneClock();
 
@@ -95,14 +113,39 @@ const SolarProminences = ({ position = [0, 0, 0], radius = 1.6 }) => {
       uColorA: { value: new THREE.Color("#fff0c0") },
       uColorB: { value: new THREE.Color("#ff7028") },
       uCameraPos: { value: new THREE.Vector3() },
+      uFlareDir: { value: new THREE.Vector3(1, 0, 0) },
+      uFlareAmp: { value: 0 },
     }),
     []
   );
 
   useFrame(({ camera }) => {
-    if (matRef.current) {
-      matRef.current.uniforms.uTime.value = sceneClock.t;
-      matRef.current.uniforms.uCameraPos.value.copy(camera.position);
+    if (!matRef.current) return;
+    const t = animate ? sceneClock.t : 0;
+    matRef.current.uniforms.uTime.value = t;
+    matRef.current.uniforms.uCameraPos.value.copy(camera.position);
+
+    /* Periodic CME flare. One eruption per CYCLE seconds; a new random
+       limb direction is chosen each cycle (seeded by the cycle index so it
+       stays deterministic under virtual time). The envelope is a single
+       smooth rise→peak→fade hump occupying the first BURST seconds of the
+       cycle, so the sun is quiet between eruptions. Frozen when !animate. */
+    const CYCLE = 14.0; // ~14s between flares (10–18s feel)
+    const BURST = 5.0; // eruption lasts ~5s, then quiet
+    const cycle = Math.floor(t / CYCLE);
+    const phase = (t / CYCLE - cycle) * CYCLE; // 0..CYCLE
+    const env = phase < BURST ? Math.sin((phase / BURST) * Math.PI) : 0;
+    matRef.current.uniforms.uFlareAmp.value = animate ? env * env : 0;
+    if (env > 0) {
+      // Deterministic pseudo-random direction per cycle.
+      const a = Math.sin(cycle * 12.9898) * 43758.5453;
+      const b = Math.sin(cycle * 78.233) * 43758.5453;
+      const u = a - Math.floor(a);
+      const v = b - Math.floor(b);
+      const theta = u * Math.PI * 2;
+      const z = v * 2 - 1;
+      const s = Math.sqrt(Math.max(0, 1 - z * z));
+      matRef.current.uniforms.uFlareDir.value.set(s * Math.cos(theta), s * Math.sin(theta), z);
     }
   });
 

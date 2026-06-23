@@ -79,7 +79,15 @@ const SUN_FRAG = /* glsl */ `
     vec3 warp = vec3(w1, w2, w1 * w2);
     float gran = fbm(q * 2.0 + warp * 1.4 + vec3(uTime * 0.06)) * 0.5 + 0.5;
     float fine = snoise(dir * 8.0 + warp * 1.5 + vec3(uTime * 0.13)) * 0.5 + 0.5;
+    /* Supergranulation network — large slow cells whose warped boundaries
+       break up the convection into a richer, less uniform texture. One extra
+       snoise call; folded in as a normalized DETAIL term so it adds structure
+       without lifting overall brightness (keeps the bloom from blowing out). */
+    float superg = snoise(q * 0.85 + warp * 0.7 + vec3(uTime * 0.025)) * 0.5 + 0.5;
+    float detail = snoise(dir * 14.0 + warp * 2.2 + vec3(uTime * 0.09)) * 0.5 + 0.5;
     float surface = mix(gran, fine, 0.35);
+    surface = mix(surface, surface * (0.75 + 0.5 * superg), 0.5);
+    surface = mix(surface, detail, 0.12);
 
     /* Drifting sunspots — low-freq mask, darkened umbra. */
     float spotN = snoise(dir * 1.7 + vec3(uTime * 0.015, 0.0, 0.0));

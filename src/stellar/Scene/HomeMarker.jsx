@@ -71,6 +71,11 @@ export const HomePin = ({ radius = 0.75, animate = true }) => {
         <ringGeometry args={[s * 0.05, s * 0.075, 32]} />
         <meshBasicMaterial color={GOLD} transparent opacity={0.5} side={THREE.DoubleSide} toneMapped={false} depthWrite={false} />
       </mesh>
+      {/* "you are here" light beam rising from the pin */}
+      <mesh position={[0, s * 0.55, 0]}>
+        <cylinderGeometry args={[s * 0.012, s * 0.026, s * 0.85, 12, 1, true]} />
+        <meshBasicMaterial color={GOLD} transparent opacity={0.2} side={THREE.DoubleSide} toneMapped={false} depthWrite={false} blending={THREE.AdditiveBlending} />
+      </mesh>
     </group>
   );
 };
@@ -78,6 +83,7 @@ export const HomePin = ({ radius = 0.75, animate = true }) => {
 export const HomeCallout = ({ earthRadius = 0.75 }) => {
   const groupRef = useRef();
   const [near, setNear] = useState(false);
+  const [expanded, setExpanded] = useState(false);
   const nearRef = useRef(false);
   const [, force] = useState(0);
   const _w = useRef(new THREE.Vector3());
@@ -100,19 +106,32 @@ export const HomeCallout = ({ earthRadius = 0.75 }) => {
 
   return (
     <group ref={groupRef} position={[earthRadius * 0.5, earthRadius * 0.62, earthRadius * 0.5]}>
-      <Html center style={{ pointerEvents: "none" }}>
-        <div style={{
-          opacity: near ? 1 : 0, transition: "opacity 400ms ease",
-          width: 172, transform: "translateY(-50%)",
-          padding: "9px 12px", borderRadius: 11,
-          background: "rgba(8,11,24,0.86)", border: "1px solid rgba(255,207,107,0.42)",
-          backdropFilter: "blur(8px)", WebkitBackdropFilter: "blur(8px)",
-          fontFamily: "'JetBrains Mono', monospace", color: "white",
-          boxShadow: "0 10px 30px rgba(0,0,0,0.5), 0 0 20px rgba(255,207,107,0.15)",
-        }}>
+      <Html center style={{ pointerEvents: near ? "auto" : "none" }}>
+        <div
+          onMouseEnter={() => setExpanded(true)}
+          onMouseLeave={() => setExpanded(false)}
+          onClick={() => setExpanded((e) => !e)}
+          style={{
+            opacity: near ? 1 : 0, transition: "opacity 400ms ease, width 220ms ease",
+            width: expanded ? 212 : 176, transform: "translateY(-50%)",
+            padding: "10px 13px", borderRadius: 12, cursor: "pointer",
+            background: "rgba(8,11,24,0.9)", border: "1px solid rgba(255,207,107,0.45)",
+            backdropFilter: "blur(8px)", WebkitBackdropFilter: "blur(8px)",
+            fontFamily: "'JetBrains Mono', monospace", color: "white",
+            boxShadow: "0 10px 30px rgba(0,0,0,0.5), 0 0 22px rgba(255,207,107,0.18)",
+          }}
+        >
           <div style={{ fontSize: 12.5, marginBottom: 3 }}>👋 Rugwed is here</div>
           <div style={{ fontSize: 10, color: GOLD, letterSpacing: "0.04em" }}>Pune, Maharashtra, India</div>
-          <div style={{ fontSize: 9, color: "rgba(223,217,255,0.62)", marginTop: 4 }}>{ist} IST · probably still shipping code</div>
+          {expanded ? (
+            <div style={{ marginTop: 6, fontSize: 9.5, color: "rgba(223,217,255,0.82)", lineHeight: 1.7 }}>
+              <div>Backend &amp; Agentic AI Engineer</div>
+              <div>18.52°N · 73.86°E · {ist} IST</div>
+              <div style={{ color: "#00cea8" }}>● Available for opportunities</div>
+            </div>
+          ) : (
+            <div style={{ fontSize: 9, color: "rgba(223,217,255,0.62)", marginTop: 4 }}>{ist} IST · probably still shipping code</div>
+          )}
         </div>
       </Html>
     </group>

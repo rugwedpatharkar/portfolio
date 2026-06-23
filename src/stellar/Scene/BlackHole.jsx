@@ -19,12 +19,21 @@ import { useSceneClock } from "./SceneClock";
 const DISK_VERT = /* glsl */ `
   varying float vR;
   varying vec2 vLocal;
+  varying float vLos;   // line-of-sight speed: +approaching camera, -receding
   uniform float uInner;
   uniform float uOuter;
   void main() {
     vLocal = position.xy;
     float rad = length(position.xy);
     vR = clamp((rad - uInner) / (uOuter - uInner), 0.0, 1.0);
+    /* Orbital (azimuthal) velocity dir in disk-local space for a CCW spin,
+       carried into view space. View -Z points at the camera, so the negated
+       view-Z of the velocity is how fast this point moves TOWARD the viewer —
+       the physical driver of relativistic Doppler beaming + shift. Rotates
+       correctly as both the tilted disk and the camera move. */
+    vec3 vel = normalize(vec3(-position.y, position.x, 0.0));
+    vec3 velView = mat3(modelViewMatrix) * vel;
+    vLos = -velView.z;
     gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
   }
 `;
@@ -32,6 +41,7 @@ const DISK_VERT = /* glsl */ `
 const DISK_FRAG = /* glsl */ `
   varying float vR;
   varying vec2 vLocal;
+  varying float vLos;
   uniform float uTime;
 
   vec3 hash3(vec3 p){ p=vec3(dot(p,vec3(127.1,311.7,74.7)),dot(p,vec3(269.5,183.3,246.1)),dot(p,vec3(113.5,271.9,124.6))); return fract(sin(p)*43758.5453); }
@@ -56,11 +66,20 @@ const DISK_FRAG = /* glsl */ `
     float radial = smoothstep(0.0, 0.06, r) * (1.0 - smoothstep(0.55, 1.0, r));
     float bright = radial * (0.45 + 0.85 * turb);
 
-    /* Doppler beaming — the approaching limb (cos(ang) > 0) is far brighter. */
-    float doppler = 0.35 + 1.15 * pow(max(cos(ang), 0.0), 1.6);
+    /* Relativistic Doppler beaming — the side orbiting TOWARD the camera
+       (vLos > 0) is boosted hard, the receding side dimmed. vLos already
+       tracks the tilted disk + camera, so the bright lobe sits on whichever
+       limb is approaching from the current view. */
+    float los = clamp(vLos, -1.0, 1.0);
+    float doppler = 0.3 + 1.25 * pow(max(los, 0.0), 1.5) + 0.15 * max(-los, 0.0);
 
     vec3 col = mix(vec3(1.0, 0.97, 0.9), vec3(1.0, 0.55, 0.18), smoothstep(0.0, 0.45, r));
     col = mix(col, vec3(0.75, 0.16, 0.05), smoothstep(0.45, 1.0, r));
+    /* Relativistic colour shift: approaching plasma blue-shifts toward white-
+       blue, receding plasma red-shifts deeper red. Subtle so the disk still
+       reads as superheated, not neon. */
+    col = mix(col, col * vec3(0.78, 0.9, 1.25), 0.5 * max(los, 0.0));
+    col = mix(col, col * vec3(1.3, 0.62, 0.42), 0.45 * max(-los, 0.0));
 
     float a = clamp(bright * doppler, 0.0, 1.0);
     if (a < 0.01) discard;
