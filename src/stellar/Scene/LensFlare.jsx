@@ -6,12 +6,9 @@ import * as THREE from "three";
 /*
  * Cinematic lens flare anchored at the sun.
  *
- * Two pieces:
- *   1. Anamorphic horizontal streak — long thin sprite across the
- *      sun's screen position. Reads as a true camera-lens artifact.
- *   2. Bokeh ghosts — three small coloured ring sprites placed along
- *      the line from the sun to the screen centre, mimicking light
- *      refraction through internal lens elements.
+ * A soft glare at the sun + an anamorphic horizontal streak. (The bokeh
+ * ghost rings were removed — they read as stray translucent loops cluttering
+ * the frame rather than a believable lens artifact.)
  *
  * Brightness fades as the sun moves off-screen (we use the camera's
  * forward vector vs sun direction to compute a falloff).
@@ -53,34 +50,12 @@ const GLARE_TEXTURE = (() => {
   return t;
 })();
 
-const RING_TEXTURE = (() => {
-  if (typeof document === "undefined") return null;
-  const c = document.createElement("canvas");
-  c.width = c.height = 128;
-  const ctx = c.getContext("2d");
-  ctx.translate(64, 64);
-  for (let r = 28; r < 56; r++) {
-    const a = 1 - Math.abs(r - 44) / 12;
-    if (a <= 0) continue;
-    ctx.strokeStyle = `rgba(255,255,255,${a * 0.45})`;
-    ctx.lineWidth = 1.2;
-    ctx.beginPath();
-    ctx.arc(0, 0, r, 0, Math.PI * 2);
-    ctx.stroke();
-  }
-  const t = new THREE.CanvasTexture(c);
-  t.needsUpdate = true;
-  return t;
-})();
-
 const LensFlare = ({ position = [0, 0, 0] }) => {
   const streakRef = useRef();
   const glareRef = useRef();
-  const ghostRefs = useRef([]);
 
   const sunPos = useMemo(() => new THREE.Vector3(...position), [position]);
   const ndc = useMemo(() => new THREE.Vector3(), []);
-  const tmp = useMemo(() => new THREE.Vector3(), []);
   const camFwd = useMemo(() => new THREE.Vector3(), []);
   const toSun = useMemo(() => new THREE.Vector3(), []);
 
@@ -114,19 +89,6 @@ const LensFlare = ({ position = [0, 0, 0] }) => {
       streakRef.current.material.opacity = visibility * 0.45;
       streakRef.current.visible = visibility > 0.01;
     }
-
-    /* Ghosts: placed along the line from sun screen-space → screen centre,
-       cast back into world space at a constant depth from the camera. */
-    ghostRefs.current.forEach((g, i) => {
-      if (!g) return;
-      const t = (i + 1) * 0.35;
-      const gx = ndc.x * (1 - 2 * t);
-      const gy = ndc.y * (1 - 2 * t);
-      tmp.set(gx, gy, 0.85).unproject(camera);
-      g.position.copy(tmp);
-      g.material.opacity = visibility * (0.35 - i * 0.06);
-      g.visible = visibility > 0.1;
-    });
   });
 
   return (
@@ -153,24 +115,6 @@ const LensFlare = ({ position = [0, 0, 0] }) => {
           blending={THREE.AdditiveBlending}
         />
       </sprite>
-      {/* Ghost rings along the lens axis — coloured, additive */}
-      {["#ffd2a8", "#a8c8ff", "#d4a8ff"].map((color, i) => (
-        <sprite
-          key={i}
-          ref={(el) => { ghostRefs.current[i] = el; }}
-          scale={[0.8 + i * 0.25, 0.8 + i * 0.25, 1]}
-        >
-          <spriteMaterial
-            map={RING_TEXTURE}
-            color={color}
-            transparent
-            opacity={0}
-            depthWrite={false}
-            depthTest={false}
-            blending={THREE.AdditiveBlending}
-          />
-        </sprite>
-      ))}
     </group>
   );
 };

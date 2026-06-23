@@ -167,24 +167,18 @@ const PlanetHUD = ({ destination }) => {
     <div
       style={{
         position: "fixed",
-        right: 74,
-        bottom: 80,
-        width: 276,
-        padding: "12px 16px 14px",
-        background: "rgba(6, 9, 22, 0.72)",
-        backdropFilter: "blur(14px) saturate(1.2)",
-        WebkitBackdropFilter: "blur(14px) saturate(1.2)",
-        border: `1px solid ${destination.color}55`,
-        borderRadius: 10,
+        right: 44,
+        bottom: 40,
+        width: 270,
         color: "white",
         fontFamily: "'JetBrains Mono', monospace",
         zIndex: 45,
         pointerEvents: "auto",
-        boxShadow: `0 18px 50px rgba(0,0,0,0.55), inset 0 0 60px ${destination.color}10`,
-        overflow: "hidden",
+        /* Panel-less — bare text like the left column, with a soft shadow so
+           it stays legible over the scene. */
+        textShadow: "0 1px 10px rgba(0,0,0,0.9), 0 0 3px rgba(0,0,0,0.7)",
       }}
     >
-      <div style={{ position: "absolute", inset: 0, backgroundImage: "linear-gradient(rgba(255,255,255,0.025) 50%, transparent 50%)", backgroundSize: "100% 4px", pointerEvents: "none" }} />
       <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 6 }}>
         <div style={{ display: "flex", alignItems: "center", gap: 6, fontSize: 9.5, color: destination.color, letterSpacing: "0.12em" }}>
           <span style={{ display: "inline-block", width: 6, height: 6, background: destination.color, borderRadius: "50%", animation: "hudpulse 1.4s ease-in-out infinite" }} />

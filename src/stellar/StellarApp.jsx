@@ -149,6 +149,12 @@ const StellarApp = () => {
 
   return (
     <>
+      {/* Hide the page scrollbar — scroll still drives the camera, but the
+          bar is visual clutter. (Scoped to while the stellar app is mounted.) */}
+      <style>{`
+        html { scrollbar-width: none !important; }
+        html::-webkit-scrollbar, body::-webkit-scrollbar { width: 0 !important; height: 0 !important; display: none !important; }
+      `}</style>
       <Scene
         scrollT={scrollTRef}
         activeIdx={activeIdx}

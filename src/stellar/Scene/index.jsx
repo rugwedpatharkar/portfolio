@@ -1,10 +1,9 @@
 /* eslint-disable react/no-unknown-property */
-import { Suspense, useEffect, useRef, useState } from "react";
+import { Suspense, useEffect, useRef } from "react";
 import { Canvas, invalidate } from "@react-three/fiber";
 import * as THREE from "three";
-import { EffectComposer, Bloom, DepthOfField } from "@react-three/postprocessing";
+import { EffectComposer, Bloom } from "@react-three/postprocessing";
 import CinematicGrade from "./CinematicGrade";
-import DepthFocus, { DOF_TARGET } from "./DepthFocus";
 import Stars from "./Stars";
 import Sun from "./Sun";
 import Planet from "./Planet";
@@ -59,10 +58,6 @@ import { DESTINATIONS } from "../config/destinations";
 const Scene = ({ scrollT, activeIdx, onJump, onReady, freeRoamEnabled, wideRef, showExtras = true, launchPhase = null }) => {
   const readyRef = useRef(false);
   const { isMobile, isCompact, reducedMotion } = useViewport();
-  /* Set true only when AdaptiveQuality drops to its potato tier on a weak
-     GPU — used to shed the expensive Depth-of-Field pass. Toggles rarely
-     (strong hysteresis), so the EffectComposer rebuild is a non-issue. */
-  const [lowPerf, setLowPerf] = useState(false);
   /* Camera offsets — kept in refs so React state doesn't re-render
      the whole tree on every frame. Mouse parallax and free-roam each
      own their own offset; CameraRig sums them. */
@@ -82,10 +77,11 @@ const Scene = ({ scrollT, activeIdx, onJump, onReady, freeRoamEnabled, wideRef, 
     }
   }, [onReady]);
 
-  /* DPR cap trimmed 1.75 → 1.55 on desktop: on a retina (DPR 2) display that
-     is ~22% fewer shaded pixels per frame — a big GPU win for the Effect
-     pipeline at a barely-perceptible crispness cost. */
-  const dprCap = isMobile ? 1.35 : 1.55;
+  /* Render at the display's native pixel ratio (up to 2× on retina/4K) for
+     crisp HD. We removed Depth-of-Field, so nothing is intentionally blurred
+     and the extra pixels actually read as sharpness. The adaptive guard still
+     floors DPR only on a genuinely struggling GPU. */
+  const dprCap = isMobile ? 1.5 : 2;
   const beltCounts = {
     achievements: isMobile ? 320 : 700,
     testimonials: isMobile ? 180 : 350,
@@ -128,11 +124,9 @@ const Scene = ({ scrollT, activeIdx, onJump, onReady, freeRoamEnabled, wideRef, 
       <AdaptiveQuality
         scrollTRef={scrollT}
         highDpr={dprCap}
-        lowDpr={isMobile ? 1.0 : 1.2}
-        onPerf={(t) => setLowPerf(t === "low")}
+        lowDpr={isMobile ? 1.0 : 1.4}
       />
       <AutoExposure />
-      <DepthFocus scrollT={scrollT} />
       {/* Vacuum-lean three-point lighting. Every planet sits on +x with
           the camera on the FAR (anti-sun) side, so a literal sun-at-origin
           key would throw every hero shot into shadow. Instead:
@@ -332,6 +326,10 @@ const Scene = ({ scrollT, activeIdx, onJump, onReady, freeRoamEnabled, wideRef, 
           cheaper. ChromaticAberration was dropped earlier (full-screen
           pass for a near-invisible effect); Bloom radius trimmed to 0.6
           (the single most expensive pass). */}
+      {/* multisampling MUST stay 0 — MSAA on the composer's render target
+          breaks the additive sun/bloom compositing (black flicker). Edge AA
+          comes from rendering at native 2× DPR instead. DOF removed, so the
+          scene is fully in focus and crisp. */}
       <EffectComposer multisampling={0} disableNormalPass>
         <Bloom
           intensity={isMobile ? 0.6 : 0.8}
@@ -340,13 +338,6 @@ const Scene = ({ scrollT, activeIdx, onJump, onReady, freeRoamEnabled, wideRef, 
           mipmapBlur
           radius={0.45}
         />
-        {/* DOF: active planet sharp, everything else softly out of focus.
-            Focus tracks the planet's live position (DepthFocus → DOF_TARGET);
-            convolution effect (own passes) so it never merges with the
-            single mainImage grade. Desktop only. */}
-        {!isMobile && !lowPerf && (
-          <DepthOfField target={DOF_TARGET} focalLength={0.03} bokehScale={1.0} height={240} />
-        )}
         {/* Grade: bright base (the real fix for the earlier "too dark"),
             but saturation pulled NEGATIVE — pixel analysis showed planets
             at 0.6–0.9 HSV saturation (cartoonish; real space sits ~0.3).
