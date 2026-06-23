@@ -151,7 +151,7 @@ const Scene = ({ scrollT, activeIdx, onJump, onReady, freeRoamEnabled, wideRef, 
         {/* The edge anomaly — a black hole beyond the contact beacon: you
             reach the edge of the system and there it is, pulling at the
             void. Framed behind the beacon on the contact stop. */}
-        {showExtras && <BlackHole position={[49, -6, -15]} radius={1.9} />}
+        {showExtras && <BlackHole position={[49, -6, -15]} radius={1.9} animate={!reducedMotion} onPointerOver={handleHoverIn} onPointerOut={handleHoverOut} />}
         {/* Anomaly suite — the discoverable spectacle. All deferred behind
             showExtras; motion-heavy ones respect reduced-motion + device. */}
         {showExtras && !reducedMotion && <Comet />}

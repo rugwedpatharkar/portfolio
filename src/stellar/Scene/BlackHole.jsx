@@ -67,12 +67,35 @@ const DISK_FRAG = /* glsl */ `
   }
 `;
 
-const BlackHole = ({ position = [0, 0, 0], radius = 2.2 }) => {
+/* Lensed-light smear: faint tangential arcs of background starlight bent
+   around the hole. Stylized gravitational lensing — an in-scene additive ring,
+   no post-processing pass (protects the single-mainImage constraint). */
+const LENS_FRAG = /* glsl */ `
+  varying float vR;
+  varying vec2 vLocal;
+  uniform float uTime;
+  void main() {
+    float ang = atan(vLocal.y, vLocal.x);
+    float s = pow(max(0.0, sin(ang * 8.0 + uTime * 0.18)), 8.0)
+            + pow(max(0.0, sin(ang * 13.0 - uTime * 0.12 + 2.1)), 10.0) * 0.7
+            + pow(max(0.0, sin(ang * 5.0 + 1.3)), 6.0) * 0.5;
+    /* Brightest hugging the photon ring, fading outward. */
+    float radial = (1.0 - smoothstep(0.0, 1.0, vR)) * smoothstep(0.0, 0.1, vR);
+    float a = radial * s * 0.5;
+    if (a < 0.01) discard;
+    vec3 col = mix(vec3(0.86, 0.93, 1.0), vec3(0.55, 0.66, 1.0), vR);
+    gl_FragColor = vec4(col * a, a);
+  }
+`;
+
+const BlackHole = ({ position = [0, 0, 0], radius = 2.2, animate = true, onClick, onPointerOver, onPointerOut }) => {
   const diskMat = useRef();
   const haloMat = useRef();
+  const lensMat = useRef();
   const diskGroup = useRef();
   const ringRef = useRef();
   const haloRef = useRef();
+  const lensRef = useRef();
 
   const diskUniforms = useMemo(
     () => ({ uTime: { value: 0 }, uInner: { value: radius * 1.25 }, uOuter: { value: radius * 4.2 } }),
@@ -84,20 +107,27 @@ const BlackHole = ({ position = [0, 0, 0], radius = 2.2 }) => {
     () => ({ uTime: { value: 0 }, uInner: { value: radius * 1.14 }, uOuter: { value: radius * 2.7 } }),
     [radius]
   );
+  const lensUniforms = useMemo(
+    () => ({ uTime: { value: 0 }, uInner: { value: radius * 1.12 }, uOuter: { value: radius * 3.4 } }),
+    [radius]
+  );
 
   useFrame(({ clock, camera }) => {
-    if (diskMat.current) diskMat.current.uniforms.uTime.value = clock.elapsedTime;
-    if (haloMat.current) haloMat.current.uniforms.uTime.value = clock.elapsedTime * 0.6;
-    if (diskGroup.current) diskGroup.current.rotation.z = clock.elapsedTime * 0.05;
-    /* Photon ring + lensed halo both billboard to the camera — the halo is
-       the Interstellar "wrap": the disk's far side bent up and over the hole
-       so it appears to ring the black sphere from every angle. */
+    const t = animate ? clock.elapsedTime : 0;
+    if (diskMat.current) diskMat.current.uniforms.uTime.value = t;
+    if (haloMat.current) haloMat.current.uniforms.uTime.value = t * 0.6;
+    if (lensMat.current) lensMat.current.uniforms.uTime.value = t;
+    if (diskGroup.current && animate) diskGroup.current.rotation.z = t * 0.05;
+    /* Photon ring + lensed halo + lens smear all billboard to the camera — the
+       halo + smear are the Interstellar "wrap": background + disk light bent up
+       and over the hole so the glow rings the black sphere from every angle. */
     if (ringRef.current) ringRef.current.lookAt(camera.position);
     if (haloRef.current) haloRef.current.lookAt(camera.position);
+    if (lensRef.current) lensRef.current.lookAt(camera.position);
   });
 
   return (
-    <group position={position}>
+    <group position={position} onClick={onClick} onPointerOver={onPointerOver} onPointerOut={onPointerOut}>
       {/* Event horizon — pure black, swallows everything behind it. */}
       <mesh>
         <sphereGeometry args={[radius, 48, 48]} />
@@ -122,10 +152,27 @@ const BlackHole = ({ position = [0, 0, 0], radius = 2.2 }) => {
         />
       </mesh>
 
-      {/* Photon ring — thin, intense lensed circle hugging the horizon. */}
+      {/* Lensed background-light smear — faint tangential arcs of starlight
+          bent around the rim (stylized gravitational lensing). */}
+      <mesh ref={lensRef}>
+        <ringGeometry args={[radius * 1.12, radius * 3.4, 160, 4]} />
+        <shaderMaterial
+          ref={lensMat}
+          vertexShader={DISK_VERT}
+          fragmentShader={LENS_FRAG}
+          uniforms={lensUniforms}
+          transparent
+          depthWrite={false}
+          side={THREE.DoubleSide}
+          blending={THREE.AdditiveBlending}
+          toneMapped={false}
+        />
+      </mesh>
+
+      {/* Photon ring — the bright thin Einstein ring hugging the horizon. */}
       <mesh ref={ringRef}>
-        <ringGeometry args={[radius * 1.03, radius * 1.13, 128]} />
-        <meshBasicMaterial color="#ffe7bd" transparent opacity={1} side={THREE.DoubleSide} toneMapped={false} depthWrite={false} blending={THREE.AdditiveBlending} />
+        <ringGeometry args={[radius * 1.02, radius * 1.15, 160]} />
+        <meshBasicMaterial color="#fff0d4" transparent opacity={1} side={THREE.DoubleSide} toneMapped={false} depthWrite={false} blending={THREE.AdditiveBlending} />
       </mesh>
 
       {/* Accretion disk — tilted, swirling, Doppler-beamed. */}
