@@ -25,6 +25,9 @@ import NavConsole from "./NavConsole";
 import VoiceNav from "./VoiceNav";
 import SpeedRun from "./SpeedRun";
 import CockpitFrame from "./CockpitFrame";
+import FragmentToast from "./FragmentToast";
+import HazardBanner from "./HazardBanner";
+import Radar from "./Radar";
 import { markCharted, markVisited } from "./data/explorer";
 import { buildCommands } from "./config/commands";
 
@@ -487,6 +490,9 @@ const StellarApp = () => {
             animate={!reducedMotion}
           />
           <CockpitFrame enabled={mode === "pilot"} speedRef={pilotSpeedRef} />
+          <FragmentToast />
+          <HazardBanner clock={sceneClockRef.current} />
+          <Radar objects={OBJECTS} cameraRef={cameraRef} visible={mode === "pilot"} onPick={handlePick} />
           <CommandPalette open={paletteOpen} onClose={() => setPaletteOpen(false)} commands={commands} />
           <VoiceNav onJump={handleJump} startSignal={voiceNonce} hideButton />
           <SpeedRun activeIdx={activeIdx} active={speedRunOn} onToggle={() => setSpeedRunOn((v) => !v)} />

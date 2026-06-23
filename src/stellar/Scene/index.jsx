@@ -29,6 +29,9 @@ import IsroProbe from "./IsroProbe";
 import MilkyWay from "./MilkyWay";
 import ShootingStars from "./ShootingStars";
 import RocketLaunch from "./RocketLaunch";
+import DangerField from "./DangerField";
+import DataFragments from "./DataFragments";
+import FlyableNebula from "./FlyableNebula";
 import DustParticles from "./DustParticles";
 import AdaptiveQuality from "./AdaptiveQuality";
 import AutoExposure from "./AutoExposure";
@@ -161,10 +164,16 @@ const Scene = ({ scrollT, activeIdx, onJump, onReady, freeRoamEnabled, speedRef,
         <Nebulae />
         {/* Grand faint galactic band — far backdrop for depth. */}
         <MilkyWay animate={!reducedMotion} />
+        {/* A nebula you can drift into (pilot mode). */}
+        {showExtras && <FlyableNebula position={[-14, 6, -10]} radius={7} animate={!reducedMotion} />}
         {/* The edge anomaly — a black hole beyond the contact beacon: you
             reach the edge of the system and there it is, pulling at the
             void. Framed behind the beacon on the contact stop. */}
         {showExtras && <BlackHole position={[49, -6, -15]} radius={1.9} animate={!reducedMotion} onPointerOver={handleHoverIn} onPointerOut={handleHoverOut} />}
+        {/* Spaghettification dread near Gargantua — writes clock.danger. */}
+        {showExtras && <DangerField animate={!reducedMotion} />}
+        {/* Flyable résumé collectibles — collected only while piloting. */}
+        {showExtras && <DataFragments active={freeRoamEnabled} animate={!reducedMotion} />}
         {/* Anomaly suite — the discoverable spectacle. All deferred behind
             showExtras; motion-heavy ones respect reduced-motion + device. */}
         {showExtras && !reducedMotion && <Comet />}

@@ -1,6 +1,7 @@
 /* eslint-disable react/prop-types */
 import { useEffect, useMemo, useRef, useState } from "react";
 import * as THREE from "three";
+import { chartedSet } from "./data/explorer";
 
 /*
  * Interactive system-overview map. While the wide overview is active, projects
@@ -14,7 +15,16 @@ import * as THREE from "three";
 const OverviewMap = ({ objects, cameraRef, visible, onPick }) => {
   const nodeRefs = useRef([]);
   const [hovered, setHovered] = useState(-1);
+  const [charted, setCharted] = useState(() => chartedSet());
   const _v = useMemo(() => new THREE.Vector3(), []);
+
+  /* Scan-to-reveal — re-read the charted set so revealed anomalies un-mask. */
+  useEffect(() => {
+    const refresh = () => setCharted(chartedSet());
+    window.addEventListener("stellar:progress", refresh);
+    if (visible) refresh();
+    return () => window.removeEventListener("stellar:progress", refresh);
+  }, [visible]);
 
   useEffect(() => {
     if (!visible) return undefined;
@@ -50,7 +60,14 @@ const OverviewMap = ({ objects, cameraRef, visible, onPick }) => {
 
   return (
     <div style={{ position: "fixed", inset: 0, zIndex: 48, pointerEvents: "none" }}>
-      {objects.map((o, i) => (
+      {objects.map((o, i) => {
+        /* Scan-to-reveal: off-rail anomalies stay masked until charted. */
+        const masked = o.visit.kind === "focus" && !charted.has(o.id);
+        const color = masked ? "#8893a8" : (o.color || "#cfd6ff");
+        const label = masked ? "??? Unknown contact" : o.label;
+        const category = masked ? "Unscanned" : o.category;
+        const info = masked ? "Unidentified signal. Fly to it (or click) to scan and reveal." : o.info;
+        return (
         <div
           key={o.id}
           ref={(el) => { nodeRefs.current[i] = el; }}
@@ -62,7 +79,7 @@ const OverviewMap = ({ objects, cameraRef, visible, onPick }) => {
             onMouseLeave={() => setHovered((p) => (p === i ? -1 : p))}
             onFocus={() => setHovered(i)}
             onBlur={() => setHovered((p) => (p === i ? -1 : p))}
-            aria-label={`Visit ${o.label}`}
+            aria-label={masked ? "Scan unknown contact" : `Visit ${o.label}`}
             style={{ all: "unset", cursor: "pointer", position: "absolute", left: -8, top: -8, width: 16, height: 16, display: "grid", placeItems: "center" }}
           >
             <span
@@ -70,9 +87,9 @@ const OverviewMap = ({ objects, cameraRef, visible, onPick }) => {
                 width: hovered === i ? 11 : 7,
                 height: hovered === i ? 11 : 7,
                 borderRadius: "50%",
-                background: o.color || "#cfd6ff",
-                boxShadow: hovered === i ? `0 0 13px ${o.color || "#cfd6ff"}` : `0 0 5px ${o.color || "#cfd6ff"}99`,
-                border: "1px solid rgba(255,255,255,0.6)",
+                background: masked ? "transparent" : color,
+                boxShadow: hovered === i ? `0 0 13px ${color}` : `0 0 5px ${color}99`,
+                border: `1px solid ${masked ? color : "rgba(255,255,255,0.6)"}`,
                 transition: "all 0.15s ease",
               }}
             />
@@ -88,22 +105,23 @@ const OverviewMap = ({ objects, cameraRef, visible, onPick }) => {
                 background: "rgba(8,11,24,0.85)",
                 backdropFilter: "blur(12px)",
                 WebkitBackdropFilter: "blur(12px)",
-                border: `1px solid ${o.color || "#cfd6ff"}55`,
+                border: `1px solid ${color}55`,
                 borderRadius: 11,
                 padding: "11px 13px",
                 boxShadow: "0 16px 44px rgba(0,0,0,0.55)",
               }}
             >
               <div style={{ display: "flex", alignItems: "baseline", justifyContent: "space-between", gap: 8 }}>
-                <span style={{ fontFamily: "'Michroma', sans-serif", fontSize: 12, color: "white", textTransform: "uppercase", letterSpacing: "0.03em" }}>{o.label}</span>
-                <span style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 8.5, color: o.color || "#cfd6ff", textTransform: "uppercase", letterSpacing: "0.06em", whiteSpace: "nowrap" }}>{o.category}</span>
+                <span style={{ fontFamily: "'Michroma', sans-serif", fontSize: 12, color: "white", textTransform: "uppercase", letterSpacing: "0.03em" }}>{label}</span>
+                <span style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 8.5, color, textTransform: "uppercase", letterSpacing: "0.06em", whiteSpace: "nowrap" }}>{category}</span>
               </div>
-              <div style={{ fontFamily: "'Exo 2', sans-serif", fontSize: 11.5, color: "rgba(255,255,255,0.84)", lineHeight: 1.46, marginTop: 6 }}>{o.info}</div>
-              <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 9, color: "rgba(255,255,255,0.5)", marginTop: 8, textTransform: "uppercase", letterSpacing: "0.08em" }}>click to visit →</div>
+              <div style={{ fontFamily: "'Exo 2', sans-serif", fontSize: 11.5, color: "rgba(255,255,255,0.84)", lineHeight: 1.46, marginTop: 6 }}>{info}</div>
+              <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 9, color: "rgba(255,255,255,0.5)", marginTop: 8, textTransform: "uppercase", letterSpacing: "0.08em" }}>{masked ? "click to scan →" : "click to visit →"}</div>
             </div>
           )}
         </div>
-      ))}
+        );
+      })}
     </div>
   );
 };
