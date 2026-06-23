@@ -93,15 +93,41 @@ const RAYS_TEXTURE = (() => {
   return t;
 })();
 
+/* Concentric thin rings for the "chain-link" bokeh ghosts. White rings; the
+   blue tint comes from each sprite's color. */
+const RING_TEXTURE = (() => {
+  if (typeof document === "undefined") return null;
+  const c = document.createElement("canvas");
+  c.width = c.height = 128;
+  const ctx = c.getContext("2d");
+  ctx.translate(64, 64);
+  for (let r = 28; r < 56; r++) {
+    const a = 1 - Math.abs(r - 44) / 12;
+    if (a <= 0) continue;
+    ctx.strokeStyle = `rgba(255,255,255,${a * 0.5})`;
+    ctx.lineWidth = 1.2;
+    ctx.beginPath();
+    ctx.arc(0, 0, r, 0, Math.PI * 2);
+    ctx.stroke();
+  }
+  const t = new THREE.CanvasTexture(c);
+  t.needsUpdate = true;
+  return t;
+})();
+
+const GHOST_COLORS = ["#a8c8ff", "#7fb0ff", "#bcd6ff"];
+
 const LensFlare = ({ position = [0, 0, 0] }) => {
   const streakRef = useRef();
   const glareRef = useRef();
   const raysRef = useRef();
+  const ghostRefs = useRef([]);
 
   const sunPos = useMemo(() => new THREE.Vector3(...position), [position]);
   const ndc = useMemo(() => new THREE.Vector3(), []);
   const camFwd = useMemo(() => new THREE.Vector3(), []);
   const toSun = useMemo(() => new THREE.Vector3(), []);
+  const tmp = useMemo(() => new THREE.Vector3(), []);
 
   useFrame(({ camera }) => {
     /* Reliable behind-check: dot(camera_forward, sun - camera_position).
@@ -136,6 +162,16 @@ const LensFlare = ({ position = [0, 0, 0] }) => {
       streakRef.current.material.opacity = visibility * 0.5;
       streakRef.current.visible = on;
     }
+    /* Chain-link bokeh ghosts strung along the sun→screen-centre axis, cast
+       back into world space at a constant camera depth. */
+    ghostRefs.current.forEach((g, i) => {
+      if (!g) return;
+      const tg = (i + 1) * 0.35;
+      tmp.set(ndc.x * (1 - 2 * tg), ndc.y * (1 - 2 * tg), 0.85).unproject(camera);
+      g.position.copy(tmp);
+      g.material.opacity = visibility * (0.4 - i * 0.07);
+      g.visible = visibility > 0.05;
+    });
   });
 
   return (
@@ -173,6 +209,20 @@ const LensFlare = ({ position = [0, 0, 0] }) => {
           blending={THREE.AdditiveBlending}
         />
       </sprite>
+      {/* Chain-link bokeh ghost rings strung along the lens axis — blue, additive */}
+      {GHOST_COLORS.map((color, i) => (
+        <sprite key={i} ref={(el) => { ghostRefs.current[i] = el; }} scale={[0.85 + i * 0.28, 0.85 + i * 0.28, 1]}>
+          <spriteMaterial
+            map={RING_TEXTURE}
+            color={color}
+            transparent
+            opacity={0}
+            depthWrite={false}
+            depthTest={false}
+            blending={THREE.AdditiveBlending}
+          />
+        </sprite>
+      ))}
     </group>
   );
 };

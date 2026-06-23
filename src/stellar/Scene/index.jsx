@@ -10,7 +10,6 @@ import Planet from "./Planet";
 import CameraRig from "./CameraRig";
 import AsteroidBelt from "./AsteroidBelt";
 import Nebulae from "./Nebulae";
-import Comets from "./Comets";
 import VisibilityController from "./VisibilityController";
 import Skybox from "./Skybox";
 import OrbitGroup from "./OrbitGroup";
@@ -88,7 +87,6 @@ const Scene = ({ scrollT, activeIdx, onJump, onReady, freeRoamEnabled, wideRef, 
     achievements: isMobile ? 320 : 700,
     testimonials: isMobile ? 180 : 350,
   };
-  const showComets = !reducedMotion;
 
   return (
     <Canvas
@@ -150,9 +148,6 @@ const Scene = ({ scrollT, activeIdx, onJump, onReady, freeRoamEnabled, wideRef, 
         <Skybox />
         <Stars />
         <Nebulae />
-        {/* Ambient motion — only after the intro to keep the warp +
-            countdown window light and trim initial scene-graph build. */}
-        {showExtras && showComets && <Comets />}
         {/* The edge anomaly — a black hole beyond the contact beacon: you
             reach the edge of the system and there it is, pulling at the
             void. Framed behind the beacon on the contact stop. */}

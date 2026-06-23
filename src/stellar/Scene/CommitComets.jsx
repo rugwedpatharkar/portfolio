@@ -14,9 +14,43 @@ import { fetchGithubEvents, repoColor } from "../data/github";
  */
 
 const VISIBLE_AT_ONCE = 8;
-const TRAIL_LEN = 18;
 const SPAWN_R = 60;
 const SPEED_RANGE = [10, 18];
+const TAIL_H = 2.6;
+const UP = new THREE.Vector3(0, 1, 0);
+
+/* Soft round glow for the comet head (replaces the hard little sphere). */
+const HEAD_TEX = (() => {
+  if (typeof document === "undefined") return null;
+  const c = document.createElement("canvas");
+  c.width = c.height = 64;
+  const ctx = c.getContext("2d");
+  const g = ctx.createRadialGradient(32, 32, 0, 32, 32, 32);
+  g.addColorStop(0, "rgba(255,255,255,1)");
+  g.addColorStop(0.35, "rgba(255,255,255,0.6)");
+  g.addColorStop(1, "rgba(255,255,255,0)");
+  ctx.fillStyle = g;
+  ctx.fillRect(0, 0, 64, 64);
+  const t = new THREE.CanvasTexture(c);
+  t.needsUpdate = true;
+  return t;
+})();
+
+/* Tapered tail — a cone whose alpha fades from the bright head (base) to a
+   transparent point at the tail (apex). */
+const TAIL_VERT = /* glsl */ `
+  varying float vT;
+  void main() {
+    vT = (position.y + ${(TAIL_H / 2).toFixed(3)}) / ${TAIL_H.toFixed(3)};
+    gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
+  }`;
+const TAIL_FRAG = /* glsl */ `
+  varying float vT;
+  uniform vec3 uColor;
+  void main() {
+    float a = pow(1.0 - vT, 1.35);
+    gl_FragColor = vec4(uColor * a * 1.8, a * 0.9);
+  }`;
 
 const hash01 = (str, salt = 0) => {
   let h = 2166136261 ^ salt;
@@ -55,9 +89,13 @@ const spawnFor = (commit) => {
 };
 
 const Comet = ({ state, onRespawn }) => {
+  const groupRef = useRef();
   const headRef = useRef();
-  const lineRef = useRef();
-  const trail = useMemo(() => new Float32Array(TRAIL_LEN * 3), []);
+  const tailRef = useRef();
+  const _vel = useMemo(() => new THREE.Vector3(), []);
+  const _neg = useMemo(() => new THREE.Vector3(), []);
+  const _col = useMemo(() => new THREE.Color(), []);
+  const colorKey = useRef("");
 
   useFrame((_, dt) => {
     const s = state.current;
@@ -68,43 +106,47 @@ const Comet = ({ state, onRespawn }) => {
 
     if (s.life > s.maxLife || Math.abs(s.pos[0]) > 80 || Math.abs(s.pos[2]) > 80) {
       onRespawn();
-      for (let i = 0; i < TRAIL_LEN; i++) {
-        trail[i * 3] = state.current.pos[0];
-        trail[i * 3 + 1] = state.current.pos[1];
-        trail[i * 3 + 2] = state.current.pos[2];
-      }
       return;
     }
 
-    for (let i = TRAIL_LEN - 1; i > 0; i--) {
-      trail[i * 3] = trail[(i - 1) * 3];
-      trail[i * 3 + 1] = trail[(i - 1) * 3 + 1];
-      trail[i * 3 + 2] = trail[(i - 1) * 3 + 2];
-    }
-    trail[0] = s.pos[0];
-    trail[1] = s.pos[1];
-    trail[2] = s.pos[2];
+    const g = groupRef.current;
+    if (!g) return;
+    g.position.set(s.pos[0], s.pos[1], s.pos[2]);
+    /* Orient so the cone's apex (local +Y, translated behind the head) points
+       opposite the velocity — the tail streams straight back. */
+    _vel.set(s.vel[0], s.vel[1], s.vel[2]).normalize();
+    _neg.copy(_vel).negate();
+    g.quaternion.setFromUnitVectors(UP, _neg);
 
-    if (headRef.current) headRef.current.position.set(s.pos[0], s.pos[1], s.pos[2]);
-    if (lineRef.current?.geometry?.attributes?.position) {
-      lineRef.current.geometry.attributes.position.needsUpdate = true;
+    /* Recolour only when the slot cycles to a new commit. */
+    if (colorKey.current !== s.color) {
+      colorKey.current = s.color;
+      _col.set(s.color);
+      if (headRef.current) headRef.current.material.color.copy(_col);
+      if (tailRef.current) tailRef.current.material.uniforms.uColor.value.copy(_col);
     }
   });
 
   const s = state.current;
   return (
-    <>
-      <mesh ref={headRef}>
-        <sphereGeometry args={[0.11, 8, 8]} />
-        <meshBasicMaterial color={s.color} toneMapped={false} />
+    <group ref={groupRef}>
+      <sprite ref={headRef} scale={[0.5, 0.5, 1]}>
+        <spriteMaterial map={HEAD_TEX} color={s.color} transparent opacity={0.95} depthWrite={false} depthTest={false} blending={THREE.AdditiveBlending} />
+      </sprite>
+      <mesh ref={tailRef} position={[0, TAIL_H / 2, 0]}>
+        <coneGeometry args={[0.14, TAIL_H, 18, 1, true]} />
+        <shaderMaterial
+          vertexShader={TAIL_VERT}
+          fragmentShader={TAIL_FRAG}
+          uniforms={{ uColor: { value: new THREE.Color(s.color) } }}
+          transparent
+          depthWrite={false}
+          side={THREE.DoubleSide}
+          toneMapped={false}
+          blending={THREE.AdditiveBlending}
+        />
       </mesh>
-      <line ref={lineRef}>
-        <bufferGeometry>
-          <bufferAttribute attach="attributes-position" count={TRAIL_LEN} array={trail} itemSize={3} />
-        </bufferGeometry>
-        <lineBasicMaterial color={s.color} transparent opacity={0.7} blending={THREE.AdditiveBlending} depthWrite={false} />
-      </line>
-    </>
+    </group>
   );
 };
 
