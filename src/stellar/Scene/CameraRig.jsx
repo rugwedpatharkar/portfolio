@@ -71,43 +71,6 @@ const _right = new THREE.Vector3();
 
 const fAlpha = (base, dt) => 1 - Math.pow(1 - base, dt * 60);
 
-/* ── Scripted eclipse cue ──
-   Occasionally, while idle at the Sol view, dolly the camera behind a real
-   inner planet so it transits the Sun — a TRUE eclipse (SolarEclipse detects
-   the occlusion → corona + sky-darkening), no fake disc. Restricted to inner
-   planets so the vantage stays near the hero shot; the camera always looks at
-   the Sun, so the move is a gentle dive to the ecliptic and back. */
-const HERO_DIR = new THREE.Vector3(0, 2.5, 11).normalize();
-const ECLIPSE_PLANETS = DESTINATIONS.filter(
-  (d) => d.kind === "planet" && new THREE.Vector3(...d.position).length() < 9
-);
-/* First eclipse ~12s after the hero settles (a welcome moment); then only
-   occasionally while you keep idling there. */
-const ECL_COOLDOWN = 72, ECL_FIRST = 12, ECL_IN = 2.6, ECL_HOLD = 3.2, ECL_OUT = 2.6;
-const _eclP = new THREE.Vector3();
-const _eclV = new THREE.Vector3();
-/* The inner planet best placed in front of the Sun right now (smallest swing). */
-const pickEclipsePlanet = (t) => {
-  let best = null, bestDot = 0.2;
-  for (const dd of ECLIPSE_PLANETS) {
-    orbitalPosition(dd, t, _eclP);
-    const len = _eclP.length();
-    if (len < 0.5) continue;
-    const dot = _eclP.dot(HERO_DIR) / len;
-    if (dot > bestDot) { bestDot = dot; best = dd; }
-  }
-  return best;
-};
-/* Camera vantage on the far side of the planet from the Sun, at the distance
-   where the planet's apparent disc just covers the Sun (R≈1.6) → totality. */
-const vantageFor = (dd, t, out) => {
-  orbitalPosition(dd, t, out);
-  const len = out.length() || 1;
-  const r = dd.radius;
-  const dcp = THREE.MathUtils.clamp((r * len) / (1.7 - Math.min(r, 1.4)), r * 2.4, len * 0.92);
-  return out.multiplyScalar((len + dcp) / len);
-};
-
 /* Dwell-ease: hold (plateau) near each planet so you settle there and can
    read, glide (smoothstep) through the middle of a segment. Keeps the
    "always framed on a planet" property while making the tour continuous.
@@ -150,8 +113,6 @@ const CameraRig = ({
   /* Launch state — captures the from-pose at each phase change so the
      scripted establish/warp moves are deterministic and smooth. */
   const launch = useRef({ phase: null, t0: 0, fromPos: new THREE.Vector3(), fromLook: new THREE.Vector3(), fromFov: FOV_DEFAULT });
-  /* Scripted eclipse cue state. */
-  const eclipse = useRef({ phase: "idle", t0: 0, last: -(ECL_COOLDOWN - ECL_FIRST), dest: null, from: new THREE.Vector3() });
 
   /* Per-destination framing offsets (camera + aim relative to the planet),
      captured once from the authored cameraTarget values. */
@@ -235,42 +196,6 @@ const CameraRig = ({
       return;
     }
     if (launch.current.phase) launch.current.phase = null;
-
-    /* ── Scripted eclipse cue — read-mode, idle at the Sol view. Dolly behind a
-       real inner planet so it eclipses the Sun, hold, then ease home. */
-    const ecl = eclipse.current;
-    const eclipseEligible = rawT < 0.04 && !freeRoamEnabled && !focusRef?.current && !wideRef?.current;
-    if (ecl.phase === "idle") {
-      if (eclipseEligible && t - ecl.last > ECL_COOLDOWN) {
-        const dest = pickEclipsePlanet(t);
-        if (dest) { ecl.phase = "in"; ecl.t0 = t; ecl.dest = dest; ecl.from.copy(camera.position); }
-      }
-    } else if (!eclipseEligible) {
-      ecl.phase = "idle"; ecl.last = t; // user scrolled / opened the map → abort
-    }
-    if (ecl.phase !== "idle") {
-      const el = t - ecl.t0;
-      vantageFor(ecl.dest, t, _eclV); // live vantage tracks the (orbiting) planet
-      if (ecl.phase === "in") {
-        const p = Math.min(1, el / ECL_IN);
-        camera.position.copy(ecl.from).lerp(_eclV, p * p * (3 - 2 * p));
-        if (p >= 1) { ecl.phase = "hold"; ecl.t0 = t; }
-      } else if (ecl.phase === "hold") {
-        camera.position.lerp(_eclV, fAlpha(0.2, d));
-        if (el > ECL_HOLD) { ecl.phase = "out"; ecl.t0 = t; ecl.from.copy(camera.position); }
-      } else {
-        const p = Math.min(1, el / ECL_OUT);
-        camera.position.copy(ecl.from).lerp(SOL_POS, p * p * (3 - 2 * p));
-        if (p >= 1) { ecl.phase = "idle"; ecl.last = t; }
-      }
-      lookAtTarget.current.lerp(SOL_LOOK, fAlpha(0.3, d));
-      camera.lookAt(lookAtTarget.current);
-      if (Math.abs(camera.fov - SOL_FOV) > 0.02) {
-        camera.fov += (SOL_FOV - camera.fov) * fAlpha(FOV_LERP_60, d);
-        camera.updateProjectionMatrix();
-      }
-      return;
-    }
 
     /* ── HYBRID GLIDE — continuous position along the destination chain
        with an eased DWELL at each planet (settle there, read the panel),

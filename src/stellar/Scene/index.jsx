@@ -24,6 +24,7 @@ import OrbitRings from "./OrbitRings";
 import Beacon from "./Beacon";
 import SolarProminences from "./SolarProminences";
 import SolarEclipse from "./SolarEclipse";
+import EclipseLights from "./EclipseLights";
 import EarthStation from "./EarthStation";
 import { HomePin, HomeCallout } from "./HomeMarker";
 import IsroProbe from "./IsroProbe";
@@ -325,6 +326,8 @@ const Scene = ({ scrollT, activeIdx, onJump, onReady, freeRoamEnabled, gameActiv
         {/* Real solar eclipses — Earth's actual Moon + any planet you fly
             behind occlude the Sun (corona + chromosphere + diamond-ring). */}
         {showExtras && <SolarEclipse satelliteRef={moonWorldRef} eclipseRef={eclipseRef} reducedMotion={reducedMotion} />}
+        {/* Fade the scene lights toward dark at totality (planet → silhouette). */}
+        {showExtras && <EclipseLights eclipseRef={eclipseRef} />}
         {!isMobile && !reducedMotion && <DustParticles />}
         {/* Non-essential extras defer-mount until the intro completes —
             keeps the warp/countdown window + LCP light, and trims the

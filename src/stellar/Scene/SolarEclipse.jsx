@@ -37,7 +37,7 @@ const SolarEclipse = ({ satelliteRef, eclipseRef, reducedMotion = false }) => {
   const chromoRef = useRef();
   const glintRef = useRef();
   const sceneClock = useSceneClock();
-  const v = useMemo(() => ({ occ: new THREE.Vector3(), dir: new THREE.Vector3(), sunDir: new THREE.Vector3() }), []);
+  const v = useMemo(() => ({ occ: new THREE.Vector3(), dir: new THREE.Vector3(), sunDir: new THREE.Vector3(), bestPos: new THREE.Vector3() }), []);
 
   useFrame(({ camera }) => {
     const t = reducedMotion ? 0 : sceneClock.t;
@@ -47,6 +47,7 @@ const SolarEclipse = ({ satelliteRef, eclipseRef, reducedMotion = false }) => {
     v.sunDir.copy(SUN).sub(cam).normalize();
 
     let best = 0;
+    let bestR = SUN_R;
     const consider = (pos, r) => {
       v.dir.copy(pos).sub(cam);
       const dist = v.dir.length();
@@ -57,7 +58,7 @@ const SolarEclipse = ({ satelliteRef, eclipseRef, reducedMotion = false }) => {
       const alignment = THREE.MathUtils.clamp(1 - ang / (sunAppR + occAppR), 0, 1);
       const cover = THREE.MathUtils.clamp(occAppR / sunAppR, 0, 1);
       const tot = alignment * alignment * cover; // sharper falloff → crisp totality
-      if (tot > best) best = tot;
+      if (tot > best) { best = tot; bestR = r; v.bestPos.copy(pos); }
     };
     if (satelliteRef?.current) consider(satelliteRef.current, MOON_R); // Earth's real Moon
     for (const p of PLANETS) consider(liveBodyPosition(p.id, t, v.occ), p.r);
@@ -66,20 +67,30 @@ const SolarEclipse = ({ satelliteRef, eclipseRef, reducedMotion = false }) => {
     const totality = force != null ? force : best;
     if (eclipseRef) eclipseRef.current = totality;
 
+    /* Centre the corona on the OCCLUDER (the dark planet) and size it to the
+       planet, so its transparent core covers the silhouette and the bright ring
+       sits OUTSIDE it. (Centring on the Sun drew the ring inside the planet —
+       the "Sun seen through the planet" / "faded planet" bug.) */
+    const occluded = best > 0.001;
+    const cx = occluded ? v.bestPos : SUN;
+    const r = occluded ? bestR : SUN_R;
     if (coronaRef.current) {
-      coronaRef.current.position.copy(SUN);
+      coronaRef.current.position.copy(cx);
+      coronaRef.current.scale.setScalar(r * 5.3);
       coronaRef.current.material.opacity = totality * 0.95;
       coronaRef.current.material.rotation += reducedMotion ? 0 : 0.0007;
       coronaRef.current.visible = totality > 0.01;
     }
     if (chromoRef.current) {
-      chromoRef.current.position.copy(SUN);
+      chromoRef.current.position.copy(cx);
+      chromoRef.current.scale.setScalar(r * 5.1);
       chromoRef.current.material.opacity = Math.max(0, totality - 0.4) * 1.4;
       chromoRef.current.visible = totality > 0.4;
     }
     if (glintRef.current) {
       const g = Math.max(0, 1 - Math.abs(totality - 0.85) / 0.12); // diamond-ring sliver
-      glintRef.current.position.copy(SUN);
+      glintRef.current.position.copy(cx);
+      glintRef.current.scale.setScalar(r * 2.2);
       glintRef.current.material.opacity = g;
       glintRef.current.visible = g > 0.02;
     }

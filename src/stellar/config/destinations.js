@@ -28,7 +28,9 @@ export const DESTINATIONS = [
     color: "#ff9a3c",
     texture: "/textures/planets/sunmap.jpg",
     section: "hero",
-    cameraTarget: { position: [0, 2.5, 11], lookAt: [0, 0, 0], fov: 60 },
+    /* A LOW angle — near the ecliptic — so the inner planets cross the Sun's
+       disc from here (real transits → eclipses) instead of passing above it. */
+    cameraTarget: { position: [0, 0.9, 11], lookAt: [0, 0, 0], fov: 60 },
   },
 
   // Inner system
