@@ -57,7 +57,7 @@ const OverviewHud = ({ overview }) =>
   overview ? (
     <div style={{ position: "fixed", top: "7.5vh", left: 0, right: 0, zIndex: 50, pointerEvents: "none", display: "flex", flexDirection: "column", alignItems: "center", gap: 6, textAlign: "center" }}>
       <div style={{ fontFamily: "'Michroma', sans-serif", fontSize: 17, letterSpacing: "0.16em", color: "white", textTransform: "uppercase", textShadow: "0 2px 20px rgba(0,0,0,0.85)" }}>System Overview</div>
-      <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 11, letterSpacing: "0.1em", color: "rgba(255,255,255,0.8)", textShadow: "0 1px 10px rgba(0,0,0,0.9)" }}>press Z or Esc to return</div>
+      <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 11, letterSpacing: "0.1em", color: "rgba(255,255,255,0.8)", textShadow: "0 1px 10px rgba(0,0,0,0.9)" }}>drag to orbit · speed time (×2) to watch transits · Z or Esc to return</div>
     </div>
   ) : null;
 
@@ -138,6 +138,9 @@ const StellarApp = () => {
      minimal UI, but CameraRig still reads it, so this keeps its wide branch
      a harmless no-op without touching the rig. */
   const wideRef = useRef(false);
+  /* Orrery view orbit (azimuth / elevation / radius) — the system-view drag
+     updates it; CameraRig orbits the wide camera around the system from it. */
+  const wideOrbitRef = useRef({ az: 1.8, el: 0.37, radius: 95 });
   /* Free-camera focus target {position, lookAt, fov} for click-to-visit, and a
      live-camera handle the overview map projects object positions through. */
   const focusRef = useRef(null);
@@ -265,6 +268,34 @@ const StellarApp = () => {
   useEffect(() => {
     wideRef.current = overview;
   }, [overview]);
+
+  /* Orrery — drag in the system view to orbit the camera's viewing angle, so the
+     orbiting planets transit (eclipse) the sun at low angles. Clicks on hotspots
+     still warp (drags that start on a button are ignored). */
+  useEffect(() => {
+    if (mode !== "overview") return undefined;
+    let dragging = false, lx = 0, ly = 0;
+    const down = (e) => {
+      if (e.target.closest && e.target.closest("button, a")) return;
+      dragging = true; lx = e.clientX; ly = e.clientY;
+    };
+    const move = (e) => {
+      if (!dragging) return;
+      const o = wideOrbitRef.current;
+      o.az -= (e.clientX - lx) * 0.005;
+      o.el = Math.max(0.06, Math.min(1.45, o.el + (e.clientY - ly) * 0.005));
+      lx = e.clientX; ly = e.clientY;
+    };
+    const up = () => { dragging = false; };
+    window.addEventListener("pointerdown", down);
+    window.addEventListener("pointermove", move);
+    window.addEventListener("pointerup", up);
+    return () => {
+      window.removeEventListener("pointerdown", down);
+      window.removeEventListener("pointermove", move);
+      window.removeEventListener("pointerup", up);
+    };
+  }, [mode]);
 
   /* Focus (visiting an object) only lives inside the overview — clear it when
      the overview closes. */
@@ -435,6 +466,7 @@ const StellarApp = () => {
         speedRef={pilotSpeedRef}
         thrustRef={thrustRef}
         wideRef={wideRef}
+        wideOrbitRef={wideOrbitRef}
         focusRef={focusRef}
         cameraRef={cameraRef}
         clock={sceneClockRef.current}

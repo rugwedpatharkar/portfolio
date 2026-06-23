@@ -20,7 +20,7 @@ import Meteors from "./Meteors";
 import Pulsar from "./Pulsar";
 import Wormhole from "./Wormhole";
 import LensFlare from "./LensFlare";
-import SolarEclipse from "./SolarEclipse";
+import OrbitRings from "./OrbitRings";
 import Beacon from "./Beacon";
 import SolarProminences from "./SolarProminences";
 import EarthStation from "./EarthStation";
@@ -65,7 +65,7 @@ import { DESTINATIONS } from "../config/destinations";
  * tune that based on viewport bucket.
  */
 
-const Scene = ({ scrollT, activeIdx, onJump, onReady, freeRoamEnabled, speedRef, thrustRef, wideRef, focusRef, cameraRef, clock, showExtras = true, launchPhase = null }) => {
+const Scene = ({ scrollT, activeIdx, onJump, onReady, freeRoamEnabled, speedRef, thrustRef, wideRef, wideOrbitRef, focusRef, cameraRef, clock, showExtras = true, launchPhase = null }) => {
   const readyRef = useRef(false);
   const { isMobile, isCompact, reducedMotion } = useViewport();
   /* Camera offsets — kept in refs so React state doesn't re-render
@@ -315,7 +315,8 @@ const Scene = ({ scrollT, activeIdx, onJump, onReady, freeRoamEnabled, speedRef,
         })}
 
         {!isMobile && <LensFlare position={[0, 0, 0]} />}
-        {!isMobile && showExtras && <SolarEclipse reducedMotion={reducedMotion} />}
+        {/* Orrery rings — the real orbital structure, shown in the system view. */}
+        {showExtras && <OrbitRings wideRef={wideRef} />}
         {!isMobile && !reducedMotion && <DustParticles />}
         {/* Non-essential extras defer-mount until the intro completes —
             keeps the warp/countdown window + LCP light, and trims the
@@ -345,6 +346,7 @@ const Scene = ({ scrollT, activeIdx, onJump, onReady, freeRoamEnabled, speedRef,
           freeRoamOffsetRef={freeRoamOffsetRef}
           freeRoamEnabled={freeRoamEnabled}
           wideRef={wideRef}
+          wideOrbitRef={wideOrbitRef}
           focusRef={focusRef}
           cameraRef={cameraRef}
           launchPhase={launchPhase}

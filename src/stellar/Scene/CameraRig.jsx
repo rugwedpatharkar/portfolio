@@ -98,6 +98,7 @@ const CameraRig = ({
   freeRoamOffsetRef,
   freeRoamEnabled,
   wideRef,
+  wideOrbitRef,
   focusRef,
   cameraRef,
   launchPhase,
@@ -239,7 +240,20 @@ const CameraRig = ({
       _camTarget.set(focus.position[0], focus.position[1], focus.position[2]);
       _lookTarget.set(focus.lookAt[0], focus.lookAt[1], focus.lookAt[2]);
     } else if (wide) {
-      _camTarget.copy(WIDE_POSITION);
+      /* Orrery view — orbit the camera around the system from an adjustable
+         azimuth/elevation so the orbiting planets transit the sun at low
+         angles (real eclipses) and the structure reads from above. */
+      const o = wideOrbitRef?.current;
+      if (o) {
+        const ce = Math.cos(o.el);
+        _camTarget.set(
+          WIDE_LOOK.x + o.radius * ce * Math.cos(o.az),
+          o.radius * Math.sin(o.el),
+          WIDE_LOOK.z + o.radius * ce * Math.sin(o.az)
+        );
+      } else {
+        _camTarget.copy(WIDE_POSITION);
+      }
       _lookTarget.copy(WIDE_LOOK);
     } else {
       if (parallaxOffsetRef?.current) {
