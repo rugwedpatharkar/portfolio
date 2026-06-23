@@ -9,6 +9,8 @@ import MissionCountdown from "./MissionCountdown";
 import WarpField from "./WarpField";
 import AmbientAudio from "./AmbientAudio";
 import { ProgressRail, ScrollHint } from "./Wayfinding";
+import OverviewMap from "./OverviewMap";
+import { OBJECTS } from "./config/objects";
 import { easterEggs } from "../content";
 import { DESTINATIONS } from "./config/destinations";
 
@@ -62,6 +64,41 @@ const OverviewHud = ({ overview, onToggle }) => (
   </>
 );
 
+/* Shown while visiting an object from the map (the free fly-to) — its detailed
+   info + a way back to the map. */
+const FocusCard = ({ obj, onBack }) => (
+  <div
+    style={{
+      position: "fixed",
+      bottom: 64,
+      left: "50%",
+      transform: "translateX(-50%)",
+      zIndex: 50,
+      width: "min(440px, 86vw)",
+      background: "rgba(8,11,24,0.85)",
+      backdropFilter: "blur(12px)",
+      WebkitBackdropFilter: "blur(12px)",
+      border: `1px solid ${obj.color || "#cfd6ff"}55`,
+      borderRadius: 12,
+      padding: "14px 18px",
+      boxShadow: "0 18px 50px rgba(0,0,0,0.55)",
+      textAlign: "left",
+    }}
+  >
+    <div style={{ display: "flex", alignItems: "baseline", justifyContent: "space-between", gap: 10 }}>
+      <span style={{ fontFamily: "'Michroma', sans-serif", fontSize: 15, color: "white", textTransform: "uppercase", letterSpacing: "0.04em" }}>{obj.label}</span>
+      <span style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 9.5, color: obj.color || "#cfd6ff", textTransform: "uppercase", letterSpacing: "0.08em" }}>{obj.category}</span>
+    </div>
+    <div style={{ fontFamily: "'Exo 2', sans-serif", fontSize: 13, color: "rgba(255,255,255,0.85)", lineHeight: 1.5, margin: "8px 0 12px" }}>{obj.info}</div>
+    <button
+      onClick={onBack}
+      style={{ all: "unset", cursor: "pointer", fontFamily: "'JetBrains Mono', monospace", fontSize: 10.5, letterSpacing: "0.1em", textTransform: "uppercase", color: "rgba(255,255,255,0.85)", border: "1px solid rgba(255,255,255,0.22)", borderRadius: 999, padding: "7px 14px" }}
+    >
+      ← Back to map · Esc
+    </button>
+  </div>
+);
+
 const StellarApp = () => {
   const scrollTRef = useRef(0);
   const [countdownDone, setCountdownDone] = useState(false);
@@ -75,6 +112,8 @@ const StellarApp = () => {
   /* First-interaction flag — fades the hero "scroll to explore" hint once the
      visitor scrolls / keys / touches (or after a timeout). */
   const [interacted, setInteracted] = useState(false);
+  /* Object currently being visited from the overview map (the free fly-to). */
+  const [focusedObj, setFocusedObj] = useState(null);
   const [activeIdx, setActiveIdx] = useState(0);
   const activeIdxRef = useRef(0);
   /* Hyperspeed warp intensity (0..1): scroll velocity during the tour + a
@@ -84,6 +123,10 @@ const StellarApp = () => {
      minimal UI, but CameraRig still reads it, so this keeps its wide branch
      a harmless no-op without touching the rig. */
   const wideRef = useRef(false);
+  /* Free-camera focus target {position, lookAt, fov} for click-to-visit, and a
+     live-camera handle the overview map projects object positions through. */
+  const focusRef = useRef(null);
+  const cameraRef = useRef(null);
   const consoleLoggedRef = useRef(false);
 
   /* Scene mounts/loads textures behind the warp + countdown overlays,
@@ -183,6 +226,37 @@ const StellarApp = () => {
     wideRef.current = overview;
   }, [overview]);
 
+  /* Focus (visiting an object) only lives inside the overview — clear it when
+     the overview closes. */
+  useEffect(() => {
+    if (!overview && focusedObj) {
+      setFocusedObj(null);
+      focusRef.current = null;
+    }
+  }, [overview, focusedObj]);
+
+  const clearFocus = useCallback(() => {
+    setFocusedObj(null);
+    focusRef.current = null;
+  }, []);
+
+  /* Map pick: a destination returns to its résumé stop; an anomaly flies the
+     free camera to its authored framing. */
+  const handlePick = useCallback(
+    (o) => {
+      if (o.visit.kind === "stop") {
+        setFocusedObj(null);
+        focusRef.current = null;
+        setOverview(false);
+        handleJump(o.visit.index);
+      } else {
+        setFocusedObj(o);
+        focusRef.current = o.visit.cameraTarget;
+      }
+    },
+    [handleJump]
+  );
+
   /* Fade the scroll hint on the first real interaction (or after 8s). */
   useEffect(() => {
     if (!shipWarpDone || interacted) return undefined;
@@ -212,7 +286,9 @@ const StellarApp = () => {
         e.preventDefault();
         setOverview((o) => !o);
       } else if (k === "escape") {
-        setOverview(false);
+        /* Step back: focused object → map; map → tour. */
+        if (focusedObj) clearFocus();
+        else setOverview(false);
       } else if (k === "arrowdown" || k === "arrowright" || k === "pagedown") {
         e.preventDefault();
         setOverview(false);
@@ -233,7 +309,7 @@ const StellarApp = () => {
     };
     window.addEventListener("keydown", onKey);
     return () => window.removeEventListener("keydown", onKey);
-  }, [shipWarpDone, handleJump]);
+  }, [shipWarpDone, handleJump, focusedObj, clearFocus]);
 
   /* Browser back/forward should also navigate */
   useEffect(() => {
@@ -270,6 +346,8 @@ const StellarApp = () => {
         onReady={handleSceneReady}
         freeRoamEnabled={false}
         wideRef={wideRef}
+        focusRef={focusRef}
+        cameraRef={cameraRef}
         showExtras={countdownDone}
         launchPhase={launchPhase}
       />
@@ -293,6 +371,10 @@ const StellarApp = () => {
           <OverviewHud overview={overview} onToggle={() => setOverview((o) => !o)} />
           {!overview && <ProgressRail destinations={DESTINATIONS} activeIdx={activeIdx} onJump={handleJump} />}
           {!overview && <ScrollHint visible={activeIdx === 0 && !interacted} />}
+          {/* Interactive overview map — hover any object for info, click to
+              visit (planets → résumé stop, anomalies → free fly-to). */}
+          <OverviewMap objects={OBJECTS} cameraRef={cameraRef} visible={overview && !focusedObj} onPick={handlePick} />
+          {focusedObj && <FocusCard obj={focusedObj} onBack={clearFocus} />}
         </>
       )}
       {/* Countdown plays FIRST on mount; the warp fly-in (WarpField streaks

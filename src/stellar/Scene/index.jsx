@@ -56,7 +56,7 @@ import { DESTINATIONS } from "../config/destinations";
  * tune that based on viewport bucket.
  */
 
-const Scene = ({ scrollT, activeIdx, onJump, onReady, freeRoamEnabled, wideRef, showExtras = true, launchPhase = null }) => {
+const Scene = ({ scrollT, activeIdx, onJump, onReady, freeRoamEnabled, wideRef, focusRef, cameraRef, showExtras = true, launchPhase = null }) => {
   const readyRef = useRef(false);
   const { isMobile, isCompact, reducedMotion } = useViewport();
   /* Camera offsets — kept in refs so React state doesn't re-render
@@ -301,6 +301,8 @@ const Scene = ({ scrollT, activeIdx, onJump, onReady, freeRoamEnabled, wideRef, 
           freeRoamOffsetRef={freeRoamOffsetRef}
           freeRoamEnabled={freeRoamEnabled}
           wideRef={wideRef}
+          focusRef={focusRef}
+          cameraRef={cameraRef}
           launchPhase={launchPhase}
           /* Desktop frames the planet right-of-centre to clear the left
              content column; compact/mobile keep it centred (stacked layout). */

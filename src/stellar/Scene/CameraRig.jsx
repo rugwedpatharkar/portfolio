@@ -97,6 +97,8 @@ const CameraRig = ({
   freeRoamOffsetRef,
   freeRoamEnabled,
   wideRef,
+  focusRef,
+  cameraRef,
   launchPhase,
   frameShift = 0,
   reducedMotion = false,
@@ -137,6 +139,10 @@ const CameraRig = ({
 
   useFrame((_, dt) => {
     if (controlsEnabled) return;
+    /* Expose the live camera to DOM overlays (the overview map projects
+       object positions to screen space through it). */
+    if (cameraRef) cameraRef.current = camera;
+
     const d = Math.min(dt || 1 / 60, 1 / 20);
     /* Reduced-motion pins orbital time to 0 so the camera tracks the same
        frozen (authored) planet positions OrbitGroup uses → no drift. */
@@ -221,8 +227,15 @@ const CameraRig = ({
     const targetBank = THREE.MathUtils.clamp(-posVel * BANK_GAIN, -BANK_MAX, BANK_MAX);
     bankCurrent.current += (targetBank - bankCurrent.current) * fAlpha(0.1, d);
 
-    const wide = !!wideRef?.current;
-    if (wide) {
+    /* Precedence: focus (click-to-visit an object from the overview map) >
+       wide (system overview) > scroll framing. Focus + wide use absolute
+       world coords, so the planet frameShift/parallax are skipped. */
+    const focus = focusRef?.current || null;
+    const wide = !focus && !!wideRef?.current;
+    if (focus) {
+      _camTarget.set(focus.position[0], focus.position[1], focus.position[2]);
+      _lookTarget.set(focus.lookAt[0], focus.lookAt[1], focus.lookAt[2]);
+    } else if (wide) {
       _camTarget.copy(WIDE_POSITION);
       _lookTarget.copy(WIDE_LOOK);
     } else {
@@ -241,7 +254,7 @@ const CameraRig = ({
        without moving the camera or changing the planet's size. Desktop only
        (frameShift is 0 on compact/mobile, where the layout stacks); skipped
        in wide + free-roam. */
-    if (!wide && !freeRoamEnabled && frameShift) {
+    if (!wide && !focus && !freeRoamEnabled && frameShift) {
       /* (1) Dolly back along the planet→camera axis so the whole body fits
          on the right with margin. (2) Then aim a fraction of the view's
          half-width LEFT of the subject, sliding it right to clear the left
@@ -256,19 +269,19 @@ const CameraRig = ({
       _lookTarget.addScaledVector(_right, -halfW * frameShift);
     }
 
-    const posBase = wide ? WIDE_LERP_60 : freeRoamEnabled ? FREEROAM_LERP_60 : POS_LERP_60;
-    const lookBase = wide ? WIDE_LERP_60 : LOOK_LERP_60;
+    const posBase = focus || wide ? WIDE_LERP_60 : freeRoamEnabled ? FREEROAM_LERP_60 : POS_LERP_60;
+    const lookBase = focus || wide ? WIDE_LERP_60 : LOOK_LERP_60;
     camera.position.lerp(_camTarget, fAlpha(posBase, d));
     lookAtTarget.current.lerp(_lookTarget, fAlpha(lookBase, d));
     camera.lookAt(lookAtTarget.current);
 
     /* Dutch-tilt roll + travel bank — after lookAt (resets up to world up). */
-    const targetRoll = freeRoamEnabled || wide ? 0 : rollTarget + bankCurrent.current;
+    const targetRoll = freeRoamEnabled || wide || focus ? 0 : rollTarget + bankCurrent.current;
     rollCurrent.current += (targetRoll - rollCurrent.current) * fAlpha(ROLL_LERP_60, d);
     if (Math.abs(rollCurrent.current) > 0.0005) camera.rotateZ(rollCurrent.current);
 
     /* FOV */
-    const targetFov = wide ? WIDE_FOV : fovTarget;
+    const targetFov = focus ? focus.fov : wide ? WIDE_FOV : fovTarget;
     const fovDelta = targetFov - camera.fov;
     if (Math.abs(fovDelta) > 0.02) {
       camera.fov += fovDelta * fAlpha(FOV_LERP_60, d);
