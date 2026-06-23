@@ -36,7 +36,7 @@ const DASH_CLIP =
 const BROW_CLIP =
   "polygon(0 0, 100% 0, 100% 60%, 80% 50%, 50% 32%, 20% 50%, 0 60%)";
 
-const GameCockpit = ({ cameraRef, clock, speedRef, onReadMode }) => {
+const GameCockpit = ({ cameraRef, clock, speedRef, onVoice, onOpenLog, onReadMode }) => {
   const [target, setTarget] = useState(null); // { id, dist, inRange, charted }
   const [locked, setLocked] = useState(false);
   const [, force] = useState(0);
@@ -204,17 +204,21 @@ const GameCockpit = ({ cameraRef, clock, speedRef, onReadMode }) => {
           {personalInfo.location} · {personalInfo.availabilityStatus}
         </div>
         <div style={{ height: 1, background: "rgba(255,255,255,0.08)", margin: "11px 0" }} />
-        <div style={{ display: "flex", justifyContent: "space-between" }}>
-          <Stat label="SCORE" value={score} accent="#f8c555" />
-          <Stat label="CHARTED" value={`${charted}/${OBJECTIVE_TOTAL}`} accent={TEAL} />
-          <Stat label="RANK" value={rank.label} accent="#c9b8ff" small />
-        </div>
-        <div style={{ height: 4, borderRadius: 3, background: "rgba(255,255,255,0.08)", overflow: "hidden", marginTop: 10 }}>
-          <div style={{ height: "100%", width: `${Math.round((rank.count / rank.total) * 100)}%`, background: "linear-gradient(90deg,#915eff,#00cea8)" }} />
-        </div>
-        <div style={{ fontFamily: MONO, fontSize: 8, color: "rgba(223,217,255,0.5)", marginTop: 5 }}>
-          {rank.next ? `${rank.remaining} to ${rank.next}` : "system fully charted"}
-        </div>
+        {/* Clickable → opens the discoveries log (rank / badges / hunt). */}
+        <button onClick={onOpenLog} aria-label="Open discoveries log"
+          style={{ all: "unset", cursor: "pointer", pointerEvents: "auto", display: "block", width: "100%" }}>
+          <div style={{ display: "flex", justifyContent: "space-between" }}>
+            <Stat label="SCORE" value={score} accent="#f8c555" />
+            <Stat label="CHARTED" value={`${charted}/${OBJECTIVE_TOTAL}`} accent={TEAL} />
+            <Stat label="RANK" value={rank.label} accent="#c9b8ff" small />
+          </div>
+          <div style={{ height: 4, borderRadius: 3, background: "rgba(255,255,255,0.08)", overflow: "hidden", marginTop: 10 }}>
+            <div style={{ height: "100%", width: `${Math.round((rank.count / rank.total) * 100)}%`, background: "linear-gradient(90deg,#915eff,#00cea8)" }} />
+          </div>
+          <div style={{ fontFamily: MONO, fontSize: 8, color: "rgba(223,217,255,0.5)", marginTop: 5 }}>
+            {rank.next ? `${rank.remaining} to ${rank.next} · ▸ log` : "system fully charted · ▸ log"}
+          </div>
+        </button>
       </div>
 
       {/* TARGET sensor MFD — top-right, tracks the nearest body live. */}
@@ -267,16 +271,26 @@ const GameCockpit = ({ cameraRef, clock, speedRef, onReadMode }) => {
             <div ref={velBarRef} style={{ height: "100%", width: "0%", background: "linear-gradient(90deg,#00cea8,#f8c555)" }} />
           </div>
         </div>
-        {/* control legend + escape */}
+        {/* control legend + voice command + escape */}
         <div style={{ textAlign: "center", paddingBottom: 2 }}>
           <div style={{ display: "flex", gap: 7, justifyContent: "center", fontFamily: MONO, fontSize: 8.5, color: "rgba(223,217,255,0.78)" }}>
             <Key>WASD</Key><span style={{ opacity: 0.5 }}>move</span>
             <Key>MOUSE</Key><span style={{ opacity: 0.5 }}>look</span>
             <Key>SHIFT</Key><span style={{ opacity: 0.5 }}>boost</span>
           </div>
-          <button onClick={onReadMode} aria-label="Switch to read mode (résumé)"
-            style={{ marginTop: 8, cursor: "pointer", pointerEvents: "auto", padding: "5px 14px", borderRadius: 7, background: "rgba(255,255,255,0.05)",
-              border: "1px solid rgba(255,255,255,0.22)", color: "rgba(255,255,255,0.82)", fontFamily: MONO, fontSize: 10, letterSpacing: "0.1em" }}>▤ READ RÉSUMÉ</button>
+          <div style={{ display: "flex", gap: 8, justifyContent: "center", marginTop: 8 }}>
+            <button onClick={onVoice} aria-label="Voice command — say a destination to autopilot there"
+              title="Voice — say &quot;take me to Jupiter&quot;"
+              style={{ cursor: "pointer", pointerEvents: "auto", display: "inline-flex", alignItems: "center", gap: 6, padding: "5px 12px", borderRadius: 7,
+                background: "rgba(0,206,168,0.12)", border: "1px solid rgba(0,206,168,0.45)", color: "#cdeee6", fontFamily: MONO, fontSize: 10, letterSpacing: "0.1em" }}>
+              <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
+                <path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z" /><path d="M19 10v2a7 7 0 0 1-14 0v-2" /><line x1="12" y1="19" x2="12" y2="23" /><line x1="8" y1="23" x2="16" y2="23" />
+              </svg>VOICE
+            </button>
+            <button onClick={onReadMode} aria-label="Switch to read mode (résumé)"
+              style={{ cursor: "pointer", pointerEvents: "auto", padding: "5px 14px", borderRadius: 7, background: "rgba(255,255,255,0.05)",
+                border: "1px solid rgba(255,255,255,0.22)", color: "rgba(255,255,255,0.82)", fontFamily: MONO, fontSize: 10, letterSpacing: "0.1em" }}>▤ READ RÉSUMÉ</button>
+          </div>
         </div>
       </div>
 

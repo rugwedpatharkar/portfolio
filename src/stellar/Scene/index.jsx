@@ -66,7 +66,7 @@ import { DESTINATIONS } from "../config/destinations";
  * tune that based on viewport bucket.
  */
 
-const Scene = ({ scrollT, activeIdx, onJump, onReady, freeRoamEnabled, gameActive = false, speedRef, thrustRef, wideRef, wideOrbitRef, focusRef, cameraRef, clock, showExtras = true, launchPhase = null }) => {
+const Scene = ({ scrollT, activeIdx, onJump, onReady, freeRoamEnabled, gameActive = false, speedRef, thrustRef, flyToRef, wideRef, wideOrbitRef, focusRef, cameraRef, clock, showExtras = true, launchPhase = null }) => {
   const readyRef = useRef(false);
   const { isMobile, isCompact, reducedMotion } = useViewport();
   /* Camera offsets — kept in refs so React state doesn't re-render
@@ -341,7 +341,7 @@ const Scene = ({ scrollT, activeIdx, onJump, onReady, freeRoamEnabled, gameActiv
         <FreeRoam enabled={freeRoamEnabled} offsetRef={freeRoamOffsetRef} speedRef={speedRef} thrustRef={thrustRef} />
         {/* Game mode: a true free-look (mouse + WASD) flight that OWNS the
             camera; CameraRig yields (controlsEnabled). */}
-        <GameFlight enabled={gameActive} speedRef={speedRef} cameraRef={cameraRef} thrustRef={thrustRef} />
+        <GameFlight enabled={gameActive} speedRef={speedRef} cameraRef={cameraRef} thrustRef={thrustRef} flyToRef={flyToRef} />
         <CameraShake parallaxOffsetRef={parallaxOffsetRef} />
         <CameraRig
           scrollT={scrollT}

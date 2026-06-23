@@ -15,13 +15,10 @@ import { OBJECTS } from "./config/objects";
 import { easterEggs } from "../content";
 import { DESTINATIONS } from "./config/destinations";
 import Achievements from "./Achievements";
-import RankMeter from "./RankMeter";
 import DiscoveriesView from "./DiscoveriesView";
 import EasterEgg from "./EasterEgg";
 import AnswerListener from "./AnswerListener";
 import useViewport from "./useViewport";
-import CommandPalette from "./ui/CommandPalette";
-import NavConsole from "./NavConsole";
 import VoiceNav from "./VoiceNav";
 import SpeedRun from "./SpeedRun";
 import CockpitFrame from "./CockpitFrame";
@@ -30,7 +27,6 @@ import HazardBanner from "./HazardBanner";
 import Radar from "./Radar";
 import GameCockpit from "./game/GameCockpit";
 import { markCharted, markVisited } from "./data/explorer";
-import { buildCommands } from "./config/commands";
 
 /* Hash → destination utilities */
 const findDestinationIndexByHash = (hash) => {
@@ -126,19 +122,12 @@ const StellarApp = () => {
   const [focusedObj, setFocusedObj] = useState(null);
   /* Explorer Log (Discoveries) panel open state. */
   const [logOpen, setLogOpen] = useState(false);
-  /* Command palette + cockpit controls. */
-  const [paletteOpen, setPaletteOpen] = useState(false);
-  const [timeScale, setTimeScale] = useState(1);
+  /* Voice command — the one surviving command, used in the game — plus the
+     speed-run challenge. (The ⌘K palette + time-scale dock were removed to
+     keep the default Read experience minimal.) */
   const [voiceNonce, setVoiceNonce] = useState(0);
   const [speedRunOn, setSpeedRunOn] = useState(false);
   const { reducedMotion, isMobile } = useViewport();
-
-  /* Time control writes the shared virtual-clock scale (read by the scene) and
-     mirrors it in state so the Nav Console can highlight the active pill. */
-  const handleTimeScale = useCallback((s) => {
-    setTimeScale(s);
-    if (sceneClockRef.current) sceneClockRef.current.scale = s;
-  }, []);
   const [activeIdx, setActiveIdx] = useState(0);
   const activeIdxRef = useRef(0);
   /* Hyperspeed warp intensity (0..1): scroll velocity during the tour + a
@@ -155,10 +144,12 @@ const StellarApp = () => {
      live-camera handle the overview map projects object positions through. */
   const focusRef = useRef(null);
   const cameraRef = useRef(null);
-  /* Pilot free-flight: live speed (CockpitFrame gauge) + on-screen thruster
-     input written by the Nav Console pad, both read by the FreeRoam rig. */
+  /* Flight: live speed (the gauge) + thruster input, read by the rigs. */
   const pilotSpeedRef = useRef(0);
   const thrustRef = useRef({});
+  /* Autopilot target id (a body) — voice ("take me to Earth") or a radar tap
+     sets it; GameFlight glides the ship there and clears it on arrival. */
+  const flyToRef = useRef(null);
   /* Shared virtual-clock handle { t, scale, danger }, created once and shared
      by identity across the canvas boundary: the scene writes `t` (scaled
      orbital world-time) + `danger` (black-hole proximity); the DOM time
@@ -331,6 +322,8 @@ const StellarApp = () => {
      free camera to its authored framing. */
   const handlePick = useCallback(
     (o) => {
+      /* In the game, picking a target (radar tap) flies the ship there. */
+      if (gameMode === "game") { flyToRef.current = o.id; return; }
       if (o.visit.kind === "stop") {
         setFocusedObj(null);
         focusRef.current = null;
@@ -340,27 +333,21 @@ const StellarApp = () => {
         setMode("overview");
         setFocusedObj(o);
         focusRef.current = o.visit.cameraTarget;
-        /* Visiting an anomaly (map or palette) charts it toward Explorer Rank. */
+        /* Visiting an anomaly (map) charts it toward Explorer Rank. */
         markCharted(o.id);
       }
     },
-    [handleJump]
+    [handleJump, gameMode]
   );
 
-  /* Command registry for the ⌘K palette, bound to the app's handlers. */
-  const commands = useMemo(
-    () => buildCommands({
-      warpTo: (i) => { setMode("tour"); handleJump(i); },
-      pick: handlePick,
-      toggleLog: () => setLogOpen((v) => !v),
-      toggleMap: () => setMode((m) => (m === "overview" ? "tour" : "overview")),
-      startSpeedRun: () => setSpeedRunOn((v) => !v),
-      startVoice: () => setVoiceNonce((n) => n + 1),
-      setTimeScale: handleTimeScale,
-      enterPilot: togglePilot,
-      enterGame: () => setGameMode("game"),
-    }),
-    [handleJump, handlePick, handleTimeScale, togglePilot]
+  /* Voice command — the one surviving command. In the game it autopilots the
+     ship to the named body; in Read it scrolls the tour there. */
+  const handleVoiceJump = useCallback(
+    (idx) => {
+      if (gameMode === "game") { flyToRef.current = DESTINATIONS[idx]?.id || null; return; }
+      handleJump(idx);
+    },
+    [handleJump, gameMode]
   );
 
   /* Fade the scroll hint on the first real interaction (or after 8s). */
@@ -388,24 +375,16 @@ const StellarApp = () => {
       const k = e.key.toLowerCase();
       const N = DESTINATIONS.length;
       const cur = activeIdxRef.current;
-      /* ⌘K / Ctrl+K toggles the command palette (works even from its input). */
-      if ((e.metaKey || e.ctrlKey) && k === "k") {
-        e.preventDefault();
-        setPaletteOpen((o) => !o);
-        return;
-      }
-      /* Never hijack typing — the palette input is the app's first text field;
-         while it's open it owns its own keys (arrows / enter / esc). */
+      /* Never hijack typing (the voice/answer fields). */
       const typing = e.target && (e.target.tagName === "INPUT" || e.target.tagName === "TEXTAREA");
-      if (paletteOpen || typing) return;
-      if (k === "/") { e.preventDefault(); setPaletteOpen(true); return; }
+      if (typing) return;
       /* The Explorer Log captures keys while open (Esc closes it). */
       if (logOpen) {
         if (k === "escape") setLogOpen(false);
         return;
       }
       /* In game mode GameFlight owns the flight keys (mouse-look + WASD); the
-         hub yields (⌘K + "/" + the log above still work). */
+         hub yields entirely (the log above still works). */
       if (gameMode === "game") return;
       /* P toggles free-flight. While piloting, FreeRoam owns WASD/arrows — the
          hub only listens for Esc / P to dock. */
@@ -438,7 +417,7 @@ const StellarApp = () => {
     };
     window.addEventListener("keydown", onKey);
     return () => window.removeEventListener("keydown", onKey);
-  }, [shipWarpDone, handleJump, focusedObj, clearFocus, logOpen, paletteOpen, mode, togglePilot, gameMode]);
+  }, [shipWarpDone, handleJump, focusedObj, clearFocus, logOpen, mode, togglePilot, gameMode]);
 
   /* Browser back/forward should also navigate */
   useEffect(() => {
@@ -487,6 +466,7 @@ const StellarApp = () => {
         gameActive={gameActive}
         speedRef={pilotSpeedRef}
         thrustRef={thrustRef}
+        flyToRef={flyToRef}
         wideRef={wideRef}
         wideOrbitRef={wideOrbitRef}
         focusRef={focusRef}
@@ -507,12 +487,11 @@ const StellarApp = () => {
         <>
           <Cursor />
           <AmbientAudio />
-          {/* Discovery + toasts + palette — shared by both modes. */}
+          {/* Discovery + toasts — shared by both modes. */}
           <Achievements activeIdx={activeIdx} showStrip={false} />
           <EasterEgg />
           <AnswerListener />
           <DiscoveriesView open={logOpen} onClose={() => setLogOpen(false)} animate={!reducedMotion} />
-          <CommandPalette open={paletteOpen} onClose={() => setPaletteOpen(false)} commands={commands} />
           <FragmentToast />
           <HazardBanner clock={sceneClockRef.current} />
           {/* Minimal canopy HUD for the read-mode pilot; the game has its own
@@ -522,13 +501,20 @@ const StellarApp = () => {
 
           {gameMode === "game" ? (
             /* GAME — the cockpit flight-sim (free-look: mouse + WASD). The
-               cockpit tracks the nearest body live from cameraRef. */
-            <GameCockpit
-              cameraRef={cameraRef}
-              clock={sceneClockRef.current}
-              speedRef={pilotSpeedRef}
-              onReadMode={() => setGameMode("read")}
-            />
+               cockpit tracks the nearest body live from cameraRef. Voice is the
+               one surviving command here — the mic autopilots the ship to a
+               spoken body ("take me to Jupiter"). */
+            <>
+              <GameCockpit
+                cameraRef={cameraRef}
+                clock={sceneClockRef.current}
+                speedRef={pilotSpeedRef}
+                onVoice={() => setVoiceNonce((n) => n + 1)}
+                onOpenLog={() => setLogOpen((v) => !v)}
+                onReadMode={() => setGameMode("read")}
+              />
+              <VoiceNav onJump={handleVoiceJump} startSignal={voiceNonce} hideButton />
+            </>
           ) : (
             /* READ — the scroll-tour résumé (the fast path + mobile/reduced default). */
             <>
@@ -539,23 +525,8 @@ const StellarApp = () => {
               {mode === "tour" && <ScrollHint visible={activeIdx === 0 && !interacted} />}
               <OverviewMap objects={OBJECTS} cameraRef={cameraRef} visible={overview && !focusedObj} onPick={handlePick} />
               {focusedObj && <FocusCard obj={focusedObj} onBack={clearFocus} />}
-              <RankMeter onOpen={() => setLogOpen((v) => !v)} animate={!reducedMotion} />
-              <NavConsole
-                mode={mode}
-                destinations={DESTINATIONS}
-                activeIdx={activeIdx}
-                onPrev={() => handleJump(Math.max(0, activeIdxRef.current - 1))}
-                onNext={() => handleJump(Math.min(DESTINATIONS.length - 1, activeIdxRef.current + 1))}
-                onMap={() => setMode((m) => (m === "overview" ? "tour" : "overview"))}
-                overview={overview}
-                timeScale={timeScale}
-                onTimeScale={handleTimeScale}
-                onTogglePilot={togglePilot}
-                thrustRef={thrustRef}
-                isMobile={isMobile}
-                animate={!reducedMotion}
-              />
-              <VoiceNav onJump={handleJump} startSignal={voiceNonce} hideButton />
+              {/* Minimal by design: no nav-console, rank meter, or ⌘K palette in
+                  Read mode — just the résumé tour + the Space-Explorer CTA. */}
               <SpeedRun activeIdx={activeIdx} active={speedRunOn} onToggle={() => setSpeedRunOn((v) => !v)} />
               {/* Become a Space Explorer — the game is an OPT-IN choice; the
                   résumé tour is the default. Desktop only (flight is disabled

@@ -2,6 +2,8 @@
 import { useEffect, useRef } from "react";
 import { useFrame, useThree } from "@react-three/fiber";
 import * as THREE from "three";
+import { useSceneClock } from "./SceneClock";
+import { liveBodyPosition } from "../data/bodies";
 
 /*
  * Free-look ship flight for game mode — proper space-sim controls:
@@ -18,13 +20,16 @@ import * as THREE from "three";
 
 const SPEED = 10, BOOST = 2.8, BOUNDS = 58, LOOK_SENS = 0.0022, PITCH_MAX = 1.45, FOV = 72;
 const CENTER = new THREE.Vector3(22, 0, 0);
+const STANDOFF = 3.4; // where autopilot parks relative to the target (within scan range)
+const fAlpha = (base, dt) => 1 - Math.pow(1 - base, dt * 60);
 /* Movement keys we own — preventDefault stops Space/arrows from page-scrolling
    the (Lenis-stopped) document behind the fixed canvas while flying. */
 const HANDLED = new Set(["KeyW", "KeyA", "KeyS", "KeyD", "KeyC", "Space", "ArrowUp", "ArrowDown", "ArrowLeft", "ArrowRight", "ShiftLeft", "ShiftRight"]);
 const isText = (ev) => ev.target && (ev.target.tagName === "INPUT" || ev.target.tagName === "TEXTAREA");
 
-const GameFlight = ({ enabled, speedRef, cameraRef, thrustRef }) => {
+const GameFlight = ({ enabled, speedRef, cameraRef, thrustRef, flyToRef }) => {
   const { camera, gl } = useThree();
+  const sceneClock = useSceneClock();
   const keys = useRef({});
   const yaw = useRef(0);
   const pitch = useRef(0);
@@ -39,6 +44,13 @@ const GameFlight = ({ enabled, speedRef, cameraRef, thrustRef }) => {
   const up = useRef(new THREE.Vector3(0, 1, 0));
   const move = useRef(new THREE.Vector3());
   const fc = useRef(new THREE.Vector3());
+  /* Autopilot scratch (voice / radar "fly to"). */
+  const tv = useRef(new THREE.Vector3());
+  const desired = useRef(new THREE.Vector3());
+  const apDir = useRef(new THREE.Vector3());
+  const apOld = useRef(new THREE.Vector3());
+  const lookM = useRef(new THREE.Matrix4());
+  const qTarget = useRef(new THREE.Quaternion());
 
   /* Init from the current camera pose on enable (no jump after warp-in). */
   useEffect(() => {
@@ -79,6 +91,7 @@ const GameFlight = ({ enabled, speedRef, cameraRef, thrustRef }) => {
     const onLockChange = () => { locked.current = document.pointerLockElement === el; };
     const onMove = (ev) => {
       if (!locked.current) return;
+      if (flyToRef?.current) flyToRef.current = null;   // taking the stick cancels autopilot
       yaw.current -= ev.movementX * LOOK_SENS;
       pitch.current = THREE.MathUtils.clamp(pitch.current - ev.movementY * LOOK_SENS, -PITCH_MAX, PITCH_MAX);
     };
@@ -97,6 +110,40 @@ const GameFlight = ({ enabled, speedRef, cameraRef, thrustRef }) => {
   useFrame((_, dt) => {
     if (!enabled || !inited.current) return;
     const d = Math.min(dt || 1 / 60, 1 / 20);
+    const k = keys.current;
+
+    /* ── Autopilot ── voice ("take me to Jupiter") or a radar tap sets
+       flyToRef to a body id; we glide to a standoff point and aim at it.
+       Any manual input (a thrust key here, or mouse-look above) cancels it. */
+    const fly = flyToRef?.current;
+    if (fly) {
+      let manual = false;
+      for (const code of HANDLED) if (k[code]) { manual = true; break; }
+      if (manual) { flyToRef.current = null; }
+      else {
+        liveBodyPosition(fly, sceneClock.t, tv.current);
+        apDir.current.copy(pos.current).sub(tv.current);
+        const dl = apDir.current.length();
+        if (dl < 1e-3) apDir.current.set(0, 0, 1); else apDir.current.divideScalar(dl);
+        desired.current.copy(tv.current).addScaledVector(apDir.current, STANDOFF);
+        apOld.current.copy(pos.current);
+        pos.current.lerp(desired.current, fAlpha(0.05, d));
+        fc.current.copy(pos.current).sub(CENTER);
+        if (fc.current.length() > BOUNDS) { fc.current.setLength(BOUNDS); pos.current.copy(CENTER).add(fc.current); }
+        camera.position.copy(pos.current);
+        lookM.current.lookAt(pos.current, tv.current, up.current);
+        qTarget.current.setFromRotationMatrix(lookM.current);
+        camera.quaternion.slerp(qTarget.current, fAlpha(0.09, d));
+        /* Keep yaw/pitch tracking the autopilot aim so manual resumes seamlessly. */
+        camera.getWorldDirection(fwd.current);
+        yaw.current = Math.atan2(-fwd.current.x, -fwd.current.z);
+        pitch.current = Math.asin(THREE.MathUtils.clamp(fwd.current.y, -1, 1));
+        if (speedRef) speedRef.current = apOld.current.distanceTo(pos.current) / Math.max(d, 1e-3);
+        if (cameraRef) cameraRef.current = camera;
+        if (pos.current.distanceTo(desired.current) < 0.5) flyToRef.current = null;
+        return;
+      }
+    }
 
     e.current.set(pitch.current, yaw.current, 0);
     q.current.setFromEuler(e.current);
@@ -105,7 +152,6 @@ const GameFlight = ({ enabled, speedRef, cameraRef, thrustRef }) => {
     fwd.current.set(0, 0, -1).applyQuaternion(q.current);
     right.current.set(1, 0, 0).applyQuaternion(q.current);
 
-    const k = keys.current;
     const tr = thrustRef?.current || {};
     const boost = k.ShiftLeft || k.ShiftRight || tr.boost ? BOOST : 1;
     const step = SPEED * boost * d;
