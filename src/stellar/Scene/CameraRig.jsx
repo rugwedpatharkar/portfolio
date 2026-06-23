@@ -32,8 +32,8 @@ const FOV_DEFAULT = 52;
    tracks a hair tighter than position so the orbiting planet stays
    centred (tracking a moving target with a proportional lerp lags a
    little; a tighter aim keeps that lag invisible). */
-const POS_LERP_60 = 0.11;
-const LOOK_LERP_60 = 0.17;
+const POS_LERP_60 = 0.14;
+const LOOK_LERP_60 = 0.20;
 const FOV_LERP_60 = 0.12;
 const ROLL_LERP_60 = 0.05;
 const WIDE_LERP_60 = 0.09;
@@ -72,8 +72,11 @@ const fAlpha = (base, dt) => 1 - Math.pow(1 - base, dt * 60);
 
 /* Dwell-ease: hold (plateau) near each planet so you settle there and can
    read, glide (smoothstep) through the middle of a segment. Keeps the
-   "always framed on a planet" property while making the tour continuous. */
-const DWELL = 0.24;
+   "always framed on a planet" property while making the tour continuous.
+   DWELL raised 0.24 → 0.34: the camera reaches each planet's framing sooner
+   and lingers there, so a scroll spends ~68% settled and only ~32% gliding —
+   snappier, and far less time parked in the cluttered space between bodies. */
+const DWELL = 0.34;
 const dwellEase = (f) => {
   if (f <= DWELL) return 0;
   if (f >= 1 - DWELL) return 1;
@@ -82,6 +85,10 @@ const dwellEase = (f) => {
 };
 const BANK_GAIN = 0.04; // roll per (destination-unit / second) of travel
 const BANK_MAX = 0.085;
+/* When framing the planet to the right, pull the camera back this much so the
+   WHOLE planet fits with margin instead of being cropped (cropping a
+   frame-filling planet reads as flying "inside" it). */
+const FRAME_DOLLY = 1.34;
 
 const CameraRig = ({
   scrollT,
@@ -222,6 +229,12 @@ const CameraRig = ({
        (frameShift is 0 on compact/mobile, where the layout stacks); skipped
        in wide + free-roam. */
     if (!wide && !freeRoamEnabled && frameShift) {
+      /* (1) Dolly back along the planet→camera axis so the whole body fits
+         on the right with margin. (2) Then aim a fraction of the view's
+         half-width LEFT of the subject, sliding it right to clear the left
+         for the content column. */
+      _viewDir.copy(_camTarget).sub(_lookTarget);
+      _camTarget.copy(_lookTarget).addScaledVector(_viewDir, FRAME_DOLLY);
       _viewDir.copy(_lookTarget).sub(_camTarget);
       const dist = _viewDir.length() || 1;
       _viewDir.divideScalar(dist);

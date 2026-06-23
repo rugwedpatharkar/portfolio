@@ -633,11 +633,14 @@ const ContentPanel = ({ destination }) => {
           left: 0,
           top: 0,
           bottom: 0,
-          width: "55%",
+          width: "62%",
           pointerEvents: "none",
           zIndex: 38,
+          /* Pure-horizontal (no tilt) and fully transparent well before the
+             div edge, so there's no visible panel boundary — just a soft
+             readability wash that dissolves into the scene. */
           background:
-            "linear-gradient(96deg, rgba(4,6,16,0.95) 0%, rgba(4,6,16,0.86) 26%, rgba(4,6,16,0.5) 58%, rgba(4,6,16,0) 100%)",
+            "linear-gradient(90deg, rgba(4,6,16,0.82) 0%, rgba(4,6,16,0.58) 30%, rgba(4,6,16,0.22) 56%, rgba(4,6,16,0) 80%)",
         }}
       />
       <div

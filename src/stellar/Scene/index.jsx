@@ -11,10 +11,8 @@ import Planet from "./Planet";
 import CameraRig from "./CameraRig";
 import AsteroidBelt from "./AsteroidBelt";
 import Nebulae from "./Nebulae";
-import AlienShips from "./AlienShips";
 import Comets from "./Comets";
 import VisibilityController from "./VisibilityController";
-import PlanetLabels from "./PlanetLabels";
 import Skybox from "./Skybox";
 import OrbitGroup from "./OrbitGroup";
 import BlackHole from "./BlackHole";
@@ -86,13 +84,15 @@ const Scene = ({ scrollT, activeIdx, onJump, onReady, freeRoamEnabled, wideRef, 
     }
   }, [onReady]);
 
-  const dprCap = isMobile ? 1.4 : 1.75;
+  /* DPR cap trimmed 1.75 → 1.55 on desktop: on a retina (DPR 2) display that
+     is ~22% fewer shaded pixels per frame — a big GPU win for the Effect
+     pipeline at a barely-perceptible crispness cost. */
+  const dprCap = isMobile ? 1.35 : 1.55;
   const beltCounts = {
     achievements: isMobile ? 320 : 700,
     testimonials: isMobile ? 180 : 350,
   };
   const showComets = !reducedMotion;
-  const showAliens = !reducedMotion;
 
   return (
     <Canvas
@@ -158,7 +158,6 @@ const Scene = ({ scrollT, activeIdx, onJump, onReady, freeRoamEnabled, wideRef, 
         <Nebulae />
         {/* Ambient motion — only after the intro to keep the warp +
             countdown window light and trim initial scene-graph build. */}
-        {showExtras && showAliens && <AlienShips />}
         {showExtras && showComets && <Comets />}
         {/* The edge anomaly — a black hole beyond the contact beacon: you
             reach the edge of the system and there it is, pulling at the
@@ -283,7 +282,6 @@ const Scene = ({ scrollT, activeIdx, onJump, onReady, freeRoamEnabled, wideRef, 
 
         {!isMobile && <LensFlare position={[0, 0, 0]} />}
         {!isMobile && !reducedMotion && <DustParticles />}
-        <PlanetLabels activeIdx={activeIdx} />
         {/* Non-essential extras defer-mount until the intro completes —
             keeps the warp/countdown window + LCP light, and trims the
             initial scene-graph build. */}
@@ -351,7 +349,7 @@ const Scene = ({ scrollT, activeIdx, onJump, onReady, freeRoamEnabled, wideRef, 
             convolution effect (own passes) so it never merges with the
             single mainImage grade. Desktop only. */}
         {!isMobile && !lowPerf && (
-          <DepthOfField target={DOF_TARGET} focalLength={0.035} bokehScale={1.6} height={360} />
+          <DepthOfField target={DOF_TARGET} focalLength={0.03} bokehScale={1.0} height={240} />
         )}
         {/* Grade: bright base (the real fix for the earlier "too dark"),
             but saturation pulled NEGATIVE — pixel analysis showed planets
