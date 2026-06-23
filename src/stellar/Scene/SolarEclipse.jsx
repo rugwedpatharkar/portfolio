@@ -2,6 +2,7 @@
 import { useMemo, useRef } from "react";
 import { useFrame } from "@react-three/fiber";
 import * as THREE from "three";
+import { useSceneClock } from "./SceneClock";
 
 /*
  * A periodic solar eclipse over the sun.
@@ -99,8 +100,9 @@ const SolarEclipse = ({ period = 22, reducedMotion = false }) => {
   const glintRef = useRef();
   const _m = useMemo(() => new THREE.Vector3(), []);
   const _s = useMemo(() => new THREE.Vector3(), []);
+  const sceneClock = useSceneClock();
 
-  useFrame(({ clock, camera }) => {
+  useFrame(({ camera }) => {
     /* Phase 0..1; ph=0.5 is totality. A window override lets us pin a phase
        for visual verification; otherwise it's clock-driven (frozen if the
        user prefers reduced motion). */
@@ -110,7 +112,7 @@ const SolarEclipse = ({ period = 22, reducedMotion = false }) => {
         ? override
         : reducedMotion
           ? 0.18 // a static, far-from-totality partial when motion is reduced
-          : (clock.elapsedTime % period) / period;
+          : (sceneClock.t % period) / period;
 
     const mx = (ph * 2 - 1) * SWEEP_X; // linear sweep -SWEEP_X..SWEEP_X
     if (moonRef.current) moonRef.current.position.set(mx, CROSS_Y, CROSS_Z);

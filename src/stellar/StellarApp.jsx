@@ -20,7 +20,12 @@ import DiscoveriesView from "./DiscoveriesView";
 import EasterEgg from "./EasterEgg";
 import AnswerListener from "./AnswerListener";
 import useViewport from "./useViewport";
+import CommandPalette from "./ui/CommandPalette";
+import NavConsole from "./NavConsole";
+import VoiceNav from "./VoiceNav";
+import SpeedRun from "./SpeedRun";
 import { markCharted, markVisited } from "./data/explorer";
+import { buildCommands } from "./config/commands";
 
 /* Hash → destination utilities */
 const findDestinationIndexByHash = (hash) => {
@@ -43,34 +48,14 @@ const findDestinationIndexByHash = (hash) => {
 /* The only persistent on-screen control in the minimal UI: a subtle pill that
    toggles the system overview (and teaches the Z shortcut / supports click +
    touch). When overview is active it also shows a centred return hint. */
-const OverviewHud = ({ overview, onToggle }) => (
-  <>
-    {overview && (
-      <div style={{ position: "fixed", top: "7.5vh", left: 0, right: 0, zIndex: 50, pointerEvents: "none", display: "flex", flexDirection: "column", alignItems: "center", gap: 6, textAlign: "center" }}>
-        <div style={{ fontFamily: "'Michroma', sans-serif", fontSize: 17, letterSpacing: "0.16em", color: "white", textTransform: "uppercase", textShadow: "0 2px 20px rgba(0,0,0,0.85)" }}>System Overview</div>
-        <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 11, letterSpacing: "0.1em", color: "rgba(255,255,255,0.8)", textShadow: "0 1px 10px rgba(0,0,0,0.9)" }}>press Z or Esc to return</div>
-      </div>
-    )}
-    <button
-      onClick={onToggle}
-      aria-label={overview ? "Exit system overview" : "Show system overview"}
-      style={{
-        position: "fixed", bottom: 18, left: "50%", transform: "translateX(-50%)",
-        zIndex: 50, cursor: "pointer",
-        display: "inline-flex", alignItems: "center", gap: 8,
-        padding: "7px 14px", borderRadius: 999,
-        background: overview ? "rgba(120,170,255,0.18)" : "rgba(8,12,26,0.42)",
-        border: `1px solid ${overview ? "rgba(150,195,255,0.5)" : "rgba(255,255,255,0.14)"}`,
-        backdropFilter: "blur(10px)", WebkitBackdropFilter: "blur(10px)",
-        color: "rgba(255,255,255,0.8)", fontFamily: "'JetBrains Mono', monospace",
-        fontSize: 10, letterSpacing: "0.12em", textTransform: "uppercase",
-      }}
-    >
-      <kbd style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 9.5, padding: "1px 5px", borderRadius: 4, border: "1px solid rgba(255,255,255,0.28)", color: "white", lineHeight: 1.4 }}>Z</kbd>
-      <span>{overview ? "Exit overview" : "System map"}</span>
-    </button>
-  </>
-);
+/* System-overview header text. The MAP toggle now lives in the Nav Console. */
+const OverviewHud = ({ overview }) =>
+  overview ? (
+    <div style={{ position: "fixed", top: "7.5vh", left: 0, right: 0, zIndex: 50, pointerEvents: "none", display: "flex", flexDirection: "column", alignItems: "center", gap: 6, textAlign: "center" }}>
+      <div style={{ fontFamily: "'Michroma', sans-serif", fontSize: 17, letterSpacing: "0.16em", color: "white", textTransform: "uppercase", textShadow: "0 2px 20px rgba(0,0,0,0.85)" }}>System Overview</div>
+      <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 11, letterSpacing: "0.1em", color: "rgba(255,255,255,0.8)", textShadow: "0 1px 10px rgba(0,0,0,0.9)" }}>press Z or Esc to return</div>
+    </div>
+  ) : null;
 
 /* Shown while visiting an object from the map (the free fly-to) — its detailed
    info + a way back to the map. */
@@ -127,7 +112,19 @@ const StellarApp = () => {
   const [focusedObj, setFocusedObj] = useState(null);
   /* Explorer Log (Discoveries) panel open state. */
   const [logOpen, setLogOpen] = useState(false);
-  const { reducedMotion } = useViewport();
+  /* Command palette + cockpit controls. */
+  const [paletteOpen, setPaletteOpen] = useState(false);
+  const [timeScale, setTimeScale] = useState(1);
+  const [voiceNonce, setVoiceNonce] = useState(0);
+  const [speedRunOn, setSpeedRunOn] = useState(false);
+  const { reducedMotion, isMobile } = useViewport();
+
+  /* Time control writes the shared virtual-clock scale (read by the scene) and
+     mirrors it in state so the Nav Console can highlight the active pill. */
+  const handleTimeScale = useCallback((s) => {
+    setTimeScale(s);
+    if (sceneClockRef.current) sceneClockRef.current.scale = s;
+  }, []);
   const [activeIdx, setActiveIdx] = useState(0);
   const activeIdxRef = useRef(0);
   /* Hyperspeed warp intensity (0..1): scroll velocity during the tour + a
@@ -272,13 +269,28 @@ const StellarApp = () => {
         setMode("tour");
         handleJump(o.visit.index);
       } else {
+        setMode("overview");
         setFocusedObj(o);
         focusRef.current = o.visit.cameraTarget;
-        /* Visiting an anomaly from the map charts it toward Explorer Rank. */
+        /* Visiting an anomaly (map or palette) charts it toward Explorer Rank. */
         markCharted(o.id);
       }
     },
     [handleJump]
+  );
+
+  /* Command registry for the ⌘K palette, bound to the app's handlers. */
+  const commands = useMemo(
+    () => buildCommands({
+      warpTo: (i) => { setMode("tour"); handleJump(i); },
+      pick: handlePick,
+      toggleLog: () => setLogOpen((v) => !v),
+      toggleMap: () => setMode((m) => (m === "overview" ? "tour" : "overview")),
+      startSpeedRun: () => setSpeedRunOn((v) => !v),
+      startVoice: () => setVoiceNonce((n) => n + 1),
+      setTimeScale: handleTimeScale,
+    }),
+    [handleJump, handlePick, handleTimeScale]
   );
 
   /* Fade the scroll hint on the first real interaction (or after 8s). */
@@ -306,6 +318,17 @@ const StellarApp = () => {
       const k = e.key.toLowerCase();
       const N = DESTINATIONS.length;
       const cur = activeIdxRef.current;
+      /* ⌘K / Ctrl+K toggles the command palette (works even from its input). */
+      if ((e.metaKey || e.ctrlKey) && k === "k") {
+        e.preventDefault();
+        setPaletteOpen((o) => !o);
+        return;
+      }
+      /* Never hijack typing — the palette input is the app's first text field;
+         while it's open it owns its own keys (arrows / enter / esc). */
+      const typing = e.target && (e.target.tagName === "INPUT" || e.target.tagName === "TEXTAREA");
+      if (paletteOpen || typing) return;
+      if (k === "/") { e.preventDefault(); setPaletteOpen(true); return; }
       /* The Explorer Log captures keys while open (Esc closes it). */
       if (logOpen) {
         if (k === "escape") setLogOpen(false);
@@ -338,7 +361,7 @@ const StellarApp = () => {
     };
     window.addEventListener("keydown", onKey);
     return () => window.removeEventListener("keydown", onKey);
-  }, [shipWarpDone, handleJump, focusedObj, clearFocus, logOpen]);
+  }, [shipWarpDone, handleJump, focusedObj, clearFocus, logOpen, paletteOpen]);
 
   /* Browser back/forward should also navigate */
   useEffect(() => {
@@ -407,7 +430,7 @@ const StellarApp = () => {
           {!overview && <PlanetHUD destination={DESTINATIONS[activeIdx]} />}
           {!overview && <ContentPanel destination={DESTINATIONS[activeIdx]} />}
           <AmbientAudio />
-          <OverviewHud overview={overview} onToggle={() => setMode((m) => (m === "overview" ? "tour" : "overview"))} />
+          <OverviewHud overview={overview} />
           {!overview && <ProgressRail destinations={DESTINATIONS} activeIdx={activeIdx} onJump={handleJump} />}
           {!overview && <ScrollHint visible={activeIdx === 0 && !interacted} />}
           {/* Interactive overview map — hover any object for info, click to
@@ -421,6 +444,23 @@ const StellarApp = () => {
           <AnswerListener />
           <RankMeter onOpen={() => setLogOpen((v) => !v)} animate={!reducedMotion} />
           <DiscoveriesView open={logOpen} onClose={() => setLogOpen(false)} animate={!reducedMotion} />
+          {/* Mission Control — on-screen Nav Console + ⌘K command palette +
+              voice nav + opt-in speed run. */}
+          <NavConsole
+            destinations={DESTINATIONS}
+            activeIdx={activeIdx}
+            onPrev={() => handleJump(Math.max(0, activeIdxRef.current - 1))}
+            onNext={() => handleJump(Math.min(DESTINATIONS.length - 1, activeIdxRef.current + 1))}
+            onMap={() => setMode((m) => (m === "overview" ? "tour" : "overview"))}
+            overview={overview}
+            timeScale={timeScale}
+            onTimeScale={handleTimeScale}
+            isMobile={isMobile}
+            animate={!reducedMotion}
+          />
+          <CommandPalette open={paletteOpen} onClose={() => setPaletteOpen(false)} commands={commands} />
+          <VoiceNav onJump={handleJump} startSignal={voiceNonce} hideButton />
+          <SpeedRun activeIdx={activeIdx} active={speedRunOn} onToggle={() => setSpeedRunOn((v) => !v)} />
         </>
       )}
       {/* Countdown plays FIRST on mount; the warp fly-in (WarpField streaks

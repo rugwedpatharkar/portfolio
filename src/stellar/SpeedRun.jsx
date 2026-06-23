@@ -4,12 +4,12 @@ import { DESTINATIONS } from "./config/destinations";
 import useViewport from "./useViewport";
 
 /*
- * Speed-run mode. Toggle on → stopwatch starts when activeIdx changes
- * from sol; visited set accumulates; once all 12 destinations are
- * visited, stops the clock and stores best time to localStorage.
- *
- * Fires "stellar:speedrun" with {seconds} on completion (the
- * Achievements panel listens for sub-60s).
+ * Opt-in speed-run mode (started from the command palette). While active, the
+ * stopwatch starts when activeIdx leaves Sol; the visited set accumulates; once
+ * all 12 destinations are visited it stops and stores the best time. Fires
+ * "stellar:speedrun" with {seconds} on completion (Achievements listens for
+ * sub-60s). Controlled via `active`; click the chip (or run the command again)
+ * to stop. Desktop-only — racing 12 stops by scroll is awkward on a phone.
  */
 
 const KEY = "stellar:speedrun:best";
@@ -20,9 +20,8 @@ const fmt = (ms) => {
   return `${String(Math.floor(s / 60)).padStart(2, "0")}:${String(s % 60).padStart(2, "0")}.${String(cs).padStart(2, "0")}`;
 };
 
-const SpeedRun = ({ activeIdx }) => {
+const SpeedRun = ({ activeIdx, active = false, onToggle }) => {
   const { isMobile } = useViewport();
-  const [enabled, setEnabled] = useState(false);
   const [elapsed, setElapsed] = useState(0);
   const [done, setDone] = useState(false);
   const [best, setBest] = useState(() => {
@@ -33,18 +32,18 @@ const SpeedRun = ({ activeIdx }) => {
   const startRef = useRef(0);
   const visitedRef = useRef(new Set());
 
-  /* Reset on enable */
+  /* Reset on (re)activation */
   useEffect(() => {
-    if (!enabled) return;
+    if (!active) return;
     visitedRef.current = new Set();
     startRef.current = 0;
     setElapsed(0);
     setDone(false);
-  }, [enabled]);
+  }, [active]);
 
   /* Track visits */
   useEffect(() => {
-    if (!enabled || done) return;
+    if (!active || done) return;
     const dest = DESTINATIONS[activeIdx];
     if (!dest) return;
     if (startRef.current === 0 && dest.id !== "sol") {
@@ -61,61 +60,36 @@ const SpeedRun = ({ activeIdx }) => {
       }
       window.dispatchEvent(new CustomEvent("stellar:speedrun", { detail: { seconds: ms / 1000 } }));
     }
-  }, [activeIdx, enabled, done, best]);
+  }, [activeIdx, active, done, best]);
 
-  /* Tick the clock at ~10 Hz instead of 60 — the display only shows
-     two decimal places, so updating every frame burns reconciliation
-     for invisible precision. */
+  /* Tick at ~10 Hz — the display only shows hundredths. */
   useEffect(() => {
-    if (!enabled || done || startRef.current === 0) return;
-    const id = setInterval(() => {
-      setElapsed(performance.now() - startRef.current);
-    }, 100);
+    if (!active || done || startRef.current === 0) return undefined;
+    const id = setInterval(() => setElapsed(performance.now() - startRef.current), 100);
     return () => clearInterval(id);
-  }, [enabled, done]);
+  }, [active, done]);
 
-  /* Speed-run is a desktop affordance — racing 12 destinations by scroll
-     is awkward on a phone and the chip collided with the top nav. Hidden
-     on mobile (after all hooks, to respect rules-of-hooks). */
-  if (isMobile) return null;
+  if (isMobile || !active) return null;
 
   return (
     <div
+      onClick={onToggle}
+      title="Click to stop the speed run"
       style={{
-        position: "fixed",
-        top: 16,
-        right: 220,
-        display: "flex",
-        alignItems: "center",
-        gap: 10,
-        padding: "6px 12px",
-        background: enabled ? "rgba(255, 224, 102, 0.12)" : "rgba(6, 9, 22, 0.7)",
-        backdropFilter: "blur(10px)",
-        border: enabled ? "1px solid rgba(255, 224, 102, 0.5)" : "1px solid rgba(255, 255, 255, 0.12)",
-        borderRadius: 6,
-        fontFamily: "'JetBrains Mono', monospace",
-        fontSize: 10,
-        color: enabled ? "#ffe066" : "rgba(255, 255, 255, 0.55)",
-        zIndex: 36,
-        cursor: "pointer",
-        userSelect: "none",
-        transition: "background 200ms ease, border 200ms ease, color 200ms ease",
+        position: "fixed", top: 64, left: "50%", transform: "translateX(-50%)",
+        display: "flex", alignItems: "center", gap: 10,
+        padding: "6px 14px", borderRadius: 8,
+        background: "rgba(255, 224, 102, 0.12)",
+        backdropFilter: "blur(10px)", WebkitBackdropFilter: "blur(10px)",
+        border: "1px solid rgba(255, 224, 102, 0.5)",
+        fontFamily: "'JetBrains Mono', monospace", fontSize: 11,
+        color: "#ffe066", zIndex: 48, cursor: "pointer", userSelect: "none",
       }}
-      onClick={() => setEnabled((v) => !v)}
-      title={enabled ? "Click to disable speed run" : "Toggle speed run — race all 12 destinations"}
     >
       <span style={{ fontSize: 13 }}>⚡</span>
-      <span style={{ letterSpacing: "0.1em" }}>SPEED RUN</span>
-      {enabled && (
-        <span style={{ color: done ? "#00cea8" : "#ffe066", fontWeight: 600, marginLeft: 4 }}>
-          {fmt(elapsed)}
-        </span>
-      )}
-      {best != null && (
-        <span style={{ color: "rgba(255,255,255,0.4)", fontSize: 9 }}>
-          BEST {fmt(best)}
-        </span>
-      )}
+      <span style={{ letterSpacing: "0.12em" }}>SPEED RUN</span>
+      <span style={{ color: done ? "#00cea8" : "#ffe066", fontWeight: 600 }}>{fmt(elapsed)}</span>
+      {best != null && <span style={{ color: "rgba(255,255,255,0.4)", fontSize: 9 }}>BEST {fmt(best)}</span>}
     </div>
   );
 };

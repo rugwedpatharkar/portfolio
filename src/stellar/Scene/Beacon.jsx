@@ -2,6 +2,7 @@
 import { useRef } from "react";
 import { useFrame } from "@react-three/fiber";
 import * as THREE from "three";
+import { useSceneClock } from "./SceneClock";
 
 /*
  * The Edge Beacon — the Contact stop's body.
@@ -33,9 +34,10 @@ const Beacon = ({ position, radius = 0.4, color = "#ff6b6b", animate = true, onC
   const coreRef = useRef();
   const glowRef = useRef();
   const pingRef = useRef();
+  const sceneClock = useSceneClock();
 
-  useFrame(({ clock }) => {
-    const t = animate ? clock.elapsedTime : 0;
+  useFrame(() => {
+    const t = animate ? sceneClock.t : 0;
     const pulse = 1 + Math.sin(t * 2.4) * 0.16;
     if (coreRef.current) coreRef.current.scale.setScalar(pulse);
     if (glowRef.current) glowRef.current.material.opacity = 0.4 + Math.sin(t * 2.4) * 0.16;

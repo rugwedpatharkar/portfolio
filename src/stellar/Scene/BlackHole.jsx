@@ -2,6 +2,7 @@
 import { useMemo, useRef } from "react";
 import { useFrame } from "@react-three/fiber";
 import * as THREE from "three";
+import { useSceneClock } from "./SceneClock";
 
 /*
  * A black hole — the deep-field anomaly.
@@ -96,6 +97,7 @@ const BlackHole = ({ position = [0, 0, 0], radius = 2.2, animate = true, onClick
   const ringRef = useRef();
   const haloRef = useRef();
   const lensRef = useRef();
+  const sceneClock = useSceneClock();
 
   const diskUniforms = useMemo(
     () => ({ uTime: { value: 0 }, uInner: { value: radius * 1.25 }, uOuter: { value: radius * 4.2 } }),
@@ -112,8 +114,8 @@ const BlackHole = ({ position = [0, 0, 0], radius = 2.2, animate = true, onClick
     [radius]
   );
 
-  useFrame(({ clock, camera }) => {
-    const t = animate ? clock.elapsedTime : 0;
+  useFrame(({ camera }) => {
+    const t = animate ? sceneClock.t : 0;
     if (diskMat.current) diskMat.current.uniforms.uTime.value = t;
     if (haloMat.current) haloMat.current.uniforms.uTime.value = t * 0.6;
     if (lensMat.current) lensMat.current.uniforms.uTime.value = t;

@@ -2,6 +2,7 @@
 import { useMemo, useRef } from "react";
 import { useFrame } from "@react-three/fiber";
 import * as THREE from "three";
+import { useSceneClock } from "./SceneClock";
 
 /*
  * A pulsar — a rapidly spinning neutron star in the deep field. A tiny,
@@ -30,6 +31,7 @@ const Pulsar = ({ position = [-26, 16, -34], radius = 0.18 }) => {
   const spinRef = useRef();
   const coreRef = useRef();
   const coreMat = useRef();
+  const sceneClock = useSceneClock();
 
   const beamUniforms = useMemo(
     () => ({ uColor: { value: new THREE.Color("#9fd2ff") }, uOpacity: { value: 0.5 } }),
@@ -38,8 +40,8 @@ const Pulsar = ({ position = [-26, 16, -34], radius = 0.18 }) => {
 
   const beamLen = 26;
 
-  useFrame(({ clock }) => {
-    const t = clock.elapsedTime;
+  useFrame(() => {
+    const t = sceneClock.t;
     if (spinRef.current) spinRef.current.rotation.y = t * 3.2; // fast spin → lighthouse
     /* Core pulses twice per rotation (two beams sweep the line of sight). */
     const pulse = 0.6 + 0.4 * Math.abs(Math.sin(t * 3.2));

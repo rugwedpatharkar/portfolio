@@ -2,6 +2,7 @@
 import { useMemo, useRef } from "react";
 import { useFrame } from "@react-three/fiber";
 import * as THREE from "three";
+import { useSceneClock } from "./SceneClock";
 
 /*
  * The sun — a LIVING star, not a textured ball.
@@ -112,6 +113,7 @@ const Sun = ({
   const innerCoronaRef = useRef();
   const outerCoronaRef = useRef();
   const tRef = useRef(0);
+  const sceneClock = useSceneClock();
 
   const uniforms = useMemo(
     () => ({
@@ -124,10 +126,10 @@ const Sun = ({
     []
   );
 
-  useFrame(({ clock, camera }) => {
+  useFrame(({ camera }) => {
     tRef.current += 0; // keep ref alive
     /* Reduced-motion: freeze the churn + spin (t pinned to 0 → static star). */
-    const t = animate ? clock.elapsedTime : 0;
+    const t = animate ? sceneClock.t : 0;
     if (meshRef.current && animate) meshRef.current.rotation.y += 0.0006;
     if (matRef.current) {
       matRef.current.uniforms.uTime.value = t;

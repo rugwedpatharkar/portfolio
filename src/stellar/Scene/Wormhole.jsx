@@ -3,6 +3,7 @@ import { useMemo, useRef } from "react";
 import { useFrame } from "@react-three/fiber";
 import * as THREE from "three";
 import { contactLinks } from "../../content";
+import { useSceneClock } from "./SceneClock";
 
 /* The portal opens the same booking link as the Contact "Book a Call" CTA. */
 const BOOK_CALL = contactLinks.find((l) => l.label === "Book a Call")?.href;
@@ -45,15 +46,16 @@ const Wormhole = ({ position = [48.55, 0.58, 1.62], radius = 0.15 }) => {
   const mat = useRef();
   const hover = useRef(1);
   const target = useRef(1);
+  const sceneClock = useSceneClock();
 
   const uniforms = useMemo(() => ({ uTime: { value: 0 } }), []);
 
-  useFrame(({ clock, camera }) => {
-    if (mat.current) mat.current.uniforms.uTime.value = clock.elapsedTime;
+  useFrame(({ camera }) => {
+    if (mat.current) mat.current.uniforms.uTime.value = sceneClock.t;
     if (groupRef.current) {
       groupRef.current.lookAt(camera.position); // billboard
       hover.current += (target.current - hover.current) * 0.15;
-      const breathe = 1 + Math.sin(clock.elapsedTime * 1.4) * 0.04;
+      const breathe = 1 + Math.sin(sceneClock.t * 1.4) * 0.04;
       groupRef.current.scale.setScalar(hover.current * breathe);
     }
   });

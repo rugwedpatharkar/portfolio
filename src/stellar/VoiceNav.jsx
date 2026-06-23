@@ -11,7 +11,7 @@ import { DESTINATIONS } from "./config/destinations";
  * hides) if SpeechRecognition is unavailable.
  */
 
-const VoiceNav = ({ onJump }) => {
+const VoiceNav = ({ onJump, startSignal = 0, hideButton = false }) => {
   const [supported, setSupported] = useState(false);
   const [listening, setListening] = useState(false);
   const [lastHeard, setLastHeard] = useState("");
@@ -56,10 +56,19 @@ const VoiceNav = ({ onJump }) => {
     }
   };
 
+  /* Palette-driven start — incrementing startSignal kicks off listening. */
+  useEffect(() => {
+    if (startSignal > 0 && recogRef.current && !listening) {
+      try { recogRef.current.start(); setListening(true); } catch { /* already started */ }
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [startSignal]);
+
   if (!supported) return null;
 
   return (
     <>
+      {!hideButton && (
       <button
         onClick={toggle}
         aria-label={listening ? "Stop listening" : "Voice navigation"}
@@ -79,6 +88,7 @@ const VoiceNav = ({ onJump }) => {
           <line x1="8" y1="23" x2="16" y2="23"/>
         </svg>
       </button>
+      )}
       {(listening || lastHeard) && (
         <div style={{
           position: "fixed",

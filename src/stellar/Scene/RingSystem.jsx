@@ -2,6 +2,7 @@
 import { useMemo, useRef } from "react";
 import { useFrame } from "@react-three/fiber";
 import * as THREE from "three";
+import { useSceneClock } from "./SceneClock";
 
 /*
  * Realistic Saturn ring system — not a flat decal.
@@ -74,6 +75,7 @@ const RingSystem = ({ radius, texture, tint = "#f5e2b8" }) => {
   const inner = radius * 1.28;
   const outer = radius * 2.3;
   const matRef = useRef();
+  const sceneClock = useSceneClock();
 
   const material = useMemo(
     () =>
@@ -95,8 +97,8 @@ const RingSystem = ({ radius, texture, tint = "#f5e2b8" }) => {
     [texture, inner, outer, tint]
   );
 
-  useFrame(({ clock }) => {
-    material.uniforms.uTime.value = clock.elapsedTime;
+  useFrame(() => {
+    material.uniforms.uTime.value = sceneClock.t;
   });
 
   return (

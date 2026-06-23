@@ -2,6 +2,7 @@
 import { useMemo, useRef } from "react";
 import { useFrame } from "@react-three/fiber";
 import * as THREE from "three";
+import { useSceneClock } from "./SceneClock";
 
 /*
  * Animated solar prominences — bright arcing flares that flicker off
@@ -86,6 +87,7 @@ void main() {
 
 const SolarProminences = ({ position = [0, 0, 0], radius = 1.6 }) => {
   const matRef = useRef();
+  const sceneClock = useSceneClock();
 
   const uniforms = useMemo(
     () => ({
@@ -97,9 +99,9 @@ const SolarProminences = ({ position = [0, 0, 0], radius = 1.6 }) => {
     []
   );
 
-  useFrame(({ clock, camera }) => {
+  useFrame(({ camera }) => {
     if (matRef.current) {
-      matRef.current.uniforms.uTime.value = clock.elapsedTime;
+      matRef.current.uniforms.uTime.value = sceneClock.t;
       matRef.current.uniforms.uCameraPos.value.copy(camera.position);
     }
   });
