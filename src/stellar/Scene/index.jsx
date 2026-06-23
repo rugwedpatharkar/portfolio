@@ -21,6 +21,7 @@ import Pulsar from "./Pulsar";
 import Wormhole from "./Wormhole";
 import LensFlare from "./LensFlare";
 import SolarEclipse from "./SolarEclipse";
+import Beacon from "./Beacon";
 import SolarProminences from "./SolarProminences";
 import EarthStation from "./EarthStation";
 import DustParticles from "./DustParticles";
@@ -181,6 +182,7 @@ const Scene = ({ scrollT, activeIdx, onJump, onReady, freeRoamEnabled, wideRef, 
                   position={d.position}
                   radius={d.radius}
                   texture={d.texture}
+                  animate={!reducedMotion}
                   onClick={handleSunClick}
                   onPointerOver={handleHoverIn}
                   onPointerOut={handleHoverOut}
@@ -216,6 +218,7 @@ const Scene = ({ scrollT, activeIdx, onJump, onReady, freeRoamEnabled, wideRef, 
                 moonColor={d.moonColor}
                 moonScale={d.moonScale || 0.12}
                 rotationSpeed={0.07 + (d.radius || 0) * 0.04}
+                animate={!reducedMotion}
                 onClick={handleClick}
                 onPointerOver={handleHoverIn}
                 onPointerOut={handleHoverOut}
@@ -224,7 +227,7 @@ const Scene = ({ scrollT, activeIdx, onJump, onReady, freeRoamEnabled, wideRef, 
             /* Earth gets aurora rings at the poles */
             if (d.type === "earth") {
               return (
-                <OrbitGroup key={d.id} dest={d}>
+                <OrbitGroup key={d.id} dest={d} animate={!reducedMotion}>
                   {planetEl}
                   {/* ISS on low Earth orbit — inherits Earth's live solar
                       position from the OrbitGroup, runs its own fast LEO. */}
@@ -235,7 +238,7 @@ const Scene = ({ scrollT, activeIdx, onJump, onReady, freeRoamEnabled, wideRef, 
               );
             }
             return (
-              <OrbitGroup key={d.id} dest={d}>
+              <OrbitGroup key={d.id} dest={d} animate={!reducedMotion}>
                 {planetEl}
               </OrbitGroup>
             );
@@ -251,18 +254,18 @@ const Scene = ({ scrollT, activeIdx, onJump, onReady, freeRoamEnabled, wideRef, 
                 outerRadius={d.outerRadius}
                 color={d.color}
                 size={size}
+                animate={!reducedMotion}
               />
             );
           }
           if (d.kind === "beacon") {
             return (
-              <Planet
+              <Beacon
                 key={d.id}
                 position={d.position}
                 radius={d.radius}
-                type="rocky"
                 color={d.color}
-                rotationSpeed={0.3}
+                animate={!reducedMotion}
                 onClick={handleClick}
                 onPointerOver={handleHoverIn}
                 onPointerOut={handleHoverOut}
@@ -307,6 +310,7 @@ const Scene = ({ scrollT, activeIdx, onJump, onReady, freeRoamEnabled, wideRef, 
           /* Desktop frames the planet right-of-centre to clear the left
              content column; compact/mobile keep it centred (stacked layout). */
           frameShift={isCompact ? 0 : 0.3}
+          reducedMotion={reducedMotion}
         />
       </Suspense>
 

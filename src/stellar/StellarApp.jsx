@@ -8,6 +8,7 @@ import PlanetHUD from "./PlanetHUD";
 import MissionCountdown from "./MissionCountdown";
 import WarpField from "./WarpField";
 import AmbientAudio from "./AmbientAudio";
+import { ProgressRail, ScrollHint } from "./Wayfinding";
 import { easterEggs } from "../content";
 import { DESTINATIONS } from "./config/destinations";
 
@@ -71,6 +72,9 @@ const StellarApp = () => {
   /* System-overview ("wide pull-back") — Z / ⌘Z toggles the camera all the
      way out to see the whole solar system. CameraRig already reads wideRef. */
   const [overview, setOverview] = useState(false);
+  /* First-interaction flag — fades the hero "scroll to explore" hint once the
+     visitor scrolls / keys / touches (or after a timeout). */
+  const [interacted, setInteracted] = useState(false);
   const [activeIdx, setActiveIdx] = useState(0);
   const activeIdxRef = useRef(0);
   /* Hyperspeed warp intensity (0..1): scroll velocity during the tour + a
@@ -179,22 +183,57 @@ const StellarApp = () => {
     wideRef.current = overview;
   }, [overview]);
 
-  /* Z (or ⌘/Ctrl+Z) toggles the system overview; Esc exits it. No text inputs
-     exist in the app, so capturing plain "z" is safe. */
+  /* Fade the scroll hint on the first real interaction (or after 8s). */
+  useEffect(() => {
+    if (!shipWarpDone || interacted) return undefined;
+    const mark = () => setInteracted(true);
+    const t = setTimeout(mark, 8000);
+    window.addEventListener("wheel", mark, { passive: true });
+    window.addEventListener("keydown", mark);
+    window.addEventListener("touchmove", mark, { passive: true });
+    return () => {
+      clearTimeout(t);
+      window.removeEventListener("wheel", mark);
+      window.removeEventListener("keydown", mark);
+      window.removeEventListener("touchmove", mark);
+    };
+  }, [shipWarpDone, interacted]);
+
+  /* Keyboard navigation. Arrows / PageUp-Down / Home / End jump between
+     stops; Z (or ⌘/Ctrl+Z) toggles the system overview; Esc exits it. No
+     text inputs exist in the app, so capturing plain keys is safe. */
   useEffect(() => {
     if (!shipWarpDone) return undefined;
     const onKey = (e) => {
       const k = e.key.toLowerCase();
+      const N = DESTINATIONS.length;
+      const cur = activeIdxRef.current;
       if (k === "z") {
         e.preventDefault();
         setOverview((o) => !o);
       } else if (k === "escape") {
         setOverview(false);
+      } else if (k === "arrowdown" || k === "arrowright" || k === "pagedown") {
+        e.preventDefault();
+        setOverview(false);
+        if (cur < N - 1) handleJump(cur + 1);
+      } else if (k === "arrowup" || k === "arrowleft" || k === "pageup") {
+        e.preventDefault();
+        setOverview(false);
+        if (cur > 0) handleJump(cur - 1);
+      } else if (k === "home") {
+        e.preventDefault();
+        setOverview(false);
+        handleJump(0);
+      } else if (k === "end") {
+        e.preventDefault();
+        setOverview(false);
+        handleJump(N - 1);
       }
     };
     window.addEventListener("keydown", onKey);
     return () => window.removeEventListener("keydown", onKey);
-  }, [shipWarpDone]);
+  }, [shipWarpDone, handleJump]);
 
   /* Browser back/forward should also navigate */
   useEffect(() => {
@@ -213,6 +252,16 @@ const StellarApp = () => {
       <style>{`
         html { scrollbar-width: none !important; }
         html::-webkit-scrollbar, body::-webkit-scrollbar { width: 0 !important; height: 0 !important; display: none !important; }
+        /* Keyboard focus: a clear, on-theme ring (mouse clicks stay ring-free
+           via :focus-visible). */
+        .stellar-content-left a:focus-visible, .stellar-content-left button:focus-visible,
+        button:focus-visible, a:focus-visible, [tabindex]:focus-visible {
+          outline: 2px solid rgba(150, 195, 255, 0.95) !important;
+          outline-offset: 3px;
+          border-radius: 5px;
+        }
+        @keyframes stellarChevron { 0%, 100% { transform: translateY(0); opacity: 0.55; } 50% { transform: translateY(4px); opacity: 1; } }
+        @media (prefers-reduced-motion: reduce) { * { animation-duration: 0.001ms !important; animation-iteration-count: 1 !important; } }
       `}</style>
       <Scene
         scrollT={scrollTRef}
@@ -242,6 +291,8 @@ const StellarApp = () => {
           {!overview && <ContentPanel destination={DESTINATIONS[activeIdx]} />}
           <AmbientAudio />
           <OverviewHud overview={overview} onToggle={() => setOverview((o) => !o)} />
+          {!overview && <ProgressRail destinations={DESTINATIONS} activeIdx={activeIdx} onJump={handleJump} />}
+          {!overview && <ScrollHint visible={activeIdx === 0 && !interacted} />}
         </>
       )}
       {/* Countdown plays FIRST on mount; the warp fly-in (WarpField streaks

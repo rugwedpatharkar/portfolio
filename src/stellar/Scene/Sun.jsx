@@ -102,6 +102,7 @@ const SUN_FRAG = /* glsl */ `
 const Sun = ({
   position = [0, 0, 0],
   radius = 2.2,
+  animate = true,
   onClick,
   onPointerOver,
   onPointerOut,
@@ -125,8 +126,9 @@ const Sun = ({
 
   useFrame(({ clock, camera }) => {
     tRef.current += 0; // keep ref alive
-    const t = clock.elapsedTime;
-    if (meshRef.current) meshRef.current.rotation.y += 0.0006;
+    /* Reduced-motion: freeze the churn + spin (t pinned to 0 → static star). */
+    const t = animate ? clock.elapsedTime : 0;
+    if (meshRef.current && animate) meshRef.current.rotation.y += 0.0006;
     if (matRef.current) {
       matRef.current.uniforms.uTime.value = t;
       matRef.current.uniforms.uCameraPos.value.copy(camera.position);

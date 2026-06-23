@@ -42,7 +42,7 @@ function lumpyRock(detail, seed, amp) {
   return geo;
 }
 
-const Family = ({ instances, family, geometry }) => {
+const Family = ({ instances, family, geometry, animate = true }) => {
   const groupRef = useRef();
 
   /* Write all instance matrices exactly once, when the mesh mounts. */
@@ -60,7 +60,7 @@ const Family = ({ instances, family, geometry }) => {
   };
 
   useFrame((_, delta) => {
-    if (groupRef.current) groupRef.current.rotation.y += delta * FAMILY_DRIFT[family];
+    if (animate && groupRef.current) groupRef.current.rotation.y += delta * FAMILY_DRIFT[family];
   });
 
   return (
@@ -83,6 +83,7 @@ const AsteroidBelt = ({
   innerRadius = 18.5,
   outerRadius = 20.5,
   size = 0.08,
+  animate = true,
 }) => {
   /* One lumpy base shape per family (different seed → different silhouette);
      instances reuse it, so this is three geometries total, not one per rock. */
@@ -120,7 +121,7 @@ const AsteroidBelt = ({
     <>
       {families.map((instances, family) =>
         instances.length > 0 ? (
-          <Family key={family} instances={instances} family={family} geometry={geometries[family]} />
+          <Family key={family} instances={instances} family={family} geometry={geometries[family]} animate={animate} />
         ) : null
       )}
     </>

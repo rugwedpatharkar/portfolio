@@ -125,8 +125,9 @@ export const DESTINATIONS = [
     outerRadius: 20.5,
     color: "#f8c555",
     section: "achievements",
-    /* Asteroid belt — high banking sweep over the field */
-    cameraTarget: { position: [19.5, 3.4, 4.0], lookAt: [19.5, 0, 0], fov: 56 },
+    /* Asteroid belt — pulled-back banking sweep so the field reads as a full
+       composed arc, not a body cropped at the top edge. */
+    cameraTarget: { position: [20.2, 5.6, 8.2], lookAt: [18.6, 0, -0.4], fov: 50 },
   },
 
   // Outer system
@@ -181,8 +182,9 @@ export const DESTINATIONS = [
     texture: "/textures/planets/uranusmap_hd.jpg",
     bumpTexture: "/textures/planets/uranus_bump.jpg",
     section: "education",
-    /* Uranus — strong dutch tilt, echoing the planet's 98° axis */
-    cameraTarget: { position: [37.0, 1.5, 0.9], lookAt: [34.8, 0, -1.0], fov: 46, roll: 0.17 },
+    /* Uranus — closer + tighter fov so the planet fills the negative space
+       (Education read as empty), with the strong dutch tilt for its 98° axis. */
+    cameraTarget: { position: [36.5, 1.2, 0.4], lookAt: [34.8, 0, -1.0], fov: 40, roll: 0.17 },
     axialTilt: 97.8 * DEG, // Uranus rolls on its side — the real ~98° obliquity
 
     moons: 4,

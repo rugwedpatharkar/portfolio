@@ -120,7 +120,7 @@ const HeroContent = () => (
       <Portrait size={170} color="#ffb86b" />
       <div>
         <h1 style={{ fontFamily: "'Michroma', sans-serif", fontSize: "clamp(22px, 2.1vw, 33px)", fontWeight: 400, color: "white", margin: 0, letterSpacing: "0.03em", lineHeight: 1.2, textTransform: "uppercase", textWrap: "balance" }}>{personalInfo.fullName}</h1>
-        <p style={{ fontFamily: "'Exo 2', sans-serif", fontSize: 17, color: "#00cea8", margin: "9px 0 0 0", fontWeight: 600 }}>
+        <p style={{ fontFamily: "'Exo 2', sans-serif", fontSize: 17, color: "#ffd9a0", margin: "9px 0 0 0", fontWeight: 600, letterSpacing: "0.01em" }}>
           Backend &amp; Agentic AI Engineer
         </p>
       </div>
@@ -337,12 +337,25 @@ const EducationContent = () => (
   <>
     <SectionLabel color="#bf61ff">URANUS · Academic journey</SectionLabel>
     <SectionTitle>{sectionMeta.education.heading}</SectionTitle>
-    <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(140px, 1fr))", gap: 14 }}>
+    <SectionLede>{sectionMeta.education.description}</SectionLede>
+    <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(248px, 1fr))", gap: 16 }}>
       {educations.map((edu) => (
         <div key={edu.degree} style={bareCard}>
-          <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 18, color: "#bf61ff", fontWeight: 700 }}>{edu.percentage}%</div>
-          <div style={{ fontFamily: "'Exo 2', sans-serif", fontSize: 11, color: "white", fontWeight: 600, marginTop: 4 }}>{edu.shortName}</div>
-          <div style={{ fontFamily: "'Exo 2', sans-serif", fontSize: 10.5, color: "rgba(255,255,255,0.55)", marginTop: 2 }}>{edu.year}</div>
+          <div style={{ display: "flex", alignItems: "baseline", justifyContent: "space-between", gap: 10 }}>
+            <span style={{ fontFamily: "'Exo 2', sans-serif", fontSize: 14, color: "white", fontWeight: 700, lineHeight: 1.2 }}>{edu.degree}</span>
+            <span style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 16, color: "#bf61ff", fontWeight: 700, whiteSpace: "nowrap" }}>{edu.percentage}%</span>
+          </div>
+          <div style={{ fontFamily: "'Exo 2', sans-serif", fontSize: 12, color: "rgba(255,255,255,0.72)", marginTop: 4 }}>{edu.name}</div>
+          <div style={{ display: "flex", gap: 9, marginTop: 5, fontFamily: "'JetBrains Mono', monospace", fontSize: 10, color: "rgba(255,255,255,0.5)" }}>
+            <span>{edu.level}</span><span style={{ opacity: 0.5 }}>·</span><span>{edu.year}</span>
+          </div>
+          {edu.highlights && (
+            <div style={{ display: "flex", flexWrap: "wrap", gap: 5, marginTop: 9 }}>
+              {edu.highlights.map((h) => (
+                <span key={h} style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 8.5, padding: "2px 7px", borderRadius: 8, background: "rgba(191,97,255,0.12)", border: "1px solid rgba(191,97,255,0.25)", color: "#d3b3ff" }}>{h}</span>
+              ))}
+            </div>
+          )}
         </div>
       ))}
     </div>
@@ -411,15 +424,17 @@ const ContactContent = () => (
           style={{
           display: "inline-flex",
           alignItems: "center",
-          gap: 8,
-          padding: "10px 14px",
+          gap: 9,
+          padding: "13px 17px",
+          minHeight: 44,
+          boxSizing: "border-box",
           background: "rgba(255, 107, 107, 0.08)",
           border: "1px solid rgba(255, 107, 107, 0.3)",
           borderRadius: 10,
           color: "white",
           textDecoration: "none",
           fontFamily: "'JetBrains Mono', monospace",
-          fontSize: 11.5,
+          fontSize: 12.5,
         }}>
           <span style={{ color: "#ff6b6b" }}>→</span>
           <span>{c.label}: {c.value}</span>
@@ -462,14 +477,18 @@ const PlanetFactsAccordion = ({ destination }) => {
     <div style={{ marginTop: 14, borderTop: "1px solid rgba(255,255,255,0.08)", paddingTop: 12 }}>
       <button
         onClick={() => setOpen((v) => !v)}
+        aria-expanded={open}
         style={{
           all: "unset",
           cursor: "pointer",
           display: "flex",
           alignItems: "center",
           gap: 8,
+          minHeight: 44,
+          padding: "4px 2px",
+          boxSizing: "border-box",
           fontFamily: "'JetBrains Mono', monospace",
-          fontSize: 10.5,
+          fontSize: 11.5,
           color: destination.color,
           letterSpacing: "0.1em",
           textTransform: "uppercase",

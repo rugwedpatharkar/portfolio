@@ -43,6 +43,7 @@ const Planet = ({
   specularTexture,
   bumpTexture,
   rotationSpeed = 0.1,
+  animate = true,
   rings = false,
   ringColor,
   axialTilt = 0,
@@ -110,9 +111,10 @@ const Planet = ({
       dragSpinRef.current *= 0.96;
     }
     if (planetRef.current) {
-      planetRef.current.rotation.y += delta * rotationSpeed + dragSpinRef.current * delta;
+      /* Reduced-motion: no autonomous spin, but drag-to-spin still works. */
+      planetRef.current.rotation.y += (animate ? delta * rotationSpeed : 0) + dragSpinRef.current * delta;
     }
-    if (cloudRef.current) cloudRef.current.rotation.y += delta * rotationSpeed * 1.35;
+    if (cloudRef.current && animate) cloudRef.current.rotation.y += delta * rotationSpeed * 1.35;
     /* Hover lerp — snappier (0.12 → 0.22) so the pop reads cleanly */
     hoverScaleRef.current += (targetHoverRef.current - hoverScaleRef.current) * 0.22;
     if (groupRef.current) groupRef.current.scale.setScalar(hoverScaleRef.current);

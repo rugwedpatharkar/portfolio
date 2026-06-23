@@ -68,7 +68,7 @@ const MissionCountdown = ({ onComplete }) => {
       >
         {n <= 0 ? "GO" : `T-${n}`}
       </div>
-      <div style={{ fontSize: 9, letterSpacing: "0.18em", color: "rgba(255,255,255,0.4)", marginTop: 4 }}>
+      <div style={{ fontSize: 10.5, letterSpacing: "0.18em", color: "rgba(255,255,255,0.66)", marginTop: 6, textShadow: "0 1px 8px rgba(0,0,0,0.6)" }}>
         ENGAGING NAV · 12 DESTINATIONS PLOTTED · 49 AU TO EDGE BEACON
       </div>
       <style>{`

@@ -180,6 +180,21 @@ const PlanetHUD = ({ destination }) => {
         textShadow: "0 1px 10px rgba(0,0,0,0.9), 0 0 3px rgba(0,0,0,0.7)",
       }}
     >
+      {/* Soft corner wash — keeps the readout legible over bright planets
+          (Jupiter/Earth) without a hard panel edge. Fades out toward the
+          scene, matching the left column's scrim language. */}
+      <div
+        aria-hidden
+        style={{
+          position: "absolute",
+          inset: "-26px -36px -30px -44px",
+          zIndex: -1,
+          pointerEvents: "none",
+          borderRadius: 18,
+          background:
+            "radial-gradient(130% 118% at 92% 100%, rgba(3,5,14,0.74) 0%, rgba(3,5,14,0.52) 30%, rgba(3,5,14,0.2) 56%, rgba(3,5,14,0) 78%)",
+        }}
+      />
       <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 6 }}>
         <div style={{ display: "flex", alignItems: "center", gap: 6, fontSize: 9.5, color: destination.color, letterSpacing: "0.12em" }}>
           <span style={{ display: "inline-block", width: 6, height: 6, background: destination.color, borderRadius: "50%", animation: "hudpulse 1.4s ease-in-out infinite" }} />
@@ -211,8 +226,8 @@ const PlanetHUD = ({ destination }) => {
               </div>
             ))}
           </div>
-          <div style={{ marginTop: 10, padding: "9px 11px", background: `${destination.color}12`, border: `1px solid ${destination.color}30`, borderRadius: 8, fontSize: 11, color: "rgba(255,255,255,0.86)", lineHeight: 1.5, fontStyle: "italic", fontFamily: "'Exo 2', sans-serif" }}>
-            <span style={{ color: destination.color, fontWeight: 600, fontStyle: "normal" }}>★ </span>{real.wow}
+          <div style={{ marginTop: 11, padding: "10px 12px", background: `${destination.color}1c`, border: `1px solid ${destination.color}40`, borderRadius: 8, fontSize: 12, color: "rgba(255,255,255,0.92)", lineHeight: 1.5, fontStyle: "italic", fontFamily: "'Exo 2', sans-serif" }}>
+            <span style={{ color: destination.color, fontWeight: 700, fontStyle: "normal", fontSize: 13 }}>★ </span>{real.wow}
           </div>
         </div>
       )}

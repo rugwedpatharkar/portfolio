@@ -99,6 +99,7 @@ const CameraRig = ({
   wideRef,
   launchPhase,
   frameShift = 0,
+  reducedMotion = false,
 }) => {
   const { camera, clock } = useThree();
   const lookAtTarget = useRef(new THREE.Vector3(0, 0, 0));
@@ -137,7 +138,9 @@ const CameraRig = ({
   useFrame((_, dt) => {
     if (controlsEnabled) return;
     const d = Math.min(dt || 1 / 60, 1 / 20);
-    const t = clock.elapsedTime;
+    /* Reduced-motion pins orbital time to 0 so the camera tracks the same
+       frozen (authored) planet positions OrbitGroup uses → no drift. */
+    const t = reducedMotion ? 0 : clock.elapsedTime;
     const rawT = THREE.MathUtils.clamp(scrollT.current ?? 0, 0, 1);
 
     /* ── Cinematic launch override (intro) ──
