@@ -5,6 +5,7 @@ import * as THREE from "three";
 import { DESTINATIONS } from "../config/destinations";
 import { orbitalPosition } from "../config/orbits";
 import { SUN_DIR } from "./AtmosphereGlow";
+import { useSceneClock } from "./SceneClock";
 
 /*
  * Sun-direction key light + shadow caster.
@@ -28,13 +29,14 @@ const _active = new THREE.Vector3();
 
 const KeyLight = ({ scrollT, castShadow = true }) => {
   const lightRef = useRef();
+  const clock = useSceneClock();
 
-  useFrame(({ clock }) => {
+  useFrame(() => {
     const light = lightRef.current;
     if (!light) return;
     const rawT = THREE.MathUtils.clamp(scrollT.current ?? 0, 0, 1);
     const idx = Math.round(rawT * (DESTINATIONS.length - 1));
-    orbitalPosition(DESTINATIONS[idx], clock.elapsedTime, _active);
+    orbitalPosition(DESTINATIONS[idx], clock.t, _active);
     light.position.copy(_active).addScaledVector(SUN_DIR, D);
     light.target.position.copy(_active);
     light.target.updateMatrixWorld();

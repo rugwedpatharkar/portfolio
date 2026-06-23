@@ -7,6 +7,8 @@
  *   - hint      one-line how-to (shown when locked + hovered)
  */
 
+import { loadProgress, saveProgress } from "./explorer";
+
 export const ACHIEVEMENTS = [
   { id: "first_light", label: "First Light", icon: "☀", color: "#ffb86b",
     hint: "Reach the sun." },
@@ -36,20 +38,10 @@ export const ACHIEVEMENTS = [
 
 export const ACHIEVEMENTS_BY_ID = Object.fromEntries(ACHIEVEMENTS.map((a) => [a.id, a]));
 
-const KEY = "stellar:achievements";
-
-export const unlockedSet = () => {
-  if (typeof window === "undefined") return new Set();
-  try {
-    return new Set(JSON.parse(localStorage.getItem(KEY) || "[]"));
-  } catch {
-    return new Set();
-  }
-};
+/* Persistence is delegated to the consolidated progress store (explorer.js) so
+   all gamification state lives under one localStorage key. */
+export const unlockedSet = () => new Set(loadProgress().achievements);
 
 export const persistUnlocked = (set) => {
-  if (typeof window === "undefined") return;
-  try {
-    localStorage.setItem(KEY, JSON.stringify(Array.from(set)));
-  } catch { /* ignore */ }
+  saveProgress({ achievements: Array.from(set) });
 };

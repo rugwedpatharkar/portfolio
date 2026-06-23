@@ -1,5 +1,5 @@
 /* eslint-disable react/prop-types */
-import { useRef, useState, useCallback, useEffect } from "react";
+import { useRef, useState, useCallback, useEffect, useMemo } from "react";
 import Scene from "./Scene";
 import Navigator from "./Navigator";
 import ContentPanel from "./ContentPanel";
@@ -10,6 +10,7 @@ import WarpField from "./WarpField";
 import AmbientAudio from "./AmbientAudio";
 import { ProgressRail, ScrollHint } from "./Wayfinding";
 import OverviewMap from "./OverviewMap";
+import StellarUIContext from "./ui/StellarUIContext";
 import { OBJECTS } from "./config/objects";
 import { easterEggs } from "../content";
 import { DESTINATIONS } from "./config/destinations";
@@ -106,9 +107,12 @@ const StellarApp = () => {
      → done (hand over to the tour). */
   const [launchPhase, setLaunchPhase] = useState(null);
   const [shipWarpDone, setShipWarpDone] = useState(false);
-  /* System-overview ("wide pull-back") — Z / ⌘Z toggles the camera all the
-     way out to see the whole solar system. CameraRig already reads wideRef. */
-  const [overview, setOverview] = useState(false);
+  /* Interaction mode — the single source of truth for the camera/interaction
+     state (tour | overview | pilot | warping). `overview` (the wide pull-back
+     the Z key toggles) is derived so the render conditionals + the wideRef
+     CameraRig reads stay unchanged. */
+  const [mode, setMode] = useState("tour");
+  const overview = mode === "overview";
   /* First-interaction flag — fades the hero "scroll to explore" hint once the
      visitor scrolls / keys / touches (or after a timeout). */
   const [interacted, setInteracted] = useState(false);
@@ -127,6 +131,12 @@ const StellarApp = () => {
      live-camera handle the overview map projects object positions through. */
   const focusRef = useRef(null);
   const cameraRef = useRef(null);
+  /* Shared virtual-clock handle { t, scale, danger }, created once and shared
+     by identity across the canvas boundary: the scene writes `t` (scaled
+     orbital world-time) + `danger` (black-hole proximity); the DOM time
+     control writes `scale` (pause / ×0.5 / ×1 / ×2). */
+  const sceneClockRef = useRef(null);
+  if (!sceneClockRef.current) sceneClockRef.current = { t: 0, scale: 1, danger: 0 };
   const consoleLoggedRef = useRef(false);
 
   /* Scene mounts/loads textures behind the warp + countdown overlays,
@@ -247,7 +257,7 @@ const StellarApp = () => {
       if (o.visit.kind === "stop") {
         setFocusedObj(null);
         focusRef.current = null;
-        setOverview(false);
+        setMode("tour");
         handleJump(o.visit.index);
       } else {
         setFocusedObj(o);
@@ -284,26 +294,26 @@ const StellarApp = () => {
       const cur = activeIdxRef.current;
       if (k === "z") {
         e.preventDefault();
-        setOverview((o) => !o);
+        setMode((m) => (m === "overview" ? "tour" : "overview"));
       } else if (k === "escape") {
         /* Step back: focused object → map; map → tour. */
         if (focusedObj) clearFocus();
-        else setOverview(false);
+        else setMode("tour");
       } else if (k === "arrowdown" || k === "arrowright" || k === "pagedown") {
         e.preventDefault();
-        setOverview(false);
+        setMode("tour");
         if (cur < N - 1) handleJump(cur + 1);
       } else if (k === "arrowup" || k === "arrowleft" || k === "pageup") {
         e.preventDefault();
-        setOverview(false);
+        setMode("tour");
         if (cur > 0) handleJump(cur - 1);
       } else if (k === "home") {
         e.preventDefault();
-        setOverview(false);
+        setMode("tour");
         handleJump(0);
       } else if (k === "end") {
         e.preventDefault();
-        setOverview(false);
+        setMode("tour");
         handleJump(N - 1);
       }
     };
@@ -321,8 +331,15 @@ const StellarApp = () => {
     return () => window.removeEventListener("hashchange", onHash);
   }, [handleJump]);
 
+  /* UI/interaction state shared with the cockpit shell (dock, palette, HUD,
+     rank meter) via context — they consume it instead of prop-drilling. */
+  const ui = useMemo(
+    () => ({ mode, setMode, activeIdx, jumpTo: handleJump }),
+    [mode, activeIdx, handleJump]
+  );
+
   return (
-    <>
+    <StellarUIContext.Provider value={ui}>
       {/* Hide the page scrollbar — scroll still drives the camera, but the
           bar is visual clutter. (Scoped to while the stellar app is mounted.) */}
       <style>{`
@@ -350,6 +367,7 @@ const StellarApp = () => {
         wideRef={wideRef}
         focusRef={focusRef}
         cameraRef={cameraRef}
+        clock={sceneClockRef.current}
         showExtras={countdownDone}
         launchPhase={launchPhase}
       />
@@ -370,7 +388,7 @@ const StellarApp = () => {
           {!overview && <PlanetHUD destination={DESTINATIONS[activeIdx]} />}
           {!overview && <ContentPanel destination={DESTINATIONS[activeIdx]} />}
           <AmbientAudio />
-          <OverviewHud overview={overview} onToggle={() => setOverview((o) => !o)} />
+          <OverviewHud overview={overview} onToggle={() => setMode((m) => (m === "overview" ? "tour" : "overview"))} />
           {!overview && <ProgressRail destinations={DESTINATIONS} activeIdx={activeIdx} onJump={handleJump} />}
           {!overview && <ScrollHint visible={activeIdx === 0 && !interacted} />}
           {/* Interactive overview map — hover any object for info, click to
@@ -382,7 +400,7 @@ const StellarApp = () => {
       {/* Countdown plays FIRST on mount; the warp fly-in (WarpField streaks
           + CameraRig) follows. Scene textures stream in behind both. */}
       {!countdownDone && <MissionCountdown onComplete={handleCountdownDone} />}
-    </>
+    </StellarUIContext.Provider>
   );
 };
 

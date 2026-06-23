@@ -4,6 +4,7 @@ import { Canvas, invalidate } from "@react-three/fiber";
 import * as THREE from "three";
 import { EffectComposer, Bloom } from "@react-three/postprocessing";
 import CinematicGrade from "./CinematicGrade";
+import SceneClock from "./SceneClock";
 import Stars from "./Stars";
 import Sun from "./Sun";
 import Planet from "./Planet";
@@ -56,7 +57,7 @@ import { DESTINATIONS } from "../config/destinations";
  * tune that based on viewport bucket.
  */
 
-const Scene = ({ scrollT, activeIdx, onJump, onReady, freeRoamEnabled, wideRef, focusRef, cameraRef, showExtras = true, launchPhase = null }) => {
+const Scene = ({ scrollT, activeIdx, onJump, onReady, freeRoamEnabled, wideRef, focusRef, cameraRef, clock, showExtras = true, launchPhase = null }) => {
   const readyRef = useRef(false);
   const { isMobile, isCompact, reducedMotion } = useViewport();
   /* Camera offsets — kept in refs so React state doesn't re-render
@@ -117,6 +118,11 @@ const Scene = ({ scrollT, activeIdx, onJump, onReady, freeRoamEnabled, wideRef, 
         invalidate();
       }}
     >
+      {/* Virtual scene clock — provides scaled "world time" to every in-canvas
+          consumer (orbits, camera tracking, time-driven shaders) so the time
+          control can pause / slow / speed the whole system coherently, while
+          reduced-motion freezes it (scale → 0). Wraps the entire scene graph. */}
+      <SceneClock clock={clock} reducedMotion={reducedMotion}>
       {/* Declarative dark backdrop — renders behind the skybox sphere so
           there is always deep space, regardless of texture state. */}
       <color attach="background" args={["#03050d"]} />
@@ -307,7 +313,6 @@ const Scene = ({ scrollT, activeIdx, onJump, onReady, freeRoamEnabled, wideRef, 
           /* Desktop frames the planet right-of-centre to clear the left
              content column; compact/mobile keep it centred (stacked layout). */
           frameShift={isCompact ? 0 : 0.3}
-          reducedMotion={reducedMotion}
         />
       </Suspense>
 
@@ -355,6 +360,7 @@ const Scene = ({ scrollT, activeIdx, onJump, onReady, freeRoamEnabled, wideRef, 
           vigDarkness={0.38}
         />
       </EffectComposer>
+      </SceneClock>
     </Canvas>
   );
 };

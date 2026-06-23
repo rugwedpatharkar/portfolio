@@ -4,6 +4,7 @@ import { useFrame, useThree } from "@react-three/fiber";
 import * as THREE from "three";
 import { DESTINATIONS } from "../config/destinations";
 import { getOrbit, orbitalPosition } from "../config/orbits";
+import { useSceneClock } from "./SceneClock";
 
 /*
  * Camera controller — SNAP + live-orbit tracking.
@@ -101,9 +102,9 @@ const CameraRig = ({
   cameraRef,
   launchPhase,
   frameShift = 0,
-  reducedMotion = false,
 }) => {
-  const { camera, clock } = useThree();
+  const { camera } = useThree();
+  const sceneClock = useSceneClock();
   const lookAtTarget = useRef(new THREE.Vector3(0, 0, 0));
   const rollCurrent = useRef(0);
   const lastPos = useRef(0); // continuous destination position, for banking
@@ -144,9 +145,11 @@ const CameraRig = ({
     if (cameraRef) cameraRef.current = camera;
 
     const d = Math.min(dt || 1 / 60, 1 / 20);
-    /* Reduced-motion pins orbital time to 0 so the camera tracks the same
-       frozen (authored) planet positions OrbitGroup uses → no drift. */
-    const t = reducedMotion ? 0 : clock.elapsedTime;
+    /* Scaled "world time" from the shared virtual clock — the SAME source
+       OrbitGroup/KeyLight read, so the tracking shot stays locked to the
+       orbiting planets at any time-scale. Reduced-motion freezes it (t stays
+       0), reproducing the authored layout with no drift. */
+    const t = sceneClock.t;
     const rawT = THREE.MathUtils.clamp(scrollT.current ?? 0, 0, 1);
 
     /* ── Cinematic launch override (intro) ──
