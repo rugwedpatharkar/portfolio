@@ -42,6 +42,9 @@ import HalEye from "./easter/HalEye";
 import WallE from "./easter/WallE";
 import CooperStation from "./easter/CooperStation";
 import WatneyPotato from "./easter/WatneyPotato";
+import Endurance from "./easter/Endurance";
+import StarDestroyer from "./easter/StarDestroyer";
+import Enterprise from "./easter/Enterprise";
 import useViewport from "../useViewport";
 import { DESTINATIONS } from "../config/destinations";
 
@@ -295,6 +298,11 @@ const Scene = ({ scrollT, activeIdx, onJump, onReady, freeRoamEnabled, wideRef, 
         {showExtras && <WallE />}
         {showExtras && <CooperStation />}
         {showExtras && <WatneyPotato />}
+        {/* Phase 6 homages — Endurance (Interstellar), a deep-field Star
+            Destroyer (Star Wars), the Enterprise (Star Trek). */}
+        {showExtras && <Endurance />}
+        {showExtras && !isMobile && <StarDestroyer />}
+        {showExtras && <Enterprise />}
         {!isMobile && !reducedMotion && <MouseParallax offsetRef={parallaxOffsetRef} />}
         <FreeRoam enabled={freeRoamEnabled} offsetRef={freeRoamOffsetRef} />
         <CameraShake parallaxOffsetRef={parallaxOffsetRef} />
