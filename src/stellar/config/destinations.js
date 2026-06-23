@@ -61,6 +61,7 @@ export const DESTINATIONS = [
     /* Venus's map is near-white and blooms to a featureless disc.
        Knock it back so the cloud banding survives the bloom pass. */
     tint: "#c9b48a",
+    axialTilt: 177.4 * DEG, // Venus spins retrograde — effectively upside-down
     section: "funfacts",
     /* Venus — high 3/4 looking down through the haze */
     cameraTarget: { position: [9.5, 1.3, 2.6], lookAt: [8.2, -0.15, 1.0], fov: 46 },
@@ -90,6 +91,7 @@ export const DESTINATIONS = [
     moonColor: "#cfcdc9",
     moonTexture: "/textures/planets/moonmap1k.jpg",
     moonScale: 0.27,
+    axialTilt: 23.4 * DEG, // Earth's real obliquity — tips the globe + Moon orbit
     section: "experience",
     /* Earth — the standout hero shot. These exact values frame the
        day/night terminator without the sun flooding the lens; do not
@@ -107,6 +109,7 @@ export const DESTINATIONS = [
     colorB: "#5d2317",
     texture: "/textures/planets/marsmap1k.jpg",
     bumpTexture: "/textures/planets/marsbump1k.jpg",
+    axialTilt: 25.2 * DEG, // near-Earth obliquity — the polar caps sit off-vertical
     section: "projects",
     /* Mars — slight low angle, rust planet leaning in */
     cameraTarget: { position: [16.9, 0.4, 2.5], lookAt: [15.3, 0.2, 0.6], fov: 44 },
@@ -141,6 +144,7 @@ export const DESTINATIONS = [
     section: "skills",
     /* Jupiter — wide + slight roll to sell the scale */
     cameraTarget: { position: [27.4, 1.2, 0.6], lookAt: [24.6, 0.1, -1.8], fov: 52, roll: -0.05 },
+    axialTilt: 3.1 * DEG, // Jupiter spins nearly upright
     moons: 9,
     moonColor: "#cfc6e0",
     moonTexture: "/textures/planets/moonmap1k.jpg",
@@ -160,6 +164,7 @@ export const DESTINATIONS = [
     section: "notes",
     /* Saturn — dutch tilt to throw the rings across the frame */
     cameraTarget: { position: [32.6, 1.8, 3.7], lookAt: [30.2, 0, 1.5], fov: 50, roll: 0.11 },
+    axialTilt: 26.7 * DEG, // Saturn's obliquity — tilts the ring plane across the frame
     rings: true,
     ringTexture: "/textures/planets/saturnringcolor.jpg",
     ringColor: "#f8c555",
@@ -178,7 +183,8 @@ export const DESTINATIONS = [
     section: "education",
     /* Uranus — strong dutch tilt, echoing the planet's 98° axis */
     cameraTarget: { position: [37.0, 1.5, 0.9], lookAt: [34.8, 0, -1.0], fov: 46, roll: 0.17 },
-    axialTilt: 60 * DEG,
+    axialTilt: 97.8 * DEG, // Uranus rolls on its side — the real ~98° obliquity
+
     moons: 4,
     moonColor: "#d0ccea",
     moonTexture: "/textures/planets/moonmap1k.jpg",
@@ -198,6 +204,7 @@ export const DESTINATIONS = [
     section: "hobbies",
     /* Neptune — pulled back, lonely framing in the deep dark */
     cameraTarget: { position: [41.3, 1.4, 3.1], lookAt: [39.0, 0, 0.8], fov: 44 },
+    axialTilt: 28.3 * DEG, // Neptune's obliquity, close to Earth's
     moons: 6,
     moonColor: "#b8d4ee",
     moonTexture: "/textures/planets/moonmap1k.jpg",
