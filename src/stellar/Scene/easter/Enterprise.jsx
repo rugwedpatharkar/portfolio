@@ -38,7 +38,7 @@ const Enterprise = () => {
       ref={ref}
       position={POSITION}
       rotation={[0.1, -0.6, 0.05]}
-      scale={0.9}
+      scale={0.42}
       onClick={handleClick}
       onPointerOver={() => { document.body.style.cursor = "pointer"; }}
       onPointerOut={() => { document.body.style.cursor = ""; }}

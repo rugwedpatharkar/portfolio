@@ -14,8 +14,8 @@ import * as THREE from "three";
  * "That's no moon" badge).
  */
 
-const POSITION = nearBody("achievements", [1.6, 0.7, 1.2]); // beside Ceres / the belt, in the tour view
-const RADIUS = 0.95;
+const POSITION = nearBody("achievements", [1.5, 0.6, 1.1]); // beside Ceres / the belt, in the tour view
+const RADIUS = 0.42; // a believable moon-sized sphere (~120 km canon), not a giant
 
 const DeathStar = () => {
   const groupRef = useRef();
@@ -47,15 +47,21 @@ const DeathStar = () => {
         <torusGeometry args={[RADIUS * 1.005, 0.022, 6, 96]} />
         <meshBasicMaterial color="#0a0c0e" />
       </mesh>
-      {/* Superlaser dish — dimple + glowing core */}
-      <mesh position={[RADIUS * 0.45, RADIUS * 0.55, RADIUS * 0.5]}>
-        <sphereGeometry args={[RADIUS * 0.18, 16, 12]} />
-        <meshStandardMaterial color="#5a5c5e" roughness={0.4} metalness={0.5} />
-      </mesh>
-      <mesh position={[RADIUS * 0.45, RADIUS * 0.55, RADIUS * 0.55]}>
-        <sphereGeometry args={[RADIUS * 0.07, 12, 12]} />
-        <meshBasicMaterial color="#3a8aff" toneMapped={false} />
-      </mesh>
+      {/* Superlaser dish — a wide, recessed concave dish in the NORTHERN
+          hemisphere (canon), with the focusing eye glowing at its centre. The
+          dish group is aimed outward along the surface normal. */}
+      <group position={[RADIUS * 0.42, RADIUS * 0.62, RADIUS * 0.48]} rotation={[-0.7, 0, -0.6]}>
+        {/* recessed dark dish bowl */}
+        <mesh rotation={[-Math.PI / 2, 0, 0]}>
+          <sphereGeometry args={[RADIUS * 0.3, 20, 12, 0, Math.PI * 2, 0, Math.PI / 2.4]} />
+          <meshStandardMaterial color="#46494b" roughness={0.45} metalness={0.55} side={THREE.DoubleSide} />
+        </mesh>
+        {/* the focusing eye */}
+        <mesh position={[0, RADIUS * 0.02, 0]}>
+          <sphereGeometry args={[RADIUS * 0.07, 12, 12]} />
+          <meshBasicMaterial color="#4a96ff" toneMapped={false} />
+        </mesh>
+      </group>
       <pointLight
         ref={dishLightRef}
         color="#3a8aff"

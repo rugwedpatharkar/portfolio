@@ -44,7 +44,7 @@ const StarDestroyer = () => {
       ref={ref}
       position={POSITION}
       rotation={[0.18, -0.5, 0]}
-      scale={1.1}
+      scale={0.3}
       onClick={handleClick}
       onPointerOver={() => { document.body.style.cursor = "pointer"; }}
       onPointerOut={() => { document.body.style.cursor = ""; }}

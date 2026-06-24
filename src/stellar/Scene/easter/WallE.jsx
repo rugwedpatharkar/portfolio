@@ -29,6 +29,7 @@ const WallE = () => {
     <group
       ref={groupRef}
       position={POSITION}
+      scale={0.5}
       onClick={handleClick}
       onPointerOver={() => { document.body.style.cursor = "pointer"; }}
       onPointerOut={() => { document.body.style.cursor = ""; }}
