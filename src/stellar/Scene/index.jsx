@@ -16,6 +16,7 @@ import Skybox from "./Skybox";
 import OrbitGroup from "./OrbitGroup";
 import BlackHole from "./BlackHole";
 import Comet from "./Comet";
+import AtlasComet from "./AtlasComet";
 import Meteors from "./Meteors";
 import Pulsar from "./Pulsar";
 import Wormhole from "./Wormhole";
@@ -197,6 +198,12 @@ const Scene = ({ scrollT, activeIdx, onJump, onReady, freeRoamEnabled, gameActiv
         {/* 'Oumuamua — the interstellar visitor cutting through on a hyperbolic
             path, tumbling end over end. */}
         {showExtras && !reducedMotion && <InterstellarVisitor animate={!reducedMotion} />}
+        {/* The interstellar comets: 3I/ATLAS (green coma + sunward anti-tail) and
+            2I/Borisov (reddish coma) — completing the trio with 'Oumuamua. */}
+        {showExtras && !reducedMotion && <AtlasComet />}
+        {showExtras && !reducedMotion && (
+          <AtlasComet start={[-620, -28, 240]} vel={[168, 5, -64]} coma="#d8b890" ion="#cdbfa0" dust="#e8d8b8" antiTail={false} comaR={5} respawn={780} />
+        )}
         {/* Clickable wishing meteors. */}
         {showExtras && !reducedMotion && <ShootingStars animate={!reducedMotion} />}
         {showExtras && !isMobile && !reducedMotion && <Meteors />}

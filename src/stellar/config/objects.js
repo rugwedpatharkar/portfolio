@@ -119,6 +119,16 @@ const ANOMALY_RAW = [
     visit: { kind: "focus", cameraTarget: frame([-12, 4, 9], 4, 1, 42) },
   },
   {
+    id: "atlas", label: "3I/ATLAS", category: "Interstellar comet", color: "#7fffb0", position: [13, 1, -5],
+    info: "3I/ATLAS (C/2025 N1) — the 3rd interstellar object, found Jul 2025, and the first ACTIVE interstellar comet: a blue-green C₂ coma, twin tails, and a rare sunward anti-tail. It swung just inside Mars's orbit at perihelion and is leaving forever.",
+    visit: { kind: "focus", cameraTarget: frame([13, 1, -5], 6, 1.4, 46) },
+  },
+  {
+    id: "borisov", label: "2I/Borisov", category: "Interstellar comet", color: "#d8b890", position: [-14, -2, 7],
+    info: "2I/Borisov — the 2nd interstellar object (2019), a ~1 km comet far richer in carbon monoxide than any local comet, discovered by amateur astronomer Gennady Borisov. The middle of the interstellar trio: 1I/'Oumuamua · 2I/Borisov · 3I/ATLAS.",
+    visit: { kind: "focus", cameraTarget: frame([-14, -2, 7], 5, 1.2, 44) },
+  },
+  {
     id: "tardis", label: "TARDIS", category: "Easter egg", color: "#5b8dff", position: [31.2, 2.0, 3.2],
     info: "Bigger on the inside. It materialises near Saturn now and then — blink and you'll miss it.",
     visit: { kind: "focus", cameraTarget: frame([31.2, 2.0, 3.2], 2.4, 0.6, 38) },
