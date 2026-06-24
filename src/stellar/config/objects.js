@@ -1,5 +1,6 @@
 import { DESTINATIONS } from "./destinations";
 import { PLANET_FACTS } from "../data/planetFacts";
+import { DWARF_PLANETS } from "./dwarfPlanets";
 
 /*
  * Registry of every notable object in the scene — the 12 résumé destinations
@@ -99,4 +100,16 @@ const ANOMALY_OBJECTS = [
   },
 ];
 
-export const OBJECTS = [...DESTINATION_OBJECTS, ...ANOMALY_OBJECTS];
+/* Dwarf planets + named belt bodies — scannable, on the radar, with real
+   facts; rendered by Scene/DwarfPlanets from the same data. */
+const DWARF_OBJECTS = DWARF_PLANETS.map((d) => ({
+  id: d.id,
+  label: d.label,
+  category: "Dwarf planet",
+  color: d.color,
+  position: d.position,
+  info: d.info,
+  visit: { kind: "focus", cameraTarget: frame(d.position, 1.4, 0.4, 36) },
+}));
+
+export const OBJECTS = [...DESTINATION_OBJECTS, ...ANOMALY_OBJECTS, ...DWARF_OBJECTS];

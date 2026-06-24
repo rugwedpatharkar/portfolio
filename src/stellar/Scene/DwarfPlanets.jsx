@@ -1,0 +1,32 @@
+/* eslint-disable react/no-unknown-property */
+import { useRef } from "react";
+import { useFrame } from "@react-three/fiber";
+import { DWARF_PLANETS } from "../config/dwarfPlanets";
+
+/*
+ * Dwarf planets + named belt bodies (Ceres, Vesta, Pluto, Eris, Makemake,
+ * Haumea). Small icy/rocky spheres with a faint emissive lift so they read in
+ * the dark outer system. Positions + radii come from config/dwarfPlanets.js,
+ * which the object registry also reads — so they're on the radar + scannable in
+ * the game automatically.
+ */
+const DwarfPlanets = ({ animate = true }) => {
+  const refs = useRef([]);
+  useFrame((_, dt) => {
+    if (!animate) return;
+    const d = Math.min(dt || 1 / 60, 1 / 20);
+    for (const m of refs.current) if (m) m.rotation.y += d * 0.12;
+  });
+  return (
+    <group>
+      {DWARF_PLANETS.map((dw, i) => (
+        <mesh key={dw.id} position={dw.position} ref={(el) => { refs.current[i] = el; }}>
+          <sphereGeometry args={[dw.radius, 24, 24]} />
+          <meshStandardMaterial color={dw.color} roughness={1} metalness={0} emissive={dw.color} emissiveIntensity={0.28} />
+        </mesh>
+      ))}
+    </group>
+  );
+};
+
+export default DwarfPlanets;

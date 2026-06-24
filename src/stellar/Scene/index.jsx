@@ -25,6 +25,7 @@ import Beacon from "./Beacon";
 import SolarProminences from "./SolarProminences";
 import SolarEclipse from "./SolarEclipse";
 import EclipseLights from "./EclipseLights";
+import DwarfPlanets from "./DwarfPlanets";
 import EarthStation from "./EarthStation";
 import { HomePin, HomeCallout } from "./HomeMarker";
 import IsroProbe from "./IsroProbe";
@@ -327,6 +328,8 @@ const Scene = ({ scrollT, activeIdx, onJump, onReady, freeRoamEnabled, gameActiv
         {!isMobile && <LensFlare position={[0, 0, 0]} />}
         {/* Orrery rings — the real orbital structure, shown in the system view. */}
         {showExtras && <OrbitRings wideRef={wideRef} />}
+        {/* Dwarf planets + named belt bodies (Ceres, Vesta, Pluto, Eris…). */}
+        {showExtras && <DwarfPlanets animate={!reducedMotion} />}
         {/* Real solar eclipses — Earth's actual Moon + any planet you fly
             behind occlude the Sun (corona + chromosphere + diamond-ring). */}
         {showExtras && <SolarEclipse satelliteRef={moonWorldRef} eclipseRef={eclipseRef} reducedMotion={reducedMotion} />}
