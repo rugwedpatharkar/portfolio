@@ -19,6 +19,7 @@ import Comet from "./Comet";
 import AtlasComet from "./AtlasComet";
 import Meteors from "./Meteors";
 import Pulsar from "./Pulsar";
+import DeepFieldMysteries from "./DeepFieldMysteries";
 import Wormhole from "./Wormhole";
 import LensFlare from "./LensFlare";
 import OrbitRings from "./OrbitRings";
@@ -208,6 +209,9 @@ const Scene = ({ scrollT, activeIdx, onJump, onReady, freeRoamEnabled, gameActiv
         {showExtras && !reducedMotion && <ShootingStars animate={!reducedMotion} />}
         {showExtras && !isMobile && !reducedMotion && <Meteors />}
         {showExtras && !isMobile && !reducedMotion && <Pulsar />}
+        {/* Real unsolved mysteries as deep-field discoverables (Planet Nine,
+            Tabby's Star, the Wow! signal, fast radio bursts). */}
+        {showExtras && <DeepFieldMysteries animate={!reducedMotion} />}
         {/* Wormhole "Beam aboard" portal at the Contact edge — the booking CTA. */}
         {showExtras && <Wormhole />}
 

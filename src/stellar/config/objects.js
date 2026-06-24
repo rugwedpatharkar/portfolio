@@ -128,6 +128,27 @@ const ANOMALY_RAW = [
     info: "2I/Borisov — the 2nd interstellar object (2019), a ~1 km comet far richer in carbon monoxide than any local comet, discovered by amateur astronomer Gennady Borisov. The middle of the interstellar trio: 1I/'Oumuamua · 2I/Borisov · 3I/ATLAS.",
     visit: { kind: "focus", cameraTarget: frame([-14, -2, 7], 5, 1.2, 44) },
   },
+  // ── Space mysteries (deep field; positions match Scene/DeepFieldMysteries) ──
+  {
+    id: "planetnine", label: "Planet Nine", category: "Mystery", color: "#3a5070", position: [42, -3, -26],
+    info: "Planet Nine — a hypothesised 5–10 Earth-mass world orbiting hundreds of AU out. Its gravity would explain the clustered orbits of distant Kuiper bodies and the 'Kuiper Cliff', where the belt abruptly ends near 50 AU. Never yet seen.",
+    visit: { kind: "focus", cameraTarget: frame([42, -3, -26], 12, 2.5, 46) },
+  },
+  {
+    id: "tabby", label: "Tabby's Star", category: "Mystery", color: "#fff2d8", position: [-40, 9, -34],
+    info: "Tabby's Star (KIC 8462852) — a Sun-like star ~1,470 ly away whose brightness drops irregularly by up to 22%, far more than a planet could cause. Comet swarms? A disintegrating world? An alien megastructure? Still unexplained.",
+    visit: { kind: "focus", cameraTarget: frame([-40, 9, -34], 10, 2, 44) },
+  },
+  {
+    id: "wow", label: "The Wow! Signal", category: "Mystery", color: "#7fe0ff", position: [33, 18, -38],
+    info: "The Wow! Signal — on 15 Aug 1977 a 72-second narrowband radio burst arrived from the direction of Sagittarius, so strong the astronomer scrawled 'Wow!' on the printout (6EQUJ5). It never repeated. Origin: unknown.",
+    visit: { kind: "focus", cameraTarget: frame([33, 18, -38], 10, 2, 44) },
+  },
+  {
+    id: "frb", label: "Fast Radio Burst", category: "Mystery", color: "#d6c0ff", position: [-30, -16, 42],
+    info: "Fast Radio Bursts — millisecond flashes of radio energy from across the universe, some releasing a Sun's-worth of energy in an instant. Most flash once and vanish; a few repeat. Their engines remain a mystery.",
+    visit: { kind: "focus", cameraTarget: frame([-30, -16, 42], 10, 2, 44) },
+  },
   {
     id: "tardis", label: "TARDIS", category: "Easter egg", color: "#5b8dff", position: [31.2, 2.0, 3.2],
     info: "Bigger on the inside. It materialises near Saturn now and then — blink and you'll miss it.",
