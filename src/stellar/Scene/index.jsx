@@ -26,6 +26,10 @@ import SolarProminences from "./SolarProminences";
 import SolarEclipse from "./SolarEclipse";
 import EclipseLights from "./EclipseLights";
 import DwarfPlanets from "./DwarfPlanets";
+import TrojanAsteroids from "./TrojanAsteroids";
+import OortCloud from "./OortCloud";
+import Heliosphere from "./Heliosphere";
+import InterstellarVisitor from "./InterstellarVisitor";
 import EarthStation from "./EarthStation";
 import { HomePin, HomeCallout } from "./HomeMarker";
 import IsroProbe from "./IsroProbe";
@@ -99,10 +103,6 @@ const Scene = ({ scrollT, activeIdx, onJump, onReady, freeRoamEnabled, gameActiv
      and the extra pixels actually read as sharpness. The adaptive guard still
      floors DPR only on a genuinely struggling GPU. */
   const dprCap = isMobile ? 1.5 : 2;
-  const beltCounts = {
-    achievements: isMobile ? 320 : 700,
-    testimonials: isMobile ? 180 : 350,
-  };
 
   return (
     <Canvas
@@ -186,6 +186,9 @@ const Scene = ({ scrollT, activeIdx, onJump, onReady, freeRoamEnabled, gameActiv
         {/* Anomaly suite — the discoverable spectacle. All deferred behind
             showExtras; motion-heavy ones respect reduced-motion + device. */}
         {showExtras && !reducedMotion && <Comet />}
+        {/* 'Oumuamua — the interstellar visitor cutting through on a hyperbolic
+            path, tumbling end over end. */}
+        {showExtras && !reducedMotion && <InterstellarVisitor animate={!reducedMotion} />}
         {/* Clickable wishing meteors. */}
         {showExtras && !reducedMotion && <ShootingStars animate={!reducedMotion} />}
         {showExtras && !isMobile && !reducedMotion && <Meteors />}
@@ -295,21 +298,6 @@ const Scene = ({ scrollT, activeIdx, onJump, onReady, freeRoamEnabled, gameActiv
               </OrbitGroup>
             );
           }
-          if (d.kind === "belt") {
-            const count = beltCounts[d.id] ?? 200;
-            const size = d.id === "achievements" ? 0.08 : 0.05;
-            return (
-              <AsteroidBelt
-                key={d.id}
-                count={count}
-                innerRadius={d.innerRadius}
-                outerRadius={d.outerRadius}
-                color={d.color}
-                size={size}
-                animate={!reducedMotion}
-              />
-            );
-          }
           if (d.kind === "beacon") {
             return (
               <Beacon
@@ -340,6 +328,13 @@ const Scene = ({ scrollT, activeIdx, onJump, onReady, freeRoamEnabled, gameActiv
         {showExtras && !isMobile && (
           <AsteroidBelt count={900} innerRadius={BACKGROUND_BELTS.kuiper.inner} outerRadius={BACKGROUND_BELTS.kuiper.outer} size={1.3} animate={!reducedMotion} />
         )}
+        {/* Jupiter's Trojan asteroids — two swarms 60° ahead/behind Jupiter at
+            the L4/L5 Lagrange points (true orbital radius). */}
+        {showExtras && <TrojanAsteroids count={isMobile ? 70 : 160} />}
+        {/* The Oort cloud wrapping the whole system + the heliosphere boundary
+            bubble out at the edge (where Voyager crossed). */}
+        {showExtras && <OortCloud count={isMobile ? 700 : 1400} />}
+        {showExtras && !isMobile && <Heliosphere />}
         {/* Real solar eclipses — Earth's actual Moon + any planet you fly
             behind occlude the Sun (corona + chromosphere + diamond-ring). */}
         {showExtras && <SolarEclipse satelliteRef={moonWorldRef} eclipseRef={eclipseRef} reducedMotion={reducedMotion} />}

@@ -84,6 +84,16 @@ const ANOMALY_RAW = [
     visit: { kind: "focus", cameraTarget: frame([40, 3.5, -19], 4, 1, 42) },
   },
   {
+    id: "halley", label: "Halley's Comet", category: "Comet", color: "#9fdcff", position: [8, 2, -2],
+    info: "1P/Halley — the most famous comet, swinging back every ~76 years on a steep, stretched orbit. Two tails: a straight blue ion tail blown dead anti-sunward by the solar wind, and a curved dust tail lagging its path. Last seen 1986; returns 2061.",
+    visit: { kind: "focus", cameraTarget: frame([8, 2, -2], 5, 1.2, 44) },
+  },
+  {
+    id: "oumuamua", label: "'Oumuamua", category: "Interstellar object", color: "#b07a5a", position: [-12, 4, 9],
+    info: "1I/'Oumuamua — the first confirmed interstellar visitor (2017). A dark, reddish, wildly elongated shard tumbling end-over-end on an unbound hyperbolic path: it fell in from another star and is already leaving, never to return.",
+    visit: { kind: "focus", cameraTarget: frame([-12, 4, 9], 4, 1, 42) },
+  },
+  {
     id: "tardis", label: "TARDIS", category: "Easter egg", color: "#5b8dff", position: [31.2, 2.0, 3.2],
     info: "Bigger on the inside. It materialises near Saturn now and then — blink and you'll miss it.",
     visit: { kind: "focus", cameraTarget: frame([31.2, 2.0, 3.2], 2.4, 0.6, 38) },
