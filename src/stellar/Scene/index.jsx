@@ -456,6 +456,12 @@ const Scene = ({ scrollT, activeIdx, onJump, onReady, freeRoamEnabled, gameActiv
           saturation={-0.02}
           vigOffset={0.36}
           vigDarkness={0.38}
+          grain={isMobile ? 0.035 : 0.055}
+          aberration={0.012}
+          lift={0.02}
+          gamma={1.06}
+          gain={1.02}
+          vigTint={[0.55, 0.66, 1.0]}
         />
       </EffectComposer>
       </SceneClock>
