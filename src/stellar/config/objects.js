@@ -1,4 +1,4 @@
-import { DESTINATIONS, remapPosition } from "./destinations";
+import { DESTINATIONS, remapPosition, frontOfSun } from "./destinations";
 import { PLANET_FACTS } from "../data/planetFacts";
 import { DWARF_PLANETS } from "./dwarfPlanets";
 
@@ -40,8 +40,8 @@ const DESTINATION_OBJECTS = DESTINATIONS.map((d, index) => ({
 const ANOMALY_RAW = [
   {
     id: "blackhole", label: "Gargantua", category: "Black hole", color: "#ffb066", position: [49, -6, -15],
-    info: "A stellar-mass black hole at the edge of the system. Light bends around the event horizon — the accretion disk wraps up and over in a glowing Einstein ring.",
-    visit: { kind: "focus", cameraTarget: frame([49, -6, -15], 8, 2.4, 46) },
+    info: "A stellar-mass black hole in the deep field behind the Sun. Light bends around the event horizon — the accretion disk wraps up and over in a glowing Einstein ring.",
+    visit: { kind: "focus", cameraTarget: frame([49, -6, -15], 250, 60, 46) },
   },
   {
     id: "wormhole", label: "Wormhole", category: "Portal", color: "#9a7dff", position: [48.55, 0.58, 1.62],
@@ -166,22 +166,30 @@ const ANOMALY_RAW = [
   },
 ];
 
-/* Scatter every off-line object out to true scale (keeps its themed
-   neighbourhood), preserving the small framing-camera offset. */
+/* Free-floating cosmic objects (not tied to a planet) are pulled IN FRONT of the
+   sunward-looking camera (−X, behind the Sun) so they match their render and are
+   reachable as visible landmarks. Planet-tied easter-eggs + probes keep their +X
+   themed neighbourhood (they must stay beside their planet to be seen at all). */
+const FRONT_OF_SUN_CATEGORIES = new Set([
+  "Black hole", "Portal", "Neutron star", "Mystery", "Interstellar object", "Interstellar comet", "Comet",
+]);
 const ANOMALY_OBJECTS = ANOMALY_RAW.map((o) => {
-  const np = remapPosition(o.position);
+  const front = FRONT_OF_SUN_CATEGORIES.has(o.category);
+  const raw = front ? frontOfSun(o.position) : o.position;
+  const np = remapPosition(raw);
   const c = o.visit.cameraTarget;
+  const off = [c.position[0] - o.position[0], c.position[1] - o.position[1], c.position[2] - o.position[2]];
+  /* Re-aim the close-up framing offset along the NEW sunward direction when the
+     object moved (so the visit camera still drops between it and the Sun). */
+  const L = Math.hypot(np[0], np[1], np[2]) || 1;
+  const offMag = Math.hypot(off[0], off[2]);
+  const camPos = front
+    ? [np[0] - (np[0] / L) * offMag, np[1] - (np[1] / L) * offMag + off[1], np[2] - (np[2] / L) * offMag]
+    : [np[0] + off[0], np[1] + off[1], np[2] + off[2]];
   return {
     ...o,
     position: np,
-    visit: {
-      ...o.visit,
-      cameraTarget: {
-        position: [np[0] + (c.position[0] - o.position[0]), np[1] + (c.position[1] - o.position[1]), np[2] + (c.position[2] - o.position[2])],
-        lookAt: np,
-        fov: c.fov,
-      },
-    },
+    visit: { ...o.visit, cameraTarget: { position: camPos, lookAt: np, fov: c.fov } },
   };
 });
 

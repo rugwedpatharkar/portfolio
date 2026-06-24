@@ -3,7 +3,7 @@ import { useMemo, useRef } from "react";
 import { useFrame, useThree } from "@react-three/fiber";
 import * as THREE from "three";
 import { useSceneClock } from "./SceneClock";
-import { remapPosition } from "../config/destinations";
+import { remapPosition, frontOfSun } from "../config/destinations";
 
 /*
  * Spaghettification danger field — the dread you feel flying too close to
@@ -32,7 +32,7 @@ import { remapPosition } from "../config/destinations";
  * not decoration.
  */
 
-const GARGANTUA = new THREE.Vector3(...remapPosition([49, -6, -15])); // true-scale edge, beyond the Contact beacon
+const GARGANTUA = new THREE.Vector3(...remapPosition(frontOfSun([49, -6, -15]))); // in front of the camera, behind the Sun (matches BlackHole)
 
 /* Scratch vector reused every frame — no per-frame allocation. */
 const _camPos = new THREE.Vector3();
@@ -97,8 +97,9 @@ const DangerField = ({ animate = true }) => {
   useFrame(() => {
     camera.getWorldPosition(_camPos);
     const distance = _camPos.distanceTo(GARGANTUA);
-    /* 0 beyond 16 units → 1 at ~7 units from the singularity. */
-    const danger = THREE.MathUtils.smoothstep(distance, 7.0, 16.0);
+    /* Scaled to the deep-field Gargantua (event horizon ≈32, disk ≈134): 0 beyond
+       ~200 units → 1 at ~60 units from the singularity. */
+    const danger = THREE.MathUtils.smoothstep(distance, 60.0, 200.0);
     const inverted = 1.0 - danger; // smoothstep above goes 0→1 as dist grows
     const level = THREE.MathUtils.clamp(inverted, 0, 1);
 

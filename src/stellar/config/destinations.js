@@ -324,6 +324,29 @@ export const remapPosition = ([x, y, z]) => {
   return [x * f, y * f, z * f];
 };
 
+/* Force a position into the −X hemisphere within the camera's view cone — i.e.
+   IN FRONT of the camera / BEHIND the Sun. The whole tour is laid out along +X
+   and every backlit stop looks sunward (−X), so a free-floating cosmic object is
+   only visible if it sits in the −X sky near that axis. This (a) flips X negative
+   (sunward), and (b) clamps the off-axis angle into [minDeg, maxDeg] so the
+   object lands near, but not buried in, the Sun's glare — preserving its distance
+   from the Sun and its azimuth (the y:z direction) so each object keeps a distinct
+   spot ringing the Sun. Apply BEFORE remapPosition for off-line cosmic objects. */
+export const frontOfSun = ([x, y, z], minDeg = 13, maxDeg = 28) => {
+  const r = Math.hypot(x, y, z) || 1;
+  const ax = -(Math.abs(x) || 1); // sunward (−X), in front of the camera
+  let ny = y, nz = z;
+  let lat = Math.hypot(ny, nz) || 1e-4;
+  const tanMin = Math.tan((minDeg * Math.PI) / 180);
+  const tanMax = Math.tan((maxDeg * Math.PI) / 180);
+  const ratio = lat / Math.abs(ax);
+  const k = ratio > tanMax ? (Math.abs(ax) * tanMax) / lat : ratio < tanMin ? (Math.abs(ax) * tanMin) / lat : 1;
+  ny *= k;
+  nz *= k;
+  const f = r / Math.hypot(ax, ny, nz);
+  return [ax * f, ny * f, nz * f];
+};
+
 DESTINATIONS.forEach((d) => {
   const au = AU[d.id];
   if (!au) return; // the Sun stays at the origin
@@ -354,6 +377,35 @@ export const nearBody = (id, [dx = 0, dy = 0, dz = 0] = []) => {
   const p = DESTINATION_BY_ID[id]?.position || [0, 0, 0];
   return [p[0] + dx, p[1] + dy, p[2] + dz];
 };
+
+/* Place an easter-egg / probe just BESIDE its host planet and IN the backlit
+   camera's view, so it's actually visible during the tour. The camera sits
+   ~radius×4.18 beyond the planet (anti-sun) framing the whole disk in a 47° fov,
+   so a FIXED offset is wildly off-screen for tiny worlds (Ceres r=0.06) and lost
+   beside giants — the offset MUST scale with the planet's radius. `dir` = a
+   [screenUp, screenLeft] direction (Y≈up/down, Z≈left/right of the planet) to
+   spread multiple objects around it; `lateral` sets the off-axis distance
+   (×radius → ~atan(lateral/4.18)≈18° at 1.4); `toward` nudges it toward the
+   camera (along the anti-sun radial) so the planet never occludes it. */
+export const besidePlanet = (id, dir = [1, 0], { lateral = 1.4, toward = 0.5 } = {}) => {
+  const d = DESTINATION_BY_ID[id];
+  if (!d) return [0, 0, 0];
+  const r = d.radius;
+  const [x, y, z] = d.position;
+  const rl = Math.hypot(x, y, z) || 1;
+  const [uy, uz] = dir;
+  const n = Math.hypot(uy, uz) || 1;
+  return [
+    x + (x / rl) * toward * r,
+    y + (y / rl) * toward * r + (uy / n) * lateral * r,
+    z + (z / rl) * toward * r + (uz / n) * lateral * r,
+  ];
+};
+
+/* Recommended on-screen size for a besidePlanet object: a fraction of the host
+   planet's radius, so an egg reads as a clear companion (not a screen-filling
+   blob beside tiny Ceres, nor an invisible speck beside Jupiter). */
+export const besideScale = (id, frac = 0.5) => (DESTINATION_BY_ID[id]?.radius || 1) * frac;
 
 export const SCROLL_LENGTH_PER_DESTINATION = 100; // viewport heights
 export const TOTAL_SCROLL_VH = DESTINATIONS.length * SCROLL_LENGTH_PER_DESTINATION;

@@ -3,7 +3,7 @@ import { useMemo, useRef } from "react";
 import { useFrame } from "@react-three/fiber";
 import * as THREE from "three";
 import { contactLinks } from "../../content";
-import { remapPosition } from "../config/destinations";
+import { remapPosition, frontOfSun } from "../config/destinations";
 import { useSceneClock } from "./SceneClock";
 
 /* The portal opens the same booking link as the Contact "Book a Call" CTA. */
@@ -42,7 +42,7 @@ const VORTEX_FRAG = /* glsl */ `
   }
 `;
 
-const Wormhole = ({ position = remapPosition([48.55, 0.58, 1.62]), radius = 0.15 }) => {
+const Wormhole = ({ position = remapPosition(frontOfSun([48.55, 0.58, 1.62])), radius = 45 }) => {
   const groupRef = useRef();
   const mat = useRef();
   const hover = useRef(1);

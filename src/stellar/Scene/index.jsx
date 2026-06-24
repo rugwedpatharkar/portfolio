@@ -64,7 +64,7 @@ import Endurance from "./easter/Endurance";
 import StarDestroyer from "./easter/StarDestroyer";
 import Enterprise from "./easter/Enterprise";
 import useViewport from "../useViewport";
-import { DESTINATIONS, remapPosition, BACKGROUND_BELTS } from "../config/destinations";
+import { DESTINATIONS, remapPosition, frontOfSun, BACKGROUND_BELTS } from "../config/destinations";
 import { rotationSpeedFor } from "../config/planetData";
 
 /*
@@ -188,10 +188,10 @@ const Scene = ({ scrollT, activeIdx, onJump, onReady, freeRoamEnabled, gameActiv
             be an out-of-place cloud floating in the asteroid belt (~2.4 AU); the
             real Hubble nebulae (Nebulae.jsx) are the deep-space backdrop instead. */}
         {gameActive && <FlyableNebula position={remapPosition([-14, 6, -10])} radius={7} animate={!reducedMotion} />}
-        {/* The edge anomaly — a black hole beyond the contact beacon: you
-            reach the edge of the system and there it is, pulling at the
-            void. Framed behind the beacon on the contact stop. */}
-        {showExtras && <BlackHole position={remapPosition([49, -6, -15])} radius={1.9} animate={!reducedMotion} onPointerOver={handleHoverIn} onPointerOut={handleHoverOut} />}
+        {/* The edge anomaly — Gargantua, out in front of the camera (behind the
+            Sun, −X) so it's a visible deep-space landmark throughout the tour
+            rather than hidden off to the +X side behind the viewer. */}
+        {showExtras && <BlackHole position={remapPosition(frontOfSun([49, -6, -15]))} radius={32} animate={!reducedMotion} onPointerOver={handleHoverIn} onPointerOut={handleHoverOut} />}
         {/* Spaghettification dread near Gargantua — writes clock.danger. */}
         {showExtras && <DangerField animate={!reducedMotion} />}
         {/* Flyable résumé collectibles — collected while piloting or in the game. */}

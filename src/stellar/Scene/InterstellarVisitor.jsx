@@ -11,8 +11,11 @@ import * as THREE from "three";
  * effectively a straight line, so it drifts on a fixed heading clean through the
  * planetary region and respawns once it's gone. Tumbles as it travels.
  */
-const START = new THREE.Vector3(-3600, 920, 2600);
-const VEL = new THREE.Vector3(168, -42, -176); // fixed heading across the system
+/* Kept in the −X sky (in front of the sunward-looking camera) and swept laterally
+   across it, so the flyby reads as a visible streak crossing the deep field behind
+   the Sun rather than drifting off to the +X side behind the viewer. */
+const START = new THREE.Vector3(-4125, 742, 1732);
+const VEL = new THREE.Vector3(-30, -34, -150); // sweeps across the front field, staying sunward
 
 const InterstellarVisitor = ({ animate = true }) => {
   const ref = useRef();

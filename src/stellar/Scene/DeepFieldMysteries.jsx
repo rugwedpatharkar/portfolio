@@ -2,7 +2,7 @@
 import { useMemo, useRef } from "react";
 import { useFrame } from "@react-three/fiber";
 import * as THREE from "three";
-import { remapPosition } from "../config/destinations";
+import { remapPosition, frontOfSun } from "../config/destinations";
 
 /*
  * Real unsolved space mysteries, as faint deep-field discoverables (scannable +
@@ -39,7 +39,7 @@ const dot = (() => {
 const DeepFieldMysteries = ({ animate = true }) => {
   const pos = useMemo(() => {
     const o = {};
-    for (const k in MYSTERY_RAW) o[k] = new THREE.Vector3(...remapPosition(MYSTERY_RAW[k]));
+    for (const k in MYSTERY_RAW) o[k] = new THREE.Vector3(...remapPosition(frontOfSun(MYSTERY_RAW[k])));
     return o;
   }, []);
 
@@ -79,23 +79,23 @@ const DeepFieldMysteries = ({ animate = true }) => {
       {/* Planet Nine — a dark, faint super-Earth far past the Kuiper belt */}
       <group ref={p9} position={pos.planetnine.toArray()}>
         <mesh>
-          <sphereGeometry args={[4.2, 32, 32]} />
+          <sphereGeometry args={[13, 32, 32]} />
           <meshStandardMaterial color="#2b3340" roughness={1} metalness={0.1} emissive="#0a1018" emissiveIntensity={0.4} />
         </mesh>
         <mesh>
-          <sphereGeometry args={[4.7, 24, 24]} />
+          <sphereGeometry args={[14.5, 24, 24]} />
           <meshBasicMaterial color="#3a5070" transparent opacity={0.12} side={THREE.BackSide} blending={THREE.AdditiveBlending} depthWrite={false} toneMapped={false} />
         </mesh>
       </group>
 
       {/* Tabby's Star — a bright deep-field star that dims irregularly */}
-      <sprite ref={tabby} position={pos.tabby.toArray()} scale={[26, 26, 26]}>
+      <sprite ref={tabby} position={pos.tabby.toArray()} scale={[78, 78, 78]}>
         <spriteMaterial map={dot} color="#fff2d8" transparent opacity={0.9} depthWrite={false} blending={THREE.AdditiveBlending} toneMapped={false} />
       </sprite>
 
       {/* Wow! signal — marker + expanding radio-ring pulse toward Sagittarius */}
       <group position={pos.wow.toArray()}>
-        <sprite scale={[10, 10, 10]}><spriteMaterial map={dot} color="#7fe0ff" transparent opacity={0.8} depthWrite={false} blending={THREE.AdditiveBlending} toneMapped={false} /></sprite>
+        <sprite scale={[32, 32, 32]}><spriteMaterial map={dot} color="#7fe0ff" transparent opacity={0.8} depthWrite={false} blending={THREE.AdditiveBlending} toneMapped={false} /></sprite>
         <mesh ref={wowRing} rotation={[Math.PI / 2.3, 0.4, 0]}>
           <ringGeometry args={[0.9, 1.0, 48]} />
           <meshBasicMaterial color="#7fe0ff" transparent opacity={0.4} side={THREE.DoubleSide} depthWrite={false} blending={THREE.AdditiveBlending} toneMapped={false} />
@@ -103,7 +103,7 @@ const DeepFieldMysteries = ({ animate = true }) => {
       </group>
 
       {/* Fast Radio Burst — a brief, intense flash from the deep field */}
-      <sprite ref={frb} position={pos.frb.toArray()} scale={[40, 40, 40]}>
+      <sprite ref={frb} position={pos.frb.toArray()} scale={[120, 120, 120]}>
         <spriteMaterial map={dot} color="#d6c0ff" transparent opacity={0} depthWrite={false} blending={THREE.AdditiveBlending} toneMapped={false} />
       </sprite>
     </>
