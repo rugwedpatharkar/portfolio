@@ -19,14 +19,11 @@ import DiscoveriesView from "./DiscoveriesView";
 import EasterEgg from "./EasterEgg";
 import AnswerListener from "./AnswerListener";
 import useViewport from "./useViewport";
-import VoiceNav from "./VoiceNav";
 import SpeedRun from "./SpeedRun";
 import CockpitFrame from "./CockpitFrame";
 import FragmentToast from "./FragmentToast";
 import HazardBanner from "./HazardBanner";
 import EclipseDimmer from "./EclipseDimmer";
-import Radar from "./Radar";
-import GameCockpit from "./game/GameCockpit";
 import { markCharted, markVisited } from "./data/explorer";
 
 /* Hash → destination utilities */
@@ -107,15 +104,9 @@ const StellarApp = () => {
      CameraRig reads stay unchanged. */
   const [mode, setMode] = useState("tour");
   const overview = mode === "overview";
-  /* Top-level experience: "read" (the scroll-tour résumé — the DEFAULT for
-     everyone) vs "game" (the cockpit flight-sim — an opt-in choice via the
-     "Become a Space Explorer" CTA, desktop only). `flying` is true whenever
-     the ship is under manual control. */
-  const [gameMode, setGameMode] = useState("read");
-  const flying = gameMode === "game" || mode === "pilot";
-  /* True free-look flight (mouse + WASD) owns the camera once the warp-in has
-     handed over. The read-mode pilot keeps the older camera-relative FreeRoam. */
-  const gameActive = gameMode === "game" && shipWarpDone;
+  /* `flying` is true whenever the ship is under manual control (the read-mode
+     pilot free-look). */
+  const flying = mode === "pilot";
   /* First-interaction flag — fades the hero "scroll to explore" hint once the
      visitor scrolls / keys / touches (or after a timeout). */
   const [interacted, setInteracted] = useState(false);
@@ -123,10 +114,7 @@ const StellarApp = () => {
   const [focusedObj, setFocusedObj] = useState(null);
   /* Explorer Log (Discoveries) panel open state. */
   const [logOpen, setLogOpen] = useState(false);
-  /* Voice command — the one surviving command, used in the game — plus the
-     speed-run challenge. (The ⌘K palette + time-scale dock were removed to
-     keep the default Read experience minimal.) */
-  const [voiceNonce, setVoiceNonce] = useState(0);
+  /* Speed-run challenge toggle. */
   const [speedRunOn, setSpeedRunOn] = useState(false);
   const { reducedMotion, isMobile } = useViewport();
   const [activeIdx, setActiveIdx] = useState(0);
@@ -148,9 +136,6 @@ const StellarApp = () => {
   /* Flight: live speed (the gauge) + thruster input, read by the rigs. */
   const pilotSpeedRef = useRef(0);
   const thrustRef = useRef({});
-  /* Autopilot target id (a body) — voice ("take me to Earth") or a radar tap
-     sets it; GameFlight glides the ship there and clears it on arrival. */
-  const flyToRef = useRef(null);
   /* Live eclipse totality (0..1), written by SolarEclipse, read by the sky dimmer. */
   const eclipseRef = useRef(0);
   /* Shared virtual-clock handle { t, scale, danger }, created once and shared
@@ -173,12 +158,6 @@ const StellarApp = () => {
     if (flying) { window.__lenis?.stop(); thrustRef.current = {}; }
     else window.__lenis?.start();
   }, [flying]);
-
-  /* The game is desktop-only: if the viewport becomes mobile or reduced-motion
-     turns on (e.g. a resize / device rotate while flying), drop back to READ. */
-  useEffect(() => {
-    if (isMobile || reducedMotion) setGameMode("read");
-  }, [isMobile, reducedMotion]);
 
   /* Scene mounts/loads textures behind the warp + countdown overlays,
      so we no longer need an explicit sceneReady gate. */
@@ -325,8 +304,6 @@ const StellarApp = () => {
      free camera to its authored framing. */
   const handlePick = useCallback(
     (o) => {
-      /* In the game, picking a target (radar tap) flies the ship there. */
-      if (gameMode === "game") { flyToRef.current = o.id; return; }
       if (o.visit.kind === "stop") {
         setFocusedObj(null);
         focusRef.current = null;
@@ -340,17 +317,7 @@ const StellarApp = () => {
         markCharted(o.id);
       }
     },
-    [handleJump, gameMode]
-  );
-
-  /* Voice command — the one surviving command. In the game it autopilots the
-     ship to the named body; in Read it scrolls the tour there. */
-  const handleVoiceJump = useCallback(
-    (idx) => {
-      if (gameMode === "game") { flyToRef.current = DESTINATIONS[idx]?.id || null; return; }
-      handleJump(idx);
-    },
-    [handleJump, gameMode]
+    [handleJump]
   );
 
   /* Fade the scroll hint on the first real interaction (or after 8s). */
@@ -386,9 +353,6 @@ const StellarApp = () => {
         if (k === "escape") setLogOpen(false);
         return;
       }
-      /* In game mode GameFlight owns the flight keys (mouse-look + WASD); the
-         hub yields entirely (the log above still works). */
-      if (gameMode === "game") return;
       /* P toggles free-flight. While piloting, FreeRoam owns WASD/arrows — the
          hub only listens for Esc / P to dock. */
       if (k === "p") { e.preventDefault(); togglePilot(); return; }
@@ -420,7 +384,7 @@ const StellarApp = () => {
     };
     window.addEventListener("keydown", onKey);
     return () => window.removeEventListener("keydown", onKey);
-  }, [shipWarpDone, handleJump, focusedObj, clearFocus, logOpen, mode, togglePilot, gameMode]);
+  }, [shipWarpDone, handleJump, focusedObj, clearFocus, logOpen, mode, togglePilot]);
 
   /* Browser back/forward should also navigate */
   useEffect(() => {
@@ -466,10 +430,8 @@ const StellarApp = () => {
         onJump={handleJump}
         onReady={handleSceneReady}
         freeRoamEnabled={mode === "pilot"}
-        gameActive={gameActive}
         speedRef={pilotSpeedRef}
         thrustRef={thrustRef}
-        flyToRef={flyToRef}
         eclipseRef={eclipseRef}
         wideRef={wideRef}
         wideOrbitRef={wideOrbitRef}
@@ -501,68 +463,17 @@ const StellarApp = () => {
           <DiscoveriesView open={logOpen} onClose={() => setLogOpen(false)} animate={!reducedMotion} />
           <FragmentToast />
           <HazardBanner clock={sceneClockRef.current} />
-          {/* Minimal canopy HUD for the read-mode pilot; the game has its own
-              full cockpit (GameCockpit) so we don't double up the reticle. */}
+          {/* Minimal canopy HUD for the read-mode pilot (P key). */}
           <CockpitFrame enabled={mode === "pilot"} speedRef={pilotSpeedRef} />
-          <Radar objects={OBJECTS} cameraRef={cameraRef} visible={flying} onPick={handlePick} />
-
-          {gameMode === "game" ? (
-            /* GAME — the cockpit flight-sim (free-look: mouse + WASD). The
-               cockpit tracks the nearest body live from cameraRef. Voice is the
-               one surviving command here — the mic autopilots the ship to a
-               spoken body ("take me to Jupiter"). */
-            <>
-              <GameCockpit
-                cameraRef={cameraRef}
-                clock={sceneClockRef.current}
-                speedRef={pilotSpeedRef}
-                onVoice={() => setVoiceNonce((n) => n + 1)}
-                onOpenLog={() => setLogOpen((v) => !v)}
-                onReadMode={() => setGameMode("read")}
-              />
-              <VoiceNav onJump={handleVoiceJump} startSignal={voiceNonce} hideButton />
-            </>
-          ) : (
-            /* READ — the scroll-tour résumé (the fast path + mobile/reduced default). */
-            <>
-              {mode === "tour" && <PlanetHUD destination={DESTINATIONS[activeIdx]} />}
-              {mode === "tour" && <ContentPanel destination={DESTINATIONS[activeIdx]} />}
-              <OverviewHud overview={overview} />
-              {mode === "tour" && <ScrollHint visible={activeIdx === 0 && !interacted} />}
-              <OverviewMap objects={OBJECTS} cameraRef={cameraRef} visible={overview && !focusedObj} onPick={handlePick} />
-              {focusedObj && <FocusCard obj={focusedObj} onBack={clearFocus} />}
-              {/* Minimal by design: no nav-console, rank meter, or ⌘K palette in
-                  Read mode — just the résumé tour + the Space-Explorer CTA. */}
-              <SpeedRun activeIdx={activeIdx} active={speedRunOn} onToggle={() => setSpeedRunOn((v) => !v)} />
-              {/* Become a Space Explorer — the game is an OPT-IN choice; the
-                  résumé tour is the default. Desktop only (flight is disabled
-                  on mobile / reduced-motion). Prominent on the hero (the
-                  starting page); a slim re-entry pill once you've scrolled in. */}
-              {!isMobile && !reducedMotion && (activeIdx === 0 ? (
-                <button
-                  onClick={() => setGameMode("game")}
-                  aria-label="Become a Space Explorer — fly the system as a playable game"
-                  style={{ position: "fixed", top: 18, left: "50%", transform: "translateX(-50%)", zIndex: 47, cursor: "pointer",
-                    display: "flex", alignItems: "center", gap: 11, padding: "9px 16px 9px 13px", borderRadius: 999,
-                    background: "linear-gradient(90deg, rgba(0,206,168,0.2), rgba(145,94,255,0.2))",
-                    border: "1px solid rgba(0,206,168,0.6)", color: "#fff", animation: "stellarGlow 2.6s ease-in-out infinite" }}
-                >
-                  <span style={{ fontSize: 17, lineHeight: 1 }}>🚀</span>
-                  <span style={{ textAlign: "left" }}>
-                    <span style={{ display: "block", fontFamily: "'Michroma', sans-serif", fontSize: 11.5, letterSpacing: "0.07em" }}>BECOME A SPACE EXPLORER</span>
-                    <span style={{ display: "block", fontFamily: "'JetBrains Mono', monospace", fontSize: 8.5, color: "rgba(223,217,255,0.78)", marginTop: 2 }}>fly the system — playable cockpit</span>
-                  </span>
-                  <span style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 9, letterSpacing: "0.1em", color: "#00cea8" }}>▸ PLAY</span>
-                </button>
-              ) : (
-                <button
-                  onClick={() => setGameMode("game")}
-                  aria-label="Become a Space Explorer — enter the cockpit game"
-                  style={{ position: "fixed", top: 16, left: "50%", transform: "translateX(-50%)", zIndex: 47, cursor: "pointer", padding: "6px 14px", borderRadius: 999, background: "rgba(0,206,168,0.16)", border: "1px solid rgba(0,206,168,0.5)", color: "#fff", fontFamily: "'JetBrains Mono', monospace", fontSize: 10, letterSpacing: "0.12em" }}
-                >🚀 SPACE EXPLORER</button>
-              ))}
-            </>
-          )}
+          {/* READ — the scroll-tour résumé (the single experience). */}
+          {mode === "tour" && <PlanetHUD destination={DESTINATIONS[activeIdx]} />}
+          {mode === "tour" && <ContentPanel destination={DESTINATIONS[activeIdx]} />}
+          <OverviewHud overview={overview} />
+          {mode === "tour" && <ScrollHint visible={activeIdx === 0 && !interacted} />}
+          <OverviewMap objects={OBJECTS} cameraRef={cameraRef} visible={overview && !focusedObj} onPick={handlePick} />
+          {focusedObj && <FocusCard obj={focusedObj} onBack={clearFocus} />}
+          {/* Minimal by design — just the résumé tour + the system overview (Z). */}
+          <SpeedRun activeIdx={activeIdx} active={speedRunOn} onToggle={() => setSpeedRunOn((v) => !v)} />
         </>
       )}
       {/* Countdown plays FIRST on mount; the warp fly-in (WarpField streaks

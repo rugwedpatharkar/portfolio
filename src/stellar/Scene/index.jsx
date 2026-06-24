@@ -42,14 +42,12 @@ import ShootingStars from "./ShootingStars";
 import RocketLaunch from "./RocketLaunch";
 import DangerField from "./DangerField";
 import DataFragments from "./DataFragments";
-import FlyableNebula from "./FlyableNebula";
 import DustParticles from "./DustParticles";
 import AdaptiveQuality from "./AdaptiveQuality";
 import AutoExposure from "./AutoExposure";
 import KeyLight from "./KeyLight";
 import MouseParallax from "./MouseParallax";
 import FreeRoam from "./FreeRoam";
-import GameFlight from "./GameFlight";
 import CameraShake from "./CameraShake";
 import Voyager from "./Voyager";
 import RobotFleet from "./RobotFleet";
@@ -79,7 +77,7 @@ import { rotationSpeedFor } from "../config/planetData";
  * tune that based on viewport bucket.
  */
 
-const Scene = ({ scrollT, activeIdx, onJump, onReady, freeRoamEnabled, gameActive = false, speedRef, thrustRef, flyToRef, wideRef, wideOrbitRef, focusRef, cameraRef, eclipseRef, clock, showExtras = true, launchPhase = null }) => {
+const Scene = ({ scrollT, activeIdx, onJump, onReady, freeRoamEnabled, speedRef, thrustRef, wideRef, wideOrbitRef, focusRef, cameraRef, eclipseRef, clock, showExtras = true, launchPhase = null }) => {
   const readyRef = useRef(false);
   const { isMobile, isCompact, reducedMotion } = useViewport();
   /* Camera offsets — kept in refs so React state doesn't re-render
@@ -183,19 +181,14 @@ const Scene = ({ scrollT, activeIdx, onJump, onReady, freeRoamEnabled, gameActiv
         <MilkyWay animate={!reducedMotion} />
         {/* Zodiacal light — faint sunlight scattered by ecliptic-plane dust. */}
         {showExtras && <ZodiacalLight />}
-        {/* A nebula you can drift INTO — a pilot-mode toy, not a real-nebula
-            replica, so it lives only in the game. In the Read tour it would just
-            be an out-of-place cloud floating in the asteroid belt (~2.4 AU); the
-            real Hubble nebulae (Nebulae.jsx) are the deep-space backdrop instead. */}
-        {gameActive && <FlyableNebula position={remapPosition([-14, 6, -10])} radius={7} animate={!reducedMotion} />}
         {/* The edge anomaly — Gargantua, out in front of the camera (behind the
             Sun, −X) so it's a visible deep-space landmark throughout the tour
             rather than hidden off to the +X side behind the viewer. */}
         {showExtras && <BlackHole position={remapPosition(frontOfSun([49, -6, -15]))} radius={32} animate={!reducedMotion} onPointerOver={handleHoverIn} onPointerOut={handleHoverOut} />}
         {/* Spaghettification dread near Gargantua — writes clock.danger. */}
         {showExtras && <DangerField animate={!reducedMotion} />}
-        {/* Flyable résumé collectibles — collected while piloting or in the game. */}
-        {showExtras && <DataFragments active={freeRoamEnabled || gameActive} animate={!reducedMotion} />}
+        {/* Flyable résumé collectibles — collected while piloting. */}
+        {showExtras && <DataFragments active={freeRoamEnabled} animate={!reducedMotion} />}
         {/* Anomaly suite — the discoverable spectacle. All deferred behind
             showExtras; motion-heavy ones respect reduced-motion + device. */}
         {showExtras && !reducedMotion && <Comet />}
@@ -393,13 +386,9 @@ const Scene = ({ scrollT, activeIdx, onJump, onReady, freeRoamEnabled, gameActiv
         {showExtras && <Enterprise />}
         {!isMobile && !reducedMotion && <MouseParallax offsetRef={parallaxOffsetRef} />}
         <FreeRoam enabled={freeRoamEnabled} offsetRef={freeRoamOffsetRef} speedRef={speedRef} thrustRef={thrustRef} />
-        {/* Game mode: a true free-look (mouse + WASD) flight that OWNS the
-            camera; CameraRig yields (controlsEnabled). */}
-        <GameFlight enabled={gameActive} speedRef={speedRef} cameraRef={cameraRef} thrustRef={thrustRef} flyToRef={flyToRef} />
         <CameraShake parallaxOffsetRef={parallaxOffsetRef} />
         <CameraRig
           scrollT={scrollT}
-          controlsEnabled={gameActive}
           parallaxOffsetRef={parallaxOffsetRef}
           freeRoamOffsetRef={freeRoamOffsetRef}
           freeRoamEnabled={freeRoamEnabled}

@@ -120,7 +120,6 @@ const PARALLAX_FRAC = 0.08;
 
 const CameraRig = ({
   scrollT,
-  controlsEnabled,
   parallaxOffsetRef,
   freeRoamOffsetRef,
   freeRoamEnabled,
@@ -167,7 +166,6 @@ const CameraRig = ({
   }, [camera]);
 
   useFrame((_, dt) => {
-    if (controlsEnabled) return;
     /* Expose the live camera to DOM overlays (the overview map projects
        object positions to screen space through it). */
     if (cameraRef) cameraRef.current = camera;
