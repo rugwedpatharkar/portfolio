@@ -1,5 +1,5 @@
 /* eslint-disable react/no-unknown-property */
-import { remapPosition } from "../../config/destinations";
+import { nearBody } from "../../config/destinations";
 import { useRef } from "react";
 import { useFrame } from "@react-three/fiber";
 
@@ -12,7 +12,7 @@ import { useFrame } from "@react-three/fiber";
  * Click → fires 'stellar:enterprise'.
  */
 
-const POSITION = remapPosition([14.8, 0.9, -2.8]);
+const POSITION = nearBody("experience", [1.5, 0.5, 1.0]); // cruising beside Earth, in the tour view
 
 const Enterprise = () => {
   const ref = useRef();

@@ -54,29 +54,29 @@ const ANOMALY_RAW = [
     visit: { kind: "focus", cameraTarget: frame([-26, 16, -34], 7, 1.6, 44) },
   },
   {
-    id: "deathstar", label: "Death Star", category: "Easter egg", color: "#c9ccd6", position: [21, 2.6, -2.8],
+    id: "deathstar", label: "Death Star", category: "Easter egg", color: "#c9ccd6", position: [20.2, 0.9, 1.2],
     info: "That's no moon. The Empire's planet-killer, lurking just above the asteroid belt.",
-    visit: { kind: "focus", cameraTarget: frame([21, 2.6, -2.8], 3.3, 0.9, 40) },
+    visit: { kind: "focus", cameraTarget: frame([20.2, 0.9, 1.2], 3.3, 0.9, 40) },
   },
   {
-    id: "enterprise", label: "USS Enterprise", category: "Easter egg", color: "#9fc8ff", position: [14.8, 0.9, -2.8],
-    info: "NCC-1701 — boldly going, high over the inner planets, twin warp nacelles aglow.",
-    visit: { kind: "focus", cameraTarget: frame([14.8, 0.9, -2.8], 2.6, 0.7, 38) },
+    id: "enterprise", label: "USS Enterprise", category: "Easter egg", color: "#9fc8ff", position: [11.9, 0.5, -0.7],
+    info: "NCC-1701 — boldly going, cruising past Earth with its twin warp nacelles aglow.",
+    visit: { kind: "focus", cameraTarget: frame([11.9, 0.5, -0.7], 2.6, 0.7, 38) },
   },
   {
-    id: "endurance", label: "Endurance", category: "Easter egg", color: "#cfd6e0", position: [37.0, 1.1, -2.5],
+    id: "endurance", label: "Endurance", category: "Easter egg", color: "#cfd6e0", position: [30.7, 1.1, 2.1],
     info: "Interstellar's ring-shaped craft, rotating for artificial gravity on its long voyage outward.",
-    visit: { kind: "focus", cameraTarget: frame([37.0, 1.1, -2.5], 3, 0.9, 40) },
+    visit: { kind: "focus", cameraTarget: frame([30.7, 1.1, 2.1], 3, 0.9, 40) },
   },
   {
-    id: "stardestroyer", label: "Star Destroyer", category: "Easter egg", color: "#aeb6c4", position: [28, 12.5, -34],
-    info: "An Imperial dagger looming in the deep field behind the system.",
-    visit: { kind: "focus", cameraTarget: frame([28, 12.5, -34], 9, 1.6, 44) },
+    id: "stardestroyer", label: "Star Destroyer", category: "Easter egg", color: "#aeb6c4", position: [23.9, 0.5, -2.6],
+    info: "An Imperial dagger looming near Jupiter — its wedge silhouette set against the dark.",
+    visit: { kind: "focus", cameraTarget: frame([23.9, 0.5, -2.6], 9, 1.6, 44) },
   },
   {
-    id: "cooperstation", label: "Cooper Station", category: "Easter egg", color: "#d0d6dd", position: [29.6, -1.2, 3.5],
+    id: "cooperstation", label: "Cooper Station", category: "Easter egg", color: "#d0d6dd", position: [29.7, -0.2, 0.9],
     info: "The cylindrical O'Neill colony from Interstellar, slowly spinning near Saturn.",
-    visit: { kind: "focus", cameraTarget: frame([29.6, -1.2, 3.5], 3, 0.9, 40) },
+    visit: { kind: "focus", cameraTarget: frame([29.7, -0.2, 0.9], 3, 0.9, 40) },
   },
   {
     id: "voyager", label: "Voyager Probes", category: "Probe", color: "#ffd9a0", position: [40, 3.5, -19],
@@ -150,19 +150,19 @@ const ANOMALY_RAW = [
     visit: { kind: "focus", cameraTarget: frame([-30, -16, 42], 10, 2, 44) },
   },
   {
-    id: "tardis", label: "TARDIS", category: "Easter egg", color: "#5b8dff", position: [31.2, 2.0, 3.2],
+    id: "tardis", label: "TARDIS", category: "Easter egg", color: "#5b8dff", position: [30.4, 1.3, 1.0],
     info: "Bigger on the inside. It materialises near Saturn now and then — blink and you'll miss it.",
-    visit: { kind: "focus", cameraTarget: frame([31.2, 2.0, 3.2], 2.4, 0.6, 38) },
+    visit: { kind: "focus", cameraTarget: frame([30.4, 1.3, 1.0], 2.4, 0.6, 38) },
   },
   {
-    id: "hal", label: "HAL 9000", category: "Easter egg", color: "#ff5a4d", position: [23.6, 2.2, -3.4],
+    id: "hal", label: "HAL 9000", category: "Easter egg", color: "#ff5a4d", position: [25.2, 0.3, -1.1],
     info: "“I'm sorry, Dave. I'm afraid I can't do that.” The unblinking red eye drifting near Jupiter.",
-    visit: { kind: "focus", cameraTarget: frame([23.6, 2.2, -3.4], 2.4, 0.6, 38) },
+    visit: { kind: "focus", cameraTarget: frame([25.2, 0.3, -1.1], 2.4, 0.6, 38) },
   },
   {
-    id: "walle", label: "WALL·E", category: "Easter egg", color: "#e2a85a", position: [42, -2.5, 8],
-    info: "A lonely little robot far past Neptune, still dutifully doing his job.",
-    visit: { kind: "focus", cameraTarget: frame([42, -2.5, 8], 2.6, 0.7, 38) },
+    id: "walle", label: "WALL·E", category: "Easter egg", color: "#e2a85a", position: [10.8, -0.5, -2.1],
+    info: "A lonely little robot near Earth — his home — still dutifully doing his job.",
+    visit: { kind: "focus", cameraTarget: frame([10.8, -0.5, -2.1], 2.6, 0.7, 38) },
   },
 ];
 

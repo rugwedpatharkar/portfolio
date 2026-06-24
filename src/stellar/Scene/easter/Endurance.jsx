@@ -1,5 +1,5 @@
 /* eslint-disable react/no-unknown-property */
-import { remapPosition } from "../../config/destinations";
+import { nearBody } from "../../config/destinations";
 import { useRef } from "react";
 import { useFrame } from "@react-three/fiber";
 
@@ -12,7 +12,7 @@ import { useFrame } from "@react-three/fiber";
  * Click → fires 'stellar:endurance'.
  */
 
-const POSITION = remapPosition([37.0, 1.1, -2.5]);
+const POSITION = nearBody("notes", [3.2, 1.0, 2.6]); // by Saturn (the film's wormhole), in the tour view
 const R = 0.5;
 const PODS = 12;
 

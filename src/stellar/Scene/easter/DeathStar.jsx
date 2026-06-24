@@ -1,5 +1,5 @@
 /* eslint-disable react/no-unknown-property */
-import { remapPosition } from "../../config/destinations";
+import { nearBody } from "../../config/destinations";
 import { useRef } from "react";
 import { useFrame } from "@react-three/fiber";
 import * as THREE from "three";
@@ -14,7 +14,7 @@ import * as THREE from "three";
  * "That's no moon" badge).
  */
 
-const POSITION = remapPosition([21, 2.6, -2.8]);
+const POSITION = nearBody("achievements", [1.6, 0.7, 1.2]); // beside Ceres / the belt, in the tour view
 const RADIUS = 0.95;
 
 const DeathStar = () => {

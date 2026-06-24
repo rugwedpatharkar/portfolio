@@ -1,5 +1,5 @@
 /* eslint-disable react/no-unknown-property */
-import { remapPosition } from "../../config/destinations";
+import { nearBody } from "../../config/destinations";
 import { useMemo, useRef } from "react";
 import { useFrame } from "@react-three/fiber";
 import * as THREE from "three";
@@ -14,7 +14,7 @@ import * as THREE from "three";
  * Click → fires 'stellar:stardestroyer'.
  */
 
-const POSITION = remapPosition([28, 12.5, -34]);
+const POSITION = nearBody("skills", [-5, 0.8, -3.5]); // beside Jupiter, in the tour view (was deep field)
 
 const StarDestroyer = () => {
   const ref = useRef();

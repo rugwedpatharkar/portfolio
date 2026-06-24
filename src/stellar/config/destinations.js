@@ -346,5 +346,14 @@ export const DESTINATION_BY_ID = Object.fromEntries(
   DESTINATIONS.map((d) => [d.id, d])
 );
 
+/* Place an object a few TRUE scene-units from a body (its already-remapped
+   position) — used to drop the easter-egg craft right beside their themed
+   planet so they're in frame during the tour, without the radial-remap
+   magnification a pre-remap offset would suffer. Returns absolute scene coords. */
+export const nearBody = (id, [dx = 0, dy = 0, dz = 0] = []) => {
+  const p = DESTINATION_BY_ID[id]?.position || [0, 0, 0];
+  return [p[0] + dx, p[1] + dy, p[2] + dz];
+};
+
 export const SCROLL_LENGTH_PER_DESTINATION = 100; // viewport heights
 export const TOTAL_SCROLL_VH = DESTINATIONS.length * SCROLL_LENGTH_PER_DESTINATION;
