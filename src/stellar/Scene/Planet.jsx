@@ -13,10 +13,10 @@ const ATMOSPHERE_PRESETS = {
   earth: { color: "#6aa0ff", intensity: 0.6, power: 3.0, scale: 1.05, terminator: 1, termColor: "#ff8a4a" },
   warm: { color: "#ffd99a", intensity: 0.40, power: 2.8, scale: 1.035 },
   rust: { color: "#ff9070", intensity: 0.28, power: 3.0, scale: 1.035 },
-  gas: { color: "#caa6ff", intensity: 0.35, power: 2.8, scale: 1.035 },
+  gas: { color: "#ecd0a0", intensity: 0.35, power: 2.8, scale: 1.035 }, // Jupiter — cream/tan haze
   golden: { color: "#ffe9a8", intensity: 0.40, power: 2.8, scale: 1.035 },
-  ice: { color: "#a6d8ff", intensity: 0.40, power: 2.8, scale: 1.04 },
-  abyss: { color: "#7ad0ff", intensity: 0.50, power: 2.8, scale: 1.045 },
+  ice: { color: "#aadcd6", intensity: 0.40, power: 2.8, scale: 1.04 }, // Uranus — greenish-cyan
+  abyss: { color: "#88bce4", intensity: 0.50, power: 2.8, scale: 1.045 }, // Neptune — muted blue
 };
 
 /*

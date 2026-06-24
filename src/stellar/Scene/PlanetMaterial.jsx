@@ -188,10 +188,10 @@ const PLANET_TYPE_COLORS = {
   warm:    { primary: "#f8c555", secondary: "#c0852b" },
   earth:   { primary: "#3b6ea8", secondary: "#234a85" },
   rust:    { primary: "#c2553e", secondary: "#6b2818" },
-  gas:     { primary: "#915eff", secondary: "#5232a8" },
-  golden:  { primary: "#00cea8", secondary: "#0d6a59" },
-  ice:     { primary: "#bf61ff", secondary: "#7f3eab" },
-  abyss:   { primary: "#1a73d8", secondary: "#0a3a72" },
+  gas:     { primary: "#c9a06a", secondary: "#9a6a3c" }, // Jupiter — tan/brown
+  golden:  { primary: "#e3c485", secondary: "#a07a3a" }, // Saturn — pale gold
+  ice:     { primary: "#aad4cf", secondary: "#7ba8a0" }, // Uranus — greenish-cyan
+  abyss:   { primary: "#5a8fc0", secondary: "#2e5a8a" }, // Neptune — muted greenish-blue
 };
 
 const PlanetMaterial = ({ type = "rocky", color, colorB }) => {

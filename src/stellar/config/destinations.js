@@ -144,8 +144,8 @@ export const DESTINATIONS = [
     label: "Jupiter",
     position: [24.6, -0.4, -1.8],
     radius: 2.0, // 69,911 km — the giant; ~11× Earth
-    color: "#915eff",
-    colorB: "#3d2370",
+    color: "#c9a06a", // real Jupiter: tan/cream/orange-brown bands (NASA)
+    colorB: "#9a6a3c",
     texture: "/textures/planets/jupitermap_hd.jpg",
     bumpTexture: "/textures/planets/jupiter_bump.jpg",
     section: "skills",
@@ -184,8 +184,8 @@ export const DESTINATIONS = [
     label: "Uranus",
     position: [34.8, -0.2, -1.0],
     radius: 0.726, // 25,362 km — ice giant
-    color: "#bf61ff",
-    colorB: "#7e3eab",
+    color: "#aad4cf", // real Uranus: muted greenish-cyan (2024 true-color study)
+    colorB: "#7ba8a0",
     texture: "/textures/planets/uranusmap_hd.jpg",
     bumpTexture: "/textures/planets/uranus_bump.jpg",
     section: "education",
@@ -207,8 +207,8 @@ export const DESTINATIONS = [
     label: "Neptune",
     position: [39.0, 0.4, 0.8],
     radius: 0.704, // 24,622 km — Uranus's near-twin
-    color: "#1a73d8",
-    colorB: "#0a3a72",
+    color: "#5a8fc0", // real Neptune: muted greenish-blue, only slightly bluer than Uranus (2024)
+    colorB: "#2e5a8a",
     texture: "/textures/planets/neptunemap_hd.jpg",
     bumpTexture: "/textures/planets/neptune_bump.jpg",
     section: "hobbies",
