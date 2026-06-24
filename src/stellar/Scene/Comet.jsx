@@ -128,15 +128,15 @@ const Comet = () => {
 
     if (headRef.current) headRef.current.position.copy(p);
 
-    /* Both tails stream BEHIND the motion so the trail clearly follows the
-       trajectory (no "pointing the wrong way" confusion). The ion tail is thin
-       and dead-straight anti-velocity; the dust tail is broader, leans toward
-       anti-solar, and is bowed sideways for the real two-tail spread. */
+    /* Real two-tail physics: the ion (gas) tail points DIRECTLY anti-solar —
+       the solar wind sweeps ionised gas radially away from the Sun regardless
+       of which way the comet moves. The dust tail is heavier, lags along the
+       orbital path (anti-velocity) and bows sideways toward anti-solar. */
     antiVel.copy(VEL).normalize().multiplyScalar(-1);
     antiSun.copy(p).sub(SUN).normalize();
     if (ionRef.current) {
       ionRef.current.position.copy(p);
-      q.setFromUnitVectors(UP, antiVel);
+      q.setFromUnitVectors(UP, antiSun);
       ionRef.current.quaternion.copy(q);
     }
     dustDir.copy(antiVel).multiplyScalar(0.8).addScaledVector(antiSun, 0.32).normalize();
