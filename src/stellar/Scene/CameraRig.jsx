@@ -68,6 +68,9 @@ const _camB = new THREE.Vector3();
 const _lookB = new THREE.Vector3();
 const _viewDir = new THREE.Vector3();
 const _right = new THREE.Vector3();
+const _radial = new THREE.Vector3();
+const _dir = new THREE.Vector3();
+const _upp = new THREE.Vector3();
 
 const fAlpha = (base, dt) => 1 - Math.pow(1 - base, dt * 60);
 
@@ -90,6 +93,20 @@ const BANK_MAX = 0.085;
    WHOLE planet fits with margin instead of being cropped (cropping a
    frame-filling planet reads as flying "inside" it). */
 const FRAME_DOLLY = 1.34;
+
+/* Backlit hero framing (planets): the camera sits BEHIND the planet (anti-sun,
+   radially outward), tilted up so the Sun crests the planet's top limb — a
+   cinematic "sunrise over the edge" shot, the default for every planet. The
+   Sun's angular offset from the planet ≈ the tilt angle, so a tilt just past the
+   planet's apparent radius makes the Sun crest the edge for point-Sun outer
+   planets, and wraps the limb dramatically for the huge-Sun inner ones. Distance
+   is derived from the planet's radius, so every planet is framed to ~the same
+   on-screen size ("one default angle" for all). Orbiting toward dead-centre
+   alignment (free-roam) deepens the geometric eclipse (SolarEclipse.jsx). */
+const DEG = Math.PI / 180;
+const BACKLIT_HALF_ANGLE = 15 * DEG; // larger → planet fills ~half the frame (prominent hero)
+const BACKLIT_TILT = 12 * DEG;       // Sun crests just past the limb
+const BACKLIT_MARGIN = 1.12;         // breathing room around the body
 
 const CameraRig = ({
   scrollT,
@@ -210,12 +227,29 @@ const CameraRig = ({
     const blendFrame = (j, outPos, outLook) => {
       const dst = DESTINATIONS[j];
       const fr = frames.current[j];
-      const dl = getOrbit(dst).omega * t;
       orbitalPosition(dst, t, _p);
-      _po.copy(fr.posOffset).applyAxisAngle(UP, dl);
-      _lo.copy(fr.lookOffset).applyAxisAngle(UP, dl);
-      outPos.copy(_p).add(_po);
-      outLook.copy(_p).add(_lo);
+      if (dst.kind === "planet") {
+        /* Backlit hero pose, computed from the planet's LIVE position so it
+           tracks the orbit and always sits anti-sun. Look at the planet centre;
+           the Sun (origin) sits just past the top limb. */
+        _radial.copy(_p).normalize(); // sun→planet, i.e. anti-sun (outward) dir
+        _upp.copy(UP).addScaledVector(_radial, -UP.dot(_radial)).normalize(); // up ⟂ radial
+        _dir
+          .copy(_radial)
+          .multiplyScalar(Math.cos(BACKLIT_TILT))
+          .addScaledVector(_upp, Math.sin(BACKLIT_TILT))
+          .normalize();
+        const D = (dst.radius / Math.tan(BACKLIT_HALF_ANGLE)) * BACKLIT_MARGIN;
+        outPos.copy(_p).addScaledVector(_dir, D);
+        outLook.copy(_p);
+      } else {
+        /* Sun + Edge Beacon keep their authored framing, orbit-rotated. */
+        const dl = getOrbit(dst).omega * t;
+        _po.copy(fr.posOffset).applyAxisAngle(UP, dl);
+        _lo.copy(fr.lookOffset).applyAxisAngle(UP, dl);
+        outPos.copy(_p).add(_po);
+        outLook.copy(_p).add(_lo);
+      }
       return fr;
     };
     const frA = blendFrame(i, _camA, _lookA);

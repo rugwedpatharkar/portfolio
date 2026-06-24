@@ -26,6 +26,7 @@ import SolarProminences from "./SolarProminences";
 import SolarEclipse from "./SolarEclipse";
 import EclipseLights from "./EclipseLights";
 import DwarfPlanets from "./DwarfPlanets";
+import BeltDust from "./BeltDust";
 import TrojanAsteroids from "./TrojanAsteroids";
 import OortCloud from "./OortCloud";
 import Heliosphere from "./Heliosphere";
@@ -162,7 +163,10 @@ const Scene = ({ scrollT, activeIdx, onJump, onReady, freeRoamEnabled, gameActiv
             against the dark starfield, the classic space-movie edge. */}
       {/* Low ambient so real phases show contrast (the Sun-direction key light
           does the lighting), but enough that night sides stay legible. */}
-      <ambientLight intensity={0.22} color="#a9bce0" />
+      {/* Lifted 0.22 → 0.30: the backlit default hero shot faces the planet's
+          night side, so a touch more fill keeps the NASA surface readable while
+          the Sun-direction key still sculpts the lit limb. */}
+      <ambientLight intensity={0.30} color="#a9bce0" />
       {/* Sun-direction key + shadow caster, follows the active planet. */}
       <KeyLight scrollT={scrollT} castShadow={!isMobile} />
       <directionalLight position={[-30, 10, -25]} intensity={0.5} color="#6f8cff" />
@@ -323,10 +327,16 @@ const Scene = ({ scrollT, activeIdx, onJump, onReady, freeRoamEnabled, gameActiv
         {/* The asteroid + Kuiper belts as BACKGROUND scenery (no longer tour
             stops — Ceres + Pluto host those sections). Faint debris rings. */}
         {showExtras && (
-          <AsteroidBelt count={isMobile ? 600 : 1300} innerRadius={BACKGROUND_BELTS.asteroid.inner} outerRadius={BACKGROUND_BELTS.asteroid.outer} size={0.18} animate={!reducedMotion} />
+          <>
+            <AsteroidBelt count={isMobile ? 1200 : 2600} innerRadius={BACKGROUND_BELTS.asteroid.inner} outerRadius={BACKGROUND_BELTS.asteroid.outer} size={0.18} thickness={BACKGROUND_BELTS.asteroid.thickness} animate={!reducedMotion} />
+            <BeltDust count={isMobile ? 9000 : 26000} innerRadius={BACKGROUND_BELTS.asteroid.inner} outerRadius={BACKGROUND_BELTS.asteroid.outer} thickness={BACKGROUND_BELTS.asteroid.thickness} color={BACKGROUND_BELTS.asteroid.color} size={2.6} opacity={0.45} animate={!reducedMotion} />
+          </>
         )}
         {showExtras && !isMobile && (
-          <AsteroidBelt count={900} innerRadius={BACKGROUND_BELTS.kuiper.inner} outerRadius={BACKGROUND_BELTS.kuiper.outer} size={1.3} animate={!reducedMotion} />
+          <>
+            <AsteroidBelt count={1500} innerRadius={BACKGROUND_BELTS.kuiper.inner} outerRadius={BACKGROUND_BELTS.kuiper.outer} size={0.9} thickness={BACKGROUND_BELTS.kuiper.thickness} animate={!reducedMotion} />
+            <BeltDust count={20000} innerRadius={BACKGROUND_BELTS.kuiper.inner} outerRadius={BACKGROUND_BELTS.kuiper.outer} thickness={BACKGROUND_BELTS.kuiper.thickness} color={BACKGROUND_BELTS.kuiper.color} size={2.3} opacity={0.4} animate={!reducedMotion} />
+          </>
         )}
         {/* Jupiter's Trojan asteroids — two swarms 60° ahead/behind Jupiter at
             the L4/L5 Lagrange points (true orbital radius). */}

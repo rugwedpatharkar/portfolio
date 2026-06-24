@@ -83,6 +83,7 @@ const AsteroidBelt = ({
   innerRadius = 18.5,
   outerRadius = 20.5,
   size = 0.08,
+  thickness = 0.5, // vertical spread (real belts are fat tori, not ribbons)
   animate = true,
 }) => {
   /* One lumpy base shape per family (different seed → different silhouette);
@@ -97,7 +98,9 @@ const AsteroidBelt = ({
     for (let i = 0; i < count; i++) {
       const angle = Math.random() * Math.PI * 2;
       const radius = innerRadius + Math.random() * (outerRadius - innerRadius);
-      const y = (Math.random() - 0.5) * 0.5;
+      /* Gaussian-ish vertical spread (two uniforms) → denser mid-plane, sparse
+         outliers, like a real belt's inclination dispersion. */
+      const y = (Math.random() + Math.random() - 1) * 0.5 * thickness;
       /* Heavy-tailed size: cube of a uniform → mostly gravel, a rare few big. */
       const r = Math.random();
       const baseScale = size * (0.3 + r * r * r * 3.4);
@@ -115,7 +118,7 @@ const AsteroidBelt = ({
       });
     }
     return buckets;
-  }, [count, innerRadius, outerRadius, size]);
+  }, [count, innerRadius, outerRadius, size, thickness]);
 
   return (
     <>

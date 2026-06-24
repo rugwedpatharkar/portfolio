@@ -24,11 +24,13 @@ import { useSceneClock } from "./SceneClock";
  */
 
 const D = 28; // distance back along the light direction
+const FILL_D = 24; // fill sits on the anti-sun (camera) side
 const _active = new THREE.Vector3();
 const _sunward = new THREE.Vector3();
 
 const KeyLight = ({ scrollT, castShadow = true }) => {
   const lightRef = useRef();
+  const fillRef = useRef();
   const clock = useSceneClock();
 
   useFrame(() => {
@@ -44,25 +46,38 @@ const KeyLight = ({ scrollT, castShadow = true }) => {
     light.position.copy(_active).addScaledVector(_sunward, -D);
     light.target.position.copy(_active);
     light.target.updateMatrixWorld();
+    /* Fill from the ANTI-sun (camera) side: the default hero shot is backlit, so
+       a gentle fill keeps the camera-facing night side's surface readable while
+       the Sun-side limb stays the bright, sculpted edge. Dims with the scene at
+       eclipse totality (EclipseLights touches all lights). */
+    const fill = fillRef.current;
+    if (fill) {
+      fill.position.copy(_active).addScaledVector(_sunward, FILL_D);
+      fill.target.position.copy(_active);
+      fill.target.updateMatrixWorld();
+    }
   });
 
   return (
-    <directionalLight
-      ref={lightRef}
-      intensity={1.2}
-      color="#fff2d8"
-      castShadow={castShadow}
-      shadow-mapSize-width={512}
-      shadow-mapSize-height={512}
-      shadow-camera-near={1}
-      shadow-camera-far={D * 2 + 14}
-      shadow-camera-left={-8}
-      shadow-camera-right={8}
-      shadow-camera-top={8}
-      shadow-camera-bottom={-8}
-      shadow-bias={-0.0006}
-      shadow-normalBias={0.02}
-    />
+    <>
+      <directionalLight
+        ref={lightRef}
+        intensity={1.2}
+        color="#fff2d8"
+        castShadow={castShadow}
+        shadow-mapSize-width={512}
+        shadow-mapSize-height={512}
+        shadow-camera-near={1}
+        shadow-camera-far={D * 2 + 14}
+        shadow-camera-left={-8}
+        shadow-camera-right={8}
+        shadow-camera-top={8}
+        shadow-camera-bottom={-8}
+        shadow-bias={-0.0006}
+        shadow-normalBias={0.02}
+      />
+      <directionalLight ref={fillRef} intensity={0.5} color="#cdd9f2" />
+    </>
   );
 };
 

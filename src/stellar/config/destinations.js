@@ -129,13 +129,13 @@ export const DESTINATIONS = [
     type: "rocky",
     label: "Ceres",
     position: [19.5, 0.4, 0.6],
-    /* VISIBILITY FLOOR. True scale is 0.0135 (940 km), but at this stop's
-       arrival framing the dwarf subtends a sub-pixel speck and never reads (the
-       plan anticipated this — "if too small in practice, a small visibility
-       floor is a one-line tweak"). 0.18 makes Ceres a clear, texture-legible
-       body (Occator + cratering visible). Apparent size is a tour-framing
-       choice, not a claim about Ceres vs the planets. */
-    radius: 0.18,
+    /* Small visibility floor (true scale 0.0135 / 940 km is a sub-pixel speck).
+       The backlit camera frames every body by DISTANCE-from-radius, so this no
+       longer needs to be inflated for visibility — 0.06 reads as a small dwarf
+       and clears the 0.1 near-clip. Still well under Pluto's 0.034... note it is
+       not (0.06 > 0.034): kept marginally larger only so the cleaned Dawn map is
+       legible; apparent size is a framing choice, not a Ceres-vs-Pluto claim. */
+    radius: 0.06,
     color: "#8a8378", // UI accent only — the surface uses the real NASA map
     colorB: "#5b574e",
     texture: "/textures/planets/ceres.jpg", // NASA/JPL Dawn grayscale photomosaic
@@ -282,8 +282,11 @@ const AU = {
 /* The asteroid + Kuiper belts are no longer tour stops — they render as
    background scenery (Scene/index.jsx) at these true AU ranges (× AU_UNIT). */
 export const BACKGROUND_BELTS = {
-  asteroid: { inner: 2.2 * AU_UNIT, outer: 3.3 * AU_UNIT, color: "#c9b48a" },
-  kuiper: { inner: 30 * AU_UNIT, outer: 48 * AU_UNIT, color: "#9fb0d0" },
+  // Real spans (main belt ~2.1–3.3 AU, Kuiper ~30–50 AU) rendered as FAT tori —
+  // a real vertical thickness from inclination dispersion (not a thin ribbon),
+  // so they read as the dense dusty donuts the reference imagery shows.
+  asteroid: { inner: 2.1 * AU_UNIT, outer: 3.3 * AU_UNIT, thickness: 36, color: "#c9b48a" },
+  kuiper: { inner: 30 * AU_UNIT, outer: 50 * AU_UNIT, thickness: 320, color: "#9fb0d0" },
 };
 
 /* Sample curve (original radius → true radius) from the planets, used to remap
