@@ -129,12 +129,18 @@ export const DESTINATIONS = [
     type: "rocky",
     label: "Ceres",
     position: [19.5, 0.4, 0.6],
-    radius: 0.0135, // 473 km — the asteroid belt's only dwarf planet, ~0.07× Earth
-    color: "#8a8378",
+    /* VISIBILITY FLOOR. True scale is 0.0135 (940 km), but at this stop's
+       arrival framing the dwarf subtends a sub-pixel speck and never reads (the
+       plan anticipated this — "if too small in practice, a small visibility
+       floor is a one-line tweak"). 0.18 makes Ceres a clear, texture-legible
+       body (Occator + cratering visible). Apparent size is a tour-framing
+       choice, not a claim about Ceres vs the planets. */
+    radius: 0.18,
+    color: "#8a8378", // UI accent only — the surface uses the real NASA map
     colorB: "#5b574e",
-    bumpTexture: "/textures/planets/moonbump1k.jpg",
+    texture: "/textures/planets/ceres.jpg", // NASA/JPL Dawn grayscale photomosaic
     section: "achievements",
-    /* Tight framing for the tiny dwarf (offset preserved through the AU remap). */
+    /* Tight framing for the dwarf (offset preserved through the AU remap). */
     cameraTarget: { position: [19.54, 0.43, 0.65], lookAt: [19.5, 0.4, 0.6], fov: 44 },
   },
 
@@ -233,9 +239,9 @@ export const DESTINATIONS = [
     label: "Pluto",
     position: [44, 0.9, 1.4],
     radius: 0.034, // 1,188 km — the famous Kuiper-belt dwarf planet
-    color: "#c9b6a0",
+    color: "#c9b6a0", // UI accent only — the surface uses the real NASA map
     colorB: "#9a7b5e",
-    bumpTexture: "/textures/planets/moonbump1k.jpg",
+    texture: "/textures/planets/pluto.jpg", // NASA/JHU-APL/SwRI New Horizons color mosaic
     section: "testimonials",
     /* Tight framing for the small dwarf (offset preserved through the AU remap). */
     cameraTarget: { position: [44.08, 0.97, 1.52], lookAt: [44, 0.9, 1.4], fov: 46 },

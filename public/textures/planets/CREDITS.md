@@ -27,6 +27,22 @@ texture pack, MIT-licensed.
 | uranusmap.jpg | Uranus / Education | planetpixelemporium.com |
 | neptunemap.jpg | Neptune / Hobbies | planetpixelemporium.com |
 | moonmap1k.jpg | (available, unused) | planetpixelemporium.com |
+| ceres.jpg | Ceres / Achievements | NASA/JPL-Caltech/UCLA/MPS/DLR/IDA (Dawn) |
+| pluto.jpg | Pluto / Testimonials | NASA/JHU-APL/SwRI (New Horizons) |
 
-Total footprint: ~3.5 MB across all textures. Cached aggressively at the
+## NASA dwarf-planet maps (public domain)
+
+`ceres.jpg` and `pluto.jpg` are real mission photomosaics, both **public
+domain** (NASA imagery), resized to 2048-wide equirectangular JPGs:
+
+- **Ceres** — Dawn Framing Camera grayscale global mosaic (PIA19625, survey
+  orbit): the real cratered surface incl. Occator and its bright spots.
+- **Pluto** — New Horizons enhanced-color global mosaic (the famous "heart",
+  Sputnik Planitia / Tombaugh Regio). The south-polar latitudes were in
+  darkness during the 2015 flyby (genuinely unimaged); that no-data band is
+  filled with each column's nearest valid tone so the sphere has no black cap.
+
+Sourced via Wikimedia Commons (which mirrors the NASA PIA originals).
+
+Total footprint: ~4.5 MB across all textures. Cached aggressively at the
 edge per `vercel.json` headers.

@@ -323,7 +323,7 @@ const Scene = ({ scrollT, activeIdx, onJump, onReady, freeRoamEnabled, gameActiv
         {/* The asteroid + Kuiper belts as BACKGROUND scenery (no longer tour
             stops — Ceres + Pluto host those sections). Faint debris rings. */}
         {showExtras && (
-          <AsteroidBelt count={isMobile ? 600 : 1300} innerRadius={BACKGROUND_BELTS.asteroid.inner} outerRadius={BACKGROUND_BELTS.asteroid.outer} size={0.6} animate={!reducedMotion} />
+          <AsteroidBelt count={isMobile ? 600 : 1300} innerRadius={BACKGROUND_BELTS.asteroid.inner} outerRadius={BACKGROUND_BELTS.asteroid.outer} size={0.18} animate={!reducedMotion} />
         )}
         {showExtras && !isMobile && (
           <AsteroidBelt count={900} innerRadius={BACKGROUND_BELTS.kuiper.inner} outerRadius={BACKGROUND_BELTS.kuiper.outer} size={1.3} animate={!reducedMotion} />
