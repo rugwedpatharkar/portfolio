@@ -160,6 +160,7 @@ export const DESTINATIONS = [
     /* Jupiter — wide + slight roll to sell the scale (offset scaled to radius) */
     cameraTarget: { position: [27.89, 1.39, 1.02], lookAt: [24.6, 0.1, -1.8], fov: 52, roll: -0.05 },
     axialTilt: 3.1 * DEG, // Jupiter spins nearly upright
+    oblateness: 0.065, // real polar flattening — Jupiter is visibly squashed by its fast spin
     faintRings: true, // Jupiter's faint dusty ring (real)
     moons: 4, // the four Galilean moons
     moonColor: "#cfc6e0",
@@ -181,6 +182,7 @@ export const DESTINATIONS = [
     /* Saturn — dutch tilt to throw the rings across the frame (offset scaled) */
     cameraTarget: { position: [33.68, 2.61, 4.69], lookAt: [30.2, 0, 1.5], fov: 50, roll: 0.11 },
     axialTilt: 26.7 * DEG, // Saturn's obliquity — tilts the ring plane across the frame
+    oblateness: 0.098, // the most oblate planet — ~10% flattened, clearly squashed
     rings: true,
     ringTexture: "/textures/planets/saturnringcolor.jpg",
     ringColor: "#f8c555",
@@ -201,6 +203,7 @@ export const DESTINATIONS = [
        (Education read as empty), with the strong dutch tilt for its 98° axis. */
     cameraTarget: { position: [36.03, 0.87, 0.02], lookAt: [34.8, 0, -1.0], fov: 40, roll: 0.17 },
     axialTilt: 97.8 * DEG, // Uranus rolls on its side — the real ~98° obliquity
+    oblateness: 0.023, // real flattening
     faintRings: true, // Uranus's narrow rings ride near-vertical with its tilt
 
     moons: 4,
@@ -223,6 +226,7 @@ export const DESTINATIONS = [
     /* Neptune — pulled back, lonely framing in the deep dark (offset scaled) */
     cameraTarget: { position: [40.54, 0.94, 2.34], lookAt: [39.0, 0, 0.8], fov: 44 },
     axialTilt: 28.3 * DEG, // Neptune's obliquity, close to Earth's
+    oblateness: 0.017, // real flattening
     faintRings: true, // Neptune's faint rings + arcs (real)
     moons: 1, // Triton, the one large moon
     moonColor: "#b8d4ee",

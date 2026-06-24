@@ -48,6 +48,7 @@ const Planet = ({
   faintRings = false, // Jupiter / Uranus / Neptune all have real, faint rings
   ringColor,
   axialTilt = 0,
+  oblateness = 0, // polar flattening (Jupiter 0.065, Saturn 0.098) — real gas-giant squash
   moons = 0,
   moonColor,
   moonScale = 0.12,
@@ -179,10 +180,15 @@ const Planet = ({
   /* Material selection: textured PBR when texture is provided, else shader */
   const hasTexture = Boolean(textureMap[texture]);
 
+  /* Real polar flattening: scale the body (and its atmosphere) along the spin
+     axis (local Y). Rings + moons stay outside this so they keep circular. */
+  const polarScale = [1, 1 - oblateness, 1];
+
   return (
     <group position={position} ref={groupRef} rotation={[0, 0, axialTilt]}>
       <mesh
         ref={planetRef}
+        scale={polarScale}
         castShadow
         receiveShadow
         onClick={onClick}
@@ -263,7 +269,9 @@ const Planet = ({
 
       {/* Atmosphere rim glow — earth-blue by default, custom per planet */}
       {hasTexture && ATMOSPHERE_PRESETS[type] && (
-        <AtmosphereGlow radius={radius} {...ATMOSPHERE_PRESETS[type]} />
+        <group scale={polarScale}>
+          <AtmosphereGlow radius={radius} {...ATMOSPHERE_PRESETS[type]} />
+        </group>
       )}
 
       {rings && (
