@@ -206,7 +206,7 @@ const Scene = ({ scrollT, activeIdx, onJump, onReady, freeRoamEnabled, gameActiv
             2I/Borisov (reddish coma) — completing the trio with 'Oumuamua. */}
         {showExtras && !reducedMotion && <AtlasComet />}
         {showExtras && !reducedMotion && (
-          <AtlasComet start={[-620, -28, 240]} vel={[168, 5, -64]} coma="#d8b890" ion="#cdbfa0" dust="#e8d8b8" antiTail={false} comaR={1.2} respawn={780} />
+          <AtlasComet start={[-620, -150, 240]} vel={[168, 4, -64]} coma="#d8b890" ion="#cdbfa0" dust="#e8d8b8" antiTail={false} comaR={1.2} respawn={780} />
         )}
         {/* Clickable wishing meteors. */}
         {showExtras && !reducedMotion && <ShootingStars animate={!reducedMotion} />}
@@ -438,11 +438,11 @@ const Scene = ({ scrollT, activeIdx, onJump, onReady, freeRoamEnabled, gameActiv
           scene is fully in focus and crisp. */}
       <EffectComposer multisampling={0} disableNormalPass>
         <Bloom
-          intensity={isMobile ? 0.6 : 0.8}
+          intensity={isMobile ? 0.62 : 0.85}
           luminanceThreshold={0.9}
           luminanceSmoothing={0.5}
           mipmapBlur
-          radius={0.45}
+          radius={0.48}
         />
         {/* Grade: bright base (the real fix for the earlier "too dark"),
             but saturation pulled NEGATIVE — pixel analysis showed planets
@@ -450,18 +450,16 @@ const Scene = ({ scrollT, activeIdx, onJump, onReady, freeRoamEnabled, gameActiv
             −0.12 brings colours back to natural without going grey because
             the base stays bright. Mild contrast, soft vignette so the
             background doesn't read as high-contrast. */}
+        {/* VIBRANT grade — saturated, glossy, deep-black space. */}
         <CinematicGrade
-          brightness={0.025}
-          contrast={0.04}
-          saturation={-0.02}
-          vigOffset={0.36}
-          vigDarkness={0.38}
-          grain={isMobile ? 0.035 : 0.055}
-          aberration={0.012}
-          lift={0.02}
-          gamma={1.06}
-          gain={1.02}
-          vigTint={[0.55, 0.66, 1.0]}
+          brightness={0.03}
+          contrast={0.08}
+          saturation={0.32}
+          vigOffset={0.4}
+          vigDarkness={0.28}
+          aberration={0.004}
+          gain={1.04}
+          vigTint={[0.65, 0.74, 1.0]}
         />
       </EffectComposer>
       </SceneClock>

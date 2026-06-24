@@ -2,7 +2,12 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { useFrame } from "@react-three/fiber";
 import * as THREE from "three";
-import { fetchGithubEvents, repoColor } from "../data/github";
+import { fetchGithubEvents } from "../data/github";
+
+/* Comets are ICY — soft blue/white/gold/lavender, never the neon brand palette
+   (a saturated teal-green commit streaking over the Sun read as a "green belt").
+   Keyed by a repo hash so each repo keeps a consistent, tasteful colour. */
+const COMET_PALETTE = ["#bcd8ff", "#9fd0ff", "#e6eeff", "#ffe6c0", "#d6d0ff", "#aee0ff"];
 
 /*
  * Real GitHub commits rendered as comets streaking past the system.
@@ -13,7 +18,7 @@ import { fetchGithubEvents, repoColor } from "../data/github";
  * simultaneously visible; older commits cycle in as newer ones leave.
  */
 
-const VISIBLE_AT_ONCE = 8;
+const VISIBLE_AT_ONCE = 5;
 const SPAWN_R = 60;
 const SPEED_RANGE = [10, 18];
 const TAIL_H = 2.6;
@@ -49,7 +54,9 @@ const TAIL_FRAG = /* glsl */ `
   uniform vec3 uColor;
   void main() {
     float a = pow(1.0 - vT, 1.35);
-    gl_FragColor = vec4(uColor * a * 1.8, a * 0.9);
+    /* Dim + low-alpha: a faint commit wisp, NOT a bright colored beam over the
+       Sun (these spawn near the inner system and stream toward centre). */
+    gl_FragColor = vec4(uColor * a * 0.65, a * 0.4);
   }`;
 
 const hash01 = (str, salt = 0) => {
@@ -81,7 +88,7 @@ const spawnFor = (commit) => {
   return {
     pos: spawn.slice(),
     vel: [dir[0] / len * speed, dir[1] / len * speed, dir[2] / len * speed],
-    color: repoColor(commit.repo),
+    color: COMET_PALETTE[Math.floor(hash01(commit.repo, 11) * COMET_PALETTE.length) % COMET_PALETTE.length],
     life: 0,
     maxLife: 7 + hash01(commit.sha, 7) * 3,
     commit,
@@ -130,8 +137,8 @@ const Comet = ({ state, onRespawn }) => {
   const s = state.current;
   return (
     <group ref={groupRef}>
-      <sprite ref={headRef} scale={[0.5, 0.5, 1]}>
-        <spriteMaterial map={HEAD_TEX} color={s.color} transparent opacity={0.95} depthWrite={false} depthTest={false} blending={THREE.AdditiveBlending} />
+      <sprite ref={headRef} scale={[0.32, 0.32, 1]}>
+        <spriteMaterial map={HEAD_TEX} color={s.color} transparent opacity={0.45} depthWrite={false} depthTest={false} blending={THREE.AdditiveBlending} />
       </sprite>
       <mesh ref={tailRef} position={[0, TAIL_H / 2, 0]}>
         <coneGeometry args={[0.085, TAIL_H, 18, 1, true]} />

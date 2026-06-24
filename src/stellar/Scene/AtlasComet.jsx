@@ -40,10 +40,10 @@ const TAIL_FRAG = /* glsl */ `
 const UP = new THREE.Vector3(0, 1, 0);
 
 const AtlasComet = ({
-  start = [560, 34, -210],
-  vel = [-150, -7, 52], // retrograde sweep inward then out
-  coma = "#7fffb0", // 3I/ATLAS green C₂ coma
-  ion = "#6fffc0",
+  start = [560, 185, -210], // ride ABOVE the ecliptic so it never sits on the belt / over the Sun
+  vel = [-150, 3, 52], // retrograde sweep, staying high
+  coma = "#c4e8f5", // icy cyan-blue (vibrance pushes cyan, never green — no "green belt")
+  ion = "#bfe2f5",
   dust = "#ffe6b0",
   antiTail = true, // the rare sunward spike (ATLAS only)
   comaR = 1.5,
@@ -81,7 +81,7 @@ const AtlasComet = ({
   const dustDir = useMemo(() => new THREE.Vector3(), []);
   const q = useMemo(() => new THREE.Quaternion(), []);
 
-  const ionLen = 30, dustLen = 22, antiLen = 11; // modest comet, not a system-spanning beam
+  const ionLen = 16, dustLen = 12, antiLen = 7; // subtle wisp, never a system-spanning beam
   dustMat.uniforms.uBend.value = dustLen * 0.4;
 
   useFrame((_, delta) => {
@@ -102,16 +102,16 @@ const AtlasComet = ({
     if (antiRef.current) { antiRef.current.position.copy(p); q.setFromUnitVectors(UP, sunward); antiRef.current.quaternion.copy(q); }
 
     const act = THREE.MathUtils.clamp((ACTIVE_R - p.length()) / (ACTIVE_R - PEAK_R), 0, 1);
-    ionMat.uniforms.uOpacity.value = 0.85 * act;
-    dustMat.uniforms.uOpacity.value = 0.6 * act;
-    antiMat.uniforms.uOpacity.value = (antiTail ? 0.32 : 0) * act;
+    ionMat.uniforms.uOpacity.value = 0.36 * act;
+    dustMat.uniforms.uOpacity.value = 0.26 * act;
+    antiMat.uniforms.uOpacity.value = (antiTail ? 0.16 : 0) * act;
   });
 
   return (
     <group>
       <group ref={headRef}>
         <mesh><sphereGeometry args={[0.3, 12, 12]} /><meshBasicMaterial color="#eafff2" toneMapped={false} /></mesh>
-        <mesh><sphereGeometry args={[comaR, 16, 16]} /><meshBasicMaterial color={coma} transparent opacity={0.24} depthWrite={false} blending={THREE.AdditiveBlending} toneMapped={false} /></mesh>
+        <mesh><sphereGeometry args={[comaR, 16, 16]} /><meshBasicMaterial color={coma} transparent opacity={0.12} depthWrite={false} blending={THREE.AdditiveBlending} toneMapped={false} /></mesh>
       </group>
       <group ref={ionRef}><mesh position={[0, ionLen / 2, 0]} material={ionMat}><coneGeometry args={[0.5, ionLen, 16, 1, true]} /></mesh></group>
       <group ref={dustRef}><mesh position={[0, dustLen / 2, 0]} material={dustMat}><coneGeometry args={[1.5, dustLen, 24, 24, true]} /></mesh></group>

@@ -4,20 +4,20 @@ import { Effect } from "postprocessing";
 import { Uniform, Color } from "three";
 
 /*
- * Single-pass cinematic colour grade — the whole filmic look in ONE mainImage.
+ * Single-pass cinematic colour grade — VIBRANT, saturated, glossy (the
+ * No Man's-Sky / hero-render look), NOT gritty film stock. Deep-black space for
+ * contrast, planet/nebula colours pushed rich, a clean soft vignette to frame.
  *
- * WHY ONE EFFECT — the white-sky bug:
- * @react-three/postprocessing (postprocessing 6.36.6 on three 0.163) renders
- * the ENTIRE frame white when TWO OR MORE "mainImage" effects get merged into
- * one EffectPass. So every grade lives here, in a single Effect. Bloom is a
- * separate convolution pass (never merges with mainImage) so it's unaffected.
+ * WHY ONE EFFECT — the white-sky bug: @react-three/postprocessing (postprocessing
+ * 6.36.6 on three 0.163) renders the whole frame white when TWO+ "mainImage"
+ * effects merge into one EffectPass, so every grade lives here in a single Effect.
+ * Bloom is a separate convolution pass (never merges) so it's unaffected.
  *
- * The chain, in order: chromatic aberration → brightness/contrast (faithful to
- * postprocessing's BrightnessContrastEffect) → lift/gamma/gain tone curve →
- * luma-weighted saturation (desaturate shadows, keep highlights rich) → tinted
- * vignette → animated film grain. CA re-samples `inputBuffer` (the pass's input
- * sampler, GLSL1 `texture2D`); safe because this is the ONLY mainImage effect.
- * `uTime` is advanced in update() so the grain shimmers (frozen if uGrain = 0).
+ * Chain: subtle chromatic aberration (edges only) → brightness/contrast (faithful
+ * to postprocessing's BrightnessContrastEffect) → VIBRANCE (saturation boost that
+ * lifts the duller colours more, so things pop without going neon) → gentle
+ * highlight gain with deep blacks → soft, lightly-cool vignette. No film grain.
+ * CA re-samples `inputBuffer` (GLSL1 `texture2D`), safe as the sole mainImage.
  */
 
 const fragmentShader = /* glsl */ `
@@ -26,25 +26,12 @@ uniform float contrast;
 uniform float saturation;
 uniform float vigOffset;
 uniform float vigDarkness;
-uniform float uTime;
-uniform float uGrain;
 uniform float uAberration;
-uniform float uLift;
-uniform float uGamma;
 uniform float uGain;
 uniform vec3  uVigTint;
 
-/* cheap hash noise for film grain */
-float hash21(vec2 p) {
-  p = fract(p * vec2(123.34, 345.45));
-  p += dot(p, p + 34.345);
-  return fract(p.x * p.y);
-}
-
 void mainImage(const in vec4 inputColor, const in vec2 uv, out vec4 outputColor) {
-  /* --- Chromatic aberration: radial RGB split that grows toward the edges
-         (a real lens artefact). Re-samples the pass input; safe as the sole
-         mainImage effect. --- */
+  /* --- Subtle chromatic aberration, edges only (a faint lens nicety). --- */
   vec2 fromC = uv - 0.5;
   vec2 caOff = fromC * (uAberration * dot(fromC, fromC));
   vec3 color;
@@ -62,36 +49,29 @@ void mainImage(const in vec4 inputColor, const in vec2 uv, out vec4 outputColor)
   color += vec3(0.5);
   color = max(color, 0.0);
 
-  /* --- Lift / Gamma / Gain tone curve: gain the highlights, lift the blacks
-         (so space has a filmic toe instead of crushed digital black), then a
-         gentle mid gamma. --- */
-  color = color * uGain;
-  color += uLift * (1.0 - color);
-  color = pow(max(color, 0.0), vec3(1.0 / uGamma));
-
-  /* --- Saturation, luma-weighted: pull shadows toward grey (real space is
-         desaturated) while keeping highlights rich. --- */
+  /* --- VIBRANCE: push colour. A plain saturation boost toward/away from luma,
+         weighted so already-vivid pixels grow a little less (keeps the Sun and
+         bright limbs from going neon while the planets/nebulae really pop). --- */
   float luma = dot(color, vec3(0.2125, 0.7154, 0.0721));
-  float satAmt = (saturation + 1.0) * (0.7 + 0.45 * smoothstep(0.0, 0.6, luma));
-  color = mix(vec3(luma), color, satAmt);
+  float sat = length(color - vec3(luma));          // current colourfulness
+  float boost = saturation * (1.0 - 0.5 * smoothstep(0.0, 0.5, sat));
+  color = mix(vec3(luma), color, 1.0 + boost);
 
-  /* --- Tinted vignette (VignetteEffect technique, colourised cool at the rim
-         rather than pure black). --- */
+  /* --- Gentle highlight gain; blacks stay deep (space reads inky, not milky),
+         so saturated subjects pop against it. --- */
+  color *= uGain;
+
+  /* --- Soft, lightly-cool vignette to frame the shot (not a heavy grey wash). */
   float d = distance(uv, vec2(0.5));
-  float vig = smoothstep(0.8, vigOffset * 0.799, d * (vigDarkness + vigOffset));
+  float vig = smoothstep(0.85, vigOffset * 0.799, d * (vigDarkness + vigOffset));
   color *= mix(uVigTint, vec3(1.0), vig);
-
-  /* --- Film grain: animated, luminance-aware (heavier in shadows/mids, light
-         in highlights) so the frame reads as exposed stock, not flat video. --- */
-  float g = hash21(uv * vec2(1280.0, 720.0) + fract(uTime) * 91.7) - 0.5;
-  color += g * uGrain * (0.5 + 0.5 * (1.0 - luma));
 
   outputColor = vec4(max(color, 0.0), inputColor.a);
 }
 `;
 
 class CinematicGradeEffect extends Effect {
-  constructor({ brightness, contrast, saturation, vigOffset, vigDarkness, grain, aberration, lift, gamma, gain, vigTint }) {
+  constructor({ brightness, contrast, saturation, vigOffset, vigDarkness, aberration, gain, vigTint }) {
     super("CinematicGrade", fragmentShader, {
       uniforms: new Map([
         ["brightness", new Uniform(brightness)],
@@ -99,44 +79,31 @@ class CinematicGradeEffect extends Effect {
         ["saturation", new Uniform(saturation)],
         ["vigOffset", new Uniform(vigOffset)],
         ["vigDarkness", new Uniform(vigDarkness)],
-        ["uTime", new Uniform(0)],
-        ["uGrain", new Uniform(grain)],
         ["uAberration", new Uniform(aberration)],
-        ["uLift", new Uniform(lift)],
-        ["uGamma", new Uniform(gamma)],
         ["uGain", new Uniform(gain)],
         ["uVigTint", new Uniform(new Color(vigTint[0], vigTint[1], vigTint[2]))],
       ]),
     });
-  }
-
-  /* Advance the grain clock each frame (frozen contribution when uGrain = 0). */
-  update(renderer, inputBuffer, deltaTime) {
-    this.uniforms.get("uTime").value += deltaTime;
   }
 }
 
 const CinematicGrade = forwardRef(
   (
     {
-      brightness = 0.025,
-      contrast = 0.04,
-      saturation = -0.02,
-      vigOffset = 0.36,
-      vigDarkness = 0.38,
-      grain = 0.05,
-      aberration = 0.012,
-      lift = 0.02,
-      gamma = 1.06,
-      gain = 1.02,
-      vigTint = [0.55, 0.66, 1.0],
+      brightness = 0.03,
+      contrast = 0.08,
+      saturation = 0.32,
+      vigOffset = 0.4,
+      vigDarkness = 0.28,
+      aberration = 0.004,
+      gain = 1.04,
+      vigTint = [0.65, 0.74, 1.0],
     },
     ref
   ) => {
     const effect = useMemo(
-      () =>
-        new CinematicGradeEffect({ brightness, contrast, saturation, vigOffset, vigDarkness, grain, aberration, lift, gamma, gain, vigTint }),
-      [brightness, contrast, saturation, vigOffset, vigDarkness, grain, aberration, lift, gamma, gain, vigTint[0], vigTint[1], vigTint[2]]
+      () => new CinematicGradeEffect({ brightness, contrast, saturation, vigOffset, vigDarkness, aberration, gain, vigTint }),
+      [brightness, contrast, saturation, vigOffset, vigDarkness, aberration, gain, vigTint[0], vigTint[1], vigTint[2]]
     );
     return <primitive ref={ref} object={effect} dispose={null} />;
   }
