@@ -46,8 +46,8 @@ const WIDE_FOV = 34;
 
 /* Cinematic launch (intro): a far, oblique establishing shot of the whole
    tilted system, then an accelerating warp-dive into Sol. */
-const ESTABLISH_POS = new THREE.Vector3(-22, 34, 78);
-const ESTABLISH_LOOK = new THREE.Vector3(22, -2, -4);
+const ESTABLISH_POS = new THREE.Vector3(-110, 170, 390); // scaled for the true-scale system
+const ESTABLISH_LOOK = new THREE.Vector3(110, -10, -20);
 const ESTABLISH_FOV = 30;
 const ESTABLISH_DUR = 2.2; // seconds — pull back + reveal
 const WARP_DUR = 2.2; // seconds — hyperspeed fly-in from the system edge to Sol

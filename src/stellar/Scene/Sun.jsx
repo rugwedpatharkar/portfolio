@@ -178,7 +178,7 @@ const Sun = ({
         <sphereGeometry args={[radius * 1.5, 32, 32]} />
         <meshBasicMaterial color="#ff9a3c" transparent opacity={0.2} side={THREE.BackSide} toneMapped={false} depthWrite={false} />
       </mesh>
-      <pointLight color="#ffe5b0" intensity={1.1} distance={60} decay={1.5} />
+      <pointLight color="#ffe5b0" intensity={1.1} distance={600} decay={1.2} />
     </group>
   );
 };

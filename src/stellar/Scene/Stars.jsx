@@ -16,7 +16,7 @@ import * as THREE from "three";
    now; this layer is just near-field parallax sparkle. Fewer + dimmer
    so they don't compound into foreground static. */
 const STAR_COUNT = 380;
-const SPREAD = 1700; // pushed beyond the true-scale system (out to ~1000 units)
+const SPREAD = 6500; // beyond the true-scale system (out to ~6000 units)
 
 /* Sharper sprite — tight bright core, fast falloff so each star reads
    as a crisp pinprick instead of a soft blob. Bloom in post-processing
@@ -87,7 +87,7 @@ const Stars = () => {
           <bufferAttribute attach="attributes-color" count={STAR_COUNT} array={colors} itemSize={3} />
         </bufferGeometry>
         <pointsMaterial
-          size={5.5}
+          size={22}
           sizeAttenuation
           vertexColors
           transparent

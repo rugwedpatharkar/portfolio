@@ -38,10 +38,15 @@ top-level structure for all future work; keep each one's concern separate.
 - **`multisampling={0}`** on the EffectComposer — MSAA breaks the additive
   sun/bloom compositing.
 - **Scientific accuracy is the prime goal.** Radii, rotation, eccentricity,
-  inclination, and 1:1 orbital distances are all real (NASA/JPL). The Sun is the
-  one exception: size-capped (a true 109×-Earth Sun would engulf the inner
-  orbits), but still the largest body. `AU_UNIT` in `config/destinations.js` sets
-  scene-units-per-AU.
+  inclination, 1:1 orbital distances, AND the Sun's true ~109×-Earth size are all
+  real (NASA/JPL). To fit the colossal true-size Sun, the whole system is scaled
+  up: `AU_UNIT` (≈95) in `config/destinations.js` is scene-units-per-AU, putting
+  Neptune ~2,900u out and the edge/anomalies ~5,000-6,000u. The one remaining
+  compromise: orbital distances *relative to the Sun's radius* are compressed —
+  a literal 1:1 would put Neptune ~127,000u away (unnavigable). Off-line objects
+  (anomalies, easter-eggs) ride `remapPosition()` so they stay at true scale too.
+  Background (skybox/stars/Milky Way), far-clip, and flight bounds/speed all
+  scale with the system.
 - **Reduced-motion + mobile → Read mode** always.
 
 ## Workflow

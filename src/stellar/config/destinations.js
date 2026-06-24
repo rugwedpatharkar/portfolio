@@ -24,17 +24,14 @@ export const DESTINATIONS = [
     kind: "star",
     label: "Sol",
     position: [0, 0, 0],
-    /* TRUE-SCALE pass: the Sun is the biggest body by far (≈109× Earth, ≈10×
-       Jupiter in reality). Capped at 4.0 here — a fully accurate Sun would be
-       ~20 units and swallow the inner planets' orbits — but it's now clearly
-       larger than every planet. */
-    radius: 4.0,
+    /* TRUE-SCALE Sun: its real radius, ≈109× Earth. The whole system is scaled
+       up (large AU_UNIT) so this colossal Sun clears the inner orbits. */
+    radius: 19.8, // 695,700 km — 109× Earth (0.182)
     color: "#ff9a3c",
     texture: "/textures/planets/sunmap.jpg",
     section: "hero",
-    /* Pulled back + low so the (now much larger) Sun frames cleanly and inner
-       planets still cross its disc near the ecliptic. */
-    cameraTarget: { position: [0, 1.6, 20], lookAt: [0, 0, 0], fov: 60 },
+    /* Pulled way back + low to frame the giant Sun, near the ecliptic. */
+    cameraTarget: { position: [0, 8, 100], lookAt: [0, 0, 0], fov: 60 },
   },
 
   // Inner system
@@ -264,7 +261,7 @@ export const DESTINATIONS = [
  * off-the-line object (anomalies, easter-eggs, dwarf planets) out by the same
  * curve; the background, flight bounds and far-clip are scaled to match.
  * ──────────────────────────────────────────────────────────────────────── */
-export const AU_UNIT = 16; // scene units per astronomical unit
+export const AU_UNIT = 95; // scene units per AU — large so the true-size Sun clears Mercury's orbit
 const AU = {
   about: 0.387, funfacts: 0.723, experience: 1.0, projects: 1.524,
   achievements: 2.77, skills: 5.203, notes: 9.537, education: 19.191,

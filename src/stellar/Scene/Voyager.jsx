@@ -17,7 +17,7 @@ import { voyagerPositions } from "../data/ephemeris";
 /* Placed near the true-scale edge: the Voyagers are ~140-165 AU out, far beyond
    the planets. Brought just inside the navigable bound so you can still reach
    them in the game. */
-const AU_TO_SCENE = 6.25;
+const AU_TO_SCENE = 30; // ~140-165 AU → near the navigable edge (~4200-4950u)
 const PROBE_SCALE_DOWN = 1;
 
 const Probe = ({ name, auFromSun, direction, color }) => {

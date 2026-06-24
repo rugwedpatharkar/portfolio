@@ -70,7 +70,7 @@ const Skybox = () => {
     /* Rotated so the bright galactic-core bulge swings away from the
        inner-planet sightlines (which look back toward the sun on −x). */
     <mesh rotation={[0.3, 2.4, 0]}>
-      <sphereGeometry args={[2400, 64, 32]} />
+      <sphereGeometry args={[7000, 64, 32]} />
       {/* Dimmed hard so the dense Tycho star field recedes into a
           backdrop instead of fighting the planets.
 
