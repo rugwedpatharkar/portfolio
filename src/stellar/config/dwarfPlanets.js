@@ -12,23 +12,48 @@ import { remapRadius } from "./destinations";
    Achievements + Testimonials destinations). These are the remaining background
    dwarf planets / large belt bodies. */
 const RAW = [
-  // Asteroid belt
+  // ── Near-Earth asteroids (the famous sample-return / flyby trio) ──
   {
-    id: "vesta", label: "Vesta", position: [20.4, -0.6, -1.1], radius: 0.04, color: "#b8a98c",
+    id: "bennu", label: "Bennu", category: "Asteroid", position: [10.6, 0.5, -1.4], radius: 0.016, color: "#4a4642",
+    info: "101955 Bennu — a 500 m carbon-rich rubble pile. NASA's OSIRIS-REx returned a sample in 2023 that holds amino acids and even sugars — building blocks of life.",
+  },
+  {
+    id: "ryugu", label: "Ryugu", category: "Asteroid", position: [12.1, -0.6, 1.3], radius: 0.017, color: "#4f4a44",
+    info: "162173 Ryugu — an 850 m spinning-top asteroid. Japan's Hayabusa2 brought back grains containing uracil, an RNA base. Bennu's sibling from the same parent body.",
+  },
+  {
+    id: "apophis", label: "Apophis", category: "Asteroid", position: [10.0, 0.7, 0.9], radius: 0.015, color: "#6b5f52",
+    info: "99942 Apophis — a 340 m asteroid that will skim just 36,000 km past Earth on 13 Apr 2029, closer than our geostationary satellites. No impact risk — OSIRIS-APEX will be waiting.",
+  },
+  // ── Main asteroid belt ──
+  {
+    id: "vesta", label: "Vesta", category: "Asteroid", position: [20.4, -0.6, -1.1], radius: 0.04, color: "#b8a98c",
     info: "The brightest asteroid and second-largest belt body, scarred by a giant impact basin near its south pole that flung debris across the solar system.",
   },
-  // Kuiper belt
   {
-    id: "eris", label: "Eris", position: [45.6, -1.4, -2.4], radius: 0.057, color: "#dad6cd",
+    id: "psyche", label: "16 Psyche", category: "Metal asteroid", position: [20.9, 0.9, 1.4], radius: 0.03, color: "#9a9082",
+    info: "16 Psyche — a giant (~220 km) metal asteroid of iron-nickel, possibly the exposed core of a shattered protoplanet. NASA's Psyche spacecraft is en route to this 'world of metal'.",
+  },
+  // ── Kuiper belt + scattered disc ──
+  {
+    id: "eris", label: "Eris", category: "Dwarf planet", position: [45.6, -1.4, -2.4], radius: 0.057, color: "#dad6cd",
     info: "The most massive dwarf planet known — its 2005 discovery is what prompted the demotion of Pluto. A distant, icy, highly reflective world.",
   },
   {
-    id: "makemake", label: "Makemake", position: [42.3, 1.9, -1.7], radius: 0.046, color: "#caa98a",
+    id: "makemake", label: "Makemake", category: "Dwarf planet", position: [42.3, 1.9, -1.7], radius: 0.046, color: "#caa98a",
     info: "A reddish Kuiper-belt dwarf planet, one of the largest beyond Neptune, coated in frozen methane.",
   },
   {
-    id: "haumea", label: "Haumea", position: [44.7, -1.1, 2.7], radius: 0.044, color: "#e3e0d9",
+    id: "haumea", label: "Haumea", category: "Dwarf planet", position: [44.7, -1.1, 2.7], radius: 0.044, color: "#e3e0d9",
     info: "An egg-shaped dwarf planet spinning so fast (~4-hour day) that it's stretched into an ellipsoid — and it has its own ring.",
+  },
+  {
+    id: "arrokoth", label: "Arrokoth", category: "Kuiper object", position: [45.6, 0.8, 1.7], radius: 0.022, color: "#8a5a44",
+    info: "486958 Arrokoth — the most distant world ever explored. New Horizons flew past in 2019 and found a 36 km contact-binary 'snowman': two reddish lobes gently frozen together 44 AU from the Sun.",
+  },
+  {
+    id: "sedna", label: "Sedna", category: "Dwarf planet", position: [59, -3.2, 5.0], radius: 0.05, color: "#7a3a2a",
+    info: "90377 Sedna — one of the most distant known worlds, on an extreme 11,400-year orbit that never approaches the planets. Its deep-red, tholin-coated surface is among the reddest in the solar system.",
   },
 ];
 

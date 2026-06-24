@@ -246,6 +246,10 @@ export const DESTINATIONS = [
     color: "#c9b6a0", // UI accent only — the surface uses the real NASA map
     colorB: "#9a7b5e",
     texture: "/textures/planets/pluto.jpg", // NASA/JHU-APL/SwRI New Horizons color mosaic
+    moons: 1, // Charon — ~half Pluto's diameter; the pair are a true double dwarf system
+    moonColor: "#b9b1a6",
+    moonTexture: "/textures/planets/moonmap1k.jpg",
+    moonScale: 0.5,
     section: "testimonials",
     /* Tight framing for the small dwarf (offset preserved through the AU remap). */
     cameraTarget: { position: [44.08, 0.97, 1.52], lookAt: [44, 0.9, 1.4], fov: 46 },

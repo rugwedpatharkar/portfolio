@@ -134,7 +134,7 @@ const ANOMALY_OBJECTS = ANOMALY_RAW.map((o) => {
 const DWARF_OBJECTS = DWARF_PLANETS.map((d) => ({
   id: d.id,
   label: d.label,
-  category: "Dwarf planet",
+  category: d.category || "Dwarf planet",
   color: d.color,
   position: d.position,
   info: d.info,
