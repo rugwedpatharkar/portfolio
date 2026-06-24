@@ -15,7 +15,7 @@ import { DESTINATIONS, SCROLL_LENGTH_PER_DESTINATION } from "./config/destinatio
  * the browser has real scroll content to drive Lenis.
  */
 
-const Navigator = ({ scrollTRef, onDestinationChange }) => {
+const Navigator = ({ scrollTRef, warpVelRef, reducedMotion, onDestinationChange }) => {
   const lenisRef = useRef(null);
 
   useEffect(() => {
@@ -46,6 +46,13 @@ const Navigator = ({ scrollTRef, onDestinationChange }) => {
     const N = DESTINATIONS.length;
     let lastDest = -1;
     let snapTimer = null;
+    /* Scroll-velocity → hyperloop warp. Travelling between planets fires the
+       hyperspeed streaks (WarpField), which fade as you settle on a body —
+       a "jump to lightspeed" on every switch. Frozen under reduced-motion. */
+    let lastP = lenis.progress;
+    let lastT = performance.now();
+    const WARP_GAIN = 2.6;   // scroll speed (progress/sec) → warp intensity
+    const WARP_DEADZONE = 0.015;
 
     /* Magnetic snap: when scrolling settles, glide to the EXACT nearest
        destination so you never rest parked between two bodies. Implemented
@@ -69,9 +76,18 @@ const Navigator = ({ scrollTRef, onDestinationChange }) => {
       // Lenis v1.x: progress is a getter on the instance
       const progress = lenis.progress;
       scrollTRef.current = progress;
-      /* No warp streaks on ordinary scrolling — a single scroll is a smooth
-         planet-to-planet glide. The hyperspeed warp is reserved for the intro
-         launch + deliberate far jumps (handleJump). */
+      /* Hyperloop between planets: warp intensity tracks how fast we're
+         travelling. WarpField eases toward this and decays it once you stop, so
+         the streaks rush in mid-transit and fade on arrival. */
+      if (warpVelRef && !reducedMotion) {
+        const now = performance.now();
+        const dt = Math.max(16, now - lastT) / 1000;
+        const vel = Math.abs(progress - lastP) / dt; // progress units / sec
+        lastP = progress;
+        lastT = now;
+        const target = Math.min(1, Math.max(0, (vel - WARP_DEADZONE) * WARP_GAIN));
+        warpVelRef.current = Math.max(warpVelRef.current || 0, target);
+      }
       invalidate(); // request a Three.js render
 
       // Detect which destination we're focused on

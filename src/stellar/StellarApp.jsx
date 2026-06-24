@@ -482,6 +482,8 @@ const StellarApp = () => {
       />
       <Navigator
         scrollTRef={scrollTRef}
+        warpVelRef={warpVelRef}
+        reducedMotion={reducedMotion}
         onDestinationChange={handleDestinationChange}
       />
       {/* Hyperspeed streaks — driven by travel speed (scroll velocity +
