@@ -190,8 +190,8 @@ const Comet = () => {
     ionUniforms.uTime.value = sceneClock ? sceneClock.t : 0;
   });
 
-  const ionLen = 150;
-  const dustLen = 95;
+  const ionLen = 40;
+  const dustLen = 28;
   /* Lateral bow at the dust-tail tip, scaled to length so the arc stays
      proportional. */
   dustUniforms.uBend.value = dustLen * 0.42;
@@ -201,11 +201,11 @@ const Comet = () => {
       {/* Nucleus + soft coma */}
       <group ref={headRef}>
         <mesh>
-          <sphereGeometry args={[3.4, 16, 16]} />
+          <sphereGeometry args={[0.35, 14, 14]} />
           <meshBasicMaterial color="#eaf4ff" toneMapped={false} />
         </mesh>
         <mesh>
-          <sphereGeometry args={[9, 16, 16]} />
+          <sphereGeometry args={[1.7, 16, 16]} />
           <meshBasicMaterial
             color="#bfe0ff"
             transparent
@@ -221,7 +221,7 @@ const Comet = () => {
           nucleus), apex out along the tail direction. Thin + long + straight. */}
       <group ref={ionRef}>
         <mesh position={[0, ionLen / 2, 0]}>
-          <coneGeometry args={[2.4, ionLen, 16, 1, true]} />
+          <coneGeometry args={[0.65, ionLen, 16, 1, true]} />
           <shaderMaterial
             vertexShader={ION_VERT}
             fragmentShader={ION_FRAG}
@@ -239,7 +239,7 @@ const Comet = () => {
           silhouette stays smooth. */}
       <group ref={dustRef}>
         <mesh position={[0, dustLen / 2, 0]}>
-          <coneGeometry args={[8.5, dustLen, 24, 24, true]} />
+          <coneGeometry args={[2.0, dustLen, 24, 24, true]} />
           <shaderMaterial
             vertexShader={DUST_VERT}
             fragmentShader={DUST_FRAG}

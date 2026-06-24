@@ -203,7 +203,7 @@ const Scene = ({ scrollT, activeIdx, onJump, onReady, freeRoamEnabled, gameActiv
             2I/Borisov (reddish coma) — completing the trio with 'Oumuamua. */}
         {showExtras && !reducedMotion && <AtlasComet />}
         {showExtras && !reducedMotion && (
-          <AtlasComet start={[-620, -28, 240]} vel={[168, 5, -64]} coma="#d8b890" ion="#cdbfa0" dust="#e8d8b8" antiTail={false} comaR={5} respawn={780} />
+          <AtlasComet start={[-620, -28, 240]} vel={[168, 5, -64]} coma="#d8b890" ion="#cdbfa0" dust="#e8d8b8" antiTail={false} comaR={1.2} respawn={780} />
         )}
         {/* Clickable wishing meteors. */}
         {showExtras && !reducedMotion && <ShootingStars animate={!reducedMotion} />}

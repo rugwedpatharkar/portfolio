@@ -46,7 +46,7 @@ const AtlasComet = ({
   ion = "#6fffc0",
   dust = "#ffe6b0",
   antiTail = true, // the rare sunward spike (ATLAS only)
-  comaR = 7,
+  comaR = 1.5,
   respawn = 760,
 }) => {
   const headRef = useRef();
@@ -81,7 +81,7 @@ const AtlasComet = ({
   const dustDir = useMemo(() => new THREE.Vector3(), []);
   const q = useMemo(() => new THREE.Quaternion(), []);
 
-  const ionLen = 120, dustLen = 80, antiLen = 34;
+  const ionLen = 30, dustLen = 22, antiLen = 11; // modest comet, not a system-spanning beam
   dustMat.uniforms.uBend.value = dustLen * 0.4;
 
   useFrame((_, delta) => {
@@ -110,13 +110,13 @@ const AtlasComet = ({
   return (
     <group>
       <group ref={headRef}>
-        <mesh><sphereGeometry args={[1.6, 14, 14]} /><meshBasicMaterial color="#eafff2" toneMapped={false} /></mesh>
-        <mesh><sphereGeometry args={[comaR, 16, 16]} /><meshBasicMaterial color={coma} transparent opacity={0.22} depthWrite={false} blending={THREE.AdditiveBlending} toneMapped={false} /></mesh>
+        <mesh><sphereGeometry args={[0.3, 12, 12]} /><meshBasicMaterial color="#eafff2" toneMapped={false} /></mesh>
+        <mesh><sphereGeometry args={[comaR, 16, 16]} /><meshBasicMaterial color={coma} transparent opacity={0.24} depthWrite={false} blending={THREE.AdditiveBlending} toneMapped={false} /></mesh>
       </group>
-      <group ref={ionRef}><mesh position={[0, ionLen / 2, 0]} material={ionMat}><coneGeometry args={[2.0, ionLen, 16, 1, true]} /></mesh></group>
-      <group ref={dustRef}><mesh position={[0, dustLen / 2, 0]} material={dustMat}><coneGeometry args={[6.5, dustLen, 24, 24, true]} /></mesh></group>
+      <group ref={ionRef}><mesh position={[0, ionLen / 2, 0]} material={ionMat}><coneGeometry args={[0.5, ionLen, 16, 1, true]} /></mesh></group>
+      <group ref={dustRef}><mesh position={[0, dustLen / 2, 0]} material={dustMat}><coneGeometry args={[1.5, dustLen, 24, 24, true]} /></mesh></group>
       {antiTail && (
-        <group ref={antiRef}><mesh position={[0, antiLen / 2, 0]} material={antiMat}><coneGeometry args={[1.4, antiLen, 12, 1, true]} /></mesh></group>
+        <group ref={antiRef}><mesh position={[0, antiLen / 2, 0]} material={antiMat}><coneGeometry args={[0.4, antiLen, 12, 1, true]} /></mesh></group>
       )}
     </group>
   );
