@@ -35,6 +35,7 @@ import EarthStation from "./EarthStation";
 import { HomePin, HomeCallout } from "./HomeMarker";
 import IsroProbe from "./IsroProbe";
 import MilkyWay from "./MilkyWay";
+import ZodiacalLight from "./ZodiacalLight";
 import ShootingStars from "./ShootingStars";
 import RocketLaunch from "./RocketLaunch";
 import DangerField from "./DangerField";
@@ -177,6 +178,8 @@ const Scene = ({ scrollT, activeIdx, onJump, onReady, freeRoamEnabled, gameActiv
         <Nebulae />
         {/* Grand faint galactic band — far backdrop for depth. */}
         <MilkyWay animate={!reducedMotion} />
+        {/* Zodiacal light — faint sunlight scattered by ecliptic-plane dust. */}
+        {showExtras && <ZodiacalLight />}
         {/* A nebula you can drift into (pilot mode). */}
         {showExtras && <FlyableNebula position={remapPosition([-14, 6, -10])} radius={7} animate={!reducedMotion} />}
         {/* The edge anomaly — a black hole beyond the contact beacon: you

@@ -1,40 +1,42 @@
 /* eslint-disable react/no-unknown-property */
-import { useMemo, useRef } from "react";
-import { useFrame } from "@react-three/fiber";
+import { useMemo } from "react";
 import * as THREE from "three";
+import { STARS, STAR_COUNT } from "../data/brightStars";
 
 /*
- * Foreground sparkle stars — a thin layer of close-in pinpricks that
- * sit IN FRONT of the Milky Way skybox. The skybox is the actual deep
- * sky; this gives parallax depth (close stars vs distant stars).
+ * The REAL night sky — 8,920 naked-eye stars (HYG catalogue, derived from
+ * Hipparcos / Yale BSC) at their TRUE equatorial positions, TRUE visual
+ * magnitudes, and TRUE colours from each star's B–V index. Not random points:
+ * Sirius, Orion's belt, the Pleiades, the real Milky Way density — all where
+ * they actually are.
  *
- * Count is reduced from 5000 → 1200 since the skybox carries the
- * heavy lifting now.
+ * The catalogue is equatorial (ICRS); the scene's planets orbit the ecliptic
+ * (the xz-plane). We rotate the celestial sphere by Earth's real axial
+ * obliquity (23.44°) so the sky sits at the correct tilt to the planet plane —
+ * the ecliptic constellations really do hug the orbital plane. Stars are the
+ * fixed backdrop (they don't drift with the scene clock; stellar motion over a
+ * human timescale is nil), centred on the origin like the Tycho skybox so the
+ * two parallax together.
  */
 
-/* Reduced 1200 → 650 — the 8K skybox carries the real star detail
-   now; this layer is just near-field parallax sparkle. Fewer + dimmer
-   so they don't compound into foreground static. */
-const STAR_COUNT = 380;
-const SPREAD = 6500; // beyond the true-scale system (out to ~6000 units)
+const R = 6800; // celestial-sphere radius (just inside the Tycho skybox at 7000)
+const OBLIQUITY = 23.44 * (Math.PI / 180);
 
-/* Sharper sprite — tight bright core, fast falloff so each star reads
-   as a crisp pinprick instead of a soft blob. Bloom in post-processing
-   gives the glow; the sprite itself should be precise. */
+/* Soft round sprite — crisp bright core, fast falloff; bloom adds the glow. */
 const SPRITE_TEXTURE = (() => {
   if (typeof document === "undefined") return null;
-  const size = 64;
+  const s = 64;
   const c = document.createElement("canvas");
-  c.width = c.height = size;
+  c.width = c.height = s;
   const ctx = c.getContext("2d");
-  const g = ctx.createRadialGradient(size / 2, size / 2, 0, size / 2, size / 2, size / 2);
+  const g = ctx.createRadialGradient(s / 2, s / 2, 0, s / 2, s / 2, s / 2);
   g.addColorStop(0, "rgba(255,255,255,1)");
-  g.addColorStop(0.16, "rgba(255,255,255,0.92)");
-  g.addColorStop(0.35, "rgba(255,255,255,0.32)");
-  g.addColorStop(0.75, "rgba(255,255,255,0.04)");
+  g.addColorStop(0.18, "rgba(255,255,255,0.9)");
+  g.addColorStop(0.4, "rgba(255,255,255,0.28)");
+  g.addColorStop(0.8, "rgba(255,255,255,0.03)");
   g.addColorStop(1, "rgba(255,255,255,0)");
   ctx.fillStyle = g;
-  ctx.fillRect(0, 0, size, size);
+  ctx.fillRect(0, 0, s, s);
   const t = new THREE.CanvasTexture(c);
   t.minFilter = THREE.LinearMipmapLinearFilter;
   t.magFilter = THREE.LinearFilter;
@@ -43,63 +45,100 @@ const SPRITE_TEXTURE = (() => {
   return t;
 })();
 
-const Stars = () => {
-  const groupRef = useRef();
+/* B–V colour index → RGB. Ballesteros' formula gives effective temperature from
+   B–V; a blackbody approximation (Tanner Helland) turns that into the star's
+   real tint — hot blue-white (B–V<0) through the Sun's yellow-white (~0.65) to
+   cool orange-red (B–V>1.4). */
+function bvToColor(bv, out) {
+  const t = 4600 * (1 / (0.92 * bv + 1.7) + 1 / (0.92 * bv + 0.62));
+  const k = t / 100;
+  let r, g, b;
+  if (k <= 66) r = 255;
+  else r = 329.7 * Math.pow(k - 60, -0.1332);
+  if (k <= 66) g = 99.47 * Math.log(k) - 161.12;
+  else g = 288.12 * Math.pow(k - 60, -0.0755);
+  if (k >= 66) b = 255;
+  else if (k <= 19) b = 0;
+  else b = 138.52 * Math.log(k - 10) - 305.04;
+  // gently desaturate so the field reads natural, not candy-coloured
+  const cr = THREE.MathUtils.clamp(r / 255, 0, 1);
+  const cg = THREE.MathUtils.clamp(g / 255, 0, 1);
+  const cb = THREE.MathUtils.clamp(b / 255, 0, 1);
+  const mix = 0.35;
+  out.setRGB(cr * (1 - mix) + mix, cg * (1 - mix) + mix, cb * (1 - mix) + mix);
+}
 
-  const { positions, colors } = useMemo(() => {
+const VERT = /* glsl */ `
+  attribute float aSize;
+  attribute vec3 aColor;
+  varying vec3 vColor;
+  void main() {
+    vColor = aColor;
+    gl_PointSize = aSize;                 // constant screen size — sky is at infinity
+    gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
+  }
+`;
+const FRAG = /* glsl */ `
+  uniform sampler2D uMap;
+  varying vec3 vColor;
+  void main() {
+    float a = texture2D(uMap, gl_PointCoord).a;
+    if (a < 0.01) discard;
+    gl_FragColor = vec4(vColor, a);
+  }
+`;
+
+const Stars = () => {
+  const { geometry, material } = useMemo(() => {
     const positions = new Float32Array(STAR_COUNT * 3);
     const colors = new Float32Array(STAR_COUNT * 3);
-    const tmp = new THREE.Vector3();
+    const sizes = new Float32Array(STAR_COUNT);
+    const col = new THREE.Color();
+    const cosE = Math.cos(OBLIQUITY);
+    const sinE = Math.sin(OBLIQUITY);
     for (let i = 0; i < STAR_COUNT; i++) {
-      const u = Math.random();
-      const v = Math.random();
-      const theta = 2 * Math.PI * u;
-      const phi = Math.acos(2 * v - 1);
-      const r = SPREAD * (0.7 + Math.random() * 0.3);
-      tmp.setFromSphericalCoords(r, phi, theta);
-      positions[i * 3 + 0] = tmp.x;
-      positions[i * 3 + 1] = tmp.y;
-      positions[i * 3 + 2] = tmp.z;
+      const ra = STARS[i * 4];
+      const dec = STARS[i * 4 + 1];
+      const mag = STARS[i * 4 + 2];
+      const bv = STARS[i * 4 + 3];
+      // equatorial unit vector (z = north celestial pole)
+      const cd = Math.cos(dec);
+      const xe = cd * Math.cos(ra);
+      const ye = cd * Math.sin(ra);
+      const ze = Math.sin(dec);
+      // equatorial → ecliptic (rotate about the vernal-equinox x-axis by ε)
+      const yEcl = ye * cosE + ze * sinE;
+      const zEcl = -ye * sinE + ze * cosE; // ecliptic north
+      // scene frame: ecliptic plane = xz, ecliptic north = +Y
+      positions[i * 3] = xe * R;
+      positions[i * 3 + 1] = zEcl * R;
+      positions[i * 3 + 2] = yEcl * R;
 
-      const t = Math.random();
-      const c =
-        t < 0.06
-          ? new THREE.Color("#ffe1a0")
-          : t < 0.18
-            ? new THREE.Color("#a0bcff")
-            : new THREE.Color("#ffffff");
-      colors[i * 3 + 0] = c.r;
-      colors[i * 3 + 1] = c.g;
-      colors[i * 3 + 2] = c.b;
+      bvToColor(bv, col);
+      const bright = THREE.MathUtils.clamp(1.12 - mag * 0.13, 0.26, 1.3);
+      colors[i * 3] = col.r * bright;
+      colors[i * 3 + 1] = col.g * bright;
+      colors[i * 3 + 2] = col.b * bright;
+
+      sizes[i] = THREE.MathUtils.clamp(1.3 + (6.5 - mag) * 1.15, 1.3, 11);
     }
-    return { positions, colors };
+    const geometry = new THREE.BufferGeometry();
+    geometry.setAttribute("position", new THREE.BufferAttribute(positions, 3));
+    geometry.setAttribute("aColor", new THREE.BufferAttribute(colors, 3));
+    geometry.setAttribute("aSize", new THREE.BufferAttribute(sizes, 1));
+    const material = new THREE.ShaderMaterial({
+      uniforms: { uMap: { value: SPRITE_TEXTURE } },
+      vertexShader: VERT,
+      fragmentShader: FRAG,
+      transparent: true,
+      depthWrite: false,
+      blending: THREE.AdditiveBlending,
+      toneMapped: false,
+    });
+    return { geometry, material };
   }, []);
 
-  useFrame((_, delta) => {
-    if (groupRef.current) groupRef.current.rotation.y += delta * 0.003;
-  });
-
-  return (
-    <group ref={groupRef}>
-      <points>
-        <bufferGeometry>
-          <bufferAttribute attach="attributes-position" count={STAR_COUNT} array={positions} itemSize={3} />
-          <bufferAttribute attach="attributes-color" count={STAR_COUNT} array={colors} itemSize={3} />
-        </bufferGeometry>
-        <pointsMaterial
-          size={22}
-          sizeAttenuation
-          vertexColors
-          transparent
-          opacity={0.5}
-          depthWrite={false}
-          map={SPRITE_TEXTURE}
-          alphaTest={0.01}
-          toneMapped={false}
-        />
-      </points>
-    </group>
-  );
+  return <points geometry={geometry} material={material} frustumCulled={false} />;
 };
 
 export default Stars;
