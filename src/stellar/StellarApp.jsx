@@ -21,7 +21,6 @@ import AnswerListener from "./AnswerListener";
 import useViewport from "./useViewport";
 import VoiceNav from "./VoiceNav";
 import SpeedRun from "./SpeedRun";
-import TimeControl from "./TimeControl";
 import CockpitFrame from "./CockpitFrame";
 import FragmentToast from "./FragmentToast";
 import HazardBanner from "./HazardBanner";
@@ -535,9 +534,6 @@ const StellarApp = () => {
               {/* Minimal by design: no nav-console, rank meter, or ⌘K palette in
                   Read mode — just the résumé tour + the Space-Explorer CTA. */}
               <SpeedRun activeIdx={activeIdx} active={speedRunOn} onToggle={() => setSpeedRunOn((v) => !v)} />
-              {/* Living-system time control — speed up the real orbits to watch
-                  the system move. Hidden under reduced-motion (time frozen). */}
-              {mode === "tour" && !reducedMotion && <TimeControl clockRef={sceneClockRef} animate={!reducedMotion} />}
               {/* Become a Space Explorer — the game is an OPT-IN choice; the
                   résumé tour is the default. Desktop only (flight is disabled
                   on mobile / reduced-motion). Prominent on the hero (the
