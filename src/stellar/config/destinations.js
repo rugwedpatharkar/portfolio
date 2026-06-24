@@ -253,6 +253,70 @@ export const DESTINATIONS = [
   },
 ];
 
+/* ────────────────────────────────────────────────────────────────────────
+ * TRUE 1:1 ORBITAL DISTANCES
+ *
+ * Remap every body to its real distance from the Sun (AU × AU_UNIT). The Sun is
+ * size-capped (a 1:1 Sun would engulf the inner orbits), so AU_UNIT is set large
+ * enough that Mercury clears it. Planet SIZES are unchanged, so each planet's
+ * framing-camera offset is preserved (it just sits at the true distance); belts
+ * scale their ring + offset. A radial remap (remapRadius) carries every
+ * off-the-line object (anomalies, easter-eggs, dwarf planets) out by the same
+ * curve; the background, flight bounds and far-clip are scaled to match.
+ * ──────────────────────────────────────────────────────────────────────── */
+export const AU_UNIT = 16; // scene units per astronomical unit
+const AU = {
+  about: 0.387, funfacts: 0.723, experience: 1.0, projects: 1.524,
+  achievements: 2.77, skills: 5.203, notes: 9.537, education: 19.191,
+  hobbies: 30.07, testimonials: 39, contact: 50,
+};
+const AU_BELT = { achievements: [2.2, 3.3], testimonials: [30, 48] }; // [inner, outer] AU
+
+/* Sample curve (original radius → true radius) from the planets, used to remap
+   arbitrary off-line objects so "near Saturn" / "past Neptune" stay true. */
+const _curve = DESTINATIONS
+  .filter((d) => d.kind === "planet" && AU[d.id])
+  .map((d) => ({ r: Math.hypot(d.position[0], d.position[2]), R: AU[d.id] * AU_UNIT }))
+  .sort((a, b) => a.r - b.r);
+
+export const remapRadius = (r) => {
+  if (r <= 0) return 0;
+  if (r <= _curve[0].r) return r * (_curve[0].R / _curve[0].r);
+  for (let i = 0; i < _curve.length - 1; i++) {
+    const a = _curve[i], b = _curve[i + 1];
+    if (r <= b.r) return a.R + ((r - a.r) / (b.r - a.r)) * (b.R - a.R);
+  }
+  const a = _curve[_curve.length - 2], b = _curve[_curve.length - 1];
+  return b.R + (r - b.r) * ((b.R - a.R) / (b.r - a.r));
+};
+
+DESTINATIONS.forEach((d) => {
+  const au = AU[d.id];
+  if (!au) return; // the Sun stays at the origin
+  const [x, y, z] = d.position;
+  const r = Math.hypot(x, z) || 1;
+  const f = (au * AU_UNIT) / r;
+  const nx = x * f, nz = z * f;
+  const cam = d.cameraTarget;
+  if (AU_BELT[d.id]) {
+    d.innerRadius = AU_BELT[d.id][0] * AU_UNIT;
+    d.outerRadius = AU_BELT[d.id][1] * AU_UNIT;
+    d.position = [nx, y, nz];
+    d.cameraTarget = {
+      ...cam,
+      position: [nx + (cam.position[0] - x) * f, y + (cam.position[1] - y) * f, nz + (cam.position[2] - z) * f],
+      lookAt: [nx, y, nz],
+    };
+  } else {
+    d.position = [nx, y, nz];
+    d.cameraTarget = {
+      ...cam,
+      position: [nx + (cam.position[0] - x), y + (cam.position[1] - y), nz + (cam.position[2] - z)],
+      lookAt: [nx + (cam.lookAt[0] - x), y + (cam.lookAt[1] - y), nz + (cam.lookAt[2] - z)],
+    };
+  }
+});
+
 export const DESTINATION_BY_ID = Object.fromEntries(
   DESTINATIONS.map((d) => [d.id, d])
 );

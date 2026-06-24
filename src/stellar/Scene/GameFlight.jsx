@@ -18,8 +18,8 @@ import { liveBodyPosition } from "../data/bodies";
  * current camera pose on enable so there's no jump after the warp-in.
  */
 
-const SPEED = 10, BOOST = 2.8, BOUNDS = 58, LOOK_SENS = 0.0022, PITCH_MAX = 1.45, FOV = 72;
-const CENTER = new THREE.Vector3(22, 0, 0);
+const SPEED = 34, BOOST = 3.0, BOUNDS = 1100, LOOK_SENS = 0.0022, PITCH_MAX = 1.45, FOV = 72;
+const CENTER = new THREE.Vector3(0, 0, 0); // true-scale system spans ~0..1000 from the Sun
 const STANDOFF = 3.4; // where autopilot parks relative to the target (within scan range)
 const fAlpha = (base, dt) => 1 - Math.pow(1 - base, dt * 60);
 /* Movement keys we own — preventDefault stops Space/arrows from page-scrolling

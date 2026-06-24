@@ -21,7 +21,7 @@ import * as THREE from "three";
  */
 
 const POINT_COUNT = 2600;
-const RADIUS = 260; // far behind Stars (150) and the skybox
+const RADIUS = 2100; // behind the true-scale system + Stars, inside the skybox (2400)
 const BAND_TILT = 0.62; // diagonal lean of the band, radians
 
 /* Soft round sprite — broad, gentle falloff (unlike the crisp pinprick
@@ -99,7 +99,7 @@ const MilkyWay = ({ animate = true }) => {
           <bufferAttribute attach="attributes-size" count={POINT_COUNT} array={sizes} itemSize={1} />
         </bufferGeometry>
         <pointsMaterial
-          size={2.6}
+          size={21}
           sizeAttenuation
           vertexColors
           transparent

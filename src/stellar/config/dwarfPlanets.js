@@ -6,7 +6,9 @@
  * are small worlds) with a small visibility floor; positions sit within the
  * asteroid belt (~x19) and the Kuiper belt (~x44).
  */
-export const DWARF_PLANETS = [
+import { remapRadius } from "./destinations";
+
+const RAW = [
   // Asteroid belt
   {
     id: "ceres", label: "Ceres", position: [18.4, 0.5, 1.3], radius: 0.05, color: "#8a8378",
@@ -34,3 +36,12 @@ export const DWARF_PLANETS = [
     info: "An egg-shaped dwarf planet spinning so fast (~4-hour day) that it's stretched into an ellipsoid — and it has its own ring.",
   },
 ];
+
+/* Carry each dwarf out to the true-scale belt distances (same radial remap as
+   the planets), preserving its direction from the Sun. */
+export const DWARF_PLANETS = RAW.map((d) => {
+  const [x, y, z] = d.position;
+  const r = Math.hypot(x, y, z) || 1;
+  const f = remapRadius(r) / r;
+  return { ...d, position: [x * f, y * f, z * f] };
+});
