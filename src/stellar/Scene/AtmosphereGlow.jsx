@@ -1,5 +1,6 @@
 /* eslint-disable react/no-unknown-property */
-import { useMemo } from "react";
+import { useMemo, useRef } from "react";
+import { useFrame } from "@react-three/fiber";
 import * as THREE from "three";
 
 /*
@@ -57,9 +58,11 @@ const FRAGMENT = /* glsl */ `
   }
 `;
 
-/* Global key-light world direction (matches the <directionalLight> key in
-   Scene/index.jsx at [55,28,42]) so atmospheres are lit consistently. */
-export const SUN_DIR = new THREE.Vector3(55, 28, 42).normalize();
+/* Fallback initial direction (overwritten each frame by the real, per-planet
+   radial Sun direction below). Kept exported for any legacy import. */
+export const SUN_DIR = new THREE.Vector3(1, 0, 0);
+
+const _wp = new THREE.Vector3();
 
 const AtmosphereGlow = ({
   radius = 1,
@@ -70,11 +73,12 @@ const AtmosphereGlow = ({
   terminator = 0,
   termColor = "#ff7a3c",
 }) => {
+  const meshRef = useRef();
   const uniforms = useMemo(
     () => ({
       uColor: { value: new THREE.Color(color) },
       uTermColor: { value: new THREE.Color(termColor) },
-      uSunDir: { value: SUN_DIR },
+      uSunDir: { value: new THREE.Vector3(1, 0, 0) },
       uIntensity: { value: intensity },
       uPower: { value: power },
       uTerminator: { value: terminator },
@@ -82,8 +86,16 @@ const AtmosphereGlow = ({
     [color, termColor, intensity, power, terminator]
   );
 
+  /* Real radial Sun direction: from this planet toward the Sun at the origin,
+     so the lit limb + terminator track the actual Sun, giving true phases. */
+  useFrame(() => {
+    if (!meshRef.current) return;
+    meshRef.current.getWorldPosition(_wp);
+    if (_wp.lengthSq() > 1e-6) uniforms.uSunDir.value.copy(_wp).normalize().negate();
+  });
+
   return (
-    <mesh>
+    <mesh ref={meshRef}>
       <sphereGeometry args={[radius * scale, 48, 32]} />
       <shaderMaterial
         attach="material"

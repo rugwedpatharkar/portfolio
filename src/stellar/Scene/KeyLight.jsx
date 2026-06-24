@@ -4,7 +4,6 @@ import { useFrame } from "@react-three/fiber";
 import * as THREE from "three";
 import { DESTINATIONS } from "../config/destinations";
 import { orbitalPosition } from "../config/orbits";
-import { SUN_DIR } from "./AtmosphereGlow";
 import { useSceneClock } from "./SceneClock";
 
 /*
@@ -26,6 +25,7 @@ import { useSceneClock } from "./SceneClock";
 
 const D = 28; // distance back along the light direction
 const _active = new THREE.Vector3();
+const _sunward = new THREE.Vector3();
 
 const KeyLight = ({ scrollT, castShadow = true }) => {
   const lightRef = useRef();
@@ -37,7 +37,11 @@ const KeyLight = ({ scrollT, castShadow = true }) => {
     const rawT = THREE.MathUtils.clamp(scrollT.current ?? 0, 0, 1);
     const idx = Math.round(rawT * (DESTINATIONS.length - 1));
     orbitalPosition(DESTINATIONS[idx], clock.t, _active);
-    light.position.copy(_active).addScaledVector(SUN_DIR, D);
+    /* PHYSICAL lighting: the light comes FROM the Sun (origin) → the planet's
+       sun-facing side is lit, the far side falls to night → real phases. Sit
+       the shadow caster on the sun side, aimed back at the planet. */
+    _sunward.copy(_active).normalize();
+    light.position.copy(_active).addScaledVector(_sunward, -D);
     light.target.position.copy(_active);
     light.target.updateMatrixWorld();
   });

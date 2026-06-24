@@ -160,7 +160,9 @@ const Scene = ({ scrollT, activeIdx, onJump, onReady, freeRoamEnabled, gameActiv
             zero-length direction → no diffuse.)
           - Cool RIM from the sun side (−x), back-left: silhouette pop
             against the dark starfield, the classic space-movie edge. */}
-      <ambientLight intensity={0.34} color="#a9bce0" />
+      {/* Low ambient so real phases show contrast (the Sun-direction key light
+          does the lighting), but enough that night sides stay legible. */}
+      <ambientLight intensity={0.22} color="#a9bce0" />
       {/* Sun-direction key + shadow caster, follows the active planet. */}
       <KeyLight scrollT={scrollT} castShadow={!isMobile} />
       <directionalLight position={[-30, 10, -25]} intensity={0.5} color="#6f8cff" />
