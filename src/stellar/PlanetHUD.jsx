@@ -160,7 +160,16 @@ const PlanetHUD = ({ destination }) => {
      planet data plus an expandable "real data" panel — so everything about
      the planet lives on the right, and the left column is purely about me. */
   const realRows = real
-    ? [["Year", real.year], ["Day", real.day], ["Gravity", real.gravity], ["Atmosphere", real.atmosphere], ["Moons", real.moons]]
+    ? [
+        ["Mass", real.mass],
+        ["Year", real.year],
+        ["Day", real.day],
+        ["Gravity", real.gravity],
+        ["Temp", real.temp],
+        ["Atmosphere", real.atmosphere],
+        ["Moons", real.moons],
+        ["Missions", real.missions],
+      ].filter(([, v]) => v)
     : [];
   return (
     <div
