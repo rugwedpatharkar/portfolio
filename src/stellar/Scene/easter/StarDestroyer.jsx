@@ -1,5 +1,5 @@
 /* eslint-disable react/no-unknown-property */
-import { nearBody } from "../../config/destinations";
+import { besidePlanet } from "../../config/destinations";
 import { useMemo, useRef } from "react";
 import { useFrame } from "@react-three/fiber";
 import * as THREE from "three";
@@ -14,7 +14,7 @@ import * as THREE from "three";
  * Click → fires 'stellar:stardestroyer'.
  */
 
-const POSITION = nearBody("skills", [-5, 0.8, -3.5]); // beside Jupiter, in the tour view (was deep field)
+const POSITION = besidePlanet("skills", [-0.6, 1], { lateral: 1.5 }); // beside Jupiter, in the backlit tour view
 
 const StarDestroyer = () => {
   const ref = useRef();

@@ -1,5 +1,5 @@
 /* eslint-disable react/no-unknown-property */
-import { remapPosition } from "../../config/destinations";
+import { besidePlanet } from "../../config/destinations";
 import { useRef } from "react";
 import { useFrame } from "@react-three/fiber";
 import { Html } from "@react-three/drei";
@@ -10,8 +10,7 @@ import * as THREE from "three";
  * Visible only when Mars is reasonably close to the camera.
  */
 
-const MARS_POS = remapPosition([15.3, 0.3, 0.6]);
-const POSITION = [MARS_POS[0] - 0.1, MARS_POS[1] + 0.95, MARS_POS[2]];
+const POSITION = besidePlanet("projects", [1, 0.3], { lateral: 1.5 }); // just beside Mars, in the backlit tour view
 /* Hoisted once — was rebuilt as new THREE.Vector3(...POSITION) every frame */
 const POSITION_VEC = new THREE.Vector3(...POSITION);
 

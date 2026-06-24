@@ -1,5 +1,5 @@
 /* eslint-disable react/no-unknown-property */
-import { nearBody } from "../../config/destinations";
+import { besidePlanet } from "../../config/destinations";
 import { useRef } from "react";
 import { useFrame } from "@react-three/fiber";
 
@@ -12,7 +12,7 @@ import { useFrame } from "@react-three/fiber";
  * Click → fires 'stellar:enterprise'.
  */
 
-const POSITION = nearBody("experience", [1.5, 0.5, 1.0]); // cruising beside Earth, in the tour view
+const POSITION = besidePlanet("experience", [1, 0.3]); // cruising just beside Earth, in the backlit tour view
 
 const Enterprise = () => {
   const ref = useRef();
@@ -38,7 +38,7 @@ const Enterprise = () => {
       ref={ref}
       position={POSITION}
       rotation={[0.1, -0.6, 0.05]}
-      scale={0.42}
+      scale={0.28}
       onClick={handleClick}
       onPointerOver={() => { document.body.style.cursor = "pointer"; }}
       onPointerOut={() => { document.body.style.cursor = ""; }}

@@ -2,7 +2,7 @@
 import { useMemo } from "react";
 import { Html } from "@react-three/drei";
 import * as THREE from "three";
-import { DESTINATION_BY_ID } from "../config/destinations";
+import { besidePlanet } from "../config/destinations";
 
 /*
  * Humanity's robot fleet — real spacecraft at (close to) their true locations,
@@ -17,24 +17,15 @@ import { DESTINATION_BY_ID } from "../config/destinations";
 const v = (a) => new THREE.Vector3(a[0], a[1], a[2]);
 
 function fleet() {
-  const earth = v(DESTINATION_BY_ID.experience.position);
-  const jup = v(DESTINATION_BY_ID.skills.position);
-  const pluto = v(DESTINATION_BY_ID.testimonials.position);
-  const outE = earth.clone().normalize();
-  const outP = pluto.clone().normalize();
-  const jAng = Math.atan2(jup.z, jup.x);
-  const jR = Math.hypot(jup.x, jup.z);
   return {
-    // JWST — at L2, just beyond Earth on the anti-sun side
-    jwst: earth.clone().addScaledVector(outE, 1.5).add(new THREE.Vector3(0, 0.5, 0)),
-    // Parker — skimming just outside the Sun's rendered limb (sun radius ≈ 19.8)
-    parker: new THREE.Vector3(Math.cos(0.7) * 22, 1.4, Math.sin(0.7) * 22),
-    // Juno — orbiting Jupiter (offset off the planet)
-    juno: jup.clone().add(new THREE.Vector3(3, 2.4, 2.8)),
-    // Lucy — out at Jupiter's L4 Trojan swarm (+60° along the orbit)
-    lucy: new THREE.Vector3(Math.cos(jAng + Math.PI / 3) * jR, jup.y + 1.5, Math.sin(jAng + Math.PI / 3) * jR),
-    // New Horizons — just past Pluto (its famous 2015 flyby)
-    nh: pluto.clone().addScaledVector(outP, 2.6).add(new THREE.Vector3(0, 1.0, 1.2)),
+    // Each placed just beside its body, IN the backlit camera's view (toward the
+    // camera + lateral), so it's spotted during that stop rather than hidden on
+    // the radial axis or off at an odd azimuth.
+    jwst: v(besidePlanet("experience", [1, -0.6])),                  // by Earth (Sun-Earth L2)
+    parker: new THREE.Vector3(Math.cos(0.7) * 22, 1.4, Math.sin(0.7) * 22), // skimming the Sun's limb
+    juno: v(besidePlanet("skills", [-1, -0.6], { lateral: 1.8 })),   // orbiting Jupiter
+    lucy: v(besidePlanet("skills", [0.7, -1.2], { lateral: 2.1 })),  // out by Jupiter (the Trojans)
+    nh: v(besidePlanet("testimonials", [1, 0.4])),                   // past Pluto (2015 flyby)
   };
 }
 

@@ -1,5 +1,5 @@
 /* eslint-disable react/no-unknown-property */
-import { nearBody } from "../../config/destinations";
+import { besidePlanet } from "../../config/destinations";
 import { useRef } from "react";
 import { useFrame } from "@react-three/fiber";
 
@@ -14,10 +14,10 @@ import { useFrame } from "@react-three/fiber";
 
 /* Bigger + closer to Saturn so the vworp is visible from the scroll
    tour camera, not just from free-roam. */
-const POSITION = nearBody("notes", [2.0, 1.4, 1.2]); // materialises by Saturn, in the tour view
+const POSITION = besidePlanet("notes", [0.3, 1.2], { lateral: 1.2 }); // materialises by Saturn, in the backlit tour view
 const CYCLE = 90;
 const VISIBLE_FOR = 5;
-const SCALE = 1.8;
+const SCALE = 1.0;
 
 const Tardis = () => {
   const groupRef = useRef();

@@ -1,5 +1,5 @@
 /* eslint-disable react/no-unknown-property */
-import { nearBody } from "../../config/destinations";
+import { besidePlanet } from "../../config/destinations";
 import { useRef } from "react";
 import { useFrame } from "@react-three/fiber";
 
@@ -9,7 +9,7 @@ import { useFrame } from "@react-three/fiber";
  * end-caps + cylinder body. Slow spin = artificial gravity.
  */
 
-const POSITION = nearBody("notes", [-3.0, -0.6, -2.4]); // by Saturn, in the tour view
+const POSITION = besidePlanet("notes", [-1, -0.4], { lateral: 1.7 }); // by Saturn, in the backlit tour view
 
 const CooperStation = () => {
   const cylRef = useRef();

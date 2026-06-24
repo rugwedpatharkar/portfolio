@@ -1,5 +1,5 @@
 /* eslint-disable react/no-unknown-property */
-import { nearBody } from "../../config/destinations";
+import { besidePlanet } from "../../config/destinations";
 import { useRef } from "react";
 import { useFrame } from "@react-three/fiber";
 
@@ -9,7 +9,7 @@ import { useFrame } from "@react-three/fiber";
  * relative). Hidden far enough out you have to free-roam to find it.
  */
 
-const POSITION = nearBody("experience", [-1.3, -0.5, -1.4]); // near Earth (his home) — in the tour view
+const POSITION = besidePlanet("experience", [-0.8, 0.9]); // beside Earth (his home), in the backlit tour view
 
 const WallE = () => {
   const groupRef = useRef();
@@ -29,7 +29,7 @@ const WallE = () => {
     <group
       ref={groupRef}
       position={POSITION}
-      scale={0.5}
+      scale={0.12}
       onClick={handleClick}
       onPointerOver={() => { document.body.style.cursor = "pointer"; }}
       onPointerOut={() => { document.body.style.cursor = ""; }}

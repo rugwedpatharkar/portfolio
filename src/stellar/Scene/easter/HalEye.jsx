@@ -1,5 +1,5 @@
 /* eslint-disable react/no-unknown-property */
-import { nearBody } from "../../config/destinations";
+import { besidePlanet } from "../../config/destinations";
 import { useRef } from "react";
 import { useFrame } from "@react-three/fiber";
 
@@ -13,7 +13,7 @@ import { useFrame } from "@react-three/fiber";
 
 /* Slightly out from the belt so it doesn't get occluded by passing
    asteroids — still in the Jupiter neighbourhood (Discovery One). */
-const POSITION = nearBody("skills", [3.5, 1.2, 2.6]); // beside Jupiter (Discovery One), in the tour view
+const POSITION = besidePlanet("skills", [1, 0.4]); // beside Jupiter (Discovery One), in the backlit tour view
 
 const HalEye = () => {
   const irisRef = useRef();

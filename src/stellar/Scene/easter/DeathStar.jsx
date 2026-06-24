@@ -1,5 +1,5 @@
 /* eslint-disable react/no-unknown-property */
-import { nearBody } from "../../config/destinations";
+import { besidePlanet, besideScale } from "../../config/destinations";
 import { useRef } from "react";
 import { useFrame } from "@react-three/fiber";
 import * as THREE from "three";
@@ -14,8 +14,8 @@ import * as THREE from "three";
  * "That's no moon" badge).
  */
 
-const POSITION = nearBody("achievements", [1.5, 0.6, 1.1]); // beside Ceres / the belt, in the tour view
-const RADIUS = 0.42; // a believable moon-sized sphere (~120 km canon), not a giant
+const POSITION = besidePlanet("achievements", [1, 0.6]); // just beside Ceres, in the backlit tour view
+const RADIUS = besideScale("achievements", 0.95); // a moon-sized companion to tiny Ceres ("that's no moon")
 
 const DeathStar = () => {
   const groupRef = useRef();
