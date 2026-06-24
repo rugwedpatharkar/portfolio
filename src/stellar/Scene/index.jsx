@@ -183,8 +183,11 @@ const Scene = ({ scrollT, activeIdx, onJump, onReady, freeRoamEnabled, gameActiv
         <MilkyWay animate={!reducedMotion} />
         {/* Zodiacal light — faint sunlight scattered by ecliptic-plane dust. */}
         {showExtras && <ZodiacalLight />}
-        {/* A nebula you can drift into (pilot mode). */}
-        {showExtras && <FlyableNebula position={remapPosition([-14, 6, -10])} radius={7} animate={!reducedMotion} />}
+        {/* A nebula you can drift INTO — a pilot-mode toy, not a real-nebula
+            replica, so it lives only in the game. In the Read tour it would just
+            be an out-of-place cloud floating in the asteroid belt (~2.4 AU); the
+            real Hubble nebulae (Nebulae.jsx) are the deep-space backdrop instead. */}
+        {gameActive && <FlyableNebula position={remapPosition([-14, 6, -10])} radius={7} animate={!reducedMotion} />}
         {/* The edge anomaly — a black hole beyond the contact beacon: you
             reach the edge of the system and there it is, pulling at the
             void. Framed behind the beacon on the contact stop. */}

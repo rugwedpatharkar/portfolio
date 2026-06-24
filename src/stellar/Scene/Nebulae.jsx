@@ -67,17 +67,43 @@ void main() {
 }
 `;
 
-/* Opacity kept low across the board so the nebulae sit behind the action,
-   not in front of it. Bloom amplifies the bright cores anyway, so we don't
-   need raw opacity for impact. Each entry carries TWO tints — a cooler/warmer
-   secondary hue for the soft halo and a truer near-tint for the bright core —
-   so the cloud gains depth without becoming garish. */
+/*
+ * Nebulae are DEEP-SPACE BACKDROP — light-years away, not solar-system objects.
+ * At true scale (1 AU = 95u) even the closest, the Helix at 650 ly, would be
+ * ~3.9 BILLION units out, so like the skybox they're a stylised far backdrop:
+ * placed at radius ~6,200u — beyond the heliopause (~5,400) and Oort cloud
+ * (~5,200), just inside the star sphere (6,800) / Tycho skybox (7,000) — and
+ * spread around the whole sky so none ever crowds the Sun or a planet (the old
+ * positions sat at ~40-70u, INSIDE Mercury's orbit, hence a nebula glued to the
+ * Sun). Far + additive over the starfield ⇒ they read as distant cosmic clouds.
+ *
+ * Scale tracks each nebula's REAL physical diameter, log-compressed:
+ *   Carina ~460 ly  ≫  Eagle ~70 ly  >  Orion ~24 ly  >  Crab ~11 ly  >  Helix ~2.5 ly.
+ * Each carries TWO tints faithful to its real palette — a secondary hue for the
+ * soft halo and a truer near-tint for the bright core — so the cloud gains
+ * chromatic depth (rim→core) while staying soft and bloom-safe.
+ */
+/*
+ * All five sit in the −X hemisphere because the whole planet tour is laid out
+ * along +X: every backlit stop puts the camera OUTSIDE its planet looking back
+ * toward the Sun (−X), so the deep-sky backdrop visible behind/around the Sun is
+ * the −X sky. The nebulae are fanned ~30° off that axis (varied in Y and Z) so
+ * they RING the Sun rather than hide directly behind its glare — a consistent,
+ * fixed celestial backdrop (as real nebulae are) that's in frame throughout the
+ * tour. The hero looks down −Z, so the Sun there stands alone, uncluttered.
+ */
 const NEBULAE = [
-  { url: "/textures/nebulae/eagle.jpg", position: [-38, 8, -28], scale: 30, opacity: 0.46, haloTint: [0.45, 0.62, 1.0], coreTint: [1.0, 0.86, 0.74] },
-  { url: "/textures/nebulae/carina.jpg", position: [50, -6, 22], scale: 34, opacity: 0.4, haloTint: [1.0, 0.58, 0.72], coreTint: [1.0, 0.82, 0.6] },
-  { url: "/textures/nebulae/crab.jpg", position: [22, 12, -36], scale: 22, opacity: 0.44, haloTint: [0.62, 0.78, 1.0], coreTint: [1.0, 0.74, 0.66] },
-  { url: "/textures/nebulae/helix.jpg", position: [-60, -10, 30], scale: 24, opacity: 0.34, haloTint: [0.5, 0.92, 0.86], coreTint: [1.0, 0.9, 0.72] },
-  { url: "/textures/nebulae/orion.jpg", position: [70, 14, -10], scale: 28, opacity: 0.36, haloTint: [0.7, 0.62, 1.0], coreTint: [1.0, 0.8, 0.7] },
+  // Carina (NGC 3372) — largest emission nebula (~460 ly): warm red/orange dust
+  // lanes, blue glow around the hot O-stars. The big one, upper-right of the Sun.
+  { url: "/textures/nebulae/carina.jpg", position: [-5444, 1197, 2722], scale: 2400, opacity: 0.58, haloTint: [0.6, 0.6, 1.0], coreTint: [1.0, 0.66, 0.5] },
+  // Eagle (M16, Pillars of Creation, ~70 ly): gold/teal pillars on a reddish field.
+  { url: "/textures/nebulae/eagle.jpg", position: [-5187, 1349, -2697], scale: 1600, opacity: 0.54, haloTint: [0.5, 0.86, 0.7], coreTint: [1.0, 0.85, 0.6] },
+  // Orion (M42, ~24 ly): magenta-pink Hα core + teal O-III + blue reflection wisps.
+  { url: "/textures/nebulae/orion.jpg", position: [-5287, -1057, 2854], scale: 1500, opacity: 0.54, haloTint: [0.55, 0.78, 1.0], coreTint: [1.0, 0.66, 0.84] },
+  // Crab (M1, supernova remnant, ~11 ly): orange-red filaments + blue-white synchrotron core.
+  { url: "/textures/nebulae/crab.jpg", position: [-5200, -1247, -2495], scale: 1050, opacity: 0.5, haloTint: [0.55, 0.72, 1.0], coreTint: [1.0, 0.7, 0.55] },
+  // Helix (NGC 7293, "Eye of God" planetary, ~2.5 ly, closest): teal eye, red-orange rim.
+  { url: "/textures/nebulae/helix.jpg", position: [-5268, 1791, 632], scale: 820, opacity: 0.48, haloTint: [1.0, 0.6, 0.5], coreTint: [0.6, 1.0, 0.92] },
 ];
 
 const NebulaPlane = ({ url, position, scale, opacity, haloTint, coreTint }) => {
@@ -97,7 +123,7 @@ const NebulaPlane = ({ url, position, scale, opacity, haloTint, coreTint }) => {
       uEdgeInner: { value: 0.3 },
       uTint: { value: new THREE.Color(...coreTint) },
       uTintAmt: { value: 0.18 },
-      uSat: { value: 0.62 },
+      uSat: { value: 0.72 },
     };
   }, [tex, opacity, coreTint]);
 
@@ -113,7 +139,7 @@ const NebulaPlane = ({ url, position, scale, opacity, haloTint, coreTint }) => {
       uEdgeInner: { value: 0.16 },
       uTint: { value: new THREE.Color(...haloTint) },
       uTintAmt: { value: 0.6 },
-      uSat: { value: 0.42 },
+      uSat: { value: 0.5 },
     };
   }, [tex, opacity, haloTint]);
 
