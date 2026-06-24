@@ -71,6 +71,7 @@ const _right = new THREE.Vector3();
 const _radial = new THREE.Vector3();
 const _dir = new THREE.Vector3();
 const _upp = new THREE.Vector3();
+const _up2 = new THREE.Vector3();
 
 const fAlpha = (base, dt) => 1 - Math.pow(1 - base, dt * 60);
 
@@ -107,6 +108,15 @@ const DEG = Math.PI / 180;
 const BACKLIT_HALF_ANGLE = 15 * DEG; // larger → planet fills ~half the frame (prominent hero)
 const BACKLIT_TILT = 12 * DEG;       // Sun crests just past the limb
 const BACKLIT_MARGIN = 1.12;         // breathing room around the body
+/* Every planet uses the SAME fov + zero static roll, so the framing is identical
+   from body to body (the authored per-planet fov 40–52 + dutch tilts made each
+   stop feel different). Distance is derived from radius (above), so uniform fov
+   ⇒ uniform on-screen size. */
+const BACKLIT_FOV = 47;
+/* Pointer parallax as a FRACTION of the framing distance → identical angular
+   sway on every planet (a fixed world offset was violent on small bodies and
+   invisible on big ones). */
+const PARALLAX_FRAC = 0.08;
 
 const CameraRig = ({
   scrollT,
@@ -242,14 +252,15 @@ const CameraRig = ({
         const D = (dst.radius / Math.tan(BACKLIT_HALF_ANGLE)) * BACKLIT_MARGIN;
         outPos.copy(_p).addScaledVector(_dir, D);
         outLook.copy(_p);
-      } else {
-        /* Sun + Edge Beacon keep their authored framing, orbit-rotated. */
-        const dl = getOrbit(dst).omega * t;
-        _po.copy(fr.posOffset).applyAxisAngle(UP, dl);
-        _lo.copy(fr.lookOffset).applyAxisAngle(UP, dl);
-        outPos.copy(_p).add(_po);
-        outLook.copy(_p).add(_lo);
+        /* Uniform fov + no static roll → every planet framed identically. */
+        return { fov: BACKLIT_FOV, roll: 0 };
       }
+      /* Sun + Edge Beacon keep their authored framing, orbit-rotated. */
+      const dl = getOrbit(dst).omega * t;
+      _po.copy(fr.posOffset).applyAxisAngle(UP, dl);
+      _lo.copy(fr.lookOffset).applyAxisAngle(UP, dl);
+      outPos.copy(_p).add(_po);
+      outLook.copy(_p).add(_lo);
       return fr;
     };
     const frA = blendFrame(i, _camA, _lookA);
@@ -289,14 +300,8 @@ const CameraRig = ({
         _camTarget.copy(WIDE_POSITION);
       }
       _lookTarget.copy(WIDE_LOOK);
-    } else {
-      if (parallaxOffsetRef?.current) {
-        _camTarget.x += parallaxOffsetRef.current.x;
-        _camTarget.y += parallaxOffsetRef.current.y;
-      }
-      if (freeRoamEnabled && freeRoamOffsetRef?.current) {
-        _camTarget.add(freeRoamOffsetRef.current);
-      }
+    } else if (freeRoamEnabled && freeRoamOffsetRef?.current) {
+      _camTarget.add(freeRoamOffsetRef.current);
     }
 
     /* Frame the planet to the RIGHT of centre so the left column has room
@@ -318,6 +323,22 @@ const CameraRig = ({
       _right.crossVectors(_viewDir, UP).normalize();
       const halfW = Math.tan(THREE.MathUtils.degToRad(fovTarget * 0.5)) * dist * camera.aspect;
       _lookTarget.addScaledVector(_right, -halfW * frameShift);
+    }
+
+    /* Pointer parallax — shift the camera along its OWN right/up by a fraction
+       of the framing distance, so the angular sway is identical on every planet
+       and the body stays anchored while the background parallaxes. (Skipped in
+       wide / focus / free-roam, which own the camera.) */
+    if (!wide && !focus && !freeRoamEnabled && parallaxOffsetRef?.current) {
+      _viewDir.copy(_lookTarget).sub(_camTarget);
+      const fd = _viewDir.length() || 1;
+      _viewDir.divideScalar(fd);
+      _right.crossVectors(_viewDir, UP).normalize();
+      _up2.crossVectors(_right, _viewDir).normalize();
+      const s = fd * PARALLAX_FRAC;
+      _camTarget
+        .addScaledVector(_right, parallaxOffsetRef.current.x * s)
+        .addScaledVector(_up2, parallaxOffsetRef.current.y * s);
     }
 
     const posBase = focus || wide ? WIDE_LERP_60 : freeRoamEnabled ? FREEROAM_LERP_60 : POS_LERP_60;
