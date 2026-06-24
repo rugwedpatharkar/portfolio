@@ -31,7 +31,7 @@ import { useSceneClock } from "./SceneClock";
  * not decoration.
  */
 
-const GARGANTUA = new THREE.Vector3(49, -6, -15);
+const GARGANTUA = new THREE.Vector3(960, -40, -70); // true-scale edge, beyond the Contact beacon
 
 /* Scratch vector reused every frame — no per-frame allocation. */
 const _camPos = new THREE.Vector3();

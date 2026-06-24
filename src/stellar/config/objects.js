@@ -39,14 +39,14 @@ const DESTINATION_OBJECTS = DESTINATIONS.map((d, index) => ({
 /* Anomalies / ships / easter-eggs — clicking one flies the free camera there. */
 const ANOMALY_OBJECTS = [
   {
-    id: "blackhole", label: "Gargantua", category: "Black hole", color: "#ffb066", position: [49, -6, -15],
+    id: "blackhole", label: "Gargantua", category: "Black hole", color: "#ffb066", position: [960, -40, -70],
     info: "A stellar-mass black hole at the edge of the system. Light bends around the event horizon — the accretion disk wraps up and over in a glowing Einstein ring.",
-    visit: { kind: "focus", cameraTarget: frame([49, -6, -15], 8, 2.4, 46) },
+    visit: { kind: "focus", cameraTarget: frame([960, -40, -70], 8, 2.4, 46) },
   },
   {
-    id: "wormhole", label: "Wormhole", category: "Portal", color: "#9a7dff", position: [48.55, 0.58, 1.62],
+    id: "wormhole", label: "Wormhole", category: "Portal", color: "#9a7dff", position: [791, 9.5, 26],
     info: "A traversable wormhole — the 'beam aboard' portal. Click the portal itself to book a call.",
-    visit: { kind: "focus", cameraTarget: frame([48.55, 0.58, 1.62], 2.3, 0.5, 40) },
+    visit: { kind: "focus", cameraTarget: frame([791, 9.5, 26], 2.3, 0.5, 40) },
   },
   {
     id: "pulsar", label: "Pulsar", category: "Neutron star", color: "#9fd0ff", position: [-26, 16, -34],

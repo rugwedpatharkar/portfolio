@@ -41,7 +41,7 @@ const VORTEX_FRAG = /* glsl */ `
   }
 `;
 
-const Wormhole = ({ position = [48.55, 0.58, 1.62], radius = 0.15 }) => {
+const Wormhole = ({ position = [791, 9.5, 26], radius = 0.15 }) => {
   const groupRef = useRef();
   const mat = useRef();
   const hover = useRef(1);

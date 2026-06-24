@@ -178,7 +178,7 @@ const Scene = ({ scrollT, activeIdx, onJump, onReady, freeRoamEnabled, gameActiv
         {/* The edge anomaly — a black hole beyond the contact beacon: you
             reach the edge of the system and there it is, pulling at the
             void. Framed behind the beacon on the contact stop. */}
-        {showExtras && <BlackHole position={[49, -6, -15]} radius={1.9} animate={!reducedMotion} onPointerOver={handleHoverIn} onPointerOut={handleHoverOut} />}
+        {showExtras && <BlackHole position={[960, -40, -70]} radius={1.9} animate={!reducedMotion} onPointerOver={handleHoverIn} onPointerOut={handleHoverOut} />}
         {/* Spaghettification dread near Gargantua — writes clock.danger. */}
         {showExtras && <DangerField animate={!reducedMotion} />}
         {/* Flyable résumé collectibles — collected while piloting or in the game. */}
