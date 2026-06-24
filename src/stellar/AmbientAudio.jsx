@@ -17,10 +17,17 @@ import { r2Affirm, r2Excited, r2Hello, r2Sad, r2Whoosh } from "./r2d2";
 
 const FREQS = [55, 82.5, 110]; // A1, ~E2, A2 — a tonic-fifth-octave drone
 
+/* "Harmony of the spheres" — a descending major-pentatonic scale indexed by
+   destination order. Inner bodies (closer, shorter real orbital periods) ring
+   HIGHER, outer bodies LOWER — Kepler's actual idea, mapped to real ordering.
+   Pentatonic so any arrival sounds consonant. */
+const SPHERE_NOTES = [880, 784, 659, 587, 523, 440, 392, 330, 294, 262, 220, 196];
+
 const AmbientAudio = () => {
-  /* On by default — no toggle. The context is created up front and resumed
-     on the first user gesture (browser autoplay policy). */
+  /* On by default — the context is created up front and resumed on the first
+     user gesture (browser autoplay policy). `muted` is the user toggle. */
   const [enabled, setEnabled] = useState(true);
+  const [muted, setMuted] = useState(false);
   /* R2 mode is global — listens for window 'stellar:r2d2:*' events
      even when drone is off, so the toggle below can flip on R2 chirps
      independently of the drone. Defaults true (R2 is the fun bit). */
@@ -113,7 +120,32 @@ const AmbientAudio = () => {
        factory returned a fresh closure each call, so removeEventListener
        never matched what was registered → leak + stacking duplicates on
        every re-toggle. */
+    /* Soft bell on arrival at a destination — pitch from SPHERE_NOTES (inner
+       higher / outer lower, the real period ordering). Fundamental + a quiet
+       2× partial, quick attack, ~1.4s decay; routed through the drone's master
+       gain so the mute toggle silences it too. */
+    const playSphere = (idx) => {
+      const t = ctx.currentTime;
+      const f = SPHERE_NOTES[Math.max(0, Math.min(SPHERE_NOTES.length - 1, idx))];
+      [
+        [f, 0.12],
+        [f * 2, 0.04],
+      ].forEach(([freq, peak]) => {
+        const osc = ctx.createOscillator();
+        osc.type = "sine";
+        osc.frequency.value = freq;
+        const g = ctx.createGain();
+        g.gain.setValueAtTime(0.0001, t);
+        g.gain.exponentialRampToValueAtTime(peak, t + 0.03);
+        g.gain.exponentialRampToValueAtTime(0.0001, t + 1.4);
+        osc.connect(g).connect(masterGain);
+        osc.start(t);
+        osc.stop(t + 1.5);
+      });
+    };
+
     const handlers = {
+      "stellar:destination": (e) => { if (ctxRef.current) playSphere(e.detail?.idx ?? 0); },
       "stellar:whoosh": () => { if (ctxRef.current) r2Whoosh(ctx, r2Gain); },
       "stellar:r2:affirm": () => { if (ctxRef.current) r2Affirm(ctx, r2Gain); },
       "stellar:r2:hello": () => { if (ctxRef.current) r2Hello(ctx, r2Gain); },
@@ -148,8 +180,41 @@ const AmbientAudio = () => {
     };
   }, [enabled]);
 
-  /* No visible control — sound is always on. */
-  return null;
+  /* Mute — ramp the drone master + R2 bus to silence (and back) without tearing
+     down the graph. The context stays alive so unmuting is instant. */
+  useEffect(() => {
+    const ctx = ctxRef.current;
+    if (!ctx) return;
+    const now = ctx.currentTime;
+    const ramp = (node, to) => {
+      if (!node) return;
+      node.gain.cancelScheduledValues(now);
+      node.gain.setValueAtTime(node.gain.value, now);
+      node.gain.linearRampToValueAtTime(to, now + 0.3);
+    };
+    ramp(masterGainRef.current, muted ? 0 : 0.45);
+    ramp(r2GainRef.current, muted ? 0 : 0.9);
+  }, [muted, enabled]);
+
+  /* Minimal sound toggle, bottom-right. First click also satisfies the browser
+     autoplay gesture, so the drone fades in on un-mute from a cold load. */
+  return (
+    <button
+      onClick={() => { setMuted((m) => !m); ctxRef.current?.resume?.(); }}
+      aria-label={muted ? "Unmute ambient sound" : "Mute ambient sound"}
+      title={muted ? "Sound off" : "Sound on"}
+      style={{
+        position: "fixed", bottom: 18, right: 18, zIndex: 46, cursor: "pointer",
+        width: 34, height: 34, display: "inline-flex", alignItems: "center", justifyContent: "center",
+        borderRadius: 9, fontSize: 14, color: muted ? "rgba(255,255,255,0.5)" : "#fff",
+        background: "rgba(8,11,24,0.58)", border: "1px solid rgba(255,255,255,0.1)",
+        backdropFilter: "blur(12px) saturate(1.1)", WebkitBackdropFilter: "blur(12px) saturate(1.1)",
+        boxShadow: "0 10px 30px rgba(0,0,0,0.4)",
+      }}
+    >
+      {muted ? "🔇" : "🔊"}
+    </button>
+  );
 };
 
 export default AmbientAudio;
