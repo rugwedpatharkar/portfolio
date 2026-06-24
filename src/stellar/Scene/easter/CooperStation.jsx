@@ -1,4 +1,5 @@
 /* eslint-disable react/no-unknown-property */
+import { remapPosition } from "../../config/destinations";
 import { useRef } from "react";
 import { useFrame } from "@react-three/fiber";
 
@@ -8,7 +9,7 @@ import { useFrame } from "@react-three/fiber";
  * end-caps + cylinder body. Slow spin = artificial gravity.
  */
 
-const POSITION = [29.6, -1.2, 3.5];
+const POSITION = remapPosition([29.6, -1.2, 3.5]);
 
 const CooperStation = () => {
   const cylRef = useRef();

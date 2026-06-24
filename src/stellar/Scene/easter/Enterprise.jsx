@@ -1,4 +1,5 @@
 /* eslint-disable react/no-unknown-property */
+import { remapPosition } from "../../config/destinations";
 import { useRef } from "react";
 import { useFrame } from "@react-three/fiber";
 
@@ -11,7 +12,7 @@ import { useFrame } from "@react-three/fiber";
  * Click → fires 'stellar:enterprise'.
  */
 
-const POSITION = [14.8, 0.9, -2.8];
+const POSITION = remapPosition([14.8, 0.9, -2.8]);
 
 const Enterprise = () => {
   const ref = useRef();

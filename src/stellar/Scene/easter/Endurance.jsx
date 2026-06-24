@@ -1,4 +1,5 @@
 /* eslint-disable react/no-unknown-property */
+import { remapPosition } from "../../config/destinations";
 import { useRef } from "react";
 import { useFrame } from "@react-three/fiber";
 
@@ -11,7 +12,7 @@ import { useFrame } from "@react-three/fiber";
  * Click → fires 'stellar:endurance'.
  */
 
-const POSITION = [37.0, 1.1, -2.5];
+const POSITION = remapPosition([37.0, 1.1, -2.5]);
 const R = 0.5;
 const PODS = 12;
 

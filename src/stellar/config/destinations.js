@@ -290,6 +290,15 @@ export const remapRadius = (r) => {
   return b.R + (r - b.r) * ((b.R - a.R) / (b.r - a.r));
 };
 
+/* Scale a whole [x,y,z] out to true scale, preserving its direction from the
+   Sun. Used to scatter off-line objects (anomalies, easter-eggs) so they keep
+   their themed neighbourhood (e.g. HAL stays by Jupiter) at the real distance. */
+export const remapPosition = ([x, y, z]) => {
+  const r = Math.hypot(x, y, z) || 1;
+  const f = remapRadius(r) / r;
+  return [x * f, y * f, z * f];
+};
+
 DESTINATIONS.forEach((d) => {
   const au = AU[d.id];
   if (!au) return; // the Sun stays at the origin

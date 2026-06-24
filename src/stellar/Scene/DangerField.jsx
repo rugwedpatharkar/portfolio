@@ -3,6 +3,7 @@ import { useMemo, useRef } from "react";
 import { useFrame, useThree } from "@react-three/fiber";
 import * as THREE from "three";
 import { useSceneClock } from "./SceneClock";
+import { remapPosition } from "../config/destinations";
 
 /*
  * Spaghettification danger field — the dread you feel flying too close to
@@ -31,7 +32,7 @@ import { useSceneClock } from "./SceneClock";
  * not decoration.
  */
 
-const GARGANTUA = new THREE.Vector3(960, -40, -70); // true-scale edge, beyond the Contact beacon
+const GARGANTUA = new THREE.Vector3(...remapPosition([49, -6, -15])); // true-scale edge, beyond the Contact beacon
 
 /* Scratch vector reused every frame — no per-frame allocation. */
 const _camPos = new THREE.Vector3();

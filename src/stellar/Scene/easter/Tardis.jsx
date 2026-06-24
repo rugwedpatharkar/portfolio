@@ -1,4 +1,5 @@
 /* eslint-disable react/no-unknown-property */
+import { remapPosition } from "../../config/destinations";
 import { useRef } from "react";
 import { useFrame } from "@react-three/fiber";
 
@@ -13,7 +14,7 @@ import { useFrame } from "@react-three/fiber";
 
 /* Bigger + closer to Saturn so the vworp is visible from the scroll
    tour camera, not just from free-roam. */
-const POSITION = [31.2, 2.0, 3.2];
+const POSITION = remapPosition([31.2, 2.0, 3.2]);
 const CYCLE = 90;
 const VISIBLE_FOR = 5;
 const SCALE = 1.8;

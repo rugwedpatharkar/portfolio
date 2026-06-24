@@ -14,8 +14,11 @@ import { voyagerPositions } from "../data/ephemeris";
  * scale, so we scale down 5× for visibility (≈43 units).
  */
 
-const AU_TO_SCENE = 1.3;
-const PROBE_SCALE_DOWN = 0.25;
+/* Placed near the true-scale edge: the Voyagers are ~140-165 AU out, far beyond
+   the planets. Brought just inside the navigable bound so you can still reach
+   them in the game. */
+const AU_TO_SCENE = 6.25;
+const PROBE_SCALE_DOWN = 1;
 
 const Probe = ({ name, auFromSun, direction, color }) => {
   const scenePos = useMemo(() => {

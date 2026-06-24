@@ -1,4 +1,4 @@
-import { DESTINATIONS } from "./destinations";
+import { DESTINATIONS, remapPosition } from "./destinations";
 import { PLANET_FACTS } from "../data/planetFacts";
 import { DWARF_PLANETS } from "./dwarfPlanets";
 
@@ -37,16 +37,16 @@ const DESTINATION_OBJECTS = DESTINATIONS.map((d, index) => ({
 }));
 
 /* Anomalies / ships / easter-eggs — clicking one flies the free camera there. */
-const ANOMALY_OBJECTS = [
+const ANOMALY_RAW = [
   {
-    id: "blackhole", label: "Gargantua", category: "Black hole", color: "#ffb066", position: [960, -40, -70],
+    id: "blackhole", label: "Gargantua", category: "Black hole", color: "#ffb066", position: [49, -6, -15],
     info: "A stellar-mass black hole at the edge of the system. Light bends around the event horizon — the accretion disk wraps up and over in a glowing Einstein ring.",
-    visit: { kind: "focus", cameraTarget: frame([960, -40, -70], 8, 2.4, 46) },
+    visit: { kind: "focus", cameraTarget: frame([49, -6, -15], 8, 2.4, 46) },
   },
   {
-    id: "wormhole", label: "Wormhole", category: "Portal", color: "#9a7dff", position: [791, 9.5, 26],
+    id: "wormhole", label: "Wormhole", category: "Portal", color: "#9a7dff", position: [48.55, 0.58, 1.62],
     info: "A traversable wormhole — the 'beam aboard' portal. Click the portal itself to book a call.",
-    visit: { kind: "focus", cameraTarget: frame([791, 9.5, 26], 2.3, 0.5, 40) },
+    visit: { kind: "focus", cameraTarget: frame([48.55, 0.58, 1.62], 2.3, 0.5, 40) },
   },
   {
     id: "pulsar", label: "Pulsar", category: "Neutron star", color: "#9fd0ff", position: [-26, 16, -34],
@@ -99,6 +99,25 @@ const ANOMALY_OBJECTS = [
     visit: { kind: "focus", cameraTarget: frame([42, -2.5, 8], 2.6, 0.7, 38) },
   },
 ];
+
+/* Scatter every off-line object out to true scale (keeps its themed
+   neighbourhood), preserving the small framing-camera offset. */
+const ANOMALY_OBJECTS = ANOMALY_RAW.map((o) => {
+  const np = remapPosition(o.position);
+  const c = o.visit.cameraTarget;
+  return {
+    ...o,
+    position: np,
+    visit: {
+      ...o.visit,
+      cameraTarget: {
+        position: [np[0] + (c.position[0] - o.position[0]), np[1] + (c.position[1] - o.position[1]), np[2] + (c.position[2] - o.position[2])],
+        lookAt: np,
+        fov: c.fov,
+      },
+    },
+  };
+});
 
 /* Dwarf planets + named belt bodies — scannable, on the radar, with real
    facts; rendered by Scene/DwarfPlanets from the same data. */

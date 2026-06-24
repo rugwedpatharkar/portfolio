@@ -1,4 +1,5 @@
 /* eslint-disable react/no-unknown-property */
+import { remapPosition } from "../../config/destinations";
 import { useRef } from "react";
 import { useFrame } from "@react-three/fiber";
 
@@ -8,7 +9,7 @@ import { useFrame } from "@react-three/fiber";
  * relative). Hidden far enough out you have to free-roam to find it.
  */
 
-const POSITION = [42, -2.5, 8];
+const POSITION = remapPosition([42, -2.5, 8]);
 
 const WallE = () => {
   const groupRef = useRef();

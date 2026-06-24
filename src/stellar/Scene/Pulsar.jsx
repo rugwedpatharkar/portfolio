@@ -3,6 +3,7 @@ import { useMemo, useRef } from "react";
 import { useFrame } from "@react-three/fiber";
 import * as THREE from "three";
 import { useSceneClock } from "./SceneClock";
+import { remapPosition } from "../config/destinations";
 
 /*
  * A pulsar — a rapidly spinning neutron star in the deep field. A tiny,
@@ -27,7 +28,7 @@ const BEAM_FRAG = /* glsl */ `
   }
 `;
 
-const Pulsar = ({ position = [-26, 16, -34], radius = 0.18 }) => {
+const Pulsar = ({ position = remapPosition([-26, 16, -34]), radius = 0.18 }) => {
   const spinRef = useRef();
   const coreRef = useRef();
   const coreMat = useRef();
