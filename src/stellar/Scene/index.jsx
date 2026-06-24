@@ -50,6 +50,7 @@ import FreeRoam from "./FreeRoam";
 import GameFlight from "./GameFlight";
 import CameraShake from "./CameraShake";
 import Voyager from "./Voyager";
+import RobotFleet from "./RobotFleet";
 import CommitComets from "./CommitComets";
 import DeathStar from "./easter/DeathStar";
 import Tardis from "./easter/Tardis";
@@ -359,6 +360,9 @@ const Scene = ({ scrollT, activeIdx, onJump, onReady, freeRoamEnabled, gameActiv
             keeps the warp/countdown window + LCP light, and trims the
             initial scene-graph build. */}
         {showExtras && <Voyager />}
+        {/* Humanity's robot fleet at their real locations (JWST@L2, Parker,
+            Juno, Lucy, New Horizons). */}
+        {showExtras && <RobotFleet />}
         {showExtras && !isMobile && <CommitComets />}
         {/* Easter eggs — lightweight, but no reason to build them during
             the intro. */}

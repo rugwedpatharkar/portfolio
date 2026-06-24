@@ -84,6 +84,31 @@ const ANOMALY_RAW = [
     visit: { kind: "focus", cameraTarget: frame([40, 3.5, -19], 4, 1, 42) },
   },
   {
+    id: "jwst", label: "JWST", category: "Probe", color: "#e8b84a", position: [11.7, 0.5, -1.5],
+    info: "James Webb Space Telescope — our largest space observatory, parked at Sun-Earth Lagrange point L2, 1.5 million km beyond Earth, its golden mirror permanently shaded from the Sun.",
+    visit: { kind: "focus", cameraTarget: frame([11.7, 0.5, -1.5], 2, 0.6, 38) },
+  },
+  {
+    id: "parker", label: "Parker Solar Probe", category: "Probe", color: "#ffcaa0", position: [2.9, 0.6, 1.6],
+    info: "Parker Solar Probe — the fastest human-made object ever and the first to 'touch' the Sun, flying through the corona behind a glowing heat shield at ~700,000 km/h.",
+    visit: { kind: "focus", cameraTarget: frame([2.9, 0.6, 1.6], 2.4, 0.6, 40) },
+  },
+  {
+    id: "juno", label: "Juno", category: "Probe", color: "#caa86a", position: [25.5, 0.3, 1.5],
+    info: "Juno — NASA's solar-powered orbiter studying Jupiter's deep interior and ferocious poles since 2016.",
+    visit: { kind: "focus", cameraTarget: frame([25.5, 0.3, 1.5], 2.6, 0.7, 40) },
+  },
+  {
+    id: "lucy", label: "Lucy", category: "Probe", color: "#cfd3d8", position: [13.8, 1.0, 20.5],
+    info: "Lucy — on a 12-year tour of Jupiter's Trojan asteroids, the trapped fossils of planet formation at the L4/L5 points.",
+    visit: { kind: "focus", cameraTarget: frame([13.8, 1.0, 20.5], 3, 0.8, 42) },
+  },
+  {
+    id: "newhorizons", label: "New Horizons", category: "Probe", color: "#d8d2c4", position: [46, 1.0, 2.2],
+    info: "New Horizons — flew past Pluto in 2015 (our first close look at the dwarf), then on to the Kuiper body Arrokoth; now ~60 AU out and still calling home.",
+    visit: { kind: "focus", cameraTarget: frame([46, 1.0, 2.2], 3, 0.8, 42) },
+  },
+  {
     id: "halley", label: "Halley's Comet", category: "Comet", color: "#9fdcff", position: [8, 2, -2],
     info: "1P/Halley — the most famous comet, swinging back every ~76 years on a steep, stretched orbit. Two tails: a straight blue ion tail blown dead anti-sunward by the solar wind, and a curved dust tail lagging its path. Last seen 1986; returns 2061.",
     visit: { kind: "focus", cameraTarget: frame([8, 2, -2], 5, 1.2, 44) },
