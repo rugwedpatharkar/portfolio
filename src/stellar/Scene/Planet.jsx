@@ -45,6 +45,7 @@ const Planet = ({
   rotationSpeed = 0.1,
   animate = true,
   rings = false,
+  faintRings = false, // Jupiter / Uranus / Neptune all have real, faint rings
   ringColor,
   axialTilt = 0,
   moons = 0,
@@ -288,6 +289,21 @@ const Planet = ({
               </mesh>
             </>
           )}
+        </group>
+      )}
+
+      {/* Faint dusty/narrow rings — Jupiter, Uranus, Neptune. Inherit the
+          planet's axial tilt, so Uranus's ride near-vertical (its ~98° roll). */}
+      {faintRings && (
+        <group rotation={[Math.PI / 2.05, 0, 0]}>
+          <mesh>
+            <ringGeometry args={[radius * 1.5, radius * 1.92, 96]} />
+            <meshBasicMaterial color={rColor} transparent opacity={0.1} side={THREE.DoubleSide} depthWrite={false} toneMapped={false} />
+          </mesh>
+          <mesh>
+            <ringGeometry args={[radius * 1.98, radius * 2.12, 96]} />
+            <meshBasicMaterial color={rColor} transparent opacity={0.06} side={THREE.DoubleSide} depthWrite={false} toneMapped={false} />
+          </mesh>
         </group>
       )}
 

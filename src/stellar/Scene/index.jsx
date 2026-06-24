@@ -237,6 +237,7 @@ const Scene = ({ scrollT, activeIdx, onJump, onReady, freeRoamEnabled, gameActiv
                 moonTexture={d.moonTexture}
                 tint={d.tint}
                 rings={d.rings}
+                faintRings={d.faintRings}
                 ringColor={d.ringColor}
                 axialTilt={d.axialTilt || 0}
                 moons={d.moons || 0}

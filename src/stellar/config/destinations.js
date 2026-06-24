@@ -116,6 +116,9 @@ export const DESTINATIONS = [
     texture: "/textures/planets/marsmap1k.jpg",
     bumpTexture: "/textures/planets/marsbump1k.jpg",
     axialTilt: 25.2 * DEG, // near-Earth obliquity — the polar caps sit off-vertical
+    moons: 2, // Phobos + Deimos — tiny captured rocks
+    moonColor: "#8a8276",
+    moonScale: 0.06,
     section: "projects",
     /* Mars — slight low angle (offset scaled to radius) */
     cameraTarget: { position: [15.47, 0.22, 0.81], lookAt: [15.3, 0.2, 0.6], fov: 44 },
@@ -152,10 +155,11 @@ export const DESTINATIONS = [
     /* Jupiter — wide + slight roll to sell the scale (offset scaled to radius) */
     cameraTarget: { position: [27.89, 1.39, 1.02], lookAt: [24.6, 0.1, -1.8], fov: 52, roll: -0.05 },
     axialTilt: 3.1 * DEG, // Jupiter spins nearly upright
-    moons: 9,
+    faintRings: true, // Jupiter's faint dusty ring (real)
+    moons: 4, // the four Galilean moons
     moonColor: "#cfc6e0",
     moonTexture: "/textures/planets/moonmap1k.jpg",
-    moonScale: 0.09,
+    moonScale: 0.045,
   },
   {
     id: "notes",
@@ -192,11 +196,12 @@ export const DESTINATIONS = [
        (Education read as empty), with the strong dutch tilt for its 98° axis. */
     cameraTarget: { position: [36.03, 0.87, 0.02], lookAt: [34.8, 0, -1.0], fov: 40, roll: 0.17 },
     axialTilt: 97.8 * DEG, // Uranus rolls on its side — the real ~98° obliquity
+    faintRings: true, // Uranus's narrow rings ride near-vertical with its tilt
 
     moons: 4,
     moonColor: "#d0ccea",
     moonTexture: "/textures/planets/moonmap1k.jpg",
-    moonScale: 0.1,
+    moonScale: 0.06,
   },
   {
     id: "hobbies",
@@ -213,10 +218,11 @@ export const DESTINATIONS = [
     /* Neptune — pulled back, lonely framing in the deep dark (offset scaled) */
     cameraTarget: { position: [40.54, 0.94, 2.34], lookAt: [39.0, 0, 0.8], fov: 44 },
     axialTilt: 28.3 * DEG, // Neptune's obliquity, close to Earth's
-    moons: 6,
+    faintRings: true, // Neptune's faint rings + arcs (real)
+    moons: 1, // Triton, the one large moon
     moonColor: "#b8d4ee",
     moonTexture: "/textures/planets/moonmap1k.jpg",
-    moonScale: 0.09,
+    moonScale: 0.07,
   },
 
   // Kuiper belt — Testimonials
