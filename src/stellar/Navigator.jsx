@@ -51,8 +51,9 @@ const Navigator = ({ scrollTRef, warpVelRef, reducedMotion, onDestinationChange 
        a "jump to lightspeed" on every switch. Frozen under reduced-motion. */
     let lastP = lenis.progress;
     let lastT = performance.now();
-    const WARP_GAIN = 2.6;   // scroll speed (progress/sec) → warp intensity
-    const WARP_DEADZONE = 0.015;
+    const WARP_GAIN = 3.6;   // scroll speed (progress/sec) → warp intensity
+    const WARP_DEADZONE = 0.012;
+    const WARP_MAX = 1.15;   // let fast transitions push past 1 for a harder jump
 
     /* Magnetic snap: when scrolling settles, glide to the EXACT nearest
        destination so you never rest parked between two bodies. Implemented
@@ -85,7 +86,7 @@ const Navigator = ({ scrollTRef, warpVelRef, reducedMotion, onDestinationChange 
         const vel = Math.abs(progress - lastP) / dt; // progress units / sec
         lastP = progress;
         lastT = now;
-        const target = Math.min(1, Math.max(0, (vel - WARP_DEADZONE) * WARP_GAIN));
+        const target = Math.min(WARP_MAX, Math.max(0, (vel - WARP_DEADZONE) * WARP_GAIN));
         warpVelRef.current = Math.max(warpVelRef.current || 0, target);
       }
       invalidate(); // request a Three.js render
