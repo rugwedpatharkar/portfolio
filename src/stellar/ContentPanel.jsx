@@ -368,7 +368,7 @@ const ProjectsContent = () => (
 
 const AchievementsContent = () => (
   <>
-    <SectionLabel color="#f8c555">ASTEROID BELT · Milestones</SectionLabel>
+    <SectionLabel color="#b9b0a2">CERES · Milestones</SectionLabel>
     <SectionTitle>{sectionMeta.achievements.heading}</SectionTitle>
     <SectionLede>{sectionMeta.achievements.description}</SectionLede>
     <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(240px, 1fr))", gap: 14 }}>
@@ -497,7 +497,7 @@ const HobbiesContent = () => (
 
 const TestimonialsContent = () => (
   <>
-    <SectionLabel color="rgba(180,180,255,0.8)">KUIPER BELT · Voices from afar</SectionLabel>
+    <SectionLabel color="#d2c2ac">PLUTO · Voices from afar</SectionLabel>
     <SectionTitle>{sectionMeta.testimonials.heading}</SectionTitle>
     <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(240px, 1fr))", gap: 14 }}>
       {testimonials.map((t) => (

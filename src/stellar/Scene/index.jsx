@@ -55,7 +55,7 @@ import Endurance from "./easter/Endurance";
 import StarDestroyer from "./easter/StarDestroyer";
 import Enterprise from "./easter/Enterprise";
 import useViewport from "../useViewport";
-import { DESTINATIONS, remapPosition } from "../config/destinations";
+import { DESTINATIONS, remapPosition, BACKGROUND_BELTS } from "../config/destinations";
 import { rotationSpeedFor } from "../config/planetData";
 
 /*
@@ -330,8 +330,16 @@ const Scene = ({ scrollT, activeIdx, onJump, onReady, freeRoamEnabled, gameActiv
         {!isMobile && <LensFlare position={[0, 0, 0]} />}
         {/* Orrery rings — the real orbital structure, shown in the system view. */}
         {showExtras && <OrbitRings wideRef={wideRef} />}
-        {/* Dwarf planets + named belt bodies (Ceres, Vesta, Pluto, Eris…). */}
+        {/* Dwarf planets + named belt bodies (Vesta, Eris, Makemake, Haumea). */}
         {showExtras && <DwarfPlanets animate={!reducedMotion} />}
+        {/* The asteroid + Kuiper belts as BACKGROUND scenery (no longer tour
+            stops — Ceres + Pluto host those sections). Faint debris rings. */}
+        {showExtras && (
+          <AsteroidBelt count={isMobile ? 600 : 1300} innerRadius={BACKGROUND_BELTS.asteroid.inner} outerRadius={BACKGROUND_BELTS.asteroid.outer} size={0.6} animate={!reducedMotion} />
+        )}
+        {showExtras && !isMobile && (
+          <AsteroidBelt count={900} innerRadius={BACKGROUND_BELTS.kuiper.inner} outerRadius={BACKGROUND_BELTS.kuiper.outer} size={1.3} animate={!reducedMotion} />
+        )}
         {/* Real solar eclipses — Earth's actual Moon + any planet you fly
             behind occlude the Sun (corona + chromosphere + diamond-ring). */}
         {showExtras && <SolarEclipse satelliteRef={moonWorldRef} eclipseRef={eclipseRef} reducedMotion={reducedMotion} />}

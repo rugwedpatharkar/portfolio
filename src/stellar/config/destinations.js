@@ -121,19 +121,21 @@ export const DESTINATIONS = [
     cameraTarget: { position: [15.47, 0.22, 0.81], lookAt: [15.3, 0.2, 0.6], fov: 44 },
   },
 
-  // Asteroid belt — Achievements
+  // Ceres — the dwarf planet IN the asteroid belt (Achievements). Keeps id +
+  // section so all lookups / content / hash stay intact; only the body changes.
   {
     id: "achievements",
-    kind: "belt",
-    label: "Asteroid Belt",
-    position: [19.5, 0, 0],
-    innerRadius: 18.5,
-    outerRadius: 20.5,
-    color: "#f8c555",
+    kind: "planet",
+    type: "rocky",
+    label: "Ceres",
+    position: [19.5, 0.4, 0.6],
+    radius: 0.0135, // 473 km — the asteroid belt's only dwarf planet, ~0.07× Earth
+    color: "#8a8378",
+    colorB: "#5b574e",
+    bumpTexture: "/textures/planets/moonbump1k.jpg",
     section: "achievements",
-    /* Asteroid belt — pulled-back banking sweep so the field reads as a full
-       composed arc, not a body cropped at the top edge. */
-    cameraTarget: { position: [20.2, 5.6, 8.2], lookAt: [18.6, 0, -0.4], fov: 50 },
+    /* Tight framing for the tiny dwarf (offset preserved through the AU remap). */
+    cameraTarget: { position: [19.54, 0.43, 0.65], lookAt: [19.5, 0.4, 0.6], fov: 44 },
   },
 
   // Outer system
@@ -222,18 +224,21 @@ export const DESTINATIONS = [
     moonScale: 0.07,
   },
 
-  // Kuiper belt — Testimonials
+  // Pluto — the dwarf planet IN the Kuiper belt (Testimonials). Keeps id +
+  // section so all lookups / content / hash stay intact; only the body changes.
   {
     id: "testimonials",
-    kind: "belt",
-    label: "Kuiper Belt",
-    position: [44, 0, 0],
-    innerRadius: 43,
-    outerRadius: 45,
-    color: "#b4b4ff",
+    kind: "planet",
+    type: "rocky",
+    label: "Pluto",
+    position: [44, 0.9, 1.4],
+    radius: 0.034, // 1,188 km — the famous Kuiper-belt dwarf planet
+    color: "#c9b6a0",
+    colorB: "#9a7b5e",
+    bumpTexture: "/textures/planets/moonbump1k.jpg",
     section: "testimonials",
-    /* Kuiper belt — high top-down drift over the debris */
-    cameraTarget: { position: [44, 3.4, 3.4], lookAt: [44, 0, 0], fov: 56 },
+    /* Tight framing for the small dwarf (offset preserved through the AU remap). */
+    cameraTarget: { position: [44.08, 0.97, 1.52], lookAt: [44, 0.9, 1.4], fov: 46 },
   },
 
   // Edge beacon — Contact
@@ -264,10 +269,16 @@ export const DESTINATIONS = [
 export const AU_UNIT = 95; // scene units per AU — large so the true-size Sun clears Mercury's orbit
 const AU = {
   about: 0.387, funfacts: 0.723, experience: 1.0, projects: 1.524,
-  achievements: 2.77, skills: 5.203, notes: 9.537, education: 19.191,
-  hobbies: 30.07, testimonials: 39, contact: 50,
+  achievements: 2.77, skills: 5.203, notes: 9.537, education: 19.191, // achievements = Ceres @ 2.77 AU
+  hobbies: 30.07, testimonials: 39.48, contact: 50, // testimonials = Pluto @ 39.48 AU
 };
-const AU_BELT = { achievements: [2.2, 3.3], testimonials: [30, 48] }; // [inner, outer] AU
+
+/* The asteroid + Kuiper belts are no longer tour stops — they render as
+   background scenery (Scene/index.jsx) at these true AU ranges (× AU_UNIT). */
+export const BACKGROUND_BELTS = {
+  asteroid: { inner: 2.2 * AU_UNIT, outer: 3.3 * AU_UNIT, color: "#c9b48a" },
+  kuiper: { inner: 30 * AU_UNIT, outer: 48 * AU_UNIT, color: "#9fb0d0" },
+};
 
 /* Sample curve (original radius → true radius) from the planets, used to remap
    arbitrary off-line objects so "near Saturn" / "past Neptune" stay true. */
@@ -304,23 +315,14 @@ DESTINATIONS.forEach((d) => {
   const f = (au * AU_UNIT) / r;
   const nx = x * f, nz = z * f;
   const cam = d.cameraTarget;
-  if (AU_BELT[d.id]) {
-    d.innerRadius = AU_BELT[d.id][0] * AU_UNIT;
-    d.outerRadius = AU_BELT[d.id][1] * AU_UNIT;
-    d.position = [nx, y, nz];
-    d.cameraTarget = {
-      ...cam,
-      position: [nx + (cam.position[0] - x) * f, y + (cam.position[1] - y) * f, nz + (cam.position[2] - z) * f],
-      lookAt: [nx, y, nz],
-    };
-  } else {
-    d.position = [nx, y, nz];
-    d.cameraTarget = {
-      ...cam,
-      position: [nx + (cam.position[0] - x), y + (cam.position[1] - y), nz + (cam.position[2] - z)],
-      lookAt: [nx + (cam.lookAt[0] - x), y + (cam.lookAt[1] - y), nz + (cam.lookAt[2] - z)],
-    };
-  }
+  /* Planet size is unchanged, so the framing offset is preserved — the body
+     just sits at its true distance. */
+  d.position = [nx, y, nz];
+  d.cameraTarget = {
+    ...cam,
+    position: [nx + (cam.position[0] - x), y + (cam.position[1] - y), nz + (cam.position[2] - z)],
+    lookAt: [nx + (cam.lookAt[0] - x), y + (cam.lookAt[1] - y), nz + (cam.lookAt[2] - z)],
+  };
 });
 
 export const DESTINATION_BY_ID = Object.fromEntries(

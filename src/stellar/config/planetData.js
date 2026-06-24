@@ -9,6 +9,7 @@
  */
 export const PLANET_DATA = {
   about:      { rotationHours: 1407.6,  eccentricity: 0.2056, inclination: 7.00 }, // Mercury
+  achievements: { rotationHours: 9.07,  eccentricity: 0.0785, inclination: 10.59 }, // Ceres (dwarf)
   funfacts:   { rotationHours: -5832.5, eccentricity: 0.0068, inclination: 3.39 }, // Venus — retrograde
   experience: { rotationHours: 23.93,   eccentricity: 0.0167, inclination: 0.00 }, // Earth
   projects:   { rotationHours: 24.62,   eccentricity: 0.0934, inclination: 1.85 }, // Mars
@@ -16,6 +17,7 @@ export const PLANET_DATA = {
   notes:      { rotationHours: 10.66,   eccentricity: 0.0565, inclination: 2.49 }, // Saturn
   education:  { rotationHours: -17.24,  eccentricity: 0.0457, inclination: 0.77 }, // Uranus — retrograde / on its side
   hobbies:    { rotationHours: 16.11,   eccentricity: 0.0113, inclination: 1.77 }, // Neptune
+  testimonials: { rotationHours: -153.3, eccentricity: 0.2444, inclination: 17.16 }, // Pluto — retrograde, eccentric, inclined
 };
 
 /* Visual spin rate (rad/s) from the real period: Earth is the anchor, others

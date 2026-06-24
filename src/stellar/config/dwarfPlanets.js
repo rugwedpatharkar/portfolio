@@ -8,21 +8,16 @@
  */
 import { remapRadius } from "./destinations";
 
+/* Ceres + Pluto are NOT here — they graduated to full tour stops (the
+   Achievements + Testimonials destinations). These are the remaining background
+   dwarf planets / large belt bodies. */
 const RAW = [
   // Asteroid belt
-  {
-    id: "ceres", label: "Ceres", position: [18.4, 0.5, 1.3], radius: 0.05, color: "#8a8378",
-    info: "The largest asteroid and the inner solar system's only dwarf planet — round under its own gravity, holding about a third of the belt's entire mass.",
-  },
   {
     id: "vesta", label: "Vesta", position: [20.4, -0.6, -1.1], radius: 0.04, color: "#b8a98c",
     info: "The brightest asteroid and second-largest belt body, scarred by a giant impact basin near its south pole that flung debris across the solar system.",
   },
   // Kuiper belt
-  {
-    id: "pluto", label: "Pluto", position: [43.3, 1.3, 2.2], radius: 0.058, color: "#c9b9a3",
-    info: "The famous dwarf planet — a frozen world with a vast nitrogen-ice 'heart', five moons, and a wildly tilted, eccentric orbit. Reclassified from planet in 2006.",
-  },
   {
     id: "eris", label: "Eris", position: [45.6, -1.4, -2.4], radius: 0.057, color: "#dad6cd",
     info: "The most massive dwarf planet known — its 2005 discovery is what prompted the demotion of Pluto. A distant, icy, highly reflective world.",

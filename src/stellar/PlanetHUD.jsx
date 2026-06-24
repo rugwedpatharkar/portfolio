@@ -18,12 +18,12 @@ const PLANET_FACTS = {
   funfacts: { class: "M-class Terrestrial", dist: "0.72 AU", diameter: "12,104 km", note: "Surface 462 °C. Receipts only." },
   experience: { class: "M-class Terrestrial · Cradle", dist: "1.00 AU", diameter: "12,742 km", note: "Where it all gets shipped." },
   projects: { class: "M-class Terrestrial", dist: "1.52 AU", diameter: "6,779 km", note: "Iron oxide. Things I built." },
-  achievements: { class: "C/S/M Spectral Mix", dist: "2.7 AU", diameter: "~600 km Ø", note: "Milestones in formation." },
+  achievements: { class: "Dwarf Planet · Ceres", dist: "2.77 AU", diameter: "940 km", note: "Crown of the asteroid belt." },
   skills: { class: "Gas Giant · Class I", dist: "5.2 AU", diameter: "139,820 km", note: "Galaxy of skills. 9 categories." },
   notes: { class: "Gas Giant · Ringed", dist: "9.5 AU", diameter: "116,460 km", note: "Notes you'd write home about." },
   education: { class: "Ice Giant · Tilted 98°", dist: "19.2 AU", diameter: "50,724 km", note: "Knowledge accumulated." },
   hobbies: { class: "Ice Giant · Methane Blue", dist: "30.1 AU", diameter: "49,244 km", note: "Beyond the code." },
-  testimonials: { class: "Trans-Neptunian Belt", dist: "30-50 AU", diameter: "~100 km Ø", note: "Voices from afar." },
+  testimonials: { class: "Dwarf Planet · Pluto", dist: "39.5 AU", diameter: "2,377 km", note: "Heart of the Kuiper belt." },
   contact: { class: "Edge Beacon", dist: "49 AU", diameter: "~ø transmitter", note: "Reach out. Signal back." },
 };
 
