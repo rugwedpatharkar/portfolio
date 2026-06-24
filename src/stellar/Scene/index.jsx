@@ -55,6 +55,7 @@ import StarDestroyer from "./easter/StarDestroyer";
 import Enterprise from "./easter/Enterprise";
 import useViewport from "../useViewport";
 import { DESTINATIONS } from "../config/destinations";
+import { rotationSpeedFor } from "../config/planetData";
 
 /*
  * Persistent Three.js scene. ONE canvas, single Suspense boundary.
@@ -241,7 +242,9 @@ const Scene = ({ scrollT, activeIdx, onJump, onReady, freeRoamEnabled, gameActiv
                 moons={d.moons || 0}
                 moonColor={d.moonColor}
                 moonScale={d.moonScale || 0.12}
-                rotationSpeed={0.07 + (d.radius || 0) * 0.04}
+                /* Real sidereal rotation: gas giants whirl, Venus/Mercury creep,
+                   Venus + Uranus spin retrograde (negative). */
+                rotationSpeed={rotationSpeedFor(d.id)}
                 animate={!reducedMotion}
                 onClick={handleClick}
                 onPointerOver={handleHoverIn}
