@@ -19,6 +19,30 @@ const ATMOSPHERE_PRESETS = {
   abyss: { color: "#9cc6d6", intensity: 0.50, power: 2.8, scale: 1.045 }, // Neptune — pale greenish-blue
 };
 
+/* Earth's auroral ovals — a radially-FEATHERED, angularly-rippled additive glow
+   (not a flat hula-hoop ring). Soft at both edges + waved around the oval, so it
+   reads as the dancing aurora borealis/australis ringing the magnetic poles. */
+const AURORA_VERT = /* glsl */ `
+  varying vec3 vLocal;
+  void main() { vLocal = position; gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0); }
+`;
+const AURORA_FRAG = /* glsl */ `
+  varying vec3 vLocal;
+  uniform vec3 uColor;
+  uniform float uInner;
+  uniform float uOuter;
+  void main() {
+    float r = length(vLocal.xy);
+    float t = clamp((r - uInner) / (uOuter - uInner), 0.0, 1.0);
+    float band = smoothstep(0.0, 0.42, t) * (1.0 - smoothstep(0.55, 1.0, t)); // feather both rims
+    float ang = atan(vLocal.y, vLocal.x);
+    float wave = 0.5 + 0.5 * sin(ang * 16.0) + 0.28 * sin(ang * 6.0 + 1.3);    // curtains
+    float a = band * clamp(wave, 0.0, 1.4) * 0.55;
+    if (a < 0.01) discard;
+    gl_FragColor = vec4(uColor * a, a);
+  }
+`;
+
 /*
  * Planet primitive. Renders a textured sphere when a `texture` URL is
  * provided, otherwise falls back to the procedural PlanetMaterial shader.
@@ -203,16 +227,17 @@ const Planet = ({
         }}
         position={[Math.cos(initial) * orbit, 0, Math.sin(initial) * orbit]}
       >
-        <sphereGeometry args={[radius * ms, 16, 16]} />
+        <sphereGeometry args={[radius * ms, 24, 24]} />
         <meshStandardMaterial
           color={mc}
           map={tex}
-          /* Lifted emissive floor so moons far from the sun still read as lit
-             bodies; `glow` adds a touch more for active moons (Io). */
-          emissive={new THREE.Color(mc).multiplyScalar((tex ? 0.16 : 0.4) + (md?.glow || 0))}
-          emissiveIntensity={tex ? 0.32 : md?.glow ? 0.9 : 0.6}
-          roughness={tex ? 0.9 : 0.6}
-          metalness={tex ? 0.04 : 0.12}
+          /* Low emissive floor only — the sun-direction KeyLight sculpts a real
+             day/night terminator on the moon instead of a flat self-lit glow.
+             Io keeps a small genuine self-emission for its volcanic look. */
+          emissive={new THREE.Color(mc).multiplyScalar((tex ? 0.05 : 0.06) + (md?.glow || 0))}
+          emissiveIntensity={tex ? 0.12 : md?.glow ? 0.45 : 0.16}
+          roughness={tex ? 0.9 : 0.7}
+          metalness={tex ? 0.04 : 0.1}
         />
       </mesh>
     );
@@ -229,6 +254,25 @@ const Planet = ({
   /* Real polar flattening: scale the body (and its atmosphere) along the spin
      axis (local Y). Rings + moons stay outside this so they keep circular. */
   const polarScale = [1, 1 - oblateness, 1];
+
+  /* One shared aurora material (Earth only) — feathered + rippled ovals. */
+  const auroraMat = useMemo(() => {
+    if (type !== "earth") return null;
+    return new THREE.ShaderMaterial({
+      vertexShader: AURORA_VERT,
+      fragmentShader: AURORA_FRAG,
+      uniforms: {
+        uColor: { value: new THREE.Color("#5cffae") },
+        uInner: { value: radius * 0.14 },
+        uOuter: { value: radius * 0.5 },
+      },
+      transparent: true,
+      depthWrite: false,
+      side: THREE.DoubleSide,
+      blending: THREE.AdditiveBlending,
+      toneMapped: false,
+    });
+  }, [type, radius]);
 
   return (
     <group position={position} ref={groupRef} rotation={[0, 0, axialTilt]}>
@@ -301,12 +345,12 @@ const Planet = ({
           haze; the planet, not the weather, is the subject. */}
       {isEarth && textureMap[cloudTexture] && (
         <mesh ref={cloudRef}>
-          <sphereGeometry args={[radius * 1.008, 32, 32]} />
+          <sphereGeometry args={[radius * 1.012, 32, 32]} />
           <meshStandardMaterial
             map={textureMap[cloudTexture]}
             alphaMap={textureMap[cloudTexture]}
             transparent
-            opacity={0.55}
+            opacity={0.4}
             depthWrite={false}
             roughness={1}
             metalness={0}
@@ -314,12 +358,13 @@ const Planet = ({
         </mesh>
       )}
 
-      {/* Aurorae — faint green auroral ovals ringing Earth's poles (additive;
-          the existing Bloom haloes them). Ride the planet's axial tilt. */}
-      {isEarth && [1, -1].map((s) => (
+      {/* Aurorae — feathered, rippling auroral ovals ringing Earth's poles
+          (additive; the existing Bloom haloes them). Ride the planet's axial
+          tilt. One shared shader material across both poles. */}
+      {isEarth && auroraMat && [1, -1].map((s) => (
         <mesh key={s} position={[0, radius * 0.92 * s, 0]} rotation={[Math.PI / 2, 0, 0]}>
-          <ringGeometry args={[radius * 0.16, radius * 0.44, 48]} />
-          <meshBasicMaterial color="#5cffae" transparent opacity={0.22} side={THREE.DoubleSide} blending={THREE.AdditiveBlending} depthWrite={false} toneMapped={false} />
+          <ringGeometry args={[radius * 0.14, radius * 0.5, 96]} />
+          <primitive object={auroraMat} attach="material" />
         </mesh>
       ))}
 

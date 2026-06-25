@@ -217,6 +217,10 @@ export const DESTINATIONS = [
     colorB: "#7ba8a0",
     texture: "/textures/planets/uranusmap_hd.jpg",
     bumpTexture: "/textures/planets/uranus_bump.jpg",
+    /* The bundled map is the Voyager-era over-saturated cyan; grade it toward
+       Uranus's real near-featureless PALE greenish-cyan (gentler than Neptune,
+       since Uranus is paler/blander). */
+    grade: { sat: 0.6, lift: 0.1, mix: 0.32, tint: "#b8d6d0" },
     section: "education",
     /* Uranus — closer + tighter fov so the planet fills the negative space
        (Education read as empty), with the strong dutch tilt for its 98° axis. */

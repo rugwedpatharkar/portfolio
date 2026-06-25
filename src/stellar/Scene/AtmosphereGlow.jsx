@@ -106,6 +106,7 @@ const AtmosphereGlow = ({
         side={THREE.BackSide}
         depthWrite={false}
         blending={THREE.AdditiveBlending}
+        toneMapped={false}
       />
     </mesh>
   );
