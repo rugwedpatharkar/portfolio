@@ -12,8 +12,10 @@ import AmbientAudio from "./AmbientAudio";
 import { ScrollHint } from "./Wayfinding";
 import OverviewMap from "./OverviewMap";
 import ScanReadout from "./ScanReadout";
+import CommandPalette from "./CommandPalette";
 import StellarUIContext from "./ui/StellarUIContext";
 import { OBJECTS } from "./config/objects";
+import { buildCommands } from "./config/commands";
 import { easterEggs } from "../content";
 import { DESTINATIONS } from "./config/destinations";
 import Achievements from "./Achievements";
@@ -107,6 +109,8 @@ const StellarApp = () => {
      on its own, pausing to dwell at each; any manual input cancels it. */
   const [autoTour, setAutoTour] = useState(false);
   const autoTourRef = useRef(null);
+  /* ⌘K command palette open state. */
+  const [paletteOpen, setPaletteOpen] = useState(false);
   const { reducedMotion, isMobile } = useViewport();
   const [activeIdx, setActiveIdx] = useState(0);
   const activeIdxRef = useRef(0);
@@ -451,6 +455,30 @@ const StellarApp = () => {
 
   /* UI/interaction state shared with the cockpit shell (dock, palette, HUD,
      rank meter) via context — they consume it instead of prop-drilling. */
+  /* ⌘K / Ctrl-K toggles the command palette (any mode). */
+  useEffect(() => {
+    const onK = (e) => {
+      if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === "k") { e.preventDefault(); setPaletteOpen((v) => !v); }
+    };
+    window.addEventListener("keydown", onK);
+    return () => window.removeEventListener("keydown", onK);
+  }, []);
+
+  /* Command registry bound to the app's handlers (commands whose handler isn't
+     provided are filtered out by the palette). */
+  const commands = useMemo(
+    () => buildCommands({
+      warpTo: (i) => { setPaletteOpen(false); handleJump(i); },
+      pick: (o) => { setPaletteOpen(false); handlePick(o); },
+      toggleMap: () => { setPaletteOpen(false); setMode((m) => (m === "overview" ? "tour" : "overview")); },
+      toggleLog: () => { setPaletteOpen(false); setLogOpen((v) => !v); },
+      startSpeedRun: () => { setPaletteOpen(false); setSpeedRunOn(true); },
+      enterPilot: () => { setPaletteOpen(false); togglePilot(); },
+      setTimeScale: (s) => { sceneClockRef.current.scale = s; },
+    }),
+    [handleJump, handlePick, togglePilot]
+  );
+
   const ui = useMemo(
     () => ({ mode, setMode, activeIdx, jumpTo: handleJump }),
     [mode, activeIdx, handleJump]
@@ -513,6 +541,7 @@ const StellarApp = () => {
           <EasterEgg />
           <AnswerListener />
           <DiscoveriesView open={logOpen} onClose={() => setLogOpen(false)} animate={!reducedMotion} />
+          <CommandPalette open={paletteOpen} commands={commands} onClose={() => setPaletteOpen(false)} />
           <FragmentToast />
           <HazardBanner clock={sceneClockRef.current} />
           {/* Minimal canopy HUD for the read-mode pilot (P key). */}
