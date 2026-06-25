@@ -314,6 +314,15 @@ const Planet = ({
         </mesh>
       )}
 
+      {/* Aurorae — faint green auroral ovals ringing Earth's poles (additive;
+          the existing Bloom haloes them). Ride the planet's axial tilt. */}
+      {isEarth && [1, -1].map((s) => (
+        <mesh key={s} position={[0, radius * 0.92 * s, 0]} rotation={[Math.PI / 2, 0, 0]}>
+          <ringGeometry args={[radius * 0.16, radius * 0.44, 48]} />
+          <meshBasicMaterial color="#5cffae" transparent opacity={0.22} side={THREE.DoubleSide} blending={THREE.AdditiveBlending} depthWrite={false} toneMapped={false} />
+        </mesh>
+      ))}
+
       {/* Atmosphere rim glow — earth-blue by default, custom per planet */}
       {hasTexture && ATMOSPHERE_PRESETS[type] && (
         <group scale={polarScale}>
