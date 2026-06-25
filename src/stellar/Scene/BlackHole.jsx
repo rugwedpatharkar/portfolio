@@ -73,8 +73,9 @@ const DISK_FRAG = /* glsl */ `
     float spin = uTime * (0.7 + 1.9 * (1.0 - r));
     vec3 sp = vec3(cos(ang + spin) * 3.0, sin(ang + spin) * 3.0, r * 6.0);
     float turb = fbm(sp + vec3(uTime * 0.15));
-    /* Fine tangential filaments so the plasma reads as flowing, not a smear. */
-    float streak = 0.6 + 0.4 * sin(ang * 22.0 + spin * 2.0 + turb * 6.0);
+    /* Subtle tangential filaments so the plasma reads as flowing — kept gentle
+       so the disk stays a smooth EHT-style ring, not a spiky starburst. */
+    float streak = 0.84 + 0.16 * sin(ang * 26.0 + spin * 2.0 + turb * 6.0);
 
     /* Radial profile: a sharp white-hot inner edge at the ISCO that falls off
        outward — the brightness lives in the inner third, like a real disk. */
