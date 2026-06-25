@@ -22,6 +22,8 @@ import AnswerListener from "./AnswerListener";
 import useViewport from "./useViewport";
 import SpeedRun from "./SpeedRun";
 import CockpitFrame from "./CockpitFrame";
+import CockpitHUD from "./CockpitHUD";
+import { itemsForSection } from "./data/sectionItems";
 import FragmentToast from "./FragmentToast";
 import HazardBanner from "./HazardBanner";
 import EclipseDimmer from "./EclipseDimmer";
@@ -90,6 +92,8 @@ const StellarApp = () => {
   const { reducedMotion, isMobile } = useViewport();
   const [activeIdx, setActiveIdx] = useState(0);
   const activeIdxRef = useRef(0);
+  /* Item index within the active section — ←→ moves along the planet's lane. */
+  const [itemIdx, setItemIdx] = useState(0);
   /* Wide pull-back ref kept permanently off — there's no toggle in the
      minimal UI, but CameraRig still reads it, so this keeps its wide branch
      a harmless no-op without touching the rig. */
@@ -168,6 +172,7 @@ const StellarApp = () => {
     if (idx !== -1) {
       setActiveIdx(idx);
       activeIdxRef.current = idx;
+      setItemIdx(0);
       /* Sync URL hash without re-scrolling */
       const next = `#/stellar/${dest.id}`;
       if (window.location.hash !== next) {
@@ -368,14 +373,27 @@ const StellarApp = () => {
         /* Step back: focused object → map; map → tour. */
         if (focusedObj) clearFocus();
         else setMode("tour");
-      } else if (k === "arrowdown" || k === "arrowright" || k === "pagedown") {
+      } else if (k === "arrowdown" || k === "pagedown" || k === "s") {
+        /* ↓ = next lane (planet). */
         e.preventDefault();
         setMode("tour");
         if (cur < N - 1) handleJump(cur + 1);
-      } else if (k === "arrowup" || k === "arrowleft" || k === "pageup") {
+      } else if (k === "arrowup" || k === "pageup" || k === "w") {
+        /* ↑ = previous lane (planet). */
         e.preventDefault();
         setMode("tour");
         if (cur > 0) handleJump(cur - 1);
+      } else if (k === "arrowleft" || k === "a") {
+        /* ← = previous object on this lane. */
+        e.preventDefault();
+        setItemIdx((i) => Math.max(0, i - 1));
+      } else if (k === "arrowright" || k === "d") {
+        /* → = next object on this lane. */
+        e.preventDefault();
+        setItemIdx((i) => {
+          const len = itemsForSection(DESTINATIONS[activeIdxRef.current]?.section).length || 1;
+          return Math.min(len - 1, i + 1);
+        });
       } else if (k === "home") {
         e.preventDefault();
         setMode("tour");
@@ -490,8 +508,29 @@ const StellarApp = () => {
           <HazardBanner clock={sceneClockRef.current} />
           {/* Minimal canopy HUD for the read-mode pilot (P key). */}
           <CockpitFrame enabled={mode === "pilot"} speedRef={pilotSpeedRef} />
-          {/* READ — the scroll-tour résumé (the single experience). */}
-          {mode === "tour" && <PlanetHUD destination={DESTINATIONS[activeIdx]} />}
+          {/* READ — the cockpit tour. CockpitHUD = the new diegetic chrome
+              (canopy, system ladder, item dial, nav pad, co-pilot); ContentPanel
+              carries the section content (becomes the item-view dossier in M2). */}
+          {mode === "tour" && (
+            <CockpitHUD
+              destination={DESTINATIONS[activeIdx]}
+              activeIdx={activeIdx}
+              itemIdx={itemIdx}
+              items={itemsForSection(DESTINATIONS[activeIdx]?.section)}
+              onPlanet={(dir) => {
+                setMode("tour");
+                const n = Math.max(0, Math.min(DESTINATIONS.length - 1, activeIdxRef.current + dir));
+                if (n !== activeIdxRef.current) handleJump(n);
+              }}
+              onItem={(dir) =>
+                setItemIdx((i) => {
+                  const len = itemsForSection(DESTINATIONS[activeIdxRef.current]?.section).length || 1;
+                  return Math.max(0, Math.min(len - 1, i + dir));
+                })
+              }
+              onBoard={() => {}}
+            />
+          )}
           {mode === "tour" && <ContentPanel destination={DESTINATIONS[activeIdx]} />}
           <OverviewHud overview={overview} />
           {mode === "tour" && <ScrollHint visible={activeIdx === 0 && !interacted} />}
