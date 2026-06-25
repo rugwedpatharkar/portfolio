@@ -7,7 +7,6 @@ import ContentPanel from "./ContentPanel";
 import Cursor from "./Cursor";
 import PlanetHUD from "./PlanetHUD";
 import MissionCountdown from "./MissionCountdown";
-import WarpField from "./WarpField";
 import AmbientAudio from "./AmbientAudio";
 import { ScrollHint } from "./Wayfinding";
 import OverviewMap from "./OverviewMap";
@@ -99,8 +98,8 @@ const StellarApp = () => {
   const { reducedMotion, isMobile } = useViewport();
   const [activeIdx, setActiveIdx] = useState(0);
   const activeIdxRef = useRef(0);
-  /* Hyperspeed warp intensity (0..1): scroll velocity during the tour + a
-     kick on far nav-jumps. Read by WarpField, written by Navigator. */
+  /* Hyperspeed warp intensity (0..1+): live travel speed, WRITTEN by CameraRig
+     each frame, READ by WarpStreaks (the GPU streak tunnel) + CameraRig's shake. */
   const warpVelRef = useRef(0);
   /* Wide pull-back ref kept permanently off — there's no toggle in the
      minimal UI, but CameraRig still reads it, so this keeps its wide branch
@@ -524,9 +523,6 @@ const StellarApp = () => {
         scrollTRef={scrollTRef}
         onDestinationChange={handleDestinationChange}
       />
-      {/* Hyperspeed streaks — driven by travel speed (scroll velocity +
-          launch warp). Sits under the content overlay. */}
-      <WarpField velocityRef={warpVelRef} launchPhase={launchPhase} />
       {shipWarpDone && (
         <>
           <Cursor />

@@ -9,6 +9,7 @@ import Stars from "./Stars";
 import Sun from "./Sun";
 import Planet from "./Planet";
 import CameraRig from "./CameraRig";
+import WarpStreaks from "./WarpStreaks";
 import AsteroidBelt from "./AsteroidBelt";
 import Nebulae from "./Nebulae";
 import VisibilityController from "./VisibilityController";
@@ -450,6 +451,8 @@ const Scene = ({ scrollT, activeIdx, onJump, onReady, freeRoamEnabled, speedRef,
              content column; compact/mobile keep it centred (stacked layout). */
           frameShift={isCompact ? 0 : 0.3}
         />
+        {/* Hyperspace warp streak tunnel (GPU) — intro fly-in + planet jumps. */}
+        {!reducedMotion && <WarpStreaks launchPhase={launchPhase} warpVelRef={warpVelRef} />}
       </Suspense>
 
       {/* Cinematic post-processing — the biggest visual upgrade.
