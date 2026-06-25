@@ -1,4 +1,5 @@
 /* eslint-disable react/prop-types */
+import { useEffect, useState } from "react";
 import { motion, useReducedMotion } from "motion/react";
 import { SC, rgba } from "./ui/tokens";
 import useViewport from "./useViewport";
@@ -43,6 +44,14 @@ const CORNERS = {
 export default function CockpitHUD({ destination, activeIdx = 0, itemIdx = 0, items = [], onPlanet, onItem, onBoard }) {
   const { isMobile } = useViewport();
   const reduce = useReducedMotion();
+  /* Brief HYPERDRIVE transit state on every nav (≈ the warp-jump duration). */
+  const [transit, setTransit] = useState(false);
+  useEffect(() => {
+    if (reduce) return undefined;
+    setTransit(true);
+    const t = setTimeout(() => setTransit(false), 1700);
+    return () => clearTimeout(t);
+  }, [destination?.id, itemIdx, reduce]);
   if (!destination) return null;
 
   const total = DESTINATIONS.length;
@@ -85,7 +94,13 @@ export default function CockpitHUD({ destination, activeIdx = 0, itemIdx = 0, it
       <div style={{ position: "absolute", top: 18, left: 46, right: 46, display: "flex", alignItems: "center", justifyContent: "space-between" }}>
         <span style={{ fontFamily: DISP, fontWeight: 700, fontSize: 13, letterSpacing: "0.22em", color: SC.blue }}>STELLAR COMMAND</span>
         {!isMobile && <span style={{ fontFamily: "'Oswald', sans-serif", fontSize: 12, letterSpacing: "0.22em", color: rgba(SC.blueInk, 0.7) }}>RUGWED SYSTEM — ORBITAL LANES</span>}
-        <span style={{ fontSize: 11, color: SC.blueInk }}>LANE {String(activeIdx + 1).padStart(2, "0")}/{total}</span>
+        <span style={{ fontSize: 11, color: SC.blueInk }}>
+          {transit ? (
+            <span style={{ color: SC.amber, fontWeight: 700, letterSpacing: "0.14em" }}>⟢ HYPERDRIVE</span>
+          ) : (
+            `LANE ${String(activeIdx + 1).padStart(2, "0")}/${total}`
+          )}
+        </span>
       </div>
       <div style={{ position: "absolute", top: 44, left: 46, right: 46, height: 1, background: rgba(SC.blue, 0.16) }} />
 
@@ -137,8 +152,10 @@ export default function CockpitHUD({ destination, activeIdx = 0, itemIdx = 0, it
       </div>
 
       {/* Co-pilot line — bottom left */}
-      <div style={{ position: "absolute", bottom: 24, left: 46, maxWidth: "44vw", fontSize: 10, color: SC.amberInk, opacity: 0.9, textShadow: "0 1px 10px rgba(0,0,0,.85)" }}>
-        ▸ CO-PILOT — {copilot}
+      <div style={{ position: "absolute", bottom: 24, left: 46, maxWidth: "44vw", fontSize: 10, color: transit ? SC.amber : SC.amberInk, opacity: 0.9, textShadow: "0 1px 10px rgba(0,0,0,.85)" }}>
+        {transit
+          ? `▸ HYPERDRIVE — jump to ${itemIdx >= 0 && curItem ? curItem.label : destination.label}`
+          : `▸ CO-PILOT — ${copilot}`}
       </div>
 
       {/* Hint line — bottom centre, under the dial */}
