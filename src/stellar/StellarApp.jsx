@@ -11,6 +11,7 @@ import WarpField from "./WarpField";
 import AmbientAudio from "./AmbientAudio";
 import { ScrollHint } from "./Wayfinding";
 import OverviewMap from "./OverviewMap";
+import ScanReadout from "./ScanReadout";
 import StellarUIContext from "./ui/StellarUIContext";
 import { OBJECTS } from "./config/objects";
 import { easterEggs } from "../content";
@@ -28,6 +29,7 @@ import FragmentToast from "./FragmentToast";
 import HazardBanner from "./HazardBanner";
 import EclipseDimmer from "./EclipseDimmer";
 import { markCharted, markVisited } from "./data/explorer";
+import { getBodyContent } from "./data/bodies";
 
 /* Hash → destination utilities */
 const findDestinationIndexByHash = (hash) => {
@@ -59,40 +61,6 @@ const OverviewHud = ({ overview }) =>
     </div>
   ) : null;
 
-/* Shown while visiting an object from the map (the free fly-to) — its detailed
-   info + a way back to the map. */
-const FocusCard = ({ obj, onBack }) => (
-  <div
-    style={{
-      position: "fixed",
-      bottom: 64,
-      left: "50%",
-      transform: "translateX(-50%)",
-      zIndex: 50,
-      width: "min(440px, 86vw)",
-      background: "rgba(8,11,24,0.85)",
-      backdropFilter: "blur(12px)",
-      WebkitBackdropFilter: "blur(12px)",
-      border: `1px solid ${obj.color || "#cfd6ff"}55`,
-      borderRadius: 12,
-      padding: "14px 18px",
-      boxShadow: "0 18px 50px rgba(0,0,0,0.55)",
-      textAlign: "left",
-    }}
-  >
-    <div style={{ display: "flex", alignItems: "baseline", justifyContent: "space-between", gap: 10 }}>
-      <span style={{ fontFamily: "'Michroma', sans-serif", fontSize: 15, color: "white", textTransform: "uppercase", letterSpacing: "0.04em" }}>{obj.label}</span>
-      <span style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 9.5, color: obj.color || "#cfd6ff", textTransform: "uppercase", letterSpacing: "0.08em" }}>{obj.category}</span>
-    </div>
-    <div style={{ fontFamily: "'Exo 2', sans-serif", fontSize: 13, color: "rgba(255,255,255,0.85)", lineHeight: 1.5, margin: "8px 0 12px" }}>{obj.info}</div>
-    <button
-      onClick={onBack}
-      style={{ all: "unset", cursor: "pointer", fontFamily: "'JetBrains Mono', monospace", fontSize: 10.5, letterSpacing: "0.1em", textTransform: "uppercase", color: "rgba(255,255,255,0.85)", border: "1px solid rgba(255,255,255,0.22)", borderRadius: 999, padding: "7px 14px" }}
-    >
-      ← Back to map · Esc
-    </button>
-  </div>
-);
 
 const StellarApp = () => {
   const scrollTRef = useRef(0);
@@ -368,6 +336,21 @@ const StellarApp = () => {
     [handleJump]
   );
 
+  /* Prev/next within the focused body's category (falls back to all scannable
+     objects when the category has only one) — powers the scan-readout arrows. */
+  const cycleFocus = useCallback(
+    (dir) => {
+      if (!focusedObj) return;
+      const focusables = OBJECTS.filter((o) => o.visit.kind === "focus");
+      const sameCat = focusables.filter((o) => o.category === focusedObj.category);
+      const list = sameCat.length > 1 ? sameCat : focusables;
+      const i = list.findIndex((o) => o.id === focusedObj.id);
+      const next = list[(i + dir + list.length) % list.length];
+      if (next) handlePick(next);
+    },
+    [focusedObj, handlePick]
+  );
+
   /* Fade the scroll hint on the first real interaction (or after 8s). */
   useEffect(() => {
     if (!shipWarpDone || interacted) return undefined;
@@ -405,6 +388,12 @@ const StellarApp = () => {
          hub only listens for Esc / P to dock. */
       if (k === "p") { e.preventDefault(); togglePilot(); return; }
       if (mode === "pilot") { if (k === "escape") setMode("tour"); return; }
+      /* Scan card open: arrows cycle prev/next within the body's category. */
+      if (focusedObj) {
+        if (k === "arrowleft" || k === "arrowup") { e.preventDefault(); cycleFocus(-1); return; }
+        if (k === "arrowright" || k === "arrowdown") { e.preventDefault(); cycleFocus(1); return; }
+        if (k === "escape") { clearFocus(); return; }
+      }
       if (k === "z") {
         e.preventDefault();
         setMode((m) => (m === "overview" ? "tour" : "overview"));
@@ -432,7 +421,7 @@ const StellarApp = () => {
     };
     window.addEventListener("keydown", onKey);
     return () => window.removeEventListener("keydown", onKey);
-  }, [shipWarpDone, handleJump, focusedObj, clearFocus, logOpen, mode, togglePilot]);
+  }, [shipWarpDone, handleJump, focusedObj, clearFocus, cycleFocus, logOpen, mode, togglePilot]);
 
   /* Browser back/forward should also navigate */
   useEffect(() => {
@@ -518,7 +507,14 @@ const StellarApp = () => {
           <OverviewHud overview={overview} />
           {mode === "tour" && <ScrollHint visible={activeIdx === 0 && !interacted} />}
           <OverviewMap objects={OBJECTS} cameraRef={cameraRef} visible={overview && !focusedObj} onPick={handlePick} />
-          {focusedObj && <FocusCard obj={focusedObj} onBack={clearFocus} />}
+          {focusedObj && (
+            <ScanReadout
+              content={getBodyContent(focusedObj.id)}
+              onBack={clearFocus}
+              onPrev={() => cycleFocus(-1)}
+              onNext={() => cycleFocus(1)}
+            />
+          )}
           {/* Minimal by design — just the résumé tour + the system overview (Z). */}
           <SpeedRun activeIdx={activeIdx} active={speedRunOn} onToggle={() => setSpeedRunOn((v) => !v)} />
           {/* Guided auto-tour — flies the whole system on its own (a quick look
