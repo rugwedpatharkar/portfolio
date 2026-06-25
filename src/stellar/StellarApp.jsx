@@ -22,6 +22,7 @@ import AnswerListener from "./AnswerListener";
 import useViewport from "./useViewport";
 import SpeedRun from "./SpeedRun";
 import ScrollProgress from "./ScrollProgress";
+import GalacticInset from "./GalacticInset";
 import CockpitFrame from "./CockpitFrame";
 import FragmentToast from "./FragmentToast";
 import HazardBanner from "./HazardBanner";
@@ -518,6 +519,8 @@ const StellarApp = () => {
           )}
           {/* Slim tour-progress rail on the right edge. */}
           {mode === "tour" && <ScrollProgress scrollTRef={scrollTRef} />}
+          {/* "You are here" galactic-context inset (desktop). */}
+          {!isMobile && <GalacticInset reducedMotion={reducedMotion} />}
         </>
       )}
       {/* Countdown plays FIRST on mount; the warp fly-in (WarpField streaks
