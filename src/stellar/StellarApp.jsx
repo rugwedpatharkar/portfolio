@@ -105,6 +105,9 @@ const StellarApp = () => {
      live-camera handle the overview map projects object positions through. */
   const focusRef = useRef(null);
   const cameraRef = useRef(null);
+  /* Hyperspace-tube intensity, pulsed on a ←→ hyperloop shift; + its decay timer. */
+  const warpVelRef = useRef(0);
+  const warpTimer = useRef(null);
   /* Flight: live speed (the gauge) + thruster input, read by the rigs. */
   const pilotSpeedRef = useRef(0);
   const thrustRef = useRef({});
@@ -201,6 +204,12 @@ const StellarApp = () => {
       dist: 1.8,
       fov: 42,
     };
+    /* Fire the hyperspace tube for the shift, then let it collapse to points. */
+    warpVelRef.current = 1.3;
+    clearTimeout(warpTimer.current);
+    warpTimer.current = setTimeout(() => {
+      warpVelRef.current = 0;
+    }, 300);
   }, [itemIdx, activeIdx, mode]);
 
   const handleJump = useCallback((idx) => {
@@ -502,6 +511,7 @@ const StellarApp = () => {
         wideRef={wideRef}
         wideOrbitRef={wideOrbitRef}
         focusRef={focusRef}
+        warpVelRef={warpVelRef}
         cameraRef={cameraRef}
         clock={sceneClockRef.current}
         extrasPhase={extrasPhase}
