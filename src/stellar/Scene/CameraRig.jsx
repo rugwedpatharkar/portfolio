@@ -195,6 +195,15 @@ const CameraRig = ({
     /* Expose the live camera to DOM overlays (the overview map projects
        object positions to screen space through it). */
     if (cameraRef) cameraRef.current = camera;
+    if (typeof window !== "undefined") {
+      window.__dbg = {
+        warp: +(warpVelRef?.current ?? 0).toFixed(2),
+        jactive: jump.current.active,
+        jkey: jump.current.lastKey,
+        camd: +camera.position.length().toFixed(1),
+        fkey: focusRef?.current?.target ? `${focusRef.current.target.destId}:${focusRef.current.target.k}` : "-",
+      };
+    }
 
     const d = Math.min(dt || 1 / 60, 1 / 20);
     /* Scaled "world time" from the shared virtual clock — the SAME source
@@ -477,7 +486,10 @@ const CameraRig = ({
     }
     if (jump.current.active) {
       const J = jump.current;
-      J.elapsed += d;
+      /* Advance on REAL delta (not the orbit-tracking clamped `d`) so the jump
+         finishes in `dur` real seconds regardless of frame rate — a clamped
+         delta lags real time on slow GPUs and leaves the warp stuck on. */
+      J.elapsed += Math.min(dt || 1 / 60, 0.25);
       const p = THREE.MathUtils.clamp(J.elapsed / J.dur, 0, 1);
       const e = p * p * (3 - 2 * p); // accelerate then decelerate
       camera.position.copy(J.fromPos).lerp(_camTarget, e);
