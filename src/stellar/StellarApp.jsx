@@ -116,6 +116,10 @@ const StellarApp = () => {
   const [logOpen, setLogOpen] = useState(false);
   /* Speed-run challenge toggle. */
   const [speedRunOn, setSpeedRunOn] = useState(false);
+  /* Guided auto-tour ("Grand Tour"): cinematically advances through every stop
+     on its own, pausing to dwell at each; any manual input cancels it. */
+  const [autoTour, setAutoTour] = useState(false);
+  const autoTourRef = useRef(null);
   const { reducedMotion, isMobile } = useViewport();
   const [activeIdx, setActiveIdx] = useState(0);
   const activeIdxRef = useRef(0);
@@ -234,6 +238,34 @@ const StellarApp = () => {
       window.scrollTo({ top: targetY, behavior: "smooth" });
     }
   }, []);
+
+  /* Guided auto-tour: start at Sol, then advance one stop every STEP_MS (glide
+     + dwell to read it); any manual scroll/touch/key cancels; stop at the end. */
+  useEffect(() => {
+    if (!autoTour) return undefined;
+    const N = DESTINATIONS.length;
+    const STEP_MS = 6500; // ~2.4s glide + ~4s dwell per stop
+    setMode("tour");
+    let idx = 0;
+    handleJump(0);
+    const advance = () => {
+      idx += 1;
+      if (idx >= N) { setAutoTour(false); return; }
+      handleJump(idx);
+      autoTourRef.current = setTimeout(advance, STEP_MS);
+    };
+    autoTourRef.current = setTimeout(advance, STEP_MS);
+    const cancel = () => setAutoTour(false);
+    window.addEventListener("wheel", cancel, { passive: true });
+    window.addEventListener("touchstart", cancel, { passive: true });
+    window.addEventListener("keydown", cancel);
+    return () => {
+      if (autoTourRef.current) clearTimeout(autoTourRef.current);
+      window.removeEventListener("wheel", cancel);
+      window.removeEventListener("touchstart", cancel);
+      window.removeEventListener("keydown", cancel);
+    };
+  }, [autoTour, handleJump]);
 
   /* Read URL hash once the countdown finishes (full intro complete),
      then jump there if it points to a non-Sol destination. */
@@ -466,6 +498,21 @@ const StellarApp = () => {
           {focusedObj && <FocusCard obj={focusedObj} onBack={clearFocus} />}
           {/* Minimal by design — just the résumé tour + the system overview (Z). */}
           <SpeedRun activeIdx={activeIdx} active={speedRunOn} onToggle={() => setSpeedRunOn((v) => !v)} />
+          {/* Guided auto-tour — flies the whole system on its own (a quick look
+              without scrolling). Any manual scroll/touch/key cancels it. */}
+          {mode === "tour" && (
+            <button
+              onClick={() => setAutoTour((v) => !v)}
+              aria-label={autoTour ? "Stop the guided tour" : "Play a guided tour through the whole system"}
+              style={{ position: "fixed", top: 16, left: "50%", transform: "translateX(-50%)", zIndex: 47, cursor: "pointer",
+                display: "flex", alignItems: "center", gap: 8, padding: "7px 15px", borderRadius: 999,
+                background: autoTour ? "rgba(255,107,107,0.18)" : "rgba(8,11,24,0.7)", backdropFilter: "blur(10px)", WebkitBackdropFilter: "blur(10px)",
+                border: `1px solid ${autoTour ? "rgba(255,107,107,0.55)" : "rgba(150,195,255,0.45)"}`, color: "#fff", fontFamily: "'JetBrains Mono', monospace", fontSize: 10, letterSpacing: "0.12em" }}
+            >
+              <span style={{ fontSize: 12, lineHeight: 1 }}>{autoTour ? "⏸" : "▶"}</span>
+              {autoTour ? "STOP TOUR" : "GRAND TOUR"}
+            </button>
+          )}
         </>
       )}
       {/* Countdown plays FIRST on mount; the warp fly-in (WarpField streaks
