@@ -30,6 +30,25 @@ const VERT = /* glsl */ `
   }
 `;
 
+/* Depth-pass shader for the SHADOW the rings throw on the planet. A transparent
+   ShaderMaterial with depthWrite:false writes nothing to the shadow map, so the
+   rings would cast NO shadow — defeating the iconic Saturn ring-shadow band. We
+   give the mesh a customDepthMaterial that alpha-tests the SAME radial density,
+   so only the solid B/A-rings cast shadow and the Cassini Division shows as a
+   bright stripe across the band. */
+const DEPTH_FRAG = /* glsl */ `
+  #include <packing>
+  varying float vR;
+  void main() {
+    float r = vR;
+    float dens = smoothstep(0.0, 0.10, r) * (1.0 - smoothstep(0.94, 1.0, r));
+    dens *= 1.0 - 0.93 * exp(-pow((r - 0.63) / 0.014, 2.0));  // Cassini Division
+    dens *= 1.0 - 0.65 * exp(-pow((r - 0.89) / 0.006, 2.0));  // Encke gap
+    if (dens < 0.38) discard;
+    gl_FragColor = packDepthToRGBA(gl_FragCoord.z);
+  }
+`;
+
 const FRAG = /* glsl */ `
   varying float vR;
   uniform sampler2D uMap;
@@ -97,6 +116,18 @@ const RingSystem = ({ radius, texture, tint = "#f5e2b8" }) => {
     [texture, inner, outer, tint]
   );
 
+  /* The shadow-caster material — same geometry + radial density, alpha-tested. */
+  const depthMaterial = useMemo(
+    () =>
+      new THREE.ShaderMaterial({
+        vertexShader: VERT,
+        fragmentShader: DEPTH_FRAG,
+        uniforms: { uInner: { value: inner }, uOuter: { value: outer } },
+        side: THREE.DoubleSide,
+      }),
+    [inner, outer]
+  );
+
   useFrame(() => {
     material.uniforms.uTime.value = sceneClock.t;
   });
@@ -105,6 +136,7 @@ const RingSystem = ({ radius, texture, tint = "#f5e2b8" }) => {
     <mesh ref={matRef} castShadow receiveShadow>
       <ringGeometry args={[inner, outer, 196, 4]} />
       <primitive object={material} attach="material" />
+      <primitive object={depthMaterial} attach="customDepthMaterial" />
     </mesh>
   );
 };
