@@ -127,7 +127,6 @@ const PlanetHUD = ({ destination }) => {
           <span style={{ display: "inline-block", width: 6, height: 6, background: destination.color, borderRadius: "50%", animation: "hudpulse 1.4s ease-in-out infinite" }} />
           <span>TARGET ACQUIRED</span>
         </div>
-        <span style={{ fontSize: 9, color: "rgba(255,255,255,0.4)" }}>{destination.id.toUpperCase()}</span>
       </div>
       {/* Big label */}
       <div style={{ fontSize: 16, color: "white", marginBottom: 5, fontFamily: "'Michroma', sans-serif", textTransform: "uppercase", letterSpacing: "0.04em", lineHeight: 1.18 }}>
@@ -209,7 +208,6 @@ const PlanetHUD = ({ destination }) => {
           <span style={{ display: "inline-block", width: 6, height: 6, background: destination.color, borderRadius: "50%", animation: "hudpulse 1.4s ease-in-out infinite" }} />
           <span>TARGET ACQUIRED</span>
         </div>
-        <span style={{ fontSize: 9, color: "rgba(255,255,255,0.4)" }}>{destination.id.toUpperCase()}</span>
       </div>
       <div style={{ fontSize: 16, color: "white", marginBottom: 5, fontFamily: "'Michroma', sans-serif", textTransform: "uppercase", letterSpacing: "0.04em", lineHeight: 1.18 }}>
         <Typed text={destination.label || destination.id} speed={28} deps={[destination.id]} />
