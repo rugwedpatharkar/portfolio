@@ -42,7 +42,7 @@ const UP = new THREE.Vector3(0, 1, 0);
 const AtlasComet = ({
   start = [560, 185, -210], // ride ABOVE the ecliptic so it never sits on the belt / over the Sun
   vel = [-150, 3, 52], // retrograde sweep, staying high
-  coma = "#c4e8f5", // icy cyan-blue (vibrance pushes cyan, never green — no "green belt")
+  coma = "#aee0c8", // 3I/ATLAS's signature blue-GREEN C₂ coma (desaturated teal — its whole point)
   ion = "#bfe2f5",
   dust = "#ffe6b0",
   antiTail = true, // the rare sunward spike (ATLAS only)
@@ -72,7 +72,7 @@ const AtlasComet = ({
     });
   const ionMat = useMemo(() => mk(ion, 0, 1.6, 0), [ion]);
   const dustMat = useMemo(() => mk(dust, 0, 2.1, 0), [dust]);
-  const antiMat = useMemo(() => mk("#cfeecf", 0, 2.4, 0), []);
+  const antiMat = useMemo(() => mk("#ffe6c0", 0, 2.4, 0), []); // anti-tail is a faint DUST spike (yellow-white), not green
 
   const antiSun = useMemo(() => new THREE.Vector3(), []);
   const sunward = useMemo(() => new THREE.Vector3(), []);
@@ -104,7 +104,7 @@ const AtlasComet = ({
     const act = THREE.MathUtils.clamp((ACTIVE_R - p.length()) / (ACTIVE_R - PEAK_R), 0, 1);
     ionMat.uniforms.uOpacity.value = 0.36 * act;
     dustMat.uniforms.uOpacity.value = 0.26 * act;
-    antiMat.uniforms.uOpacity.value = (antiTail ? 0.16 : 0) * act;
+    antiMat.uniforms.uOpacity.value = (antiTail ? 0.1 : 0) * act;
   });
 
   return (

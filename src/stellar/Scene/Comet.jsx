@@ -105,6 +105,7 @@ function orbitAt(E, out) {
 const Comet = () => {
   const sceneClock = useSceneClock();
   const headRef = useRef();
+  const comaRef = useRef();
   const ionRef = useRef();
   const dustRef = useRef();
   const mean = useRef(0.18); // start just past perihelion → active + visible immediately
@@ -113,7 +114,7 @@ const Comet = () => {
 
   const ionUniforms = useMemo(
     () => ({
-      uColor: { value: new THREE.Color("#5fa8ff") },
+      uColor: { value: new THREE.Color("#a9c7ff") },
       uOpacity: { value: 0.0 },
       uTime: { value: 0 },
     }),
@@ -180,18 +181,27 @@ const Comet = () => {
       dustUniforms.uBendAxis.value.copy(bendWorld).applyQuaternion(qInv).normalize();
     }
 
-    /* Activity: tails grow as it dives sunward, vanish at aphelion. */
+    /* Activity: tails grow as it dives sunward, vanish at aphelion. The DUST
+       tail is the broad, bright, dominant one (real comets); the ion tail is the
+       fainter, thinner blue streak. */
     const act = THREE.MathUtils.clamp((ACTIVE_R - p.length()) / (ACTIVE_R - ACTIVE_PEAK), 0, 1);
-    ionUniforms.uOpacity.value = 0.95 * act;
-    dustUniforms.uOpacity.value = 0.62 * act;
+    ionUniforms.uOpacity.value = 0.55 * act;
+    dustUniforms.uOpacity.value = 0.78 * act;
+
+    /* Coma brightens AND swells as the comet nears the Sun (sublimation), not a
+       fixed blob. */
+    if (comaRef.current) {
+      comaRef.current.scale.setScalar(0.7 + 0.95 * act);
+      comaRef.current.material.opacity = 0.1 + 0.22 * act;
+    }
 
     /* Cosmetic shimmer on the ion filaments — frozen under reduced-motion
        because sceneClock.t stays 0 there. */
     ionUniforms.uTime.value = sceneClock ? sceneClock.t : 0;
   });
 
-  const ionLen = 40;
-  const dustLen = 28;
+  const ionLen = 34;
+  const dustLen = 46;
   /* Lateral bow at the dust-tail tip, scaled to length so the arc stays
      proportional. */
   dustUniforms.uBend.value = dustLen * 0.42;
@@ -204,7 +214,7 @@ const Comet = () => {
           <sphereGeometry args={[0.35, 14, 14]} />
           <meshBasicMaterial color="#eaf4ff" toneMapped={false} />
         </mesh>
-        <mesh>
+        <mesh ref={comaRef}>
           <sphereGeometry args={[1.7, 16, 16]} />
           <meshBasicMaterial
             color="#bfe0ff"
@@ -221,7 +231,7 @@ const Comet = () => {
           nucleus), apex out along the tail direction. Thin + long + straight. */}
       <group ref={ionRef}>
         <mesh position={[0, ionLen / 2, 0]}>
-          <coneGeometry args={[0.65, ionLen, 16, 1, true]} />
+          <coneGeometry args={[0.4, ionLen, 16, 1, true]} />
           <shaderMaterial
             vertexShader={ION_VERT}
             fragmentShader={ION_FRAG}
@@ -239,7 +249,7 @@ const Comet = () => {
           silhouette stays smooth. */}
       <group ref={dustRef}>
         <mesh position={[0, dustLen / 2, 0]}>
-          <coneGeometry args={[2.0, dustLen, 24, 24, true]} />
+          <coneGeometry args={[2.6, dustLen, 24, 24, true]} />
           <shaderMaterial
             vertexShader={DUST_VERT}
             fragmentShader={DUST_FRAG}
