@@ -350,9 +350,16 @@ const CameraRig = ({
             else _dir.set(0, 0, 1);
           }
           /* camera sits on the FROM side of the target, looking in the travel
-             direction; a small lift keeps some lighting dimension. */
+             direction. Lift it off the approach axis (perpendicular up) — much
+             more on an INWARD approach — so the Sun crests the planet's limb
+             instead of framing a dead, unlit night side (the black screen). */
           const D = focus.target.k >= 0 ? FOCUS_DIST : Math.max(2.5, (tgt.radius / Math.tan(BACKLIT_HALF_ANGLE)) * 1.12);
-          _camTarget.copy(_p).addScaledVector(_dir, -D).addScaledVector(UP, D * 0.18);
+          _radial.copy(_p);
+          if (_radial.lengthSq() > 1e-6) _radial.normalize(); else _radial.set(1, 0, 0);
+          const inward = Math.max(0, -_dir.dot(_radial)); // 1 when flying toward the Sun
+          _upp.copy(UP).addScaledVector(_dir, -UP.dot(_dir));
+          if (_upp.lengthSq() < 1e-6) _upp.set(0, 1, 0); else _upp.normalize();
+          _camTarget.copy(_p).addScaledVector(_dir, -D).addScaledVector(_upp, D * (0.18 + 0.45 * inward));
           _lookTarget.copy(_p);
         }
       } else {
