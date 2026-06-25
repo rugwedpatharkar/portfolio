@@ -89,10 +89,16 @@ const SUN_FRAG = /* glsl */ `
     surface = mix(surface, surface * (0.75 + 0.5 * superg), 0.5);
     surface = mix(surface, detail, 0.12);
 
-    /* Drifting sunspots — low-freq mask, darkened umbra. */
+    /* Drifting sunspots — realistic UMBRA (near-black core) wrapped in a
+       lighter, filamentary PENUMBRA, from nested thresholds on one low-freq
+       mask. The penumbra picks up high-freq filaments so its fringe shimmers
+       like the real radial penumbral threads. */
     float spotN = snoise(dir * 1.7 + vec3(uTime * 0.015, 0.0, 0.0));
-    float spot = smoothstep(0.30, 0.48, spotN);
-    float spotDark = 1.0 - spot * 0.78;
+    float penumbra = smoothstep(0.24, 0.40, spotN);
+    float umbra    = smoothstep(0.40, 0.50, spotN);
+    float filament = snoise(dir * 38.0 + warp * 2.0) * 0.5 + 0.5;
+    float spotDark = mix(1.0, 0.50 + 0.20 * filament, penumbra); // penumbral fringe
+    spotDark *= mix(1.0, 0.15, umbra);                           // umbral core
 
     /* Colour ramp cool → mid → hot. */
     vec3 col = mix(uCool, uMid, smoothstep(0.18, 0.55, surface));
@@ -102,6 +108,13 @@ const SUN_FRAG = /* glsl */ `
     /* Limb darkening — photosphere centre is brighter than the edge. */
     float ndv = max(dot(normalize(vNormal), normalize(uCameraPos - vWorldPos)), 0.0);
     col *= 0.5 + 0.5 * pow(ndv, 0.5);
+
+    /* Faculae — the bright magnetic network, most visible near the limb (where
+       the photosphere is dimmer), giving the granular brightening seen around
+       active regions. Added after limb darkening so it lifts the dim edge. */
+    float net = pow(snoise(dir * 22.0 + warp) * 0.5 + 0.5, 3.0);
+    float facula = net * pow(1.0 - ndv, 2.0);
+    col += facula * vec3(1.0, 0.93, 0.78) * 0.30;
 
     col *= 1.55; // over-bright so bloom blooms it into a star
     gl_FragColor = vec4(col, 1.0);
