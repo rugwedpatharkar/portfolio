@@ -78,6 +78,7 @@ const _radial = new THREE.Vector3();
 const _dir = new THREE.Vector3();
 const _upp = new THREE.Vector3();
 const _up2 = new THREE.Vector3();
+const _camDir = new THREE.Vector3();
 
 const fAlpha = (base, dt) => 1 - Math.pow(1 - base, dt * 60);
 
@@ -327,9 +328,13 @@ const CameraRig = ({
     const wide = !focus && !!wideRef?.current;
     if (focus) {
       if (focus.live && focus.target) {
-        /* Travel framing — approach the target FROM the previous body's
-           direction, so a jump reads as an actual A→B journey. Both positions
-           are live, so the frame keeps tracking as the bodies orbit. */
+        /* Travel framing — approach the target from where you came. OBJECTS use
+           the pure travel direction (sit on the FROM side). PLANETS/Sun frame on
+           the Sun–body RADIAL axis, with the side chosen by travel direction, so
+           the Sun is always in view: an OUTWARD hop sits sunward and looks out
+           (lit face + the later planets beyond); an INWARD hop sits on the far
+           side and looks in, so the Sun fills the background behind the body
+           (backlit) — never the off-axis dead night side that read as black. */
         const tgt = DEST_BY_ID[focus.target.destId];
         if (tgt) {
           if (focus.target.k >= 0) laneObjectPosition(tgt, focus.target.k, t, _p);
@@ -344,22 +349,20 @@ const CameraRig = ({
               if (_dir.lengthSq() > 1e-6) { _dir.normalize(); haveFrom = true; }
             }
           }
-          if (!haveFrom) {
-            _dir.copy(_p);
-            if (_dir.lengthSq() > 1e-6) _dir.normalize();
-            else _dir.set(0, 0, 1);
+          /* _camDir = direction from the target to the camera. */
+          if (focus.target.k >= 0) {
+            if (!haveFrom) { _dir.copy(_p); if (_dir.lengthSq() > 1e-6) _dir.normalize(); else _dir.set(0, 0, 1); }
+            _camDir.copy(_dir).negate(); // sit on the FROM side, look in the travel direction
+          } else {
+            _radial.copy(_p);
+            if (_radial.lengthSq() > 1e-6) _radial.normalize(); else _radial.set(1, 0, 0);
+            const outward = haveFrom ? _dir.dot(_radial) >= 0 : true;
+            _camDir.copy(_radial).multiplyScalar(outward ? -1 : 1); // sunward / far side
           }
-          /* camera sits on the FROM side of the target, looking in the travel
-             direction. Lift it off the approach axis (perpendicular up) — much
-             more on an INWARD approach — so the Sun crests the planet's limb
-             instead of framing a dead, unlit night side (the black screen). */
-          const D = focus.target.k >= 0 ? FOCUS_DIST : Math.max(2.5, (tgt.radius / Math.tan(BACKLIT_HALF_ANGLE)) * 1.12);
-          _radial.copy(_p);
-          if (_radial.lengthSq() > 1e-6) _radial.normalize(); else _radial.set(1, 0, 0);
-          const inward = Math.max(0, -_dir.dot(_radial)); // 1 when flying toward the Sun
-          _upp.copy(UP).addScaledVector(_dir, -UP.dot(_dir));
+          _upp.copy(UP).addScaledVector(_camDir, -UP.dot(_camDir));
           if (_upp.lengthSq() < 1e-6) _upp.set(0, 1, 0); else _upp.normalize();
-          _camTarget.copy(_p).addScaledVector(_dir, -D).addScaledVector(_upp, D * (0.18 + 0.45 * inward));
+          const D = focus.target.k >= 0 ? FOCUS_DIST : Math.max(2.5, (tgt.radius / Math.tan(BACKLIT_HALF_ANGLE)) * 1.12);
+          _camTarget.copy(_p).addScaledVector(_camDir, D).addScaledVector(_upp, D * 0.22);
           _lookTarget.copy(_p);
         }
       } else {
