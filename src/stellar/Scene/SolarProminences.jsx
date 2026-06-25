@@ -22,11 +22,21 @@ import { useSceneClock } from "./SceneClock";
 const VERTEX = `
 varying vec3 vNormal;
 varying vec3 vWorldPos;
+varying vec3 vLocalPos;
 varying vec2 vUv;
+uniform vec3 uFlareDir;
+uniform float uFlareAmp;
 void main() {
-  vNormal = normalize(normalMatrix * normal);
+  vLocalPos = position;
   vUv = uv;
-  vec4 wp = modelMatrix * vec4(position, 1.0);
+  /* CME bulge — near the eruption hot spot, push the shell radially OUT so the
+     prominence physically ARCS off the limb (a real silhouette against space,
+     not just a brightening). */
+  float aim = max(dot(normalize(normal), normalize(uFlareDir)), 0.0);
+  float bulge = uFlareAmp * pow(aim, 5.0) * 0.45;
+  vec3 displaced = position * (1.0 + bulge);
+  vNormal = normalize(normalMatrix * normal);
+  vec4 wp = modelMatrix * vec4(displaced, 1.0);
   vWorldPos = wp.xyz;
   gl_Position = projectionMatrix * viewMatrix * wp;
 }
@@ -35,6 +45,7 @@ void main() {
 const FRAGMENT = `
 varying vec3 vNormal;
 varying vec3 vWorldPos;
+varying vec3 vLocalPos;
 varying vec2 vUv;
 uniform float uTime;
 uniform vec3 uColorA;
@@ -80,8 +91,9 @@ void main() {
   vec3 viewDir = normalize(uCameraPos - vWorldPos);
   /* Rim mask — brightest at the limb, fades inward */
   float rim = pow(1.0 - max(dot(normalize(vNormal), viewDir), 0.0), 1.6);
-  /* Turbulent noise driven by time + position — feels like seething plasma */
-  vec3 p = vWorldPos * 0.6 + vec3(uTime * 0.08);
+  /* Turbulent noise keyed to LOCAL position (anchored to the shell, not world)
+     so the plasma seethes in place rather than swimming. */
+  vec3 p = vLocalPos * 0.6 + vec3(uTime * 0.08);
   float n = snoise(p) * 0.5 + 0.5;
   float n2 = snoise(p * 2.3 + vec3(uTime * 0.2, 0.0, 0.0)) * 0.5 + 0.5;
   float noise = (n * 0.6 + n2 * 0.4);
@@ -99,6 +111,8 @@ void main() {
   intensity += flare * 1.8;
 
   vec3 col = mix(uColorB, uColorA, smoothstep(0.3, 1.0, noise + flare));
+  /* The eruption itself glows the deep H-alpha crimson of a real prominence. */
+  col = mix(col, vec3(1.0, 0.2, 0.26), clamp(flare * 0.8, 0.0, 0.7));
   gl_FragColor = vec4(col * intensity * 1.6, intensity);
 }
 `;
@@ -110,8 +124,10 @@ const SolarProminences = ({ position = [0, 0, 0], radius = 1.6, animate = true }
   const uniforms = useMemo(
     () => ({
       uTime: { value: 0 },
-      uColorA: { value: new THREE.Color("#fff0c0") },
-      uColorB: { value: new THREE.Color("#ff7028") },
+      /* H-alpha chromosphere/prominence palette — pink-orange seething base,
+         deep crimson cores (real prominences glow red, not gold). */
+      uColorA: { value: new THREE.Color("#ff9a6a") },
+      uColorB: { value: new THREE.Color("#ff3a44") },
       uCameraPos: { value: new THREE.Vector3() },
       uFlareDir: { value: new THREE.Vector3(1, 0, 0) },
       uFlareAmp: { value: 0 },
@@ -151,7 +167,7 @@ const SolarProminences = ({ position = [0, 0, 0], radius = 1.6, animate = true }
 
   return (
     <mesh position={position}>
-      <sphereGeometry args={[radius * 1.03, 64, 48]} />
+      <sphereGeometry args={[radius * 1.12, 64, 48]} />
       <shaderMaterial
         ref={matRef}
         vertexShader={VERTEX}

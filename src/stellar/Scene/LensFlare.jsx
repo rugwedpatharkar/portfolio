@@ -6,11 +6,11 @@ import * as THREE from "three";
 /*
  * Cinematic lens flare anchored at the sun.
  *
- * A blue anamorphic flare: a soft glare core, a radial starburst of rays,
- * and a wide horizontal streak — all tinted cool blue so they read as a
- * lens artifact over the warm sun (the JJ-Abrams blue-flare look). The bokeh
- * "chain-link" ghost rings stay removed (they cluttered the frame); this is
- * the glare + rays + streak only.
+ * Physically, a real flare from a yellow-white star is dominated by WARM
+ * white/amber light — only the horizontal anamorphic streak is the cool-blue
+ * artifact that signature look comes from. So: a warm glare core + warm
+ * starburst rays + a cool-blue anamorphic streak, plus faint chromatic-fringe
+ * ghost rings (one warm, one neutral, one cool) strung along the lens axis.
  *
  * Brightness fades as the sun moves off-screen (camera forward vs sun
  * direction → falloff).
@@ -41,10 +41,10 @@ const GLARE_TEXTURE = (() => {
   c.width = c.height = 256;
   const ctx = c.getContext("2d");
   const g = ctx.createRadialGradient(128, 128, 0, 128, 128, 128);
-  g.addColorStop(0, "rgba(245,250,255,1)");
-  g.addColorStop(0.16, "rgba(170,205,255,0.7)");
-  g.addColorStop(0.42, "rgba(110,165,255,0.24)");
-  g.addColorStop(1, "rgba(90,150,255,0)");
+  g.addColorStop(0, "rgba(255,250,242,1)");
+  g.addColorStop(0.16, "rgba(255,232,196,0.7)");
+  g.addColorStop(0.42, "rgba(255,206,150,0.24)");
+  g.addColorStop(1, "rgba(255,196,140,0)");
   ctx.fillStyle = g;
   ctx.fillRect(0, 0, 256, 256);
   const t = new THREE.CanvasTexture(c);
@@ -67,9 +67,9 @@ const RAYS_TEXTURE = (() => {
       const ex = Math.cos(a) * len;
       const ey = Math.sin(a) * len;
       const g = ctx.createLinearGradient(0, 0, ex, ey);
-      g.addColorStop(0, `rgba(215,232,255,${alpha})`);
-      g.addColorStop(0.4, `rgba(120,180,255,${alpha * 0.4})`);
-      g.addColorStop(1, "rgba(90,150,255,0)");
+      g.addColorStop(0, `rgba(255,244,224,${alpha})`);
+      g.addColorStop(0.4, `rgba(255,210,150,${alpha * 0.4})`);
+      g.addColorStop(1, "rgba(255,200,140,0)");
       ctx.strokeStyle = g;
       ctx.lineWidth = width;
       ctx.beginPath();
@@ -81,9 +81,9 @@ const RAYS_TEXTURE = (() => {
   spokes(6, 126, 2.6, 0.9, 0.25); // long prominent spikes
   spokes(28, 96, 1.0, 0.38, 0.1); // dense faint rays
   const cg = ctx.createRadialGradient(0, 0, 0, 0, 0, 58);
-  cg.addColorStop(0, "rgba(225,238,255,0.9)");
-  cg.addColorStop(0.5, "rgba(130,185,255,0.22)");
-  cg.addColorStop(1, "rgba(130,185,255,0)");
+  cg.addColorStop(0, "rgba(255,246,228,0.9)");
+  cg.addColorStop(0.5, "rgba(255,212,150,0.22)");
+  cg.addColorStop(1, "rgba(255,212,150,0)");
   ctx.fillStyle = cg;
   ctx.beginPath();
   ctx.arc(0, 0, 58, 0, Math.PI * 2);
@@ -115,7 +115,9 @@ const RING_TEXTURE = (() => {
   return t;
 })();
 
-const GHOST_COLORS = ["#a8c8ff", "#7fb0ff", "#bcd6ff"];
+/* Chromatic-fringe ghosts: one warm, one neutral, one cool (real lens dispersion),
+   not a uniform blue. */
+const GHOST_COLORS = ["#ffd9b0", "#d6d6d6", "#a8c8ff"];
 
 const LensFlare = ({ position = [0, 0, 0] }) => {
   const streakRef = useRef();
@@ -159,7 +161,8 @@ const LensFlare = ({ position = [0, 0, 0] }) => {
     if (raysRef.current) {
       raysRef.current.position.copy(sunPos);
       raysRef.current.material.opacity = vis * 0.5;
-      raysRef.current.material.rotation += 0.0016; // slow living spin
+      /* No auto-spin: real diffraction spikes are fixed to the lens, not slowly
+         rotating on their own (that read as a 'magic glow'). */
       raysRef.current.visible = on;
     }
     if (streakRef.current) {

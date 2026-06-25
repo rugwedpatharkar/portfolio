@@ -118,11 +118,13 @@ function makeCorona() {
   c.width = c.height = 256;
   const ctx = c.getContext("2d");
   const g = ctx.createRadialGradient(128, 128, 46, 128, 128, 128);
+  /* The real eclipse K-corona is essentially WHITE (a hair warmer than daylight),
+     not sky-blue. */
   g.addColorStop(0, "rgba(255,255,255,0)");
   g.addColorStop(0.38, "rgba(255,255,255,0)");
-  g.addColorStop(0.46, "rgba(236,245,255,0.95)");
-  g.addColorStop(0.56, "rgba(175,208,255,0.4)");
-  g.addColorStop(1, "rgba(135,182,255,0)");
+  g.addColorStop(0.46, "rgba(250,252,255,0.95)");
+  g.addColorStop(0.56, "rgba(228,236,248,0.4)");
+  g.addColorStop(1, "rgba(216,226,240,0)");
   ctx.fillStyle = g;
   ctx.fillRect(0, 0, 256, 256);
   ctx.translate(128, 128);
@@ -131,10 +133,13 @@ function makeCorona() {
   for (let i = 0; i < N; i++) {
     const a = (i / N) * Math.PI * 2 + ((i * 53) % 9) * 0.035;
     const r0 = 58;
-    const len = r0 + 14 + (((i * 37) % 13) / 13) * 56;
+    /* Dipole shape: long equatorial streamers (cos2a lobes), short polar
+       brushes — the real magnetic-field corona, not an even starburst. */
+    const lobe = 0.55 + 0.55 * Math.abs(Math.cos(a));
+    const len = r0 + (14 + (((i * 37) % 13) / 13) * 56) * lobe;
     const lg = ctx.createLinearGradient(Math.cos(a) * r0, Math.sin(a) * r0, Math.cos(a) * len, Math.sin(a) * len);
-    lg.addColorStop(0, "rgba(224,238,255,0.5)");
-    lg.addColorStop(1, "rgba(150,195,255,0)");
+    lg.addColorStop(0, "rgba(242,246,252,0.5)");
+    lg.addColorStop(1, "rgba(214,224,238,0)");
     ctx.strokeStyle = lg;
     ctx.lineWidth = 0.6 + (((i * 17) % 5) / 5) * 1.9;
     ctx.beginPath();
@@ -166,12 +171,29 @@ function makeGlint() {
   const c = document.createElement("canvas");
   c.width = c.height = 128;
   const ctx = c.getContext("2d");
-  const g = ctx.createRadialGradient(64, 64, 0, 64, 64, 64);
+  const g = ctx.createRadialGradient(64, 64, 0, 64, 64, 34);
   g.addColorStop(0, "rgba(255,255,255,1)");
-  g.addColorStop(0.25, "rgba(210,232,255,0.7)");
-  g.addColorStop(1, "rgba(150,195,255,0)");
+  g.addColorStop(0.3, "rgba(245,250,255,0.7)");
+  g.addColorStop(1, "rgba(220,232,248,0)");
   ctx.fillStyle = g;
   ctx.fillRect(0, 0, 128, 128);
+  /* A bright 4-point cross spike so the diamond-ring/Baily's-bead reads as a
+     sparkling POINT, not a fuzzy ball. */
+  ctx.translate(64, 64);
+  ctx.globalCompositeOperation = "lighter";
+  for (let k = 0; k < 2; k++) {
+    const horiz = k === 0;
+    const lg = ctx.createLinearGradient(horiz ? -62 : 0, horiz ? 0 : -62, horiz ? 62 : 0, horiz ? 0 : 62);
+    lg.addColorStop(0, "rgba(255,255,255,0)");
+    lg.addColorStop(0.5, "rgba(255,255,255,0.95)");
+    lg.addColorStop(1, "rgba(255,255,255,0)");
+    ctx.strokeStyle = lg;
+    ctx.lineWidth = horiz ? 2.4 : 2.4;
+    ctx.beginPath();
+    ctx.moveTo(horiz ? -62 : 0, horiz ? 0 : -62);
+    ctx.lineTo(horiz ? 62 : 0, horiz ? 0 : 62);
+    ctx.stroke();
+  }
   const t = new THREE.CanvasTexture(c);
   t.needsUpdate = true;
   return t;
