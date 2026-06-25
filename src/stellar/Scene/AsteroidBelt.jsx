@@ -78,12 +78,33 @@ const Family = ({ instances, family, geometry, animate = true }) => {
   );
 };
 
+/* Kirkwood-gap / Kuiper-cliff aware radius sampler. `gaps` are fractional belt
+   positions (0..1) that resonances clear out (mostly empty, ~10% remnant);
+   `cliff` ramps density to near-zero toward the outer edge (the Kuiper Cliff).
+   Rejection sampling at generation time only — no per-frame cost. */
+const GAP_W = 0.03;
+const sampleRadius = (innerRadius, outerRadius, gaps, cliff) => {
+  for (let t = 0; t < 8; t++) {
+    const radius = innerRadius + Math.random() * (outerRadius - innerRadius);
+    const frac = (radius - innerRadius) / (outerRadius - innerRadius);
+    if (gaps && gaps.some((g) => Math.abs(frac - g) < GAP_W) && Math.random() > 0.1) continue;
+    if (cliff) {
+      const keep = frac < 0.82 ? 1 : Math.max(0.04, 1 - (frac - 0.82) / 0.12);
+      if (Math.random() > keep) continue;
+    }
+    return radius;
+  }
+  return innerRadius + Math.random() * (outerRadius - innerRadius);
+};
+
 const AsteroidBelt = ({
   count = 600,
   innerRadius = 18.5,
   outerRadius = 20.5,
   size = 0.08,
   thickness = 0.5, // vertical spread (real belts are fat tori, not ribbons)
+  gaps = null, // fractional Kirkwood-gap centres
+  cliff = false, // Kuiper-cliff density falloff toward the outer edge
   animate = true,
 }) => {
   /* One lumpy base shape per family (different seed → different silhouette);
@@ -97,7 +118,7 @@ const AsteroidBelt = ({
     const buckets = [[], [], []];
     for (let i = 0; i < count; i++) {
       const angle = Math.random() * Math.PI * 2;
-      const radius = innerRadius + Math.random() * (outerRadius - innerRadius);
+      const radius = sampleRadius(innerRadius, outerRadius, gaps, cliff);
       /* Gaussian-ish vertical spread (two uniforms) → denser mid-plane, sparse
          outliers, like a real belt's inclination dispersion. */
       const y = (Math.random() + Math.random() - 1) * 0.5 * thickness;
@@ -118,7 +139,7 @@ const AsteroidBelt = ({
       });
     }
     return buckets;
-  }, [count, innerRadius, outerRadius, size, thickness]);
+  }, [count, innerRadius, outerRadius, size, thickness, gaps, cliff]);
 
   return (
     <>

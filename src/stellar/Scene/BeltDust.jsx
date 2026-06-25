@@ -45,6 +45,8 @@ const BeltDust = ({
   size = 2.4, // screen pixels (sizeAttenuation off)
   opacity = 0.5,
   drift = 0.012,
+  gaps = null, // fractional Kirkwood-gap centres (dust mirrors the rocks)
+  cliff = false, // Kuiper-cliff density falloff
   animate = true,
 }) => {
   const ref = useRef();
@@ -54,9 +56,20 @@ const BeltDust = ({
     const pos = new Float32Array(count * 3);
     const mid = (innerRadius + outerRadius) / 2;
     const span = (outerRadius - innerRadius) / 2;
+    const span01 = outerRadius - innerRadius;
     for (let i = 0; i < count; i++) {
       const a = Math.random() * Math.PI * 2;
-      const rr = mid + (Math.random() + Math.random() - 1) * span; // triangular → denser mid-band
+      let rr = mid;
+      for (let t = 0; t < 6; t++) {
+        rr = mid + (Math.random() + Math.random() - 1) * span; // triangular → denser mid-band
+        const frac = (rr - innerRadius) / span01;
+        if (gaps && gaps.some((g) => Math.abs(frac - g) < 0.03) && Math.random() > 0.12) continue;
+        if (cliff) {
+          const keep = frac < 0.82 ? 1 : Math.max(0.04, 1 - (frac - 0.82) / 0.12);
+          if (Math.random() > keep) continue;
+        }
+        break;
+      }
       const y = (Math.random() + Math.random() + Math.random() - 1.5) * (thickness / 3);
       pos[i * 3] = Math.cos(a) * rr;
       pos[i * 3 + 1] = y;
@@ -65,7 +78,7 @@ const BeltDust = ({
     const g = new THREE.BufferGeometry();
     g.setAttribute("position", new THREE.BufferAttribute(pos, 3));
     return g;
-  }, [count, innerRadius, outerRadius, thickness]);
+  }, [count, innerRadius, outerRadius, thickness, gaps, cliff]);
 
   useFrame((_, delta) => {
     if (animate && ref.current) ref.current.rotation.y += delta * drift;

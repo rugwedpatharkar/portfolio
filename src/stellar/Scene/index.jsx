@@ -65,6 +65,11 @@ import useViewport from "../useViewport";
 import { DESTINATIONS, remapPosition, frontOfSun, BACKGROUND_BELTS } from "../config/destinations";
 import { rotationSpeedFor } from "../config/planetData";
 
+/* Kirkwood gaps as fractions of the main belt (2.1–3.3 AU): the 3:1 (2.50 AU),
+   5:2 (2.82) and 2:1 (3.27) Jupiter resonances. Stable identity so the belt
+   isn't regenerated each render. */
+const KIRKWOOD_GAPS = [0.333, 0.6, 0.975];
+
 /*
  * Persistent Three.js scene. ONE canvas, single Suspense boundary.
  *
@@ -342,14 +347,14 @@ const Scene = ({ scrollT, activeIdx, onJump, onReady, freeRoamEnabled, speedRef,
             stops — Ceres + Pluto host those sections). Faint debris rings. */}
         {showExtras && (
           <>
-            <AsteroidBelt count={isMobile ? 1200 : 2600} innerRadius={BACKGROUND_BELTS.asteroid.inner} outerRadius={BACKGROUND_BELTS.asteroid.outer} size={0.18} thickness={BACKGROUND_BELTS.asteroid.thickness} animate={!reducedMotion} />
-            <BeltDust count={isMobile ? 9000 : 26000} innerRadius={BACKGROUND_BELTS.asteroid.inner} outerRadius={BACKGROUND_BELTS.asteroid.outer} thickness={BACKGROUND_BELTS.asteroid.thickness} color={BACKGROUND_BELTS.asteroid.color} size={2.6} opacity={0.45} animate={!reducedMotion} />
+            <AsteroidBelt count={isMobile ? 1200 : 2600} innerRadius={BACKGROUND_BELTS.asteroid.inner} outerRadius={BACKGROUND_BELTS.asteroid.outer} size={0.18} thickness={BACKGROUND_BELTS.asteroid.thickness} gaps={KIRKWOOD_GAPS} animate={!reducedMotion} />
+            <BeltDust count={isMobile ? 9000 : 26000} innerRadius={BACKGROUND_BELTS.asteroid.inner} outerRadius={BACKGROUND_BELTS.asteroid.outer} thickness={BACKGROUND_BELTS.asteroid.thickness} color={BACKGROUND_BELTS.asteroid.color} size={2.6} opacity={0.45} gaps={KIRKWOOD_GAPS} animate={!reducedMotion} />
           </>
         )}
         {showExtras && !isMobile && (
           <>
-            <AsteroidBelt count={1500} innerRadius={BACKGROUND_BELTS.kuiper.inner} outerRadius={BACKGROUND_BELTS.kuiper.outer} size={0.9} thickness={BACKGROUND_BELTS.kuiper.thickness} animate={!reducedMotion} />
-            <BeltDust count={20000} innerRadius={BACKGROUND_BELTS.kuiper.inner} outerRadius={BACKGROUND_BELTS.kuiper.outer} thickness={BACKGROUND_BELTS.kuiper.thickness} color={BACKGROUND_BELTS.kuiper.color} size={2.3} opacity={0.4} animate={!reducedMotion} />
+            <AsteroidBelt count={1500} innerRadius={BACKGROUND_BELTS.kuiper.inner} outerRadius={BACKGROUND_BELTS.kuiper.outer} size={0.9} thickness={BACKGROUND_BELTS.kuiper.thickness} cliff animate={!reducedMotion} />
+            <BeltDust count={20000} innerRadius={BACKGROUND_BELTS.kuiper.inner} outerRadius={BACKGROUND_BELTS.kuiper.outer} thickness={BACKGROUND_BELTS.kuiper.thickness} color={BACKGROUND_BELTS.kuiper.color} size={2.3} opacity={0.4} cliff animate={!reducedMotion} />
           </>
         )}
         {/* Jupiter's Trojan asteroids — two swarms 60° ahead/behind Jupiter at
