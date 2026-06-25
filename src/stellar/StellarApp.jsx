@@ -198,27 +198,22 @@ const StellarApp = () => {
     if (mode !== "tour") { focusRef.current = null; return; }
     const dest = DESTINATIONS[activeIdx];
     if (!dest) { focusRef.current = null; return; }
-    if (itemIdx < 0) {
-      /* Planet-view keeps its framing (planets get travel-framing in M2c-2);
-         record the planet as the body we travel FROM to the first object. */
-      focusRef.current = null;
-      prevTargetRef.current = { destId: dest.id, k: -1 };
-      return;
+    /* Travel framing for EVERY target — a planet (k = -1) or a lane object
+       (k ≥ 0): approach it FROM the body we were last on, so Venus→Earth looks
+       outward toward Mars, Mercury→Sun looks back in, etc. */
+    const target = { destId: dest.id, k: itemIdx < 0 ? -1 : itemIdx };
+    const from = prevTargetRef.current;
+    const changed = from.destId !== target.destId || from.k !== target.k;
+    focusRef.current = { live: true, target, from: changed ? from : null, fov: target.k >= 0 ? 42 : 50 };
+    prevTargetRef.current = target;
+    if (changed) {
+      /* Fire the hyperloop tube for the shift, then let it collapse to points. */
+      warpVelRef.current = 1.3;
+      clearTimeout(warpTimer.current);
+      warpTimer.current = setTimeout(() => {
+        warpVelRef.current = 0;
+      }, 300);
     }
-    /* Fly to the object, framed FROM the previous body (the travel direction). */
-    focusRef.current = {
-      live: true,
-      target: { destId: dest.id, k: itemIdx },
-      from: prevTargetRef.current,
-      fov: 42,
-    };
-    prevTargetRef.current = { destId: dest.id, k: itemIdx };
-    /* Fire the hyperspace tube for the shift, then let it collapse to points. */
-    warpVelRef.current = 1.3;
-    clearTimeout(warpTimer.current);
-    warpTimer.current = setTimeout(() => {
-      warpVelRef.current = 0;
-    }, 300);
   }, [itemIdx, activeIdx, mode]);
 
   const handleJump = useCallback((idx) => {
@@ -410,15 +405,16 @@ const StellarApp = () => {
         if (focusedObj) clearFocus();
         else setMode("tour");
       } else if (k === "arrowdown" || k === "pagedown" || k === "s") {
-        /* ↓ = next lane (planet). */
+        /* ↓ = next lane (planet). Set state immediately so the travel framing
+           kicks in on the keypress; handleJump syncs the scroll (KeyLight etc.). */
         e.preventDefault();
         setMode("tour");
-        if (cur < N - 1) handleJump(cur + 1);
+        if (cur < N - 1) { const n = cur + 1; activeIdxRef.current = n; setActiveIdx(n); setItemIdx(-1); handleJump(n); }
       } else if (k === "arrowup" || k === "pageup" || k === "w") {
         /* ↑ = previous lane (planet). */
         e.preventDefault();
         setMode("tour");
-        if (cur > 0) handleJump(cur - 1);
+        if (cur > 0) { const n = cur - 1; activeIdxRef.current = n; setActiveIdx(n); setItemIdx(-1); handleJump(n); }
       } else if (k === "arrowleft" || k === "a") {
         /* ← = previous object on this lane. */
         e.preventDefault();
@@ -558,7 +554,7 @@ const StellarApp = () => {
               onPlanet={(dir) => {
                 setMode("tour");
                 const n = Math.max(0, Math.min(DESTINATIONS.length - 1, activeIdxRef.current + dir));
-                if (n !== activeIdxRef.current) handleJump(n);
+                if (n !== activeIdxRef.current) { activeIdxRef.current = n; setActiveIdx(n); setItemIdx(-1); handleJump(n); }
               }}
               onItem={(dir) =>
                 setItemIdx((i) => {
