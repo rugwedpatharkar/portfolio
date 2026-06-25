@@ -6,15 +6,28 @@ import { DESTINATIONS } from "../config/destinations";
 import { getOrbit } from "../config/orbits";
 
 /*
- * Faint orbital rings on the ecliptic plane — reveals the system's real
- * structure in the orrery / system view. Only shown while the wide pull-back
- * (overview) is active; invisible during the close tour.
+ * Faint orbital trails — each planet's REAL orbit, not a circle: the eccentric
+ * ellipse (Sun at a focus) tilted by the planet's true inclination, sampled
+ * once from the SAME Kepler params the planets actually move on (config/orbits),
+ * so each line passes exactly through its planet. Reveals the system's real
+ * structure; shown only while the wide pull-back (overview) is active.
  */
-const RINGS = DESTINATIONS.filter((d) => d.kind === "planet").map((d) => ({
-  id: d.id,
-  R: getOrbit(d).R,
-  color: d.color || "#cfd6ff",
-}));
+const SAMPLES = 256;
+
+const ORBITS = DESTINATIONS.filter((d) => d.kind === "planet").map((d) => {
+  const o = getOrbit(d);
+  const pts = new Float32Array(SAMPLES * 3);
+  for (let k = 0; k < SAMPLES; k++) {
+    const th = (k / (SAMPLES - 1)) * Math.PI * 2;
+    const r = o.e ? o.p / (1 + o.e * Math.cos(th)) : o.p; // conic, Sun at focus
+    const x = Math.cos(th) * r;
+    const zp = Math.sin(th) * r;
+    pts[k * 3] = x;
+    pts[k * 3 + 1] = o.y + zp * o.sinInc; // lift by orbital inclination
+    pts[k * 3 + 2] = zp * o.cosInc;
+  }
+  return { id: d.id, pts, color: d.color || "#cfd6ff" };
+});
 
 const OrbitRings = ({ wideRef }) => {
   const groupRef = useRef();
@@ -22,12 +35,21 @@ const OrbitRings = ({ wideRef }) => {
     if (groupRef.current) groupRef.current.visible = !!wideRef?.current;
   });
   return (
-    <group ref={groupRef} visible={false} rotation={[-Math.PI / 2, 0, 0]}>
-      {RINGS.map((r) => (
-        <mesh key={r.id}>
-          <ringGeometry args={[r.R - 0.02, r.R + 0.02, 160]} />
-          <meshBasicMaterial color={r.color} transparent opacity={0.16} side={THREE.DoubleSide} toneMapped={false} depthWrite={false} />
-        </mesh>
+    <group ref={groupRef} visible={false}>
+      {ORBITS.map((o) => (
+        <line key={o.id} frustumCulled={false}>
+          <bufferGeometry>
+            <bufferAttribute attach="attributes-position" args={[o.pts, 3]} />
+          </bufferGeometry>
+          <lineBasicMaterial
+            color={o.color}
+            transparent
+            opacity={0.24}
+            toneMapped={false}
+            depthWrite={false}
+            blending={THREE.AdditiveBlending}
+          />
+        </line>
       ))}
     </group>
   );
