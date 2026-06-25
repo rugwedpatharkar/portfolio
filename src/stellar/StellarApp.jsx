@@ -1,6 +1,6 @@
 /* eslint-disable react/prop-types */
 import { useRef, useState, useCallback, useEffect, useMemo } from "react";
-import { MotionConfig } from "motion/react";
+import { MotionConfig, motion } from "motion/react";
 import Scene from "./Scene";
 import Navigator from "./Navigator";
 import ContentPanel from "./ContentPanel";
@@ -30,6 +30,22 @@ import HazardBanner from "./HazardBanner";
 import EclipseDimmer from "./EclipseDimmer";
 import { markCharted, markVisited } from "./data/explorer";
 import { getBodyContent } from "./data/bodies";
+
+/* Always-visible recruiter affordance pill style. */
+const RECRUITER_PILL = {
+  cursor: "pointer",
+  padding: "7px 13px",
+  borderRadius: 999,
+  background: "rgba(8,11,24,0.72)",
+  backdropFilter: "blur(10px)",
+  WebkitBackdropFilter: "blur(10px)",
+  border: "1px solid rgba(150,195,255,0.4)",
+  color: "#fff",
+  fontFamily: "'JetBrains Mono', monospace",
+  fontSize: 10,
+  letterSpacing: "0.08em",
+  textDecoration: "none",
+};
 
 /* Hash → destination utilities */
 const findDestinationIndexByHash = (hash) => {
@@ -536,6 +552,15 @@ const StellarApp = () => {
           {mode === "tour" && <ScrollProgress scrollTRef={scrollTRef} />}
           {/* "You are here" galactic-context inset (desktop). */}
           {!isMobile && <GalacticInset reducedMotion={reducedMotion} />}
+          {/* Recruiter fast-path — always-visible résumé + contact (desktop). */}
+          {!isMobile && mode === "tour" && (
+            <div style={{ position: "fixed", bottom: 18, left: 18, zIndex: 46, display: "flex", gap: 8 }}>
+              <motion.a href="/Rugwed-Patharkar-Resume.pdf" target="_blank" rel="noopener noreferrer" aria-label="Open résumé (PDF)"
+                whileHover={{ y: -2, boxShadow: "0 8px 20px rgba(0,0,0,0.4)" }} whileTap={{ scale: 0.97 }} style={RECRUITER_PILL}>📄 Résumé</motion.a>
+              <motion.button onClick={() => handleJump(DESTINATIONS.length - 1)} aria-label="Jump to contact"
+                whileHover={{ y: -2, boxShadow: "0 8px 20px rgba(0,0,0,0.4)" }} whileTap={{ scale: 0.97 }} style={{ all: "unset", ...RECRUITER_PILL }}>✉ Contact</motion.button>
+            </div>
+          )}
         </>
       )}
       {/* Countdown plays FIRST on mount; the warp fly-in (WarpField streaks
