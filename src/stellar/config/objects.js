@@ -1,6 +1,7 @@
-import { DESTINATIONS, remapPosition, frontOfSun } from "./destinations";
+import { DESTINATIONS, DESTINATION_BY_ID, remapPosition, frontOfSun } from "./destinations";
 import { PLANET_FACTS } from "../data/planetFacts";
 import { DWARF_PLANETS } from "./dwarfPlanets";
+import { MOONS } from "./moons";
 
 /*
  * Registry of every notable object in the scene — the 12 résumé destinations
@@ -237,4 +238,21 @@ const DWARF_OBJECTS = DWARF_PLANETS.map((d) => ({
   visit: { kind: "focus", cameraTarget: frame(d.position, 1.4, 0.4, 36) },
 }));
 
-export const OBJECTS = [...DESTINATION_OBJECTS, ...ANOMALY_OBJECTS, ...DWARF_OBJECTS];
+/* Named major moons — scannable hotspots near their parent planet (the live
+   orbit is resolved in data/bodies.js). Static hotspot = parent t=0 pos +
+   offset, matching how planet hotspots project (OverviewMap uses static pos). */
+const MOON_OBJECTS = MOONS.map((m) => {
+  const pp = DESTINATION_BY_ID[m.parent]?.position || [0, 0, 0];
+  const position = [pp[0] + m.offset[0], pp[1] + m.offset[1], pp[2] + m.offset[2]];
+  return {
+    id: m.id,
+    label: m.label,
+    category: "Moon",
+    color: m.color,
+    position,
+    info: m.info,
+    visit: { kind: "focus", cameraTarget: frame(position, 1.2, 0.3, 34) },
+  };
+});
+
+export const OBJECTS = [...DESTINATION_OBJECTS, ...ANOMALY_OBJECTS, ...DWARF_OBJECTS, ...MOON_OBJECTS];

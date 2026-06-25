@@ -1,0 +1,73 @@
+/*
+ * Named major moons as first-class, SCANNABLE bodies. The visual orbiting meshes
+ * live on each planet (destinations.js `moonSet` → Planet.jsx); THIS file makes
+ * the same moons appear on the overview map with labels + real facts. `parent`
+ * is the planet's destination id; the map hotspot sits at the parent's position
+ * + `offset`, and liveBodyPosition (data/bodies.js) orbits it around the live
+ * parent so the radar/scanner track the real thing.
+ */
+export const MOONS = [
+  {
+    id: "moon-luna", parent: "experience", label: "Luna", color: "#cfcdc9", offset: [1.7, 0.7, 0.5],
+    info: "Earth's Moon — tidally locked, so we always see the same face; its pull drives our tides and steadies our axis. Drifting ~3.8 cm farther every year.",
+    facts: { diameter: "3,474 km", day: "27.3 d (tidally locked)", wow: "Born when a Mars-sized world struck the young Earth." },
+  },
+  {
+    id: "moon-phobos", parent: "projects", label: "Phobos", color: "#7d7165", offset: [1.1, 0.5, -0.5],
+    info: "Phobos — Mars's larger, doomed moon: a lumpy 22 km rock orbiting so low it laps Mars 3× a day and is spiralling in to crash (or shatter into a ring) in ~50 My.",
+    facts: { diameter: "22.5 km", day: "7.6 h orbit", wow: "Rises in the west and sets in the east — twice a day." },
+  },
+  {
+    id: "moon-deimos", parent: "projects", label: "Deimos", color: "#8a7e70", offset: [-1.0, -0.4, 0.7],
+    info: "Deimos — Mars's tiny outer moon (~12 km), smooth with dust-filled craters. From Mars it looks barely more than a bright star.",
+    facts: { diameter: "12.4 km", day: "30.3 h orbit", wow: "So small its gravity would let you jump nearly into orbit." },
+  },
+  {
+    id: "moon-io", parent: "skills", label: "Io", color: "#e6c84e", offset: [2.6, 0.6, 0.4],
+    info: "Io — the most volcanically active world in the solar system: hundreds of erupting volcanoes paint it sulfur-yellow and orange, squeezed and heated by Jupiter's tidal grip.",
+    facts: { diameter: "3,643 km", day: "1.8 d", wow: "Plumes erupt 300 km high — visible from passing spacecraft." },
+  },
+  {
+    id: "moon-europa", parent: "skills", label: "Europa", color: "#dde6e3", offset: [3.4, -0.5, 0.8],
+    info: "Europa — a cracked shell of ice over a global salt-water ocean holding twice Earth's water. One of the best places to search for life beyond Earth.",
+    facts: { diameter: "3,122 km", day: "3.5 d", wow: "Its hidden ocean may have more water than all of Earth's." },
+  },
+  {
+    id: "moon-ganymede", parent: "skills", label: "Ganymede", color: "#9c8c74", offset: [-3.0, 0.7, -1.0],
+    info: "Ganymede — the largest moon in the solar system (bigger than Mercury) and the only one with its own magnetic field, over a buried ocean.",
+    facts: { diameter: "5,268 km", day: "7.2 d", wow: "Bigger than the planet Mercury." },
+  },
+  {
+    id: "moon-callisto", parent: "skills", label: "Callisto", color: "#6f6253", offset: [-3.8, -0.6, 1.2],
+    info: "Callisto — the most heavily cratered body known, an ancient ice-rock world whose surface has barely changed in 4 billion years.",
+    facts: { diameter: "4,821 km", day: "16.7 d", wow: "Its battered face is one of the oldest surfaces in the solar system." },
+  },
+  {
+    id: "moon-titan", parent: "notes", label: "Titan", color: "#d99a4a", offset: [2.4, 0.6, 0.5],
+    info: "Titan — Saturn's giant moon, bigger than Mercury, wrapped in a thick orange haze. It rains liquid methane into seas and rivers — the only other world with stable surface liquid.",
+    facts: { diameter: "5,150 km", day: "16 d", wow: "Has rivers, lakes and seas — of liquid methane." },
+  },
+  {
+    id: "moon-enceladus", parent: "notes", label: "Enceladus", color: "#eef3f1", offset: [-2.0, -0.5, 0.8],
+    info: "Enceladus — a brilliant-white ice moon firing geysers of salty water from a subsurface ocean through cracks at its south pole, feeding Saturn's E-ring.",
+    facts: { diameter: "504 km", day: "1.4 d", wow: "Its geysers spray ocean water straight into space." },
+  },
+  {
+    id: "moon-titania", parent: "education", label: "Titania", color: "#bcc8c8", offset: [1.5, 0.5, 0.4],
+    info: "Titania — Uranus's largest moon, an icy world scarred by huge canyons from an ancient freeze-and-expand.",
+    facts: { diameter: "1,578 km", day: "8.7 d", wow: "Canyons longer than Earth's Grand Canyon split its surface." },
+  },
+  {
+    id: "moon-triton", parent: "hobbies", label: "Triton", color: "#d8cabd", offset: [1.6, 0.6, 0.5],
+    info: "Triton — Neptune's big moon, the only large moon that orbits BACKWARD: a captured Kuiper-belt world, slowly spiralling in. It erupts nitrogen geysers from a −235 °C surface.",
+    facts: { diameter: "2,707 km", day: "5.9 d (retrograde)", wow: "Orbits backward — it was captured, not born with Neptune." },
+  },
+  {
+    id: "moon-charon", parent: "testimonials", label: "Charon", color: "#9a948a", offset: [1.1, 0.4, 0.4],
+    info: "Charon — Pluto's giant moon, half Pluto's size. The two are tidally locked face-to-face and orbit a point in empty space between them — a true double world.",
+    facts: { diameter: "1,212 km", day: "6.4 d (locked)", wow: "So big it and Pluto orbit a point in the space between them." },
+  },
+];
+
+export const MOON_FACTS = Object.fromEntries(MOONS.map((m) => [m.id, m.facts]));
+export const MOON_BY_ID = Object.fromEntries(MOONS.map((m) => [m.id, m]));

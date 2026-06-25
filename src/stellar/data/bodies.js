@@ -3,6 +3,7 @@ import { OBJECTS } from "../config/objects";
 import { DESTINATIONS } from "../config/destinations";
 import { PLANET_FACTS } from "./planetFacts";
 import { orbitalPosition } from "../config/orbits";
+import { MOON_BY_ID, MOON_FACTS } from "../config/moons";
 import { DISCOVERABLE } from "./explorer";
 
 /*
@@ -57,6 +58,16 @@ const _v = new THREE.Vector3();
 export const liveBodyPosition = (id, t = 0, out = _v) => {
   const dest = DEST_BY_ID[id];
   if (dest && dest.kind === "planet") return orbitalPosition(dest, t, out);
+  /* Moons ride their live parent (orbital pos + the authored offset) so the
+     radar/scanner track the real moving thing. */
+  const moon = MOON_BY_ID[id];
+  if (moon) {
+    const parent = DEST_BY_ID[moon.parent];
+    if (parent && parent.kind === "planet") {
+      orbitalPosition(parent, t, out);
+      return out.set(out.x + moon.offset[0], out.y + moon.offset[1], out.z + moon.offset[2]);
+    }
+  }
   const b = BODY_BY_ID[id];
   const p = b ? b.position : [0, 0, 0];
   return out.set(p[0], p[1], p[2]);
@@ -74,7 +85,7 @@ export const getBodyContent = (id) => {
     label: b.label,
     category: b.category,
     color: b.color,
-    facts: PLANET_FACTS[id] || null,    // distance / diameter / gravity / wow
+    facts: PLANET_FACTS[id] || MOON_FACTS[id] || null, // planet or moon facts
     section: b.section,                 // résumé section key (worlds)
     info: o?.info || "",                // short blurb (anomalies + planets)
     content: o?.content || null,        // optional rich content (future anomalies)
