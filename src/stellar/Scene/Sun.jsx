@@ -73,18 +73,21 @@ const SUN_FRAG = /* glsl */ `
     /* Domain-warped convection granulation, slowly boiling. Warp uses two
        cheap snoise samples (not full FBM) to keep the fragment cost low —
        the sun fills the hero shot, so noise calls dominate the frame. */
-    vec3 q = dir * 3.0;
+    vec3 q = dir * 3.6;
     float w1 = snoise(q + vec3(0.0, uTime * 0.05, 0.0));
     float w2 = snoise(q * 1.3 + vec3(3.1, uTime * 0.04, 1.0));
     vec3 warp = vec3(w1, w2, w1 * w2);
-    float gran = fbm(q * 2.0 + warp * 1.4 + vec3(uTime * 0.06)) * 0.5 + 0.5;
-    float fine = snoise(dir * 8.0 + warp * 1.5 + vec3(uTime * 0.13)) * 0.5 + 0.5;
+    float gran = fbm(q * 2.2 + warp * 1.4 + vec3(uTime * 0.06)) * 0.5 + 0.5;
+    /* Fine granulation — real granules are ~1000 km, so thousands of tiny cells
+       across the disk. High frequency → the stippled 'rice-grain' photosphere
+       texture rather than a few big marbled blobs. */
+    float fine = snoise(dir * 17.0 + warp * 1.5 + vec3(uTime * 0.13)) * 0.5 + 0.5;
     /* Supergranulation network — large slow cells whose warped boundaries
        break up the convection into a richer, less uniform texture. One extra
        snoise call; folded in as a normalized DETAIL term so it adds structure
        without lifting overall brightness (keeps the bloom from blowing out). */
     float superg = snoise(q * 0.85 + warp * 0.7 + vec3(uTime * 0.025)) * 0.5 + 0.5;
-    float detail = snoise(dir * 14.0 + warp * 2.2 + vec3(uTime * 0.09)) * 0.5 + 0.5;
+    float detail = snoise(dir * 30.0 + warp * 2.2 + vec3(uTime * 0.09)) * 0.5 + 0.5;
     float surface = mix(gran, fine, 0.35);
     surface = mix(surface, surface * (0.75 + 0.5 * superg), 0.5);
     surface = mix(surface, detail, 0.12);
@@ -97,17 +100,19 @@ const SUN_FRAG = /* glsl */ `
     float penumbra = smoothstep(0.24, 0.40, spotN);
     float umbra    = smoothstep(0.40, 0.50, spotN);
     float filament = snoise(dir * 38.0 + warp * 2.0) * 0.5 + 0.5;
-    float spotDark = mix(1.0, 0.50 + 0.20 * filament, penumbra); // penumbral fringe
-    spotDark *= mix(1.0, 0.15, umbra);                           // umbral core
+    float spotDark = mix(1.0, 0.45 + 0.18 * filament, penumbra); // penumbral fringe
+    spotDark *= mix(1.0, 0.06, umbra);                           // umbral core (near-black)
 
     /* Colour ramp cool → mid → hot. */
     vec3 col = mix(uCool, uMid, smoothstep(0.18, 0.55, surface));
     col = mix(col, uHot, smoothstep(0.55, 0.92, surface));
     col *= spotDark;
 
-    /* Limb darkening — photosphere centre is brighter than the edge. */
+    /* Limb darkening — the classic quadratic law I(μ)/I(1) ≈ 0.3+0.93μ−0.23μ²
+       (μ = cos of view angle). Drops the edge to ~0.35× centre, giving a real
+       rounded sphere instead of a flat self-lit disc. */
     float ndv = max(dot(normalize(vNormal), normalize(uCameraPos - vWorldPos)), 0.0);
-    col *= 0.5 + 0.5 * pow(ndv, 0.5);
+    col *= clamp(0.35 + 0.5 * ndv + 0.15 * ndv * ndv, 0.0, 1.0);
 
     /* Faculae — the bright magnetic network, most visible near the limb (where
        the photosphere is dimmer), giving the granular brightening seen around
@@ -116,7 +121,9 @@ const SUN_FRAG = /* glsl */ `
     float facula = net * pow(1.0 - ndv, 2.0);
     col += facula * vec3(1.0, 0.93, 0.78) * 0.30;
 
-    col *= 1.55; // over-bright so bloom blooms it into a star
+    /* Over-bright so bloom blooms it into a star — but NOT inside sunspot umbrae,
+       which stay dark enough to survive the bloom as genuine dark spots. */
+    col *= mix(1.55, 0.3, umbra);
     gl_FragColor = vec4(col, 1.0);
   }
 `;
@@ -133,22 +140,22 @@ const Sun = ({
   const matRef = useRef();
   const innerCoronaRef = useRef();
   const outerCoronaRef = useRef();
-  const tRef = useRef(0);
   const sceneClock = useSceneClock();
 
   const uniforms = useMemo(
     () => ({
       uTime: { value: 0 },
       uCameraPos: { value: new THREE.Vector3() },
-      uHot: { value: new THREE.Color("#fff4d6") },
-      uMid: { value: new THREE.Color("#ffae33") },
-      uCool: { value: new THREE.Color("#f0631a") },
+      /* True ~5800 K photosphere reads near-WHITE with a faint cream cast — not
+         lava-orange. Orange is reserved for the cool intergranular lanes/spots. */
+      uHot: { value: new THREE.Color("#fffdf7") },
+      uMid: { value: new THREE.Color("#ffe7b0") },
+      uCool: { value: new THREE.Color("#ff9a44") },
     }),
     []
   );
 
   useFrame(({ camera }) => {
-    tRef.current += 0; // keep ref alive
     /* Reduced-motion: freeze the churn + spin (t pinned to 0 → static star). */
     const t = animate ? sceneClock.t : 0;
     if (meshRef.current && animate) meshRef.current.rotation.y += 0.0006;
@@ -159,12 +166,12 @@ const Sun = ({
     if (innerCoronaRef.current) {
       const pulse = 1 + Math.sin(t * 0.9) * 0.04 + Math.sin(t * 2.3 + 1.7) * 0.02;
       innerCoronaRef.current.scale.setScalar(pulse);
-      innerCoronaRef.current.material.opacity = 0.42 + Math.sin(t * 1.3) * 0.08;
+      innerCoronaRef.current.material.opacity = 0.3 + Math.sin(t * 1.3) * 0.06;
     }
     if (outerCoronaRef.current) {
       const pulse = 1 + Math.sin(t * 0.55 + 0.8) * 0.05;
       outerCoronaRef.current.scale.setScalar(pulse);
-      outerCoronaRef.current.material.opacity = 0.2 + Math.sin(t * 0.7 + 2.1) * 0.05;
+      outerCoronaRef.current.material.opacity = 0.14 + Math.sin(t * 0.7 + 2.1) * 0.04;
     }
   });
 
@@ -181,15 +188,16 @@ const Sun = ({
           toneMapped={false}
         />
       </mesh>
-      {/* Inner corona — chromospheric glow that bloom grabs first */}
+      {/* Inner corona — pearly chromospheric aureole (desaturated cream, not
+          amber) so it doesn't fuzz the photosphere edge into an orange ball. */}
       <mesh ref={innerCoronaRef}>
         <sphereGeometry args={[radius * 1.09, 32, 32]} />
-        <meshBasicMaterial color="#ffdca0" transparent opacity={0.42} side={THREE.BackSide} toneMapped={false} depthWrite={false} />
+        <meshBasicMaterial color="#ffe8cc" transparent opacity={0.3} side={THREE.BackSide} toneMapped={false} depthWrite={false} />
       </mesh>
-      {/* Outer corona — wide soft falloff */}
+      {/* Outer corona — wide soft falloff, faint warm-white */}
       <mesh ref={outerCoronaRef}>
         <sphereGeometry args={[radius * 1.5, 32, 32]} />
-        <meshBasicMaterial color="#ff9a3c" transparent opacity={0.2} side={THREE.BackSide} toneMapped={false} depthWrite={false} />
+        <meshBasicMaterial color="#ffd6ac" transparent opacity={0.14} side={THREE.BackSide} toneMapped={false} depthWrite={false} />
       </mesh>
       <pointLight color="#ffe5b0" intensity={1.1} distance={600} decay={1.2} />
     </group>
