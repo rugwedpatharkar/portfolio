@@ -266,7 +266,15 @@ const CameraRig = ({
           .multiplyScalar(Math.cos(BACKLIT_TILT))
           .addScaledVector(_upp, Math.sin(BACKLIT_TILT))
           .normalize();
-        const D = (dst.radius / Math.tan(BACKLIT_HALF_ANGLE)) * BACKLIT_MARGIN * dollyFactor;
+        /* Signature scale: giants fill more of the frame (grand), small lonely
+           worlds sit a little smaller with more void around them. Subtle,
+           log-mapped on radius + clamped so framing stays cohesive, not jarring. */
+        const heroHalf = THREE.MathUtils.clamp(
+          BACKLIT_HALF_ANGLE * (1 + 0.13 * Math.log2(dst.radius / 0.18)),
+          BACKLIT_HALF_ANGLE * 0.85,
+          BACKLIT_HALF_ANGLE * 1.22
+        );
+        const D = (dst.radius / Math.tan(heroHalf)) * BACKLIT_MARGIN * dollyFactor;
         outPos.copy(_p).addScaledVector(_dir, D);
         outLook.copy(_p);
         /* Uniform fov + no static roll → every planet framed identically. */

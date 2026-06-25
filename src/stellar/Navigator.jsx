@@ -15,18 +15,18 @@ import { DESTINATIONS, SCROLL_LENGTH_PER_DESTINATION } from "./config/destinatio
  * the browser has real scroll content to drive Lenis.
  */
 
-const Navigator = ({ scrollTRef, warpVelRef, reducedMotion, onDestinationChange }) => {
+const Navigator = ({ scrollTRef, onDestinationChange }) => {
   const lenisRef = useRef(null);
 
   useEffect(() => {
-    /* Lerp bumped from 0.085 → 0.14 for snappier wheel response —
-       still smooth but reaches target ~40% faster, removes the
-       slightly molasses feel on fast scrolls. */
+    /* Lerp lowered to 0.085 for a graceful, gliding scroll between bodies
+       (was 0.16/snappy). Smooth travel reads as premium; the magnetic snap
+       still lands you exactly on each planet. */
     const lenis = new Lenis({
       smoothWheel: true,
-      lerp: 0.16,
-      wheelMultiplier: 1.15,
-      touchMultiplier: 1.6,
+      lerp: 0.085,
+      wheelMultiplier: 1.0,
+      touchMultiplier: 1.5,
       /* Let the left info column (overflow-y:auto) scroll natively under the
          wheel/touch, and CHAIN back to camera-navigation at its top/bottom
          edge. Without this Lenis swallows every wheel event for the camera,
@@ -46,14 +46,6 @@ const Navigator = ({ scrollTRef, warpVelRef, reducedMotion, onDestinationChange 
     const N = DESTINATIONS.length;
     let lastDest = -1;
     let snapTimer = null;
-    /* Scroll-velocity → hyperloop warp. Travelling between planets fires the
-       hyperspeed streaks (WarpField), which fade as you settle on a body —
-       a "jump to lightspeed" on every switch. Frozen under reduced-motion. */
-    let lastP = lenis.progress;
-    let lastT = performance.now();
-    const WARP_GAIN = 3.6;   // scroll speed (progress/sec) → warp intensity
-    const WARP_DEADZONE = 0.012;
-    const WARP_MAX = 1.15;   // let fast transitions push past 1 for a harder jump
 
     /* Magnetic snap: when scrolling settles, glide to the EXACT nearest
        destination so you never rest parked between two bodies. Implemented
@@ -69,7 +61,7 @@ const Navigator = ({ scrollTRef, warpVelRef, reducedMotion, onDestinationChange 
         const max =
           (document.scrollingElement || document.documentElement).scrollHeight -
           window.innerHeight;
-        lenis.scrollTo(targetP * max, { duration: 0.5, easing: (t) => 1 - Math.pow(1 - t, 3) });
+        lenis.scrollTo(targetP * max, { duration: 0.9, easing: (t) => 1 - Math.pow(1 - t, 3) });
       }
     };
 
@@ -77,18 +69,6 @@ const Navigator = ({ scrollTRef, warpVelRef, reducedMotion, onDestinationChange 
       // Lenis v1.x: progress is a getter on the instance
       const progress = lenis.progress;
       scrollTRef.current = progress;
-      /* Hyperloop between planets: warp intensity tracks how fast we're
-         travelling. WarpField eases toward this and decays it once you stop, so
-         the streaks rush in mid-transit and fade on arrival. */
-      if (warpVelRef && !reducedMotion) {
-        const now = performance.now();
-        const dt = Math.max(16, now - lastT) / 1000;
-        const vel = Math.abs(progress - lastP) / dt; // progress units / sec
-        lastP = progress;
-        lastT = now;
-        const target = Math.min(WARP_MAX, Math.max(0, (vel - WARP_DEADZONE) * WARP_GAIN));
-        warpVelRef.current = Math.max(warpVelRef.current || 0, target);
-      }
       invalidate(); // request a Three.js render
 
       // Detect which destination we're focused on

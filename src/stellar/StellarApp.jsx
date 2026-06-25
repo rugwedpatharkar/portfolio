@@ -216,29 +216,23 @@ const StellarApp = () => {
   }, []);
 
   const handleJump = useCallback((idx) => {
-    /* Far nav-jumps (>2 stops away) fly through many bodies fast — kick the
-       hyperspeed warp field so the jump immediately reads as a warp (the
-       continuous camera + scroll velocity carry the rest). */
-    if (Math.abs(idx - activeIdxRef.current) > 2) {
-      warpVelRef.current = 1;
-    }
-    /* Map destination index → exact scroll position. Progress runs 0..1
-       over (scrollHeight − viewport), so targetY = frac × that range. The
-       old formula scaled by the viewport-count (12) instead of the real
-       scroll range and overshot by ~1 destination — the cause of jumps /
-       hash nav landing one planet past the target. */
+    /* Map destination index → exact scroll position. Progress runs 0..1 over
+       (scrollHeight − viewport), so targetY = frac × that range (scaling by the
+       viewport-count instead overshoots by ~1 destination). */
     const max =
       (document.scrollingElement || document.documentElement).scrollHeight -
       window.innerHeight;
     const targetY = (idx / (DESTINATIONS.length - 1)) * max;
     if (window.__lenis) {
-      /* Jump duration 1.6 → 1.0s — feels like a punchier hyperjump */
-      window.__lenis.scrollTo(targetY, { duration: 1.0 });
+      /* Long, eased glide for a graceful planet-to-planet move — no warp, no
+         shake. easeInOutCubic: slow lift-off, smooth cruise, gentle arrival. */
+      window.__lenis.scrollTo(targetY, {
+        duration: 2.4,
+        easing: (t) => (t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2),
+      });
     } else {
       window.scrollTo({ top: targetY, behavior: "smooth" });
     }
-    /* Camera shake on jump for tactile arrival */
-    window.dispatchEvent(new CustomEvent("stellar:shake", { detail: { amp: 0.12, duration: 0.3 } }));
   }, []);
 
   /* Read URL hash once the countdown finishes (full intro complete),
@@ -443,8 +437,6 @@ const StellarApp = () => {
       />
       <Navigator
         scrollTRef={scrollTRef}
-        warpVelRef={warpVelRef}
-        reducedMotion={reducedMotion}
         onDestinationChange={handleDestinationChange}
       />
       {/* Hyperspeed streaks — driven by travel speed (scroll velocity +
