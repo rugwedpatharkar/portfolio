@@ -90,14 +90,20 @@ const SEMI_MAJOR = 17.834 * AU;
 const ECC = 0.967;
 const FOCUS_OFFSET = SEMI_MAJOR * ECC; // centre-to-focus, so the Sun sits at the focus
 const SEMI_MINOR = SEMI_MAJOR * Math.sqrt(1 - ECC * ECC);
-const INCLINATION = 48 * (Math.PI / 180); // dramatised out-of-plane tilt (real i ≈ 162°)
+const INCLINATION = 24 * (Math.PI / 180); // moderate tilt so it rides the on-screen −X deep field
 const MEAN_MOTION = (Math.PI * 2) / 360; // one full orbit per ~360 virtual seconds
-const ACTIVE_R = 6 * AU; // tails fully off beyond ~6 AU
-const ACTIVE_PEAK = 1.2 * AU; // tails fully on inside ~1.2 AU
+/* Tails were only "on" for ~3.5% of the orbit (a 6s blink at perihelion) AND
+   that blink happened on +X, directly behind the backlit camera. Make the comet
+   tailed across almost the whole orbit so it's a visible, streaming comet
+   wherever it is in the framed deep field. */
+const ACTIVE_R = 28 * AU; // tailed across almost the whole orbit (only fades near aphelion)
+const ACTIVE_PEAK = 6 * AU; // tails ramp to full brightness inside ~6 AU
 
-/* Eccentric-anomaly point on the ellipse, Sun at the focus (origin). */
+/* Eccentric-anomaly point on the ellipse, Sun at the focus (origin). Perihelion
+   sits on −X (sunward, the on-screen deep field the backlit tour camera frames)
+   instead of +X behind the camera, so the active comet is actually visible. */
 function orbitAt(E, out) {
-  const u = SEMI_MAJOR * Math.cos(E) - FOCUS_OFFSET; // perihelion axis (+x)
+  const u = -(SEMI_MAJOR * Math.cos(E) - FOCUS_OFFSET); // perihelion axis (−x, on-screen)
   const w = SEMI_MINOR * Math.sin(E);
   return out.set(u, w * Math.sin(INCLINATION), w * Math.cos(INCLINATION));
 }
@@ -108,7 +114,7 @@ const Comet = () => {
   const comaRef = useRef();
   const ionRef = useRef();
   const dustRef = useRef();
-  const mean = useRef(0.18); // start just past perihelion → active + visible immediately
+  const mean = useRef(0.9); // start on the inbound −X approach, well inside ACTIVE_R → tailed + on-screen from frame 1
   const pos = useRef(new THREE.Vector3());
   const prev = useRef(new THREE.Vector3());
 

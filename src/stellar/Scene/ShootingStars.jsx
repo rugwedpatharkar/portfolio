@@ -61,10 +61,10 @@ function spawnStreak() {
     dir,
     start,
     pos: start.clone(),
-    speed: 22 + Math.random() * 16,
-    len: 2.2 + Math.random() * 2.8,
+    speed: 26 + Math.random() * 20,
+    len: 4 + Math.random() * 6,
     life: 0,
-    maxLife: 0.9 + Math.random() * 0.7,
+    maxLife: 1.0 + Math.random() * 0.8,
     delay: 1.5 + Math.random() * 8, // long gaps → lonely shooting stars
     color: new THREE.Color().setHSL(0.55 + Math.random() * 0.08, 0.5, 0.9),
     active: false,
@@ -75,7 +75,7 @@ const Streak = ({ data, onWish }) => {
   const ref = useRef();
   const matRef = useRef();
 
-  useFrame((_, delta) => {
+  useFrame(({ camera }, delta) => {
     const mesh = ref.current;
     if (!mesh) return;
     const d = Math.min(delta, 1 / 20);
@@ -89,7 +89,9 @@ const Streak = ({ data, onWish }) => {
       }
       s.active = true;
       s.life = 0;
-      s.pos.copy(s.start);
+      /* Anchor the spawn near the current camera so the shooting star streaks
+         across the view at ANY planet stop, not only near the Sun/origin. */
+      s.pos.copy(s.start).add(camera.position);
     }
 
     s.life += d;
@@ -104,7 +106,7 @@ const Streak = ({ data, onWish }) => {
     const bright = Math.min(1, f * 5) * (1 - f) * 1.8; // quick rise, long fade
 
     _q.setFromUnitVectors(_up, s.dir);
-    _scale.set(0.06, s.len, 0.06);
+    _scale.set(0.12, s.len, 0.12);
     _m.compose(s.pos, _q, _scale);
     mesh.visible = true;
     mesh.matrix.copy(_m);

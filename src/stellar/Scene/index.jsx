@@ -357,8 +357,8 @@ const Scene = ({ scrollT, activeIdx, onJump, onReady, freeRoamEnabled, speedRef,
             stops — Ceres + Pluto host those sections). Faint debris rings. */}
         {showExtras && (
           <>
-            <AsteroidBelt count={isMobile ? 1200 : 2600} innerRadius={BACKGROUND_BELTS.asteroid.inner} outerRadius={BACKGROUND_BELTS.asteroid.outer} size={0.18} thickness={BACKGROUND_BELTS.asteroid.thickness} gaps={KIRKWOOD_GAPS} animate={!reducedMotion} />
-            <BeltDust count={isMobile ? 9000 : 26000} innerRadius={BACKGROUND_BELTS.asteroid.inner} outerRadius={BACKGROUND_BELTS.asteroid.outer} thickness={BACKGROUND_BELTS.asteroid.thickness} color={BACKGROUND_BELTS.asteroid.color} size={2.6} opacity={0.45} gaps={KIRKWOOD_GAPS} animate={!reducedMotion} />
+            <AsteroidBelt count={isMobile ? 2400 : 5200} innerRadius={BACKGROUND_BELTS.asteroid.inner} outerRadius={BACKGROUND_BELTS.asteroid.outer} size={0.18} thickness={BACKGROUND_BELTS.asteroid.thickness} gaps={KIRKWOOD_GAPS} animate={!reducedMotion} />
+            <BeltDust count={isMobile ? 16000 : 40000} innerRadius={BACKGROUND_BELTS.asteroid.inner} outerRadius={BACKGROUND_BELTS.asteroid.outer} thickness={BACKGROUND_BELTS.asteroid.thickness} color={BACKGROUND_BELTS.asteroid.color} size={2.6} opacity={0.5} gaps={KIRKWOOD_GAPS} animate={!reducedMotion} />
           </>
         )}
         {showExtras && !isMobile && (

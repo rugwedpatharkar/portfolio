@@ -122,9 +122,16 @@ const AsteroidBelt = ({
       /* Gaussian-ish vertical spread (two uniforms) → denser mid-plane, sparse
          outliers, like a real belt's inclination dispersion. */
       const y = (Math.random() + Math.random() - 1) * 0.5 * thickness;
-      /* Heavy-tailed size: cube of a uniform → mostly gravel, a rare few big. */
+      /* Multi-tier, fat-tailed size mix: mostly gravel/extra-small, a third
+         small, ~7% large, and a rare ~0.8% GIANT planetesimal — the big ones
+         dwarf the terrestrial planets, exactly the "some bigger than planets"
+         look. */
       const r = Math.random();
-      const baseScale = size * (0.3 + r * r * r * 3.4);
+      let baseScale;
+      if (r > 0.992)      baseScale = size * (5.0 + Math.random() * 7.0);   // rare giants
+      else if (r > 0.93)  baseScale = size * (2.2 + Math.random() * 2.6);   // large
+      else if (r > 0.62)  baseScale = size * (0.7 + Math.random() * 1.3);   // small
+      else                baseScale = size * (0.16 + Math.random() * 0.5);  // gravel / extra-small
       buckets[i % 3].push({
         angle,
         radius,
