@@ -326,17 +326,33 @@ const CameraRig = ({
     const focus = focusRef?.current || null;
     const wide = !focus && !!wideRef?.current;
     if (focus) {
-      if (focus.live) {
-        /* Live lane-object focus — track the object's orbiting position so the
-           frame stays composed as it revolves (like the planet tracking). */
-        const dst = DEST_BY_ID[focus.destId];
-        if (dst) {
-          if (focus.k >= 0) laneObjectPosition(dst, focus.k, t, _p);
-          else orbitalPosition(dst, t, _p);
-          _radial.copy(_p).normalize();
-          _upp.copy(UP).addScaledVector(_radial, -UP.dot(_radial)).normalize();
-          const D = focus.dist || FOCUS_DIST;
-          _camTarget.copy(_p).addScaledVector(_radial, D).addScaledVector(_upp, D * 0.35);
+      if (focus.live && focus.target) {
+        /* Travel framing — approach the target FROM the previous body's
+           direction, so a jump reads as an actual A→B journey. Both positions
+           are live, so the frame keeps tracking as the bodies orbit. */
+        const tgt = DEST_BY_ID[focus.target.destId];
+        if (tgt) {
+          if (focus.target.k >= 0) laneObjectPosition(tgt, focus.target.k, t, _p);
+          else orbitalPosition(tgt, t, _p);
+          let haveFrom = false;
+          if (focus.from) {
+            const frm = DEST_BY_ID[focus.from.destId];
+            if (frm) {
+              if (focus.from.k >= 0) laneObjectPosition(frm, focus.from.k, t, _po);
+              else orbitalPosition(frm, t, _po);
+              _dir.copy(_p).sub(_po);
+              if (_dir.lengthSq() > 1e-6) { _dir.normalize(); haveFrom = true; }
+            }
+          }
+          if (!haveFrom) {
+            _dir.copy(_p);
+            if (_dir.lengthSq() > 1e-6) _dir.normalize();
+            else _dir.set(0, 0, 1);
+          }
+          /* camera sits on the FROM side of the target, looking in the travel
+             direction; a small lift keeps some lighting dimension. */
+          const D = focus.target.k >= 0 ? FOCUS_DIST : Math.max(2.5, (tgt.radius / Math.tan(BACKLIT_HALF_ANGLE)) * 1.12);
+          _camTarget.copy(_p).addScaledVector(_dir, -D).addScaledVector(UP, D * 0.18);
           _lookTarget.copy(_p);
         }
       } else {

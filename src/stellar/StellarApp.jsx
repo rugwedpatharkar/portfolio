@@ -108,6 +108,9 @@ const StellarApp = () => {
   /* Hyperspace-tube intensity, pulsed on a ←→ hyperloop shift; + its decay timer. */
   const warpVelRef = useRef(0);
   const warpTimer = useRef(null);
+  /* The body/object the camera is travelling FROM — for travel-direction framing
+     (you approach each target from where you just were). */
+  const prevTargetRef = useRef({ destId: DESTINATIONS[0].id, k: -1 });
   /* Flight: live speed (the gauge) + thruster input, read by the rigs. */
   const pilotSpeedRef = useRef(0);
   const thrustRef = useRef({});
@@ -193,17 +196,23 @@ const StellarApp = () => {
      planet framing). Tour-mode only; overview/pilot own the camera themselves. */
   useEffect(() => {
     if (mode !== "tour") { focusRef.current = null; return; }
-    if (itemIdx < 0) { focusRef.current = null; return; }
     const dest = DESTINATIONS[activeIdx];
     if (!dest) { focusRef.current = null; return; }
+    if (itemIdx < 0) {
+      /* Planet-view keeps its framing (planets get travel-framing in M2c-2);
+         record the planet as the body we travel FROM to the first object. */
+      focusRef.current = null;
+      prevTargetRef.current = { destId: dest.id, k: -1 };
+      return;
+    }
+    /* Fly to the object, framed FROM the previous body (the travel direction). */
     focusRef.current = {
       live: true,
-      destId: dest.id,
-      k: itemIdx,
-      count: itemsForSection(dest.section).length,
-      dist: 1.8,
+      target: { destId: dest.id, k: itemIdx },
+      from: prevTargetRef.current,
       fov: 42,
     };
+    prevTargetRef.current = { destId: dest.id, k: itemIdx };
     /* Fire the hyperspace tube for the shift, then let it collapse to points. */
     warpVelRef.current = 1.3;
     clearTimeout(warpTimer.current);
