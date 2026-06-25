@@ -9,7 +9,6 @@ import Stars from "./Stars";
 import Sun from "./Sun";
 import Planet from "./Planet";
 import CameraRig from "./CameraRig";
-import GalaxyView from "./GalaxyView";
 import AsteroidBelt from "./AsteroidBelt";
 import Nebulae from "./Nebulae";
 import VisibilityController from "./VisibilityController";
@@ -78,7 +77,7 @@ import { rotationSpeedFor } from "../config/planetData";
  * tune that based on viewport bucket.
  */
 
-const Scene = ({ scrollT, activeIdx, onJump, onReady, freeRoamEnabled, speedRef, thrustRef, wideRef, wideOrbitRef, galaxy = false, galaxyRef, galaxyOrbitRef, focusRef, cameraRef, eclipseRef, clock, showExtras = true, launchPhase = null }) => {
+const Scene = ({ scrollT, activeIdx, onJump, onReady, freeRoamEnabled, speedRef, thrustRef, wideRef, wideOrbitRef, focusRef, cameraRef, eclipseRef, clock, showExtras = true, launchPhase = null }) => {
   const readyRef = useRef(false);
   const { isMobile, isCompact, reducedMotion } = useViewport();
   /* Camera offsets — kept in refs so React state doesn't re-render
@@ -180,11 +179,6 @@ const Scene = ({ scrollT, activeIdx, onJump, onReady, freeRoamEnabled, speedRef,
         <Nebulae />
         {/* Grand faint galactic band — far backdrop for depth. */}
         <MilkyWay animate={!reducedMotion} />
-        {/* The entire solar-system render is hidden in the galaxy (helical)
-            view — GalaxyView mounts its own compressed bodies + helix trails.
-            Toggling visibility (not unmounting) keeps mode switches instant
-            and avoids re-loading planet textures. */}
-        <group visible={!galaxy}>
         {/* Zodiacal light — faint sunlight scattered by ecliptic-plane dust. */}
         {showExtras && <ZodiacalLight />}
         {/* The edge anomaly — Gargantua, out in front of the camera (behind the
@@ -390,10 +384,6 @@ const Scene = ({ scrollT, activeIdx, onJump, onReady, freeRoamEnabled, speedRef,
         {showExtras && <Endurance />}
         {showExtras && !isMobile && <StarDestroyer />}
         {showExtras && <Enterprise />}
-        </group>
-        {/* Helical galaxy view — the Sun marching toward the apex with the
-            planets tracing 60°-tilted helices (mounts only in galaxy mode). */}
-        {galaxy && <GalaxyView reducedMotion={reducedMotion} />}
         {!isMobile && !reducedMotion && <MouseParallax offsetRef={parallaxOffsetRef} />}
         <FreeRoam enabled={freeRoamEnabled} offsetRef={freeRoamOffsetRef} speedRef={speedRef} thrustRef={thrustRef} />
         <CameraShake parallaxOffsetRef={parallaxOffsetRef} />
@@ -404,8 +394,6 @@ const Scene = ({ scrollT, activeIdx, onJump, onReady, freeRoamEnabled, speedRef,
           freeRoamEnabled={freeRoamEnabled}
           wideRef={wideRef}
           wideOrbitRef={wideOrbitRef}
-          galaxyRef={galaxyRef}
-          galaxyOrbitRef={galaxyOrbitRef}
           focusRef={focusRef}
           cameraRef={cameraRef}
           launchPhase={launchPhase}

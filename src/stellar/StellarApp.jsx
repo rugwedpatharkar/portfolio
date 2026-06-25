@@ -20,7 +20,6 @@ import EasterEgg from "./EasterEgg";
 import AnswerListener from "./AnswerListener";
 import useViewport from "./useViewport";
 import SpeedRun from "./SpeedRun";
-import GalaxySpeedDock from "./GalaxySpeedDock";
 import CockpitFrame from "./CockpitFrame";
 import FragmentToast from "./FragmentToast";
 import HazardBanner from "./HazardBanner";
@@ -59,15 +58,6 @@ const OverviewHud = ({ overview }) =>
 
 /* Shown while visiting an object from the map (the free fly-to) — its detailed
    info + a way back to the map. */
-/* Header + return hint while in the helical galaxy view. */
-const GalaxyHud = ({ galaxy }) =>
-  galaxy ? (
-    <div style={{ position: "fixed", top: "7.5vh", left: 0, right: 0, zIndex: 50, pointerEvents: "none", display: "flex", flexDirection: "column", alignItems: "center", gap: 6, textAlign: "center" }}>
-      <div style={{ fontFamily: "'Michroma', sans-serif", fontSize: 17, letterSpacing: "0.16em", color: "white", textTransform: "uppercase", textShadow: "0 2px 20px rgba(0,0,0,0.85)" }}>Helical Galaxy View</div>
-      <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 11, letterSpacing: "0.1em", color: "rgba(255,255,255,0.8)", textShadow: "0 1px 10px rgba(0,0,0,0.9)", maxWidth: "92vw" }}>the Sun's true path through the Milky Way — planets trace 60°-tilted helices · drag to orbit · G or Esc to return</div>
-    </div>
-  ) : null;
-
 const FocusCard = ({ obj, onBack }) => (
   <div
     style={{
@@ -117,8 +107,6 @@ const StellarApp = () => {
   /* `flying` is true whenever the ship is under manual control (the read-mode
      pilot free-look). */
   const flying = mode === "pilot";
-  /* Helical galaxy view — the Sun's real path through the Milky Way. */
-  const galaxy = mode === "galaxy";
   /* First-interaction flag — fades the hero "scroll to explore" hint once the
      visitor scrolls / keys / touches (or after a timeout). */
   const [interacted, setInteracted] = useState(false);
@@ -141,10 +129,6 @@ const StellarApp = () => {
   /* Orrery view orbit (azimuth / elevation / radius) — the system-view drag
      updates it; CameraRig orbits the wide camera around the system from it. */
   const wideOrbitRef = useRef({ az: 1.8, el: 0.37, radius: 95 });
-  /* Galaxy-view camera orbit (drag) + the per-frame flag CameraRig reads to
-     know the helical view owns the camera. */
-  const galaxyRef = useRef(false);
-  const galaxyOrbitRef = useRef({ az: 0.7, el: 0.42, radius: 1010 });
   /* Free-camera focus target {position, lookAt, fov} for click-to-visit, and a
      live-camera handle the overview map projects object positions through. */
   const focusRef = useRef(null);
@@ -274,46 +258,6 @@ const StellarApp = () => {
     wideRef.current = overview;
   }, [overview]);
 
-  /* Galaxy view: sync the per-frame flag CameraRig reads, and restore the
-     virtual-clock scale to 1× on exit (the galaxy speed dock cranks it up). */
-  useEffect(() => {
-    galaxyRef.current = galaxy;
-    if (!galaxy) sceneClockRef.current.scale = 1;
-  }, [galaxy]);
-
-  /* The galaxy entry is desktop-only — if the viewport becomes mobile while in
-     the helical view (resize / rotate), drop back to the tour. */
-  useEffect(() => {
-    if (isMobile && mode === "galaxy") setMode("tour");
-  }, [isMobile, mode]);
-
-  /* Drag in the galaxy view to orbit the 3/4 trailing camera around the helix
-     (mirrors the overview orrery drag, writing galaxyOrbitRef). */
-  useEffect(() => {
-    if (mode !== "galaxy") return undefined;
-    let dragging = false, lx = 0, ly = 0;
-    const down = (e) => {
-      if (e.target.closest && e.target.closest("button, a")) return;
-      dragging = true; lx = e.clientX; ly = e.clientY;
-    };
-    const move = (e) => {
-      if (!dragging) return;
-      const o = galaxyOrbitRef.current;
-      o.az -= (e.clientX - lx) * 0.005;
-      o.el = Math.max(0.05, Math.min(1.4, o.el + (e.clientY - ly) * 0.005));
-      lx = e.clientX; ly = e.clientY;
-    };
-    const up = () => { dragging = false; };
-    window.addEventListener("pointerdown", down);
-    window.addEventListener("pointermove", move);
-    window.addEventListener("pointerup", up);
-    return () => {
-      window.removeEventListener("pointerdown", down);
-      window.removeEventListener("pointermove", move);
-      window.removeEventListener("pointerup", up);
-    };
-  }, [mode]);
-
   /* Orrery — drag in the system view to orbit the camera's viewing angle, so the
      orbiting planets transit (eclipse) the sun at low angles. Clicks on hotspots
      still warp (drags that start on a button are ignored). */
@@ -413,10 +357,6 @@ const StellarApp = () => {
          hub only listens for Esc / P to dock. */
       if (k === "p") { e.preventDefault(); togglePilot(); return; }
       if (mode === "pilot") { if (k === "escape") setMode("tour"); return; }
-      /* G toggles the helical galaxy view (desktop only). In galaxy mode only
-         Esc/G return; arrows/Z are ignored so they don't fight the camera. */
-      if (k === "g" && !isMobile) { e.preventDefault(); setMode((m) => (m === "galaxy" ? "tour" : "galaxy")); return; }
-      if (mode === "galaxy") { if (k === "escape") setMode("tour"); return; }
       if (k === "z") {
         e.preventDefault();
         setMode((m) => (m === "overview" ? "tour" : "overview"));
@@ -444,7 +384,7 @@ const StellarApp = () => {
     };
     window.addEventListener("keydown", onKey);
     return () => window.removeEventListener("keydown", onKey);
-  }, [shipWarpDone, handleJump, focusedObj, clearFocus, logOpen, mode, togglePilot, isMobile]);
+  }, [shipWarpDone, handleJump, focusedObj, clearFocus, logOpen, mode, togglePilot]);
 
   /* Browser back/forward should also navigate */
   useEffect(() => {
@@ -495,9 +435,6 @@ const StellarApp = () => {
         eclipseRef={eclipseRef}
         wideRef={wideRef}
         wideOrbitRef={wideOrbitRef}
-        galaxy={galaxy}
-        galaxyRef={galaxyRef}
-        galaxyOrbitRef={galaxyOrbitRef}
         focusRef={focusRef}
         cameraRef={cameraRef}
         clock={sceneClockRef.current}
@@ -536,24 +473,7 @@ const StellarApp = () => {
           <OverviewMap objects={OBJECTS} cameraRef={cameraRef} visible={overview && !focusedObj} onPick={handlePick} />
           {focusedObj && <FocusCard obj={focusedObj} onBack={clearFocus} />}
           {/* Minimal by design — just the résumé tour + the system overview (Z). */}
-          {mode === "tour" && <SpeedRun activeIdx={activeIdx} active={speedRunOn} onToggle={() => setSpeedRunOn((v) => !v)} />}
-          {/* Helical galaxy view — entry pill shown in every solar-system mode
-              (tour, system overview, pilot); hidden only once inside it. */}
-          {!isMobile && mode !== "galaxy" && (
-            <button
-              onClick={() => setMode("galaxy")}
-              aria-label="Helical galaxy view — watch the Sun's real path through the Milky Way"
-              style={{ position: "fixed", top: 16, left: "50%", transform: "translateX(-50%)", zIndex: 47, cursor: "pointer",
-                display: "flex", alignItems: "center", gap: 8, padding: "7px 15px", borderRadius: 999,
-                background: "rgba(8,11,24,0.7)", backdropFilter: "blur(10px)", WebkitBackdropFilter: "blur(10px)",
-                border: "1px solid rgba(150,195,255,0.45)", color: "#fff", fontFamily: "'JetBrains Mono', monospace", fontSize: 10, letterSpacing: "0.12em" }}
-            >
-              <span style={{ fontSize: 13, lineHeight: 1 }}>🌀</span> HELICAL VIEW
-              <span style={{ color: "rgba(150,195,255,0.9)" }}>· G</span>
-            </button>
-          )}
-          <GalaxyHud galaxy={galaxy} />
-          {galaxy && !reducedMotion && <GalaxySpeedDock clock={sceneClockRef.current} />}
+          <SpeedRun activeIdx={activeIdx} active={speedRunOn} onToggle={() => setSpeedRunOn((v) => !v)} />
         </>
       )}
       {/* Countdown plays FIRST on mount; the warp fly-in (WarpField streaks

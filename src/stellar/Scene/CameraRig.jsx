@@ -4,7 +4,6 @@ import { useFrame, useThree } from "@react-three/fiber";
 import * as THREE from "three";
 import { DESTINATIONS } from "../config/destinations";
 import { getOrbit, orbitalPosition } from "../config/orbits";
-import { APEX_AXIS, sunPosition, GALAXY_SPAN } from "../config/galaxy";
 import { useSceneClock } from "./SceneClock";
 
 /*
@@ -44,14 +43,6 @@ const FREEROAM_LERP_60 = 0.55;
 const WIDE_POSITION = new THREE.Vector3(0, 34, 86);
 const WIDE_LOOK = new THREE.Vector3(20, 0, 0);
 const WIDE_FOV = 34;
-
-/* Galaxy (helical) view — a 3/4 trailing shot that tracks the Sun's advance
-   along the apex axis. Orbit angles come from galaxyOrbitRef (drag); defaults
-   below frame the whole helix bundle. */
-const GALAXY_FOV = 40;
-const GALAXY_LOOK_AHEAD = 0.25 * GALAXY_SPAN;
-const GALAXY_DEF = { az: 0.7, el: 0.42, radius: 2.3 * GALAXY_SPAN };
-const _gSun = new THREE.Vector3();
 
 /* Cinematic launch (intro): a far, oblique establishing shot of the whole
    tilted system, then an accelerating warp-dive into Sol. */
@@ -134,8 +125,6 @@ const CameraRig = ({
   freeRoamEnabled,
   wideRef,
   wideOrbitRef,
-  galaxyRef,
-  galaxyOrbitRef,
   focusRef,
   cameraRef,
   launchPhase,
@@ -286,29 +275,13 @@ const CameraRig = ({
     bankCurrent.current += (targetBank - bankCurrent.current) * fAlpha(0.1, d);
 
     /* Precedence: focus (click-to-visit an object from the overview map) >
-       galaxy (helical view) > wide (system overview) > scroll framing. Focus,
-       galaxy + wide use absolute world coords, so frameShift/parallax skip. */
+       wide (system overview) > scroll framing. Focus + wide use absolute
+       world coords, so the planet frameShift/parallax are skipped. */
     const focus = focusRef?.current || null;
-    const galaxy = !focus && !!galaxyRef?.current;
-    const wide = !focus && !galaxy && !!wideRef?.current;
+    const wide = !focus && !!wideRef?.current;
     if (focus) {
       _camTarget.set(focus.position[0], focus.position[1], focus.position[2]);
       _lookTarget.set(focus.lookAt[0], focus.lookAt[1], focus.lookAt[2]);
-    } else if (galaxy) {
-      /* 3/4 trailing shot that follows the Sun marching along the apex axis.
-         Orbit angles (drag) come from galaxyOrbitRef; az=0 sits behind (−Z). */
-      sunPosition(t, _gSun);
-      const o = galaxyOrbitRef?.current || GALAXY_DEF;
-      const r = o.radius ?? GALAXY_DEF.radius;
-      const el = o.el ?? GALAXY_DEF.el;
-      const az = o.az ?? GALAXY_DEF.az;
-      const ce = Math.cos(el);
-      _camTarget.set(
-        _gSun.x + r * ce * Math.sin(az),
-        _gSun.y + r * Math.sin(el),
-        _gSun.z - r * ce * Math.cos(az)
-      );
-      _lookTarget.copy(_gSun).addScaledVector(APEX_AXIS, GALAXY_LOOK_AHEAD);
     } else if (wide) {
       /* Orrery view — orbit the camera around the system from an adjustable
          azimuth/elevation so the orbiting planets transit the sun at low
@@ -335,7 +308,7 @@ const CameraRig = ({
        without moving the camera or changing the planet's size. Desktop only
        (frameShift is 0 on compact/mobile, where the layout stacks); skipped
        in wide + free-roam. */
-    if (!wide && !focus && !galaxy && !freeRoamEnabled && frameShift) {
+    if (!wide && !focus && !freeRoamEnabled && frameShift) {
       /* (1) Dolly back along the planet→camera axis so the whole body fits
          on the right with margin. (2) Then aim a fraction of the view's
          half-width LEFT of the subject, sliding it right to clear the left
@@ -354,7 +327,7 @@ const CameraRig = ({
        of the framing distance, so the angular sway is identical on every planet
        and the body stays anchored while the background parallaxes. (Skipped in
        wide / focus / free-roam, which own the camera.) */
-    if (!wide && !focus && !galaxy && !freeRoamEnabled && parallaxOffsetRef?.current) {
+    if (!wide && !focus && !freeRoamEnabled && parallaxOffsetRef?.current) {
       _viewDir.copy(_lookTarget).sub(_camTarget);
       const fd = _viewDir.length() || 1;
       _viewDir.divideScalar(fd);
@@ -366,19 +339,19 @@ const CameraRig = ({
         .addScaledVector(_up2, parallaxOffsetRef.current.y * s);
     }
 
-    const posBase = focus || wide || galaxy ? WIDE_LERP_60 : freeRoamEnabled ? FREEROAM_LERP_60 : POS_LERP_60;
-    const lookBase = focus || wide || galaxy ? WIDE_LERP_60 : LOOK_LERP_60;
+    const posBase = focus || wide ? WIDE_LERP_60 : freeRoamEnabled ? FREEROAM_LERP_60 : POS_LERP_60;
+    const lookBase = focus || wide ? WIDE_LERP_60 : LOOK_LERP_60;
     camera.position.lerp(_camTarget, fAlpha(posBase, d));
     lookAtTarget.current.lerp(_lookTarget, fAlpha(lookBase, d));
     camera.lookAt(lookAtTarget.current);
 
     /* Dutch-tilt roll + travel bank — after lookAt (resets up to world up). */
-    const targetRoll = freeRoamEnabled || wide || focus || galaxy ? 0 : rollTarget + bankCurrent.current;
+    const targetRoll = freeRoamEnabled || wide || focus ? 0 : rollTarget + bankCurrent.current;
     rollCurrent.current += (targetRoll - rollCurrent.current) * fAlpha(ROLL_LERP_60, d);
     if (Math.abs(rollCurrent.current) > 0.0005) camera.rotateZ(rollCurrent.current);
 
     /* FOV */
-    const targetFov = focus ? focus.fov : galaxy ? GALAXY_FOV : wide ? WIDE_FOV : fovTarget;
+    const targetFov = focus ? focus.fov : wide ? WIDE_FOV : fovTarget;
     const fovDelta = targetFov - camera.fov;
     if (Math.abs(fovDelta) > 0.02) {
       camera.fov += fovDelta * fAlpha(FOV_LERP_60, d);
