@@ -2,6 +2,7 @@ import { DESTINATIONS, DESTINATION_BY_ID, remapPosition, frontOfSun } from "./de
 import { PLANET_FACTS } from "../data/planetFacts";
 import { DWARF_PLANETS } from "./dwarfPlanets";
 import { MOONS } from "./moons";
+import { projects } from "../../content";
 
 /*
  * Registry of every notable object in the scene — the 12 résumé destinations
@@ -255,4 +256,34 @@ const MOON_OBJECTS = MOONS.map((m) => {
   };
 });
 
-export const OBJECTS = [...DESTINATION_OBJECTS, ...ANOMALY_OBJECTS, ...DWARF_OBJECTS, ...MOON_OBJECTS];
+/* Projects as inspectable "probes" orbiting Mars (the Projects stop). Real
+   projects → scannable craft you fly to; the scan card reads their stats as
+   facts. Rendered by Scene/ProjectProbes from PROJECT_POSITIONS. */
+const PROJECT_LIST = projects.slice(0, 8);
+const MARS_POS = DESTINATION_BY_ID.projects?.position || [15.3, 0.3, 0.6];
+const PROJECT_OBJECTS = PROJECT_LIST.map((p, i) => {
+  const a = (i / PROJECT_LIST.length) * Math.PI * 2;
+  const r = 2.6;
+  const position = [MARS_POS[0] + Math.cos(a) * r, MARS_POS[1] + (i % 2 ? 0.7 : -0.7), MARS_POS[2] + Math.sin(a) * r];
+  return {
+    id: `project-${i}`, label: p.name, category: "Project", color: "#ff9a6a", position,
+    info: p.description,
+    visit: { kind: "focus", cameraTarget: frame(position, 1.6, 0.4, 36) },
+  };
+});
+
+/* Project "facts" for the scan card (year/team/status + headline stats). */
+export const PROJECT_FACTS = Object.fromEntries(
+  PROJECT_LIST.map((p, i) => {
+    const f = {};
+    if (p.year) f.Year = p.year;
+    if (p.team) f.Team = p.team;
+    if (p.status) f.Status = p.status;
+    (p.stats || []).forEach((s) => { if (s.label && s.value) f[s.label] = s.value; });
+    return [`project-${i}`, f];
+  })
+);
+/* Render positions for the probe markers (kept in sync with the registry). */
+export const PROJECT_POSITIONS = PROJECT_OBJECTS.map((o) => ({ id: o.id, position: o.position, color: o.color }));
+
+export const OBJECTS = [...DESTINATION_OBJECTS, ...ANOMALY_OBJECTS, ...DWARF_OBJECTS, ...MOON_OBJECTS, ...PROJECT_OBJECTS];

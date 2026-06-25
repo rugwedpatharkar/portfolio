@@ -20,6 +20,7 @@ import AtlasComet from "./AtlasComet";
 import Meteors from "./Meteors";
 import Pulsar from "./Pulsar";
 import ExoticObjects from "./ExoticObjects";
+import ProjectProbes from "./ProjectProbes";
 import DeepFieldMysteries from "./DeepFieldMysteries";
 import Wormhole from "./Wormhole";
 import LensFlare from "./LensFlare";
@@ -217,6 +218,8 @@ const Scene = ({ scrollT, activeIdx, onJump, onReady, freeRoamEnabled, speedRef,
         {showExtras && !isMobile && !reducedMotion && <Pulsar />}
         {/* New deep-field exotics: Sgr A*, magnetar, brown dwarf, rogue planet. */}
         {showExtras && <ExoticObjects animate={!reducedMotion} />}
+        {/* Real projects as inspectable probes orbiting Mars. */}
+        {showExtras && <ProjectProbes animate={!reducedMotion} />}
         {/* Real unsolved mysteries as deep-field discoverables (Planet Nine,
             Tabby's Star, the Wow! signal, fast radio bursts). */}
         {showExtras && <DeepFieldMysteries animate={!reducedMotion} />}

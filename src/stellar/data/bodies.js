@@ -1,5 +1,5 @@
 import * as THREE from "three";
-import { OBJECTS } from "../config/objects";
+import { OBJECTS, PROJECT_FACTS } from "../config/objects";
 import { DESTINATIONS } from "../config/destinations";
 import { PLANET_FACTS } from "./planetFacts";
 import { orbitalPosition } from "../config/orbits";
@@ -85,7 +85,7 @@ export const getBodyContent = (id) => {
     label: b.label,
     category: b.category,
     color: b.color,
-    facts: PLANET_FACTS[id] || MOON_FACTS[id] || null, // planet or moon facts
+    facts: PLANET_FACTS[id] || MOON_FACTS[id] || PROJECT_FACTS[id] || null, // planet · moon · project
     section: b.section,                 // résumé section key (worlds)
     info: o?.info || "",                // short blurb (anomalies + planets)
     content: o?.content || null,        // optional rich content (future anomalies)
