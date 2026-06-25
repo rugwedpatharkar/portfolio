@@ -59,6 +59,14 @@ const Magnetar = ({ animate }) => {
             <meshBasicMaterial color="#9ec8ff" transparent opacity={0.5} blending={THREE.AdditiveBlending} depthWrite={false} toneMapped={false} />
           </mesh>
         ))}
+        {/* Twin relativistic polar jets along the (tilted) magnetic axis — the
+            beamed X-ray emission that defines a magnetar. */}
+        {[1, -1].map((s) => (
+          <mesh key={`jet${s}`} position={[0, s * 9, 0]} rotation={[s < 0 ? Math.PI : 0, 0, 0]}>
+            <coneGeometry args={[0.85, 18, 16, 1, true]} />
+            <meshBasicMaterial color="#d4eaff" transparent opacity={0.4} side={THREE.DoubleSide} blending={THREE.AdditiveBlending} depthWrite={false} toneMapped={false} />
+          </mesh>
+        ))}
       </group>
       <pointLight color="#bfe0ff" intensity={1.1} distance={120} decay={1.6} />
     </group>
@@ -85,16 +93,47 @@ const DimSphere = ({ position, radius, color, halo, haloColor, emissive }) => {
 };
 
 /* Crab Nebula — a supernova remnant: layered additive glows (teal O-III, red
-   H-alpha, blue synchrotron) around a bright central pulsar. */
+   H-alpha, blue synchrotron) PLUS a scattered field of glowing FILAMENT motes
+   (the chaotic web of expanding gas the real M1 is famous for) around a bright
+   central pulsar. */
 const CrabNebula = ({ animate }) => {
   const g = useRef();
   useFrame((_, dt) => { if (animate && g.current) g.current.rotation.z += dt * 0.02; });
+  /* Filament motes — red/teal H-alpha/O-III shell on the outside, blue
+     synchrotron toward the core. */
+  const filaments = useMemo(() => {
+    const N = 540;
+    const positions = new Float32Array(N * 3);
+    const colors = new Float32Array(N * 3);
+    const red = new THREE.Color("#e0703c");
+    const teal = new THREE.Color("#46c0a0");
+    const blue = new THREE.Color("#8ccaff");
+    const c = new THREE.Color();
+    for (let i = 0; i < N; i++) {
+      const u = Math.random() * 2 - 1;
+      const th = Math.random() * Math.PI * 2;
+      const s = Math.sqrt(1 - u * u);
+      const rr = 0.45 + 0.55 * Math.random();
+      positions[i * 3] = Math.cos(th) * s * 32 * rr + (Math.random() - 0.5) * 5;
+      positions[i * 3 + 1] = u * 25 * rr + (Math.random() - 0.5) * 5;
+      positions[i * 3 + 2] = Math.sin(th) * s * 20 * rr + (Math.random() - 0.5) * 5;
+      c.copy(rr > 0.7 ? (Math.random() < 0.5 ? red : teal) : blue);
+      colors[i * 3] = c.r; colors[i * 3 + 1] = c.g; colors[i * 3 + 2] = c.b;
+    }
+    const geo = new THREE.BufferGeometry();
+    geo.setAttribute("position", new THREE.BufferAttribute(positions, 3));
+    geo.setAttribute("color", new THREE.BufferAttribute(colors, 3));
+    return geo;
+  }, []);
   return (
     <group position={pos(EXOTIC_RAW.crab)}>
       <group ref={g}>
-        <mesh scale={[34, 24, 20]}><sphereGeometry args={[1, 20, 20]} /><meshBasicMaterial color="#3fae9a" transparent opacity={0.15} blending={THREE.AdditiveBlending} depthWrite={false} side={THREE.DoubleSide} toneMapped={false} /></mesh>
-        <mesh scale={[26, 31, 18]} rotation={[0, 0, 0.7]}><sphereGeometry args={[1, 20, 20]} /><meshBasicMaterial color="#c8643c" transparent opacity={0.14} blending={THREE.AdditiveBlending} depthWrite={false} side={THREE.DoubleSide} toneMapped={false} /></mesh>
-        <mesh scale={[18, 18, 18]}><sphereGeometry args={[1, 20, 20]} /><meshBasicMaterial color="#9be0ff" transparent opacity={0.12} blending={THREE.AdditiveBlending} depthWrite={false} side={THREE.DoubleSide} toneMapped={false} /></mesh>
+        <mesh scale={[34, 24, 20]}><sphereGeometry args={[1, 20, 20]} /><meshBasicMaterial color="#3fae9a" transparent opacity={0.12} blending={THREE.AdditiveBlending} depthWrite={false} side={THREE.DoubleSide} toneMapped={false} /></mesh>
+        <mesh scale={[26, 31, 18]} rotation={[0, 0, 0.7]}><sphereGeometry args={[1, 20, 20]} /><meshBasicMaterial color="#c8643c" transparent opacity={0.11} blending={THREE.AdditiveBlending} depthWrite={false} side={THREE.DoubleSide} toneMapped={false} /></mesh>
+        <mesh scale={[18, 18, 18]}><sphereGeometry args={[1, 20, 20]} /><meshBasicMaterial color="#9be0ff" transparent opacity={0.1} blending={THREE.AdditiveBlending} depthWrite={false} side={THREE.DoubleSide} toneMapped={false} /></mesh>
+        <points geometry={filaments}>
+          <pointsMaterial size={2.6} sizeAttenuation vertexColors transparent opacity={0.72} depthWrite={false} blending={THREE.AdditiveBlending} toneMapped={false} />
+        </points>
       </group>
       <mesh><sphereGeometry args={[1.4, 16, 16]} /><meshBasicMaterial color="#eaf6ff" toneMapped={false} /></mesh>
       <pointLight color="#bfe9ff" intensity={0.8} distance={140} decay={1.6} />
