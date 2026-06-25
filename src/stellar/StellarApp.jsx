@@ -1,6 +1,6 @@
 /* eslint-disable react/prop-types */
 import { useRef, useState, useCallback, useEffect, useMemo } from "react";
-import { MotionConfig, motion } from "motion/react";
+import { MotionConfig } from "motion/react";
 import Scene from "./Scene";
 import Navigator from "./Navigator";
 import ContentPanel from "./ContentPanel";
@@ -25,7 +25,6 @@ import AnswerListener from "./AnswerListener";
 import useViewport from "./useViewport";
 import SpeedRun from "./SpeedRun";
 import ScrollProgress from "./ScrollProgress";
-import GalacticInset from "./GalacticInset";
 import CockpitFrame from "./CockpitFrame";
 import FragmentToast from "./FragmentToast";
 import HazardBanner from "./HazardBanner";
@@ -33,21 +32,6 @@ import EclipseDimmer from "./EclipseDimmer";
 import { markCharted, markVisited } from "./data/explorer";
 import { getBodyContent } from "./data/bodies";
 
-/* Always-visible recruiter affordance pill style. */
-const RECRUITER_PILL = {
-  cursor: "pointer",
-  padding: "7px 13px",
-  borderRadius: 999,
-  background: "rgba(8,11,24,0.72)",
-  backdropFilter: "blur(10px)",
-  WebkitBackdropFilter: "blur(10px)",
-  border: "1px solid rgba(150,195,255,0.4)",
-  color: "#fff",
-  fontFamily: "'JetBrains Mono', monospace",
-  fontSize: 10,
-  letterSpacing: "0.08em",
-  textDecoration: "none",
-};
 
 /* Hash → destination utilities */
 const findDestinationIndexByHash = (hash) => {
@@ -110,10 +94,6 @@ const StellarApp = () => {
   const [logOpen, setLogOpen] = useState(false);
   /* Speed-run challenge toggle. */
   const [speedRunOn, setSpeedRunOn] = useState(false);
-  /* Guided auto-tour ("Grand Tour"): cinematically advances through every stop
-     on its own, pausing to dwell at each; any manual input cancels it. */
-  const [autoTour, setAutoTour] = useState(false);
-  const autoTourRef = useRef(null);
   /* ⌘K command palette open state. */
   const [paletteOpen, setPaletteOpen] = useState(false);
   const { reducedMotion, isMobile } = useViewport();
@@ -210,18 +190,24 @@ const StellarApp = () => {
     return () => clearTimeout(t);
   }, [launchPhase, endWarp]);
 
-  /* Ramp the extras-mount tier in stages behind the countdown cover (see
-     extrasPhase). Reduced-motion / mobile (no intro) mount everything at once. */
+  /* Stream the heavy extras suite IN only AFTER the cinematic intro (countdown +
+     warp) finishes. Mounting it DURING the intro stuttered the countdown timer
+     AND froze the warp animation — the main thread was blocked building ~140k
+     belt particles + anomalies + models. Now the intro runs on the light core
+     scene alone (sun + planets + stars = smooth countdown + smooth warp), then
+     the extras ramp in over the first ~2s of the tour. Reduced-motion / mobile
+     have no intro, so they mount immediately. */
   useEffect(() => {
     const reduced =
       typeof window !== "undefined" &&
       window.matchMedia("(prefers-reduced-motion: reduce)").matches;
     if (reduced || isMobile) { setExtrasPhase(3); return undefined; }
-    const t1 = setTimeout(() => setExtrasPhase(1), 250);
-    const t2 = setTimeout(() => setExtrasPhase(2), 850);
-    const t3 = setTimeout(() => setExtrasPhase(3), 1600);
+    if (!shipWarpDone) return undefined;
+    const t1 = setTimeout(() => setExtrasPhase(1), 200);
+    const t2 = setTimeout(() => setExtrasPhase(2), 1000);
+    const t3 = setTimeout(() => setExtrasPhase(3), 2000);
     return () => { clearTimeout(t1); clearTimeout(t2); clearTimeout(t3); };
-  }, [isMobile]);
+  }, [isMobile, shipWarpDone]);
 
   const handleDestinationChange = useCallback((dest) => {
     const idx = DESTINATIONS.findIndex((d) => d.id === dest.id);
@@ -265,34 +251,6 @@ const StellarApp = () => {
       window.scrollTo({ top: targetY, behavior: "smooth" });
     }
   }, []);
-
-  /* Guided auto-tour: start at Sol, then advance one stop every STEP_MS (glide
-     + dwell to read it); any manual scroll/touch/key cancels; stop at the end. */
-  useEffect(() => {
-    if (!autoTour) return undefined;
-    const N = DESTINATIONS.length;
-    const STEP_MS = 6500; // ~2.4s glide + ~4s dwell per stop
-    setMode("tour");
-    let idx = 0;
-    handleJump(0);
-    const advance = () => {
-      idx += 1;
-      if (idx >= N) { setAutoTour(false); return; }
-      handleJump(idx);
-      autoTourRef.current = setTimeout(advance, STEP_MS);
-    };
-    autoTourRef.current = setTimeout(advance, STEP_MS);
-    const cancel = () => setAutoTour(false);
-    window.addEventListener("wheel", cancel, { passive: true });
-    window.addEventListener("touchstart", cancel, { passive: true });
-    window.addEventListener("keydown", cancel);
-    return () => {
-      if (autoTourRef.current) clearTimeout(autoTourRef.current);
-      window.removeEventListener("wheel", cancel);
-      window.removeEventListener("touchstart", cancel);
-      window.removeEventListener("keydown", cancel);
-    };
-  }, [autoTour, handleJump]);
 
   /* Read URL hash once the countdown finishes (full intro complete),
      then jump there if it points to a non-Sol destination. */
@@ -601,34 +559,8 @@ const StellarApp = () => {
           )}
           {/* Minimal by design — just the résumé tour + the system overview (Z). */}
           <SpeedRun activeIdx={activeIdx} active={speedRunOn} onToggle={() => setSpeedRunOn((v) => !v)} />
-          {/* Guided auto-tour — flies the whole system on its own (a quick look
-              without scrolling). Any manual scroll/touch/key cancels it. */}
-          {mode === "tour" && (
-            <button
-              onClick={() => setAutoTour((v) => !v)}
-              aria-label={autoTour ? "Stop the guided tour" : "Play a guided tour through the whole system"}
-              style={{ position: "fixed", top: 16, left: "50%", transform: "translateX(-50%)", zIndex: 47, cursor: "pointer",
-                display: "flex", alignItems: "center", gap: 8, padding: "7px 15px", borderRadius: 999,
-                background: autoTour ? "rgba(255,107,107,0.18)" : "rgba(8,11,24,0.7)", backdropFilter: "blur(10px)", WebkitBackdropFilter: "blur(10px)",
-                border: `1px solid ${autoTour ? "rgba(255,107,107,0.55)" : "rgba(150,195,255,0.45)"}`, color: "#fff", fontFamily: "'JetBrains Mono', monospace", fontSize: 10, letterSpacing: "0.12em" }}
-            >
-              <span style={{ fontSize: 12, lineHeight: 1 }}>{autoTour ? "⏸" : "▶"}</span>
-              {autoTour ? "STOP TOUR" : "GRAND TOUR"}
-            </button>
-          )}
           {/* Slim tour-progress rail on the right edge. */}
           {mode === "tour" && <ScrollProgress scrollTRef={scrollTRef} />}
-          {/* "You are here" galactic-context inset (desktop). */}
-          {!isMobile && <GalacticInset reducedMotion={reducedMotion} />}
-          {/* Recruiter fast-path — always-visible résumé + contact (desktop). */}
-          {!isMobile && mode === "tour" && (
-            <div style={{ position: "fixed", bottom: 18, left: 18, zIndex: 46, display: "flex", gap: 8 }}>
-              <motion.a href="/Rugwed-Patharkar-Resume.pdf" target="_blank" rel="noopener noreferrer" aria-label="Open résumé (PDF)"
-                whileHover={{ y: -2, boxShadow: "0 8px 20px rgba(0,0,0,0.4)" }} whileTap={{ scale: 0.97 }} style={RECRUITER_PILL}>📄 Résumé</motion.a>
-              <motion.button onClick={() => handleJump(DESTINATIONS.length - 1)} aria-label="Jump to contact"
-                whileHover={{ y: -2, boxShadow: "0 8px 20px rgba(0,0,0,0.4)" }} whileTap={{ scale: 0.97 }} style={{ all: "unset", ...RECRUITER_PILL }}>✉ Contact</motion.button>
-            </div>
-          )}
         </>
       )}
       {/* Countdown plays FIRST on mount; the warp fly-in (WarpField streaks
