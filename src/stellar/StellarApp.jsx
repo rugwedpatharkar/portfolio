@@ -6,8 +6,6 @@ import Navigator from "./Navigator";
 import ContentPanel from "./ContentPanel";
 import Cursor from "./Cursor";
 import PlanetHUD from "./PlanetHUD";
-import MissionCountdown from "./MissionCountdown";
-import AmbientAudio from "./AmbientAudio";
 import { ScrollHint } from "./Wayfinding";
 import OverviewMap from "./OverviewMap";
 import ScanReadout from "./ScanReadout";
@@ -40,14 +38,9 @@ const findDestinationIndexByHash = (hash) => {
 };
 
 /*
- * Root component of the Stellar 3D portfolio.
- *
- * Visitor flow:
- *   0. MissionCountdown (T-5 → GO) — FIRST, building anticipation.
- *   1. Launch warp — a hyperspeed fly-in from the edge of the system into
- *      Sol (WarpField streaks + the camera flying in).
- *   2. Main UI reveals — the scene mounts + loads textures behind the
- *      overlays the whole time, so it's ready when the warp ends.
+ * Root component of the Stellar 3D portfolio. The scene loads straight in (no
+ * countdown / warp intro) — textures stream in behind the UI, and the heavy
+ * extras mount in tiers over the first ~2s.
  */
 
 /* The only persistent on-screen control in the minimal UI: a subtle pill that
@@ -65,11 +58,10 @@ const OverviewHud = ({ overview }) =>
 
 const StellarApp = () => {
   const scrollTRef = useRef(0);
-  const [countdownDone, setCountdownDone] = useState(false);
-  /* Cinematic launch after the countdown: warp (hyperspeed fly-in to Sol)
-     → done (hand over to the tour). */
-  const [launchPhase, setLaunchPhase] = useState(null);
-  const [shipWarpDone, setShipWarpDone] = useState(false);
+  /* No intro sequence — countdown timer + warp fly-in removed; the system loads
+     straight in. shipWarpDone stays an always-true gate so the existing UI +
+     effects mount immediately. */
+  const shipWarpDone = true;
   /* Progressive-mount tier (0→3) for the heavy extras suite. Mounting the whole
      suite in ONE commit the instant the countdown ended froze a frame for ~3.5s
      and snapped the warp; we instead ramp it in tiers BEHIND the countdown cover
@@ -98,9 +90,6 @@ const StellarApp = () => {
   const { reducedMotion, isMobile } = useViewport();
   const [activeIdx, setActiveIdx] = useState(0);
   const activeIdxRef = useRef(0);
-  /* Hyperspeed warp intensity (0..1+): live travel speed, WRITTEN by CameraRig
-     each frame, READ by WarpStreaks (the GPU streak tunnel) + CameraRig's shake. */
-  const warpVelRef = useRef(0);
   /* Wide pull-back ref kept permanently off — there's no toggle in the
      minimal UI, but CameraRig still reads it, so this keeps its wide branch
      a harmless no-op without touching the rig. */
@@ -149,18 +138,6 @@ const StellarApp = () => {
   /* Scene mounts/loads textures behind the warp + countdown overlays,
      so we no longer need an explicit sceneReady gate. */
   const handleSceneReady = useCallback(() => {}, []);
-  /* Finish the countdown and START the warp in the SAME update, so there's no
-     frame where the cover is gone but the warp hasn't begun (which would flash
-     the Sol close-up). Reduced-motion drops straight into the tour. */
-  const handleCountdownDone = useCallback(() => {
-    const reduced =
-      typeof window !== "undefined" &&
-      window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-    setCountdownDone(true);
-    if (reduced) setShipWarpDone(true);
-    else setLaunchPhase("warp");
-  }, []);
-
   /* Console easter egg for devs who open DevTools — once per session */
   useEffect(() => {
     if (consoleLoggedRef.current) return;
@@ -171,42 +148,20 @@ const StellarApp = () => {
     console.log("%c🛸  Try the Konami code. Click the sun. Drag to explore.", "color: #bf61ff; font-size: 12px;");
   }, []);
 
-  /* End the warp after WARP_DUR (2.2s) and hand over to the tour. The warp
-     itself is started in handleCountdownDone (same update as countdownDone)
-     so the scene never flashes before it begins. */
-  /* End the warp + hand over to the tour. PRIMARY trigger is CameraRig's
-     onLaunchComplete, which fires when the clock-driven fly-in actually reaches
-     Sol — so the handoff can never snap mid-warp even on a slow load (H2 /
-     issue 4). The timer is just a safety net if that callback never fires.
-     Idempotent (functional update guards double-calls). */
-  const endWarp = useCallback(() => {
-    setLaunchPhase((p) => (p === "warp" ? null : p));
-    setShipWarpDone(true);
-  }, []);
-  useEffect(() => {
-    if (launchPhase !== "warp") return undefined;
-    const t = setTimeout(endWarp, 5000); // fallback only
-    return () => clearTimeout(t);
-  }, [launchPhase, endWarp]);
-
-  /* Stream the heavy extras suite IN only AFTER the cinematic intro (countdown +
-     warp) finishes. Mounting it DURING the intro stuttered the countdown timer
-     AND froze the warp animation — the main thread was blocked building ~140k
-     belt particles + anomalies + models. Now the intro runs on the light core
-     scene alone (sun + planets + stars = smooth countdown + smooth warp), then
-     the extras ramp in over the first ~2s of the tour. Reduced-motion / mobile
-     have no intro, so they mount immediately. */
+  /* Stream the heavy extras suite IN in tiers over the first ~2s after load, so
+     the core scene (sun + planets + stars) shows first and the ~140k belt
+     particles + anomalies + models don't all build in one frame-freezing commit.
+     Reduced-motion / mobile mount everything at once. */
   useEffect(() => {
     const reduced =
       typeof window !== "undefined" &&
       window.matchMedia("(prefers-reduced-motion: reduce)").matches;
     if (reduced || isMobile) { setExtrasPhase(3); return undefined; }
-    if (!shipWarpDone) return undefined;
     const t1 = setTimeout(() => setExtrasPhase(1), 200);
     const t2 = setTimeout(() => setExtrasPhase(2), 1000);
     const t3 = setTimeout(() => setExtrasPhase(3), 2000);
     return () => { clearTimeout(t1); clearTimeout(t2); clearTimeout(t3); };
-  }, [isMobile, shipWarpDone]);
+  }, [isMobile]);
 
   const handleDestinationChange = useCallback((dest) => {
     const idx = DESTINATIONS.findIndex((d) => d.id === dest.id);
@@ -218,8 +173,6 @@ const StellarApp = () => {
       if (window.location.hash !== next) {
         window.history.replaceState(null, "", next);
       }
-      /* Audio cue — AmbientAudio listens if enabled */
-      window.dispatchEvent(new CustomEvent("stellar:whoosh"));
       /* Visitor-log + achievements listen */
       window.dispatchEvent(new CustomEvent("stellar:destination", { detail: { id: dest.id, idx } }));
       /* Persist visited stops (powers "stops X/12" + the return greeting). */
@@ -513,11 +466,8 @@ const StellarApp = () => {
         wideOrbitRef={wideOrbitRef}
         focusRef={focusRef}
         cameraRef={cameraRef}
-        warpVelRef={warpVelRef}
-        onLaunchComplete={endWarp}
         clock={sceneClockRef.current}
         extrasPhase={extrasPhase}
-        launchPhase={launchPhase}
       />
       <Navigator
         scrollTRef={scrollTRef}
@@ -526,7 +476,6 @@ const StellarApp = () => {
       {shipWarpDone && (
         <>
           <Cursor />
-          <AmbientAudio />
           {/* Sky darkens toward totality during an eclipse (scene only; HUD stays lit). */}
           <EclipseDimmer eclipseRef={eclipseRef} />
           {/* Discovery + toasts — shared by both modes. */}
@@ -559,9 +508,6 @@ const StellarApp = () => {
           {mode === "tour" && <ScrollProgress scrollTRef={scrollTRef} />}
         </>
       )}
-      {/* Countdown plays FIRST on mount; the warp fly-in (WarpField streaks
-          + CameraRig) follows. Scene textures stream in behind both. */}
-      {!countdownDone && <MissionCountdown onComplete={handleCountdownDone} />}
     </StellarUIContext.Provider>
     </MotionConfig>
   );

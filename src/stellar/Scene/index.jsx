@@ -9,7 +9,6 @@ import Stars from "./Stars";
 import Sun from "./Sun";
 import Planet from "./Planet";
 import CameraRig from "./CameraRig";
-import WarpStreaks from "./WarpStreaks";
 import AsteroidBelt from "./AsteroidBelt";
 import Nebulae from "./Nebulae";
 import VisibilityController from "./VisibilityController";
@@ -95,7 +94,7 @@ const ICY_WEIGHTS = [0.45, 0.3, 0.25];
  * tune that based on viewport bucket.
  */
 
-const Scene = ({ scrollT, activeIdx, onJump, onReady, freeRoamEnabled, speedRef, thrustRef, wideRef, wideOrbitRef, focusRef, cameraRef, warpVelRef, onLaunchComplete, eclipseRef, clock, extrasPhase = 3, launchPhase = null }) => {
+const Scene = ({ scrollT, activeIdx, onJump, onReady, freeRoamEnabled, speedRef, thrustRef, wideRef, wideOrbitRef, focusRef, cameraRef, eclipseRef, clock, extrasPhase = 3 }) => {
   const readyRef = useRef(false);
   const { isMobile, isCompact, reducedMotion } = useViewport();
   /* Progressive-mount tiers (StellarApp ramps extrasPhase 0→3 behind the
@@ -444,15 +443,10 @@ const Scene = ({ scrollT, activeIdx, onJump, onReady, freeRoamEnabled, speedRef,
           wideOrbitRef={wideOrbitRef}
           focusRef={focusRef}
           cameraRef={cameraRef}
-          warpVelRef={warpVelRef}
-          onLaunchComplete={onLaunchComplete}
-          launchPhase={launchPhase}
           /* Desktop frames the planet right-of-centre to clear the left
              content column; compact/mobile keep it centred (stacked layout). */
           frameShift={isCompact ? 0 : 0.3}
         />
-        {/* Hyperspace warp streak tunnel (GPU) — intro fly-in + planet jumps. */}
-        {!reducedMotion && <WarpStreaks launchPhase={launchPhase} warpVelRef={warpVelRef} />}
       </Suspense>
 
       {/* Cinematic post-processing — the biggest visual upgrade.
