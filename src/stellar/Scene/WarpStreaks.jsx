@@ -24,13 +24,13 @@ import * as THREE from "three";
  * motion is allowed (gated by the caller).
  */
 
-const COUNT = 2600;
-const NEAR = 1.5;
+const COUNT = 1300; // moderate density — a TUBE of streaks, not a dense starburst
+const NEAR = 0.8; // streaks pass close → stretch out PAST the screen edges
 const FAR = 46;
 const SPEED = 0.5; // loops per second (per streak, offset by phase)
-const MAX_LEN = 30; // view-units of streak at full intensity (long light-speed motion blur)
-const WIDTH = 0.0038; // streak half-width in NDC (≈ constant screen px)
-const RADIUS = 0.95; // lateral spread of the streak field (view units)
+const MAX_LEN = 34; // long streaks spanning centre → edge (light-speed motion blur)
+const WIDTH = 0.0035; // streak half-width in NDC (≈ constant screen px)
+const RADIUS = 1.5; // wide lateral spread → streaks reach the corners
 const DIM_MAX = 0.6; // how dark the tunnel background gets at full warp
 
 const STREAK_VERT = /* glsl */ `
@@ -41,6 +41,7 @@ const STREAK_VERT = /* glsl */ `
   uniform float uIntensity;
   varying float vAlong;
   varying float vP;
+  varying float vScreenR;
   void main() {
     float p = fract(uTime * ${SPEED.toFixed(3)} + aPhase);
     float zHead = -${FAR.toFixed(1)} + p * (${FAR.toFixed(1)} - ${NEAR.toFixed(1)});
@@ -60,6 +61,7 @@ const STREAK_VERT = /* glsl */ `
     vec2 perp = vec2(-dir.y, dir.x);
 
     vec4 c = projectionMatrix * vec4(aLateral, zPos, 1.0);
+    vScreenR = length(c.xy / c.w); // NDC distance from screen centre (for the dark hole)
     vec2 s = c.xy / c.w + perp * aCorner.y * ${WIDTH.toFixed(4)};
     gl_Position = vec4(s * c.w, c.z, c.w);
     vAlong = aCorner.x;
@@ -73,13 +75,17 @@ const STREAK_FRAG = /* glsl */ `
   uniform float uIntensity;
   varying float vAlong;
   varying float vP;
+  varying float vScreenR;
   void main() {
-    /* Hot leading head, fading tail (motion blur); fade the just-spawned far end
-       and the about-to-pass near end so they don't pop. */
-    float a = uIntensity * (0.12 + 0.88 * vAlong);
-    a *= smoothstep(0.0, 0.10, vP) * (1.0 - smoothstep(0.92, 1.0, vP));
+    /* Small dark circular HOLE in the centre (the vanishing point you fly into);
+       streaks fade IN as they stretch outward toward the screen edges — the
+       'flying through a tube' look, not a starburst exploding from the centre. */
+    float radial = smoothstep(0.04, 0.24, vScreenR);
+    /* Hot leading head, fading tail (motion blur). */
+    float a = uIntensity * radial * (0.28 + 0.72 * vAlong);
+    a *= smoothstep(0.0, 0.08, vP) * (1.0 - smoothstep(0.93, 1.0, vP));
     if (a < 0.01) discard;
-    gl_FragColor = vec4(uColor * a * 1.9, a);
+    gl_FragColor = vec4(uColor * a * 1.7, a);
   }
 `;
 
