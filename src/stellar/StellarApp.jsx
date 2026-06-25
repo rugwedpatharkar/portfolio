@@ -474,6 +474,7 @@ const StellarApp = () => {
       <Scene
         scrollT={scrollTRef}
         activeIdx={activeIdx}
+        itemIdx={itemIdx}
         onJump={handleJump}
         onReady={handleSceneReady}
         freeRoamEnabled={mode === "pilot"}

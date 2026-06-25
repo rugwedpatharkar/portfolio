@@ -26,6 +26,7 @@ import Wormhole from "./Wormhole";
 import LensFlare from "./LensFlare";
 import OrbitRings from "./OrbitRings";
 import Beacon from "./Beacon";
+import LaneObjects from "./LaneObjects";
 import SolarProminences from "./SolarProminences";
 import SolarEclipse from "./SolarEclipse";
 import EclipseLights from "./EclipseLights";
@@ -94,7 +95,7 @@ const ICY_WEIGHTS = [0.45, 0.3, 0.25];
  * tune that based on viewport bucket.
  */
 
-const Scene = ({ scrollT, activeIdx, onJump, onReady, freeRoamEnabled, speedRef, thrustRef, wideRef, wideOrbitRef, focusRef, cameraRef, eclipseRef, clock, extrasPhase = 3 }) => {
+const Scene = ({ scrollT, activeIdx, itemIdx = 0, onJump, onReady, freeRoamEnabled, speedRef, thrustRef, wideRef, wideOrbitRef, focusRef, cameraRef, eclipseRef, clock, extrasPhase = 3 }) => {
   const readyRef = useRef(false);
   const { isMobile, isCompact, reducedMotion } = useViewport();
   /* Progressive-mount tiers (StellarApp ramps extrasPhase 0→3 behind the
@@ -196,6 +197,10 @@ const Scene = ({ scrollT, activeIdx, onJump, onReady, freeRoamEnabled, speedRef,
       {/* Sun-direction key + shadow caster, follows the active planet. */}
       <KeyLight scrollT={scrollT} castShadow={!isMobile} />
       <directionalLight position={[-30, 10, -25]} intensity={0.5} color="#6f8cff" />
+
+      {/* Lane objects — the active section's résumé items as a co-orbital convoy
+          on the planet's orbital lane (←→ selects them; M2b adds the fly-to). */}
+      {DESTINATIONS[activeIdx] && <LaneObjects destination={DESTINATIONS[activeIdx]} itemIdx={itemIdx} />}
 
       <Suspense fallback={null}>
         <Skybox />

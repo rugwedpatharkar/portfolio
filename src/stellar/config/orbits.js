@@ -48,3 +48,23 @@ export const orbitalPosition = (dest, t, out) => {
   const zp = Math.sin(th) * r;
   return (out || new THREE.Vector3()).set(xp, y + zp * sinInc, zp * cosInc);
 };
+
+const LANE_ARC = 0.7; // scene-units between co-orbital lane objects (uniform spacing)
+
+/* World position on `dest`'s orbit at an arbitrary orbital angle `th`. */
+export const positionAtAngle = (dest, th, out) => {
+  const { y, e, p, sinInc, cosInc } = getOrbit(dest);
+  const r = e ? p / (1 + e * Math.cos(th)) : p;
+  const zp = Math.sin(th) * r;
+  return (out || new THREE.Vector3()).set(Math.cos(th) * r, y + zp * sinInc, zp * cosInc);
+};
+
+/* World position of the k-th résumé object on `dest`'s lane at time t — a
+   co-orbital convoy trailing the planet by a uniform arc, so ←→ is a short
+   glide with the next object already in view. */
+export const laneObjectPosition = (dest, k, t, out) => {
+  const o = getOrbit(dest);
+  const gap = o.R > 0.01 ? LANE_ARC / o.R : 0.05;
+  const th = o.theta0 + o.omega * t - (k + 1) * gap;
+  return positionAtAngle(dest, th, out);
+};
