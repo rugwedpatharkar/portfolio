@@ -39,6 +39,7 @@ import { HomePin, HomeCallout } from "./HomeMarker";
 import IsroProbe from "./IsroProbe";
 import MilkyWay from "./MilkyWay";
 import ZodiacalLight from "./ZodiacalLight";
+import Constellations from "./Constellations";
 import ShootingStars from "./ShootingStars";
 import RocketLaunch from "./RocketLaunch";
 import DangerField from "./DangerField";
@@ -187,6 +188,9 @@ const Scene = ({ scrollT, activeIdx, onJump, onReady, freeRoamEnabled, speedRef,
         <MilkyWay animate={!reducedMotion} />
         {/* Zodiacal light — faint sunlight scattered by ecliptic-plane dust. */}
         {showExtras && <ZodiacalLight />}
+        {/* Named constellations (Orion, Big Dipper, Cassiopeia) that fade in
+            when the camera holds still — built but previously unmounted. */}
+        {showExtras && !isMobile && <Constellations scrollTRef={scrollT} />}
         {/* The edge anomaly — Gargantua, out in front of the camera (behind the
             Sun, −X) so it's a visible deep-space landmark throughout the tour
             rather than hidden off to the +X side behind the viewer. */}
