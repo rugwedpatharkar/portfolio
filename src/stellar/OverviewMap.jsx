@@ -115,10 +115,10 @@ const OverviewMap = ({ objects, cameraRef, visible, onPick }) => {
               }}
             >
               <div style={{ display: "flex", alignItems: "baseline", justifyContent: "space-between", gap: 8 }}>
-                <span style={{ fontFamily: "'Michroma', sans-serif", fontSize: 12, color: "white", textTransform: "uppercase", letterSpacing: "0.03em" }}>{label}</span>
+                <span style={{ fontFamily: "'Chakra Petch', sans-serif", fontSize: 12, color: "white", textTransform: "uppercase", letterSpacing: "0.03em" }}>{label}</span>
                 <span style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 8.5, color, textTransform: "uppercase", letterSpacing: "0.06em", whiteSpace: "nowrap" }}>{category}</span>
               </div>
-              <div style={{ fontFamily: "'Exo 2', sans-serif", fontSize: 11.5, color: "rgba(255,255,255,0.84)", lineHeight: 1.46, marginTop: 6 }}>{info}</div>
+              <div style={{ fontFamily: "'Oswald', sans-serif", fontSize: 11.5, color: "rgba(255,255,255,0.84)", lineHeight: 1.46, marginTop: 6 }}>{info}</div>
               <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 9, color: "rgba(255,255,255,0.5)", marginTop: 8, textTransform: "uppercase", letterSpacing: "0.08em" }}>{masked ? "click to scan →" : "click to visit →"}</div>
             </div>
           )}

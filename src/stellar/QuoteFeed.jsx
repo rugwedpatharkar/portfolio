@@ -54,9 +54,9 @@ const QuoteFeed = () => {
         textShadow: "0 1px 8px rgba(0,0,0,0.9)",
       }}
     >
-      <span style={{ color: "#00cea8", marginRight: 6, opacity: 0.7 }}>"</span>
+      <span style={{ color: "#2fe0b0", marginRight: 6, opacity: 0.7 }}>"</span>
       {QUOTES[i]}
-      <span style={{ color: "#00cea8", marginLeft: 4, opacity: 0.7 }}>"</span>
+      <span style={{ color: "#2fe0b0", marginLeft: 4, opacity: 0.7 }}>"</span>
     </div>
   );
 };

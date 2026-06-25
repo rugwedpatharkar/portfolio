@@ -100,9 +100,9 @@ const HelpOverlay = () => {
           width: "100%",
           padding: "28px 32px",
           background: "rgba(8, 10, 26, 0.96)",
-          border: "1px solid rgba(0, 206, 168, 0.45)",
+          border: "1px solid rgba(47, 224, 176, 0.45)",
           borderRadius: 14,
-          boxShadow: "0 30px 80px rgba(0, 0, 0, 0.6), inset 0 0 80px rgba(0, 206, 168, 0.04)",
+          boxShadow: "0 30px 80px rgba(0, 0, 0, 0.6), inset 0 0 80px rgba(47, 224, 176, 0.04)",
           cursor: "default",
           maxHeight: "82vh",
           overflowY: "auto",
@@ -110,7 +110,7 @@ const HelpOverlay = () => {
       >
         <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: 14 }}>
           <div>
-            <div style={{ fontSize: 9, color: "#00cea8", letterSpacing: "0.2em" }}>STELLAR · OPERATOR MANUAL</div>
+            <div style={{ fontSize: 9, color: "#2fe0b0", letterSpacing: "0.2em" }}>STELLAR · OPERATOR MANUAL</div>
             <div style={{ fontSize: 22, fontWeight: 700, fontFamily: "'Sora', sans-serif", marginTop: 4 }}>
               All the things you can do
             </div>
@@ -133,7 +133,7 @@ const HelpOverlay = () => {
         <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(280px, 1fr))", gap: "18px 28px" }}>
           {SECTIONS.map((s) => (
             <div key={s.title}>
-              <div style={{ fontSize: 10, color: "#00cea8", letterSpacing: "0.14em", marginBottom: 8 }}>
+              <div style={{ fontSize: 10, color: "#2fe0b0", letterSpacing: "0.14em", marginBottom: 8 }}>
                 {s.title.toUpperCase()}
               </div>
               <div style={{ display: "grid", gridTemplateColumns: "auto 1fr", gap: "4px 14px", fontSize: 11.5 }}>
@@ -150,7 +150,7 @@ const HelpOverlay = () => {
 
         <div style={{ marginTop: 16, fontSize: 10, color: "rgba(255,255,255,0.4)", textAlign: "center" }}>
           Built by Rugwed Patharkar · backend systems + agentic AI on production · {" "}
-          <a href="https://github.com/rugwedpatharkar" target="_blank" rel="noopener noreferrer" style={{ color: "#00cea8" }}>github</a>
+          <a href="https://github.com/rugwedpatharkar" target="_blank" rel="noopener noreferrer" style={{ color: "#2fe0b0" }}>github</a>
         </div>
       </div>
 

@@ -25,6 +25,7 @@ import CockpitFrame from "./CockpitFrame";
 import FragmentToast from "./FragmentToast";
 import HazardBanner from "./HazardBanner";
 import EclipseDimmer from "./EclipseDimmer";
+import SoundToggle from "./sound/SoundToggle";
 import { markCharted, markVisited } from "./data/explorer";
 import { getBodyContent } from "./data/bodies";
 
@@ -49,7 +50,7 @@ const findDestinationIndexByHash = (hash) => {
 const OverviewHud = ({ overview }) =>
   overview ? (
     <div style={{ position: "fixed", top: "7.5vh", left: 0, right: 0, zIndex: 50, pointerEvents: "none", display: "flex", flexDirection: "column", alignItems: "center", gap: 6, textAlign: "center" }}>
-      <div style={{ fontFamily: "'Michroma', sans-serif", fontSize: 17, letterSpacing: "0.16em", color: "white", textTransform: "uppercase", textShadow: "0 2px 20px rgba(0,0,0,0.85)" }}>System Overview</div>
+      <div style={{ fontFamily: "'Chakra Petch', sans-serif", fontSize: 17, letterSpacing: "0.16em", color: "white", textTransform: "uppercase", textShadow: "0 2px 20px rgba(0,0,0,0.85)" }}>System Overview</div>
       <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 11, letterSpacing: "0.1em", color: "rgba(255,255,255,0.8)", textShadow: "0 1px 10px rgba(0,0,0,0.9)" }}>drag to pan · scroll to zoom · right-drag to orbit · click a body to scan · Z or Esc to return</div>
     </div>
   ) : null;
@@ -142,9 +143,9 @@ const StellarApp = () => {
     if (consoleLoggedRef.current) return;
     consoleLoggedRef.current = true;
     console.log("%c\n" + easterEggs.ascii + "\n", "color: #ffb86b; font-size: 10px; font-family: monospace;");
-    console.log(`%c${easterEggs.greeting}`, "color: #00cea8; font-size: 16px; font-weight: bold;");
+    console.log(`%c${easterEggs.greeting}`, "color: #2fe0b0; font-size: 16px; font-weight: bold;");
     console.log(`%c${easterEggs.repoLink}`, "color: #aaa6c3; font-size: 12px;");
-    console.log("%c🛸  Try the Konami code. Click the sun. Drag to explore.", "color: #bf61ff; font-size: 12px;");
+    console.log("%c🛸  Try the Konami code. Click the sun. Drag to explore.", "color: #ffb84d; font-size: 12px;");
   }, []);
 
   /* Stream the heavy extras suite IN in tiers over the first ~2s after load, so
@@ -449,7 +450,7 @@ const StellarApp = () => {
         @keyframes stellarChevron { 0%, 100% { transform: translateY(0); opacity: 0.55; } 50% { transform: translateY(4px); opacity: 1; } }
         @keyframes stellarCaret { 50% { opacity: 0; } }
         @keyframes stellarStatusPulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.45; } }
-        @keyframes stellarGlow { 0%, 100% { box-shadow: 0 0 18px rgba(0,206,168,0.2); } 50% { box-shadow: 0 0 30px rgba(0,206,168,0.42); } }
+        @keyframes stellarGlow { 0%, 100% { box-shadow: 0 0 18px rgba(47, 224, 176,0.2); } 50% { box-shadow: 0 0 30px rgba(47, 224, 176,0.42); } }
         @media (prefers-reduced-motion: reduce) { * { animation-duration: 0.001ms !important; animation-iteration-count: 1 !important; } }
       `}</style>
       <Scene
@@ -475,6 +476,8 @@ const StellarApp = () => {
       {shipWarpDone && (
         <>
           <Cursor />
+          {/* Ship-audio toggle — opt-in, default muted (autoplay-safe). */}
+          <SoundToggle />
           {/* Sky darkens toward totality during an eclipse (scene only; HUD stays lit). */}
           <EclipseDimmer eclipseRef={eclipseRef} />
           {/* Discovery + toasts — shared by both modes. */}

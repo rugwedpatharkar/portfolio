@@ -77,7 +77,7 @@ const LiveStats = () => {
         padding: "8px 14px",
         background: "rgba(6, 9, 22, 0.7)",
         backdropFilter: "blur(10px)",
-        border: "1px solid rgba(0, 206, 168, 0.25)",
+        border: "1px solid rgba(47, 224, 176, 0.25)",
         borderRadius: 8,
         fontFamily: "'JetBrains Mono', monospace",
         fontSize: 9.5,
@@ -94,13 +94,13 @@ const LiveStats = () => {
       </div>
       <div style={{ display: "flex", justifyContent: "space-between", gap: 12 }}>
         <span>COMMITS · 14d</span>
-        <span style={{ color: "#00cea8" }}>{animCommits}</span>
+        <span style={{ color: "#2fe0b0" }}>{animCommits}</span>
       </div>
       <div style={{ display: "flex", justifyContent: "space-between", gap: 12 }}>
         <span>p95 LATENCY</span>
         <span style={{ color: "#7faaff", display: "inline-flex", alignItems: "center", gap: 5 }}>
           <span style={{
-            width: 5, height: 5, borderRadius: "50%", background: "#00cea8",
+            width: 5, height: 5, borderRadius: "50%", background: "#2fe0b0",
             animation: "livePulse 1.4s ease-in-out infinite",
           }} />
           {p95} ms

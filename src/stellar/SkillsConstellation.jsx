@@ -8,7 +8,7 @@ import { useMemo } from "react";
  * atop the existing skill bars. Deterministic layout (golden-angle spread).
  */
 const W = 320, H = 196, PAD = 26;
-const HUE = ["#bf61ff", "#915eff", "#a78bfa", "#8ea8ff", "#c08bff", "#7c9bff"];
+const HUE = ["#ffb84d", "#4da6ff", "#a78bfa", "#8ea8ff", "#c08bff", "#7c9bff"];
 
 const SkillsConstellation = ({ skills }) => {
   const { stars, links, labels } = useMemo(() => {

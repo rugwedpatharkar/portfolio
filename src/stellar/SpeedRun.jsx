@@ -88,7 +88,7 @@ const SpeedRun = ({ activeIdx, active = false, onToggle }) => {
     >
       <span style={{ fontSize: 13 }}>⚡</span>
       <span style={{ letterSpacing: "0.12em" }}>SPEED RUN</span>
-      <span style={{ color: done ? "#00cea8" : "#ffe066", fontWeight: 600 }}>{fmt(elapsed)}</span>
+      <span style={{ color: done ? "#2fe0b0" : "#ffe066", fontWeight: 600 }}>{fmt(elapsed)}</span>
       {best != null && <span style={{ color: "rgba(255,255,255,0.4)", fontSize: 9 }}>BEST {fmt(best)}</span>}
     </div>
   );

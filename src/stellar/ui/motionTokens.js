@@ -30,3 +30,17 @@ export const staggerContainer = {
   hidden: {},
   show: { transition: { staggerChildren: motionTokens.stagger } },
 };
+
+/* ── Cross-layer mirrors so motion/react, GSAP, and useFrame share numbers ── */
+
+/* Seconds (animation libs) and ms (setTimeout / Web Audio). */
+export const SECONDS = { ...motionTokens.duration, cinematic: 1.2 };
+export const MS = { fast: 180, normal: 350, slow: 600, cinematic: 1200 };
+
+/* GSAP easing names matching the motion/react bezier curves above. */
+export const gsapEase = { smooth: "expo.out", sharp: "power2.inOut" };
+
+/* SSR-safe reduced-motion check for non-React contexts (sound, scene refs). */
+export const prefersReduced = () =>
+  typeof window !== "undefined" &&
+  !!window.matchMedia?.("(prefers-reduced-motion: reduce)").matches;

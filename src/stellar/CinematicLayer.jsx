@@ -117,7 +117,7 @@ const CinematicLayer = ({ getDestinationLabel }) => {
         }
         .stellar-title-seg {
           font-size: 9px;
-          color: rgba(0, 206, 168, 0.85);
+          color: rgba(47, 224, 176, 0.85);
           letter-spacing: 0.32em;
         }
         .stellar-title-label {

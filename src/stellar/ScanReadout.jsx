@@ -66,27 +66,27 @@ const ScanReadout = ({ content, onBack, onPrev, onNext }) => {
               style={{ position: "absolute", inset: 0, background: `linear-gradient(90deg, transparent, ${color}, transparent)` }}
             />
           </div>
-          <div style={{ fontFamily: "'Michroma', sans-serif", fontSize: 17, color: "white", textTransform: "uppercase", letterSpacing: "0.04em", marginBottom: 10 }}>{content.label}</div>
+          <div style={{ fontFamily: "'Chakra Petch', sans-serif", fontSize: 17, color: "white", textTransform: "uppercase", letterSpacing: "0.04em", marginBottom: 10 }}>{content.label}</div>
 
           {grid.length > 0 && (
             <motion.div variants={container} initial="hidden" animate="show" style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "8px 18px", marginBottom: 10 }}>
               {grid.map(([k, v]) => (
                 <motion.div key={k} variants={item}>
                   <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 8.5, color: "rgba(255,255,255,0.5)", textTransform: "uppercase", letterSpacing: "0.08em" }}>{FACT_LABELS[k] || k}</div>
-                  <div style={{ fontFamily: "'Exo 2', sans-serif", fontSize: 13, color: "rgba(255,255,255,0.92)", marginTop: 1 }}>{String(v)}</div>
+                  <div style={{ fontFamily: "'Oswald', sans-serif", fontSize: 13, color: "rgba(255,255,255,0.92)", marginTop: 1 }}>{String(v)}</div>
                 </motion.div>
               ))}
             </motion.div>
           )}
 
           {wow && (
-            <motion.div variants={item} initial="hidden" animate="show" style={{ fontFamily: "'Exo 2', sans-serif", fontSize: 12.5, fontStyle: "italic", color, lineHeight: 1.45, margin: "0 0 8px", paddingLeft: 14, position: "relative" }}>
+            <motion.div variants={item} initial="hidden" animate="show" style={{ fontFamily: "'Oswald', sans-serif", fontSize: 12.5, fontStyle: "italic", color, lineHeight: 1.45, margin: "0 0 8px", paddingLeft: 14, position: "relative" }}>
               <span style={{ position: "absolute", left: 0 }}>★</span>{wow}
             </motion.div>
           )}
 
           {content.info && (
-            <div style={{ fontFamily: "'Exo 2', sans-serif", fontSize: 12.5, color: "rgba(255,255,255,0.8)", lineHeight: 1.5 }}>{content.info}</div>
+            <div style={{ fontFamily: "'Oswald', sans-serif", fontSize: 12.5, color: "rgba(255,255,255,0.8)", lineHeight: 1.5 }}>{content.info}</div>
           )}
         </motion.div>
       </AnimatePresence>

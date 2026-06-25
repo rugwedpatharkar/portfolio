@@ -81,14 +81,14 @@ const CommandPalette = ({ open, onClose, commands }) => {
         style={{
           width: "min(560px, 92vw)", maxHeight: "68vh", display: "flex", flexDirection: "column",
           background: "rgba(9,12,24,0.96)",
-          border: "1px solid rgba(145,94,255,0.3)", borderRadius: 14,
+          border: "1px solid rgba(77,166,255,0.3)", borderRadius: 14,
           backdropFilter: "blur(20px) saturate(1.2)", WebkitBackdropFilter: "blur(20px) saturate(1.2)",
-          boxShadow: "0 40px 100px rgba(0,0,0,0.6), 0 0 40px rgba(145,94,255,0.12)",
+          boxShadow: "0 40px 100px rgba(0,0,0,0.6), 0 0 40px rgba(77,166,255,0.12)",
           overflow: "hidden",
         }}
       >
         <div style={{ display: "flex", alignItems: "center", gap: 10, padding: "14px 16px", borderBottom: "1px solid rgba(255,255,255,0.07)" }}>
-          <span style={{ fontFamily: MONO, fontSize: 13, color: "#915eff" }}>⌘</span>
+          <span style={{ fontFamily: MONO, fontSize: 13, color: "#4da6ff" }}>⌘</span>
           <input
             ref={inputRef}
             value={query}
@@ -98,7 +98,7 @@ const CommandPalette = ({ open, onClose, commands }) => {
             aria-label="Search commands"
             style={{
               flex: 1, background: "transparent", border: "none", outline: "none",
-              color: "white", fontFamily: MONO, fontSize: 14, caretColor: "#915eff", cursor: "text",
+              color: "white", fontFamily: MONO, fontSize: 14, caretColor: "#4da6ff", cursor: "text",
             }}
           />
           <kbd style={{ fontFamily: MONO, fontSize: 9, padding: "2px 6px", borderRadius: 5, border: "1px solid rgba(255,255,255,0.2)", color: "rgba(255,255,255,0.6)" }}>esc</kbd>
@@ -118,8 +118,8 @@ const CommandPalette = ({ open, onClose, commands }) => {
                 style={{
                   all: "unset", boxSizing: "border-box", width: "100%", cursor: "pointer",
                   display: "flex", alignItems: "center", gap: 12, padding: "10px 12px", borderRadius: 9,
-                  background: active ? "rgba(145,94,255,0.16)" : "transparent",
-                  border: `1px solid ${active ? "rgba(145,94,255,0.4)" : "transparent"}`,
+                  background: active ? "rgba(77,166,255,0.16)" : "transparent",
+                  border: `1px solid ${active ? "rgba(77,166,255,0.4)" : "transparent"}`,
                 }}
               >
                 <span style={{ width: 22, textAlign: "center", fontSize: 14, color: c.accent || "rgba(255,255,255,0.7)" }}>{c.icon}</span>

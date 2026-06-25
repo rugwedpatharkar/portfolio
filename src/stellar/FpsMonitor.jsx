@@ -45,7 +45,7 @@ const FpsMonitor = () => {
   }, [visible]);
 
   if (!visible) return null;
-  const color = fps > 55 ? "#00cea8" : fps > 45 ? "#ffe066" : "#ff6b6b";
+  const color = fps > 55 ? "#2fe0b0" : fps > 45 ? "#ffe066" : "#ff6b6b";
   return (
     <div
       style={{

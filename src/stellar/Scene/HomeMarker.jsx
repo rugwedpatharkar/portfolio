@@ -127,7 +127,7 @@ export const HomeCallout = ({ earthRadius = 0.75 }) => {
             <div style={{ marginTop: 6, fontSize: 9.5, color: "rgba(223,217,255,0.82)", lineHeight: 1.7 }}>
               <div>Backend &amp; Agentic AI Engineer</div>
               <div>18.52°N · 73.86°E · {ist} IST</div>
-              <div style={{ color: "#00cea8" }}>● Available for opportunities</div>
+              <div style={{ color: "#2fe0b0" }}>● Available for opportunities</div>
             </div>
           ) : (
             <div style={{ fontSize: 9, color: "rgba(223,217,255,0.62)", marginTop: 4 }}>{ist} IST · probably still shipping code</div>

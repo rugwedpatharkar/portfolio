@@ -25,7 +25,7 @@ const Bracket = ({ corner }) => {
     >
       <path
         d="M 4 24 L 4 4 L 24 4"
-        stroke="rgba(0, 206, 168, 0.55)"
+        stroke="rgba(47, 224, 176, 0.55)"
         strokeWidth="1.5"
         fill="none"
         strokeLinecap="round"
@@ -76,11 +76,11 @@ const CockpitFrame = ({ enabled, speedRef }) => {
           zIndex: 35,
         }}
       >
-        <circle cx="22" cy="22" r="3" stroke="rgba(0, 206, 168, 0.7)" strokeWidth="1" fill="none" />
-        <line x1="22" y1="10" x2="22" y2="16" stroke="rgba(0, 206, 168, 0.55)" strokeWidth="1" />
-        <line x1="22" y1="28" x2="22" y2="34" stroke="rgba(0, 206, 168, 0.55)" strokeWidth="1" />
-        <line x1="10" y1="22" x2="16" y2="22" stroke="rgba(0, 206, 168, 0.55)" strokeWidth="1" />
-        <line x1="28" y1="22" x2="34" y2="22" stroke="rgba(0, 206, 168, 0.55)" strokeWidth="1" />
+        <circle cx="22" cy="22" r="3" stroke="rgba(47, 224, 176, 0.7)" strokeWidth="1" fill="none" />
+        <line x1="22" y1="10" x2="22" y2="16" stroke="rgba(47, 224, 176, 0.55)" strokeWidth="1" />
+        <line x1="22" y1="28" x2="22" y2="34" stroke="rgba(47, 224, 176, 0.55)" strokeWidth="1" />
+        <line x1="10" y1="22" x2="16" y2="22" stroke="rgba(47, 224, 176, 0.55)" strokeWidth="1" />
+        <line x1="28" y1="22" x2="34" y2="22" stroke="rgba(47, 224, 176, 0.55)" strokeWidth="1" />
       </svg>
 
       {/* Velocity gauge bottom centre */}
@@ -91,11 +91,11 @@ const CockpitFrame = ({ enabled, speedRef }) => {
           left: 76,
           padding: "5px 12px",
           background: "rgba(6, 9, 22, 0.6)",
-          border: "1px solid rgba(0, 206, 168, 0.4)",
+          border: "1px solid rgba(47, 224, 176, 0.4)",
           borderRadius: 4,
           fontFamily: "'JetBrains Mono', monospace",
           fontSize: 9.5,
-          color: "rgba(0, 206, 168, 0.9)",
+          color: "rgba(47, 224, 176, 0.9)",
           letterSpacing: "0.12em",
           pointerEvents: "none",
           zIndex: 35,
