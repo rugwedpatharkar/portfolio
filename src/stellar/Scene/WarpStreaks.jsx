@@ -24,13 +24,13 @@ import * as THREE from "three";
  * motion is allowed (gated by the caller).
  */
 
-const COUNT = 1300; // moderate density — a TUBE of streaks, not a dense starburst
-const NEAR = 0.8; // streaks pass close → stretch out PAST the screen edges
-const FAR = 46;
+const COUNT = 2800; // many THIN lines → the whole screen fills (without a dense blob)
+const NEAR = 0.6; // streaks pass very close → stretch out PAST the screen edges (long)
+const FAR = 50;
 const SPEED = 0.5; // loops per second (per streak, offset by phase)
-const MAX_LEN = 34; // long streaks spanning centre → edge (light-speed motion blur)
-const WIDTH = 0.0035; // streak half-width in NDC (≈ constant screen px)
-const RADIUS = 1.5; // wide lateral spread → streaks reach the corners
+const MAX_LEN = 60; // long light-speed streaks spanning centre → past the edges
+const WIDTH = 0.0018; // THIN crisp lines (was too broad)
+const RADIUS = 2.0; // wide lateral spread → lines reach the corners
 const DIM_MAX = 0.6; // how dark the tunnel background gets at full warp
 
 const STREAK_VERT = /* glsl */ `
@@ -80,12 +80,14 @@ const STREAK_FRAG = /* glsl */ `
     /* Small dark circular HOLE in the centre (the vanishing point you fly into);
        streaks fade IN as they stretch outward toward the screen edges — the
        'flying through a tube' look, not a starburst exploding from the centre. */
-    float radial = smoothstep(0.04, 0.24, vScreenR);
-    /* Hot leading head, fading tail (motion blur). */
-    float a = uIntensity * radial * (0.28 + 0.72 * vAlong);
-    a *= smoothstep(0.0, 0.08, vP) * (1.0 - smoothstep(0.93, 1.0, vP));
+    float radial = smoothstep(0.02, 0.13, vScreenR); // small TIGHT dark hole
+    /* Gentle head→tail gradient (motion blur), kept fairly even so the line reads
+       its full length. Lower brightness + a sky-blue colour so it glows BLUE, not
+       blown-out white. */
+    float a = uIntensity * radial * (0.4 + 0.6 * vAlong);
+    a *= smoothstep(0.0, 0.07, vP) * (1.0 - smoothstep(0.94, 1.0, vP));
     if (a < 0.01) discard;
-    gl_FragColor = vec4(uColor * a * 1.7, a);
+    gl_FragColor = vec4(uColor * a * 1.1, a);
   }
 `;
 
@@ -104,7 +106,7 @@ const DIM_FRAG = /* glsl */ `
   }
 `;
 
-const WarpStreaks = ({ launchPhase = null, warpVelRef, color = "#bfe0ff" }) => {
+const WarpStreaks = ({ launchPhase = null, warpVelRef, color = "#54a8ff" }) => {
   const cur = useRef(0);
   const t = useRef(0);
   const phaseRef = useRef(launchPhase);
@@ -148,7 +150,7 @@ const WarpStreaks = ({ launchPhase = null, warpVelRef, color = "#bfe0ff" }) => {
     [color]
   );
   const dimUniforms = useMemo(
-    () => ({ uOpacity: { value: 0 }, uColor: { value: new THREE.Color("#04060f") } }),
+    () => ({ uOpacity: { value: 0 }, uColor: { value: new THREE.Color("#050a18") } }),
     []
   );
 
@@ -158,7 +160,9 @@ const WarpStreaks = ({ launchPhase = null, warpVelRef, color = "#bfe0ff" }) => {
        speed. Asymmetric ease — punch IN fast, snap OUT (slam to lightspeed, then
        suddenly stop). */
     const target = Math.max(phaseRef.current === "warp" ? 1.35 : 0, warpVelRef?.current || 0);
-    cur.current += (target - cur.current) * (target > cur.current ? 0.34 : 0.16);
+    /* SMOOTH ease in AND out (gentle ramp up, gentle fade down) — no abrupt
+       snap, so the warp blends cleanly at both ends. */
+    cur.current += (target - cur.current) * (target > cur.current ? 0.1 : 0.05);
     t.current += d;
     if (streakMat.current) {
       streakMat.current.uniforms.uTime.value = t.current;
