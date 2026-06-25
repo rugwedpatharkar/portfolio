@@ -24,6 +24,8 @@ export const EXOTIC_RAW = {
   magnetar: [-34, 22, -30],
   browndwarf: [54, -12, 26],
   rogue: [-22, -16, 33],
+  crab: [82, 28, -44],
+  trappist: [-52, -22, -40],
 };
 const pos = (raw) => remapPosition(frontOfSun(raw));
 
@@ -91,6 +93,49 @@ const DimSphere = ({ position, radius, color, halo, haloColor, emissive }) => {
   );
 };
 
+/* Crab Nebula — a supernova remnant: layered additive glows (teal O-III, red
+   H-alpha, blue synchrotron) around a bright central pulsar. */
+const CrabNebula = ({ animate }) => {
+  const g = useRef();
+  useFrame((_, dt) => { if (animate && g.current) g.current.rotation.z += dt * 0.02; });
+  return (
+    <group position={pos(EXOTIC_RAW.crab)}>
+      <group ref={g}>
+        <mesh scale={[34, 24, 20]}><sphereGeometry args={[1, 20, 20]} /><meshBasicMaterial color="#3fae9a" transparent opacity={0.15} blending={THREE.AdditiveBlending} depthWrite={false} side={THREE.DoubleSide} toneMapped={false} /></mesh>
+        <mesh scale={[26, 31, 18]} rotation={[0, 0, 0.7]}><sphereGeometry args={[1, 20, 20]} /><meshBasicMaterial color="#c8643c" transparent opacity={0.14} blending={THREE.AdditiveBlending} depthWrite={false} side={THREE.DoubleSide} toneMapped={false} /></mesh>
+        <mesh scale={[18, 18, 18]}><sphereGeometry args={[1, 20, 20]} /><meshBasicMaterial color="#9be0ff" transparent opacity={0.12} blending={THREE.AdditiveBlending} depthWrite={false} side={THREE.DoubleSide} toneMapped={false} /></mesh>
+      </group>
+      <mesh><sphereGeometry args={[1.4, 16, 16]} /><meshBasicMaterial color="#eaf6ff" toneMapped={false} /></mesh>
+      <pointLight color="#bfe9ff" intensity={0.8} distance={140} decay={1.6} />
+    </group>
+  );
+};
+
+/* TRAPPIST-1 — an ultracool red dwarf with 7 tight Earth-sized worlds. */
+const Trappist = ({ animate }) => {
+  const g = useRef();
+  useFrame((_, dt) => { if (animate && g.current) g.current.rotation.y += dt * 0.15; });
+  const planets = useMemo(
+    () => [5, 6.4, 8, 9.6, 11.4, 13.4, 15.6].map((r, i) => ({ r, a: i * 0.9, c: ["#c9a892", "#b89a82", "#a8b39a", "#9bb0a8", "#8aa8b4", "#8a98c0", "#9aa8c0"][i] })),
+    []
+  );
+  return (
+    <group position={pos(EXOTIC_RAW.trappist)} rotation={[0.5, 0, 0]}>
+      <mesh><sphereGeometry args={[3, 24, 24]} /><meshBasicMaterial color="#ff6a3a" toneMapped={false} /></mesh>
+      <mesh><sphereGeometry args={[5.5, 24, 24]} /><meshBasicMaterial color="#ff8a4a" transparent opacity={0.22} blending={THREE.AdditiveBlending} depthWrite={false} side={THREE.BackSide} toneMapped={false} /></mesh>
+      <group ref={g}>
+        {planets.map((p, i) => (
+          <mesh key={i} position={[Math.cos(p.a) * p.r, 0, Math.sin(p.a) * p.r]}>
+            <sphereGeometry args={[0.6, 12, 12]} />
+            <meshStandardMaterial color={p.c} emissive={new THREE.Color(p.c)} emissiveIntensity={0.25} roughness={0.9} />
+          </mesh>
+        ))}
+      </group>
+      <pointLight color="#ff8a4a" intensity={1.4} distance={90} decay={1.5} />
+    </group>
+  );
+};
+
 const ExoticObjects = ({ animate = true }) => (
   <>
     <SgrA animate={animate} />
@@ -99,6 +144,8 @@ const ExoticObjects = ({ animate = true }) => (
     <DimSphere position={pos(EXOTIC_RAW.browndwarf)} radius={6} color="#5a2c20" emissive="#7a2a18" halo haloColor="#b0432a" />
     {/* rogue planet — dark, starless world */}
     <DimSphere position={pos(EXOTIC_RAW.rogue)} radius={4} color="#2b2a30" />
+    <CrabNebula animate={animate} />
+    <Trappist animate={animate} />
   </>
 );
 

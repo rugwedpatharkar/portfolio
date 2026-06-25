@@ -185,6 +185,16 @@ const ANOMALY_RAW = [
     info: "A rogue planet — a starless world flung from its system, drifting the galaxy in eternal dark and cold. Billions may wander the Milky Way; some could still hide warm liquid-water oceans under ice, heated from within.",
     visit: { kind: "focus", cameraTarget: frame([-22, -16, 33], 14, 3, 42) },
   },
+  {
+    id: "crab", label: "Crab Nebula", category: "Supernova remnant", color: "#6fe0d0", position: [82, 28, -44],
+    info: "The Crab Nebula (M1) — the wreckage of a star that exploded in 1054 AD, recorded by astronomers worldwide. Glowing filaments of gas still expand at 1,500 km/s around the Crab Pulsar, a neutron star spinning 30 times a second at its heart.",
+    visit: { kind: "focus", cameraTarget: frame([82, 28, -44], 110, 30, 48) },
+  },
+  {
+    id: "trappist", label: "TRAPPIST-1", category: "Star system", color: "#ff8a4a", position: [-52, -22, -40],
+    info: "TRAPPIST-1 — an ultracool red-dwarf star 40 ly away with SEVEN Earth-sized rocky planets, three in the habitable zone. The most planets ever found around one star — and one of the best places to hunt for life beyond the solar system.",
+    visit: { kind: "focus", cameraTarget: frame([-52, -22, -40], 40, 9, 46) },
+  },
 ];
 
 /* Free-floating cosmic objects (not tied to a planet) are pulled IN FRONT of the
