@@ -166,12 +166,12 @@ const Sun = ({
     if (innerCoronaRef.current) {
       const pulse = 1 + Math.sin(t * 0.9) * 0.04 + Math.sin(t * 2.3 + 1.7) * 0.02;
       innerCoronaRef.current.scale.setScalar(pulse);
-      innerCoronaRef.current.material.opacity = 0.3 + Math.sin(t * 1.3) * 0.06;
+      innerCoronaRef.current.material.opacity = 0.34 + Math.sin(t * 1.3) * 0.06;
     }
     if (outerCoronaRef.current) {
       const pulse = 1 + Math.sin(t * 0.55 + 0.8) * 0.05;
       outerCoronaRef.current.scale.setScalar(pulse);
-      outerCoronaRef.current.material.opacity = 0.14 + Math.sin(t * 0.7 + 2.1) * 0.04;
+      outerCoronaRef.current.material.opacity = 0.17 + Math.sin(t * 0.7 + 2.1) * 0.04;
     }
   });
 
@@ -191,13 +191,14 @@ const Sun = ({
       {/* Inner corona — pearly chromospheric aureole (desaturated cream, not
           amber) so it doesn't fuzz the photosphere edge into an orange ball. */}
       <mesh ref={innerCoronaRef}>
-        <sphereGeometry args={[radius * 1.09, 32, 32]} />
-        <meshBasicMaterial color="#ffe8cc" transparent opacity={0.3} side={THREE.BackSide} toneMapped={false} depthWrite={false} />
+        <sphereGeometry args={[radius * 1.14, 32, 32]} />
+        <meshBasicMaterial color="#ffe8cc" transparent opacity={0.34} side={THREE.BackSide} toneMapped={false} depthWrite={false} />
       </mesh>
-      {/* Outer corona — wide soft falloff, faint warm-white */}
+      {/* Outer corona — wide soft falloff, faint warm-white. Larger so the Sun
+          reads as a grand glowing star that fills the hero, not a bare ball. */}
       <mesh ref={outerCoronaRef}>
-        <sphereGeometry args={[radius * 1.5, 32, 32]} />
-        <meshBasicMaterial color="#ffd6ac" transparent opacity={0.14} side={THREE.BackSide} toneMapped={false} depthWrite={false} />
+        <sphereGeometry args={[radius * 2.1, 32, 32]} />
+        <meshBasicMaterial color="#ffd6ac" transparent opacity={0.17} side={THREE.BackSide} toneMapped={false} depthWrite={false} />
       </mesh>
       <pointLight color="#ffe5b0" intensity={1.1} distance={600} decay={1.2} />
     </group>

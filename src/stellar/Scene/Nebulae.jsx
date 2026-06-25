@@ -104,6 +104,11 @@ const NEBULAE = [
   { url: "/textures/nebulae/crab.jpg", position: [-5200, -1247, -2495], scale: 1050, opacity: 0.5, haloTint: [0.55, 0.72, 1.0], coreTint: [1.0, 0.7, 0.55] },
   // Helix (NGC 7293, "Eye of God" planetary, ~2.5 ly, closest): teal eye, red-orange rim.
   { url: "/textures/nebulae/helix.jpg", position: [-5268, 1791, 632], scale: 820, opacity: 0.48, haloTint: [1.0, 0.6, 0.5], coreTint: [0.6, 1.0, 0.92] },
+  // HERO BACKDROP — the others sit off on the −X tour axis, leaving the front-on
+  // Sol view's −Z void empty. These two fill the deep field BEHIND the Sun that
+  // the hero camera looks into, giving the dark centre cosmic colour + depth.
+  { url: "/textures/nebulae/carina.jpg", position: [900, 1200, -5100], scale: 2900, opacity: 0.5, haloTint: [0.55, 0.6, 1.0], coreTint: [1.0, 0.68, 0.55] },
+  { url: "/textures/nebulae/orion.jpg", position: [-1900, -250, -4800], scale: 2200, opacity: 0.46, haloTint: [0.6, 0.8, 1.0], coreTint: [1.0, 0.62, 0.86] },
 ];
 
 const NebulaPlane = ({ url, position, scale, opacity, haloTint, coreTint }) => {

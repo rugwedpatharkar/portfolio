@@ -60,11 +60,12 @@ function bvToColor(bv, out) {
   if (k >= 66) b = 255;
   else if (k <= 19) b = 0;
   else b = 138.52 * Math.log(k - 10) - 305.04;
-  // gently desaturate so the field reads natural, not candy-coloured
+  // lightly desaturate — keep more of each star's real B–V colour (blue/gold)
+  // so the field reads richer, not washed grey-white (was 0.35).
   const cr = THREE.MathUtils.clamp(r / 255, 0, 1);
   const cg = THREE.MathUtils.clamp(g / 255, 0, 1);
   const cb = THREE.MathUtils.clamp(b / 255, 0, 1);
-  const mix = 0.35;
+  const mix = 0.22;
   out.setRGB(cr * (1 - mix) + mix, cg * (1 - mix) + mix, cb * (1 - mix) + mix);
 }
 

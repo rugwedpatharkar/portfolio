@@ -155,12 +155,12 @@ const LensFlare = ({ position = [0, 0, 0] }) => {
 
     if (glareRef.current) {
       glareRef.current.position.copy(sunPos);
-      glareRef.current.material.opacity = vis * 0.6;
+      glareRef.current.material.opacity = vis * 0.9;
       glareRef.current.visible = on;
     }
     if (raysRef.current) {
       raysRef.current.position.copy(sunPos);
-      raysRef.current.material.opacity = vis * 0.5;
+      raysRef.current.material.opacity = vis * 0.82;
       /* No auto-spin: real diffraction spikes are fixed to the lens, not slowly
          rotating on their own (that read as a 'magic glow'). */
       raysRef.current.visible = on;
