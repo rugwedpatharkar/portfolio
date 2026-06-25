@@ -55,7 +55,7 @@ const OverviewHud = ({ overview }) =>
   overview ? (
     <div style={{ position: "fixed", top: "7.5vh", left: 0, right: 0, zIndex: 50, pointerEvents: "none", display: "flex", flexDirection: "column", alignItems: "center", gap: 6, textAlign: "center" }}>
       <div style={{ fontFamily: "'Michroma', sans-serif", fontSize: 17, letterSpacing: "0.16em", color: "white", textTransform: "uppercase", textShadow: "0 2px 20px rgba(0,0,0,0.85)" }}>System Overview</div>
-      <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 11, letterSpacing: "0.1em", color: "rgba(255,255,255,0.8)", textShadow: "0 1px 10px rgba(0,0,0,0.9)" }}>drag to orbit · speed time (×2) to watch transits · Z or Esc to return</div>
+      <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 11, letterSpacing: "0.1em", color: "rgba(255,255,255,0.8)", textShadow: "0 1px 10px rgba(0,0,0,0.9)" }}>drag to pan · scroll to zoom · right-drag to orbit · click a body to scan · Z or Esc to return</div>
     </div>
   ) : null;
 
@@ -135,7 +135,7 @@ const StellarApp = () => {
   const wideRef = useRef(false);
   /* Orrery view orbit (azimuth / elevation / radius) — the system-view drag
      updates it; CameraRig orbits the wide camera around the system from it. */
-  const wideOrbitRef = useRef({ az: 1.8, el: 0.37, radius: 95 });
+  const wideOrbitRef = useRef({ az: 1.8, el: 0.6, radius: 120, panX: 0, panZ: 0 });
   /* Free-camera focus target {position, lookAt, fov} for click-to-visit, and a
      live-camera handle the overview map projects object positions through. */
   const focusRef = useRef(null);
@@ -287,31 +287,50 @@ const StellarApp = () => {
     wideRef.current = overview;
   }, [overview]);
 
-  /* Orrery — drag in the system view to orbit the camera's viewing angle, so the
-     orbiting planets transit (eclipse) the sun at low angles. Clicks on hotspots
-     still warp (drags that start on a button are ignored). */
+  /* Game-map overview controls: LEFT-drag PANS across the system, WHEEL ZOOMS
+     in/out, RIGHT-drag ORBITS the angle. The tour scroll is frozen so the wheel
+     drives zoom (not the camera tour); CameraRig smooths it (inertia-like).
+     Resets to a clean framing each time the map opens. */
   useEffect(() => {
     if (mode !== "overview") return undefined;
-    let dragging = false, lx = 0, ly = 0;
+    window.__lenis?.stop();
+    const o = wideOrbitRef.current;
+    o.panX = 0; o.panZ = 0; o.radius = 130; o.el = 0.62;
+    let drag = 0, lx = 0, ly = 0; // 0 none · 1 pan (left) · 2 orbit (right)
     const down = (e) => {
       if (e.target.closest && e.target.closest("button, a")) return;
-      dragging = true; lx = e.clientX; ly = e.clientY;
+      drag = e.button === 2 ? 2 : 1; lx = e.clientX; ly = e.clientY;
     };
     const move = (e) => {
-      if (!dragging) return;
-      const o = wideOrbitRef.current;
-      o.az -= (e.clientX - lx) * 0.005;
-      o.el = Math.max(0.06, Math.min(1.45, o.el + (e.clientY - ly) * 0.005));
+      if (!drag) return;
+      const dx = e.clientX - lx, dy = e.clientY - ly;
+      if (drag === 2) {
+        o.az -= dx * 0.005;
+        o.el = Math.max(0.12, Math.min(1.4, o.el + dy * 0.005));
+      } else {
+        const k = o.radius * 0.0016;
+        o.panX -= dx * k; o.panZ -= dy * k;
+      }
       lx = e.clientX; ly = e.clientY;
     };
-    const up = () => { dragging = false; };
+    const up = () => { drag = 0; };
+    const wheel = (e) => {
+      e.preventDefault();
+      o.radius = Math.max(26, Math.min(440, o.radius * (e.deltaY > 0 ? 1.12 : 0.89)));
+    };
+    const ctx = (e) => e.preventDefault();
     window.addEventListener("pointerdown", down);
     window.addEventListener("pointermove", move);
     window.addEventListener("pointerup", up);
+    window.addEventListener("wheel", wheel, { passive: false });
+    window.addEventListener("contextmenu", ctx);
     return () => {
+      window.__lenis?.start();
       window.removeEventListener("pointerdown", down);
       window.removeEventListener("pointermove", move);
       window.removeEventListener("pointerup", up);
+      window.removeEventListener("wheel", wheel);
+      window.removeEventListener("contextmenu", ctx);
     };
   }, [mode]);
 

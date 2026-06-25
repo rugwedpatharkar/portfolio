@@ -308,21 +308,25 @@ const CameraRig = ({
       _camTarget.set(focus.position[0], focus.position[1], focus.position[2]);
       _lookTarget.set(focus.lookAt[0], focus.lookAt[1], focus.lookAt[2]);
     } else if (wide) {
-      /* Orrery view — orbit the camera around the system from an adjustable
-         azimuth/elevation so the orbiting planets transit the sun at low
-         angles (real eclipses) and the structure reads from above. */
+      /* Game-map view — pan (drag) + zoom (wheel) + orbit (right-drag) around an
+         adjustable centre, so you can scroll across the system and zoom in/out
+         like an in-game world map. panX/panZ shift the look centre; radius zooms;
+         az/el orbit. The existing lerp below smooths it (inertia-like). */
       const o = wideOrbitRef?.current;
       if (o) {
         const ce = Math.cos(o.el);
+        const cx = WIDE_LOOK.x + (o.panX || 0);
+        const cz = WIDE_LOOK.z + (o.panZ || 0);
         _camTarget.set(
-          WIDE_LOOK.x + o.radius * ce * Math.cos(o.az),
+          cx + o.radius * ce * Math.cos(o.az),
           o.radius * Math.sin(o.el),
-          WIDE_LOOK.z + o.radius * ce * Math.sin(o.az)
+          cz + o.radius * ce * Math.sin(o.az)
         );
+        _lookTarget.set(cx, WIDE_LOOK.y, cz);
       } else {
         _camTarget.copy(WIDE_POSITION);
+        _lookTarget.copy(WIDE_LOOK);
       }
-      _lookTarget.copy(WIDE_LOOK);
     } else if (freeRoamEnabled && freeRoamOffsetRef?.current) {
       _camTarget.add(freeRoamOffsetRef.current);
     }
