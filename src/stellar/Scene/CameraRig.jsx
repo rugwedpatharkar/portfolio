@@ -95,6 +95,12 @@ const BANK_MAX = 0.085;
    frame-filling planet reads as flying "inside" it). */
 const FRAME_DOLLY = 1.34;
 
+/* Slow cinematic push-in: once the tour settles on a body, the camera eases
+   PUSH_AMOUNT closer over PUSH_DUR seconds, then holds — a gentle "lean in" on
+   arrival. Resets while gliding to the next body. */
+const PUSH_DUR = 5.0;
+const PUSH_AMOUNT = 0.13;
+
 /* Backlit hero framing (planets): the camera sits BEHIND the planet (anti-sun,
    radially outward), tilted up so the Sun crests the planet's top limb — a
    cinematic "sunrise over the edge" shot, the default for every planet. The
@@ -136,6 +142,7 @@ const CameraRig = ({
   const rollCurrent = useRef(0);
   const lastPos = useRef(0); // continuous destination position, for banking
   const bankCurrent = useRef(0);
+  const dwellTime = useRef(0); // seconds settled on the current body (drives the push-in)
   /* Launch state — captures the from-pose at each phase change so the
      scripted establish/warp moves are deterministic and smooth. */
   const launch = useRef({ phase: null, t0: 0, fromPos: new THREE.Vector3(), fromLook: new THREE.Vector3(), fromFov: FOV_DEFAULT });
@@ -232,6 +239,18 @@ const CameraRig = ({
     const i = Math.min(N - 2, Math.max(0, Math.floor(pos)));
     const fe = dwellEase(pos - i);
 
+    /* Travel speed — drives banking + the settle detector below. */
+    const posVel = (pos - lastPos.current) / d;
+    lastPos.current = pos;
+    /* Slow push-in: ease closer once the scroll settles on a body, then hold;
+       reset while gliding. (Applied to the hero distance D in blendFrame.) */
+    const settled = Math.abs(posVel) < 0.05;
+    dwellTime.current = settled
+      ? Math.min(dwellTime.current + d, PUSH_DUR)
+      : Math.max(0, dwellTime.current - d * 3);
+    const pe = dwellTime.current / PUSH_DUR;
+    const dollyFactor = 1 - PUSH_AMOUNT * (pe * pe * (3 - 2 * pe));
+
     const blendFrame = (j, outPos, outLook) => {
       const dst = DESTINATIONS[j];
       const fr = frames.current[j];
@@ -247,7 +266,7 @@ const CameraRig = ({
           .multiplyScalar(Math.cos(BACKLIT_TILT))
           .addScaledVector(_upp, Math.sin(BACKLIT_TILT))
           .normalize();
-        const D = (dst.radius / Math.tan(BACKLIT_HALF_ANGLE)) * BACKLIT_MARGIN;
+        const D = (dst.radius / Math.tan(BACKLIT_HALF_ANGLE)) * BACKLIT_MARGIN * dollyFactor;
         outPos.copy(_p).addScaledVector(_dir, D);
         outLook.copy(_p);
         /* Uniform fov + no static roll → every planet framed identically. */
@@ -269,8 +288,6 @@ const CameraRig = ({
     const rollTarget = frA.roll + (frB.roll - frA.roll) * fe;
 
     /* Banking — a subtle roll into the direction of travel, smoothed. */
-    const posVel = (pos - lastPos.current) / d;
-    lastPos.current = pos;
     const targetBank = THREE.MathUtils.clamp(-posVel * BANK_GAIN, -BANK_MAX, BANK_MAX);
     bankCurrent.current += (targetBank - bankCurrent.current) * fAlpha(0.1, d);
 
