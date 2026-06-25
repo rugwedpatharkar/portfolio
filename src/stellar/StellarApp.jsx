@@ -1,5 +1,6 @@
 /* eslint-disable react/prop-types */
 import { useRef, useState, useCallback, useEffect, useMemo } from "react";
+import { MotionConfig } from "motion/react";
 import Scene from "./Scene";
 import Navigator from "./Navigator";
 import ContentPanel from "./ContentPanel";
@@ -20,6 +21,7 @@ import EasterEgg from "./EasterEgg";
 import AnswerListener from "./AnswerListener";
 import useViewport from "./useViewport";
 import SpeedRun from "./SpeedRun";
+import ScrollProgress from "./ScrollProgress";
 import CockpitFrame from "./CockpitFrame";
 import FragmentToast from "./FragmentToast";
 import HazardBanner from "./HazardBanner";
@@ -430,6 +432,7 @@ const StellarApp = () => {
   );
 
   return (
+    <MotionConfig reducedMotion="user">
     <StellarUIContext.Provider value={ui}>
       {/* Hide the page scrollbar — scroll still drives the camera, but the
           bar is visual clutter. (Scoped to while the stellar app is mounted.) */}
@@ -513,12 +516,15 @@ const StellarApp = () => {
               {autoTour ? "STOP TOUR" : "GRAND TOUR"}
             </button>
           )}
+          {/* Slim tour-progress rail on the right edge. */}
+          {mode === "tour" && <ScrollProgress scrollTRef={scrollTRef} />}
         </>
       )}
       {/* Countdown plays FIRST on mount; the warp fly-in (WarpField streaks
           + CameraRig) follows. Scene textures stream in behind both. */}
       {!countdownDone && <MissionCountdown onComplete={handleCountdownDone} />}
     </StellarUIContext.Provider>
+    </MotionConfig>
   );
 };
 

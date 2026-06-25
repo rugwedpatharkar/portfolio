@@ -1,5 +1,6 @@
 /* eslint-disable react/prop-types */
 import { useEffect, useMemo, useRef, useState } from "react";
+import { motion } from "motion/react";
 import useViewport from "./useViewport";
 import { PLANET_FACTS } from "./data/planetFacts";
 import heroPhoto from "../assets/hero-photo-1024.webp";
@@ -32,12 +33,19 @@ import {
  * the planet metaphor — not a copy-paste of the original section HTML.
  */
 
-const Stat = ({ label, value }) => (
-  <div style={{ textAlign: "left" }}>
-    <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 22, color: "white", fontWeight: 700, lineHeight: 1 }}>{value}</div>
-    <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 9.5, color: "rgba(255,255,255,0.6)", textTransform: "uppercase", letterSpacing: "0.08em", marginTop: 4 }}>{label}</div>
-  </div>
-);
+/* Stat value animates via the shared CountUp (defined below; reduced-motion
+   aware) — parse "31" / "7+" / "96%" into number + suffix. */
+const Stat = ({ label, value }) => {
+  const m = String(value).match(/^(\d+)(.*)$/);
+  return (
+    <div style={{ textAlign: "left" }}>
+      <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 22, color: "white", fontWeight: 700, lineHeight: 1 }}>
+        {m ? <CountUp to={parseInt(m[1], 10)} suffix={m[2]} /> : value}
+      </div>
+      <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 9.5, color: "rgba(255,255,255,0.6)", textTransform: "uppercase", letterSpacing: "0.08em", marginTop: 4 }}>{label}</div>
+    </div>
+  );
+};
 
 const SectionLabel = ({ children, color = "#b8a0ff" }) => (
   <div style={{
@@ -190,10 +198,13 @@ const HeroChip = ({ children, href, onClick, primary }) => {
     border: `1px solid ${primary ? "rgba(255,184,107,0.5)" : "rgba(255,255,255,0.16)"}`,
     color: primary ? "#ffd9a0" : "rgba(255,255,255,0.85)",
   };
+  const hover = { y: -3, boxShadow: "0 10px 26px rgba(0,0,0,0.38)" };
+  const tap = { scale: 0.97 };
+  const motionProps = { whileHover: hover, whileTap: tap, transition: { duration: 0.18, ease: [0.22, 1, 0.36, 1] } };
   return href ? (
-    <a href={href} target="_blank" rel="noopener noreferrer" style={{ ...style, textDecoration: "none" }}>{children}</a>
+    <motion.a href={href} target="_blank" rel="noopener noreferrer" style={{ ...style, textDecoration: "none" }} {...motionProps}>{children}</motion.a>
   ) : (
-    <button onClick={onClick} style={style}>{children}</button>
+    <motion.button onClick={onClick} style={style} {...motionProps}>{children}</motion.button>
   );
 };
 
@@ -707,8 +718,11 @@ const ContentPanel = ({ destination }) => {
         </div>
         <style>{`
           @keyframes stellarPanelIn {
-            0% { opacity: 0; transform: translateY(6px); }
-            100% { opacity: 1; transform: translateY(0); }
+            0% { opacity: 0; transform: translateY(6px); filter: blur(5px); }
+            100% { opacity: 1; transform: translateY(0); filter: blur(0); }
+          }
+          @media (prefers-reduced-motion: reduce) {
+            .stellar-content-panel [style*="stellarPanelIn"] { animation: none !important; }
           }
         `}</style>
       </div>
@@ -821,8 +835,8 @@ const ContentPanel = ({ destination }) => {
       </div>
       <style>{`
         @keyframes stellarContentIn {
-          0% { opacity: 0; transform: translateY(10px); }
-          100% { opacity: 1; transform: translateY(0); }
+          0% { opacity: 0; transform: translateY(10px); filter: blur(7px); }
+          100% { opacity: 1; transform: translateY(0); filter: blur(0); }
         }
         @keyframes stellarScrollCue {
           0%, 100% { opacity: 0.3; transform: translateY(0); }
