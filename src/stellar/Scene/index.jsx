@@ -85,7 +85,7 @@ const KIRKWOOD_GAPS = [0.333, 0.6, 0.975];
  * tune that based on viewport bucket.
  */
 
-const Scene = ({ scrollT, activeIdx, onJump, onReady, freeRoamEnabled, speedRef, thrustRef, wideRef, wideOrbitRef, focusRef, cameraRef, warpVelRef, eclipseRef, clock, extrasPhase = 3, launchPhase = null }) => {
+const Scene = ({ scrollT, activeIdx, onJump, onReady, freeRoamEnabled, speedRef, thrustRef, wideRef, wideOrbitRef, focusRef, cameraRef, warpVelRef, onLaunchComplete, eclipseRef, clock, extrasPhase = 3, launchPhase = null }) => {
   const readyRef = useRef(false);
   const { isMobile, isCompact, reducedMotion } = useViewport();
   /* Progressive-mount tiers (StellarApp ramps extrasPhase 0→3 behind the
@@ -421,6 +421,7 @@ const Scene = ({ scrollT, activeIdx, onJump, onReady, freeRoamEnabled, speedRef,
           focusRef={focusRef}
           cameraRef={cameraRef}
           warpVelRef={warpVelRef}
+          onLaunchComplete={onLaunchComplete}
           launchPhase={launchPhase}
           /* Desktop frames the planet right-of-centre to clear the left
              content column; compact/mobile keep it centred (stacked layout). */

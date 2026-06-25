@@ -155,9 +155,17 @@ const StellarApp = () => {
   /* Pilot freezes the scroll tour (so scroll can't fight the flight) and clears
      any stale on-screen thruster input. */
   useEffect(() => {
-    if (flying) { window.__lenis?.stop(); thrustRef.current = {}; }
-    else window.__lenis?.start();
+    if (flying) thrustRef.current = {};
   }, [flying]);
+
+  /* SINGLE owner of the scroll lock — freeze Lenis in pilot + overview, run it in
+     the tour. Was three separate effects (pilot/overview/autoTour) racing
+     stop()/start() across mode switches, which could leave scroll stuck stopped
+     (bug-sweep H1). One effect keyed on `mode` = no race. */
+  useEffect(() => {
+    if (mode === "pilot" || mode === "overview") window.__lenis?.stop();
+    else window.__lenis?.start();
+  }, [mode]);
 
   /* Scene mounts/loads textures behind the warp + countdown overlays,
      so we no longer need an explicit sceneReady gate. */
@@ -187,17 +195,20 @@ const StellarApp = () => {
   /* End the warp after WARP_DUR (2.2s) and hand over to the tour. The warp
      itself is started in handleCountdownDone (same update as countdownDone)
      so the scene never flashes before it begins. */
+  /* End the warp + hand over to the tour. PRIMARY trigger is CameraRig's
+     onLaunchComplete, which fires when the clock-driven fly-in actually reaches
+     Sol — so the handoff can never snap mid-warp even on a slow load (H2 /
+     issue 4). The timer is just a safety net if that callback never fires.
+     Idempotent (functional update guards double-calls). */
+  const endWarp = useCallback(() => {
+    setLaunchPhase((p) => (p === "warp" ? null : p));
+    setShipWarpDone(true);
+  }, []);
   useEffect(() => {
     if (launchPhase !== "warp") return undefined;
-    /* 2500ms (was 2200): a small buffer past the clock-driven WARP_DUR (2.2s) so
-       the camera finishes its fly-in BEFORE the tour takes over — no mid-warp
-       snap at the handoff. */
-    const t = setTimeout(() => {
-      setLaunchPhase(null);
-      setShipWarpDone(true);
-    }, 2500);
+    const t = setTimeout(endWarp, 5000); // fallback only
     return () => clearTimeout(t);
-  }, [launchPhase]);
+  }, [launchPhase, endWarp]);
 
   /* Ramp the extras-mount tier in stages behind the countdown cover (see
      extrasPhase). Reduced-motion / mobile (no intro) mount everything at once. */
@@ -306,7 +317,7 @@ const StellarApp = () => {
      Resets to a clean framing each time the map opens. */
   useEffect(() => {
     if (mode !== "overview") return undefined;
-    window.__lenis?.stop();
+    /* Scroll lock is owned by the consolidated mode effect above. */
     const o = wideOrbitRef.current;
     o.panX = 0; o.panZ = 0; o.radius = 130; o.el = 0.62;
     let drag = 0, lx = 0, ly = 0; // 0 none · 1 pan (left) · 2 orbit (right)
@@ -430,8 +441,9 @@ const StellarApp = () => {
         return;
       }
       /* P toggles free-flight. While piloting, FreeRoam owns WASD/arrows — the
-         hub only listens for Esc / P to dock. */
-      if (k === "p") { e.preventDefault(); togglePilot(); return; }
+         hub only listens for Esc / P to dock. Blocked while the overview map is
+         open (entering pilot from overview raced the mode/scroll state — H3). */
+      if (k === "p" && mode !== "overview") { e.preventDefault(); togglePilot(); return; }
       if (mode === "pilot") { if (k === "escape") setMode("tour"); return; }
       /* Scan card open: arrows cycle prev/next within the body's category. */
       if (focusedObj) {
@@ -545,6 +557,7 @@ const StellarApp = () => {
         focusRef={focusRef}
         cameraRef={cameraRef}
         warpVelRef={warpVelRef}
+        onLaunchComplete={endWarp}
         clock={sceneClockRef.current}
         extrasPhase={extrasPhase}
         launchPhase={launchPhase}

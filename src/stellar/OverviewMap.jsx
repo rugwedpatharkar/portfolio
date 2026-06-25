@@ -39,7 +39,10 @@ const OverviewMap = ({ objects, cameraRef, visible, onPick }) => {
           if (!node) continue;
           const o = objects[i];
           _v.set(o.position[0], o.position[1], o.position[2]).project(cam);
-          const onScreen = _v.z < 1 && _v.x > -1.08 && _v.x < 1.08 && _v.y > -1.08 && _v.y < 1.08;
+          /* Number.isFinite guard: if an object ever sits exactly at the camera,
+             project() divides by w=0 → NaN transform (hotspot stuck at origin,
+             opacity 1). Treat NaN as off-screen (bug-sweep L1). */
+          const onScreen = Number.isFinite(_v.x) && _v.z < 1 && _v.x > -1.08 && _v.x < 1.08 && _v.y > -1.08 && _v.y < 1.08;
           if (!onScreen) {
             node.style.opacity = "0";
             node.style.pointerEvents = "none";

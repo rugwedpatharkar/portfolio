@@ -63,9 +63,10 @@ const WarpField = ({ velocityRef, launchPhase }) => {
          it (decay 0.16, was 0.075) — the cinematic "slam to lightspeed, then
          SUDDENLY stop" the user asked for. */
       cur += (target - cur) * (target > cur ? 0.34 : 0.16);
-      /* CameraRig drives velocityRef each frame from real travel speed; this
-         decay just smooths the tail if it ever stops updating. */
-      if (velocityRef.current) velocityRef.current *= 0.9;
+      /* CameraRig owns velocityRef (writes the real travel speed every frame);
+         WarpField reads it READ-ONLY. The `cur` smoothing above is the only
+         decay — don't mutate the shared ref here (that fought CameraRig's signal
+         and flickered the streaks — bug-sweep M1). */
 
       ctx.clearRect(0, 0, w, h);
       /* Blackout — at speed the scene dims toward black so only the streaking

@@ -139,6 +139,7 @@ const CameraRig = ({
   focusRef,
   cameraRef,
   warpVelRef,
+  onLaunchComplete,
   launchPhase,
   frameShift = 0,
 }) => {
@@ -199,6 +200,7 @@ const CameraRig = ({
       if (L.phase !== launchPhase) {
         L.phase = launchPhase;
         L.t0 = t;
+        L.completed = false;
         /* The warp always begins at the far establishing pose, so it reads
            as a hyperspeed fly-in from the edge of the system into Sol (the
            streaks come from WarpField). Establish (if used) starts wherever
@@ -213,13 +215,13 @@ const CameraRig = ({
           L.fromFov = camera.fov;
         }
       }
-      let toPos, toLook, toFov, e;
+      let toPos, toLook, toFov, e, p = 0;
       if (launchPhase === "establish") {
-        const p = Math.min(1, (t - L.t0) / ESTABLISH_DUR);
+        p = Math.min(1, (t - L.t0) / ESTABLISH_DUR);
         e = 1 - Math.pow(1 - p, 3); // ease-out — decelerate into the reveal
         toPos = ESTABLISH_POS; toLook = ESTABLISH_LOOK; toFov = ESTABLISH_FOV;
       } else {
-        const p = Math.min(1, (t - L.t0) / WARP_DUR);
+        p = Math.min(1, (t - L.t0) / WARP_DUR);
         e = p * p * (3 - 2 * p); // smoothstep — fast through the middle, eased arrival
         toPos = SOL_POS; toLook = SOL_LOOK; toFov = SOL_FOV;
       }
@@ -231,6 +233,13 @@ const CameraRig = ({
       camera.lookAt(lookAtTarget.current);
       const fv = L.fromFov + (toFov - L.fromFov) * e;
       if (Math.abs(camera.fov - fv) > 0.01) { camera.fov = fv; camera.updateProjectionMatrix(); }
+      /* End the warp the moment the CAMERA actually arrives (clock-driven p≥1),
+         not on a wall-clock timer that desyncs from the scene clock on a slow
+         load → no mid-warp snap at the tour handoff (bug-sweep H2 / issue 4). */
+      if (launchPhase === "warp" && p >= 1 && !L.completed) {
+        L.completed = true;
+        onLaunchComplete?.();
+      }
       return;
     }
     if (launch.current.phase) launch.current.phase = null;

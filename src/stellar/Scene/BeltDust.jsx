@@ -5,17 +5,20 @@ import * as THREE from "three";
 
 /*
  * Dense dust band for a belt — tens of thousands of tiny additive points filling
- * the torus volume. This is what sells the real "dense dusty donut" look (see
- * the reference belt imagery): discrete instanced rocks alone read as sparse
- * specks, but a high-count point field reads as a continuous glowing band whose
- * brightness comes from density. One draw call, written once — cheap.
+ * the torus volume, so the belt reads as a continuous dusty band whose brightness
+ * comes from density (discrete rocks alone read as sparse specks). One draw call.
  *
- * Points use a SOFT ROUND sprite and CONSTANT screen size (sizeAttenuation off),
- * so a camera flying through the belt (e.g. the Ceres stop sits inside it) sees
- * fine grain — not the giant square splats that size-attenuated quads become up
- * close. Distribution mirrors a real belt: denser mid-plane + mid-radius
- * (Gaussian-ish from summed uniforms) so the band has a bright core that fades
- * at the edges, not a hard-edged ring.
+ * DISTANCE BEHAVIOUR (the important part): a custom shader gives each point
+ *   (a) size attenuation, CLAMPED — full size up close (so flying through the
+ *       belt at the Ceres stop shows fine grain, not giant splats) but shrinking
+ *       with distance, and
+ *   (b) a distance FADE.
+ * Without this, the old constant-screen-size additive points blew out: from the
+ * outer planets the whole belt compresses to a thin line on screen, thousands of
+ * full-size additive points pile onto the same pixels, the sum rockets past the
+ * Bloom threshold, and the belt glows like a solid bar of light — wrong (they're
+ * dark asteroids, not stars). Shrinking + fading distant dust keeps it a faint
+ * haze far away while staying dense up close.
  */
 
 /* Soft circular sprite (radial gradient) — shared module-level so every belt
@@ -36,13 +39,42 @@ const dotSprite = () => {
   return _dot;
 };
 
+const DUST_VERT = /* glsl */ `
+  uniform float uSize;    // max screen size (px) — used up close
+  uniform float uAtten;   // attenuation reference distance
+  uniform float uNear;    // full brightness within this distance
+  uniform float uFar;     // faded to uMin by this distance
+  uniform float uMin;     // minimum fade (never fully gone)
+  varying float vFade;
+  void main() {
+    vec4 mv = modelViewMatrix * vec4(position, 1.0);
+    float dist = -mv.z;
+    /* Clamp keeps it full-size up close (no giant splats inside the belt) and
+       shrinks it with distance (kills the bright-bar pile-up from far). */
+    gl_PointSize = clamp(uSize * uAtten / max(dist, 1.0), 0.5, uSize);
+    vFade = clamp(1.0 - (dist - uNear) / (uFar - uNear), uMin, 1.0);
+    gl_Position = projectionMatrix * mv;
+  }
+`;
+const DUST_FRAG = /* glsl */ `
+  uniform sampler2D uMap;
+  uniform vec3 uColor;
+  uniform float uOpacity;
+  varying float vFade;
+  void main() {
+    float a = texture2D(uMap, gl_PointCoord).a * uOpacity * vFade;
+    if (a < 0.004) discard;
+    gl_FragColor = vec4(uColor * a, a);
+  }
+`;
+
 const BeltDust = ({
   count = 24000,
   innerRadius,
   outerRadius,
   thickness,
   color = "#c9b48a",
-  size = 2.4, // screen pixels (sizeAttenuation off)
+  size = 2.4, // max screen pixels (shrinks with distance)
   opacity = 0.5,
   drift = 0.012,
   gaps = null, // fractional Kirkwood-gap centres (dust mirrors the rocks)
@@ -80,25 +112,36 @@ const BeltDust = ({
     return g;
   }, [count, innerRadius, outerRadius, thickness, gaps, cliff]);
 
+  const material = useMemo(
+    () =>
+      new THREE.ShaderMaterial({
+        uniforms: {
+          uMap: { value: sprite },
+          uColor: { value: new THREE.Color(color) },
+          uOpacity: { value: opacity },
+          uSize: { value: size },
+          uAtten: { value: 90 },
+          uNear: { value: 170 },
+          uFar: { value: 1000 },
+          uMin: { value: 0.05 },
+        },
+        vertexShader: DUST_VERT,
+        fragmentShader: DUST_FRAG,
+        transparent: true,
+        depthWrite: false,
+        blending: THREE.AdditiveBlending,
+        toneMapped: false,
+      }),
+    [sprite, color, opacity, size]
+  );
+
   useFrame((_, delta) => {
     if (animate && ref.current) ref.current.rotation.y += delta * drift;
   });
 
   return (
     <group ref={ref}>
-      <points geometry={geo} frustumCulled={false}>
-        <pointsMaterial
-          map={sprite}
-          size={size}
-          sizeAttenuation={false}
-          color={color}
-          transparent
-          opacity={opacity}
-          depthWrite={false}
-          blending={THREE.AdditiveBlending}
-          toneMapped={false}
-        />
-      </points>
+      <points geometry={geo} material={material} frustumCulled={false} />
     </group>
   );
 };
