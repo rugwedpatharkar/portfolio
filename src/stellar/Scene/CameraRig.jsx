@@ -355,14 +355,19 @@ const CameraRig = ({
             }
           }
           /* _camDir = direction from the target to the camera. */
-          if (focus.target.k >= 0) {
+          if (focus.target.k >= 0 || focus.target.destId === "sol") {
+            /* OBJECTS + the Sun: sit on the FROM side and look in the travel
+               direction (the Sun is emissive, so it reads fine head-on). */
             if (!haveFrom) { _dir.copy(_p); if (_dir.lengthSq() > 1e-6) _dir.normalize(); else _dir.set(0, 0, 1); }
-            _camDir.copy(_dir).negate(); // sit on the FROM side, look in the travel direction
+            _camDir.copy(_dir).negate();
           } else {
+            /* PLANETS: always frame from the SUNWARD side so the LIT face shows.
+               A planet's lit hemisphere faces the Sun, so "looking inward" on a
+               backward hop would frame its dark night side (a black disc) — the
+               bug. The warp-jump carries the sense of travel instead. */
             _radial.copy(_p);
             if (_radial.lengthSq() > 1e-6) _radial.normalize(); else _radial.set(1, 0, 0);
-            const outward = haveFrom ? _dir.dot(_radial) >= 0 : true;
-            _camDir.copy(_radial).multiplyScalar(outward ? -1 : 1); // sunward / far side
+            _camDir.copy(_radial).multiplyScalar(-1);
           }
           _upp.copy(UP).addScaledVector(_camDir, -UP.dot(_camDir));
           if (_upp.lengthSq() < 1e-6) _upp.set(0, 1, 0); else _upp.normalize();
