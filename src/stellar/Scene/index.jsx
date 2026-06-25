@@ -73,6 +73,15 @@ import { rotationSpeedFor } from "../config/planetData";
    isn't regenerated each render. */
 const KIRKWOOD_GAPS = [0.333, 0.6, 0.975];
 
+/* Kuiper-belt spectral mix — icy worlds: blue-grey ice, brighter white-ice, and
+   reddish tholin-coated bodies (the real KBO colour bimodality). */
+const ICY_FAMILIES = [
+  { color: "#8a96a8", metal: 0.05, rough: 0.85 }, // blue-grey ice
+  { color: "#aab6c6", metal: 0.04, rough: 0.9 },  // bright water ice
+  { color: "#9a7565", metal: 0.05, rough: 0.9 },  // reddish tholin
+];
+const ICY_WEIGHTS = [0.45, 0.3, 0.25];
+
 /*
  * Persistent Three.js scene. ONE canvas, single Suspense boundary.
  *
@@ -364,14 +373,23 @@ const Scene = ({ scrollT, activeIdx, onJump, onReady, freeRoamEnabled, speedRef,
             stops — Ceres + Pluto host those sections). Faint debris rings. */}
         {showExtras && (
           <>
-            <AsteroidBelt count={isMobile ? 2400 : 5200} innerRadius={BACKGROUND_BELTS.asteroid.inner} outerRadius={BACKGROUND_BELTS.asteroid.outer} size={0.18} thickness={BACKGROUND_BELTS.asteroid.thickness} gaps={KIRKWOOD_GAPS} animate={!reducedMotion} />
-            <BeltDust count={isMobile ? 16000 : 40000} innerRadius={BACKGROUND_BELTS.asteroid.inner} outerRadius={BACKGROUND_BELTS.asteroid.outer} thickness={BACKGROUND_BELTS.asteroid.thickness} color={BACKGROUND_BELTS.asteroid.color} size={2.6} opacity={0.5} gaps={KIRKWOOD_GAPS} animate={!reducedMotion} />
+            {/* MAIN belt — EXTREME density: realistic C/S/M composition mix
+                (~75% dark C-type), dust-grade → giant size range, a thick dust
+                haze, and a faint tenuous gas layer. */}
+            <AsteroidBelt count={isMobile ? 5000 : 12000} innerRadius={BACKGROUND_BELTS.asteroid.inner} outerRadius={BACKGROUND_BELTS.asteroid.outer} size={0.18} thickness={BACKGROUND_BELTS.asteroid.thickness} gaps={KIRKWOOD_GAPS} animate={!reducedMotion} />
+            <BeltDust count={isMobile ? 34000 : 80000} innerRadius={BACKGROUND_BELTS.asteroid.inner} outerRadius={BACKGROUND_BELTS.asteroid.outer} thickness={BACKGROUND_BELTS.asteroid.thickness} color={BACKGROUND_BELTS.asteroid.color} size={2.6} opacity={0.3} gaps={KIRKWOOD_GAPS} animate={!reducedMotion} />
+            {/* Tenuous gas/dust clouds drifting in the belt plane — big, faint,
+                soft sprites (distance-faded by the same shader, so no bright bar). */}
+            {!isMobile && <BeltDust count={3200} innerRadius={BACKGROUND_BELTS.asteroid.inner} outerRadius={BACKGROUND_BELTS.asteroid.outer} thickness={BACKGROUND_BELTS.asteroid.thickness * 1.4} color="#8a7a64" size={16} opacity={0.09} drift={0.008} gaps={KIRKWOOD_GAPS} animate={!reducedMotion} />}
           </>
         )}
         {showExtras && !isMobile && (
           <>
-            <AsteroidBelt count={1500} innerRadius={BACKGROUND_BELTS.kuiper.inner} outerRadius={BACKGROUND_BELTS.kuiper.outer} size={0.9} thickness={BACKGROUND_BELTS.kuiper.thickness} cliff animate={!reducedMotion} />
-            <BeltDust count={20000} innerRadius={BACKGROUND_BELTS.kuiper.inner} outerRadius={BACKGROUND_BELTS.kuiper.outer} thickness={BACKGROUND_BELTS.kuiper.thickness} color={BACKGROUND_BELTS.kuiper.color} size={2.3} opacity={0.4} cliff animate={!reducedMotion} />
+            {/* KUIPER belt — icy composition (blue/white ice + reddish tholins),
+                very dense + wide, with the Kuiper-cliff falloff + a gas layer. */}
+            <AsteroidBelt count={6500} innerRadius={BACKGROUND_BELTS.kuiper.inner} outerRadius={BACKGROUND_BELTS.kuiper.outer} size={0.55} thickness={BACKGROUND_BELTS.kuiper.thickness} families={ICY_FAMILIES} weights={ICY_WEIGHTS} cliff animate={!reducedMotion} />
+            <BeltDust count={55000} innerRadius={BACKGROUND_BELTS.kuiper.inner} outerRadius={BACKGROUND_BELTS.kuiper.outer} thickness={BACKGROUND_BELTS.kuiper.thickness} color={BACKGROUND_BELTS.kuiper.color} size={2.3} opacity={0.26} cliff animate={!reducedMotion} />
+            <BeltDust count={2600} innerRadius={BACKGROUND_BELTS.kuiper.inner} outerRadius={BACKGROUND_BELTS.kuiper.outer} thickness={BACKGROUND_BELTS.kuiper.thickness * 1.3} color="#6a7e9e" size={20} opacity={0.08} drift={0.006} cliff animate={!reducedMotion} />
           </>
         )}
         {/* Jupiter's Trojan asteroids — two swarms 60° ahead/behind Jupiter at

@@ -27,8 +27,16 @@ const RAW = [
   },
   // ── Main asteroid belt ──
   {
-    id: "vesta", label: "Vesta", category: "Asteroid", position: [20.4, -0.6, -1.1], radius: 0.04, color: "#b8a98c",
-    info: "The brightest asteroid and second-largest belt body, scarred by a giant impact basin near its south pole that flung debris across the solar system.",
+    id: "vesta", label: "Vesta", category: "Asteroid", position: [20.4, -0.6, -1.1], radius: 0.045, color: "#b8a98c",
+    info: "The brightest asteroid and second-largest belt body (S-type), scarred by a giant impact basin near its south pole that flung debris across the solar system. With Ceres, Pallas and Hygiea it holds over half the belt's entire mass.",
+  },
+  {
+    id: "pallas", label: "Pallas", category: "Asteroid", position: [20.7, 2.2, -1.6], radius: 0.043, color: "#9aa4ac",
+    info: "2 Pallas — the third-largest belt body, on a steeply tilted (~35°) orbit. A B-type protoplanet survivor, bluish-grey and heavily battered; one of the four giants that dominate the belt's mass.",
+  },
+  {
+    id: "hygiea", label: "Hygiea", category: "Asteroid", position: [21.5, -0.9, 1.9], radius: 0.038, color: "#5e5852",
+    info: "10 Hygiea — the fourth-largest belt body and the most massive dark C-type carbonaceous asteroid. Round enough that it may itself qualify as a dwarf planet.",
   },
   {
     id: "psyche", label: "16 Psyche", category: "Metal asteroid", position: [20.9, 0.9, 1.4], radius: 0.03, color: "#9a9082",

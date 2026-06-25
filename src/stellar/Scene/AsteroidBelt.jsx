@@ -4,25 +4,32 @@ import { useFrame } from "@react-three/fiber";
 import * as THREE from "three";
 
 /*
- * Instanced asteroid belt — three spectral families (C-type dark carbon,
- * S-type silicate brown, M-type metallic tan), one draw call each.
+ * Instanced asteroid belt — three spectral families, one draw call each, with
+ * REALISTIC composition mix (main belt): C-type dark carbonaceous (~75%, the
+ * dominant kind), S-type silicate (rocky/metallic), M-type metallic iron/nickel.
+ * The Kuiper belt passes an icy palette instead.
  *
- * Realism: every family uses its own LUMPY geometry — an icosahedron whose
- * vertices are pushed in and out by a position hash, so each rock reads as a
- * cratered, irregular body instead of a faceted ball (the old look). Random
- * per-instance orientation + non-uniform stretch + a wide size spread (a few
- * big "planetesimals" among gravel) sell the variety.
+ * Every family uses its own LUMPY geometry — an icosahedron whose vertices are
+ * pushed in/out by a position hash, so each rock reads as a cratered, irregular
+ * body. Random per-instance orientation + non-uniform stretch + a wide, fat-
+ * tailed size spread (dust-grade gravel → a rare GIANT planetesimal bigger than
+ * the terrestrial planets) sell the "millions of bodies, all sizes" look.
  *
- * Performance: instance matrices are written ONCE. Orbital motion is a slow
- * rotation of the whole family group (one transform per frame), not a rebuild
- * of every instance matrix every frame — the previous per-frame rebuild of
- * ~1000 matrices dominated the CPU budget and made the tour stutter.
+ * Performance: instance matrices are written ONCE (not rebuilt per frame); the
+ * orbital motion is a slow rotation of the whole family group.
  */
 
-const FAMILY_COLORS = ["#5d5650", "#9a7350", "#c4a878"]; // C / S / M-type
-const FAMILY_METAL = [0.04, 0.14, 0.4];
-const FAMILY_ROUGH = [0.96, 0.86, 0.55];
-const FAMILY_DRIFT = [0.010, 0.014, 0.018]; // slight differential orbit shear
+/* Main-belt spectral families (color · metalness · roughness). C-type is dark
+   carbonaceous (real albedo ~0.04 — kept dark but not pure black so lit rocks
+   still read); S-type silicate; M-type metallic and a touch shinier. */
+const MAIN_FAMILIES = [
+  { color: "#585048", metal: 0.04, rough: 0.96 }, // C-type
+  { color: "#9a7d5a", metal: 0.16, rough: 0.82 }, // S-type
+  { color: "#b8a886", metal: 0.5, rough: 0.42 },  // M-type
+];
+const MAIN_WEIGHTS = [0.75, 0.17, 0.08]; // C dominates (~75%), then S, then M
+
+const FAMILY_DRIFT = [0.01, 0.014, 0.018]; // slight differential orbit shear
 
 /* Icosahedron with vertices displaced by a deterministic position hash →
    a watertight lumpy rock. Shared vertices hash identically, so faces stay
@@ -42,7 +49,7 @@ function lumpyRock(detail, seed, amp) {
   return geo;
 }
 
-const Family = ({ instances, family, geometry, animate = true }) => {
+const Family = ({ instances, family, geometry, mat, animate = true }) => {
   const groupRef = useRef();
 
   /* Write all instance matrices exactly once, when the mesh mounts. */
@@ -67,12 +74,7 @@ const Family = ({ instances, family, geometry, animate = true }) => {
     <group ref={groupRef}>
       <instancedMesh ref={fill} args={[undefined, undefined, instances.length]} frustumCulled={false}>
         <primitive object={geometry} attach="geometry" />
-        <meshStandardMaterial
-          color={FAMILY_COLORS[family]}
-          roughness={FAMILY_ROUGH[family]}
-          metalness={FAMILY_METAL[family]}
-          flatShading
-        />
+        <meshStandardMaterial color={mat.color} roughness={mat.rough} metalness={mat.metal} flatShading />
       </instancedMesh>
     </group>
   );
@@ -97,6 +99,14 @@ const sampleRadius = (innerRadius, outerRadius, gaps, cliff) => {
   return innerRadius + Math.random() * (outerRadius - innerRadius);
 };
 
+/* Weighted family pick (cumulative). */
+const pickFamily = (w) => {
+  const r = Math.random() * (w[0] + w[1] + w[2]);
+  if (r < w[0]) return 0;
+  if (r < w[0] + w[1]) return 1;
+  return 2;
+};
+
 const AsteroidBelt = ({
   count = 600,
   innerRadius = 18.5,
@@ -105,6 +115,8 @@ const AsteroidBelt = ({
   thickness = 0.5, // vertical spread (real belts are fat tori, not ribbons)
   gaps = null, // fractional Kirkwood-gap centres
   cliff = false, // Kuiper-cliff density falloff toward the outer edge
+  families = MAIN_FAMILIES, // spectral mix (main C/S/M, or an icy Kuiper palette)
+  weights = MAIN_WEIGHTS, // relative abundance per family
   animate = true,
 }) => {
   /* One lumpy base shape per family (different seed → different silhouette);
@@ -114,8 +126,8 @@ const AsteroidBelt = ({
     []
   );
 
-  const families = useMemo(() => {
-    const buckets = [[], [], []];
+  const buckets = useMemo(() => {
+    const out = [[], [], []];
     for (let i = 0; i < count; i++) {
       const angle = Math.random() * Math.PI * 2;
       const radius = sampleRadius(innerRadius, outerRadius, gaps, cliff);
@@ -124,15 +136,14 @@ const AsteroidBelt = ({
       const y = (Math.random() + Math.random() - 1) * 0.5 * thickness;
       /* Multi-tier, fat-tailed size mix: mostly gravel/extra-small, a third
          small, ~7% large, and a rare ~0.8% GIANT planetesimal — the big ones
-         dwarf the terrestrial planets, exactly the "some bigger than planets"
-         look. */
+         dwarf the terrestrial planets. */
       const r = Math.random();
       let baseScale;
       if (r > 0.992)      baseScale = size * (5.0 + Math.random() * 7.0);   // rare giants
       else if (r > 0.93)  baseScale = size * (2.2 + Math.random() * 2.6);   // large
       else if (r > 0.62)  baseScale = size * (0.7 + Math.random() * 1.3);   // small
       else                baseScale = size * (0.16 + Math.random() * 0.5);  // gravel / extra-small
-      buckets[i % 3].push({
+      out[pickFamily(weights)].push({
         angle,
         radius,
         y,
@@ -145,14 +156,14 @@ const AsteroidBelt = ({
         rz: Math.random() * Math.PI * 2,
       });
     }
-    return buckets;
-  }, [count, innerRadius, outerRadius, size, thickness, gaps, cliff]);
+    return out;
+  }, [count, innerRadius, outerRadius, size, thickness, gaps, cliff, weights]);
 
   return (
     <>
-      {families.map((instances, family) =>
+      {buckets.map((instances, family) =>
         instances.length > 0 ? (
-          <Family key={family} instances={instances} family={family} geometry={geometries[family]} animate={animate} />
+          <Family key={family} instances={instances} family={family} geometry={geometries[family]} mat={families[family]} animate={animate} />
         ) : null
       )}
     </>
