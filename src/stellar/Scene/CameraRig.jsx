@@ -366,7 +366,13 @@ const CameraRig = ({
           }
           _upp.copy(UP).addScaledVector(_camDir, -UP.dot(_camDir));
           if (_upp.lengthSq() < 1e-6) _upp.set(0, 1, 0); else _upp.normalize();
-          const D = focus.target.k >= 0 ? FOCUS_DIST : Math.max(2.5, (tgt.radius / Math.tan(BACKLIT_HALF_ANGLE)) * 1.12);
+          /* Distance scaled to the body's radius so EVERY planet fills ~half the
+             frame (tiny inner worlds get a close camera, giants sit back). The
+             old max(2.5) floor pinned inner planets far back, shrinking them to a
+             few degrees while the true-size Sun swamped the frame on inward hops
+             → washed-out / black. A small 0.4 floor only guards against clipping
+             the very smallest. */
+          const D = focus.target.k >= 0 ? FOCUS_DIST : Math.max(0.4, (tgt.radius / Math.tan(BACKLIT_HALF_ANGLE)) * 1.12);
           _camTarget.copy(_p).addScaledVector(_camDir, D).addScaledVector(_upp, D * 0.22);
           _lookTarget.copy(_p);
           /* slide the body right-of-centre (desktop) so the left content clears. */
