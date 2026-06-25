@@ -453,6 +453,7 @@ const Scene = ({ scrollT, activeIdx, itemIdx = 0, onJump, onReady, freeRoamEnabl
           wideRef={wideRef}
           wideOrbitRef={wideOrbitRef}
           focusRef={focusRef}
+          warpVelRef={warpVelRef}
           cameraRef={cameraRef}
           /* Desktop frames the planet right-of-centre to clear the left
              content column; compact/mobile keep it centred (stacked layout). */

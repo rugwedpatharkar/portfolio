@@ -206,14 +206,9 @@ const StellarApp = () => {
     const changed = from.destId !== target.destId || from.k !== target.k;
     focusRef.current = { live: true, target, from: changed ? from : null, fov: target.k >= 0 ? 42 : 50 };
     prevTargetRef.current = target;
-    if (changed) {
-      /* Fire the hyperloop tube for the shift, then let it collapse to points. */
-      warpVelRef.current = 1.3;
-      clearTimeout(warpTimer.current);
-      warpTimer.current = setTimeout(() => {
-        warpVelRef.current = 0;
-      }, 300);
-    }
+    /* The hyperloop streaks are now driven by CameraRig's warp-jump transition
+       (distance-scaled), so a tiny object hop gets a gentle warp and a long
+       planet jump gets the full tunnel. */
   }, [itemIdx, activeIdx, mode]);
 
   const handleJump = useCallback((idx) => {

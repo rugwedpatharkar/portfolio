@@ -160,6 +160,11 @@ const CameraRig = ({
   /* Launch state — captures the from-pose at each phase change so the
      scripted establish/warp moves are deterministic and smooth. */
   const launch = useRef({ phase: null, t0: 0, fromPos: new THREE.Vector3(), fromLook: new THREE.Vector3(), fromFov: FOV_DEFAULT });
+  /* Warp-jump transition — each nav becomes a real travel (accel→decel over a
+     distance-scaled time, the destination swelling as you cross the gap, with
+     the hyperloop streaks peaking mid-jump). dt-accumulated so it runs even when
+     the scene clock is frozen (reduced-motion). */
+  const jump = useRef({ active: false, elapsed: 0, dur: 0, intensity: 0, fromPos: new THREE.Vector3(), fromLook: new THREE.Vector3(), fromFov: FOV_DEFAULT, lastKey: "" });
 
   /* Per-destination framing offsets (camera + aim relative to the planet),
      captured once from the authored cameraTarget values. */
@@ -364,6 +369,15 @@ const CameraRig = ({
           const D = focus.target.k >= 0 ? FOCUS_DIST : Math.max(2.5, (tgt.radius / Math.tan(BACKLIT_HALF_ANGLE)) * 1.12);
           _camTarget.copy(_p).addScaledVector(_camDir, D).addScaledVector(_upp, D * 0.22);
           _lookTarget.copy(_p);
+          /* slide the body right-of-centre (desktop) so the left content clears. */
+          if (frameShift && focus.target.k < 0) {
+            _viewDir.copy(_lookTarget).sub(_camTarget);
+            const dd = _viewDir.length() || 1;
+            _viewDir.divideScalar(dd);
+            _right.crossVectors(_viewDir, UP).normalize();
+            const halfW = Math.tan(THREE.MathUtils.degToRad((focus.fov || 42) * 0.5)) * dd * camera.aspect;
+            _lookTarget.addScaledVector(_right, -halfW * frameShift * 0.7);
+          }
         }
       } else {
         _camTarget.set(focus.position[0], focus.position[1], focus.position[2]);
@@ -428,6 +442,42 @@ const CameraRig = ({
       _camTarget
         .addScaledVector(_right, parallaxOffsetRef.current.x * s)
         .addScaledVector(_up2, parallaxOffsetRef.current.y * s);
+    }
+
+    /* ── Warp-jump transition ── on a new focus target, ease (accel→decel) from
+       the current pose to the new framing over a distance-scaled time; the
+       destination swells as the camera crosses the gap and the streaks peak
+       mid-jump. After it lands, the normal focus lerp tracks the orbit. */
+    const jmpKey = focus && focus.live && focus.target ? `${focus.target.destId}:${focus.target.k}` : "";
+    if (jmpKey && jmpKey !== jump.current.lastKey) {
+      const first = jump.current.lastKey === "";
+      jump.current.lastKey = jmpKey;
+      if (!first) {
+        const J = jump.current;
+        const dist = camera.position.distanceTo(_camTarget);
+        J.active = true;
+        J.elapsed = 0;
+        J.dur = THREE.MathUtils.clamp(0.5 + dist * 0.016, 0.55, 2.6);
+        J.intensity = THREE.MathUtils.clamp(dist * 0.06, 0.22, 1.5);
+        J.fromPos.copy(camera.position);
+        J.fromLook.copy(lookAtTarget.current);
+        J.fromFov = camera.fov;
+      }
+    }
+    if (jump.current.active) {
+      const J = jump.current;
+      J.elapsed += d;
+      const p = THREE.MathUtils.clamp(J.elapsed / J.dur, 0, 1);
+      const e = p * p * (3 - 2 * p); // accelerate then decelerate
+      camera.position.copy(J.fromPos).lerp(_camTarget, e);
+      lookAtTarget.current.copy(J.fromLook).lerp(_lookTarget, e);
+      camera.lookAt(lookAtTarget.current);
+      const jFov = focus ? focus.fov || 42 : fovTarget;
+      const fv = J.fromFov + (jFov - J.fromFov) * e;
+      if (Math.abs(camera.fov - fv) > 0.01) { camera.fov = fv; camera.updateProjectionMatrix(); }
+      if (warpVelRef) warpVelRef.current = Math.sin(p * Math.PI) * J.intensity;
+      if (p >= 1) { J.active = false; if (warpVelRef) warpVelRef.current = 0; }
+      return;
     }
 
     const posBase = focus?.live ? LIVE_FOCUS_LERP_60 : focus || wide ? WIDE_LERP_60 : freeRoamEnabled ? FREEROAM_LERP_60 : POS_LERP_60;
