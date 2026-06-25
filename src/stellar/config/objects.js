@@ -164,6 +164,27 @@ const ANOMALY_RAW = [
     info: "A lonely little robot near Earth — his home — still dutifully doing his job.",
     visit: { kind: "focus", cameraTarget: frame([10.8, -0.5, -2.1], 2.6, 0.7, 38) },
   },
+  // ── New deep-field exotics (rendered by Scene/ExoticObjects; positions match EXOTIC_RAW) ──
+  {
+    id: "sgra", label: "Sagittarius A*", category: "Black hole", color: "#ffd9a0", position: [70, 16, -52],
+    info: "Sagittarius A* — the Milky Way's central SUPERMASSIVE black hole, ~4.3 million times the Sun's mass, 26,000 ly away in Sagittarius. The Event Horizon Telescope imaged its glowing accretion ring around the dark event-horizon shadow in 2022.",
+    visit: { kind: "focus", cameraTarget: frame([70, 16, -52], 300, 80, 48) },
+  },
+  {
+    id: "magnetar", label: "Magnetar", category: "Neutron star", color: "#bfe0ff", position: [-34, 22, -30],
+    info: "A magnetar — a neutron star with the most intense magnetic field in the universe (a quadrillion gauss), strong enough to scramble matter itself. A single starquake can outshine the Sun's entire output in gamma rays for a tenth of a second.",
+    visit: { kind: "focus", cameraTarget: frame([-34, 22, -30], 16, 3, 44) },
+  },
+  {
+    id: "browndwarf", label: "Brown Dwarf", category: "Brown dwarf", color: "#b0432a", position: [54, -12, 26],
+    info: "A brown dwarf — a 'failed star' (13–80 Jupiter masses): massive enough to fuse deuterium but never hydrogen, so it only smoulders a dim infrared red. The bridge between the biggest planets and the smallest stars.",
+    visit: { kind: "focus", cameraTarget: frame([54, -12, 26], 22, 4, 44) },
+  },
+  {
+    id: "rogue", label: "Rogue Planet", category: "Rogue planet", color: "#3a3640", position: [-22, -16, 33],
+    info: "A rogue planet — a starless world flung from its system, drifting the galaxy in eternal dark and cold. Billions may wander the Milky Way; some could still hide warm liquid-water oceans under ice, heated from within.",
+    visit: { kind: "focus", cameraTarget: frame([-22, -16, 33], 14, 3, 42) },
+  },
 ];
 
 /* Free-floating cosmic objects (not tied to a planet) are pulled IN FRONT of the
@@ -172,6 +193,7 @@ const ANOMALY_RAW = [
    themed neighbourhood (they must stay beside their planet to be seen at all). */
 const FRONT_OF_SUN_CATEGORIES = new Set([
   "Black hole", "Portal", "Neutron star", "Mystery", "Interstellar object", "Interstellar comet", "Comet",
+  "Brown dwarf", "Rogue planet", "Supernova remnant", "Star system", "Star cluster",
 ]);
 const ANOMALY_OBJECTS = ANOMALY_RAW.map((o) => {
   const front = FRONT_OF_SUN_CATEGORIES.has(o.category);

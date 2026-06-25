@@ -55,6 +55,22 @@ const RAW = [
     id: "sedna", label: "Sedna", category: "Dwarf planet", position: [59, -3.2, 5.0], radius: 0.05, color: "#7a3a2a",
     info: "90377 Sedna — one of the most distant known worlds, on an extreme 11,400-year orbit that never approaches the planets. Its deep-red, tholin-coated surface is among the reddest in the solar system.",
   },
+  {
+    id: "quaoar", label: "Quaoar", category: "Dwarf planet", position: [43.2, 1.6, -2.3], radius: 0.041, color: "#b09a82",
+    info: "50000 Quaoar — a ~1,100 km Kuiper dwarf with a moon (Weywot) and a ring that sits impossibly far out, beyond where rings should be able to survive — rewriting the textbook on ring formation.",
+  },
+  {
+    id: "gonggong", label: "Gonggong", category: "Dwarf planet", position: [53, -2.6, 3.1], radius: 0.046, color: "#9a5a4a",
+    info: "225088 Gonggong — a big, slow, deep-red scattered-disc dwarf (~1,230 km) on a 550-year orbit, with a moon (Xiangliu) and likely water ice + methane frost.",
+  },
+  {
+    id: "orcus", label: "Orcus", category: "Dwarf planet", position: [44.5, 2.3, 2.6], radius: 0.038, color: "#bcc6cc",
+    info: "90482 Orcus — the 'anti-Pluto': same size class and orbital period as Pluto but always on the opposite side of its orbit. Has a large moon, Vanth, and signs of past ice volcanism.",
+  },
+  {
+    id: "chiron", label: "Chiron", category: "Centaur", position: [32.6, 1.5, -2.1], radius: 0.02, color: "#8a7a6a",
+    info: "2060 Chiron — the first centaur (an icy body orbiting between Saturn and Uranus), part-asteroid part-comet: it shows a comet-like coma AND a faint ring system, blurring the line between the two.",
+  },
 ];
 
 /* Carry each dwarf out to the true-scale belt distances (same radial remap as
