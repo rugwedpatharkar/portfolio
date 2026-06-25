@@ -52,6 +52,8 @@ const Planet = ({
   moons = 0,
   moonColor,
   moonScale = 0.12,
+  moonSet, // optional: named major moons [{ color, scale, glow }] — distinct looks
+
   satelliteRef, // optional: receives the first moon's live WORLD position (for eclipses)
   onClick,
   onPointerOver,
@@ -173,9 +175,21 @@ const Planet = ({
 
   const moonNodes = [];
   const mColor = moonColor || color || "#cccccc";
-  for (let i = 0; i < moons; i++) {
+  /* Named major moons (moonSet) render with their own colour + relative size
+     (Io volcanic-orange, Europa icy-white, Ganymede tan, Callisto dark, Titan
+     haze, Triton, Charon). Without a moonSet we fall back to N identical moons
+     sharing moonColor/moonTexture (e.g. Earth's textured Luna). */
+  const moonList = moonSet && moonSet.length ? moonSet : null;
+  const moonCount = moonList ? moonList.length : moons;
+  for (let i = 0; i < moonCount; i++) {
+    const md = moonList ? moonList[i] : null;
+    const mc = md?.color || mColor;
+    const ms = md?.scale || moonScale;
+    /* moonSet moons are procedural colour (distinct); only the fallback path
+       uses the shared lunar texture. */
+    const tex = md ? null : textureMap[moonTexture] || null;
     const orbit = radius * 1.85 + i * 0.16 * radius;
-    const initial = (i / Math.max(1, moons)) * Math.PI * 2;
+    const initial = (i / Math.max(1, moonCount)) * Math.PI * 2;
     moonNodes.push(
       <mesh
         key={i}
@@ -189,16 +203,16 @@ const Planet = ({
         }}
         position={[Math.cos(initial) * orbit, 0, Math.sin(initial) * orbit]}
       >
-        <sphereGeometry args={[radius * moonScale, 16, 16]} />
+        <sphereGeometry args={[radius * ms, 16, 16]} />
         <meshStandardMaterial
-          color={mColor}
-          map={textureMap[moonTexture] || null}
-          /* Lifted emissive floor so moons far from the sun still read
-             as lit bodies instead of black dots. */
-          emissive={new THREE.Color(mColor).multiplyScalar(textureMap[moonTexture] ? 0.16 : 0.4)}
-          emissiveIntensity={textureMap[moonTexture] ? 0.32 : 0.6}
-          roughness={textureMap[moonTexture] ? 0.9 : 0.55}
-          metalness={textureMap[moonTexture] ? 0.04 : 0.15}
+          color={mc}
+          map={tex}
+          /* Lifted emissive floor so moons far from the sun still read as lit
+             bodies; `glow` adds a touch more for active moons (Io). */
+          emissive={new THREE.Color(mc).multiplyScalar((tex ? 0.16 : 0.4) + (md?.glow || 0))}
+          emissiveIntensity={tex ? 0.32 : md?.glow ? 0.9 : 0.6}
+          roughness={tex ? 0.9 : 0.6}
+          metalness={tex ? 0.04 : 0.12}
         />
       </mesh>
     );

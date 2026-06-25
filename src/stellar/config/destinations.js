@@ -116,6 +116,11 @@ export const DESTINATIONS = [
     moons: 2, // Phobos + Deimos — tiny captured rocks
     moonColor: "#8a8276",
     moonScale: 0.06,
+    /* Phobos + Deimos — tiny, irregular captured-asteroid greys. */
+    moonSet: [
+      { color: "#7d7165", scale: 0.05 },  // Phobos — closer, larger
+      { color: "#8a7e70", scale: 0.038 }, // Deimos — smaller, smoother
+    ],
     section: "projects",
     /* Mars — slight low angle (offset scaled to radius) */
     cameraTarget: { position: [15.47, 0.22, 0.81], lookAt: [15.3, 0.2, 0.6], fov: 44 },
@@ -164,8 +169,14 @@ export const DESTINATIONS = [
     faintRings: true, // Jupiter's faint dusty ring (real)
     moons: 4, // the four Galilean moons
     moonColor: "#cfc6e0",
-    moonTexture: "/textures/planets/moonmap1k.jpg",
     moonScale: 0.045,
+    /* The Galilean moons, each distinct (real relative sizes, Ganymede largest). */
+    moonSet: [
+      { color: "#e6c84e", scale: 0.05, glow: 0.3 }, // Io — volcanic sulfur-orange
+      { color: "#e0e6e2", scale: 0.045 },           // Europa — bright icy white
+      { color: "#9c8c74", scale: 0.062 },           // Ganymede — largest moon, tan-grey
+      { color: "#6f6253", scale: 0.056 },           // Callisto — dark, heavily cratered
+    ],
   },
   {
     id: "notes",
@@ -186,6 +197,14 @@ export const DESTINATIONS = [
     rings: true,
     ringTexture: "/textures/planets/saturnringcolor.jpg",
     ringColor: "#f8c555",
+    moons: 2,
+    moonScale: 0.05,
+    /* Titan — bigger than Mercury, thick orange hydrocarbon haze; Enceladus —
+       tiny, brilliant water-ice. */
+    moonSet: [
+      { color: "#d99a4a", scale: 0.052 }, // Titan — orange haze
+      { color: "#eef3f1", scale: 0.022 }, // Enceladus — bright icy
+    ],
   },
   {
     id: "education",
@@ -208,8 +227,14 @@ export const DESTINATIONS = [
 
     moons: 4,
     moonColor: "#d0ccea",
-    moonTexture: "/textures/planets/moonmap1k.jpg",
     moonScale: 0.06,
+    /* Uranus's major moons — pale grey-cyan icy worlds. */
+    moonSet: [
+      { color: "#bcc8c8", scale: 0.052 }, // Titania — largest
+      { color: "#b2bebe", scale: 0.046 }, // Oberon
+      { color: "#c8d4d4", scale: 0.036 }, // Miranda — small, fractured
+      { color: "#aab6b6", scale: 0.05 },  // Ariel
+    ],
   },
   {
     id: "hobbies",
@@ -233,8 +258,9 @@ export const DESTINATIONS = [
     faintRings: true, // Neptune's faint rings + arcs (real)
     moons: 1, // Triton, the one large moon
     moonColor: "#b8d4ee",
-    moonTexture: "/textures/planets/moonmap1k.jpg",
     moonScale: 0.07,
+    /* Triton — pinkish-tan nitrogen-ice; the only big moon on a retrograde orbit. */
+    moonSet: [{ color: "#d8cabd", scale: 0.052 }],
   },
 
   // Pluto — the dwarf planet IN the Kuiper belt (Testimonials). Keeps id +
@@ -251,8 +277,9 @@ export const DESTINATIONS = [
     texture: "/textures/planets/pluto.jpg", // NASA/JHU-APL/SwRI New Horizons color mosaic
     moons: 1, // Charon — ~half Pluto's diameter; the pair are a true double dwarf system
     moonColor: "#b9b1a6",
-    moonTexture: "/textures/planets/moonmap1k.jpg",
     moonScale: 0.5,
+    /* Charon — grey, nearly half Pluto's size (the system's true double dwarf). */
+    moonSet: [{ color: "#9a948a", scale: 0.5 }],
     section: "testimonials",
     /* Tight framing for the small dwarf (offset preserved through the AU remap). */
     cameraTarget: { position: [44.08, 0.97, 1.52], lookAt: [44, 0.9, 1.4], fov: 46 },

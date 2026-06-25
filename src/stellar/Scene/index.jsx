@@ -266,6 +266,7 @@ const Scene = ({ scrollT, activeIdx, onJump, onReady, freeRoamEnabled, speedRef,
                 moons={d.moons || 0}
                 moonColor={d.moonColor}
                 moonScale={d.moonScale || 0.12}
+                moonSet={d.moonSet}
                 /* Real sidereal rotation: gas giants whirl, Venus/Mercury creep,
                    Venus + Uranus spin retrograde (negative). */
                 rotationSpeed={rotationSpeedFor(d.id)}
