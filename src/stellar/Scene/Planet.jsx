@@ -12,11 +12,11 @@ import RingSystem from "./RingSystem";
 const ATMOSPHERE_PRESETS = {
   earth: { color: "#6aa0ff", intensity: 0.6, power: 3.0, scale: 1.05, terminator: 1, termColor: "#ff8a4a" },
   warm: { color: "#ffd99a", intensity: 0.40, power: 2.8, scale: 1.035 },
-  rust: { color: "#ff9070", intensity: 0.28, power: 3.0, scale: 1.035 },
+  rust: { color: "#e0936a", intensity: 0.28, power: 3.0, scale: 1.035 }, // Mars — soft ochre haze, not neon salmon
   gas: { color: "#ecd0a0", intensity: 0.35, power: 2.8, scale: 1.035 }, // Jupiter — cream/tan haze
   golden: { color: "#ffe9a8", intensity: 0.40, power: 2.8, scale: 1.035 },
   ice: { color: "#aadcd6", intensity: 0.40, power: 2.8, scale: 1.04 }, // Uranus — greenish-cyan
-  abyss: { color: "#88bce4", intensity: 0.50, power: 2.8, scale: 1.045 }, // Neptune — muted blue
+  abyss: { color: "#9cc6d6", intensity: 0.50, power: 2.8, scale: 1.045 }, // Neptune — pale greenish-blue
 };
 
 /*
@@ -58,6 +58,7 @@ const Planet = ({
   onPointerOut,
   draggable = true,
   tint,
+  grade, // optional texture colour-correction { sat, lift, mix, tint } — e.g. Neptune true-colour
   children,
 }) => {
   const groupRef = useRef();
@@ -108,6 +109,37 @@ const Planet = ({
     });
     return out;
   }, [loadedColor, loadedData, colorUrls, dataUrls]);
+
+  /* Optional texture colour-correction. A multiply-only `tint` can't LIGHTEN an
+     over-saturated map (e.g. the legacy deep-indigo Neptune), so this patches
+     the standard material after the map sample to desaturate → lift → pull
+     toward the true hue. Used to bring Neptune to its 2024 true-colour pale
+     greenish-blue while keeping its banding. */
+  const gradeCompile = useMemo(() => {
+    if (!grade) return undefined;
+    const sat = grade.sat ?? 1;
+    const lift = grade.lift ?? 0;
+    const mix = grade.mix ?? 0;
+    const target = new THREE.Color(grade.tint || "#ffffff");
+    return (shader) => {
+      shader.uniforms.uGSat = { value: sat };
+      shader.uniforms.uGLift = { value: lift };
+      shader.uniforms.uGMix = { value: mix };
+      shader.uniforms.uGTint = { value: target };
+      shader.fragmentShader =
+        "uniform float uGSat; uniform float uGLift; uniform float uGMix; uniform vec3 uGTint;\n" +
+        shader.fragmentShader.replace(
+          "#include <map_fragment>",
+          `#include <map_fragment>
+          {
+            float _l = dot(diffuseColor.rgb, vec3(0.2126, 0.7152, 0.0722));
+            vec3 _g = mix(vec3(_l), diffuseColor.rgb, uGSat);
+            _g += uGLift;
+            diffuseColor.rgb = clamp(mix(_g, uGTint, uGMix), 0.0, 1.0);
+          }`
+        );
+    };
+  }, [grade]);
 
   useFrame((_, delta) => {
     /* Natural rotation + drag-imparted spin that decays back gently */
@@ -224,6 +256,7 @@ const Planet = ({
             /* tint multiplies the texture — used to knock back Venus,
                which otherwise blooms to pure white. Defaults to neutral. */
             color={tint || "#ffffff"}
+            onBeforeCompile={gradeCompile}
             normalMap={textureMap[normalTexture] || null}
             normalScale={textureMap[normalTexture] ? new THREE.Vector2(0.85, 0.85) : undefined}
             /* Specular map carries Earth's ocean mask — bright on water,

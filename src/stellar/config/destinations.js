@@ -108,8 +108,8 @@ export const DESTINATIONS = [
     label: "Mars",
     position: [15.3, 0.3, 0.6],
     radius: 0.097, // 3,390 km — about half Earth
-    color: "#c2553e",
-    colorB: "#5d2317",
+    color: "#b06a48", // real Mars: muted butterscotch-ochre (iron-oxide regolith), not fire-red
+    colorB: "#6e3a26",
     texture: "/textures/planets/marsmap1k.jpg",
     bumpTexture: "/textures/planets/marsbump1k.jpg",
     axialTilt: 25.2 * DEG, // near-Earth obliquity — the polar caps sit off-vertical
@@ -218,10 +218,13 @@ export const DESTINATIONS = [
     label: "Neptune",
     position: [39.0, 0.4, 0.8],
     radius: 0.704, // 24,622 km — Uranus's near-twin
-    color: "#5a8fc0", // real Neptune: muted greenish-blue, only slightly bluer than Uranus (2024)
-    colorB: "#2e5a8a",
+    color: "#7fb0c4", // real Neptune: PALE greenish-blue, only slightly bluer than Uranus (2024 Oxford true-color study)
+    colorB: "#5688a0",
     texture: "/textures/planets/neptunemap_hd.jpg",
     bumpTexture: "/textures/planets/neptune_bump.jpg",
+    /* The bundled map is the over-saturated Voyager indigo; grade it to the 2024
+       true colour — a PALE greenish-blue, near-Uranus but a touch bluer. */
+    grade: { sat: 0.55, lift: 0.08, mix: 0.42, tint: "#9ec6d6" },
     section: "hobbies",
     /* Neptune — pulled back, lonely framing in the deep dark (offset scaled) */
     cameraTarget: { position: [40.54, 0.94, 2.34], lookAt: [39.0, 0, 0.8], fov: 44 },

@@ -257,6 +257,7 @@ const Scene = ({ scrollT, activeIdx, onJump, onReady, freeRoamEnabled, speedRef,
                 bumpTexture={d.bumpTexture}
                 moonTexture={d.moonTexture}
                 tint={d.tint}
+                grade={d.grade}
                 rings={d.rings}
                 faintRings={d.faintRings}
                 ringColor={d.ringColor}
