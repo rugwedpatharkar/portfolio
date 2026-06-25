@@ -64,19 +64,11 @@ const SectionLabel = ({ children, color = "#b8a0ff" }) => (
   </div>
 );
 
-const SectionTitle = ({ children }) => (
-  <h2 style={{
-    fontFamily: "'Michroma', sans-serif",
-    fontSize: "clamp(18px, 1.6vw, 25px)",
-    fontWeight: 400,
-    color: "white",
-    margin: "0 0 13px 0",
-    letterSpacing: "0.04em",
-    lineHeight: 1.26,
-    textTransform: "uppercase",
-    textWrap: "balance",
-  }}>{children}</h2>
-);
+/* Section name heading removed per request — each section now reads as just its
+   small eyebrow label + description + content (no big "NOTES & WRITING" title
+   floating over the scene). Kept as a no-op so the per-section call sites stay
+   simple + this is trivially reversible. */
+const SectionTitle = () => null;
 
 const SectionLede = ({ children }) => (
   <p style={{

@@ -21,7 +21,6 @@ import EasterEgg from "./EasterEgg";
 import AnswerListener from "./AnswerListener";
 import useViewport from "./useViewport";
 import SpeedRun from "./SpeedRun";
-import ScrollProgress from "./ScrollProgress";
 import CockpitFrame from "./CockpitFrame";
 import FragmentToast from "./FragmentToast";
 import HazardBanner from "./HazardBanner";
@@ -504,8 +503,6 @@ const StellarApp = () => {
           )}
           {/* Minimal by design — just the résumé tour + the system overview (Z). */}
           <SpeedRun activeIdx={activeIdx} active={speedRunOn} onToggle={() => setSpeedRunOn((v) => !v)} />
-          {/* Slim tour-progress rail on the right edge. */}
-          {mode === "tour" && <ScrollProgress scrollTRef={scrollTRef} />}
         </>
       )}
     </StellarUIContext.Provider>
