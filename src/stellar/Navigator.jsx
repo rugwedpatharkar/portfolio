@@ -19,12 +19,12 @@ const Navigator = ({ scrollTRef, onDestinationChange }) => {
   const lenisRef = useRef(null);
 
   useEffect(() => {
-    /* Lerp lowered to 0.085 for a graceful, gliding scroll between bodies
-       (was 0.16/snappy). Smooth travel reads as premium; the magnetic snap
-       still lands you exactly on each planet. */
+    /* Lerp 0.13 — responsive scroll so the camera starts moving the instant you
+       scroll (0.085 felt laggy/floaty). The magnetic snap still lands you exactly
+       on each planet, and the warp streaks ramp from the resulting travel speed. */
     const lenis = new Lenis({
       smoothWheel: true,
-      lerp: 0.085,
+      lerp: 0.13,
       wheelMultiplier: 1.0,
       touchMultiplier: 1.5,
       /* Let the left info column (overflow-y:auto) scroll natively under the

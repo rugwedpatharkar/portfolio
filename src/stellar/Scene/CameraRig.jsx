@@ -33,8 +33,8 @@ const FOV_DEFAULT = 52;
    tracks a hair tighter than position so the orbiting planet stays
    centred (tracking a moving target with a proportional lerp lags a
    little; a tighter aim keeps that lag invisible). */
-const POS_LERP_60 = 0.14;
-const LOOK_LERP_60 = 0.20;
+const POS_LERP_60 = 0.2;
+const LOOK_LERP_60 = 0.26;
 const FOV_LERP_60 = 0.12;
 const ROLL_LERP_60 = 0.05;
 const WIDE_LERP_60 = 0.09;
@@ -81,11 +81,16 @@ const fAlpha = (base, dt) => 1 - Math.pow(1 - base, dt * 60);
    DWELL raised 0.24 → 0.34: the camera reaches each planet's framing sooner
    and lingers there, so a scroll spends ~68% settled and only ~32% gliding —
    snappier, and far less time parked in the cluttered space between bodies. */
-const DWELL = 0.34;
+/* ASYMMETRIC dwell — almost no hold at the START of a segment (the camera leaves
+   immediately the moment you scroll / press a nav key, killing the old "press,
+   then wait ~seconds before it moves" lag) but still settles + holds on ARRIVAL
+   so you land composed on each planet. */
+const DWELL_IN = 0.05;
+const DWELL_OUT = 0.30;
 const dwellEase = (f) => {
-  if (f <= DWELL) return 0;
-  if (f >= 1 - DWELL) return 1;
-  const x = (f - DWELL) / (1 - 2 * DWELL);
+  if (f <= DWELL_IN) return 0;
+  if (f >= 1 - DWELL_OUT) return 1;
+  const x = (f - DWELL_IN) / (1 - DWELL_IN - DWELL_OUT);
   return x * x * (3 - 2 * x);
 };
 const BANK_GAIN = 0.04; // roll per (destination-unit / second) of travel
@@ -133,6 +138,7 @@ const CameraRig = ({
   wideOrbitRef,
   focusRef,
   cameraRef,
+  warpVelRef,
   launchPhase,
   frameShift = 0,
 }) => {
@@ -242,6 +248,11 @@ const CameraRig = ({
     /* Travel speed — drives banking + the settle detector below. */
     const posVel = (pos - lastPos.current) / d;
     lastPos.current = pos;
+    /* Hyperspeed warp signal — the WarpField streaks + camera shake ramp from how
+       fast we're crossing the system (segments/sec, scale-independent). Settled →
+       0 (clear view, no shake); a fast scroll or a nav-jump punches it up. */
+    const warpInt = THREE.MathUtils.clamp((Math.abs(posVel) - 0.12) * 0.95, 0, 1.6);
+    if (warpVelRef) warpVelRef.current = warpInt;
     /* Slow push-in: ease closer once the scroll settles on a body, then hold;
        reset while gliding. (Applied to the hero distance D in blendFrame.) */
     const settled = Math.abs(posVel) < 0.05;
@@ -372,6 +383,15 @@ const CameraRig = ({
     const lookBase = focus || wide ? WIDE_LERP_60 : LOOK_LERP_60;
     camera.position.lerp(_camTarget, fAlpha(posBase, d));
     lookAtTarget.current.lerp(_lookTarget, fAlpha(lookBase, d));
+    /* Hyperspeed shake — a positional rumble scaled to warp intensity + framing
+       distance (proportional on every body), only during fast travel; zero at
+       rest. Skipped in focus / wide / free-roam (they own the camera). */
+    if (warpInt > 0.02 && !focus && !wide && !freeRoamEnabled) {
+      const sh = warpInt * camera.position.distanceTo(lookAtTarget.current) * 0.012;
+      camera.position.x += (Math.random() - 0.5) * sh;
+      camera.position.y += (Math.random() - 0.5) * sh;
+      camera.position.z += (Math.random() - 0.5) * sh;
+    }
     camera.lookAt(lookAtTarget.current);
 
     /* Dutch-tilt roll + travel bank — after lookAt (resets up to world up). */

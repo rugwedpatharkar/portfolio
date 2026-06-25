@@ -59,12 +59,24 @@ const WarpField = ({ velocityRef, launchPhase }) => {
       const target = Math.max(introBoost(launchRef.current), velocityRef.current || 0);
       /* Asymmetric ease: PUNCH into the jump fast (attack) and ease out of it
          slowly (decay) — the cinematic "snap to lightspeed, then glide down". */
-      cur += (target - cur) * (target > cur ? 0.3 : 0.075);
-      /* Decay the scroll-velocity signal so streaks fade once you stop
-         (Navigator re-sets it high on every scroll frame). */
+      /* Asymmetric ease: PUNCH into the jump fast (attack) and snap back out of
+         it (decay 0.16, was 0.075) — the cinematic "slam to lightspeed, then
+         SUDDENLY stop" the user asked for. */
+      cur += (target - cur) * (target > cur ? 0.34 : 0.16);
+      /* CameraRig drives velocityRef each frame from real travel speed; this
+         decay just smooths the tail if it ever stops updating. */
       if (velocityRef.current) velocityRef.current *= 0.9;
 
       ctx.clearRect(0, 0, w, h);
+      /* Blackout — at speed the scene dims toward black so only the streaking
+         light reads (the "everything blacks out except thin lines" hyperjump).
+         Thresholded so gentle scrolling stays clear; full jumps go near-black. */
+      const blackout = Math.min(0.94, Math.max(0, (cur - 0.28) / 0.55) * 0.94);
+      if (blackout > 0.004) {
+        ctx.globalCompositeOperation = "source-over";
+        ctx.fillStyle = `rgba(2,4,12,${blackout})`;
+        ctx.fillRect(0, 0, w, h);
+      }
       if (cur > 0.012) {
         /* Additive accumulation — overlapping streaks + the core flash build to
            a bright, blooming "tunnel" instead of flat lines. */

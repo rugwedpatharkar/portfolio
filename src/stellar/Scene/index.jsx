@@ -85,9 +85,16 @@ const KIRKWOOD_GAPS = [0.333, 0.6, 0.975];
  * tune that based on viewport bucket.
  */
 
-const Scene = ({ scrollT, activeIdx, onJump, onReady, freeRoamEnabled, speedRef, thrustRef, wideRef, wideOrbitRef, focusRef, cameraRef, eclipseRef, clock, showExtras = true, launchPhase = null }) => {
+const Scene = ({ scrollT, activeIdx, onJump, onReady, freeRoamEnabled, speedRef, thrustRef, wideRef, wideOrbitRef, focusRef, cameraRef, warpVelRef, eclipseRef, clock, extrasPhase = 3, launchPhase = null }) => {
   const readyRef = useRef(false);
   const { isMobile, isCompact, reducedMotion } = useViewport();
+  /* Progressive-mount tiers (StellarApp ramps extrasPhase 0→3 behind the
+     countdown cover, so the whole suite no longer mounts in one frame-freezing
+     commit). Tier 1 = structural extras + belts; tier 2 = anomalies/comets;
+     tier 3 = easter-egg models (heaviest, last). */
+  const showExtras = extrasPhase >= 1;
+  const showMid = extrasPhase >= 2;
+  const showEggs = extrasPhase >= 3;
   /* Camera offsets — kept in refs so React state doesn't re-render
      the whole tree on every frame. Mouse parallax and free-roam each
      own their own offset; CameraRig sums them. */
@@ -195,36 +202,36 @@ const Scene = ({ scrollT, activeIdx, onJump, onReady, freeRoamEnabled, speedRef,
         {/* The edge anomaly — Gargantua, out in front of the camera (behind the
             Sun, −X) so it's a visible deep-space landmark throughout the tour
             rather than hidden off to the +X side behind the viewer. */}
-        {showExtras && <BlackHole position={remapPosition(frontOfSun([49, -6, -15]))} radius={32} animate={!reducedMotion} onPointerOver={handleHoverIn} onPointerOut={handleHoverOut} />}
+        {showMid && <BlackHole position={remapPosition(frontOfSun([49, -6, -15]))} radius={32} animate={!reducedMotion} onPointerOver={handleHoverIn} onPointerOut={handleHoverOut} />}
         {/* Spaghettification dread near Gargantua — writes clock.danger. */}
-        {showExtras && <DangerField animate={!reducedMotion} />}
+        {showMid && <DangerField animate={!reducedMotion} />}
         {/* Flyable résumé collectibles — collected while piloting. */}
-        {showExtras && <DataFragments active={freeRoamEnabled} animate={!reducedMotion} />}
-        {/* Anomaly suite — the discoverable spectacle. All deferred behind
-            showExtras; motion-heavy ones respect reduced-motion + device. */}
-        {showExtras && !reducedMotion && <Comet />}
+        {showEggs && <DataFragments active={freeRoamEnabled} animate={!reducedMotion} />}
+        {/* Anomaly suite — the discoverable spectacle (tier 2). Motion-heavy ones
+            respect reduced-motion + device. */}
+        {showMid && !reducedMotion && <Comet />}
         {/* 'Oumuamua — the interstellar visitor cutting through on a hyperbolic
             path, tumbling end over end. */}
-        {showExtras && !reducedMotion && <InterstellarVisitor animate={!reducedMotion} />}
+        {showMid && !reducedMotion && <InterstellarVisitor animate={!reducedMotion} />}
         {/* The interstellar comets: 3I/ATLAS (green coma + sunward anti-tail) and
             2I/Borisov (reddish coma) — completing the trio with 'Oumuamua. */}
-        {showExtras && !reducedMotion && <AtlasComet />}
-        {showExtras && !reducedMotion && (
+        {showMid && !reducedMotion && <AtlasComet />}
+        {showMid && !reducedMotion && (
           <AtlasComet start={[-620, -150, 240]} vel={[168, 4, -64]} coma="#e0a890" ion="#cdbfa0" dust="#e8d8b8" antiTail={false} comaR={1.2} respawn={780} />
         )}
         {/* Clickable wishing meteors. */}
-        {showExtras && !reducedMotion && <ShootingStars animate={!reducedMotion} />}
-        {showExtras && !isMobile && !reducedMotion && <Meteors />}
-        {showExtras && !isMobile && !reducedMotion && <Pulsar />}
+        {showMid && !reducedMotion && <ShootingStars animate={!reducedMotion} />}
+        {showMid && !isMobile && !reducedMotion && <Meteors />}
+        {showMid && !isMobile && !reducedMotion && <Pulsar />}
         {/* New deep-field exotics: Sgr A*, magnetar, brown dwarf, rogue planet. */}
-        {showExtras && <ExoticObjects animate={!reducedMotion} />}
+        {showMid && <ExoticObjects animate={!reducedMotion} />}
         {/* Real projects as inspectable probes orbiting Mars. */}
-        {showExtras && <ProjectProbes animate={!reducedMotion} />}
+        {showMid && <ProjectProbes animate={!reducedMotion} />}
         {/* Real unsolved mysteries as deep-field discoverables (Planet Nine,
             Tabby's Star, the Wow! signal, fast radio bursts). */}
-        {showExtras && <DeepFieldMysteries animate={!reducedMotion} />}
+        {showMid && <DeepFieldMysteries animate={!reducedMotion} />}
         {/* Wormhole "Beam aboard" portal at the Contact edge — the booking CTA. */}
-        {showExtras && <Wormhole />}
+        {showMid && <Wormhole />}
 
         {DESTINATIONS.map((d, idx) => {
           const handleClick = (e) => {
@@ -387,20 +394,20 @@ const Scene = ({ scrollT, activeIdx, onJump, onReady, freeRoamEnabled, speedRef,
         {/* Humanity's robot fleet at their real locations (JWST@L2, Parker,
             Juno, Lucy, New Horizons). */}
         {showExtras && <RobotFleet />}
-        {showExtras && !isMobile && <CommitComets />}
-        {/* Easter eggs — lightweight, but no reason to build them during
-            the intro. */}
-        {showExtras && <DeathStar />}
-        {showExtras && <Tardis />}
-        {showExtras && <HalEye />}
-        {showExtras && <WallE />}
-        {showExtras && <CooperStation />}
-        {showExtras && <WatneyPotato />}
+        {showEggs && !isMobile && <CommitComets />}
+        {/* Easter-egg models (tier 3) — the heaviest, least-essential mounts, so
+            they come LAST in the progressive mount (kept out of the intro). */}
+        {showEggs && <DeathStar />}
+        {showEggs && <Tardis />}
+        {showEggs && <HalEye />}
+        {showEggs && <WallE />}
+        {showEggs && <CooperStation />}
+        {showEggs && <WatneyPotato />}
         {/* Phase 6 homages — Endurance (Interstellar), a deep-field Star
             Destroyer (Star Wars), the Enterprise (Star Trek). */}
-        {showExtras && <Endurance />}
-        {showExtras && !isMobile && <StarDestroyer />}
-        {showExtras && <Enterprise />}
+        {showEggs && <Endurance />}
+        {showEggs && !isMobile && <StarDestroyer />}
+        {showEggs && <Enterprise />}
         {!isMobile && !reducedMotion && <MouseParallax offsetRef={parallaxOffsetRef} />}
         <FreeRoam enabled={freeRoamEnabled} offsetRef={freeRoamOffsetRef} speedRef={speedRef} thrustRef={thrustRef} />
         <CameraShake parallaxOffsetRef={parallaxOffsetRef} />
@@ -413,6 +420,7 @@ const Scene = ({ scrollT, activeIdx, onJump, onReady, freeRoamEnabled, speedRef,
           wideOrbitRef={wideOrbitRef}
           focusRef={focusRef}
           cameraRef={cameraRef}
+          warpVelRef={warpVelRef}
           launchPhase={launchPhase}
           /* Desktop frames the planet right-of-centre to clear the left
              content column; compact/mobile keep it centred (stacked layout). */

@@ -87,6 +87,11 @@ const StellarApp = () => {
      → done (hand over to the tour). */
   const [launchPhase, setLaunchPhase] = useState(null);
   const [shipWarpDone, setShipWarpDone] = useState(false);
+  /* Progressive-mount tier (0→3) for the heavy extras suite. Mounting the whole
+     suite in ONE commit the instant the countdown ended froze a frame for ~3.5s
+     and snapped the warp; we instead ramp it in tiers BEHIND the countdown cover
+     so it's warm by the time the tour starts. */
+  const [extrasPhase, setExtrasPhase] = useState(0);
   /* Interaction mode — the single source of truth for the camera/interaction
      state (tour | overview | pilot | warping). `overview` (the wide pull-back
      the Z key toggles) is derived so the render conditionals + the wideRef
@@ -184,12 +189,28 @@ const StellarApp = () => {
      so the scene never flashes before it begins. */
   useEffect(() => {
     if (launchPhase !== "warp") return undefined;
+    /* 2500ms (was 2200): a small buffer past the clock-driven WARP_DUR (2.2s) so
+       the camera finishes its fly-in BEFORE the tour takes over — no mid-warp
+       snap at the handoff. */
     const t = setTimeout(() => {
       setLaunchPhase(null);
       setShipWarpDone(true);
-    }, 2200);
+    }, 2500);
     return () => clearTimeout(t);
   }, [launchPhase]);
+
+  /* Ramp the extras-mount tier in stages behind the countdown cover (see
+     extrasPhase). Reduced-motion / mobile (no intro) mount everything at once. */
+  useEffect(() => {
+    const reduced =
+      typeof window !== "undefined" &&
+      window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    if (reduced || isMobile) { setExtrasPhase(3); return undefined; }
+    const t1 = setTimeout(() => setExtrasPhase(1), 250);
+    const t2 = setTimeout(() => setExtrasPhase(2), 850);
+    const t3 = setTimeout(() => setExtrasPhase(3), 1600);
+    return () => { clearTimeout(t1); clearTimeout(t2); clearTimeout(t3); };
+  }, [isMobile]);
 
   const handleDestinationChange = useCallback((dest) => {
     const idx = DESTINATIONS.findIndex((d) => d.id === dest.id);
@@ -219,11 +240,15 @@ const StellarApp = () => {
       window.innerHeight;
     const targetY = (idx / (DESTINATIONS.length - 1)) * max;
     if (window.__lenis) {
-      /* Long, eased glide for a graceful planet-to-planet move — no warp, no
-         shake. easeInOutCubic: slow lift-off, smooth cruise, gentle arrival. */
+      /* Snappy warp-jump: start moving IMMEDIATELY (easeOutCubic = instant
+         lift-off, gentle arrival), short duration that scales a little with
+         distance. The resulting travel speed drives the WarpField hyperspace
+         streaks + camera shake (CameraRig). No more slow easeInOut lift-off. */
+      const dist = Math.abs(idx - activeIdxRef.current) || 1;
+      const duration = Math.min(1.7, 0.55 + dist * 0.13);
       window.__lenis.scrollTo(targetY, {
-        duration: 2.4,
-        easing: (t) => (t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2),
+        duration,
+        easing: (t) => 1 - Math.pow(1 - t, 3),
       });
     } else {
       window.scrollTo({ top: targetY, behavior: "smooth" });
@@ -519,8 +544,9 @@ const StellarApp = () => {
         wideOrbitRef={wideOrbitRef}
         focusRef={focusRef}
         cameraRef={cameraRef}
+        warpVelRef={warpVelRef}
         clock={sceneClockRef.current}
-        showExtras={countdownDone}
+        extrasPhase={extrasPhase}
         launchPhase={launchPhase}
       />
       <Navigator
