@@ -3,6 +3,7 @@ import { useMemo, useRef } from "react";
 import { useFrame } from "@react-three/fiber";
 import * as THREE from "three";
 import { remapPosition, frontOfSun } from "../config/destinations";
+import BlackHole from "./BlackHole";
 
 /*
  * New deep-field exotic objects, object-space + additive (no 2nd post pass —
@@ -29,26 +30,16 @@ export const EXOTIC_RAW = {
 };
 const pos = (raw) => remapPosition(frontOfSun(raw));
 
-const SgrA = ({ animate }) => {
-  const ringRef = useRef();
-  useFrame((_, dt) => { if (animate && ringRef.current) ringRef.current.rotation.z += dt * 0.05; });
-  return (
-    <group position={pos(EXOTIC_RAW.sgra)} rotation={[1.15, 0.4, 0]}>
-      {/* event horizon */}
-      <mesh><sphereGeometry args={[34, 32, 32]} /><meshBasicMaterial color="#000003" toneMapped={false} /></mesh>
-      {/* accretion ring (additive, slightly asymmetric via the gradient sprite) */}
-      <mesh ref={ringRef}>
-        <ringGeometry args={[38, 78, 96]} />
-        <meshBasicMaterial color="#ffcf8a" transparent opacity={0.55} side={THREE.DoubleSide} blending={THREE.AdditiveBlending} depthWrite={false} toneMapped={false} />
-      </mesh>
-      <mesh ref={ringRef}>
-        <ringGeometry args={[34, 46, 96]} />
-        <meshBasicMaterial color="#fff1d0" transparent opacity={0.5} side={THREE.DoubleSide} blending={THREE.AdditiveBlending} depthWrite={false} toneMapped={false} />
-      </mesh>
-      <pointLight color="#ffd9a0" intensity={2} distance={400} decay={1.6} />
-    </group>
-  );
-};
+/* Sagittarius A* — the real supermassive black hole. Rendered with the shared
+   BlackHole component in a near-FACE-ON orientation with gentle beaming, to
+   match the Event Horizon Telescope's 2022 image: a fairly symmetric orange
+   photon ring around the dark central shadow (vs Gargantua's edge-on drama). */
+const SgrA = ({ animate }) => (
+  <group position={pos(EXOTIC_RAW.sgra)}>
+    <BlackHole position={[0, 0, 0]} radius={30} tilt={Math.PI * 0.14} beam={0.5} animate={animate} />
+    <pointLight color="#ffd9a0" intensity={1.6} distance={420} decay={1.6} />
+  </group>
+);
 
 const Magnetar = ({ animate }) => {
   const g = useRef();
