@@ -3,6 +3,7 @@ import { motion, useReducedMotion } from "motion/react";
 import { SC, rgba } from "./ui/tokens";
 import useViewport from "./useViewport";
 import { DESTINATIONS } from "./config/destinations";
+import Navicomputer from "./Navicomputer";
 
 /*
  * Stellar Command — the diegetic cockpit HUD shell (M1). Always-on chrome over
@@ -98,26 +99,11 @@ export default function CockpitHUD({ destination, activeIdx = 0, itemIdx = 0, it
         </div>
       </motion.div>
 
-      {/* System ladder (↑↓ = lanes) — right edge */}
+      {/* Navicomputer — orrery radar (top-down system map + your blip + heading +
+          distance). Replaces the plain ladder; dots are clickable to jump. */}
       {!isMobile && (
-        <div style={{ position: "absolute", top: "50%", right: 22, transform: "translateY(-50%)", display: "flex", flexDirection: "column", alignItems: "center", gap: 9, pointerEvents: "auto" }}>
-          <span style={{ fontSize: 8.5, color: rgba(SC.blueInk, 0.6), marginBottom: 2 }}>↑</span>
-          {DESTINATIONS.map((d, i) => {
-            const active = i === activeIdx;
-            return (
-              <button
-                key={d.id}
-                onClick={() => onPlanet && onPlanet(i - activeIdx)}
-                title={d.label}
-                aria-label={`Go to ${d.label}`}
-                style={{ pointerEvents: "auto", cursor: "pointer", background: "none", border: "none", padding: 0, display: "flex", alignItems: "center", gap: 7 }}
-              >
-                {active && <span style={{ fontFamily: MONO, fontSize: 9.5, color: SC.amberInk, letterSpacing: "0.08em", whiteSpace: "nowrap" }}>{(d.label || "").toUpperCase()}</span>}
-                <span style={{ width: active ? 9 : 5, height: active ? 9 : 5, borderRadius: "50%", background: active ? SC.amber : rgba(SC.blueDim, 0.9), boxShadow: active ? `0 0 9px ${rgba(SC.amber, 0.7)}` : "none", animation: active ? "scPulse 1.6s ease-in-out infinite" : "none", transition: "all .25s" }} />
-              </button>
-            );
-          })}
-          <span style={{ fontSize: 8.5, color: rgba(SC.blueInk, 0.6), marginTop: 2 }}>↓</span>
+        <div style={{ position: "absolute", top: 58, right: 18 }}>
+          <Navicomputer activeIdx={activeIdx} onPlanet={onPlanet} />
         </div>
       )}
 
