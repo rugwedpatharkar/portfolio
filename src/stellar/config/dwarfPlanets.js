@@ -45,6 +45,8 @@ const RAW = [
   },
   {
     id: "haumea", label: "Haumea", category: "Dwarf planet", position: [44.7, -1.1, 2.7], radius: 0.044, color: "#e3e0d9",
+    /* Spins every ~4h → famously stretched ~2:1 into a triaxial ellipsoid. */
+    scale: [1.6, 0.78, 0.95],
     info: "An egg-shaped dwarf planet spinning so fast (~4-hour day) that it's stretched into an ellipsoid — and it has its own ring.",
   },
   {

@@ -36,13 +36,16 @@ const FRAG = /* glsl */ `
   }
 `;
 
-const Heliosphere = ({ radius = 5400, color = "#5f7fc4", opacity = 0.85 }) => {
+const Heliosphere = ({ radius = 5400, color = "#7d8aa8", opacity = 0.5 }) => {
   const uniforms = useMemo(
     () => ({ uColor: { value: new THREE.Color(color) }, uOpacity: { value: opacity } }),
     [color, opacity],
   );
   return (
-    <mesh frustumCulled={false}>
+    /* Non-uniform scale → the real heliosphere's blunt teardrop: compressed on
+       the nose (interstellar headwind), drawn out into a long downstream tail,
+       rather than a perfect ball. */
+    <mesh frustumCulled={false} scale={[1, 0.9, 1.25]}>
       <sphereGeometry args={[radius, 48, 48]} />
       <shaderMaterial
         vertexShader={VERT}

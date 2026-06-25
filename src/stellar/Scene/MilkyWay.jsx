@@ -20,7 +20,7 @@ import * as THREE from "three";
  * fully static.
  */
 
-const POINT_COUNT = 2600;
+const POINT_COUNT = 7200;
 const RADIUS = 6800; // behind the true-scale system + Stars, inside the skybox (7000)
 const BAND_TILT = 0.62; // diagonal lean of the band, radians
 
@@ -54,9 +54,9 @@ const MilkyWay = ({ animate = true }) => {
     const colors = new Float32Array(POINT_COUNT * 3);
     const sizes = new Float32Array(POINT_COUNT);
     const tmp = new THREE.Vector3();
-    const core = new THREE.Color("#cfe0ff"); // cool blue-white centre
-    const edgeCool = new THREE.Color("#7a6bd6"); // faint purple fringe
-    const edgeWarm = new THREE.Color("#caa372"); // warm dust lane
+    const core = new THREE.Color("#dce8ff"); // cool blue-white centre
+    const edgeCool = new THREE.Color("#6b7795"); // dim steel-blue (no purple — real band has none)
+    const edgeWarm = new THREE.Color("#b88f5e"); // warm ochre dust lane
     const tint = new THREE.Color();
 
     for (let i = 0; i < POINT_COUNT; i++) {
@@ -99,11 +99,11 @@ const MilkyWay = ({ animate = true }) => {
           <bufferAttribute attach="attributes-size" count={POINT_COUNT} array={sizes} itemSize={1} />
         </bufferGeometry>
         <pointsMaterial
-          size={68}
+          size={38}
           sizeAttenuation
           vertexColors
           transparent
-          opacity={0.13}
+          opacity={0.14}
           depthWrite={false}
           map={DUST_TEXTURE}
           alphaTest={0.01}

@@ -28,7 +28,7 @@ const dotSprite = () => {
   return _dot;
 };
 
-const ZodiacalLight = ({ count = 7000, inner = 24, outer = 330, color = "#f3e4c4" }) => {
+const ZodiacalLight = ({ count = 7000, inner = 24, outer = 330, color = "#f3ecd8" }) => {
   const sprite = useMemo(dotSprite, []);
   const { geometry } = useMemo(() => {
     const pos = new Float32Array(count * 3);
@@ -56,14 +56,19 @@ const ZodiacalLight = ({ count = 7000, inner = 24, outer = 330, color = "#f3e4c4
   const material = useMemo(
     () =>
       new THREE.ShaderMaterial({
-        uniforms: { uMap: { value: sprite }, uColor: { value: new THREE.Color(color) }, uOpacity: { value: 0.5 } },
+        uniforms: { uMap: { value: sprite }, uColor: { value: new THREE.Color(color) }, uOpacity: { value: 0.3 } },
         vertexShader: /* glsl */ `
           attribute float aAlpha;
           varying float vA;
           void main() {
             vA = aAlpha;
-            gl_PointSize = 3.0;
-            gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
+            vec4 mv = modelViewMatrix * vec4(position, 1.0);
+            /* Bigger, brightness-weighted, perspective-attenuated sprites so the
+               dense inner motes OVERLAP into a continuous triangular glow instead
+               of reading as discrete dots — the defining look of zodiacal light. */
+            gl_PointSize = (7.0 + 22.0 * aAlpha) * (300.0 / max(-mv.z, 1.0));
+            gl_PointSize = clamp(gl_PointSize, 2.0, 46.0);
+            gl_Position = projectionMatrix * mv;
           }
         `,
         fragmentShader: /* glsl */ `

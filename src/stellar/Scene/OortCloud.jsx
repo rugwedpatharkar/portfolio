@@ -10,7 +10,7 @@ import * as THREE from "three";
  * the whole planetary region — "the system is cocooned in a cloud." Additive,
  * low-opacity, write-once; no per-frame work.
  */
-const OortCloud = ({ count = 1400, radius = 5200, thickness = 1500 }) => {
+const OortCloud = ({ count = 1400, radius = 5200, thickness = 3200 }) => {
   const geo = useMemo(() => {
     const pos = new Float32Array(count * 3);
     for (let i = 0; i < count; i++) {
@@ -31,12 +31,15 @@ const OortCloud = ({ count = 1400, radius = 5200, thickness = 1500 }) => {
 
   return (
     <points geometry={geo} frustumCulled={false}>
+      {/* The real Oort cloud is invisible to the eye — this is the faintest
+          possible hint of a cocooning halo, not a glowing bubble. Low opacity +
+          small motes so it never frosts over the starfield/nebulae behind it. */}
       <pointsMaterial
-        size={16}
+        size={6}
         sizeAttenuation
-        color="#bcd0e6"
+        color="#c2ccd8"
         transparent
-        opacity={0.3}
+        opacity={0.055}
         depthWrite={false}
         blending={THREE.AdditiveBlending}
         toneMapped={false}
