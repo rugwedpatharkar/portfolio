@@ -2,6 +2,7 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { motion } from "motion/react";
 import useViewport from "./useViewport";
+import SkillsConstellation from "./SkillsConstellation";
 import { PLANET_FACTS } from "./data/planetFacts";
 import heroPhoto from "../assets/hero-photo-1024.webp";
 import aboutPhoto from "../assets/photo-800.webp";
@@ -406,6 +407,8 @@ const SkillsContent = () => {
       <SectionLabel>JUPITER · The galaxy of skills</SectionLabel>
       <SectionTitle>{sectionMeta.skills.heading}</SectionTitle>
       <SectionLede>{sectionMeta.skills.description}</SectionLede>
+      {/* The skills as an actual constellation — star size/brightness = proficiency. */}
+      <SkillsConstellation skills={skills} />
       <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(150px, 1fr))", gap: "9px 14px" }}>
         {categories.map(([cat, items]) => (
           <div key={cat} style={{ padding: "1px 2px 6px", breakInside: "avoid" }}>
