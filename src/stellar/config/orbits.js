@@ -49,7 +49,8 @@ export const orbitalPosition = (dest, t, out) => {
   return (out || new THREE.Vector3()).set(xp, y + zp * sinInc, zp * cosInc);
 };
 
-const LANE_ARC = 0.7; // scene-units between co-orbital lane objects (uniform spacing)
+const LANE_ARC = 2.8; // scene-units between co-orbital lane objects — spaced out so
+//                       you hyperloop-jump between them rather than drift
 
 /* World position on `dest`'s orbit at an arbitrary orbital angle `th`. */
 export const positionAtAngle = (dest, th, out) => {

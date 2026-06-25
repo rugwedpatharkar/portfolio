@@ -3,7 +3,7 @@ import { useRef, useEffect } from "react";
 import { useFrame, useThree } from "@react-three/fiber";
 import * as THREE from "three";
 import { DESTINATIONS } from "../config/destinations";
-import { getOrbit, orbitalPosition } from "../config/orbits";
+import { getOrbit, orbitalPosition, laneObjectPosition } from "../config/orbits";
 import { useSceneClock } from "./SceneClock";
 
 /*
@@ -28,6 +28,12 @@ import { useSceneClock } from "./SceneClock";
  */
 
 const FOV_DEFAULT = 52;
+/* Lane-object focus (←→): track the object's live orbiting position + frame it
+   from a short distance, with a snappier lerp than the wide map for a quick
+   hyperloop-style shift between objects. */
+const DEST_BY_ID = Object.fromEntries(DESTINATIONS.map((d) => [d.id, d]));
+const FOCUS_DIST = 1.8;
+const LIVE_FOCUS_LERP_60 = 0.14;
 
 /* Lerp alphas expressed @60fps; fAlpha rescales for real delta. Look
    tracks a hair tighter than position so the orbiting planet stays
@@ -320,8 +326,23 @@ const CameraRig = ({
     const focus = focusRef?.current || null;
     const wide = !focus && !!wideRef?.current;
     if (focus) {
-      _camTarget.set(focus.position[0], focus.position[1], focus.position[2]);
-      _lookTarget.set(focus.lookAt[0], focus.lookAt[1], focus.lookAt[2]);
+      if (focus.live) {
+        /* Live lane-object focus — track the object's orbiting position so the
+           frame stays composed as it revolves (like the planet tracking). */
+        const dst = DEST_BY_ID[focus.destId];
+        if (dst) {
+          if (focus.k >= 0) laneObjectPosition(dst, focus.k, t, _p);
+          else orbitalPosition(dst, t, _p);
+          _radial.copy(_p).normalize();
+          _upp.copy(UP).addScaledVector(_radial, -UP.dot(_radial)).normalize();
+          const D = focus.dist || FOCUS_DIST;
+          _camTarget.copy(_p).addScaledVector(_radial, D).addScaledVector(_upp, D * 0.35);
+          _lookTarget.copy(_p);
+        }
+      } else {
+        _camTarget.set(focus.position[0], focus.position[1], focus.position[2]);
+        _lookTarget.set(focus.lookAt[0], focus.lookAt[1], focus.lookAt[2]);
+      }
     } else if (wide) {
       /* Game-map view — pan (drag) + zoom (wheel) + orbit (right-drag) around an
          adjustable centre, so you can scroll across the system and zoom in/out
@@ -383,8 +404,8 @@ const CameraRig = ({
         .addScaledVector(_up2, parallaxOffsetRef.current.y * s);
     }
 
-    const posBase = focus || wide ? WIDE_LERP_60 : freeRoamEnabled ? FREEROAM_LERP_60 : POS_LERP_60;
-    const lookBase = focus || wide ? WIDE_LERP_60 : LOOK_LERP_60;
+    const posBase = focus?.live ? LIVE_FOCUS_LERP_60 : focus || wide ? WIDE_LERP_60 : freeRoamEnabled ? FREEROAM_LERP_60 : POS_LERP_60;
+    const lookBase = focus?.live ? LIVE_FOCUS_LERP_60 : focus || wide ? WIDE_LERP_60 : LOOK_LERP_60;
     camera.position.lerp(_camTarget, fAlpha(posBase, d));
     lookAtTarget.current.lerp(_lookTarget, fAlpha(lookBase, d));
     camera.lookAt(lookAtTarget.current);
@@ -395,7 +416,7 @@ const CameraRig = ({
     if (Math.abs(rollCurrent.current) > 0.0005) camera.rotateZ(rollCurrent.current);
 
     /* FOV */
-    const targetFov = focus ? focus.fov : wide ? WIDE_FOV : fovTarget;
+    const targetFov = focus ? (focus.fov || 42) : wide ? WIDE_FOV : fovTarget;
     const fovDelta = targetFov - camera.fov;
     if (Math.abs(fovDelta) > 0.02) {
       camera.fov += fovDelta * fAlpha(FOV_LERP_60, d);

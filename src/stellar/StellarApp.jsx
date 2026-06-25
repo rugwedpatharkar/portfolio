@@ -172,7 +172,7 @@ const StellarApp = () => {
     if (idx !== -1) {
       setActiveIdx(idx);
       activeIdxRef.current = idx;
-      setItemIdx(0);
+      setItemIdx(-1); // arrive in planet-view; ←→ flies out to the lane objects
       /* Sync URL hash without re-scrolling */
       const next = `#/stellar/${dest.id}`;
       if (window.location.hash !== next) {
@@ -184,6 +184,24 @@ const StellarApp = () => {
       markVisited(dest.id);
     }
   }, []);
+
+  /* Lane-object focus — ←→ flies the camera to the active object (CameraRig
+     live-tracks it as it orbits). itemIdx -1 = planet-view (focus released → the
+     planet framing). Tour-mode only; overview/pilot own the camera themselves. */
+  useEffect(() => {
+    if (mode !== "tour") { focusRef.current = null; return; }
+    if (itemIdx < 0) { focusRef.current = null; return; }
+    const dest = DESTINATIONS[activeIdx];
+    if (!dest) { focusRef.current = null; return; }
+    focusRef.current = {
+      live: true,
+      destId: dest.id,
+      k: itemIdx,
+      count: itemsForSection(dest.section).length,
+      dist: 1.8,
+      fov: 42,
+    };
+  }, [itemIdx, activeIdx, mode]);
 
   const handleJump = useCallback((idx) => {
     /* Map destination index → exact scroll position. Progress runs 0..1 over
@@ -386,7 +404,7 @@ const StellarApp = () => {
       } else if (k === "arrowleft" || k === "a") {
         /* ← = previous object on this lane. */
         e.preventDefault();
-        setItemIdx((i) => Math.max(0, i - 1));
+        setItemIdx((i) => Math.max(-1, i - 1));
       } else if (k === "arrowright" || k === "d") {
         /* → = next object on this lane. */
         e.preventDefault();
@@ -526,7 +544,7 @@ const StellarApp = () => {
               onItem={(dir) =>
                 setItemIdx((i) => {
                   const len = itemsForSection(DESTINATIONS[activeIdxRef.current]?.section).length || 1;
-                  return Math.max(0, Math.min(len - 1, i + dir));
+                  return Math.max(-1, Math.min(len - 1, i + dir));
                 })
               }
               onBoard={() => {}}

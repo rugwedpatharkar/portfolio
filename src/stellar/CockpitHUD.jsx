@@ -124,12 +124,16 @@ export default function CockpitHUD({ destination, activeIdx = 0, itemIdx = 0, it
       {/* Item dial (←→ = objects on this lane) — bottom centre */}
       {itemCount > 0 && (
         <div style={{ position: "absolute", bottom: 30, left: "50%", transform: "translateX(-50%)", display: "flex", alignItems: "center", gap: 12 }}>
-          <button onClick={() => onItem && onItem(-1)} aria-label="Previous object" style={{ ...btn, width: 28, height: 28, fontSize: 14, opacity: itemCount > 1 ? 1 : 0.35 }}>←</button>
-          <div style={{ textAlign: "center", minWidth: 140 }}>
-            <div style={{ fontFamily: DISP, fontWeight: 700, fontSize: 16, color: SC.amber }}>{String(itemIdx + 1).padStart(2, "0")} / {String(itemCount).padStart(2, "0")}</div>
-            <div style={{ fontSize: 10, color: rgba(SC.blueInk, 0.85), letterSpacing: "0.05em", marginTop: 1, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis", maxWidth: 200 }}>{curItem ? curItem.label : "—"}</div>
+          <button onClick={() => onItem && onItem(-1)} aria-label="Previous object" style={{ ...btn, width: 28, height: 28, fontSize: 14, opacity: itemIdx > -1 ? 1 : 0.3 }}>←</button>
+          <div style={{ textAlign: "center", minWidth: 150 }}>
+            <div style={{ fontFamily: DISP, fontWeight: 700, fontSize: 16, color: itemIdx < 0 ? SC.blueInk : SC.amber }}>
+              {itemIdx < 0 ? "PLANET" : `${String(itemIdx + 1).padStart(2, "0")} / ${String(itemCount).padStart(2, "0")}`}
+            </div>
+            <div style={{ fontSize: 10, color: rgba(SC.blueInk, 0.85), letterSpacing: "0.05em", marginTop: 1, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis", maxWidth: 220 }}>
+              {itemIdx < 0 ? `${itemCount} object${itemCount === 1 ? "" : "s"} on this lane` : curItem ? curItem.label : "—"}
+            </div>
           </div>
-          <button onClick={() => onItem && onItem(1)} aria-label="Next object" style={{ ...btn, width: 28, height: 28, fontSize: 14, opacity: itemCount > 1 ? 1 : 0.35 }}>→</button>
+          <button onClick={() => onItem && onItem(1)} aria-label="Next object" style={{ ...btn, width: 28, height: 28, fontSize: 14, opacity: itemIdx < itemCount - 1 ? 1 : 0.3 }}>→</button>
         </div>
       )}
 
