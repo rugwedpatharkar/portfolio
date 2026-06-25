@@ -537,8 +537,9 @@ const StellarApp = () => {
           {focusedObj && <FocusCard obj={focusedObj} onBack={clearFocus} />}
           {/* Minimal by design — just the résumé tour + the system overview (Z). */}
           {mode === "tour" && <SpeedRun activeIdx={activeIdx} active={speedRunOn} onToggle={() => setSpeedRunOn((v) => !v)} />}
-          {/* Helical galaxy view — entry pill (tour, desktop), header + speed dock. */}
-          {!isMobile && mode === "tour" && (
+          {/* Helical galaxy view — entry pill shown in every solar-system mode
+              (tour, system overview, pilot); hidden only once inside it. */}
+          {!isMobile && mode !== "galaxy" && (
             <button
               onClick={() => setMode("galaxy")}
               aria-label="Helical galaxy view — watch the Sun's real path through the Milky Way"
