@@ -195,15 +195,6 @@ const CameraRig = ({
     /* Expose the live camera to DOM overlays (the overview map projects
        object positions to screen space through it). */
     if (cameraRef) cameraRef.current = camera;
-    if (typeof window !== "undefined") {
-      window.__dbg = {
-        warp: +(warpVelRef?.current ?? 0).toFixed(2),
-        jactive: jump.current.active,
-        jkey: jump.current.lastKey,
-        camd: +camera.position.length().toFixed(1),
-        fkey: focusRef?.current?.target ? `${focusRef.current.target.destId}:${focusRef.current.target.k}` : "-",
-      };
-    }
 
     const d = Math.min(dt || 1 / 60, 1 / 20);
     /* Scaled "world time" from the shared virtual clock — the SAME source
