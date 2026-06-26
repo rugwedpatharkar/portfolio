@@ -95,7 +95,7 @@ const AtmosphereGlow = ({
   });
 
   return (
-    <mesh ref={meshRef}>
+    <mesh ref={meshRef} frustumCulled={false}>
       <sphereGeometry args={[radius * scale, 48, 32]} />
       <shaderMaterial
         attach="material"

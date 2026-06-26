@@ -219,6 +219,7 @@ const Planet = ({
         key={i}
         castShadow
         receiveShadow
+        frustumCulled={false}
         ref={(el) => {
           if (el) {
             el.userData = { orbit, t: initial };
@@ -281,6 +282,11 @@ const Planet = ({
         scale={polarScale}
         castShadow
         receiveShadow
+        /* Never frustum-cull the planet body: a tiny inner-planet bounding sphere,
+           framed very close + slid off-centre (frameShift), intermittently fails
+           the frustum test and the planet vanishes (black) until a hover scale-up
+           nudges the sphere back in. Drawing ~10 always-near planets is free. */
+        frustumCulled={false}
         onClick={onClick}
         onPointerOver={(e) => {
           targetHoverRef.current = 1.05;
@@ -344,7 +350,7 @@ const Planet = ({
           Opacity is lower so continents remain the focal point through the
           haze; the planet, not the weather, is the subject. */}
       {isEarth && textureMap[cloudTexture] && (
-        <mesh ref={cloudRef}>
+        <mesh ref={cloudRef} frustumCulled={false}>
           <sphereGeometry args={[radius * 1.012, 32, 32]} />
           <meshStandardMaterial
             map={textureMap[cloudTexture]}
@@ -362,7 +368,7 @@ const Planet = ({
           (additive; the existing Bloom haloes them). Ride the planet's axial
           tilt. One shared shader material across both poles. */}
       {isEarth && auroraMat && [1, -1].map((s) => (
-        <mesh key={s} position={[0, radius * 0.92 * s, 0]} rotation={[Math.PI / 2, 0, 0]}>
+        <mesh key={s} position={[0, radius * 0.92 * s, 0]} rotation={[Math.PI / 2, 0, 0]} frustumCulled={false}>
           <ringGeometry args={[radius * 0.14, radius * 0.5, 96]} />
           <primitive object={auroraMat} attach="material" />
         </mesh>
