@@ -1,4 +1,4 @@
-/* eslint-disable react/prop-types */
+ 
 import { memo, useState, useCallback } from "react";
 import { motion, AnimatePresence } from "motion/react";
 import { styles } from "../styles";

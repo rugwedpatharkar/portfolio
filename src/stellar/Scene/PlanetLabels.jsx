@@ -1,5 +1,5 @@
-/* eslint-disable react/prop-types */
-/* eslint-disable react/no-unknown-property */
+ 
+ 
 import { useRef } from "react";
 import { useFrame } from "@react-three/fiber";
 import { Html } from "@react-three/drei";

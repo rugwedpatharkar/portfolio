@@ -1,4 +1,4 @@
-/* eslint-disable react/prop-types */
+ 
 import { useEffect, useMemo, useRef, useState } from "react";
 import * as THREE from "three";
 import { chartedSet } from "./data/explorer";

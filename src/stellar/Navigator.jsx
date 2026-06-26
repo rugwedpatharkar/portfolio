@@ -1,4 +1,4 @@
-/* eslint-disable react/prop-types */
+ 
 import { useEffect, useRef } from "react";
 import Lenis from "lenis";
 import { invalidate } from "@react-three/fiber";

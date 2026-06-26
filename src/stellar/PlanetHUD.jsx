@@ -1,4 +1,4 @@
-/* eslint-disable react/prop-types */
+ 
 import { useEffect, useMemo, useState } from "react";
 import useViewport from "./useViewport";
 import { PLANET_FACTS as REAL_FACTS } from "./data/planetFacts";

@@ -1,5 +1,5 @@
-/* eslint-disable react/prop-types */
-/* eslint-disable react-refresh/only-export-components */
+ 
+ 
 import { Fragment, useState, useMemo, useEffect, useCallback, useRef } from "react";
 import { motion, AnimatePresence } from "motion/react";
 import { styles } from "../../styles";

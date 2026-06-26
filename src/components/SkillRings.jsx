@@ -1,4 +1,4 @@
-/* eslint-disable react/prop-types */
+ 
 import { useEffect, useRef, memo } from "react";
 import { skills } from "../content";
 import { CATEGORY_COLORS } from "../config/theme";

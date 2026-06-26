@@ -1,4 +1,4 @@
-/* eslint-disable react/prop-types */
+ 
 import { useEffect, useRef, useState } from "react";
 
 const SvgLineDraw = ({ className = "", variant = "circuit" }) => {

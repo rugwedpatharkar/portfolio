@@ -1,4 +1,4 @@
-/* eslint-disable react/prop-types */
+ 
 import { useEffect, useState } from "react";
 import { ACHIEVEMENTS, unlockedSet } from "./data/achievements";
 import { getDiscoveriesModel } from "./data/explorer";

@@ -108,7 +108,8 @@ const Hero = () => {
   const spotlightRef = useRef(null);
   const statusColor = useMemo(
     () => STATUS_COLORS[personalInfo.availabilityStatus] ?? STATUS_COLORS.available,
-    [personalInfo.availabilityStatus]
+    // personalInfo is a module constant — no reactive deps.
+    []
   );
 
   /*

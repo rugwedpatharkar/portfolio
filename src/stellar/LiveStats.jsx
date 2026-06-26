@@ -1,5 +1,5 @@
-/* eslint-disable react/prop-types */
-import { useEffect, useMemo, useState } from "react";
+ 
+import { useEffect, useState } from "react";
 import { fetchGithubEvents } from "./data/github";
 
 /*

@@ -20,7 +20,11 @@ export const useScrollMoment = (offsets = ["start end", "end start"]) => {
   const { scrollYProgress } = useScroll({ target: ref, offset: offsets });
   const reduced = useReducedMotion();
 
+  /* `scrub` is a render-time motion-value factory (Framer Motion pattern):
+     callers invoke it at the top level of their render, the same number of
+     times each render, so the hook order is stable despite the non-`use` name. */
   const scrub = (from, to) =>
+    // eslint-disable-next-line react-hooks/rules-of-hooks
     useTransform(scrollYProgress, [0, 1], reduced ? [(from + to) / 2, (from + to) / 2] : [from, to]);
 
   return { ref, scrollYProgress, scrub, reduced };

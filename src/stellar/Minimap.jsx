@@ -1,4 +1,4 @@
-/* eslint-disable react/prop-types */
+ 
 import { DESTINATIONS } from "./config/destinations";
 
 /*

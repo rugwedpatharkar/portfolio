@@ -1,4 +1,4 @@
-/* eslint-disable react/prop-types */
+ 
 import { useEffect, useState } from "react";
 import { motion, useReducedMotion } from "motion/react";
 import { SC, rgba } from "./ui/tokens";
@@ -110,7 +110,7 @@ export default function CockpitHUD({ destination, activeIdx = 0, itemIdx = 0, it
           {destination.section || destination.label}
         </div>
         <div style={{ fontSize: 10.5, letterSpacing: "0.16em", color: SC.amberInk, marginTop: 2 }}>
-          // {(destination.label || "").toUpperCase()} LANE{itemCount > 1 ? ` · ${itemCount} OBJECTS` : ""}
+          {"// "}{(destination.label || "").toUpperCase()} LANE{itemCount > 1 ? ` · ${itemCount} OBJECTS` : ""}
         </div>
       </motion.div>
 

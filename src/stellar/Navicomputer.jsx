@@ -1,4 +1,4 @@
-/* eslint-disable react/prop-types */
+ 
 import { SC, rgba } from "./ui/tokens";
 import { DESTINATIONS } from "./config/destinations";
 import { PLANET_FACTS } from "./data/planetFacts";

@@ -1,7 +1,6 @@
 /* eslint-disable react/no-unknown-property */
-import { useMemo, useRef } from "react";
+import { useRef } from "react";
 import { useFrame } from "@react-three/fiber";
-import * as THREE from "three";
 
 /*
  * Two tiny alien ships drift on independent Lissajous curves at distinct

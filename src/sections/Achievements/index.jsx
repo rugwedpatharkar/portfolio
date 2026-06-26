@@ -1,4 +1,4 @@
-/* eslint-disable react/prop-types */
+ 
 import { useRef, useCallback, useEffect, forwardRef } from "react";
 import { motion } from "motion/react";
 import { styles } from "../../styles";

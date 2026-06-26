@@ -1,11 +1,10 @@
-/* eslint-disable react/prop-types */
+ 
 import { useRef, useState, useCallback, useEffect, useMemo } from "react";
 import { MotionConfig } from "motion/react";
 import Scene from "./Scene";
 import Navigator from "./Navigator";
 import ContentPanel from "./ContentPanel";
 import Cursor from "./Cursor";
-import PlanetHUD from "./PlanetHUD";
 import { ScrollHint } from "./Wayfinding";
 import OverviewMap from "./OverviewMap";
 import ScanReadout from "./ScanReadout";
@@ -109,9 +108,8 @@ const StellarApp = () => {
      live-camera handle the overview map projects object positions through. */
   const focusRef = useRef(null);
   const cameraRef = useRef(null);
-  /* Hyperspace-tube intensity, pulsed on a ←→ hyperloop shift; + its decay timer. */
+  /* Hyperspace-tube intensity, pulsed on a ←→ hyperloop shift. */
   const warpVelRef = useRef(0);
-  const warpTimer = useRef(null);
   /* The body/object the camera is travelling FROM — for travel-direction framing
      (you approach each target from where you just were). */
   const prevTargetRef = useRef({ destId: DESTINATIONS[0].id, k: -1 });
@@ -422,7 +420,6 @@ const StellarApp = () => {
     const onKey = (e) => {
       const k = e.key.toLowerCase();
       const N = DESTINATIONS.length;
-      const cur = activeIdxRef.current;
       /* Never hijack typing (the voice/answer fields). */
       const typing = e.target && (e.target.tagName === "INPUT" || e.target.tagName === "TEXTAREA");
       if (typing) return;

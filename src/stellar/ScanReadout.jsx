@@ -1,4 +1,4 @@
-/* eslint-disable react/prop-types */
+ 
 import { motion, AnimatePresence, useReducedMotion } from "motion/react";
 
 /*

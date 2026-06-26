@@ -1,4 +1,4 @@
-/* eslint-disable react/prop-types */
+ 
 import { useRef, useCallback } from "react";
 
 const MagneticButton = ({ children, className = "", strength = 0.3, ...props }) => {

@@ -1,4 +1,4 @@
-/* eslint-disable react/prop-types */
+ 
 import { useEffect, useRef, useState } from "react";
 import { DESTINATIONS } from "./config/destinations";
 import { ACHIEVEMENTS, ACHIEVEMENTS_BY_ID, persistUnlocked, unlockedSet } from "./data/achievements";

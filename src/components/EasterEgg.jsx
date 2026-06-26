@@ -9,7 +9,7 @@ const KONAMI_CODE = [
 
 const EasterEgg = () => {
   const [show, setShow] = useState(false);
-  const [progress, setProgress] = useState(0);
+  const [, setProgress] = useState(0);
   const timerRef = useRef(null);
 
   useEffect(() => {

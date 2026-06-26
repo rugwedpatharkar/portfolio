@@ -1,4 +1,4 @@
-/* eslint-disable react/prop-types */
+ 
 import { useEffect, useRef, useState } from "react";
 import { getDiscoveriesModel } from "./data/explorer";
 import useViewport from "./useViewport";
