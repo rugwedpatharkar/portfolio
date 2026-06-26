@@ -164,7 +164,7 @@ const CameraRig = ({
      distance-scaled time, the destination swelling as you cross the gap, with
      the hyperloop streaks peaking mid-jump). dt-accumulated so it runs even when
      the scene clock is frozen (reduced-motion). */
-  const jump = useRef({ active: false, elapsed: 0, dur: 0, intensity: 0, fromPos: new THREE.Vector3(), fromLook: new THREE.Vector3(), fromFov: FOV_DEFAULT, lastKey: "" });
+  const jump = useRef({ active: false, elapsed: 0, dur: 0, intensity: 0, fromPos: new THREE.Vector3(), fromLook: new THREE.Vector3(), fromFov: FOV_DEFAULT, lastKey: "sol:-1" });
 
   /* Per-destination framing offsets (camera + aim relative to the planet),
      captured once from the authored cameraTarget values. */

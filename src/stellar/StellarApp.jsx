@@ -92,8 +92,11 @@ const StellarApp = () => {
   const { reducedMotion, isMobile } = useViewport();
   const [activeIdx, setActiveIdx] = useState(0);
   const activeIdxRef = useRef(0);
-  /* Item index within the active section — ←→ moves along the planet's lane. */
-  const [itemIdx, setItemIdx] = useState(0);
+  /* Item index within the active section — ←→ moves along the planet's lane.
+     itemIdx -1 = planet-view. itemIdxRef is a synchronous mirror so the key
+     handler can read/advance it without a stale-closure race. */
+  const [itemIdx, setItemIdx] = useState(-1);
+  const itemIdxRef = useRef(-1);
   /* Wide pull-back ref kept permanently off — there's no toggle in the
      minimal UI, but CameraRig still reads it, so this keeps its wide branch
      a harmless no-op without touching the rig. */
@@ -178,6 +181,7 @@ const StellarApp = () => {
     if (idx !== -1) {
       setActiveIdx(idx);
       activeIdxRef.current = idx;
+      itemIdxRef.current = -1;
       setItemIdx(-1); // arrive in planet-view; ←→ flies out to the lane objects
       /* Sync URL hash without re-scrolling */
       const next = `#/stellar/${dest.id}`;
@@ -185,31 +189,20 @@ const StellarApp = () => {
         window.history.replaceState(null, "", next);
       }
       /* Visitor-log + achievements listen */
-      window.dispatchEvent(new CustomEvent("stellar:destination", { detail: { id: dest.id, idx } }));
+      window.dispatchEvent(new CustomEvent("stellar:destination", { detail: { id: dest.id, index: idx } }));
       /* Persist visited stops (powers "stops X/12" + the return greeting). */
       markVisited(dest.id);
     }
   }, []);
 
-  /* Lane-object focus — ←→ flies the camera to the active object (CameraRig
-     live-tracks it as it orbits). itemIdx -1 = planet-view (focus released → the
-     planet framing). Tour-mode only; overview/pilot own the camera themselves. */
+  /* (Camera focus is set synchronously in navTo/navPlanet/navItem below — not in
+     an effect — to avoid the frame-loop seeing a stale/null focus on the nav
+     tick, which stranded the camera on the previous body. See applyFocus.) */
+
+  /* Arm the bridge hum once (audible only after the user un-mutes via SoundToggle). */
   useEffect(() => {
-    if (mode !== "tour") { focusRef.current = null; return; }
-    const dest = DESTINATIONS[activeIdx];
-    if (!dest) { focusRef.current = null; return; }
-    /* Travel framing for EVERY target — a planet (k = -1) or a lane object
-       (k ≥ 0): approach it FROM the body we were last on, so Venus→Earth looks
-       outward toward Mars, Mercury→Sun looks back in, etc. */
-    const target = { destId: dest.id, k: itemIdx < 0 ? -1 : itemIdx };
-    const from = prevTargetRef.current;
-    const changed = from.destId !== target.destId || from.k !== target.k;
-    focusRef.current = { live: true, target, from: changed ? from : null, fov: target.k >= 0 ? 42 : 50 };
-    prevTargetRef.current = target;
-    /* The hyperloop streaks are now driven by CameraRig's warp-jump transition
-       (distance-scaled), so a tiny object hop gets a gentle warp and a long
-       planet jump gets the full tunnel. */
-  }, [itemIdx, activeIdx, mode]);
+    window.dispatchEvent(new CustomEvent("stellar:sound:hum"));
+  }, []);
 
   const handleJump = useCallback((idx) => {
     /* Map destination index → exact scroll position. Progress runs 0..1 over
@@ -220,20 +213,76 @@ const StellarApp = () => {
       window.innerHeight;
     const targetY = (idx / (DESTINATIONS.length - 1)) * max;
     if (window.__lenis) {
-      /* Snappy warp-jump: start moving IMMEDIATELY (easeOutCubic = instant
-         lift-off, gentle arrival), short duration that scales a little with
-         distance. The resulting travel speed drives the WarpField hyperspace
-         streaks + camera shake (CameraRig). No more slow easeInOut lift-off. */
-      const dist = Math.abs(idx - activeIdxRef.current) || 1;
-      const duration = Math.min(1.7, 0.55 + dist * 0.13);
-      window.__lenis.scrollTo(targetY, {
-        duration,
-        easing: (t) => 1 - Math.pow(1 - t, 3),
-      });
+      /* Snap the scroll INSTANTLY — the camera travel is the warp-jump now
+         (CameraRig), so the scroll only needs to keep scrollT (→ KeyLight + the
+         active-planet lighting) in sync. An ANIMATED scroll fed intermediate
+         positions back through the Navigator → handleDestinationChange, which
+         reverted activeIdx and left the camera focus one planet behind (the
+         "first hop stays on Sol" / black-planet desync). */
+      window.__lenis.scrollTo(targetY, { immediate: true });
     } else {
-      window.scrollTo({ top: targetY, behavior: "smooth" });
+      window.scrollTo({ top: targetY, behavior: "auto" });
     }
   }, []);
+
+  /* Set the camera focus target SYNCHRONOUSLY on nav (not via an effect): the
+     frame loop must see the new target the same tick the user navigates, or the
+     warp-jump's first-target guard strands the camera on the previous body (the
+     black-planet desync). Travel framing — approach FROM the body we were last on. */
+  const applyFocus = useCallback((planetIdx, k) => {
+    const dest = DESTINATIONS[planetIdx];
+    if (!dest) return;
+    const target = { destId: dest.id, k };
+    const from = prevTargetRef.current;
+    const changed = from.destId !== target.destId || from.k !== target.k;
+    focusRef.current = { live: true, target, from: changed ? from : null, fov: k >= 0 ? 42 : 50 };
+    prevTargetRef.current = target;
+    if (changed) {
+      window.dispatchEvent(new CustomEvent("stellar:whoosh"));
+      window.dispatchEvent(new CustomEvent("stellar:sound:jump"));
+    }
+  }, []);
+
+  /* ↑↓ planet hops + ←→ object hops — all routed here so every entry point
+     (keys, nav-pad, navicomputer) sets state + focus the same way, synchronously. */
+  const navTo = useCallback((idx) => {
+    setMode("tour");
+    const n = Math.max(0, Math.min(DESTINATIONS.length - 1, idx));
+    if (n === activeIdxRef.current && itemIdxRef.current < 0) return;
+    activeIdxRef.current = n;
+    itemIdxRef.current = -1;
+    setActiveIdx(n);
+    setItemIdx(-1);
+    applyFocus(n, -1);
+    handleJump(n); // instant scroll → keeps scrollT / KeyLight on the active planet
+  }, [applyFocus, handleJump]);
+
+  const navPlanet = useCallback((dir) => navTo(activeIdxRef.current + dir), [navTo]);
+
+  const navItem = useCallback((dir) => {
+    const p = activeIdxRef.current;
+    const len = itemsForSection(DESTINATIONS[p]?.section).length || 1;
+    const m = Math.max(-1, Math.min(len - 1, itemIdxRef.current + dir));
+    if (m === itemIdxRef.current) return;
+    itemIdxRef.current = m;
+    setItemIdx(m);
+    applyFocus(p, m);
+  }, [applyFocus]);
+
+  /* Keep the camera focused on the ACTIVE body for EVERY nav path. Keyboard /
+     nav-pad / navicomputer set focus synchronously (navTo/navItem). But SCROLL
+     (Lenis → handleDestinationChange), URL-hash nav, and map "stop" picks only
+     move activeIdx — leaving focusRef null, which dropped the camera into the old
+     backlit scroll-framing (planet silhouetted against the Sun → black) AND
+     re-enabled pointer parallax (hover shoved the body off-frame). That was the
+     "planet goes black, hover brings it back" bug. Re-running on activeIdx/itemIdx
+     covers those paths; it's idempotent with the synchronous setters (applyFocus's
+     `changed` guard skips the redundant warp + whoosh). Sol (idx 0) stays
+     focus-free so the hero keeps its subtle pointer parallax. */
+  useEffect(() => {
+    if (mode !== "tour") { focusRef.current = null; return; }
+    if (activeIdx > 0 || itemIdx >= 0) applyFocus(activeIdx, itemIdx);
+  }, [mode, activeIdx, itemIdx, applyFocus]);
 
   /* Read URL hash once the countdown finishes (full intro complete),
      then jump there if it points to a non-Sol destination. */
@@ -400,40 +449,22 @@ const StellarApp = () => {
         if (focusedObj) clearFocus();
         else setMode("tour");
       } else if (k === "arrowdown" || k === "pagedown" || k === "s") {
-        /* ↓ = next lane (planet). Set state immediately so the travel framing
-           kicks in on the keypress; handleJump syncs the scroll (KeyLight etc.). */
-        e.preventDefault();
-        setMode("tour");
-        if (cur < N - 1) { const n = cur + 1; activeIdxRef.current = n; setActiveIdx(n); setItemIdx(-1); handleJump(n); }
+        e.preventDefault(); navPlanet(1); // ↓ next lane (planet)
       } else if (k === "arrowup" || k === "pageup" || k === "w") {
-        /* ↑ = previous lane (planet). */
-        e.preventDefault();
-        setMode("tour");
-        if (cur > 0) { const n = cur - 1; activeIdxRef.current = n; setActiveIdx(n); setItemIdx(-1); handleJump(n); }
+        e.preventDefault(); navPlanet(-1); // ↑ previous lane
       } else if (k === "arrowleft" || k === "a") {
-        /* ← = previous object on this lane. */
-        e.preventDefault();
-        setItemIdx((i) => Math.max(-1, i - 1));
+        e.preventDefault(); navItem(-1); // ← previous object on this lane
       } else if (k === "arrowright" || k === "d") {
-        /* → = next object on this lane. */
-        e.preventDefault();
-        setItemIdx((i) => {
-          const len = itemsForSection(DESTINATIONS[activeIdxRef.current]?.section).length || 1;
-          return Math.min(len - 1, i + 1);
-        });
+        e.preventDefault(); navItem(1); // → next object
       } else if (k === "home") {
-        e.preventDefault();
-        setMode("tour");
-        handleJump(0);
+        e.preventDefault(); navTo(0);
       } else if (k === "end") {
-        e.preventDefault();
-        setMode("tour");
-        handleJump(N - 1);
+        e.preventDefault(); navTo(N - 1);
       }
     };
     window.addEventListener("keydown", onKey);
     return () => window.removeEventListener("keydown", onKey);
-  }, [shipWarpDone, handleJump, focusedObj, clearFocus, cycleFocus, logOpen, mode, togglePilot]);
+  }, [shipWarpDone, navTo, navPlanet, navItem, focusedObj, clearFocus, cycleFocus, logOpen, mode, togglePilot]);
 
   /* Browser back/forward should also navigate */
   useEffect(() => {
@@ -546,17 +577,8 @@ const StellarApp = () => {
               activeIdx={activeIdx}
               itemIdx={itemIdx}
               items={itemsForSection(DESTINATIONS[activeIdx]?.section)}
-              onPlanet={(dir) => {
-                setMode("tour");
-                const n = Math.max(0, Math.min(DESTINATIONS.length - 1, activeIdxRef.current + dir));
-                if (n !== activeIdxRef.current) { activeIdxRef.current = n; setActiveIdx(n); setItemIdx(-1); handleJump(n); }
-              }}
-              onItem={(dir) =>
-                setItemIdx((i) => {
-                  const len = itemsForSection(DESTINATIONS[activeIdxRef.current]?.section).length || 1;
-                  return Math.max(-1, Math.min(len - 1, i + dir));
-                })
-              }
+              onPlanet={navPlanet}
+              onItem={navItem}
               onBoard={() => {}}
             />
           )}
