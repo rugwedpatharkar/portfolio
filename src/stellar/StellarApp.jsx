@@ -23,6 +23,7 @@ import useViewport from "./useViewport";
 import SpeedRun from "./SpeedRun";
 import CockpitFrame from "./CockpitFrame";
 import CockpitHUD from "./CockpitHUD";
+import StellarGlare from "./StellarGlare";
 import { itemsForSection } from "./data/sectionItems";
 import FragmentToast from "./FragmentToast";
 import HazardBanner from "./HazardBanner";
@@ -558,6 +559,9 @@ const StellarApp = () => {
           <SoundToggle />
           {/* Sky darkens toward totality during an eclipse (scene only; HUD stays lit). */}
           <EclipseDimmer eclipseRef={eclipseRef} />
+          {/* D — the star's light floods the canopy on an inward approach (the 3D
+              LensFlare only fires when the Sun is in front; this covers behind). */}
+          <StellarGlare cameraRef={cameraRef} warpVelRef={warpVelRef} reducedMotion={reducedMotion} />
           {/* Discovery + toasts — shared by both modes. */}
           <Achievements activeIdx={activeIdx} showStrip={false} />
           <EasterEgg />

@@ -6,6 +6,7 @@ import { EffectComposer, Bloom } from "@react-three/postprocessing";
 import CinematicGrade from "./CinematicGrade";
 import SceneClock from "./SceneClock";
 import Stars from "./Stars";
+import StellarDrift from "./StellarDrift";
 import Sun from "./Sun";
 import Planet from "./Planet";
 import CameraRig from "./CameraRig";
@@ -207,6 +208,9 @@ const Scene = ({ scrollT, activeIdx, itemIdx = 0, onJump, onReady, freeRoamEnabl
           warp later). Fresh build in the cockpit palette; in-scene additive mesh,
           the existing Bloom glows it. */}
       {!reducedMotion && !isMobile && <HyperLoop warpVelRef={warpVelRef} color="#8fcfff" />}
+      {/* D — interplanetary dust parallax: motion-gated motes that stream past
+          on a hop (depth the 6800u catalogue sky can't give on short inner hops). */}
+      {!reducedMotion && !isMobile && <StellarDrift warpVelRef={warpVelRef} reducedMotion={reducedMotion} />}
 
       <Suspense fallback={null}>
         <Skybox />
