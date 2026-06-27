@@ -253,6 +253,32 @@ const ANOMALY_RAW = [
     info: "The Hercules–Corona Borealis Great Wall — the largest known structure in the universe: a filament of galaxies roughly 10 billion light-years across. It is so big it challenges the assumption that the universe looks the same everywhere.",
     visit: { kind: "focus", cameraTarget: frame([-64, -10, -48], 28, 7, 48) },
   },
+  // ── Wave 3: diegetic megastructure cameos (deep field) ──
+  {
+    id: "monolith", label: "The Monolith", category: "Megastructure", color: "#3a4a6a", position: [-56, 8, -36],
+    info: "A perfectly black slab in the exact ratio 1 : 4 : 9 (the squares of the first three integers), turning silently in the dark — 2001: A Space Odyssey. Wherever it appears, something is about to change.",
+    visit: { kind: "focus", cameraTarget: frame([-56, 8, -36], 9, 2, 44) },
+  },
+  {
+    id: "haloring", label: "Halo Installation", category: "Megastructure", color: "#7fb0a0", position: [58, -14, -30],
+    info: "A Forerunner Halo — a ribbon-world curved into a ring you live on the INSIDE of, spun for gravity, the far side arcing overhead. Beautiful, and built as a weapon of last resort (Halo).",
+    visit: { kind: "focus", cameraTarget: frame([58, -14, -30], 13, 3, 46) },
+  },
+  {
+    id: "dyson", label: "Dyson Swarm", category: "Megastructure", color: "#ffd070", position: [-48, -28, -34],
+    info: "A Dyson swarm under construction — a Kardashev Type-II project wrapping a star in collectors to harvest its entire energy output. Still half-built; one arc is bare.",
+    visit: { kind: "focus", cameraTarget: frame([-48, -28, -34], 12, 3, 46) },
+  },
+  {
+    id: "solgate", label: "The Ring", category: "Megastructure", color: "#3a6a8a", position: [46, 26, -32],
+    info: "A protomolecule-built gate ring hanging silent in the dark — pass through its membrane into the 'slow zone' and the hub of a thousand gates (The Expanse).",
+    visit: { kind: "focus", cameraTarget: frame([46, 26, -32], 11, 3, 46) },
+  },
+  {
+    id: "citadel", label: "The Citadel", category: "Megastructure", color: "#9ab0c4", position: [-52, 18, -30],
+    info: "A vast deep-space station — five Ward arms that can close like a flower around the central Presidium ring. Built, it turns out, by the Reapers as a trap (Mass Effect).",
+    visit: { kind: "focus", cameraTarget: frame([-52, 18, -30], 11, 3, 46) },
+  },
 ];
 
 /* Free-floating cosmic objects (not tied to a planet) are pulled IN FRONT of the
@@ -262,7 +288,7 @@ const ANOMALY_RAW = [
 const FRONT_OF_SUN_CATEGORIES = new Set([
   "Black hole", "Portal", "Neutron star", "Mystery", "Interstellar object", "Interstellar comet", "Comet",
   "Brown dwarf", "Rogue planet", "Supernova remnant", "Star system", "Star cluster",
-  "Nebula", "Gravitational lens", "Gravitational wave", "Deep field", "Cosmic void", "Cosmic structure",
+  "Nebula", "Gravitational lens", "Gravitational wave", "Deep field", "Cosmic void", "Cosmic structure", "Megastructure",
 ]);
 const ANOMALY_OBJECTS = ANOMALY_RAW.map((o) => {
   const front = FRONT_OF_SUN_CATEGORIES.has(o.category);

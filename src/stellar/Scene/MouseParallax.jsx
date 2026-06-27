@@ -18,12 +18,19 @@ const LERP_60 = 0.06; // alpha at 60fps; rescaled by delta-time below
 
 const MouseParallax = ({ offsetRef }) => {
   const target = useRef(new THREE.Vector3());
+  const t = useRef(0);
   const { pointer } = useThree();
 
   useFrame((_, dt) => {
     const d = Math.min(dt || 1 / 60, 1 / 20);
+    t.current += d;
+    /* A slow, low-amplitude "handheld" drift layered under the pointer sway so a
+       settled shot never feels frozen (documentary breath). Tiny, and only on
+       desktop (this component is unmounted in reduced-motion / mobile). */
+    const driftX = Math.sin(t.current * 0.23) * 0.11 + Math.sin(t.current * 0.07 + 1.3) * 0.05;
+    const driftY = Math.cos(t.current * 0.19) * 0.07;
     /* pointer.x/y are normalised -1..1 across the canvas; y damped a touch */
-    target.current.set(pointer.x, pointer.y * 0.6, 0);
+    target.current.set(pointer.x + driftX, pointer.y * 0.6 + driftY, 0);
     /* Frame-rate-independent so parallax feel matches every display. */
     offsetRef.current.lerp(target.current, 1 - Math.pow(1 - LERP_60, d * 60));
   });

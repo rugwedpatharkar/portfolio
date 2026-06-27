@@ -4,6 +4,7 @@ import { Canvas, invalidate } from "@react-three/fiber";
 import * as THREE from "three";
 import { EffectComposer, Bloom } from "@react-three/postprocessing";
 import CinematicGrade from "./CinematicGrade";
+import BloomPulse from "./BloomPulse";
 import SceneClock from "./SceneClock";
 import Stars from "./Stars";
 import StellarDrift from "./StellarDrift";
@@ -82,6 +83,11 @@ import WatneyPotato from "./easter/WatneyPotato";
 import Endurance from "./easter/Endurance";
 import StarDestroyer from "./easter/StarDestroyer";
 import Enterprise from "./easter/Enterprise";
+import Monolith from "./easter/Monolith";
+import HaloRing from "./easter/HaloRing";
+import DysonSwarm from "./easter/DysonSwarm";
+import SolGate from "./easter/SolGate";
+import Citadel from "./easter/Citadel";
 import useViewport from "../useViewport";
 import { DESTINATIONS, remapPosition, frontOfSun, BACKGROUND_BELTS } from "../config/destinations";
 import { rotationSpeedFor } from "../config/planetData";
@@ -127,6 +133,8 @@ const Scene = ({ scrollT, activeIdx, itemIdx = 0, onJump, onReady, freeRoamEnabl
      own their own offset; CameraRig sums them. */
   const parallaxOffsetRef = useRef(new THREE.Vector3());
   const freeRoamOffsetRef = useRef(new THREE.Vector3());
+  /* Bloom effect handle — BloomPulse pulses its intensity with warp velocity. */
+  const bloomRef = useRef();
   /* Earth's Moon world position, published by its Planet, read by SolarEclipse. */
   const moonWorldRef = useRef(new THREE.Vector3());
 
@@ -497,9 +505,17 @@ const Scene = ({ scrollT, activeIdx, itemIdx = 0, onJump, onReady, freeRoamEnabl
         {showEggs && <Endurance />}
         {showEggs && !isMobile && <StarDestroyer />}
         {showEggs && <Enterprise />}
+        {/* Wave 3 — diegetic megastructure cameos (deep field). */}
+        {showEggs && <Monolith animate={!reducedMotion} />}
+        {showEggs && <HaloRing animate={!reducedMotion} />}
+        {showEggs && <DysonSwarm animate={!reducedMotion} />}
+        {showEggs && <SolGate animate={!reducedMotion} />}
+        {showEggs && !isMobile && <Citadel animate={!reducedMotion} />}
         {!isMobile && !reducedMotion && <MouseParallax offsetRef={parallaxOffsetRef} />}
         <FreeRoam enabled={freeRoamEnabled} offsetRef={freeRoamOffsetRef} speedRef={speedRef} thrustRef={thrustRef} />
         <CameraShake parallaxOffsetRef={parallaxOffsetRef} />
+        {/* Tier-1 feel — pulse Bloom with warp velocity (bloom punch on the dive). */}
+        <BloomPulse bloomRef={bloomRef} warpVelRef={warpVelRef} base={isMobile ? 0.6 : 0.8} />
         <CameraRig
           scrollT={scrollT}
           parallaxOffsetRef={parallaxOffsetRef}
@@ -546,6 +562,7 @@ const Scene = ({ scrollT, activeIdx, itemIdx = 0, onJump, onReady, freeRoamEnabl
           scene is fully in focus and crisp. */}
       <EffectComposer multisampling={0} disableNormalPass>
         <Bloom
+          ref={bloomRef}
           intensity={isMobile ? 0.6 : 0.8}
           luminanceThreshold={0.9}
           luminanceSmoothing={0.5}
