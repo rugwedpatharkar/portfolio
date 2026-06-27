@@ -53,6 +53,11 @@ export const MOONS = [
     facts: { diameter: "504 km", day: "1.4 d", wow: "Its geysers spray ocean water straight into space." },
   },
   {
+    id: "moon-mimas", parent: "notes", label: "Mimas", color: "#c9cdd2", offset: [2.9, 0.4, -1.3],
+    info: "Mimas — Saturn's 'Death Star' moon: one colossal crater (Herschel, ~⅓ its width) dominates a face. In 2024 it sprang a surprise — a young liquid-water ocean hidden under the ice.",
+    facts: { diameter: "396 km", day: "0.9 d", wow: "Its giant crater makes it a dead ringer for the Death Star." },
+  },
+  {
     /* Not a moon, but a real Earth EVENT — rides Earth as a scannable pin; the
        umbra visual on Earth's day side is Scene/EclipseShadow.jsx. */
     id: "eclipse-2026", parent: "experience", label: "2026 Eclipses", color: "#ffd9a0", offset: [0.0, 1.3, 0.2],

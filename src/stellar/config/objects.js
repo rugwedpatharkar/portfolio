@@ -222,6 +222,37 @@ const ANOMALY_RAW = [
     info: "TRAPPIST-1 — an ultracool red-dwarf star 40 ly away with SEVEN Earth-sized rocky planets, three in the habitable zone. The most planets ever found around one star — and one of the best places to hunt for life beyond the solar system.",
     visit: { kind: "focus", cameraTarget: frame([-52, -22, -40], 40, 9, 46) },
   },
+  // ── Wave 2: scale & mystery (cosmological deep field) ──
+  {
+    id: "omegacen", label: "Omega Centauri", category: "Star cluster", color: "#ffe9c2", position: [-58, 30, -44],
+    info: "Omega Centauri — the largest, brightest globular cluster orbiting the Milky Way: ~10 million ancient stars packed into a glittering ball. Hubble (2024-25) found signs of an intermediate-mass black hole hiding at its core — a missing link between stellar and supermassive black holes.",
+    visit: { kind: "focus", cameraTarget: frame([-58, 30, -44], 16, 4, 46) },
+  },
+  {
+    id: "ligo-gw", label: "Gravitational Wave", category: "Gravitational wave", color: "#9fd0ff", position: [52, -28, 36],
+    info: "A gravitational-wave chirp (LIGO O4, e.g. GW250114) — two black holes spiralling together and merging, ringing spacetime itself. LIGO 'hears' the last orbits as a rising chirp; the merger can briefly outshine every star in the observable universe in gravitational energy.",
+    visit: { kind: "focus", cameraTarget: frame([52, -28, 36], 12, 3, 46) },
+  },
+  {
+    id: "reddots", label: "Little Red Dots", category: "Deep field", color: "#e0563f", position: [-50, -34, 30],
+    info: "JWST's 'little red dots' — a surprise population of tiny, intensely red, compact objects from the universe's first billion years. Dust-shrouded baby galaxies, or overfed early black holes? Either way they're rewriting how fast cosmic structure grew.",
+    visit: { kind: "focus", cameraTarget: frame([-50, -34, 30], 14, 3, 46) },
+  },
+  {
+    id: "bootes-void", label: "Boötes Void", category: "Cosmic void", color: "#8aa0d8", position: [-44, 38, 28],
+    info: "The Boötes Void — a near-empty bubble of space ~330 million light-years across, one of the largest known voids. So empty that if the Milky Way sat at its centre, we'd not have known other galaxies existed until the 1960s.",
+    visit: { kind: "focus", cameraTarget: frame([-44, 38, 28], 24, 6, 48) },
+  },
+  {
+    id: "great-attractor", label: "Great Attractor", category: "Cosmic structure", color: "#ffd0a0", position: [60, 20, -40],
+    info: "The Great Attractor — a gravitational anomaly at the heart of Laniakea, our home supercluster. It is pulling the Milky Way and 100,000 other galaxies toward it at ~600 km/s, hidden behind our own galaxy's disk (the 'Zone of Avoidance').",
+    visit: { kind: "focus", cameraTarget: frame([60, 20, -40], 22, 5, 48) },
+  },
+  {
+    id: "hcb-wall", label: "Hercules–Corona Wall", category: "Cosmic structure", color: "#a0b6ff", position: [-64, -10, -48],
+    info: "The Hercules–Corona Borealis Great Wall — the largest known structure in the universe: a filament of galaxies roughly 10 billion light-years across. It is so big it challenges the assumption that the universe looks the same everywhere.",
+    visit: { kind: "focus", cameraTarget: frame([-64, -10, -48], 28, 7, 48) },
+  },
 ];
 
 /* Free-floating cosmic objects (not tied to a planet) are pulled IN FRONT of the
@@ -231,7 +262,7 @@ const ANOMALY_RAW = [
 const FRONT_OF_SUN_CATEGORIES = new Set([
   "Black hole", "Portal", "Neutron star", "Mystery", "Interstellar object", "Interstellar comet", "Comet",
   "Brown dwarf", "Rogue planet", "Supernova remnant", "Star system", "Star cluster",
-  "Nebula", "Gravitational lens",
+  "Nebula", "Gravitational lens", "Gravitational wave", "Deep field", "Cosmic void", "Cosmic structure",
 ]);
 const ANOMALY_OBJECTS = ANOMALY_RAW.map((o) => {
   const front = FRONT_OF_SUN_CATEGORIES.has(o.category);
