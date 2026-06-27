@@ -4,6 +4,7 @@ import { MotionConfig } from "motion/react";
 import Scene from "./Scene";
 import Navigator from "./Navigator";
 import ContentPanel from "./ContentPanel";
+import ItemDossier from "./ItemDossier";
 import Cursor from "./Cursor";
 import { ScrollHint } from "./Wayfinding";
 import OverviewMap from "./OverviewMap";
@@ -532,6 +533,11 @@ const StellarApp = () => {
     [mode, activeIdx, handleJump]
   );
 
+  /* Lane items for the active world + the one ←→ has focused (itemIdx ≥ 0). When
+     an item is focused we show its per-item dossier instead of the section panel. */
+  const laneItems = itemsForSection(DESTINATIONS[activeIdx]?.section);
+  const focusedItem = itemIdx >= 0 ? laneItems[itemIdx] : null;
+
   return (
     <MotionConfig reducedMotion="user">
     <StellarUIContext.Provider value={ui}>
@@ -611,13 +617,17 @@ const StellarApp = () => {
               destination={DESTINATIONS[activeIdx]}
               activeIdx={activeIdx}
               itemIdx={itemIdx}
-              items={itemsForSection(DESTINATIONS[activeIdx]?.section)}
+              items={laneItems}
               onPlanet={navPlanet}
               onItem={navItem}
               onBoard={() => {}}
             />
           )}
-          {mode === "tour" && <ContentPanel destination={DESTINATIONS[activeIdx]} />}
+          {/* Item focused (←→) → per-item dossier; else the section panel. */}
+          {mode === "tour" && focusedItem && (
+            <ItemDossier item={focusedItem} index={itemIdx} total={laneItems.length} sectionLabel={DESTINATIONS[activeIdx]?.label} />
+          )}
+          {mode === "tour" && !focusedItem && <ContentPanel destination={DESTINATIONS[activeIdx]} />}
           <OverviewHud overview={overview} />
           {mode === "tour" && <ScrollHint visible={activeIdx === 0 && !interacted} />}
           <OverviewMap objects={OBJECTS} cameraRef={cameraRef} visible={overview && !focusedObj} onPick={handlePick} />
