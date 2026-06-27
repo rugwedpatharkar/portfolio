@@ -51,6 +51,7 @@ import DataFragments from "./DataFragments";
 import DustParticles from "./DustParticles";
 import AdaptiveQuality from "./AdaptiveQuality";
 import Sonification from "./Sonification";
+import SaturnHexagon from "./SaturnHexagon";
 import AutoExposure from "./AutoExposure";
 import KeyLight from "./KeyLight";
 import MouseParallax from "./MouseParallax";
@@ -355,6 +356,8 @@ const Scene = ({ scrollT, activeIdx, itemIdx = 0, onJump, onReady, freeRoamEnabl
             return (
               <OrbitGroup key={d.id} dest={d} animate={!reducedMotion}>
                 {planetEl}
+                {/* PHASE 4 (Wave 1) — Saturn's real north-polar hexagon. */}
+                {d.id === "notes" && <SaturnHexagon radius={d.radius} axialTilt={d.axialTilt || 0} animate={!reducedMotion} />}
                 {/* Mangalyaan (Mars Orbiter Mission) rides Mars's group. */}
                 {d.id === "projects" && showExtras && (
                   <IsroProbe

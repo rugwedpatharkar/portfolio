@@ -117,7 +117,7 @@ export const PLANET_FACTS = {
     atmosphere: "H₂ (96%) · He (3%) · methane",
     moons: "146 confirmed (Titan, Enceladus, Mimas)",
     missions: "Pioneer 11 · Voyager · Cassini–Huygens",
-    wow: "Saturn's density is less than water — it would float in a bath big enough. Its rings are 99.9% ice, only 10 m thick on average.",
+    wow: "That hexagon turning over the north pole is real — a six-sided jet stream wider than two Earths, stable since Voyager spotted it in 1981. Saturn is also so low-density it would float in a big enough bath.",
   },
   education: {
     body: "Uranus — ice giant · tilted 97.8°",
