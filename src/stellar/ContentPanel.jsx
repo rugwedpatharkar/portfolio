@@ -778,6 +778,12 @@ const ContentPanel = ({ destination }) => {
             <Renderer />
           </div>
         </div>
+        {/* PHASE 2D — holographic scan-sweep down the column on section change
+            (pairs with the content flicker-in so a section ARRIVES like a scan).
+            Keyed on fadeKey to replay; global prefers-reduced-motion rule neutralises it. */}
+        <div key={`${fadeKey}-scan`} aria-hidden className="stellar-scan-sweep" style={{ position: "absolute", left: 0, right: 14, top: 0, height: "89vh", overflow: "hidden", pointerEvents: "none", zIndex: 2 }}>
+          <div style={{ position: "absolute", left: 0, right: 0, height: 70, background: "linear-gradient(to bottom, transparent, rgba(143,207,255,0.16), rgba(143,207,255,0.04), transparent)", boxShadow: "0 0 26px rgba(143,207,255,0.22)", animation: "stellarScanSweep 720ms cubic-bezier(0.4,0,0.2,1) both" }} />
+        </div>
         {/* More-content affordance — only while the column can scroll further.
             Fixes "it's only showing half the information": the fade hints
             depth, the cue invites the scroll. */}
@@ -832,6 +838,11 @@ const ContentPanel = ({ destination }) => {
         @keyframes stellarContentIn {
           0% { opacity: 0; transform: translateY(10px); filter: blur(7px); }
           100% { opacity: 1; transform: translateY(0); filter: blur(0); }
+        }
+        @keyframes stellarScanSweep {
+          0% { transform: translateY(-70px); opacity: 0; }
+          14% { opacity: 1; }
+          100% { transform: translateY(89vh); opacity: 0; }
         }
         @keyframes stellarScrollCue {
           0%, 100% { opacity: 0.3; transform: translateY(0); }

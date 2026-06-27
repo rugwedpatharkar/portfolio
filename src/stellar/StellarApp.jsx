@@ -231,6 +231,12 @@ const StellarApp = () => {
     window.dispatchEvent(new CustomEvent("stellar:sound:hum"));
   }, []);
 
+  /* PHASE 2C — reticle-lock beep when ←→ locks onto a lane object (the 3-beat
+     arrival's middle beat; the dossier scan-reveal + in-world ping are the others). */
+  useEffect(() => {
+    if (introDone && itemIdx >= 0) window.dispatchEvent(new CustomEvent("stellar:sound:beep"));
+  }, [itemIdx, introDone]);
+
   const handleJump = useCallback((idx) => {
     /* Map destination index → exact scroll position. Progress runs 0..1 over
        (scrollHeight − viewport), so targetY = frac × that range (scaling by the
