@@ -97,7 +97,7 @@ const ICY_WEIGHTS = [0.45, 0.3, 0.25];
  * tune that based on viewport bucket.
  */
 
-const Scene = ({ scrollT, activeIdx, itemIdx = 0, onJump, onReady, freeRoamEnabled, speedRef, thrustRef, wideRef, wideOrbitRef, focusRef, warpVelRef, cameraRef, eclipseRef, clock, extrasPhase = 3 }) => {
+const Scene = ({ scrollT, activeIdx, itemIdx = 0, onJump, onReady, freeRoamEnabled, speedRef, thrustRef, wideRef, wideOrbitRef, focusRef, warpVelRef, cameraRef, eclipseRef, clock, extrasPhase = 3, launchPhase = null, onLaunchComplete }) => {
   const readyRef = useRef(false);
   const { isMobile, isCompact, reducedMotion } = useViewport();
   /* Progressive-mount tiers (StellarApp ramps extrasPhase 0→3 behind the
@@ -459,6 +459,8 @@ const Scene = ({ scrollT, activeIdx, itemIdx = 0, onJump, onReady, freeRoamEnabl
           focusRef={focusRef}
           warpVelRef={warpVelRef}
           cameraRef={cameraRef}
+          launchPhase={launchPhase}
+          onLaunchComplete={onLaunchComplete}
           /* Desktop frames the planet right-of-centre to clear the left
              content column; compact/mobile keep it centred (stacked layout). */
           frameShift={isCompact ? 0 : 0.3}

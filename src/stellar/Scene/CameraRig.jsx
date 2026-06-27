@@ -236,6 +236,9 @@ const CameraRig = ({
         p = Math.min(1, (t - L.t0) / WARP_DUR);
         e = p * p * (3 - 2 * p); // smoothstep — fast through the middle, eased arrival
         toPos = SOL_POS; toLook = SOL_LOOK; toFov = SOL_FOV;
+        /* Drive the HyperLoop streak: tube fills then collapses to points as the
+           dive arrives (sin → 0 at p=1). Same ref the planet-jump uses. */
+        if (warpVelRef) warpVelRef.current = Math.sin(p * Math.PI);
       }
       _camTarget.copy(L.fromPos).lerp(toPos, e);
       if (launchPhase === "establish") _camTarget.x += Math.sin(t * 0.25) * 1.4 * e; // slow drift
@@ -254,7 +257,7 @@ const CameraRig = ({
       }
       return;
     }
-    if (launch.current.phase) launch.current.phase = null;
+    if (launch.current.phase) { launch.current.phase = null; if (warpVelRef) warpVelRef.current = 0; }
 
     /* ── HYBRID GLIDE — continuous position along the destination chain
        with an eased DWELL at each planet (settle there, read the panel),

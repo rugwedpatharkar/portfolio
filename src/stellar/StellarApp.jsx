@@ -19,6 +19,7 @@ import DiscoveriesView from "./DiscoveriesView";
 import EasterEgg from "./EasterEgg";
 import AnswerListener from "./AnswerListener";
 import useViewport from "./useViewport";
+import IntroSequence from "./IntroSequence";
 import SpeedRun from "./SpeedRun";
 import CockpitFrame from "./CockpitFrame";
 import CockpitHUD from "./CockpitHUD";
@@ -60,10 +61,6 @@ const OverviewHud = ({ overview }) =>
 
 const StellarApp = () => {
   const scrollTRef = useRef(0);
-  /* No intro sequence — countdown timer + warp fly-in removed; the system loads
-     straight in. shipWarpDone stays an always-true gate so the existing UI +
-     effects mount immediately. */
-  const shipWarpDone = true;
   /* Progressive-mount tier (0→3) for the heavy extras suite. Mounting the whole
      suite in ONE commit the instant the countdown ended froze a frame for ~3.5s
      and snapped the warp; we instead ramp it in tiers BEHIND the countdown cover
@@ -90,6 +87,25 @@ const StellarApp = () => {
   /* ⌘K command palette open state. */
   const [paletteOpen, setPaletteOpen] = useState(false);
   const { reducedMotion, isMobile } = useViewport();
+  /* PHASE 1 — THE ARRIVAL. The visitor must EARN the world: desktop plays the
+     cinematic gate (black → establish pull-back → warp dive → Sol); reduced-motion
+     + mobile go straight to the tour. `introDone` replaces the old always-true
+     `shipWarpDone` gate; `launchPhase` (null | "establish" | "warp") drives
+     CameraRig's scripted launch move. */
+  const introEnabled = !reducedMotion && !isMobile;
+  const [introDone, setIntroDone] = useState(!introEnabled);
+  const [launchPhase, setLaunchPhase] = useState(null);
+  /* Idempotent hand-off to the tour: called by CameraRig's clock-driven
+     onLaunchComplete (normal warp end) AND by IntroSequence (skip / safety net). */
+  const finishIntro = useCallback(() => {
+    setLaunchPhase(null);
+    setIntroDone(true);
+  }, []);
+  /* Safety: if useViewport only resolves RM/mobile after first paint, never strand
+     them behind the intro gate (which hides the tour UI). */
+  useEffect(() => {
+    if (!introEnabled) setIntroDone(true);
+  }, [introEnabled]);
   const [activeIdx, setActiveIdx] = useState(0);
   const activeIdxRef = useRef(0);
   /* Item index within the active section — ←→ moves along the planet's lane.
@@ -143,9 +159,11 @@ const StellarApp = () => {
      stop()/start() across mode switches, which could leave scroll stuck stopped
      (bug-sweep H1). One effect keyed on `mode` = no race. */
   useEffect(() => {
-    if (mode === "pilot" || mode === "overview") window.__lenis?.stop();
+    /* Also lock during the intro so a wheel-to-skip can't scrub the tour
+       underneath the cinematic. */
+    if (!introDone || mode === "pilot" || mode === "overview") window.__lenis?.stop();
     else window.__lenis?.start();
-  }, [mode]);
+  }, [mode, introDone]);
 
   /* Scene mounts/loads textures behind the warp + countdown overlays,
      so we no longer need an explicit sceneReady gate. */
@@ -169,11 +187,14 @@ const StellarApp = () => {
       typeof window !== "undefined" &&
       window.matchMedia("(prefers-reduced-motion: reduce)").matches;
     if (reduced || isMobile) { setExtrasPhase(3); return undefined; }
+    /* Hold the heavy build until the intro hands off — mounting ~140k belt
+       particles + anomalies during the warp freezes the dive. */
+    if (!introDone) return undefined;
     const t1 = setTimeout(() => setExtrasPhase(1), 200);
     const t2 = setTimeout(() => setExtrasPhase(2), 1000);
     const t3 = setTimeout(() => setExtrasPhase(3), 2000);
     return () => { clearTimeout(t1); clearTimeout(t2); clearTimeout(t3); };
-  }, [isMobile]);
+  }, [isMobile, introDone]);
 
   const handleDestinationChange = useCallback((dest) => {
     const idx = DESTINATIONS.findIndex((d) => d.id === dest.id);
@@ -286,13 +307,13 @@ const StellarApp = () => {
   /* Read URL hash once the countdown finishes (full intro complete),
      then jump there if it points to a non-Sol destination. */
   useEffect(() => {
-    if (!shipWarpDone) return;
+    if (!introDone) return;
     const idx = findDestinationIndexByHash(window.location.hash);
     if (idx > 0) {
       const t = setTimeout(() => handleJump(idx), 350);
       return () => clearTimeout(t);
     }
-  }, [shipWarpDone, handleJump]);
+  }, [introDone, handleJump]);
 
   /* Keep the wide-pullback ref in sync with the overview toggle (CameraRig
      reads wideRef.current each frame). */
@@ -398,7 +419,7 @@ const StellarApp = () => {
 
   /* Fade the scroll hint on the first real interaction (or after 8s). */
   useEffect(() => {
-    if (!shipWarpDone || interacted) return undefined;
+    if (!introDone || interacted) return undefined;
     const mark = () => setInteracted(true);
     const t = setTimeout(mark, 8000);
     window.addEventListener("wheel", mark, { passive: true });
@@ -410,13 +431,13 @@ const StellarApp = () => {
       window.removeEventListener("keydown", mark);
       window.removeEventListener("touchmove", mark);
     };
-  }, [shipWarpDone, interacted]);
+  }, [introDone, interacted]);
 
   /* Keyboard navigation. Arrows / PageUp-Down / Home / End jump between
      stops; Z (or ⌘/Ctrl+Z) toggles the system overview; Esc exits it. No
      text inputs exist in the app, so capturing plain keys is safe. */
   useEffect(() => {
-    if (!shipWarpDone) return undefined;
+    if (!introDone) return undefined;
     const onKey = (e) => {
       const k = e.key.toLowerCase();
       const N = DESTINATIONS.length;
@@ -462,7 +483,7 @@ const StellarApp = () => {
     };
     window.addEventListener("keydown", onKey);
     return () => window.removeEventListener("keydown", onKey);
-  }, [shipWarpDone, navTo, navPlanet, navItem, focusedObj, clearFocus, cycleFocus, logOpen, mode, togglePilot]);
+  }, [introDone, navTo, navPlanet, navItem, focusedObj, clearFocus, cycleFocus, logOpen, mode, togglePilot]);
 
   /* Browser back/forward should also navigate */
   useEffect(() => {
@@ -544,12 +565,19 @@ const StellarApp = () => {
         cameraRef={cameraRef}
         clock={sceneClockRef.current}
         extrasPhase={extrasPhase}
+        launchPhase={launchPhase}
+        onLaunchComplete={finishIntro}
       />
+      {/* PHASE 1 — the cinematic gate. Desktop only; drives launchPhase + the
+          black curtain, hands off to the tour via finishIntro. */}
+      {introEnabled && !introDone && (
+        <IntroSequence onPhase={setLaunchPhase} onFinish={finishIntro} />
+      )}
       <Navigator
         scrollTRef={scrollTRef}
         onDestinationChange={handleDestinationChange}
       />
-      {shipWarpDone && (
+      {introDone && (
         <>
           <Cursor />
           {/* Ship-audio toggle — opt-in, default muted (autoplay-safe). */}
