@@ -193,6 +193,39 @@ class SoundManagerImpl {
     src.start(t);
     src.stop(t + dur);
   }
+
+  /* PHASE 3D — proximity sonification. A low black-hole rumble + a pulsar tone,
+     each panned by direction, driven per-frame by Sonification.jsx. Connected to
+     master so they're silent while muted; nodes are created lazily on the first
+     un-muted update (after the autoplay gesture). */
+  _initSonify() {
+    const ctx = this.ctx;
+    const mk = (type, freq) => {
+      const o = ctx.createOscillator();
+      o.type = type;
+      o.frequency.value = freq;
+      const g = ctx.createGain();
+      g.gain.value = 0;
+      const p = ctx.createStereoPanner();
+      o.connect(g).connect(p).connect(this.master);
+      o.start();
+      return { g, p };
+    };
+    const hole = mk("sine", 44);
+    const pulse = mk("triangle", 523);
+    this.sonify = { holeGain: hole.g, holePan: hole.p, pulseGain: pulse.g, pulsePan: pulse.p };
+  }
+
+  updateSonification(d) {
+    if (this.muted || !this.ctx) return; // gated on un-mute (silent by default)
+    if (!this.sonify) this._initSonify();
+    const s = this.sonify;
+    const t = this.ctx.currentTime;
+    s.holeGain.gain.setTargetAtTime((d.hole || 0) * 0.3, t, 0.12);
+    s.holePan.pan.setTargetAtTime(d.holePan || 0, t, 0.12);
+    s.pulseGain.gain.setTargetAtTime((d.pulse || 0) * (d.pulseBeat || 0) * 0.14, t, 0.04);
+    s.pulsePan.pan.setTargetAtTime(d.pulsePan || 0, t, 0.12);
+  }
 }
 
 const noop = () => {};
@@ -210,5 +243,6 @@ export const SoundManager =
         tick: noop,
         whoosh: noop,
         jump: noop,
+        updateSonification: noop,
         arrival: noop,
       };

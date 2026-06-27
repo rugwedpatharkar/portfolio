@@ -50,6 +50,7 @@ import DangerField from "./DangerField";
 import DataFragments from "./DataFragments";
 import DustParticles from "./DustParticles";
 import AdaptiveQuality from "./AdaptiveQuality";
+import Sonification from "./Sonification";
 import AutoExposure from "./AutoExposure";
 import KeyLight from "./KeyLight";
 import MouseParallax from "./MouseParallax";
@@ -428,6 +429,8 @@ const Scene = ({ scrollT, activeIdx, itemIdx = 0, onJump, onReady, freeRoamEnabl
         {/* Fade the scene lights toward dark at totality (planet → silhouette). */}
         {showExtras && <EclipseLights eclipseRef={eclipseRef} />}
         {!isMobile && !reducedMotion && <DustParticles />}
+        {/* PHASE 3D — proximity sonification (silent until un-muted). */}
+        {!reducedMotion && <Sonification />}
         {/* Non-essential extras defer-mount until the intro completes —
             keeps the warp/countdown window + LCP light, and trims the
             initial scene-graph build. */}
