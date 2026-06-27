@@ -4,7 +4,6 @@ import { motion, useReducedMotion } from "motion/react";
 import { SC, rgba } from "./ui/tokens";
 import useViewport from "./useViewport";
 import { DESTINATIONS } from "./config/destinations";
-import Navicomputer from "./Navicomputer";
 
 /*
  * Stellar Command — the diegetic cockpit HUD shell (M1). Always-on chrome over
@@ -41,7 +40,7 @@ const CORNERS = {
   bl: { bottom: 14, left: 14, rot: 270 },
 };
 
-export default function CockpitHUD({ destination, activeIdx = 0, itemIdx = 0, items = [], onPlanet, onItem, onBoard }) {
+export default function CockpitHUD({ destination, activeIdx = 0, itemIdx = 0, items = [], onItem }) {
   const { isMobile } = useViewport();
   const reduce = useReducedMotion();
   /* Brief HYPERDRIVE transit state on every nav (≈ the warp-jump duration). */
@@ -127,13 +126,6 @@ export default function CockpitHUD({ destination, activeIdx = 0, itemIdx = 0, it
         </div>
       </motion.div>
 
-      {/* Navicomputer — orrery radar (top-down system map + your blip + heading +
-          distance). Replaces the plain ladder; dots are clickable to jump. */}
-      {!isMobile && (
-        <div style={{ position: "absolute", top: 58, right: 18 }}>
-          <Navicomputer activeIdx={activeIdx} onPlanet={onPlanet} />
-        </div>
-      )}
 
       {/* Item dial (←→ = objects on this lane) — bottom centre */}
       {itemCount > 0 && (
@@ -151,18 +143,6 @@ export default function CockpitHUD({ destination, activeIdx = 0, itemIdx = 0, it
         </div>
       )}
 
-      {/* On-screen nav pad (touch/click parity) — bottom right */}
-      <div style={{ position: "absolute", bottom: 22, right: 22, display: "grid", gridTemplateColumns: "repeat(3, 26px)", gridTemplateRows: "repeat(3, 26px)", gap: 4, pointerEvents: "auto" }}>
-        <span />
-        <button onClick={() => onPlanet && onPlanet(-1)} aria-label="Previous lane" style={{ ...btn, gridColumn: 2, fontSize: 12 }}>↑</button>
-        <span />
-        <button onClick={() => onItem && onItem(-1)} aria-label="Previous object" style={{ ...btn, gridColumn: 1, fontSize: 12 }}>←</button>
-        <button onClick={() => onBoard && onBoard()} aria-label="Board" style={{ ...btn, gridColumn: 2, fontSize: 11, color: SC.amberInk, borderColor: rgba(SC.amber, 0.55) }}>↵</button>
-        <button onClick={() => onItem && onItem(1)} aria-label="Next object" style={{ ...btn, gridColumn: 3, fontSize: 12 }}>→</button>
-        <span />
-        <button onClick={() => onPlanet && onPlanet(1)} aria-label="Next lane" style={{ ...btn, gridColumn: 2, fontSize: 12 }}>↓</button>
-        <span />
-      </div>
 
       {/* Co-pilot line — bottom left */}
       <div style={{ position: "absolute", bottom: 24, left: 46, maxWidth: "44vw", fontSize: 10, color: transit || quip ? SC.amber : SC.amberInk, opacity: 0.9, textShadow: "0 1px 10px rgba(0,0,0,.85)" }}>

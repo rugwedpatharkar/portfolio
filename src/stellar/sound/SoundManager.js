@@ -22,7 +22,7 @@ class SoundManagerImpl {
     this.ctx = null;
     this.master = null;
     this.humNodes = null;
-    this.muted = true;
+    this.muted = false; // sound ON by default — a first-gesture resume (see _bind) starts it
     this.humArmed = false;
     this.available =
       typeof window !== "undefined" &&
@@ -41,6 +41,15 @@ class SoundManagerImpl {
     on("stellar:sound:beep", () => this.tick());
     on("stellar:sound:jump", () => this.jump());
     on("stellar:sound:arrival", () => this.arrival());
+    /* Sound is ON by default, but browsers require a user gesture to start audio.
+       Resume the context on the FIRST interaction (any of these), once, so the
+       armed hum + cues come alive automatically — no toggle tap needed. */
+    const resume = () => {
+      this.resumeOnGesture();
+      if (!this.muted && this.humArmed) this.playHum();
+      ["pointerdown", "keydown", "touchstart", "wheel"].forEach((n) => window.removeEventListener(n, resume));
+    };
+    ["pointerdown", "keydown", "touchstart", "wheel"].forEach((n) => window.addEventListener(n, resume, { passive: true }));
   }
 
   _ensure() {

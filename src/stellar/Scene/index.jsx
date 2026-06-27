@@ -404,16 +404,16 @@ const Scene = ({ scrollT, activeIdx, itemIdx = 0, onJump, onReady, freeRoamEnabl
                 {d.id === "hobbies" && <NeptuneAurora radius={d.radius} axialTilt={d.axialTilt || 0} animate={!reducedMotion} />}
                 {/* Enceladus (Saturn) + Europa (Jupiter): south-pole water geysers from a
                     subsurface ocean — rides the parent's orbit at the moon's offset. */}
-                {d.id === "notes" && <MoonGeysers offset={[-2.0, -0.5, 0.8]} radius={0.12} color="#eef3f1" plumeColor="#bfe6ff" jets={6} dir={[0, -1, 0.3]} animate={!reducedMotion} />}
-                {d.id === "skills" && <MoonGeysers offset={[3.4, -0.5, 0.8]} radius={0.16} color="#dde6e3" plumeColor="#cfeaff" jets={4} dir={[0.4, -1, 0]} animate={!reducedMotion} />}
+                {d.id === "notes" && <MoonGeysers offset={[-4.3, 1.1, 1.7]} radius={0.12} color="#eef3f1" plumeColor="#bfe6ff" jets={6} dir={[0, -1, 0.3]} animate={!reducedMotion} />}
+                {d.id === "skills" && <MoonGeysers offset={[5.2, 1.0, 1.2]} radius={0.16} color="#dde6e3" plumeColor="#cfeaff" jets={4} dir={[0.4, -1, 0]} animate={!reducedMotion} />}
                 {/* Wave 2 — Mimas (Saturn's Death-Star moon) + Triton's nitrogen geysers (Neptune). */}
-                {d.id === "notes" && <MimasMoon offset={[2.9, 0.4, -1.3]} radius={0.13} animate={!reducedMotion} />}
-                {d.id === "notes" && <TitanLakes offset={[2.4, 0.6, 0.5]} radius={0.18} animate={!reducedMotion} />}
-                {d.id === "hobbies" && <MoonGeysers offset={[1.6, 0.6, 0.5]} radius={0.12} color="#d8cabd" plumeColor="#e6c6d6" jets={4} dir={[0.2, -1, 0.2]} animate={!reducedMotion} />}
+                {d.id === "notes" && <MimasMoon offset={[4.6, 1.0, -2.1]} radius={0.13} animate={!reducedMotion} />}
+                {d.id === "notes" && <TitanLakes offset={[4.4, 1.2, 0.9]} radius={0.18} animate={!reducedMotion} />}
+                {d.id === "hobbies" && <MoonGeysers offset={[2.0, 0.8, 0.6]} radius={0.12} color="#d8cabd" plumeColor="#e6c6d6" jets={4} dir={[0.2, -1, 0.2]} animate={!reducedMotion} />}
                 {/* Mangalyaan (Mars Orbiter Mission) rides Mars's group. */}
                 {d.id === "projects" && showExtras && (
                   <IsroProbe
-                    orbitRadius={d.radius * 1.9} speed={0.26} tilt={0.5} phase={0.4} scale={d.radius * 0.15}
+                    orbitRadius={d.radius * 2.4} speed={0.26} tilt={0.5} phase={0.4} scale={d.radius * 0.15}
                     event="stellar:mangalyaan" animate={!reducedMotion}
                     onPointerOver={handleHoverIn} onPointerOut={handleHoverOut}
                   />

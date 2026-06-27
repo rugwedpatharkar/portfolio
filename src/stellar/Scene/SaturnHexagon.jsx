@@ -38,8 +38,9 @@ export default function SaturnHexagon({ radius = 1, axialTilt = 0, animate = tru
   const R = radius * 0.32; // ~30,000 km across vs Saturn's ~58,000 km radius
   return (
     <group rotation={[0, 0, axialTilt]}>
-      {/* on the (oblate-flattened) north pole, lying perpendicular to the spin axis */}
-      <group position={[0, radius * 0.9, 0]} rotation={[Math.PI / 2, 0, 0]} scale={[R, R, R]}>
+      {/* on the (oblate-flattened) north pole; coplanar with the rings (π/2.05, the
+          same lean Planet.jsx uses) so the hexagon parallels the ring plane. */}
+      <group position={[0, radius * 0.9, 0]} rotation={[Math.PI / 2.05, 0, 0]} scale={[R, R, R]}>
         <group ref={ref}>
           {/* the hexagonal jet band */}
           <mesh geometry={band}>

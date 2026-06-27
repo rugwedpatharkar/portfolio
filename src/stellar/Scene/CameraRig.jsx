@@ -152,9 +152,21 @@ const FOV_FLY = 64;        // FOV widens to this mid-flight (speed); settled = B
 /* hump(g): 0 at the segment ends, 1 mid — drives the first-person dip + warp
    streak + FOV widen so the journey peaks in the middle and eases at both ends. */
 const hump = (g) => Math.sin(Math.PI * THREE.MathUtils.clamp(g, 0, 1));
-/* Settled 3rd-person standoff from a body radius — same formula the old focus
-   framing used, so the on-screen size of every body is unchanged. */
-const backDistFor = (radius) => Math.max(BACK_FLOOR, (radius / Math.tan(BACKLIT_HALF_ANGLE)) * BACKLIT_MARGIN);
+/* Settled 3rd-person standoff that frames a body's FULL visual extent — not just
+   its radius — so ringed giants (Saturn's rings reach 2.3×, the faint rings 2.12×)
+   and oblate worlds fit fully and centred, in both inward + outward views. */
+const visualExtentFor = (dest) => {
+  const r = dest.radius;
+  let ext = r;
+  if (dest.rings) ext = Math.max(ext, r * 2.3);          // Saturn's prominent rings — fit fully
+  /* Faint rings (Jupiter/Uranus/Neptune) are barely visible, so don't pull all the
+     way back to their outer edge (that shrinks the body) — frame the body
+     prominently and let the faint outer edge sit near the frame margin. */
+  if (dest.faintRings) ext = Math.max(ext, r * 1.4);
+  if (dest.oblateness) ext = Math.max(ext, r * (1 + dest.oblateness));
+  return ext;
+};
+const backDistFor = (extent) => Math.max(BACK_FLOOR, (extent / Math.tan(BACKLIT_HALF_ANGLE)) * BACKLIT_MARGIN);
 
 const CameraRig = ({
   scrollT,
@@ -415,12 +427,18 @@ const CameraRig = ({
           /* up ⟂ the travel direction (cinematic lift). */
           _upp.copy(UP).addScaledVector(_dir, -UP.dot(_dir));
           if (_upp.lengthSq() < 1e-6) _upp.set(0, 1, 0); else _upp.normalize();
-          const D = k >= 0 ? FOCUS_DIST : backDistFor(tgt.radius);
+          let D = k >= 0 ? FOCUS_DIST : backDistFor(visualExtentFor(tgt));
+          /* Keep the right-of-centre body fully in frame: a small pull-back to make
+             up for the frameShift aim-shift on desktop. */
+          if (frameShift && k < 0) D *= 1 + frameShift * 0.25;
           focusBack.current = D;
-          /* camera BEHIND the body (−dir), lifted; look AHEAD (+dir) past it so the
-             body sits in the foreground with the Sun / deep space beyond. */
+          /* Camera BEHIND the body (−dir), gently lifted; LOOK AT THE BODY CENTRE so
+             it sits centred + fully visible (the look-ahead lives only in the
+             fly-through below — keeping it here pushed the body off the top of frame
+             and cropped ringed giants). The Sun / deep space still fills the
+             background behind the centred body. */
           _camTarget.copy(_p).addScaledVector(_dir, -D).addScaledVector(_upp, D * UP_FRAC);
-          _lookTarget.copy(_p).addScaledVector(_dir, D * LOOK_FRAC);
+          _lookTarget.copy(_p);
           /* slide the body right-of-centre (desktop) so the cockpit chrome clears. */
           if (frameShift && k < 0) {
             _viewDir.copy(_lookTarget).sub(_camTarget);

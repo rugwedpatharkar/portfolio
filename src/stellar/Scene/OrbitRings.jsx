@@ -1,6 +1,6 @@
 /* eslint-disable react/no-unknown-property */
 import { useRef } from "react";
-import { useFrame } from "@react-three/fiber";
+import { useFrame, useThree } from "@react-three/fiber";
 import * as THREE from "three";
 import { DESTINATIONS } from "../config/destinations";
 import { getOrbit } from "../config/orbits";
@@ -31,8 +31,20 @@ const ORBITS = DESTINATIONS.filter((d) => d.kind === "planet").map((d) => {
 
 const OrbitRings = ({ wideRef }) => {
   const groupRef = useRef();
+  const { camera } = useThree();
   useFrame(() => {
-    if (groupRef.current) groupRef.current.visible = !!wideRef?.current;
+    const g = groupRef.current;
+    if (!g) return;
+    const on = !!wideRef?.current; // overview-only; never shown in the tour
+    g.visible = on;
+    if (!on) return;
+    /* Fade out as the camera nears the orbit plane (edge-on), so the ellipses only
+       show when they read cleanly from above and never collapse into the stray
+       converging lines you get edge-on. elevation: 0 = in-plane, 1 = straight down. */
+    const p = camera.position;
+    const elevation = Math.abs(p.y) / (p.length() || 1);
+    const fade = THREE.MathUtils.clamp((elevation - 0.12) / 0.33, 0, 1);
+    g.children.forEach((c) => { if (c.material) c.material.opacity = 0.24 * fade; });
   });
   return (
     <group ref={groupRef} visible={false}>

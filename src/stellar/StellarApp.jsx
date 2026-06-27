@@ -527,6 +527,33 @@ const StellarApp = () => {
     return () => window.removeEventListener("keydown", onKey);
   }, [introDone, navTo, navPlanet, navItem, focusedObj, clearFocus, cycleFocus, logOpen, mode, togglePilot]);
 
+  /* SIDEWAYS SCROLL → ←→ side-object nav. A trackpad two-finger horizontal swipe
+     (deltaX) or Shift+wheel cycles the lane objects, debounced one-object-per
+     gesture. Lenis drives only vertical scroll (the tour), so horizontal is free.
+     Tour mode only; ignored in overview/pilot and while a scan card is open. */
+  useEffect(() => {
+    if (!introDone) return undefined;
+    let accum = 0, cooldownUntil = 0, resetTimer = null;
+    const onWheel = (e) => {
+      if (mode !== "tour" || focusedObj) return;
+      const horizontal = Math.abs(e.deltaX) > Math.abs(e.deltaY) * 1.5;
+      const dx = horizontal ? e.deltaX : e.shiftKey ? e.deltaY : 0;
+      if (!dx) return;
+      const now = performance.now();
+      if (now < cooldownUntil) return;
+      accum += dx;
+      clearTimeout(resetTimer);
+      resetTimer = setTimeout(() => { accum = 0; }, 180); // reset if the gesture pauses
+      if (Math.abs(accum) > 60) {
+        navItem(accum > 0 ? 1 : -1); // swipe left → next object →
+        accum = 0;
+        cooldownUntil = now + 420; // one object per ~0.4s
+      }
+    };
+    window.addEventListener("wheel", onWheel, { passive: true });
+    return () => { window.removeEventListener("wheel", onWheel); clearTimeout(resetTimer); };
+  }, [introDone, mode, focusedObj, navItem]);
+
   /* Browser back/forward should also navigate */
   useEffect(() => {
     const onHash = () => {
@@ -661,9 +688,7 @@ const StellarApp = () => {
               activeIdx={activeIdx}
               itemIdx={itemIdx}
               items={laneItems}
-              onPlanet={navPlanet}
               onItem={navItem}
-              onBoard={() => {}}
             />
           )}
           {/* Item focused (←→) → per-item dossier; else the section panel. Both

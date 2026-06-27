@@ -19,8 +19,10 @@ export default function IoTorus({ radius = 2, axialTilt = 0, animate = true }) {
   });
   return (
     <group rotation={[0, 0, axialTilt]}>
-      {/* equatorial plane = perpendicular to the (tilted) spin axis */}
-      <mesh rotation={[Math.PI / 2, 0, 0]}>
+      {/* equatorial plane = perpendicular to the (tilted) spin axis. Uses the SAME
+          π/2.05 lean as the planet rings (Planet.jsx) so the torus is coplanar with
+          Jupiter's ring instead of sitting 2.2° off it. */}
+      <mesh rotation={[Math.PI / 2.05, 0, 0]}>
         <torusGeometry args={[radius * 2.5, radius * 0.18, 18, 90]} />
         <meshBasicMaterial ref={matRef} color="#d8e07a" transparent opacity={0.15} blending={THREE.AdditiveBlending} depthWrite={false} toneMapped={false} />
       </mesh>

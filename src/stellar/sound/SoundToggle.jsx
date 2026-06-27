@@ -1,14 +1,14 @@
 /*
- * Stellar Command — ship-audio toggle. Bottom-right diegetic control. Default OFF
- * (matches SoundManager): first tap resumes the AudioContext and un-mutes, so the
- * bridge hum and comm cues come alive only on explicit opt-in.
+ * Stellar Command — ship-audio toggle. Bottom-right diegetic control. Sound is ON
+ * by default (SoundManager resumes the AudioContext on the first user gesture —
+ * autoplay-safe); this stays as a discreet mute.
  */
 import { useState, useCallback } from "react";
 import { SoundManager } from "./SoundManager";
 import { SC, rgba } from "../ui/tokens";
 
 export default function SoundToggle() {
-  const [muted, setMuted] = useState(true);
+  const [muted, setMuted] = useState(false);
 
   const toggle = useCallback(() => {
     const next = !muted;

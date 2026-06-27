@@ -82,7 +82,6 @@ const Planet = ({
   onClick,
   onPointerOver,
   onPointerOut,
-  draggable = true,
   tint,
   grade, // optional texture colour-correction { sat, lift, mix, tint } — e.g. Neptune true-colour
   children,
@@ -91,15 +90,6 @@ const Planet = ({
   const planetRef = useRef();
   const cloudRef = useRef();
   const moonsRef = useRef([]);
-  /* Drag spin: extra rotation accumulator + decay back to natural */
-  const dragSpinRef = useRef(0);
-  const isDraggingRef = useRef(false);
-  const dragStartXRef = useRef(0);
-  const dragStartSpinRef = useRef(0);
-  /* Hover state — used to scale the atmosphere ring up subtly so the
-     planet feels "highlighted" without a tacky outline. */
-  const hoverScaleRef = useRef(1);
-  const targetHoverRef = useRef(1);
 
   /* Load textures via Suspense — Scene wraps in <Suspense> already.
      Normal + specular + bump maps must NOT be sRGB — they're data,
@@ -168,18 +158,9 @@ const Planet = ({
   }, [grade]);
 
   useFrame((_, delta) => {
-    /* Natural rotation + drag-imparted spin that decays back gently */
-    if (!isDraggingRef.current) {
-      dragSpinRef.current *= 0.96;
-    }
-    if (planetRef.current) {
-      /* Reduced-motion: no autonomous spin, but drag-to-spin still works. */
-      planetRef.current.rotation.y += (animate ? delta * rotationSpeed : 0) + dragSpinRef.current * delta;
-    }
+    /* Natural axial rotation (frozen on reduced-motion). */
+    if (planetRef.current && animate) planetRef.current.rotation.y += delta * rotationSpeed;
     if (cloudRef.current && animate) cloudRef.current.rotation.y += delta * rotationSpeed * 1.35;
-    /* Hover lerp — snappier (0.12 → 0.22) so the pop reads cleanly */
-    hoverScaleRef.current += (targetHoverRef.current - hoverScaleRef.current) * 0.22;
-    if (groupRef.current) groupRef.current.scale.setScalar(hoverScaleRef.current);
     moonsRef.current.forEach((m, i) => {
       if (m) {
         const t = m.userData.t + delta * (0.25 + (i % 3) * 0.05);
@@ -212,7 +193,11 @@ const Planet = ({
     /* moonSet moons are procedural colour (distinct); only the fallback path
        uses the shared lunar texture. */
     const tex = md ? null : textureMap[moonTexture] || null;
-    const orbit = radius * 1.85 + i * 0.16 * radius;
+    /* Keep generic moons OUTSIDE the rings: push the orbit base past the ring's
+       outer edge for ringed planets (Saturn/Jupiter/Neptune moons were orbiting
+       inside their rings). */
+    const ringOuter = rings ? radius * 2.3 : faintRings ? radius * 2.12 : radius;
+    const orbit = Math.max(radius * 1.85, ringOuter * 1.08) + i * 0.16 * radius;
     const initial = (i / Math.max(1, moonCount)) * Math.PI * 2;
     moonNodes.push(
       <mesh
@@ -288,31 +273,8 @@ const Planet = ({
            nudges the sphere back in. Drawing ~10 always-near planets is free. */
         frustumCulled={false}
         onClick={onClick}
-        onPointerOver={(e) => {
-          targetHoverRef.current = 1.05;
-          onPointerOver?.(e);
-        }}
-        onPointerOut={(e) => {
-          targetHoverRef.current = 1.0;
-          onPointerOut?.(e);
-        }}
-        onPointerDown={(e) => {
-          if (!draggable) return;
-          e.stopPropagation();
-          isDraggingRef.current = true;
-          dragStartXRef.current = e.clientX;
-          dragStartSpinRef.current = dragSpinRef.current;
-          e.target.setPointerCapture?.(e.pointerId);
-        }}
-        onPointerMove={(e) => {
-          if (!isDraggingRef.current || !draggable) return;
-          const dx = e.clientX - dragStartXRef.current;
-          dragSpinRef.current = dragStartSpinRef.current + dx * 0.04;
-        }}
-        onPointerUp={(e) => {
-          isDraggingRef.current = false;
-          e.target.releasePointerCapture?.(e.pointerId);
-        }}>
+        onPointerOver={onPointerOver}
+        onPointerOut={onPointerOut}>
         <sphereGeometry args={[radius, 48, 48]} />
         {hasTexture ? (
           <meshStandardMaterial
