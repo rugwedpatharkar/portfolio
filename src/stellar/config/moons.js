@@ -53,6 +53,13 @@ export const MOONS = [
     facts: { diameter: "504 km", day: "1.4 d", wow: "Its geysers spray ocean water straight into space." },
   },
   {
+    /* Not a moon, but a real Earth EVENT — rides Earth as a scannable pin; the
+       umbra visual on Earth's day side is Scene/EclipseShadow.jsx. */
+    id: "eclipse-2026", parent: "experience", label: "2026 Eclipses", color: "#ffd9a0", offset: [0.0, 1.3, 0.2],
+    info: "Two solar eclipses cross Earth in 2026: an annular 'ring of fire' on Feb 17 (over Antarctica), then a TOTAL eclipse on Aug 12 — the Moon's shadow racing across Greenland, Iceland and Spain. The umbra you see drifting on Earth's day side is that shadow.",
+    facts: { diameter: "umbra ~100–200 km wide", day: "Feb 17 annular · Aug 12 total", wow: "The Moon is ~400× smaller than the Sun but ~400× closer — so they look the same size, and totality is possible." },
+  },
+  {
     id: "moon-titania", parent: "education", label: "Titania", color: "#bcc8c8", offset: [1.5, 0.5, 0.4],
     info: "Titania — Uranus's largest moon, an icy world scarred by huge canyons from an ancient freeze-and-expand.",
     facts: { diameter: "1,578 km", day: "8.7 d", wow: "Canyons longer than Earth's Grand Canyon split its surface." },

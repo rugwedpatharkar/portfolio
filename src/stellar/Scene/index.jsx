@@ -59,6 +59,7 @@ import SaturnHexagon from "./SaturnHexagon";
 import IoTorus from "./IoTorus";
 import NeptuneAurora from "./NeptuneAurora";
 import MoonGeysers from "./MoonGeysers";
+import EclipseShadow from "./EclipseShadow";
 import AutoExposure from "./AutoExposure";
 import KeyLight from "./KeyLight";
 import MouseParallax from "./MouseParallax";
@@ -360,6 +361,8 @@ const Scene = ({ scrollT, activeIdx, itemIdx = 0, onJump, onReady, freeRoamEnabl
                     <RocketLaunch earthRadius={d.radius} animate={!reducedMotion} />
                   )}
                   {showExtras && <HomeCallout earthRadius={d.radius} />}
+                  {/* 2026 eclipses — the Moon's umbra drifting across Earth's day side. */}
+                  {showExtras && <EclipseShadow earthRadius={d.radius} animate={!reducedMotion} />}
                   {showExtras && (
                     <IsroProbe
                       orbitRadius={d.radius * 2.2} speed={0.22} tilt={0.4} phase={1.2} scale={d.radius * 0.18}
