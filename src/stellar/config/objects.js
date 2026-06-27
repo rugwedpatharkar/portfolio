@@ -162,6 +162,16 @@ const ANOMALY_RAW = [
     visit: { kind: "focus", cameraTarget: frame([40, 16, -28], 14, 3, 46) },
   },
   {
+    id: "etacarinae", label: "Eta Carinae", category: "Nebula", color: "#ff9a5a", position: [-70, 22, -38],
+    info: "Eta Carinae — one of the most massive, luminous stars known (~100× the Sun), so unstable it nearly blew itself apart in the 1840s 'Great Eruption'. That blast flung out the two billowing lobes of the Homunculus Nebula, still expanding today. It's a supernova — maybe a hypernova — waiting to happen.",
+    visit: { kind: "focus", cameraTarget: frame([-70, 22, -38], 14, 3, 46) },
+  },
+  {
+    id: "einsteinring", label: "Einstein Ring", category: "Gravitational lens", color: "#cfe2ff", position: [-66, -26, 28],
+    info: "An Einstein ring — a distant galaxy whose light is bent by a massive galaxy almost exactly in front of it into a near-perfect ring. Einstein predicted it in 1936; the first full ring was imaged in 1998, and Hubble + JWST now find them often. A direct, visible proof that mass curves spacetime.",
+    visit: { kind: "focus", cameraTarget: frame([-66, -26, 28], 13, 2.6, 46) },
+  },
+  {
     id: "tardis", label: "TARDIS", category: "Easter egg", color: "#5b8dff", position: [30.4, 1.3, 1.0],
     info: "Bigger on the inside. It materialises near Saturn now and then — blink and you'll miss it.",
     visit: { kind: "focus", cameraTarget: frame([30.4, 1.3, 1.0], 2.4, 0.6, 38) },
@@ -216,6 +226,7 @@ const ANOMALY_RAW = [
 const FRONT_OF_SUN_CATEGORIES = new Set([
   "Black hole", "Portal", "Neutron star", "Mystery", "Interstellar object", "Interstellar comet", "Comet",
   "Brown dwarf", "Rogue planet", "Supernova remnant", "Star system", "Star cluster",
+  "Nebula", "Gravitational lens",
 ]);
 const ANOMALY_OBJECTS = ANOMALY_RAW.map((o) => {
   const front = FRONT_OF_SUN_CATEGORIES.has(o.category);

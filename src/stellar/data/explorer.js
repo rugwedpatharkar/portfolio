@@ -107,6 +107,8 @@ export const DISCOVERABLE = [
   { id: "voyager", label: "Voyager Probes", color: "#ffd9a0", hunt: false },
   { id: "kilonova", label: "Kilonova", color: "#ffd9a0", hunt: false },
   { id: "betelgeuse", label: "Betelgeuse", color: "#ff6a48", hunt: false },
+  { id: "etacarinae", label: "Eta Carinae", color: "#ff9a5a", hunt: false },
+  { id: "einsteinring", label: "Einstein Ring", color: "#cfe2ff", hunt: false },
   { id: "deathstar", label: "Death Star", color: "#c9ccd6", hunt: true, hint: "That's no moon — it shadows the asteroid belt." },
   { id: "enterprise", label: "USS Enterprise", color: "#9fc8ff", hunt: true, hint: "Boldly going, high over the inner planets." },
   { id: "endurance", label: "Endurance", color: "#cfd6e0", hunt: true, hint: "A slowly spinning ring on the long voyage out." },

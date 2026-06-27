@@ -25,6 +25,8 @@ import ProjectProbes from "./ProjectProbes";
 import DeepFieldMysteries from "./DeepFieldMysteries";
 import Kilonova from "./Kilonova";
 import Hypergiant from "./Hypergiant";
+import EtaCarinae from "./EtaCarinae";
+import EinsteinRing from "./EinsteinRing";
 import Wormhole from "./Wormhole";
 import LensFlare from "./LensFlare";
 import OrbitRings from "./OrbitRings";
@@ -266,6 +268,9 @@ const Scene = ({ scrollT, activeIdx, itemIdx = 0, onJump, onReady, freeRoamEnabl
         {/* PHASE 4 (Wave 1) — deep-sky wonders: a kilonova event + a red supergiant. */}
         {showMid && <Kilonova animate={!reducedMotion} />}
         {showMid && <Hypergiant animate={!reducedMotion} />}
+        {/* Eta Carinae's bipolar Homunculus + an Einstein-ring lens galaxy. */}
+        {showMid && <EtaCarinae animate={!reducedMotion} />}
+        {showMid && <EinsteinRing animate={!reducedMotion} />}
         {/* Wormhole "Beam aboard" portal at the Contact edge — the booking CTA. */}
         {showMid && <Wormhole />}
 
