@@ -65,6 +65,7 @@ import GravWaveChirp from "./GravWaveChirp";
 import CosmicMarker from "./CosmicMarker";
 import RedDots from "./RedDots";
 import MimasMoon from "./MimasMoon";
+import TitanLakes from "./TitanLakes";
 import EclipseShadow from "./EclipseShadow";
 import AutoExposure from "./AutoExposure";
 import KeyLight from "./KeyLight";
@@ -407,6 +408,7 @@ const Scene = ({ scrollT, activeIdx, itemIdx = 0, onJump, onReady, freeRoamEnabl
                 {d.id === "skills" && <MoonGeysers offset={[3.4, -0.5, 0.8]} radius={0.16} color="#dde6e3" plumeColor="#cfeaff" jets={4} dir={[0.4, -1, 0]} animate={!reducedMotion} />}
                 {/* Wave 2 — Mimas (Saturn's Death-Star moon) + Triton's nitrogen geysers (Neptune). */}
                 {d.id === "notes" && <MimasMoon offset={[2.9, 0.4, -1.3]} radius={0.13} animate={!reducedMotion} />}
+                {d.id === "notes" && <TitanLakes offset={[2.4, 0.6, 0.5]} radius={0.18} animate={!reducedMotion} />}
                 {d.id === "hobbies" && <MoonGeysers offset={[1.6, 0.6, 0.5]} radius={0.12} color="#d8cabd" plumeColor="#e6c6d6" jets={4} dir={[0.2, -1, 0.2]} animate={!reducedMotion} />}
                 {/* Mangalyaan (Mars Orbiter Mission) rides Mars's group. */}
                 {d.id === "projects" && showExtras && (
