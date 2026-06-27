@@ -130,6 +130,11 @@ const ANOMALY_RAW = [
     info: "2I/Borisov — the 2nd interstellar object (2019), a ~1 km comet far richer in carbon monoxide than any local comet, discovered by amateur astronomer Gennady Borisov. The middle of the interstellar trio: 1I/'Oumuamua · 2I/Borisov · 3I/ATLAS.",
     visit: { kind: "focus", cameraTarget: frame([-14, -2, 7], 5, 1.2, 44) },
   },
+  {
+    id: "c2026a1", label: "Comet C/2026 A1", category: "Comet", color: "#cfe8ff", position: [7, -1, -3],
+    info: "C/2026 A1 — a sungrazing comet diving steeply toward the Sun. Sungrazers flare enormously as solar heat blasts gas and dust off them into a long bright tail; many don't survive perihelion, breaking apart in the Sun's glare. A potential naked-eye showpiece of 2026.",
+    visit: { kind: "focus", cameraTarget: frame([7, -1, -3], 6, 1.4, 44) },
+  },
   // ── Space mysteries (deep field; positions match Scene/DeepFieldMysteries) ──
   {
     id: "planetnine", label: "Planet Nine", category: "Mystery", color: "#3a5070", position: [42, -3, -26],

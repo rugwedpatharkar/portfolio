@@ -58,6 +58,7 @@ import Sonification from "./Sonification";
 import SaturnHexagon from "./SaturnHexagon";
 import IoTorus from "./IoTorus";
 import NeptuneAurora from "./NeptuneAurora";
+import MoonGeysers from "./MoonGeysers";
 import AutoExposure from "./AutoExposure";
 import KeyLight from "./KeyLight";
 import MouseParallax from "./MouseParallax";
@@ -254,6 +255,10 @@ const Scene = ({ scrollT, activeIdx, itemIdx = 0, onJump, onReady, freeRoamEnabl
         {showMid && !reducedMotion && (
           <AtlasComet start={[-620, -150, 240]} vel={[168, 4, -64]} coma="#e0a890" ion="#cdbfa0" dust="#e8d8b8" antiTail={false} comaR={1.2} respawn={780} />
         )}
+        {/* Sungrazer C/2026 A1 — a steep dive through ~the Sun (true-scale path). */}
+        {showMid && !reducedMotion && (
+          <AtlasComet start={[560, 130, -380]} vel={[-150, -35, 102]} coma="#cfe8ff" ion="#bfe0ff" dust="#eae6ff" antiTail={false} comaR={1.1} respawn={720} />
+        )}
         {/* Clickable wishing meteors. */}
         {showMid && !reducedMotion && <ShootingStars animate={!reducedMotion} />}
         {showMid && !isMobile && !reducedMotion && <Meteors />}
@@ -373,6 +378,10 @@ const Scene = ({ scrollT, activeIdx, itemIdx = 0, onJump, onReady, freeRoamEnabl
                 {d.id === "notes" && <SaturnHexagon radius={d.radius} axialTilt={d.axialTilt || 0} animate={!reducedMotion} />}
                 {d.id === "skills" && <IoTorus radius={d.radius} axialTilt={d.axialTilt || 0} animate={!reducedMotion} />}
                 {d.id === "hobbies" && <NeptuneAurora radius={d.radius} axialTilt={d.axialTilt || 0} animate={!reducedMotion} />}
+                {/* Enceladus (Saturn) + Europa (Jupiter): south-pole water geysers from a
+                    subsurface ocean — rides the parent's orbit at the moon's offset. */}
+                {d.id === "notes" && <MoonGeysers offset={[-2.0, -0.5, 0.8]} radius={0.12} color="#eef3f1" plumeColor="#bfe6ff" jets={6} dir={[0, -1, 0.3]} animate={!reducedMotion} />}
+                {d.id === "skills" && <MoonGeysers offset={[3.4, -0.5, 0.8]} radius={0.16} color="#dde6e3" plumeColor="#cfeaff" jets={4} dir={[0.4, -1, 0]} animate={!reducedMotion} />}
                 {/* Mangalyaan (Mars Orbiter Mission) rides Mars's group. */}
                 {d.id === "projects" && showExtras && (
                   <IsroProbe
