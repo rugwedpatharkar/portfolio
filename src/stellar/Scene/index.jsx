@@ -145,6 +145,9 @@ const Scene = ({ scrollT, activeIdx, itemIdx = 0, onJump, onReady, freeRoamEnabl
         antialias: !isMobile,
         alpha: false,
         powerPreference: "high-performance",
+        /* Photo Mode (Phase 3C) reads the canvas via toDataURL — needs the buffer
+           kept after compositing. Modest cost; fine for a portfolio. */
+        preserveDrawingBuffer: true,
         /* ACES Filmic tone mapping on the renderer side — single
            pipeline, no post-processing ToneMapping pass (that one
            had API issues in v3). */

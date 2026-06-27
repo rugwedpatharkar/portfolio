@@ -22,6 +22,7 @@ import AnswerListener from "./AnswerListener";
 import useViewport from "./useViewport";
 import IntroSequence from "./IntroSequence";
 import CoPilot from "./CoPilot";
+import PhotoMode from "./PhotoMode";
 import SpeedRun from "./SpeedRun";
 import CockpitFrame from "./CockpitFrame";
 import CockpitHUD from "./CockpitHUD";
@@ -616,6 +617,11 @@ const StellarApp = () => {
           {/* PHASE 3A — reactive co-pilot rules-engine (logic-only; drives the
               CockpitHUD co-pilot line via stellar:copilot). */}
           <CoPilot />
+          {/* PHASE 3C — Photo mode (C): freeze + capture a shareable postcard. */}
+          <PhotoMode
+            bodyLabel={focusedItem ? focusedItem.label : DESTINATIONS[activeIdx]?.label}
+            setTimeScale={(s) => { sceneClockRef.current.scale = s; }}
+          />
           <DiscoveriesView open={logOpen} onClose={() => setLogOpen(false)} animate={!reducedMotion} />
           <CommandPalette open={paletteOpen} commands={commands} onClose={() => setPaletteOpen(false)} />
           <FragmentToast />
