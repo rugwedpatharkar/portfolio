@@ -152,6 +152,16 @@ const ANOMALY_RAW = [
     visit: { kind: "focus", cameraTarget: frame([-30, -16, 42], 10, 2, 44) },
   },
   {
+    id: "kilonova", label: "Kilonova", category: "Cataclysm", color: "#ffd9a0", position: [-45, -12, -20],
+    info: "A kilonova — two neutron stars merging. In seconds it forges the heavy elements the universe makes no other way: every gram of gold, platinum and uranium you've ever touched was born in a blast like this. GW170817 (2017) was the first seen in gravitational waves AND light.",
+    visit: { kind: "focus", cameraTarget: frame([-45, -12, -20], 12, 2.5, 46) },
+  },
+  {
+    id: "betelgeuse", label: "Betelgeuse", category: "Red supergiant", color: "#ff6a48", position: [40, 16, -28],
+    info: "Betelgeuse — a red supergiant ~700× the Sun's width. Put it where the Sun is and it would swallow Jupiter's orbit. It's near the end of its life and will go supernova (astronomically soon). In 2025 a close companion star was confirmed, nicknamed Siwarħa.",
+    visit: { kind: "focus", cameraTarget: frame([40, 16, -28], 14, 3, 46) },
+  },
+  {
     id: "tardis", label: "TARDIS", category: "Easter egg", color: "#5b8dff", position: [30.4, 1.3, 1.0],
     info: "Bigger on the inside. It materialises near Saturn now and then — blink and you'll miss it.",
     visit: { kind: "focus", cameraTarget: frame([30.4, 1.3, 1.0], 2.4, 0.6, 38) },

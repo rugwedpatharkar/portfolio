@@ -105,6 +105,8 @@ export const DISCOVERABLE = [
   { id: "wormhole", label: "Wormhole", color: "#9a7dff", hunt: false },
   { id: "pulsar", label: "Pulsar", color: "#9fd0ff", hunt: false },
   { id: "voyager", label: "Voyager Probes", color: "#ffd9a0", hunt: false },
+  { id: "kilonova", label: "Kilonova", color: "#ffd9a0", hunt: false },
+  { id: "betelgeuse", label: "Betelgeuse", color: "#ff6a48", hunt: false },
   { id: "deathstar", label: "Death Star", color: "#c9ccd6", hunt: true, hint: "That's no moon — it shadows the asteroid belt." },
   { id: "enterprise", label: "USS Enterprise", color: "#9fc8ff", hunt: true, hint: "Boldly going, high over the inner planets." },
   { id: "endurance", label: "Endurance", color: "#cfd6e0", hunt: true, hint: "A slowly spinning ring on the long voyage out." },
@@ -126,11 +128,11 @@ const N_DISCOVERABLE = DISCOVERABLE.length; // 13
 export const RANK_TIERS = [
   { tier: 0, label: "Cadet", min: 0 },
   { tier: 1, label: "Ensign", min: 2 },
-  { tier: 2, label: "Pilot", min: 4 },
-  { tier: 3, label: "Navigator", min: 6 },
-  { tier: 4, label: "Commander", min: 9 },
-  { tier: 5, label: "Captain", min: 11 },
-  { tier: 6, label: "Fleet Admiral", min: 13 },
+  { tier: 2, label: "Pilot", min: 5 },
+  { tier: 3, label: "Navigator", min: 8 },
+  { tier: 4, label: "Commander", min: 11 },
+  { tier: 5, label: "Captain", min: 14 },
+  { tier: 6, label: "Fleet Admiral", min: 17 },
 ];
 
 /* Fired whenever progress changes (a new chart, visit, or badge) so the rank

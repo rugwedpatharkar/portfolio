@@ -23,6 +23,8 @@ import Pulsar from "./Pulsar";
 import ExoticObjects from "./ExoticObjects";
 import ProjectProbes from "./ProjectProbes";
 import DeepFieldMysteries from "./DeepFieldMysteries";
+import Kilonova from "./Kilonova";
+import Hypergiant from "./Hypergiant";
 import Wormhole from "./Wormhole";
 import LensFlare from "./LensFlare";
 import OrbitRings from "./OrbitRings";
@@ -261,6 +263,9 @@ const Scene = ({ scrollT, activeIdx, itemIdx = 0, onJump, onReady, freeRoamEnabl
         {/* Real unsolved mysteries as deep-field discoverables (Planet Nine,
             Tabby's Star, the Wow! signal, fast radio bursts). */}
         {showMid && <DeepFieldMysteries animate={!reducedMotion} />}
+        {/* PHASE 4 (Wave 1) — deep-sky wonders: a kilonova event + a red supergiant. */}
+        {showMid && <Kilonova animate={!reducedMotion} />}
+        {showMid && <Hypergiant animate={!reducedMotion} />}
         {/* Wormhole "Beam aboard" portal at the Contact edge — the booking CTA. */}
         {showMid && <Wormhole />}
 
