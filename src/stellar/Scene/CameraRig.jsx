@@ -78,7 +78,6 @@ const _radial = new THREE.Vector3();
 const _dir = new THREE.Vector3();
 const _upp = new THREE.Vector3();
 const _up2 = new THREE.Vector3();
-const _camDir = new THREE.Vector3();
 
 const fAlpha = (base, dt) => 1 - Math.pow(1 - base, dt * 60);
 
@@ -136,6 +135,27 @@ const BACKLIT_FOV = 47;
    invisible on big ones). */
 const PARALLAX_FRAC = 0.08;
 
+/* ── Direction-aware third-person model ──
+   The camera sits BEHIND the active body relative to the DIRECTION OF TRAVEL and
+   looks AHEAD along it: an INWARD hop frames Camera → body → Sun, an OUTWARD hop
+   frames Camera → body → deep space, and a ←→ lane hop looks along the lane. The
+   travel direction comes from the from→target hop (persisted at idle), so the
+   orientation flips with how you arrived rather than which input you used.
+   During a hop the standoff dips toward the flight path (FIRST_FRAC) for a
+   first-person fly-through, then settles back to third-person — a felt
+   3rd → 1st → 3rd journey. Distances are radius-derived (uniform on-screen size). */
+const BACK_FLOOR = 0.55;   // min 3rd-person standoff (guards the tiniest bodies)
+const FIRST_FRAC = 0.32;   // 1st-person pass distance = FIRST_FRAC × 3rd-person standoff
+const UP_FRAC = 0.2;       // 3rd-person up-lift, as a fraction of the standoff
+const LOOK_FRAC = 1.15;    // look-ahead distance, as a fraction of the standoff
+const FOV_FLY = 64;        // FOV widens to this mid-flight (speed); settled = BACKLIT_FOV
+/* hump(g): 0 at the segment ends, 1 mid — drives the first-person dip + warp
+   streak + FOV widen so the journey peaks in the middle and eases at both ends. */
+const hump = (g) => Math.sin(Math.PI * THREE.MathUtils.clamp(g, 0, 1));
+/* Settled 3rd-person standoff from a body radius — same formula the old focus
+   framing used, so the on-screen size of every body is unchanged. */
+const backDistFor = (radius) => Math.max(BACK_FLOOR, (radius / Math.tan(BACKLIT_HALF_ANGLE)) * BACKLIT_MARGIN);
+
 const CameraRig = ({
   scrollT,
   parallaxOffsetRef,
@@ -149,6 +169,8 @@ const CameraRig = ({
   onLaunchComplete,
   launchPhase,
   frameShift = 0,
+  reducedMotion = false,
+  isMobile = false,
 }) => {
   const { camera } = useThree();
   const sceneClock = useSceneClock();
@@ -164,7 +186,34 @@ const CameraRig = ({
      distance-scaled time, the destination swelling as you cross the gap, with
      the hyperloop streaks peaking mid-jump). dt-accumulated so it runs even when
      the scene clock is frozen (reduced-motion). */
-  const jump = useRef({ active: false, elapsed: 0, dur: 0, intensity: 0, fromPos: new THREE.Vector3(), fromLook: new THREE.Vector3(), fromFov: FOV_DEFAULT, lastKey: "sol:-1" });
+  const jump = useRef({ active: false, elapsed: 0, dur: 0, intensity: 0, fromBody: new THREE.Vector3(), toBody: new THREE.Vector3(), dir: new THREE.Vector3(1, 0, 0), back: 1, fov: BACKLIT_FOV, lastKey: "sol:-1" });
+  /* Persisted travel direction so the resting third-person view keeps the
+     orientation of the hop you arrived on (idle has no from→target). */
+  const lastDir = useRef(new THREE.Vector3(1, 0, 0));
+  const focusBack = useRef(1); // last settled standoff (the fly-through eases back to it)
+  /* Flight state → DOM: hide the section info during the fly-through, reveal it on
+     arrival. flyingRef is also read by SolarEclipse (suppress scoring mid-flight).
+     The event is edge-triggered (hide instantly, reveal debounced on settle) so it
+     never fires per-frame. */
+  const flyingRef = useRef(false);
+  const wasFlying = useRef(false);
+  const flightOffTimer = useRef(null);
+  const setFlying = (v) => {
+    flyingRef.current = v;
+    if (v === wasFlying.current) return;
+    wasFlying.current = v;
+    if (v) {
+      if (flightOffTimer.current) { clearTimeout(flightOffTimer.current); flightOffTimer.current = null; }
+      window.dispatchEvent(new CustomEvent("stellar:flight", { detail: { flying: true } }));
+    } else {
+      if (flightOffTimer.current) clearTimeout(flightOffTimer.current);
+      flightOffTimer.current = setTimeout(() => {
+        window.dispatchEvent(new CustomEvent("stellar:flight", { detail: { flying: false } }));
+        flightOffTimer.current = null;
+      }, 180);
+    }
+  };
+  useEffect(() => () => { if (flightOffTimer.current) clearTimeout(flightOffTimer.current); }, []);
 
   /* Per-destination framing offsets (camera + aim relative to the planet),
      captured once from the authored cameraTarget values. */
@@ -203,6 +252,9 @@ const CameraRig = ({
        0), reproducing the authored layout with no drift. */
     const t = sceneClock.t;
     const rawT = THREE.MathUtils.clamp(scrollT.current ?? 0, 0, 1);
+    /* Reduced-motion + mobile → SNAP: no first-person fly-through, no streaks,
+       info stays visible. The normal lerp still glides gently to the pose. */
+    const snap = reducedMotion || isMobile;
 
     /* ── Cinematic launch override (intro) ──
        establish: pull back from Sol to reveal the tilted system (ease-out);
@@ -336,55 +388,41 @@ const CameraRig = ({
     const wide = !focus && !!wideRef?.current;
     if (focus) {
       if (focus.live && focus.target) {
-        /* Travel framing — approach the target from where you came. OBJECTS use
-           the pure travel direction (sit on the FROM side). PLANETS/Sun frame on
-           the Sun–body RADIAL axis, with the side chosen by travel direction, so
-           the Sun is always in view: an OUTWARD hop sits sunward and looks out
-           (lit face + the later planets beyond); an INWARD hop sits on the far
-           side and looks in, so the Sun fills the background behind the body
-           (backlit) — never the off-axis dead night side that read as black. */
+        /* Direction-aware third-person: sit BEHIND the body relative to the travel
+           direction (from→target) and look AHEAD past it. An INWARD hop frames
+           Camera → body → Sun; an OUTWARD hop frames Camera → body → deep space; a
+           ←→ lane hop looks along the lane. The Sun is just another body here — its
+           direction comes from the hop vector, never normalize(origin). The travel
+           direction is persisted (lastDir) so the resting view keeps the hop you
+           arrived on; the actual 3rd→1st→3rd fly-through is the warp-jump below. */
         const tgt = DEST_BY_ID[focus.target.destId];
         if (tgt) {
-          if (focus.target.k >= 0) laneObjectPosition(tgt, focus.target.k, t, _p);
+          const k = focus.target.k;
+          if (k >= 0) laneObjectPosition(tgt, k, t, _p);
           else orbitalPosition(tgt, t, _p);
-          let haveFrom = false;
+          let haveDir = false;
           if (focus.from) {
             const frm = DEST_BY_ID[focus.from.destId];
             if (frm) {
               if (focus.from.k >= 0) laneObjectPosition(frm, focus.from.k, t, _po);
               else orbitalPosition(frm, t, _po);
               _dir.copy(_p).sub(_po);
-              if (_dir.lengthSq() > 1e-6) { _dir.normalize(); haveFrom = true; }
+              if (_dir.lengthSq() > 1e-6) { _dir.normalize(); haveDir = true; }
             }
           }
-          /* _camDir = direction from the target to the camera. */
-          if (focus.target.k >= 0 || focus.target.destId === "sol") {
-            /* OBJECTS + the Sun: sit on the FROM side and look in the travel
-               direction (the Sun is emissive, so it reads fine head-on). */
-            if (!haveFrom) { _dir.copy(_p); if (_dir.lengthSq() > 1e-6) _dir.normalize(); else _dir.set(0, 0, 1); }
-            _camDir.copy(_dir).negate();
-          } else {
-            /* PLANETS: always frame from the SUNWARD side so the LIT face shows.
-               A planet's lit hemisphere faces the Sun, so "looking inward" on a
-               backward hop would frame its dark night side (a black disc) — the
-               bug. The warp-jump carries the sense of travel instead. */
-            _radial.copy(_p);
-            if (_radial.lengthSq() > 1e-6) _radial.normalize(); else _radial.set(1, 0, 0);
-            _camDir.copy(_radial).multiplyScalar(-1);
-          }
-          _upp.copy(UP).addScaledVector(_camDir, -UP.dot(_camDir));
+          if (!haveDir) _dir.copy(lastDir.current); // idle: keep the last hop's orientation
+          lastDir.current.copy(_dir);
+          /* up ⟂ the travel direction (cinematic lift). */
+          _upp.copy(UP).addScaledVector(_dir, -UP.dot(_dir));
           if (_upp.lengthSq() < 1e-6) _upp.set(0, 1, 0); else _upp.normalize();
-          /* Distance scaled to the body's radius so EVERY planet fills ~half the
-             frame (tiny inner worlds get a close camera, giants sit back). The
-             old max(2.5) floor pinned inner planets far back, shrinking them to a
-             few degrees while the true-size Sun swamped the frame on inward hops
-             → washed-out / black. A small 0.4 floor only guards against clipping
-             the very smallest. */
-          const D = focus.target.k >= 0 ? FOCUS_DIST : Math.max(0.4, (tgt.radius / Math.tan(BACKLIT_HALF_ANGLE)) * 1.12);
-          _camTarget.copy(_p).addScaledVector(_camDir, D).addScaledVector(_upp, D * 0.22);
-          _lookTarget.copy(_p);
-          /* slide the body right-of-centre (desktop) so the left content clears. */
-          if (frameShift && focus.target.k < 0) {
+          const D = k >= 0 ? FOCUS_DIST : backDistFor(tgt.radius);
+          focusBack.current = D;
+          /* camera BEHIND the body (−dir), lifted; look AHEAD (+dir) past it so the
+             body sits in the foreground with the Sun / deep space beyond. */
+          _camTarget.copy(_p).addScaledVector(_dir, -D).addScaledVector(_upp, D * UP_FRAC);
+          _lookTarget.copy(_p).addScaledVector(_dir, D * LOOK_FRAC);
+          /* slide the body right-of-centre (desktop) so the cockpit chrome clears. */
+          if (frameShift && k < 0) {
             _viewDir.copy(_lookTarget).sub(_camTarget);
             const dd = _viewDir.length() || 1;
             _viewDir.divideScalar(dd);
@@ -458,44 +496,62 @@ const CameraRig = ({
         .addScaledVector(_up2, parallaxOffsetRef.current.y * s);
     }
 
-    /* ── Warp-jump transition ── on a new focus target, ease (accel→decel) from
-       the current pose to the new framing over a distance-scaled time; the
-       destination swells as the camera crosses the gap and the streaks peak
-       mid-jump. After it lands, the normal focus lerp tracks the orbit. */
+    /* ── Hyperspace fly-through ── on a new focus target, FLY along the path from
+       the FROM body to the TARGET body: the standoff dips toward the flight line
+       mid-hop (first-person), the streaks + FOV peak, then it settles back BEHIND
+       the destination (third-person) — a felt 3rd→1st→3rd journey, the same for
+       every direction. Skipped on reduced-motion / mobile (snap; the lerp glides
+       gently to the settled pose instead). */
     const jmpKey = focus && focus.live && focus.target ? `${focus.target.destId}:${focus.target.k}` : "";
     if (jmpKey && jmpKey !== jump.current.lastKey) {
-      const first = jump.current.lastKey === "";
       jump.current.lastKey = jmpKey;
-      if (!first) {
+      if (!snap && focus.from) {
         const J = jump.current;
-        const dist = camera.position.distanceTo(_camTarget);
+        /* Flight endpoints: FROM body → TARGET body (live positions). _p already
+           holds the target body (computed in the focus block); recompute the from
+           body. dir + back come from the focus block (lastDir / focusBack). */
+        J.toBody.copy(_p);
+        const frm = DEST_BY_ID[focus.from.destId];
+        if (frm) {
+          if (focus.from.k >= 0) laneObjectPosition(frm, focus.from.k, t, J.fromBody);
+          else orbitalPosition(frm, t, J.fromBody);
+        } else {
+          J.fromBody.copy(camera.position);
+        }
+        J.dir.copy(lastDir.current);
+        J.back = focusBack.current;
+        J.fov = focus.fov || BACKLIT_FOV;
+        const dist = J.fromBody.distanceTo(J.toBody);
         J.active = true;
         J.elapsed = 0;
         J.dur = THREE.MathUtils.clamp(0.5 + dist * 0.016, 0.55, 2.6);
         J.intensity = THREE.MathUtils.clamp(dist * 0.06, 0.22, 1.5);
-        J.fromPos.copy(camera.position);
-        J.fromLook.copy(lookAtTarget.current);
-        J.fromFov = camera.fov;
       }
     }
     if (jump.current.active) {
       const J = jump.current;
       /* Advance on REAL delta (not the orbit-tracking clamped `d`) so the jump
-         finishes in `dur` real seconds regardless of frame rate — a clamped
-         delta lags real time on slow GPUs and leaves the warp stuck on. */
+         finishes in `dur` real seconds regardless of frame rate. */
       J.elapsed += Math.min(dt || 1 / 60, 0.25);
-      const p = THREE.MathUtils.clamp(J.elapsed / J.dur, 0, 1);
-      const e = p * p * (3 - 2 * p); // accelerate then decelerate
-      camera.position.copy(J.fromPos).lerp(_camTarget, e);
-      lookAtTarget.current.copy(J.fromLook).lerp(_lookTarget, e);
+      const e = THREE.MathUtils.clamp(J.elapsed / J.dur, 0, 1);
+      const ee = e * e * (3 - 2 * e); // accelerate then decelerate along the path
+      const h = hump(e);              // 0 at ends, 1 mid → the first-person dip
+      /* ride point glides FROM→TARGET; standoff dips to FIRST_FRAC mid-flight. */
+      _p.copy(J.fromBody).lerp(J.toBody, ee);
+      const back = J.back * (1 - h * (1 - FIRST_FRAC));
+      _upp.copy(UP).addScaledVector(J.dir, -UP.dot(J.dir));
+      if (_upp.lengthSq() < 1e-6) _upp.set(0, 1, 0); else _upp.normalize();
+      camera.position.copy(_p).addScaledVector(J.dir, -back).addScaledVector(_upp, back * UP_FRAC * (1 - h * 0.7));
+      lookAtTarget.current.copy(_p).addScaledVector(J.dir, back * LOOK_FRAC);
       camera.lookAt(lookAtTarget.current);
-      const jFov = focus ? focus.fov || 42 : fovTarget;
-      const fv = J.fromFov + (jFov - J.fromFov) * e;
+      const fv = J.fov + (FOV_FLY - J.fov) * h;
       if (Math.abs(camera.fov - fv) > 0.01) { camera.fov = fv; camera.updateProjectionMatrix(); }
-      if (warpVelRef) warpVelRef.current = Math.sin(p * Math.PI) * J.intensity;
-      if (p >= 1) { J.active = false; if (warpVelRef) warpVelRef.current = 0; }
+      if (warpVelRef) warpVelRef.current = Math.sin(e * Math.PI) * J.intensity;
+      setFlying(h > 0.12);
+      if (e >= 1) { J.active = false; if (warpVelRef) warpVelRef.current = 0; setFlying(false); }
       return;
     }
+    setFlying(false);
 
     const posBase = focus?.live ? LIVE_FOCUS_LERP_60 : focus || wide ? WIDE_LERP_60 : freeRoamEnabled ? FREEROAM_LERP_60 : POS_LERP_60;
     const lookBase = focus?.live ? LIVE_FOCUS_LERP_60 : focus || wide ? WIDE_LERP_60 : LOOK_LERP_60;

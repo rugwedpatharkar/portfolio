@@ -89,6 +89,15 @@ const StellarApp = () => {
   const [speedRunOn, setSpeedRunOn] = useState(false);
   /* ⌘K command palette open state. */
   const [paletteOpen, setPaletteOpen] = useState(false);
+  /* During the hyperspace fly-through the section info hides; it fades back in on
+     arrival (settle). CameraRig edge-fires stellar:flight {flying}. Reduced-motion
+     / mobile never fly, so the info stays visible there. */
+  const [panelHidden, setPanelHidden] = useState(false);
+  useEffect(() => {
+    const onFlight = (e) => setPanelHidden(!!e.detail?.flying);
+    window.addEventListener("stellar:flight", onFlight);
+    return () => window.removeEventListener("stellar:flight", onFlight);
+  }, []);
   const { reducedMotion, isMobile } = useViewport();
   /* PHASE 1 — THE ARRIVAL. The visitor must EARN the world: desktop plays the
      cinematic gate (black → establish pull-back → warp dive → Sol); reduced-motion
@@ -319,7 +328,22 @@ const StellarApp = () => {
      focus-free so the hero keeps its subtle pointer parallax. */
   useEffect(() => {
     if (mode !== "tour") { focusRef.current = null; return; }
-    if (activeIdx > 0 || itemIdx >= 0) applyFocus(activeIdx, itemIdx);
+    if (activeIdx > 0 || itemIdx >= 0) {
+      /* Keyboard / nav-pad / navicomputer already set focus synchronously WITH the
+         correct from→target travel direction. Re-applying here would rebuild `from`
+         from the already-advanced prevTargetRef (→ null direction), flattening the
+         inward/outward (Camera→body→Sun vs →deep space) framing. So only apply for
+         the paths that DIDN'T set it synchronously — scroll, URL hash, map pick —
+         i.e. when focus isn't already on this exact target. */
+      const f = focusRef.current;
+      const here = DESTINATIONS[activeIdx];
+      const already = f && f.live && f.target && here && f.target.destId === here.id && f.target.k === itemIdx;
+      if (!already) applyFocus(activeIdx, itemIdx);
+    }
+    /* Sol (idx 0, planet-view) → clear focus so the camera falls back to the
+       authored hero framing (the same pose the intro warp lands on — no snap),
+       and reset the travel origin so the next outward hop departs FROM Sol. */
+    else { focusRef.current = null; prevTargetRef.current = { destId: DESTINATIONS[0].id, k: -1 }; }
   }, [mode, activeIdx, itemIdx, applyFocus]);
 
   /* Read URL hash once the countdown finishes (full intro complete),
@@ -642,11 +666,15 @@ const StellarApp = () => {
               onBoard={() => {}}
             />
           )}
-          {/* Item focused (←→) → per-item dossier; else the section panel. */}
-          {mode === "tour" && focusedItem && (
-            <ItemDossier item={focusedItem} index={itemIdx} total={laneItems.length} sectionLabel={DESTINATIONS[activeIdx]?.label} />
+          {/* Item focused (←→) → per-item dossier; else the section panel. Both
+              hide during the fly-through and fade back in on arrival (settle). */}
+          {mode === "tour" && (
+            <div style={{ opacity: panelHidden ? 0 : 1, transition: "opacity 360ms ease", pointerEvents: panelHidden ? "none" : undefined }}>
+              {focusedItem
+                ? <ItemDossier item={focusedItem} index={itemIdx} total={laneItems.length} sectionLabel={DESTINATIONS[activeIdx]?.label} />
+                : <ContentPanel destination={DESTINATIONS[activeIdx]} />}
+            </div>
           )}
-          {mode === "tour" && !focusedItem && <ContentPanel destination={DESTINATIONS[activeIdx]} />}
           <OverviewHud overview={overview} />
           {mode === "tour" && <ScrollHint visible={activeIdx === 0 && !interacted} />}
           <OverviewMap objects={OBJECTS} cameraRef={cameraRef} visible={overview && !focusedObj} onPick={handlePick} />

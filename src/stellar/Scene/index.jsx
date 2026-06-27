@@ -480,6 +480,10 @@ const Scene = ({ scrollT, activeIdx, itemIdx = 0, onJump, onReady, freeRoamEnabl
           cameraRef={cameraRef}
           launchPhase={launchPhase}
           onLaunchComplete={onLaunchComplete}
+          /* Reduced-motion + mobile → SNAP (no first-person fly-through; info
+             stays visible). The rig reads these to gate the flight + flyingRef. */
+          reducedMotion={reducedMotion}
+          isMobile={isMobile}
           /* Desktop frames the planet right-of-centre to clear the left
              content column; compact/mobile keep it centred (stacked layout). */
           frameShift={isCompact ? 0 : 0.3}
