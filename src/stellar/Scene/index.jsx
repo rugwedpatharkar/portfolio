@@ -52,6 +52,8 @@ import DustParticles from "./DustParticles";
 import AdaptiveQuality from "./AdaptiveQuality";
 import Sonification from "./Sonification";
 import SaturnHexagon from "./SaturnHexagon";
+import IoTorus from "./IoTorus";
+import NeptuneAurora from "./NeptuneAurora";
 import AutoExposure from "./AutoExposure";
 import KeyLight from "./KeyLight";
 import MouseParallax from "./MouseParallax";
@@ -356,8 +358,11 @@ const Scene = ({ scrollT, activeIdx, itemIdx = 0, onJump, onReady, freeRoamEnabl
             return (
               <OrbitGroup key={d.id} dest={d} animate={!reducedMotion}>
                 {planetEl}
-                {/* PHASE 4 (Wave 1) — Saturn's real north-polar hexagon. */}
+                {/* PHASE 4 (Wave 1) — real planetary phenomena: Saturn's hexagon,
+                    Io's plasma torus (Jupiter), Neptune's mid-latitude aurora. */}
                 {d.id === "notes" && <SaturnHexagon radius={d.radius} axialTilt={d.axialTilt || 0} animate={!reducedMotion} />}
+                {d.id === "skills" && <IoTorus radius={d.radius} axialTilt={d.axialTilt || 0} animate={!reducedMotion} />}
+                {d.id === "hobbies" && <NeptuneAurora radius={d.radius} axialTilt={d.axialTilt || 0} animate={!reducedMotion} />}
                 {/* Mangalyaan (Mars Orbiter Mission) rides Mars's group. */}
                 {d.id === "projects" && showExtras && (
                   <IsroProbe
