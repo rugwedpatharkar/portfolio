@@ -101,6 +101,12 @@ const StellarApp = () => {
     setLaunchPhase(null);
     setIntroDone(true);
   }, []);
+  /* CameraRig's clock-driven warp arrival → let IntroSequence play the drop-out /
+     HUD-boot beat (it owns the fine enum); the arrival beat then calls finishIntro.
+     Keeping launchPhase "warp" until then pins the camera at Sol (no snap). */
+  const handleLaunchComplete = useCallback(() => {
+    window.dispatchEvent(new CustomEvent("stellar:intro:warpdone"));
+  }, []);
   /* Safety: if useViewport only resolves RM/mobile after first paint, never strand
      them behind the intro gate (which hides the tour UI). */
   useEffect(() => {
@@ -566,7 +572,7 @@ const StellarApp = () => {
         clock={sceneClockRef.current}
         extrasPhase={extrasPhase}
         launchPhase={launchPhase}
-        onLaunchComplete={finishIntro}
+        onLaunchComplete={handleLaunchComplete}
       />
       {/* PHASE 1 — the cinematic gate. Desktop only; drives launchPhase + the
           black curtain, hands off to the tour via finishIntro. */}

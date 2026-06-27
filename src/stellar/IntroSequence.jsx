@@ -1,82 +1,84 @@
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
+import OpeningCrawl from "./OpeningCrawl";
+import NavicomputerCountdown from "./NavicomputerCountdown";
+import HyperspaceArrival from "./HyperspaceArrival";
 
 /*
- * PHASE 1 — THE ARRIVAL (beats 1A + 1B).
+ * PHASE 1 — THE ARRIVAL. Owns the FINE intro enum; StellarApp owns the COARSE
+ * launchPhase + introDone. Beats:
  *
- * The cinematic gate the visitor must pass before the tour: a black bridge-hum
- * hold, then CameraRig's ESTABLISH pull-back (reveal the tilted system), then the
- * WARP dive into Sol. This component owns only the COARSE launch phase + the black
- * curtain that lifts as the reveal begins; it never times the warp's END — that is
- * clock-driven inside CameraRig (onLaunchComplete → StellarApp.finishIntro), so a
- * slow load can't snap mid-warp.
+ *   crawl → countdown (over CameraRig's establishing pull-back) → warp (hyperspace
+ *   dive) → arrive (drop-out + HUD boot) → done (hand to the tour)
  *
- * Skippable by any gesture (click / key / wheel / touch). A safety net finishes
- * the intro if the camera never reports arrival. Reduced-motion + mobile never
- * mount this (StellarApp starts them `introDone`), so the tour is instant there.
- *
- * Later beats (1C crawl, 1D countdown, 1E sound) slot in between BLACK and WARP.
+ * CameraRig drives the camera (establish/warp) and reports warp arrival via the
+ * `stellar:intro:warpdone` event (clock-driven — no wall-timer mid-warp snap). A
+ * SKIP pill finishes the whole intro at any beat. Reduced-motion + mobile never
+ * mount this (StellarApp starts them `introDone` → instant tour). Sound cues are
+ * dispatched per beat (hum is armed once in StellarApp).
  */
 
-const BLACK_MS = 700; // bridge-hum black hold before the reveal
-/* Must exceed CameraRig's ESTABLISH_DUR (2.2s) so the pull-back fully arrives at
-   ESTABLISH_POS before the warp begins — the warp hardcodes its start there, so a
-   shorter dwell would snap the camera at the hand-off. */
-const ESTABLISH_MS = 2400; // dwell on the establishing shot before the dive
-const SAFETY_MS = 10000; // hard finish if CameraRig never reports arrival (very slow load)
+const COUNTDOWN_SAFETY_MS = 6000; // advance even if the countdown component dies
+const WARP_SAFETY_MS = 6000; // finish even if CameraRig never reports arrival
+
+const skipPill = {
+  position: "fixed",
+  bottom: "5vh",
+  right: "4.5vw",
+  zIndex: 90,
+  pointerEvents: "auto",
+  cursor: "pointer",
+  fontFamily: "'JetBrains Mono', monospace",
+  fontSize: 11,
+  letterSpacing: "0.18em",
+  color: "rgba(206,224,255,0.88)",
+  background: "rgba(10,18,34,0.5)",
+  border: "1px solid rgba(143,207,255,0.4)",
+  borderRadius: 999,
+  padding: "8px 16px",
+  backdropFilter: "blur(6px)",
+};
 
 const IntroSequence = ({ onPhase, onFinish }) => {
-  const doneRef = useRef(false);
-  const curtainRef = useRef(null);
+  const [beat, setBeat] = useState("crawl");
+  const finishedRef = useRef(false);
+
+  const finish = () => {
+    if (finishedRef.current) return;
+    finishedRef.current = true;
+    onFinish?.();
+  };
 
   useEffect(() => {
-    const finish = () => {
-      if (doneRef.current) return;
-      doneRef.current = true;
-      onFinish?.();
-    };
-
-    const timers = [
-      /* beat: lift the black curtain + start the establishing pull-back. */
-      setTimeout(() => {
-        onPhase?.("establish");
-        if (curtainRef.current) curtainRef.current.style.opacity = "0";
-      }, BLACK_MS),
-      /* beat: hyperspeed dive into Sol (CameraRig drives + signals completion). */
-      setTimeout(() => onPhase?.("warp"), BLACK_MS + ESTABLISH_MS),
-      /* safety net — never strand the visitor on the intro. */
-      setTimeout(finish, SAFETY_MS),
-    ];
-
-    /* Any deliberate gesture skips straight to the tour. */
-    const skip = () => finish();
-    window.addEventListener("pointerdown", skip);
-    window.addEventListener("keydown", skip);
-    window.addEventListener("wheel", skip, { passive: true });
-    window.addEventListener("touchstart", skip, { passive: true });
-
-    return () => {
-      timers.forEach(clearTimeout);
-      window.removeEventListener("pointerdown", skip);
-      window.removeEventListener("keydown", skip);
-      window.removeEventListener("wheel", skip);
-      window.removeEventListener("touchstart", skip);
-    };
-  }, [onPhase, onFinish]);
+    if (beat === "countdown") {
+      onPhase?.("establish"); // reveal the system behind the counting reticle
+      const safety = setTimeout(() => setBeat((b) => (b === "countdown" ? "warp" : b)), COUNTDOWN_SAFETY_MS);
+      return () => clearTimeout(safety);
+    }
+    if (beat === "warp") {
+      onPhase?.("warp");
+      window.dispatchEvent(new CustomEvent("stellar:sound:jump")); // the punch to lightspeed
+      const onArrived = () => setBeat((b) => (b === "warp" ? "arrive" : b));
+      window.addEventListener("stellar:intro:warpdone", onArrived);
+      const safety = setTimeout(onArrived, WARP_SAFETY_MS);
+      return () => {
+        window.removeEventListener("stellar:intro:warpdone", onArrived);
+        clearTimeout(safety);
+      };
+    }
+    return undefined;
+  }, [beat, onPhase]);
 
   return (
-    <div
-      ref={curtainRef}
-      aria-hidden
-      style={{
-        position: "fixed",
-        inset: 0,
-        zIndex: 80,
-        background: "#03050d",
-        opacity: 1,
-        transition: "opacity 1.1s ease-out",
-        pointerEvents: "none",
-      }}
-    />
+    <>
+      {beat === "crawl" && <OpeningCrawl onDone={() => setBeat("countdown")} />}
+      {beat === "countdown" && <NavicomputerCountdown onComplete={() => setBeat("warp")} />}
+      {beat === "arrive" && <HyperspaceArrival onDone={finish} />}
+      {/* Persistent whole-intro skip. stopPropagation so a pill click doesn't also
+          trigger the crawl's gesture-advance (which only goes to the countdown). */}
+      <button onPointerDown={(e) => { e.stopPropagation(); finish(); }} style={skipPill} aria-label="Skip intro">
+        SKIP&nbsp;INTRO&nbsp;▸
+      </button>
+    </>
   );
 };
 
