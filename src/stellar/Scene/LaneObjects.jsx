@@ -5,6 +5,7 @@ import * as THREE from "three";
 import { useSceneClock } from "./SceneClock";
 import { laneObjectPosition } from "../config/orbits";
 import { itemsForSection } from "../data/sectionItems";
+import LaneModel from "./LaneModel";
 
 /*
  * Lane objects — the active section's résumé items rendered as a co-orbital
@@ -43,16 +44,8 @@ export default function LaneObjects({ destination, itemIdx = 0 }) {
         const active = k === itemIdx;
         return (
           <group key={it.id} ref={(el) => (refs.current[k] = el)}>
-            <mesh castShadow>
-              <octahedronGeometry args={[0.16, 0]} />
-              <meshStandardMaterial
-                color={active ? "#cfe0f2" : "#7f93b0"}
-                metalness={0.6}
-                roughness={0.35}
-                emissive={active ? "#ffb84d" : "#4da6ff"}
-                emissiveIntensity={active ? 0.5 : 0.18}
-              />
-            </mesh>
+            {/* characterful per-kind model (Phase 2A) */}
+            <LaneModel kind={it.kind} active={active} />
             <mesh>
               <sphereGeometry args={[0.3, 16, 16]} />
               <meshBasicMaterial
