@@ -52,6 +52,19 @@ export default function CockpitHUD({ destination, activeIdx = 0, itemIdx = 0, it
     const t = setTimeout(() => setTransit(false), 1700);
     return () => clearTimeout(t);
   }, [destination?.id, itemIdx, reduce]);
+  /* PHASE 3A — reactive co-pilot quip (dispatched by CoPilot); overrides the
+     static section line for a few seconds, then reverts. */
+  const [quip, setQuip] = useState(null);
+  useEffect(() => {
+    let timer = null;
+    const onQuip = (e) => {
+      setQuip(e?.detail?.line || null);
+      if (timer) clearTimeout(timer);
+      timer = setTimeout(() => setQuip(null), 5500);
+    };
+    window.addEventListener("stellar:copilot", onQuip);
+    return () => { window.removeEventListener("stellar:copilot", onQuip); if (timer) clearTimeout(timer); };
+  }, []);
   if (!destination) return null;
 
   const total = DESTINATIONS.length;
@@ -152,10 +165,12 @@ export default function CockpitHUD({ destination, activeIdx = 0, itemIdx = 0, it
       </div>
 
       {/* Co-pilot line — bottom left */}
-      <div style={{ position: "absolute", bottom: 24, left: 46, maxWidth: "44vw", fontSize: 10, color: transit ? SC.amber : SC.amberInk, opacity: 0.9, textShadow: "0 1px 10px rgba(0,0,0,.85)" }}>
+      <div style={{ position: "absolute", bottom: 24, left: 46, maxWidth: "44vw", fontSize: 10, color: transit || quip ? SC.amber : SC.amberInk, opacity: 0.9, textShadow: "0 1px 10px rgba(0,0,0,.85)" }}>
         {transit
           ? `▸ HYPERDRIVE — jump to ${itemIdx >= 0 && curItem ? curItem.label : destination.label}`
-          : `▸ CO-PILOT — ${copilot}`}
+          : quip
+            ? `◉ CO-PILOT — ${quip}`
+            : `▸ CO-PILOT — ${copilot}`}
       </div>
 
       {/* Hint line — bottom centre, under the dial */}

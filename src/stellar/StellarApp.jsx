@@ -21,6 +21,7 @@ import EasterEgg from "./EasterEgg";
 import AnswerListener from "./AnswerListener";
 import useViewport from "./useViewport";
 import IntroSequence from "./IntroSequence";
+import CoPilot from "./CoPilot";
 import SpeedRun from "./SpeedRun";
 import CockpitFrame from "./CockpitFrame";
 import CockpitHUD from "./CockpitHUD";
@@ -234,7 +235,10 @@ const StellarApp = () => {
   /* PHASE 2C — reticle-lock beep when ←→ locks onto a lane object (the 3-beat
      arrival's middle beat; the dossier scan-reveal + in-world ping are the others). */
   useEffect(() => {
-    if (introDone && itemIdx >= 0) window.dispatchEvent(new CustomEvent("stellar:sound:beep"));
+    if (introDone && itemIdx >= 0) {
+      window.dispatchEvent(new CustomEvent("stellar:sound:beep"));
+      window.dispatchEvent(new CustomEvent("stellar:scan", { detail: { idx: itemIdx } })); // co-pilot reacts
+    }
   }, [itemIdx, introDone]);
 
   const handleJump = useCallback((idx) => {
@@ -609,6 +613,9 @@ const StellarApp = () => {
           <Achievements activeIdx={activeIdx} showStrip={false} />
           <EasterEgg />
           <AnswerListener />
+          {/* PHASE 3A — reactive co-pilot rules-engine (logic-only; drives the
+              CockpitHUD co-pilot line via stellar:copilot). */}
+          <CoPilot />
           <DiscoveriesView open={logOpen} onClose={() => setLogOpen(false)} animate={!reducedMotion} />
           <CommandPalette open={paletteOpen} commands={commands} onClose={() => setPaletteOpen(false)} />
           <FragmentToast />
