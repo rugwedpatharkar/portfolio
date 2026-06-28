@@ -115,7 +115,7 @@ export const PLANET_FACTS = {
     gravity: "10.44 m/s² · 1.06× Earth",
     temp: "−178 °C",
     atmosphere: "H₂ (96%) · He (3%) · methane",
-    moons: "146 confirmed (Titan, Enceladus, Mimas)",
+    moons: "292 confirmed (Titan, Enceladus, Mimas) — most of any planet",
     missions: "Pioneer 11 · Voyager · Cassini–Huygens",
     wow: "That hexagon turning over the north pole is real — a six-sided jet stream wider than two Earths, stable since Voyager spotted it in 1981. Saturn is also so low-density it would float in a big enough bath.",
   },
