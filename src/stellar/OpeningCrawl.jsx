@@ -110,7 +110,7 @@ const OpeningCrawl = ({ onDone }) => {
           <div style={{ fontFamily: "'Chakra Petch', sans-serif", fontSize: "clamp(34px, 6vw, 54px)", fontWeight: 700, letterSpacing: "0.1em", color: "#eaf3ff", textShadow: "0 0 34px rgba(120,180,255,0.45)" }}>
             {personalInfo.fullName.toUpperCase()}
           </div>
-          <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: "clamp(13px, 2vw, 17px)", letterSpacing: "0.16em", color: "#8fb6f2", marginTop: 16 }}>
+          <div style={{ fontFamily: "'Martian Mono', monospace", fontSize: "clamp(13px, 2vw, 17px)", letterSpacing: "0.16em", color: "#8fb6f2", marginTop: 16 }}>
             {personalInfo.role.toUpperCase()} · BACKEND & AGENTIC&nbsp;AI
           </div>
           <p style={{ fontFamily: "'Chakra Petch', sans-serif", fontSize: "clamp(16px, 2.4vw, 21px)", lineHeight: 1.8, color: "#bcd4f5", marginTop: 46, opacity: 0.95 }}>

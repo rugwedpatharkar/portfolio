@@ -47,7 +47,7 @@ const Breadcrumb = ({ activeIdx }) => {
         backdropFilter: "blur(10px)",
         border: "1px solid rgba(255, 255, 255, 0.08)",
         borderRadius: 18,
-        fontFamily: "'JetBrains Mono', monospace",
+        fontFamily: "'Martian Mono', monospace",
         fontSize: 9,
         zIndex: 30,
         pointerEvents: "none",

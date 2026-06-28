@@ -8,7 +8,7 @@ import { useEffect, useMemo, useRef, useState } from "react";
  * is open; this component owns arrow / enter / escape internally.
  */
 
-const MONO = "'JetBrains Mono', monospace";
+const MONO = "'Martian Mono', monospace";
 
 /* Lightweight relevance score: title prefix > title substring > haystack
    substring > subsequence. 0 = no match. */

@@ -55,8 +55,8 @@ const ScanReadout = ({ content, onBack, onPrev, onNext }) => {
         >
           {/* scanning header + sweep */}
           <div style={{ display: "flex", alignItems: "baseline", justifyContent: "space-between", gap: 10 }}>
-            <span style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 9.5, letterSpacing: "0.14em", textTransform: "uppercase", color }}>◈ Scan · {content.category}</span>
-            {typeof content.score === "number" && <span style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 9, color: "rgba(255,255,255,0.45)" }}>+{content.score}</span>}
+            <span style={{ fontFamily: "'Martian Mono', monospace", fontSize: 9.5, letterSpacing: "0.14em", textTransform: "uppercase", color }}>◈ Scan · {content.category}</span>
+            {typeof content.score === "number" && <span style={{ fontFamily: "'Martian Mono', monospace", fontSize: 9, color: "rgba(255,255,255,0.45)" }}>+{content.score}</span>}
           </div>
           <div style={{ position: "relative", height: 2, margin: "7px 0 9px", background: "rgba(255,255,255,0.08)", borderRadius: 2, overflow: "hidden" }}>
             <motion.div
@@ -72,21 +72,21 @@ const ScanReadout = ({ content, onBack, onPrev, onNext }) => {
             <motion.div variants={container} initial="hidden" animate="show" style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "8px 18px", marginBottom: 10 }}>
               {grid.map(([k, v]) => (
                 <motion.div key={k} variants={item}>
-                  <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 8.5, color: "rgba(255,255,255,0.5)", textTransform: "uppercase", letterSpacing: "0.08em" }}>{FACT_LABELS[k] || k}</div>
-                  <div style={{ fontFamily: "'Oswald', sans-serif", fontSize: 13, color: "rgba(255,255,255,0.92)", marginTop: 1 }}>{String(v)}</div>
+                  <div style={{ fontFamily: "'Martian Mono', monospace", fontSize: 8.5, color: "rgba(255,255,255,0.5)", textTransform: "uppercase", letterSpacing: "0.08em" }}>{FACT_LABELS[k] || k}</div>
+                  <div style={{ fontFamily: "'Saira', sans-serif", fontSize: 13, color: "rgba(255,255,255,0.92)", marginTop: 1 }}>{String(v)}</div>
                 </motion.div>
               ))}
             </motion.div>
           )}
 
           {wow && (
-            <motion.div variants={item} initial="hidden" animate="show" style={{ fontFamily: "'Oswald', sans-serif", fontSize: 12.5, fontStyle: "italic", color, lineHeight: 1.45, margin: "0 0 8px", paddingLeft: 14, position: "relative" }}>
+            <motion.div variants={item} initial="hidden" animate="show" style={{ fontFamily: "'Saira', sans-serif", fontSize: 12.5, fontStyle: "italic", color, lineHeight: 1.45, margin: "0 0 8px", paddingLeft: 14, position: "relative" }}>
               <span style={{ position: "absolute", left: 0 }}>★</span>{wow}
             </motion.div>
           )}
 
           {content.info && (
-            <div style={{ fontFamily: "'Oswald', sans-serif", fontSize: 12.5, color: "rgba(255,255,255,0.8)", lineHeight: 1.5 }}>{content.info}</div>
+            <div style={{ fontFamily: "'Saira', sans-serif", fontSize: 12.5, color: "rgba(255,255,255,0.8)", lineHeight: 1.5 }}>{content.info}</div>
           )}
         </motion.div>
       </AnimatePresence>
@@ -95,7 +95,7 @@ const ScanReadout = ({ content, onBack, onPrev, onNext }) => {
         <motion.button whileHover={{ y: -2 }} whileTap={{ scale: 0.95 }} onClick={onPrev} aria-label="Previous in category" style={navBtn}>‹</motion.button>
         <motion.button
           whileHover={{ y: -2 }} whileTap={{ scale: 0.97 }} onClick={onBack}
-          style={{ all: "unset", cursor: "pointer", flex: 1, textAlign: "center", fontFamily: "'JetBrains Mono', monospace", fontSize: 10, letterSpacing: "0.1em", textTransform: "uppercase", color: "rgba(255,255,255,0.85)", border: "1px solid rgba(255,255,255,0.22)", borderRadius: 999, padding: "8px 14px" }}
+          style={{ all: "unset", cursor: "pointer", flex: 1, textAlign: "center", fontFamily: "'Martian Mono', monospace", fontSize: 10, letterSpacing: "0.1em", textTransform: "uppercase", color: "rgba(255,255,255,0.85)", border: "1px solid rgba(255,255,255,0.22)", borderRadius: 999, padding: "8px 14px" }}
         >← Back to map · Esc</motion.button>
         <motion.button whileHover={{ y: -2 }} whileTap={{ scale: 0.95 }} onClick={onNext} aria-label="Next in category" style={navBtn}>›</motion.button>
       </div>

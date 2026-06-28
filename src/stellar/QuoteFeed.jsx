@@ -42,7 +42,7 @@ const QuoteFeed = () => {
         transform: "translateX(-50%)",
         maxWidth: "min(640px, 78vw)",
         padding: "4px 16px",
-        fontFamily: "'DM Sans', sans-serif",
+        fontFamily: "'Saira', sans-serif",
         fontSize: 11.5,
         color: "rgba(255, 255, 255, 0.55)",
         fontStyle: "italic",

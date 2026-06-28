@@ -41,7 +41,7 @@ export default function SoundToggle() {
         borderRadius: 8,
         backdropFilter: "blur(6px)",
         WebkitBackdropFilter: "blur(6px)",
-        fontFamily: "'JetBrains Mono', monospace",
+        fontFamily: "'Martian Mono', monospace",
         fontSize: 15,
         lineHeight: 1,
         letterSpacing: 1,

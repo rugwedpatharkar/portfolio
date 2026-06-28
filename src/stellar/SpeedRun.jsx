@@ -82,7 +82,7 @@ const SpeedRun = ({ activeIdx, active = false, onToggle }) => {
         background: "rgba(255, 224, 102, 0.12)",
         backdropFilter: "blur(10px)", WebkitBackdropFilter: "blur(10px)",
         border: "1px solid rgba(255, 224, 102, 0.5)",
-        fontFamily: "'JetBrains Mono', monospace", fontSize: 11,
+        fontFamily: "'Martian Mono', monospace", fontSize: 11,
         color: "#ffe066", zIndex: 48, cursor: "pointer", userSelect: "none",
       }}
     >

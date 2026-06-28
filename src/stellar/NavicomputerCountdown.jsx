@@ -40,7 +40,7 @@ const NavicomputerCountdown = ({ onComplete }) => {
         @keyframes scLockBlink { 0%,100% { opacity: 1 } 50% { opacity: 0.4 } }
       `}</style>
 
-      <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 12, letterSpacing: "0.34em", color: C, opacity: 0.85, paddingLeft: "0.34em", textShadow: "0 0 14px rgba(143,207,255,0.6)" }}>
+      <div style={{ fontFamily: "'Martian Mono', monospace", fontSize: 12, letterSpacing: "0.34em", color: C, opacity: 0.85, paddingLeft: "0.34em", textShadow: "0 0 14px rgba(143,207,255,0.6)" }}>
         HYPERSPACE&nbsp;JUMP&nbsp;IN
       </div>
 
@@ -62,7 +62,7 @@ const NavicomputerCountdown = ({ onComplete }) => {
         </div>
       </div>
 
-      <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 11, letterSpacing: "0.2em", color: C, opacity: 0.8, animation: "scLockBlink 1.1s ease-in-out infinite" }}>
+      <div style={{ fontFamily: "'Martian Mono', monospace", fontSize: 11, letterSpacing: "0.2em", color: C, opacity: 0.8, animation: "scLockBlink 1.1s ease-in-out infinite" }}>
         ◢ COORDINATES&nbsp;LOCKED · SOL&nbsp;SYSTEM ◣
       </div>
     </div>

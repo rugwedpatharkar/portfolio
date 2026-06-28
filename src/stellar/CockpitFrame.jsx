@@ -93,7 +93,7 @@ const CockpitFrame = ({ enabled, speedRef }) => {
           background: "rgba(6, 9, 22, 0.6)",
           border: "1px solid rgba(47, 224, 176, 0.4)",
           borderRadius: 4,
-          fontFamily: "'JetBrains Mono', monospace",
+          fontFamily: "'Martian Mono', monospace",
           fontSize: 9.5,
           color: "rgba(47, 224, 176, 0.9)",
           letterSpacing: "0.12em",

@@ -109,7 +109,7 @@ const CinematicLayer = ({ getDestinationLabel }) => {
           padding: 12px 24px;
           z-index: 61;
           pointer-events: none;
-          font-family: 'JetBrains Mono', monospace;
+          font-family: 'Martian Mono', monospace;
           color: white;
           text-align: center;
           animation: stellarTitleIn 700ms cubic-bezier(0.16, 1, 0.3, 1) 80ms backwards,
@@ -121,7 +121,7 @@ const CinematicLayer = ({ getDestinationLabel }) => {
           letter-spacing: 0.32em;
         }
         .stellar-title-label {
-          font-family: 'Sora', sans-serif;
+          font-family: 'Chakra Petch', sans-serif;
           font-size: clamp(28px, 4.4vw, 48px);
           font-weight: 700;
           letter-spacing: -0.01em;

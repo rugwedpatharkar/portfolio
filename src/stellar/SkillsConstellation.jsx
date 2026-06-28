@@ -54,7 +54,7 @@ const SkillsConstellation = ({ skills }) => {
         </g>
       ))}
       {labels.map((l, i) => (
-        <text key={`t${i}`} x={l.x} y={l.y} fill={l.color} opacity="0.8" fontSize="6.5" fontFamily="'JetBrains Mono', monospace" textAnchor="middle" style={{ textTransform: "uppercase", letterSpacing: "0.06em" }}>{l.text}</text>
+        <text key={`t${i}`} x={l.x} y={l.y} fill={l.color} opacity="0.8" fontSize="6.5" fontFamily="'Martian Mono', monospace" textAnchor="middle" style={{ textTransform: "uppercase", letterSpacing: "0.06em" }}>{l.text}</text>
       ))}
     </svg>
   );

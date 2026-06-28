@@ -34,7 +34,7 @@ const Label = ({ name, sub }) => (
     center
     distanceFactor={16}
     style={{
-      pointerEvents: "none", fontFamily: "'JetBrains Mono', monospace", fontSize: 8.5,
+      pointerEvents: "none", fontFamily: "'Martian Mono', monospace", fontSize: 8.5,
       color: "#a8d8ff", textShadow: "0 1px 6px rgba(0,0,0,0.75)", letterSpacing: "0.1em",
       whiteSpace: "nowrap", transform: "translateY(-13px)",
     }}

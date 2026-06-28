@@ -94,7 +94,7 @@ const GalacticInset = ({ reducedMotion = false }) => {
       </svg>
       <div
         style={{
-          fontFamily: "'JetBrains Mono', monospace",
+          fontFamily: "'Martian Mono', monospace",
           fontSize: 8.5,
           letterSpacing: "0.12em",
           textTransform: "uppercase",

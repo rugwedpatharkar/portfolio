@@ -65,7 +65,7 @@ const HyperspaceArrival = ({ onDone }) => {
 
       {/* subtitle */}
       <div style={{ position: "absolute", left: 0, right: 0, bottom: "15vh", textAlign: "center", animation: "scSubIn 0.6s ease-out 0.55s both" }}>
-        <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 15, letterSpacing: "0.24em", color: "#eaf4ff", textShadow: "0 0 18px rgba(143,207,255,0.9), 0 2px 12px rgba(0,0,0,0.8)" }}>
+        <div style={{ fontFamily: "'Martian Mono', monospace", fontSize: 15, letterSpacing: "0.24em", color: "#eaf4ff", textShadow: "0 0 18px rgba(143,207,255,0.9), 0 2px 12px rgba(0,0,0,0.8)" }}>
           DROPPING&nbsp;OUT&nbsp;OF&nbsp;HYPERSPACE
         </div>
         <div style={{ fontFamily: "'Chakra Petch', sans-serif", fontSize: 13, letterSpacing: "0.34em", color: C, marginTop: 8, opacity: 0.9, paddingLeft: "0.34em" }}>

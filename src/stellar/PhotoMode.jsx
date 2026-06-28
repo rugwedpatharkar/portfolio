@@ -14,7 +14,7 @@ import { personalInfo } from "../content";
  * URL on the postcard is the shareable hook for now.)
  */
 
-const MONO = "'JetBrains Mono', monospace";
+const MONO = "'Martian Mono', monospace";
 const DISP = "'Chakra Petch', sans-serif";
 const C = "#8fcfff";
 

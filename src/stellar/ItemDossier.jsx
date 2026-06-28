@@ -8,7 +8,7 @@ import { motion, AnimatePresence, useReducedMotion } from "motion/react";
  */
 
 const DISP = "'Chakra Petch', sans-serif";
-const MONO = "'JetBrains Mono', monospace";
+const MONO = "'Martian Mono', monospace";
 const AMBER = "#f8c555";
 
 const ItemDossier = ({ item, index = 0, total = 0, sectionLabel = "" }) => {

@@ -55,7 +55,7 @@ const CodeRain = () => {
 
       ctx.fillStyle = "rgba(5, 8, 22, 0.05)";
       ctx.fillRect(0, 0, canvas.width, canvas.height);
-      ctx.font = `${fontSize}px "JetBrains Mono", monospace`;
+      ctx.font = `${fontSize}px "Martian Mono", monospace`;
 
       for (let i = 0; i < drops.length; i++) {
         const char = CHARS[(Math.random() * CHARS.length) | 0];

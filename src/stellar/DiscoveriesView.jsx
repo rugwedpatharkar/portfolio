@@ -11,7 +11,7 @@ import useViewport from "./useViewport";
  * and the full achievement grid. Reads fresh on open + on every progress event.
  */
 
-const MONO = "'JetBrains Mono', monospace";
+const MONO = "'Martian Mono', monospace";
 const TITLE = "'Chakra Petch', sans-serif";
 const ACCENT = "#4da6ff";
 
@@ -117,7 +117,7 @@ const DiscoveriesView = ({ open, onClose, animate = true }) => {
                   <div style={{ fontFamily: MONO, fontSize: 11.5, color: it.found ? "white" : "rgba(255,255,255,0.55)", fontWeight: it.found ? 600 : 400 }}>
                     {it.found ? it.label : "Uncharted anomaly"}
                   </div>
-                  <div style={{ fontFamily: "'Oswald', sans-serif", fontSize: 11, fontStyle: it.found ? "normal" : "italic", color: it.found ? "rgba(47, 224, 176,0.9)" : "rgba(223,217,255,0.5)", marginTop: 1 }}>
+                  <div style={{ fontFamily: "'Saira', sans-serif", fontSize: 11, fontStyle: it.found ? "normal" : "italic", color: it.found ? "rgba(47, 224, 176,0.9)" : "rgba(223,217,255,0.5)", marginTop: 1 }}>
                     {it.found ? "Charted ✓" : it.hint}
                   </div>
                 </div>

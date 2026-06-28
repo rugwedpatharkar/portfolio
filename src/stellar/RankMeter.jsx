@@ -10,7 +10,7 @@ import useViewport from "./useViewport";
  * `stellar:progress` event (a new chart / visit / badge), so it stays live.
  */
 
-const MONO = "'JetBrains Mono', monospace";
+const MONO = "'Martian Mono', monospace";
 
 const read = () => {
   const m = getDiscoveriesModel();

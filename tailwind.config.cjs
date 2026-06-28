@@ -19,9 +19,9 @@ module.exports = {
     },
     extend: {
       fontFamily: {
-        sans: ["DM Sans", "sans-serif"],
-        heading: ["Sora", "sans-serif"],
-        mono: ["JetBrains Mono", "monospace"],
+        sans: ["Saira", "sans-serif"],
+        heading: ["Chakra Petch", "sans-serif"],
+        mono: ["Martian Mono", "monospace"],
       },
       fontSize: {
         // Fluid type scale — clamp(min, fluid, max). Single value carries every

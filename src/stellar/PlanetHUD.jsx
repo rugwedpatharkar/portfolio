@@ -71,7 +71,7 @@ const PlanetHUD = ({ destination }) => {
           border: `1px solid ${destination.color}55`,
           borderRadius: 8,
           color: "white",
-          fontFamily: "'JetBrains Mono', monospace",
+          fontFamily: "'Martian Mono', monospace",
           zIndex: 45,
           pointerEvents: "none",
         }}
@@ -104,7 +104,7 @@ const PlanetHUD = ({ destination }) => {
         border: `1px solid ${destination.color}55`,
         borderRadius: 10,
         color: "white",
-        fontFamily: "'JetBrains Mono', monospace",
+        fontFamily: "'Martian Mono', monospace",
         zIndex: 45,
         pointerEvents: "none",
         boxShadow: `0 18px 50px rgba(0, 0, 0, 0.55), inset 0 0 60px ${destination.color}10`,
@@ -178,7 +178,7 @@ const PlanetHUD = ({ destination }) => {
         bottom: 40,
         width: 270,
         color: "white",
-        fontFamily: "'JetBrains Mono', monospace",
+        fontFamily: "'Martian Mono', monospace",
         zIndex: 45,
         /* No interactive controls now (Real Data is always open), so let
            wheel/drag pass through to the scene for camera navigation. */
@@ -221,7 +221,7 @@ const PlanetHUD = ({ destination }) => {
       <div style={{ marginTop: 9, paddingTop: 8, borderTop: `1px dashed ${destination.color}33`, fontSize: 10, color: "rgba(255,255,255,0.55)", fontStyle: "italic" }}>{facts.note}</div>
       {real && (
         <div style={{ marginTop: 10, paddingTop: 9, borderTop: "1px solid rgba(255,255,255,0.08)" }}>
-          <div style={{ display: "flex", alignItems: "center", gap: 7, fontFamily: "'JetBrains Mono', monospace", fontSize: 9.5, color: destination.color, letterSpacing: "0.1em", textTransform: "uppercase", marginBottom: 9 }}>
+          <div style={{ display: "flex", alignItems: "center", gap: 7, fontFamily: "'Martian Mono', monospace", fontSize: 9.5, color: destination.color, letterSpacing: "0.1em", textTransform: "uppercase", marginBottom: 9 }}>
             <span style={{ width: 5, height: 5, borderRadius: "50%", background: destination.color }} />
             <span>Real data</span>
           </div>
@@ -233,7 +233,7 @@ const PlanetHUD = ({ destination }) => {
               </div>
             ))}
           </div>
-          <div style={{ marginTop: 11, padding: "10px 12px", background: `${destination.color}1c`, border: `1px solid ${destination.color}40`, borderRadius: 8, fontSize: 12, color: "rgba(255,255,255,0.92)", lineHeight: 1.5, fontStyle: "italic", fontFamily: "'Oswald', sans-serif" }}>
+          <div style={{ marginTop: 11, padding: "10px 12px", background: `${destination.color}1c`, border: `1px solid ${destination.color}40`, borderRadius: 8, fontSize: 12, color: "rgba(255,255,255,0.92)", lineHeight: 1.5, fontStyle: "italic", fontFamily: "'Saira', sans-serif" }}>
             <span style={{ color: destination.color, fontWeight: 700, fontStyle: "normal", fontSize: 13 }}>★ </span>{real.wow}
           </div>
         </div>

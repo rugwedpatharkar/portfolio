@@ -180,7 +180,7 @@ const ShootingStars = ({ animate = true }) => {
                 border: "1px solid rgba(168,216,255,0.4)",
                 backdropFilter: "blur(8px)",
                 WebkitBackdropFilter: "blur(8px)",
-                fontFamily: "'JetBrains Mono', monospace",
+                fontFamily: "'Martian Mono', monospace",
                 color: "white",
                 fontSize: 11.5,
                 lineHeight: 1.45,

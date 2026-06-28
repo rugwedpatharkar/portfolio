@@ -7,6 +7,6 @@
  */
 export const FONT = {
   display: "'Chakra Petch', 'Arial Narrow', sans-serif",
-  body: "'Oswald', 'Arial Narrow', sans-serif",
-  mono: "'JetBrains Mono', ui-monospace, monospace",
+  body: "'Saira', 'Arial Narrow', sans-serif",
+  mono: "'Martian Mono', ui-monospace, monospace",
 };

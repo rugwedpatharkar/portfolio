@@ -48,7 +48,7 @@ const VisitorLog = () => {
             backdropFilter: "blur(8px)",
             zIndex: 80,
             display: "flex", alignItems: "center", justifyContent: "center",
-            fontFamily: "'JetBrains Mono', monospace",
+            fontFamily: "'Martian Mono', monospace",
             color: "white",
             padding: 24,
             cursor: "pointer",
@@ -70,7 +70,7 @@ const VisitorLog = () => {
             <div style={{ fontSize: 9, color: "#2fe0b0", letterSpacing: "0.18em", marginBottom: 6 }}>
               MISSION REPORT · STELLAR
             </div>
-            <div style={{ fontSize: 24, fontWeight: 700, fontFamily: "'Sora', sans-serif", marginBottom: 16 }}>
+            <div style={{ fontSize: 24, fontWeight: 700, fontFamily: "'Chakra Petch', sans-serif", marginBottom: 16 }}>
               Your transit so far
             </div>
             <div style={{ display: "grid", gridTemplateColumns: "auto 1fr", gap: "8px 18px", fontSize: 12 }}>

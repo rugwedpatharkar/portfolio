@@ -24,7 +24,7 @@ const NODES = (() => {
   return pts.map((p) => ({ ...p, nr: Math.pow(p.r / maxR, 0.55) })); // compress inner spacing
 })();
 
-const MONO = "'JetBrains Mono', monospace";
+const MONO = "'Martian Mono', monospace";
 
 export default function Navicomputer({ activeIdx = 0, onPlanet }) {
   const active = NODES[activeIdx];

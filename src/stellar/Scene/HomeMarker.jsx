@@ -117,7 +117,7 @@ export const HomeCallout = ({ earthRadius = 0.75 }) => {
             padding: "10px 13px", borderRadius: 12, cursor: "pointer",
             background: "rgba(8,11,24,0.9)", border: "1px solid rgba(255,207,107,0.45)",
             backdropFilter: "blur(8px)", WebkitBackdropFilter: "blur(8px)",
-            fontFamily: "'JetBrains Mono', monospace", color: "white",
+            fontFamily: "'Martian Mono', monospace", color: "white",
             boxShadow: "0 10px 30px rgba(0,0,0,0.5), 0 0 22px rgba(255,207,107,0.18)",
           }}
         >

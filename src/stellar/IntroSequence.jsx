@@ -27,7 +27,7 @@ const skipPill = {
   zIndex: 90,
   pointerEvents: "auto",
   cursor: "pointer",
-  fontFamily: "'JetBrains Mono', monospace",
+  fontFamily: "'Martian Mono', monospace",
   fontSize: 11,
   letterSpacing: "0.18em",
   color: "rgba(206,224,255,0.88)",

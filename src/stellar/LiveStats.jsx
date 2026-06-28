@@ -79,7 +79,7 @@ const LiveStats = () => {
         backdropFilter: "blur(10px)",
         border: "1px solid rgba(47, 224, 176, 0.25)",
         borderRadius: 8,
-        fontFamily: "'JetBrains Mono', monospace",
+        fontFamily: "'Martian Mono', monospace",
         fontSize: 9.5,
         color: "rgba(255, 255, 255, 0.7)",
         letterSpacing: "0.08em",

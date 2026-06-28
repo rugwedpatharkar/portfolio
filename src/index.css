@@ -45,7 +45,7 @@ body {
 .skill-terminal *,
 .contact-terminal,
 .contact-terminal * {
-  font-family: 'JetBrains Mono', monospace !important;
+  font-family: 'Martian Mono', monospace !important;
 }
 
 :root {
@@ -89,7 +89,7 @@ body {
   margin: 0;
   padding: 0;
   box-sizing: border-box;
-  font-family: "DM Sans", sans-serif;
+  font-family: "Saira", sans-serif;
   color-scheme: dark;
 }
 
@@ -342,7 +342,7 @@ img {
 }
 
 .font-heading {
-  font-family: "Sora", sans-serif;
+  font-family: "Chakra Petch", sans-serif;
 }
 
 
@@ -672,7 +672,7 @@ img {
   box-shadow:
     0 0 40px rgba(145, 94, 255, 0.06),
     0 4px 24px rgba(0, 0, 0, 0.4);
-  font-family: 'JetBrains Mono', monospace !important;
+  font-family: 'Martian Mono', monospace !important;
 }
 
 /* Chrome bar */
@@ -995,7 +995,7 @@ img {
 .hero-orbit-tag-label {
   position: absolute;
   transform: translate(-50%, -50%);
-  font-family: 'JetBrains Mono', ui-monospace, monospace;
+  font-family: 'Martian Mono', ui-monospace, monospace;
   font-size: 0.6rem;
   padding: 0.25rem 0.6rem;
   border-radius: 9999px;
@@ -1070,7 +1070,7 @@ img {
 .hero-comet-label {
   position: absolute;
   transform: translate(-50%, -50%);
-  font-family: 'JetBrains Mono', ui-monospace, monospace;
+  font-family: 'Martian Mono', ui-monospace, monospace;
   font-size: 0.6rem;
   padding: 0.2rem 0.5rem;
   border-radius: 9999px;

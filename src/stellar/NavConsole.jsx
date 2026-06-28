@@ -10,7 +10,7 @@ import { useState } from "react";
  * Touch-friendly — gives mobile real navigation (pilot is desktop-only).
  */
 
-const MONO = "'JetBrains Mono', monospace";
+const MONO = "'Martian Mono', monospace";
 
 const TIME_STEPS = [
   { s: 0, label: "⏸", title: "Pause orbits" },

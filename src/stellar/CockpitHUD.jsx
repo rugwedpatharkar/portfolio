@@ -30,7 +30,7 @@ const COPILOT = {
   contact: "Edge beacon. Open a channel.",
 };
 
-const MONO = "'JetBrains Mono', monospace";
+const MONO = "'Martian Mono', monospace";
 const DISP = "'Chakra Petch', sans-serif";
 
 const CORNERS = {
@@ -105,7 +105,7 @@ export default function CockpitHUD({ destination, activeIdx = 0, itemIdx = 0, it
       {/* Top status strip */}
       <div style={{ position: "absolute", top: 18, left: 46, right: 46, display: "flex", alignItems: "center", justifyContent: "space-between" }}>
         <span style={{ fontFamily: DISP, fontWeight: 700, fontSize: 13, letterSpacing: "0.22em", color: SC.blue }}>STELLAR COMMAND</span>
-        {!isMobile && <span style={{ fontFamily: "'Oswald', sans-serif", fontSize: 12, letterSpacing: "0.22em", color: rgba(SC.blueInk, 0.7) }}>RUGWED SYSTEM — ORBITAL LANES</span>}
+        {!isMobile && <span style={{ fontFamily: "'Saira', sans-serif", fontSize: 12, letterSpacing: "0.22em", color: rgba(SC.blueInk, 0.7) }}>RUGWED SYSTEM — ORBITAL LANES</span>}
         <span style={{ fontSize: 11, color: SC.blueInk }}>
           {transit ? (
             <span style={{ color: SC.amber, fontWeight: 700, letterSpacing: "0.14em" }}>⟢ HYPERDRIVE</span>

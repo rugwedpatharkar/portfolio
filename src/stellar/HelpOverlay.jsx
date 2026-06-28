@@ -87,7 +87,7 @@ const HelpOverlay = () => {
         alignItems: "center",
         justifyContent: "center",
         padding: 24,
-        fontFamily: "'JetBrains Mono', monospace",
+        fontFamily: "'Martian Mono', monospace",
         color: "white",
         cursor: "pointer",
         animation: "helpOpen 280ms ease",
@@ -111,7 +111,7 @@ const HelpOverlay = () => {
         <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: 14 }}>
           <div>
             <div style={{ fontSize: 9, color: "#2fe0b0", letterSpacing: "0.2em" }}>STELLAR · OPERATOR MANUAL</div>
-            <div style={{ fontSize: 22, fontWeight: 700, fontFamily: "'Sora', sans-serif", marginTop: 4 }}>
+            <div style={{ fontSize: 22, fontWeight: 700, fontFamily: "'Chakra Petch', sans-serif", marginTop: 4 }}>
               All the things you can do
             </div>
           </div>

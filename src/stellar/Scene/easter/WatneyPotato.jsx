@@ -40,7 +40,7 @@ const WatneyPotato = () => {
         distanceFactor={4}
         style={{
           pointerEvents: "none",
-          fontFamily: "'JetBrains Mono', monospace",
+          fontFamily: "'Martian Mono', monospace",
           fontSize: 9,
           color: "#a07a4a",
           textShadow: "0 1px 6px rgba(0,0,0,0.8)",

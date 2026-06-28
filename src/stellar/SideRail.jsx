@@ -22,7 +22,7 @@ const SideRail = ({ activeIdx, onJump }) => (
       gap: 4,
       zIndex: 30,
       pointerEvents: "auto",
-      fontFamily: "'JetBrains Mono', monospace",
+      fontFamily: "'Martian Mono', monospace",
     }}
   >
     {/* Hint at the bottom — surfaces the "?" shortcut without crowding */}

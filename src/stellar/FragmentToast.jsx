@@ -36,8 +36,8 @@ const FragmentToast = () => {
       boxShadow: "0 14px 44px rgba(0,0,0,0.5), 0 0 26px rgba(47, 224, 176,0.22)",
       animation: "fragPop 4.2s ease-in-out",
     }}>
-      <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 8.5, letterSpacing: "0.22em", color: "#2fe0b0" }}>◇ DATA FRAGMENT {count}/{TOTAL}</div>
-      <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 12, color: "white", marginTop: 4 }}>{toast}</div>
+      <div style={{ fontFamily: "'Martian Mono', monospace", fontSize: 8.5, letterSpacing: "0.22em", color: "#2fe0b0" }}>◇ DATA FRAGMENT {count}/{TOTAL}</div>
+      <div style={{ fontFamily: "'Martian Mono', monospace", fontSize: 12, color: "white", marginTop: 4 }}>{toast}</div>
       <style>{`@keyframes fragPop { 0% { opacity:0; transform: translateX(-50%) translateY(8px);} 12%,84%{opacity:1;transform:translateX(-50%) translateY(0);} 100%{opacity:0;transform:translateX(-50%) translateY(8px);} }`}</style>
     </div>
   );
