@@ -46,8 +46,8 @@ navicomputer orrery, co-pilot/HUD/sound, `StellarGlare` + `StellarDrift`), and 3
 
 ## Consolidated update (2026-06-28) — the v2.6 direction
 Since the 06-26 snapshot, shipped + pushed on `claude/stellar-command`: the **intro/Arrival** (Phase 1),
-**Phase 4 Waves 1–2 + Wave 3 partial** (2026 eclipses, geysers/signatures, 5 megastructure cameos +
-Tier-1 feel — Wave-3 cameo remainder still open, see backlog below), and a
+**Phase 4 — complete** (2026 eclipses, geysers/signatures, megastructures + Tier-1 feel, and now the
+Wave-3 cameo remainder + gegenschein + the Saturn 292-moon note — see backlog), and a
 **10-issue live-review fix pass** (commit `31c6b48`: centered planets/rings, sound-on, sideways scroll,
 nav-pad/map removal, IoTorus/hexagon alignment, attached-object clipping, orbit-line edge-fade).
 
@@ -68,12 +68,12 @@ Now consolidated into this plan (new/expanded phases):
 → Phase 5 quick-wins + signature moments (System Online boot, Cinematic auto-tour, Postcard, Real Sky /
 Time Machine via `astronomy-engine`) → Phase 6 galaxy → Phase 7 reach. Push only on explicit approval.
 
-### Open backlog (carried forward — additive, low-risk; fold into the phases above)
-- **Phase 4 Wave 3 cameo remainder:** derelict generation ship · Heighliner / sandworm (Dune) · ship
-  cameos (Rocinante, Normandy, Discovery One, Nostromo) · interactive Voyager Golden Record ·
-  Perseverance + Ingenuity on Mars. *(5 megastructures already shipped; these are data-driven adds in
-  `config/objects.js` + `explorer.js`, same pattern.)*
-- **Wave 2 leftovers:** gegenschein (extend `ZodiacalLight`) · Saturn 292-moon note (a fact line).
+### Open backlog
+- ✅ **Phase 4 Wave 3 cameo remainder — DONE** (commit `08f4e3a`): generation ship, Heighliner +
+  sandworm (Dune), Rocinante (Expanse), Normandy (Mass Effect), Discovery One (2001), Nostromo (Alien),
+  Perseverance + Ingenuity (real), and the interactive Voyager Golden Record.
+- ✅ **Wave 2 leftovers — DONE** (commit `1a48a45`): gegenschein (anti-solar glow in `ZodiacalLight`) +
+  Saturn 292-moon note.
 - **Camera experience-layer Tier 2/3 — dispositions:** warp post-FX = ✅ DONE (Phase 10 `uWarp` tunnel) ·
   dossier carousel / world-anchored holograms / left-panel removal = SUPERSEDED by Phase 8 ·
   dolly-zoom / target-group framing / spring damping = SHELVED by the locked camera (would alter the
