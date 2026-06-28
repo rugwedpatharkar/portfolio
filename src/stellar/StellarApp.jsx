@@ -7,6 +7,7 @@ import ContentPanel from "./ContentPanel";
 import ItemDossier from "./ItemDossier";
 import HoloBridge from "./holobridge/HoloBridge";
 import GalaxyView from "./GalaxyView";
+import TimeMachine from "./TimeMachine";
 import Cursor from "./Cursor";
 import { ScrollHint } from "./Wayfinding";
 import OverviewMap from "./OverviewMap";
@@ -708,6 +709,7 @@ const StellarApp = () => {
           )}
           <OverviewHud overview={overview} />
           <GalaxyView enabled={mode === "tour"} reducedMotion={reducedMotion} />
+          <TimeMachine enabled={mode === "tour"} reducedMotion={reducedMotion} />
           {mode === "tour" && <ScrollHint visible={activeIdx === 0 && !interacted} />}
           <OverviewMap objects={OBJECTS} cameraRef={cameraRef} visible={overview && !focusedObj} onPick={handlePick} />
           {focusedObj && (
