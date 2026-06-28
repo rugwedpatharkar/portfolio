@@ -581,6 +581,7 @@ const Scene = ({ scrollT, activeIdx, itemIdx = 0, onJump, onReady, freeRoamEnabl
           saturation={-0.02}
           vigOffset={0.36}
           vigDarkness={0.38}
+          warpVelRef={warpVelRef}
         />
       </EffectComposer>
       </SceneClock>

@@ -71,11 +71,18 @@ const Navigator = ({ scrollTRef, onDestinationChange }) => {
       scrollTRef.current = progress;
       invalidate(); // request a Three.js render
 
-      // Detect which destination we're focused on
-      const destIdx = Math.round(progress * (N - 1));
-      if (destIdx !== lastDest) {
-        lastDest = destIdx;
-        onDestinationChange?.(DESTINATIONS[destIdx]);
+      /* Commit a destination only when we're solidly inside its zone (a deadband
+         around the .5 boundary). The magnetic snap below animates the scroll ACROSS
+         that boundary, which re-enters onScroll and made Math.round() oscillate
+         (6→7→6→7) — firing onDestinationChange repeatedly and re-triggering the warp
+         3× with a mid-flight reversal (the Saturn→Uranus glitch). Requiring progress
+         to be within 0.35 of an integer index kills the oscillation: a glide that
+         dips to 6.6 no longer flips the committed index. */
+      const raw = progress * (N - 1);
+      const nearest = Math.round(raw);
+      if (nearest !== lastDest && Math.abs(raw - nearest) < 0.35) {
+        lastDest = nearest;
+        onDestinationChange?.(DESTINATIONS[nearest]);
       }
 
       if (snapTimer) clearTimeout(snapTimer);

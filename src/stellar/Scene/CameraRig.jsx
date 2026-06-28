@@ -521,7 +521,12 @@ const CameraRig = ({
        every direction. Skipped on reduced-motion / mobile (snap; the lerp glides
        gently to the settled pose instead). */
     const jmpKey = focus && focus.live && focus.target ? `${focus.target.destId}:${focus.target.k}` : "";
-    if (jmpKey && jmpKey !== jump.current.lastKey) {
+    /* Active-jump guard: while a hop is in flight, IGNORE a newly-changed focus
+       target — don't restart the jump from mid-path (that reversed the camera
+       mid-warp during the Saturn→Uranus oscillation). When the current jump lands
+       (active=false), the next frame sees the still-different key and starts a fresh
+       hop toward it, so rapid nav coalesces cleanly instead of stuttering. */
+    if (jmpKey && jmpKey !== jump.current.lastKey && !jump.current.active) {
       jump.current.lastKey = jmpKey;
       if (!snap && focus.from) {
         const J = jump.current;
