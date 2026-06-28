@@ -131,6 +131,15 @@ export const DISCOVERABLE = [
   { id: "watney", label: "Watney's Potato", color: "#c1632e", hunt: true, hint: "Someone grew dinner on the red planet." },
   { id: "chandrayaan", label: "Chandrayaan", color: "#ffcf6b", hunt: true, hint: "ISRO's orbiter, circling the Moon by Earth." },
   { id: "mangalyaan", label: "Mangalyaan (MOM)", color: "#ff9d5c", hunt: true, hint: "India's Mars Orbiter — success on the first try." },
+  { id: "sandworm", label: "Shai-Hulud", color: "#d8a35a", hunt: true, hint: "Something vast moves under the red planet's sands." },
+  { id: "rocinante", label: "Rocinante", color: "#9fb4c8", hunt: true, hint: "A borrowed Martian frigate runs the belt." },
+  { id: "normandy", label: "SSV Normandy", color: "#bcd0ff", hunt: true, hint: "A stealth frigate with swept wings, over Earth." },
+  { id: "discovery", label: "Discovery One", color: "#dfe4ea", hunt: true, hint: "A command sphere on a long spine, near the giant." },
+  { id: "nostromo", label: "USCSS Nostromo", color: "#b7b1a4", hunt: true, hint: "An industrial tug hauls its refinery through the dark." },
+  { id: "perseverance", label: "Perseverance & Ingenuity", color: "#d98a5a", hunt: false, hint: "A rover and the first helicopter to fly on Mars." },
+  { id: "goldenrecord", label: "Golden Record", color: "#ffd56a", hunt: true, hint: "A gold disc carrying the sounds of Earth — play it." },
+  { id: "genship", label: "Generation Ship", color: "#5a6070", hunt: true, hint: "A dead ark tumbling in the deep, one light still on." },
+  { id: "heighliner", label: "Guild Heighliner", color: "#c79a4a", hunt: true, hint: "A mountain that folds space to travel without moving." },
 ];
 
 const DISCOVERABLE_IDS = new Set(DISCOVERABLE.map((d) => d.id));

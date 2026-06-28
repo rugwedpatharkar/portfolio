@@ -89,6 +89,15 @@ import HaloRing from "./easter/HaloRing";
 import DysonSwarm from "./easter/DysonSwarm";
 import SolGate from "./easter/SolGate";
 import Citadel from "./easter/Citadel";
+import GenerationShip from "./easter/GenerationShip";
+import Heighliner from "./easter/Heighliner";
+import GoldenRecord from "./easter/GoldenRecord";
+import Sandworm from "./easter/Sandworm";
+import Rocinante from "./easter/Rocinante";
+import Normandy from "./easter/Normandy";
+import DiscoveryOne from "./easter/DiscoveryOne";
+import Nostromo from "./easter/Nostromo";
+import MarsRovers from "./easter/MarsRovers";
 import useViewport from "../useViewport";
 import { DESTINATIONS, remapPosition, frontOfSun, BACKGROUND_BELTS } from "../config/destinations";
 import { rotationSpeedFor } from "../config/planetData";
@@ -513,6 +522,16 @@ const Scene = ({ scrollT, activeIdx, itemIdx = 0, onJump, onReady, freeRoamEnabl
         {showEggs && <DysonSwarm animate={!reducedMotion} />}
         {showEggs && <SolGate animate={!reducedMotion} />}
         {showEggs && !isMobile && <Citadel animate={!reducedMotion} />}
+        {/* Wave 3 remainder — beside-planet cameos + deep-field structures. */}
+        {showEggs && <Sandworm />}
+        {showEggs && <MarsRovers />}
+        {showEggs && <Rocinante />}
+        {showEggs && <Normandy />}
+        {showEggs && <DiscoveryOne />}
+        {showEggs && <Nostromo />}
+        {showEggs && <GoldenRecord />}
+        {showEggs && !isMobile && <GenerationShip animate={!reducedMotion} />}
+        {showEggs && !isMobile && <Heighliner animate={!reducedMotion} />}
         {!isMobile && !reducedMotion && <MouseParallax offsetRef={parallaxOffsetRef} />}
         <FreeRoam enabled={freeRoamEnabled} offsetRef={freeRoamOffsetRef} speedRef={speedRef} thrustRef={thrustRef} />
         <CameraShake parallaxOffsetRef={parallaxOffsetRef} />

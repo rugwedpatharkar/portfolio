@@ -86,6 +86,51 @@ const ANOMALY_RAW = [
     visit: { kind: "focus", cameraTarget: frame([40, 3.5, -19], 4, 1, 42) },
   },
   {
+    id: "sandworm", label: "Shai-Hulud", category: "Easter egg", color: "#d8a35a", position: [14.3, -0.6, 0.8],
+    info: "A Dune sandworm breaching beside the red planet — the system's nearest thing to Arrakis. The spice must flow.",
+    visit: { kind: "focus", cameraTarget: frame([14.3, -0.6, 0.8], 3, 0.9, 40) },
+  },
+  {
+    id: "rocinante", label: "Rocinante", category: "Easter egg", color: "#9fb4c8", position: [20.0, -0.7, -1.4],
+    info: "The Expanse's corvette-class Martian frigate, running patrol near the belt on its blue Epstein drive.",
+    visit: { kind: "focus", cameraTarget: frame([20.0, -0.7, -1.4], 3, 0.9, 40) },
+  },
+  {
+    id: "normandy", label: "SSV Normandy", category: "Easter egg", color: "#bcd0ff", position: [12.0, 0.9, 0.6],
+    info: "Mass Effect's stealth frigate — swept wings and a glowing drive core, cruising over Earth.",
+    visit: { kind: "focus", cameraTarget: frame([12.0, 0.9, 0.6], 2.6, 0.7, 38) },
+  },
+  {
+    id: "discovery", label: "Discovery One", category: "Easter egg", color: "#dfe4ea", position: [24.4, -0.8, 0.6],
+    info: "2001: A Space Odyssey's Jupiter-mission ship — a command sphere on a long engine spine. HAL is aboard.",
+    visit: { kind: "focus", cameraTarget: frame([24.4, -0.8, 0.6], 9, 1.6, 44) },
+  },
+  {
+    id: "nostromo", label: "USCSS Nostromo", category: "Easter egg", color: "#b7b1a4", position: [30.2, -0.6, -1.3],
+    info: "Alien's industrial towing vessel hauling its refinery through the outer dark. In space, no one can hear you scream.",
+    visit: { kind: "focus", cameraTarget: frame([30.2, -0.6, -1.3], 3, 0.9, 40) },
+  },
+  {
+    id: "perseverance", label: "Perseverance & Ingenuity", category: "Probe", color: "#d98a5a", position: [14.6, -0.5, -0.9],
+    info: "NASA's real Mars pair — the car-sized rover and the helicopter that made the first powered flight on another world.",
+    visit: { kind: "focus", cameraTarget: frame([14.6, -0.5, -0.9], 2.4, 0.7, 38) },
+  },
+  {
+    id: "goldenrecord", label: "Golden Record", category: "Probe", color: "#ffd56a", position: [40, 4, -20],
+    info: "The gold phonograph disc on both Voyagers — greetings in 55 languages, whale song, Bach and Chuck Berry, a human heartbeat. Click it to play.",
+    visit: { kind: "focus", cameraTarget: frame([40, 4, -20], 3.2, 0.9, 40) },
+  },
+  {
+    id: "genship", label: "Generation Ship", category: "Megastructure", color: "#5a6070", position: [54, 4, -40],
+    info: "A derelict O'Neill-cylinder ark built for a thousand-year crossing — dark, slowly tumbling, a single porthole still flickering.",
+    visit: { kind: "focus", cameraTarget: frame([54, 4, -40], 9, 2, 44) },
+  },
+  {
+    id: "heighliner", label: "Guild Heighliner", category: "Megastructure", color: "#c79a4a", position: [-44, 30, -38],
+    info: "A Dune Spacing-Guild transport that folds space to 'travel without moving' — a mountain of a hull lit by spice-orange holds.",
+    visit: { kind: "focus", cameraTarget: frame([-44, 30, -38], 9, 2, 44) },
+  },
+  {
     id: "jwst", label: "JWST", category: "Probe", color: "#e8b84a", position: [11.7, 0.5, -1.5],
     info: "James Webb Space Telescope — our largest space observatory, parked at Sun-Earth Lagrange point L2, 1.5 million km beyond Earth, its golden mirror permanently shaded from the Sun.",
     visit: { kind: "focus", cameraTarget: frame([11.7, 0.5, -1.5], 2, 0.6, 38) },

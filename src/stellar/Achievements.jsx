@@ -87,6 +87,13 @@ const Achievements = ({ activeIdx, showStrip = true }) => {
       ["stellar:watney", find("watney")],
       ["stellar:chandrayaan", find("chandrayaan")],
       ["stellar:mangalyaan", find("mangalyaan")],
+      ["stellar:sandworm", find("sandworm")],
+      ["stellar:rocinante", find("rocinante")],
+      ["stellar:normandy", find("normandy")],
+      ["stellar:discovery", find("discovery")],
+      ["stellar:nostromo", find("nostromo")],
+      ["stellar:perseverance", find("perseverance")],
+      ["stellar:goldenrecord", find("goldenrecord")],
       ["stellar:pulsar", () => { markCharted("pulsar"); unlock("codebreaker"); }],
       /* Meta-badges (also catch map-visit charting via the generic event). */
       ["stellar:progress", () => {
