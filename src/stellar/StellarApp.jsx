@@ -6,11 +6,9 @@ import Navigator from "./Navigator";
 import ContentPanel from "./ContentPanel";
 import ItemDossier from "./ItemDossier";
 import HoloBridge from "./holobridge/HoloBridge";
-import GalaxyView from "./GalaxyView";
-import TimeMachine from "./TimeMachine";
 import Cursor from "./Cursor";
 import { ScrollHint } from "./Wayfinding";
-import OverviewMap from "./OverviewMap";
+/* OverviewMap removed — system overview cut (minimal UI) */
 import ScanReadout from "./ScanReadout";
 import CommandPalette from "./CommandPalette";
 import StellarUIContext from "./ui/StellarUIContext";
@@ -34,7 +32,7 @@ import { itemsForSection } from "./data/sectionItems";
 import FragmentToast from "./FragmentToast";
 import HazardBanner from "./HazardBanner";
 import EclipseDimmer from "./EclipseDimmer";
-import SoundToggle from "./sound/SoundToggle";
+/* SoundToggle removed — minimal UI (bridge hum still arms on first gesture) */
 import { markCharted, markVisited } from "./data/explorer";
 import { getBodyContent } from "./data/bodies";
 
@@ -505,10 +503,7 @@ const StellarApp = () => {
         if (k === "arrowright" || k === "arrowdown") { e.preventDefault(); cycleFocus(1); return; }
         if (k === "escape") { clearFocus(); return; }
       }
-      if (k === "z") {
-        e.preventDefault();
-        setMode((m) => (m === "overview" ? "tour" : "overview"));
-      } else if (k === "escape") {
+      if (k === "escape") {
         /* Step back: focused object → map; map → tour. */
         if (focusedObj) clearFocus();
         else setMode("tour");
@@ -584,7 +579,7 @@ const StellarApp = () => {
     () => buildCommands({
       warpTo: (i) => { setPaletteOpen(false); handleJump(i); },
       pick: (o) => { setPaletteOpen(false); handlePick(o); },
-      toggleMap: () => { setPaletteOpen(false); setMode((m) => (m === "overview" ? "tour" : "overview")); },
+      toggleMap: () => setPaletteOpen(false),
       toggleLog: () => { setPaletteOpen(false); setLogOpen((v) => !v); },
       startSpeedRun: () => { setPaletteOpen(false); setSpeedRunOn(true); },
       enterPilot: () => { setPaletteOpen(false); togglePilot(); },
@@ -657,8 +652,6 @@ const StellarApp = () => {
       {introDone && (
         <>
           <Cursor />
-          {/* Ship-audio toggle — opt-in, default muted (autoplay-safe). */}
-          <SoundToggle />
           {/* Sky darkens toward totality during an eclipse (scene only; HUD stays lit). */}
           <EclipseDimmer eclipseRef={eclipseRef} />
           {/* D — the star's light floods the canopy on an inward approach (the 3D
@@ -707,11 +700,7 @@ const StellarApp = () => {
               panelHidden={panelHidden}
             />
           )}
-          <OverviewHud overview={overview} />
-          <GalaxyView enabled={mode === "tour"} reducedMotion={reducedMotion} />
-          <TimeMachine enabled={mode === "tour"} reducedMotion={reducedMotion} />
           {mode === "tour" && <ScrollHint visible={activeIdx === 0 && !interacted} />}
-          <OverviewMap objects={OBJECTS} cameraRef={cameraRef} visible={overview && !focusedObj} onPick={handlePick} />
           {focusedObj && (
             <ScanReadout
               content={getBodyContent(focusedObj.id)}

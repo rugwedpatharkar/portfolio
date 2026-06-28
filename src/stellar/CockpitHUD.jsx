@@ -127,21 +127,7 @@ export default function CockpitHUD({ destination, activeIdx = 0, itemIdx = 0, it
       </motion.div>
 
 
-      {/* Item dial (←→ = objects on this lane) — bottom centre */}
-      {itemCount > 0 && (
-        <div style={{ position: "absolute", bottom: 30, left: "50%", transform: "translateX(-50%)", display: "flex", alignItems: "center", gap: 12 }}>
-          <button onClick={() => onItem && onItem(-1)} aria-label="Previous object" style={{ ...btn, width: 28, height: 28, fontSize: 14, opacity: itemIdx > -1 ? 1 : 0.3 }}>←</button>
-          <div style={{ textAlign: "center", minWidth: 150 }}>
-            <div style={{ fontFamily: DISP, fontWeight: 700, fontSize: 16, color: itemIdx < 0 ? SC.blueInk : SC.amber }}>
-              {itemIdx < 0 ? "PLANET" : `${String(itemIdx + 1).padStart(2, "0")} / ${String(itemCount).padStart(2, "0")}`}
-            </div>
-            <div style={{ fontSize: 10, color: rgba(SC.blueInk, 0.85), letterSpacing: "0.05em", marginTop: 1, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis", maxWidth: 220 }}>
-              {itemIdx < 0 ? `${itemCount} object${itemCount === 1 ? "" : "s"} on this lane` : curItem ? curItem.label : "—"}
-            </div>
-          </div>
-          <button onClick={() => onItem && onItem(1)} aria-label="Next object" style={{ ...btn, width: 28, height: 28, fontSize: 14, opacity: itemIdx < itemCount - 1 ? 1 : 0.3 }}>→</button>
-        </div>
-      )}
+      {/* item dial removed — the Holo-Bridge dossier cluster handles objects (minimal UI) */}
 
 
       {/* Co-pilot line — bottom left */}
@@ -153,12 +139,7 @@ export default function CockpitHUD({ destination, activeIdx = 0, itemIdx = 0, it
             : `▸ CO-PILOT — ${copilot}`}
       </div>
 
-      {/* Hint line — bottom centre, under the dial */}
-      {!isMobile && (
-        <div style={{ position: "absolute", bottom: 10, left: "50%", transform: "translateX(-50%)", fontSize: 8.5, color: rgba(SC.blueInk, 0.55), letterSpacing: "0.04em", whiteSpace: "nowrap" }}>
-          ↑↓ lanes &nbsp;·&nbsp; ←→ objects &nbsp;·&nbsp; ↵ board &nbsp;·&nbsp; ⊙ click an object
-        </div>
-      )}
+      {/* hint line removed — minimal UI */}
     </div>
   );
 }
