@@ -18,6 +18,9 @@ copy. Build cadence: **deep-plan a phase → build → review live on the dev se
 | `PHASE-5.md` | **Director's Cut & rich effects** — visual WOW + perf + ship-quality (Part V / M5). |
 | `PHASE-6.md` | Milky Way galaxy mode (Part VI). |
 | `PHASE-7.md` | Immersion & reach — WebXR, real ephemeris, multiplayer, etc. (stretch). |
+| `PHASE-8.md` | **The Holo-Bridge** — dual-hologram info system (planet facts + résumé); retires M2 convoy. |
+| `PHASE-9.md` | **Unified Visual Identity** — one design system + Tactical-HUD typography across all UI. |
+| `PHASE-10.md` | **Performance, Stability & Warp** — 60fps pass, bug fixes, the warp triple-trigger fix. |
 
 ## North-star vision (locked)
 A solar-system model that is simultaneously **(1) scientifically realistic**, **(2) feature-rich**
@@ -40,6 +43,29 @@ Delivered beyond the M-plan: the 2-axis keyboard nav (↑↓ warp-hop, ←→ do
 navicomputer orrery, co-pilot/HUD/sound, `StellarGlare` + `StellarDrift`), and 3 black-planet fixes
 (eclipse `3a617c7`, focus-on-every-path `34a42c8`, frustum-cull `90f9371`), D `359e1f5`.
 **All local on `claude/stellar-command`, UNPUSHED.**
+
+## Consolidated update (2026-06-28) — the v2.6 direction
+Since the 06-26 snapshot, shipped + pushed on `claude/stellar-command`: the **intro/Arrival** (Phase 1),
+**Phase 4 Waves 1–3** (2026 eclipses, geysers/signatures, megastructures + Tier-1 feel), and a
+**10-issue live-review fix pass** (commit `31c6b48`: centered planets/rings, sound-on, sideways scroll,
+nav-pad/map removal, IoTorus/hexagon alignment, attached-object clipping, orbit-line edge-fade).
+
+Now consolidated into this plan (new/expanded phases):
+- **Phase 8 — Holo-Bridge:** replace the side-panel + forced-←→ info model with a CENTERED planet
+  flanked by two holograms — planet facts (left) + résumé section (right); boot-up + living-material +
+  showcase + signature WOW. Retires the M2 convoy.
+- **Phase 9 — Unified Visual Identity:** one token system + shared primitives across all ~35 overlays;
+  new typography = **Tactical HUD** (Chakra Petch + Martian Mono + Saira).
+- **Phase 10 — Performance, Stability & Warp:** 60fps pass (PerformanceMonitor + DPR clamp; kill
+  setState-in-`useFrame` + the activeIdx double-render; belt-gen offload), disposal hygiene, and the
+  **warp triple-trigger fix** (Saturn→Uranus) + warp polish (longer/thicker streaks + a dark `uWarp`
+  tunnel folded into CinematicGrade).
+- **Phase 5** stays the effects catalog (Fresnel atmospheres, day/night + glint, instanced fields,
+  procedural Sun, god-rays-in-grade, nebula / black-hole / GPGPU set-pieces).
+
+**Recommended order:** Phase 10 (snappy + warp fix) → Phase 9 (identity + font) → Phase 8 (Holo-Bridge)
+→ Phase 5 quick-wins + signature moments (System Online boot, Cinematic auto-tour, Postcard, Real Sky /
+Time Machine via `astronomy-engine`) → Phase 6 galaxy → Phase 7 reach. Push only on explicit approval.
 
 ## Hard constraints (never break)
 - **ONE custom postprocessing `mainImage`** (`CinematicGrade`) + `Bloom`. A 2nd fullscreen pass =
