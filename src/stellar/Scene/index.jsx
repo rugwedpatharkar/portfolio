@@ -32,7 +32,7 @@ import Wormhole from "./Wormhole";
 import LensFlare from "./LensFlare";
 import OrbitRings from "./OrbitRings";
 import Beacon from "./Beacon";
-import LaneObjects from "./LaneObjects";
+// LaneObjects retired — the Holo-Bridge dossier cluster replaces the forced-←→ convoy.
 import HyperLoop from "./HyperLoop";
 import SolarProminences from "./SolarProminences";
 import SolarEclipse from "./SolarEclipse";
@@ -238,7 +238,7 @@ const Scene = ({ scrollT, activeIdx, itemIdx = 0, onJump, onReady, freeRoamEnabl
 
       {/* Lane objects — the active section's résumé items as a co-orbital convoy
           on the planet's orbital lane (←→ selects them; M2b adds the fly-to). */}
-      {DESTINATIONS[activeIdx] && <LaneObjects destination={DESTINATIONS[activeIdx]} itemIdx={itemIdx} />}
+      {/* lane convoy retired — Holo-Bridge dossier cluster replaces forced ←→ */}
 
       {/* Hyperloop light-tunnel — pulsed by the nav on a ←→ shift (and the intro
           warp later). Fresh build in the cockpit palette; in-scene additive mesh,
@@ -555,7 +555,7 @@ const Scene = ({ scrollT, activeIdx, itemIdx = 0, onJump, onReady, freeRoamEnabl
           isMobile={isMobile}
           /* Desktop frames the planet right-of-centre to clear the left
              content column; compact/mobile keep it centred (stacked layout). */
-          frameShift={isCompact ? 0 : 0.3}
+          frameShift={0}
         />
       </Suspense>
 

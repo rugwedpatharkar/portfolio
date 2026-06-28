@@ -5,6 +5,7 @@ import Scene from "./Scene";
 import Navigator from "./Navigator";
 import ContentPanel from "./ContentPanel";
 import ItemDossier from "./ItemDossier";
+import HoloBridge from "./holobridge/HoloBridge";
 import Cursor from "./Cursor";
 import { ScrollHint } from "./Wayfinding";
 import OverviewMap from "./OverviewMap";
@@ -691,14 +692,18 @@ const StellarApp = () => {
               onItem={navItem}
             />
           )}
-          {/* Item focused (←→) → per-item dossier; else the section panel. Both
-              hide during the fly-through and fade back in on arrival (settle). */}
+          {/* Holo-Bridge — the dual-hologram info surface (planet facts LEFT, résumé
+              dossier RIGHT, planet centred between). Hides during fly-through, reveals
+              on arrival (panelHidden ← stellar:flight). Replaces ContentPanel + the
+              forced-←→ ItemDossier (ItemDossier is reused inside the dossier panel). */}
           {mode === "tour" && (
-            <div style={{ opacity: panelHidden ? 0 : 1, transition: "opacity 360ms ease", pointerEvents: panelHidden ? "none" : undefined }}>
-              {focusedItem
-                ? <ItemDossier item={focusedItem} index={itemIdx} total={laneItems.length} sectionLabel={DESTINATIONS[activeIdx]?.label} />
-                : <ContentPanel destination={DESTINATIONS[activeIdx]} />}
-            </div>
+            <HoloBridge
+              destination={DESTINATIONS[activeIdx]}
+              section={DESTINATIONS[activeIdx]?.section}
+              items={laneItems}
+              bootNonce={activeIdx}
+              panelHidden={panelHidden}
+            />
           )}
           <OverviewHud overview={overview} />
           {mode === "tour" && <ScrollHint visible={activeIdx === 0 && !interacted} />}
