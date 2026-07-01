@@ -626,6 +626,7 @@ const StellarApp = ({ v3 = false }) => {
         clock={sceneClockRef.current}
         extrasPhase={extrasPhase}
         launchPhase={launchPhase}
+        v3={v3}
       />
       <Navigator
         scrollTRef={scrollTRef}

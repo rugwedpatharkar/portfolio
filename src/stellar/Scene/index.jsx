@@ -125,16 +125,21 @@ const ICY_WEIGHTS = [0.45, 0.3, 0.25];
  * tune that based on viewport bucket.
  */
 
-const Scene = ({ scrollT, activeIdx, itemIdx = 0, onJump, onReady, freeRoamEnabled, speedRef, thrustRef, wideRef, wideOrbitRef, focusRef, warpVelRef, cameraRef, eclipseRef, clock, extrasPhase = 3, launchPhase = null, onLaunchComplete }) => {
+const Scene = ({ scrollT, activeIdx, itemIdx = 0, onJump, onReady, freeRoamEnabled, speedRef, thrustRef, wideRef, wideOrbitRef, focusRef, warpVelRef, cameraRef, eclipseRef, clock, extrasPhase = 3, launchPhase = null, onLaunchComplete, v3 = false }) => {
   const readyRef = useRef(false);
   const { isMobile, isCompact, reducedMotion } = useViewport();
   /* Progressive-mount tiers (StellarApp ramps extrasPhase 0→3 behind the
      countdown cover, so the whole suite no longer mounts in one frame-freezing
      commit). Tier 1 = structural extras + belts; tier 2 = anomalies/comets;
      tier 3 = easter-egg models (heaviest, last). */
+  /* v3 = NATURAL OBJECTS ONLY — no spacecraft/probes/megastructures/pop-culture.
+     `showEggs` (the whole fiction/cameo tier) is force-off, and the human-made
+     objects that live in other tiers (probes, ISS, rovers, Voyager) are gated by
+     `naturalOnly` at their mount sites. */
+  const naturalOnly = v3;
   const showExtras = extrasPhase >= 1;
   const showMid = extrasPhase >= 2;
-  const showEggs = extrasPhase >= 3;
+  const showEggs = extrasPhase >= 3 && !naturalOnly;
   /* Camera offsets — kept in refs so React state doesn't re-render
      the whole tree on every frame. Mouse parallax and free-roam each
      own their own offset; CameraRig sums them. */
@@ -278,11 +283,9 @@ const Scene = ({ scrollT, activeIdx, itemIdx = 0, onJump, onReady, freeRoamEnabl
         {showMid && !isMobile && !reducedMotion && <Pulsar />}
         {/* New deep-field exotics: Sgr A*, magnetar, brown dwarf, rogue planet. */}
         {showMid && <ExoticObjects animate={!reducedMotion} />}
-        {/* Real projects as inspectable probes orbiting Mars. */}
-        {showMid && <ProjectProbes animate={!reducedMotion} />}
-        {/* Real unsolved mysteries as deep-field discoverables (Planet Nine,
-            Tabby's Star, the Wow! signal, fast radio bursts). */}
-        {showMid && <DeepFieldMysteries animate={!reducedMotion} />}
+        {/* Human-made probes + speculative "mysteries" — removed in v3 (natural only). */}
+        {showMid && !naturalOnly && <ProjectProbes animate={!reducedMotion} />}
+        {showMid && !naturalOnly && <DeepFieldMysteries animate={!reducedMotion} />}
         {/* PHASE 4 (Wave 1) — deep-sky wonders: a kilonova event + a red supergiant. */}
         {showMid && <Kilonova animate={!reducedMotion} />}
         {showMid && <Hypergiant animate={!reducedMotion} />}
@@ -373,16 +376,16 @@ const Scene = ({ scrollT, activeIdx, itemIdx = 0, onJump, onReady, freeRoamEnabl
                   {cloneElement(planetEl, { satelliteRef: moonWorldRef }, <HomePin radius={d.radius} animate={!reducedMotion} />)}
                   {/* ISS on low Earth orbit — inherits Earth's live solar
                       position from the OrbitGroup, runs its own fast LEO. */}
-                  {showExtras && !isMobile && (
+                  {showExtras && !isMobile && !naturalOnly && (
                     <EarthStation planetRadius={d.radius} animate={!reducedMotion} />
                   )}
-                  {showExtras && !isMobile && (
+                  {showExtras && !isMobile && !naturalOnly && (
                     <RocketLaunch earthRadius={d.radius} animate={!reducedMotion} />
                   )}
                   {showExtras && <HomeCallout earthRadius={d.radius} />}
                   {/* 2026 eclipses — the Moon's umbra drifting across Earth's day side. */}
                   {showExtras && <EclipseShadow earthRadius={d.radius} animate={!reducedMotion} />}
-                  {showExtras && (
+                  {showExtras && !naturalOnly && (
                     <IsroProbe
                       orbitRadius={d.radius * 2.2} speed={0.22} tilt={0.4} phase={1.2} scale={d.radius * 0.18}
                       event="stellar:chandrayaan" animate={!reducedMotion}
@@ -409,7 +412,7 @@ const Scene = ({ scrollT, activeIdx, itemIdx = 0, onJump, onReady, freeRoamEnabl
                 {d.id === "notes" && <TitanLakes offset={[4.4, 1.2, 0.9]} radius={0.18} animate={!reducedMotion} />}
                 {d.id === "hobbies" && <MoonGeysers offset={[2.0, 0.8, 0.6]} radius={0.12} color="#d8cabd" plumeColor="#e6c6d6" jets={4} dir={[0.2, -1, 0.2]} animate={!reducedMotion} />}
                 {/* Mangalyaan (Mars Orbiter Mission) rides Mars's group. */}
-                {d.id === "projects" && showExtras && (
+                {d.id === "projects" && showExtras && !naturalOnly && (
                   <IsroProbe
                     orbitRadius={d.radius * 2.4} speed={0.26} tilt={0.5} phase={0.4} scale={d.radius * 0.15}
                     event="stellar:mangalyaan" animate={!reducedMotion}
@@ -487,10 +490,10 @@ const Scene = ({ scrollT, activeIdx, itemIdx = 0, onJump, onReady, freeRoamEnabl
         {/* Non-essential extras defer-mount until the intro completes —
             keeps the warp/countdown window + LCP light, and trims the
             initial scene-graph build. */}
-        {showExtras && <Voyager />}
+        {showExtras && !naturalOnly && <Voyager />}
         {/* Humanity's robot fleet at their real locations (JWST@L2, Parker,
-            Juno, Lucy, New Horizons). */}
-        {showExtras && <RobotFleet />}
+            Juno, Lucy, New Horizons). Removed in v3 (natural only). */}
+        {showExtras && !naturalOnly && <RobotFleet />}
         {showEggs && !isMobile && <CommitComets />}
         {/* Easter-egg models (tier 3) — the heaviest, least-essential mounts, so
             they come LAST in the progressive mount (kept out of the intro). */}
