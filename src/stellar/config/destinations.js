@@ -32,7 +32,9 @@ export const DESTINATIONS = [
     position: [0, 0, 0],
     radius: 0,
     section: "hero",
-    cameraTarget: { position: [12, 8, 118], lookAt: [-34, 2, 0], fov: 41 },
+    /* Aim far to the left of the Sun so the disc sits at the EXTREME right edge
+       (partially cropped), leaving the whole left+centre dark for the info. */
+    cameraTarget: { position: [12, 8, 118], lookAt: [-58, 2, 0], fov: 41 },
   },
   {
     id: "sol",
