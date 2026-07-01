@@ -62,7 +62,7 @@ const DISK_FRAG = /* glsl */ `
                mix(mix(dot(hash3(i+vec3(0,0,1))-0.5,f-vec3(0,0,1)),dot(hash3(i+vec3(1,0,1))-0.5,f-vec3(1,0,1)),f.x),
                    mix(dot(hash3(i+vec3(0,1,1))-0.5,f-vec3(0,1,1)),dot(hash3(i+vec3(1,1,1))-0.5,f-vec3(1,1,1)),f.x),f.y),f.z);
     return n; }
-  float fbm(vec3 p){ float v=0.0,a=0.5; for(int i=0;i<5;i++){ v+=a*noise(p); p*=2.0; a*=0.5; } return v+0.5; }
+  float fbm(vec3 p){ float v=0.0,a=0.5; for(int i=0;i<3;i++){ v+=a*noise(p); p*=2.0; a*=0.5; } return v+0.5; }
 
   void main() {
     float r = vR;
@@ -148,7 +148,7 @@ const BlackHole = ({
       {/* Event horizon — pure black, swallows everything behind it. Sits just
           inside the photon ring so no background leaks through the shadow. */}
       <mesh>
-        <sphereGeometry args={[radius * 1.02, 64, 64]} />
+        <sphereGeometry args={[radius * 1.02, 48, 48]} />
         <meshBasicMaterial color="#000000" toneMapped={false} />
       </mesh>
 
@@ -156,7 +156,7 @@ const BlackHole = ({
           up and over the horizon so the glow rings the black sphere from any
           angle. Camera-facing, runs the disk shader at reduced beaming. */}
       <mesh ref={haloRef}>
-        <ringGeometry args={[radius * 1.16, radius * 2.9, 160, 4]} />
+        <ringGeometry args={[radius * 1.16, radius * 2.9, 128, 3]} />
         <shaderMaterial
           ref={haloMat}
           vertexShader={DISK_VERT}
@@ -180,7 +180,7 @@ const BlackHole = ({
       {/* Accretion disk — tilted, swirling, Doppler-beamed. */}
       <group ref={diskGroup} rotation={[tilt, 0, 0]}>
         <mesh>
-          <ringGeometry args={[radius * 1.3, radius * 5.0, 192, 8]} />
+          <ringGeometry args={[radius * 1.3, radius * 5.0, 160, 6]} />
           <shaderMaterial
             ref={diskMat}
             vertexShader={DISK_VERT}
