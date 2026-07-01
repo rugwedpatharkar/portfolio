@@ -43,8 +43,9 @@ export default function V3Hero() {
     hidden: { opacity: 0, y: reduce ? 0 : 18 },
     show: { opacity: 1, y: 0, transition: { duration: 0.6, ease } },
   };
-  /* masked line reveal — the glyphs slide up from behind an overflow-clip edge */
-  const maskLine = { display: "block", overflow: "hidden", paddingBottom: "0.06em" };
+  /* masked line reveal — the glyphs slide up from behind an overflow-clip edge.
+     width:max-content so the clip is only VERTICAL (never crops the wide name). */
+  const maskLine = { display: "block", width: "max-content", maxWidth: "none", overflow: "hidden", paddingBottom: "0.08em" };
   const lineRise = {
     hidden: { y: reduce ? 0 : "108%" },
     show: { y: 0, transition: { duration: 0.85, ease } },

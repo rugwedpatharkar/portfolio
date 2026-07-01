@@ -36,6 +36,7 @@ import { markCharted, markVisited } from "./data/explorer";
 import { getBodyContent } from "./data/bodies";
 import V3Style from "./v3/V3Style";
 import V3Cursor from "./v3/V3Cursor";
+import V3Hud from "./v3/V3Hud";
 
 
 /* Hash → destination utilities */
@@ -688,6 +689,10 @@ const StellarApp = ({ v3 = false }) => {
             />
           )}
           {mode === "tour" && <ScrollHint visible={activeIdx === 0 && !interacted} />}
+          {/* v3 FUI chrome — hairline frame, stop counter, clickable system rail. */}
+          {v3 && mode === "tour" && (
+            <V3Hud stops={DESTINATIONS} activeIdx={activeIdx} label={DESTINATIONS[activeIdx]?.label} section={DESTINATIONS[activeIdx]?.section} onJump={handleJump} />
+          )}
           {!v3 && focusedObj && (
             <ScanReadout
               content={getBodyContent(focusedObj.id)}
