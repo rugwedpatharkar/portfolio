@@ -167,9 +167,12 @@ const visualExtentFor = (dest) => {
   return ext;
 };
 const backDistFor = (extent, halfAngle = BACKLIT_HALF_ANGLE) => Math.max(BACK_FLOOR, (extent / Math.tan(halfAngle)) * BACKLIT_MARGIN);
-/* v3 frames each planet LARGER (fills the frame) and pushed to the right — the
-   cinematic split shot (big body right, info left). Bigger half-angle = closer = bigger. */
-const V3_HALF_ANGLE = 20 * DEG;
+/* v3 cinematic split: every planet's BODY is framed to the SAME on-screen size (big,
+   right of centre, info left). We frame by the body radius (× oblateness so the squashed
+   giants don't crop vertically), IGNORING rings — so Saturn's disc matches Jupiter's and
+   the rings simply extend off-frame (cinematic), instead of the rings shrinking the body. */
+const V3_HALF_ANGLE = 15 * DEG; // → ~13° body half-angle after margin (Jupiter's liked size)
+const v3ExtentFor = (dest) => dest.radius * (1 + (dest.oblateness || 0));
 
 const CameraRig = ({
   scrollT,
@@ -431,7 +434,7 @@ const CameraRig = ({
           /* up ⟂ the travel direction (cinematic lift). */
           _upp.copy(UP).addScaledVector(_dir, -UP.dot(_dir));
           if (_upp.lengthSq() < 1e-6) _upp.set(0, 1, 0); else _upp.normalize();
-          let D = k >= 0 ? FOCUS_DIST : backDistFor(visualExtentFor(tgt), v3 ? V3_HALF_ANGLE : BACKLIT_HALF_ANGLE);
+          let D = k >= 0 ? FOCUS_DIST : backDistFor(v3 ? v3ExtentFor(tgt) : visualExtentFor(tgt), v3 ? V3_HALF_ANGLE : BACKLIT_HALF_ANGLE);
           /* Keep the right-of-centre body fully in frame: a small pull-back to make
              up for the frameShift aim-shift on desktop. (v3 wants it big → minimal.) */
           if (frameShift && k < 0) D *= 1 + frameShift * (v3 ? 0.1 : 0.25);
