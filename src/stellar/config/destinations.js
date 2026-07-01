@@ -16,6 +16,8 @@
  * Order matters — the cinematic scroll visits destinations in this order.
  */
 
+import { COSMIC_STOPS } from "../v3/cosmicStops";
+
 const DEG = Math.PI / 180;
 
 export const DESTINATIONS = [
@@ -310,10 +312,33 @@ export const DESTINATIONS = [
     cameraTarget: { position: [44.08, 0.97, 1.52], lookAt: [44, 0.9, 1.4], fov: 46 },
   },
 
-  // (Edge beacon removed in v3 — Contact now lives on Pluto, the last body, after
-  // shifting every section forward one. Deep-space stops extend the tour in a later
-  // phase.)
+  // (Edge beacon removed in v3 — Contact now lives on Pluto, the last body.)
 ];
+
+/* v3 COSMIC EPILOGUE — appended as scroll stops BEYOND Pluto: the tour journeys out
+   past the edge into deep space (black hole → wormhole → nebula → pulsar → Milky Way).
+   Authored in scene units (no AU remap — AU[id] is undefined for these). The camera
+   drops between the object and the Sun, looking back at it. */
+COSMIC_STOPS.forEach((c) => {
+  const [x, y, z] = c.position;
+  const len = Math.hypot(x, y, z) || 1;
+  const d = Math.max(10, c.radius * 3.6); // standoff toward the Sun
+  DESTINATIONS.push({
+    id: c.id,
+    kind: c.kind, // "cosmic" — Scene renders the matching object; CameraRig frames by radius
+    render: c.render,
+    label: c.label,
+    section: c.section,
+    position: c.position,
+    radius: c.radius,
+    color: c.accent,
+    cameraTarget: {
+      position: [x - (x / len) * d, y + d * 0.16, z - (z / len) * d],
+      lookAt: [x, y, z],
+      fov: 44,
+    },
+  });
+});
 
 /* ────────────────────────────────────────────────────────────────────────
  * TRUE 1:1 ORBITAL DISTANCES

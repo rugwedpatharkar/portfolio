@@ -73,11 +73,21 @@
     <div id="root"></div>
     <script type="module" src="/src/main.jsx"></script>
     <script>
-      if ('serviceWorker' in navigator) {
-        window.addEventListener('load', () => {
-          navigator.serviceWorker.register('/sw.js').catch(() => {});
+      // Skip the service worker on localhost/127.0.0.1 — in dev it caches stale
+      // cross-branch bundles and serves a dead page after a server restart. Also
+      // unregister any SW + clear caches left over from a previous prod/preview run.
+      (function () {
+        var isLocal = ['localhost', '127.0.0.1', '[::1]'].indexOf(location.hostname) !== -1;
+        if (!('serviceWorker' in navigator)) return;
+        if (isLocal) {
+          navigator.serviceWorker.getRegistrations().then(function (rs) { rs.forEach(function (r) { r.unregister(); }); });
+          if (window.caches) caches.keys().then(function (ks) { ks.forEach(function (k) { caches.delete(k); }); });
+          return;
+        }
+        window.addEventListener('load', function () {
+          navigator.serviceWorker.register('/sw.js').catch(function () {});
         });
-      }
+      })();
     </script>
   </body>
 </html>

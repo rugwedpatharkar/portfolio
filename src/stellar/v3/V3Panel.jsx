@@ -11,6 +11,7 @@ import { useState, useEffect } from "react";
 import { motion, AnimatePresence, useReducedMotion } from "motion/react";
 import { PLANET_FACTS } from "../data/planetFacts";
 import { summaryFor } from "../data/holoSummary";
+import { COSMIC_BY_ID } from "./cosmicStops";
 
 const SECTION_TITLE = {
   about: "About", funfacts: "Fun facts", experience: "Experience", projects: "Projects",
@@ -47,6 +48,35 @@ export default function V3Panel({ destination, section, items, bootNonce }) {
     overflowY: "auto",
     overflowX: "hidden",
   };
+
+  /* ---- cosmic epilogue stop (no résumé items — the phenomenon's facts + wow) ---- */
+  const cosmic = destination && COSMIC_BY_ID[destination.id];
+  if (cosmic) {
+    return (
+      <div style={wrap} className="stellar-content-left">
+        <motion.div key={cosmic.id} variants={stagger} initial="hidden" animate="show">
+          <motion.div variants={rise} style={{ font: `400 var(--v3-type-cap) var(--v3-font-mono)`, letterSpacing: ".28em", textTransform: "uppercase", color: "var(--v3-fg-mute)", display: "flex", alignItems: "center", gap: 12 }}>
+            <span style={{ width: 30, height: 1, background: "var(--v3-accent)" }} />{cosmic.kicker}
+          </motion.div>
+          <motion.h2 variants={rise} style={{ font: `400 var(--v3-type-s4) var(--v3-font-serif)`, color: "var(--v3-fg)", lineHeight: 1.02, letterSpacing: "-.02em", margin: ".12em 0 .2em" }}>{cosmic.title}</motion.h2>
+          <motion.p variants={rise} style={{ font: `300 var(--v3-type-body) var(--v3-font-ui)`, color: "var(--v3-fg-dim)", lineHeight: 1.55, margin: 0, maxWidth: "42ch" }}>{cosmic.summary}</motion.p>
+          {cosmic.facts?.length > 0 && (
+            <motion.div variants={rise} style={{ marginTop: 26, borderTop: "1px solid var(--v3-line)", paddingTop: 16, display: "grid", gridTemplateColumns: "1fr 1fr", gap: "12px 24px" }}>
+              {cosmic.facts.map(([label, value]) => (
+                <div key={label} style={{ minWidth: 0 }}>
+                  <div style={{ font: `400 10px var(--v3-font-mono)`, letterSpacing: ".1em", color: "var(--v3-fg-mute)" }}>{label}</div>
+                  <div style={{ font: `400 var(--v3-type-cap) var(--v3-font-mono)`, color: "var(--v3-fg-dim)", marginTop: 2 }}>{value}</div>
+                </div>
+              ))}
+            </motion.div>
+          )}
+          {cosmic.wow && (
+            <motion.div variants={rise} style={{ font: `300 var(--v3-type-cap) var(--v3-font-ui)`, color: "var(--v3-fg-dim)", lineHeight: 1.55, marginTop: 18, paddingLeft: 14, borderLeft: "2px solid var(--v3-accent)" }}>{cosmic.wow}</motion.div>
+          )}
+        </motion.div>
+      </div>
+    );
+  }
 
   /* ---- item detail view ---- */
   if (picked >= 0 && items?.[picked]?.dossier) {

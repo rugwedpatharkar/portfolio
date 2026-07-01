@@ -441,6 +441,22 @@ const Scene = ({ scrollT, activeIdx, itemIdx = 0, onJump, onReady, freeRoamEnabl
               />
             );
           }
+          if (d.kind === "cosmic") {
+            /* v3 deep-space epilogue stops — real cosmic objects placed along the
+               outward tour path, framed big-on-the-right by the v3 rig (radius). */
+            const p = d.position;
+            if (d.render === "blackhole")
+              return <BlackHole key={d.id} position={p} radius={d.radius} animate={!reducedMotion} onPointerOver={handleHoverIn} onPointerOut={handleHoverOut} />;
+            if (d.render === "wormhole")
+              return <Wormhole key={d.id} position={p} radius={d.radius} />;
+            if (d.render === "pulsar")
+              return <Pulsar key={d.id} position={p} radius={d.radius} />;
+            if (d.render === "nebula")
+              return <group key={d.id} position={p} scale={d.radius / 3}><EtaCarinae animate={!reducedMotion} /></group>;
+            if (d.render === "milkyway")
+              return <group key={d.id} position={p} scale={d.radius / 60}><MilkyWay animate={!reducedMotion} /></group>;
+            return null;
+          }
           return null;
         })}
 
