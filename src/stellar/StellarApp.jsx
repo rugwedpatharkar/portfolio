@@ -635,28 +635,30 @@ const StellarApp = ({ v3 = false }) => {
           {/* D — the star's light floods the canopy on an inward approach (the 3D
               LensFlare only fires when the Sun is in front; this covers behind). */}
           <StellarGlare cameraRef={cameraRef} warpVelRef={warpVelRef} reducedMotion={reducedMotion} />
-          {/* Discovery + toasts — shared by both modes. */}
-          <Achievements activeIdx={activeIdx} showStrip={false} />
-          <EasterEgg />
-          <AnswerListener />
-          {/* PHASE 3A — reactive co-pilot rules-engine (logic-only; drives the
-              CockpitHUD co-pilot line via stellar:copilot). */}
-          <CoPilot />
-          {/* PHASE 3C — Photo mode (C): freeze + capture a shareable postcard. */}
-          <PhotoMode
-            bodyLabel={focusedItem ? focusedItem.label : DESTINATIONS[activeIdx]?.label}
-            setTimeScale={(s) => { sceneClockRef.current.scale = s; }}
-          />
-          <DiscoveriesView open={logOpen} onClose={() => setLogOpen(false)} animate={!reducedMotion} />
-          <CommandPalette open={paletteOpen} commands={commands} onClose={() => setPaletteOpen(false)} />
-          <FragmentToast />
-          <HazardBanner clock={sceneClockRef.current} />
+          {/* v2 chrome/gamification — CUT from v3 (Explorer log, ⌘K palette,
+              achievements, co-pilot, photo mode, cockpit HUD, hazard banner,
+              toasts). v3 gets its own minimal FUI HUD in a later phase. */}
+          {!v3 && (
+            <>
+              <Achievements activeIdx={activeIdx} showStrip={false} />
+              <EasterEgg />
+              <AnswerListener />
+              <CoPilot />
+              <PhotoMode
+                bodyLabel={focusedItem ? focusedItem.label : DESTINATIONS[activeIdx]?.label}
+                setTimeScale={(s) => { sceneClockRef.current.scale = s; }}
+              />
+              <DiscoveriesView open={logOpen} onClose={() => setLogOpen(false)} animate={!reducedMotion} />
+              <CommandPalette open={paletteOpen} commands={commands} onClose={() => setPaletteOpen(false)} />
+              <FragmentToast />
+              <HazardBanner clock={sceneClockRef.current} />
+            </>
+          )}
           {/* Minimal canopy HUD for the read-mode pilot (P key). */}
           <CockpitFrame enabled={mode === "pilot"} speedRef={pilotSpeedRef} />
-          {/* READ — the cockpit tour. CockpitHUD = the new diegetic chrome
-              (canopy, system ladder, item dial, nav pad, co-pilot); ContentPanel
-              carries the section content (becomes the item-view dossier in M2). */}
-          {mode === "tour" && (
+          {/* READ — v2 cockpit HUD (system ladder, item dial, nav pad, co-pilot).
+              Cut from v3, which uses its own FUI HUD. */}
+          {!v3 && mode === "tour" && (
             <CockpitHUD
               destination={DESTINATIONS[activeIdx]}
               activeIdx={activeIdx}
@@ -676,10 +678,11 @@ const StellarApp = ({ v3 = false }) => {
               items={laneItems}
               bootNonce={activeIdx}
               panelHidden={panelHidden}
+              v3={v3}
             />
           )}
           {mode === "tour" && <ScrollHint visible={activeIdx === 0 && !interacted} />}
-          {focusedObj && (
+          {!v3 && focusedObj && (
             <ScanReadout
               content={getBodyContent(focusedObj.id)}
               onBack={clearFocus}
@@ -687,8 +690,7 @@ const StellarApp = ({ v3 = false }) => {
               onNext={() => cycleFocus(1)}
             />
           )}
-          {/* Minimal by design — just the résumé tour + the system overview (Z). */}
-          <SpeedRun activeIdx={activeIdx} active={speedRunOn} onToggle={() => setSpeedRunOn((v) => !v)} />
+          {!v3 && <SpeedRun activeIdx={activeIdx} active={speedRunOn} onToggle={() => setSpeedRunOn((v) => !v)} />}
         </>
       )}
     </StellarUIContext.Provider>

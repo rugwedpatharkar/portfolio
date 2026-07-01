@@ -14,8 +14,9 @@ import useBootReveal from "./useBootReveal";
 import FactsHologram from "./FactsHologram";
 import DossierHologram from "./DossierHologram";
 import HeroHologram from "./HeroHologram";
+import V3Hero from "../v3/V3Hero";
 
-export default function HoloBridge({ destination, section, items, bootNonce, panelHidden }) {
+export default function HoloBridge({ destination, section, items, bootNonce, panelHidden, v3 = false }) {
   const { isCompact, isMobile } = useViewport();
   const ref = useHoloParallax();
   const { booting } = useBootReveal(bootNonce);
@@ -37,14 +38,19 @@ export default function HoloBridge({ destination, section, items, bootNonce, pan
         alignItems: stack ? "stretch" : "center",
         justifyContent: stack ? "flex-end" : isHero ? "flex-start" : "space-between",
         gap: stack ? 10 : 16,
-        padding: stack ? "0 12px 92px" : "0 clamp(18px, 3vw, 46px)",
+        padding: stack ? "0 12px 92px" : v3 && isHero ? "0 clamp(28px, 6vw, 120px)" : "0 clamp(18px, 3vw, 46px)",
       }}
     >
       {isHero ? (
-        /* Sol — the recruiter landing: one prominent hero card, Sun visible beside it. */
-        <div style={{ pointerEvents: "auto", width: stack ? "100%" : "clamp(320px, 38vw, 500px)", maxHeight: "88vh", overflowY: "auto" }}>
-          <HeroHologram booting={booting} />
-        </div>
+        v3 ? (
+          /* v3 — far-left info column against the whole-system view. */
+          <V3Hero />
+        ) : (
+          /* v2 Sol — the recruiter landing: one prominent hero card. */
+          <div style={{ pointerEvents: "auto", width: stack ? "100%" : "clamp(320px, 38vw, 500px)", maxHeight: "88vh", overflowY: "auto" }}>
+            <HeroHologram booting={booting} />
+          </div>
+        )
       ) : (
         <>
           <div style={{ pointerEvents: "auto", width: stack ? "100%" : "clamp(220px, 22vw, 300px)", maxHeight: "82vh", overflowY: "auto" }}>
