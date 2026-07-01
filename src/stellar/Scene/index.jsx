@@ -4,10 +4,8 @@ import { Canvas, invalidate } from "@react-three/fiber";
 import * as THREE from "three";
 import { EffectComposer, Bloom } from "@react-three/postprocessing";
 import CinematicGrade from "./CinematicGrade";
-import BloomPulse from "./BloomPulse";
 import SceneClock from "./SceneClock";
 import Stars from "./Stars";
-import StellarDrift from "./StellarDrift";
 import Sun from "./Sun";
 import Planet from "./Planet";
 import CameraRig from "./CameraRig";
@@ -33,7 +31,6 @@ import LensFlare from "./LensFlare";
 import OrbitRings from "./OrbitRings";
 import Beacon from "./Beacon";
 // LaneObjects retired — the Holo-Bridge dossier cluster replaces the forced-←→ convoy.
-import HyperLoop from "./HyperLoop";
 import SolarProminences from "./SolarProminences";
 import SolarEclipse from "./SolarEclipse";
 import EclipseLights from "./EclipseLights";
@@ -143,7 +140,7 @@ const Scene = ({ scrollT, activeIdx, itemIdx = 0, onJump, onReady, freeRoamEnabl
      own their own offset; CameraRig sums them. */
   const parallaxOffsetRef = useRef(new THREE.Vector3());
   const freeRoamOffsetRef = useRef(new THREE.Vector3());
-  /* Bloom effect handle — BloomPulse pulses its intensity with warp velocity. */
+  /* Bloom effect handle (static intensity; warp pulse removed in v3). */
   const bloomRef = useRef();
   /* Earth's Moon world position, published by its Planet, read by SolarEclipse. */
   const moonWorldRef = useRef(new THREE.Vector3());
@@ -239,14 +236,6 @@ const Scene = ({ scrollT, activeIdx, itemIdx = 0, onJump, onReady, freeRoamEnabl
       {/* Lane objects — the active section's résumé items as a co-orbital convoy
           on the planet's orbital lane (←→ selects them; M2b adds the fly-to). */}
       {/* lane convoy retired — Holo-Bridge dossier cluster replaces forced ←→ */}
-
-      {/* Hyperloop light-tunnel — pulsed by the nav on a ←→ shift (and the intro
-          warp later). Fresh build in the cockpit palette; in-scene additive mesh,
-          the existing Bloom glows it. */}
-      {!reducedMotion && !isMobile && <HyperLoop warpVelRef={warpVelRef} color="#8fcfff" />}
-      {/* D — interplanetary dust parallax: motion-gated motes that stream past
-          on a hop (depth the 6800u catalogue sky can't give on short inner hops). */}
-      {!reducedMotion && !isMobile && <StellarDrift warpVelRef={warpVelRef} reducedMotion={reducedMotion} />}
 
       <Suspense fallback={null}>
         <Skybox />
@@ -535,8 +524,6 @@ const Scene = ({ scrollT, activeIdx, itemIdx = 0, onJump, onReady, freeRoamEnabl
         {!isMobile && !reducedMotion && <MouseParallax offsetRef={parallaxOffsetRef} />}
         <FreeRoam enabled={freeRoamEnabled} offsetRef={freeRoamOffsetRef} speedRef={speedRef} thrustRef={thrustRef} />
         <CameraShake parallaxOffsetRef={parallaxOffsetRef} />
-        {/* Tier-1 feel — pulse Bloom with warp velocity (bloom punch on the dive). */}
-        <BloomPulse bloomRef={bloomRef} warpVelRef={warpVelRef} base={isMobile ? 0.6 : 0.8} />
         <CameraRig
           scrollT={scrollT}
           parallaxOffsetRef={parallaxOffsetRef}
@@ -600,7 +587,6 @@ const Scene = ({ scrollT, activeIdx, itemIdx = 0, onJump, onReady, freeRoamEnabl
           saturation={-0.02}
           vigOffset={0.36}
           vigDarkness={0.38}
-          warpVelRef={warpVelRef}
         />
       </EffectComposer>
       </SceneClock>

@@ -21,7 +21,6 @@ import DiscoveriesView from "./DiscoveriesView";
 import EasterEgg from "./EasterEgg";
 import AnswerListener from "./AnswerListener";
 import useViewport from "./useViewport";
-import IntroSequence from "./IntroSequence";
 import CoPilot from "./CoPilot";
 import PhotoMode from "./PhotoMode";
 import SpeedRun from "./SpeedRun";
@@ -101,33 +100,13 @@ const StellarApp = ({ v3 = false }) => {
     return () => window.removeEventListener("stellar:flight", onFlight);
   }, []);
   const { reducedMotion, isMobile } = useViewport();
-  /* PHASE 1 — THE ARRIVAL. The visitor must EARN the world: desktop plays the
-     cinematic gate (black → establish pull-back → warp dive → Sol); reduced-motion
-     + mobile go straight to the tour. `introDone` replaces the old always-true
-     `shipWarpDone` gate; `launchPhase` (null | "establish" | "warp") drives
-     CameraRig's scripted launch move. */
-  /* v3 removes the warp intro entirely — the tour loads straight into the hero
-     (clean cut), so the cinematic gate is disabled and introDone starts true. */
-  const introEnabled = !reducedMotion && !isMobile && !v3;
-  const [introDone, setIntroDone] = useState(!introEnabled);
-  const [launchPhase, setLaunchPhase] = useState(null);
-  /* Idempotent hand-off to the tour: called by CameraRig's clock-driven
-     onLaunchComplete (normal warp end) AND by IntroSequence (skip / safety net). */
-  const finishIntro = useCallback(() => {
-    setLaunchPhase(null);
-    setIntroDone(true);
-  }, []);
-  /* CameraRig's clock-driven warp arrival → let IntroSequence play the drop-out /
-     HUD-boot beat (it owns the fine enum); the arrival beat then calls finishIntro.
-     Keeping launchPhase "warp" until then pins the camera at Sol (no snap). */
-  const handleLaunchComplete = useCallback(() => {
-    window.dispatchEvent(new CustomEvent("stellar:intro:warpdone"));
-  }, []);
-  /* Safety: if useViewport only resolves RM/mobile after first paint, never strand
-     them behind the intro gate (which hides the tour UI). */
-  useEffect(() => {
-    if (!introEnabled) setIntroDone(true);
-  }, [introEnabled]);
+  /* The warp/countdown cinematic intro was removed entirely — every visitor loads
+     straight into the hero (a clean cut). `introDone` is permanently true (kept as
+     a constant so the many downstream `introDone &&` gates still read cleanly);
+     `launchPhase` stays null so CameraRig's now-inert scripted-launch branch never
+     runs. CameraRig itself is unchanged. */
+  const introDone = true;
+  const launchPhase = null;
   const [activeIdx, setActiveIdx] = useState(0);
   const activeIdxRef = useRef(0);
   /* Item index within the active section — ←→ moves along the planet's lane.
@@ -289,7 +268,6 @@ const StellarApp = ({ v3 = false }) => {
     focusRef.current = { live: true, target, from: changed ? from : null, fov: k >= 0 ? 42 : 50 };
     prevTargetRef.current = target;
     if (changed) {
-      window.dispatchEvent(new CustomEvent("stellar:whoosh"));
       window.dispatchEvent(new CustomEvent("stellar:sound:jump"));
     }
   }, []);
@@ -644,13 +622,7 @@ const StellarApp = ({ v3 = false }) => {
         clock={sceneClockRef.current}
         extrasPhase={extrasPhase}
         launchPhase={launchPhase}
-        onLaunchComplete={handleLaunchComplete}
       />
-      {/* PHASE 1 — the cinematic gate. Desktop only; drives launchPhase + the
-          black curtain, hands off to the tour via finishIntro. */}
-      {introEnabled && !introDone && (
-        <IntroSequence onPhase={setLaunchPhase} onFinish={finishIntro} />
-      )}
       <Navigator
         scrollTRef={scrollTRef}
         onDestinationChange={handleDestinationChange}
