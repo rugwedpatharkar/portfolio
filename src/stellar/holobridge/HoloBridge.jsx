@@ -15,6 +15,7 @@ import FactsHologram from "./FactsHologram";
 import DossierHologram from "./DossierHologram";
 import HeroHologram from "./HeroHologram";
 import V3Hero from "../v3/V3Hero";
+import V3SystemOverview from "../v3/V3SystemOverview";
 
 export default function HoloBridge({ destination, section, items, bootNonce, panelHidden, v3 = false }) {
   const { isCompact, isMobile } = useViewport();
@@ -45,8 +46,14 @@ export default function HoloBridge({ destination, section, items, bootNonce, pan
     >
       {isHero ? (
         v3 ? (
-          /* v3 — far-left info column against the whole-system view. */
-          <V3Hero />
+          /* v3 — the schematic system-overview map (Sun far-right + orbits + planets)
+             behind a far-left info column. */
+          <>
+            <V3SystemOverview />
+            <div style={{ position: "relative", zIndex: 2, pointerEvents: "auto" }}>
+              <V3Hero />
+            </div>
+          </>
         ) : (
           /* v2 Sol — the recruiter landing: one prominent hero card. */
           <div style={{ pointerEvents: "auto", width: stack ? "100%" : "clamp(320px, 38vw, 500px)", maxHeight: "88vh", overflowY: "auto" }}>
