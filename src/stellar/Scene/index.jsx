@@ -140,6 +140,11 @@ const Scene = ({ scrollT, activeIdx, itemIdx = 0, onJump, onReady, freeRoamEnabl
   const showExtras = extrasPhase >= 1;
   const showMid = extrasPhase >= 2;
   const showEggs = extrasPhase >= 3 && !naturalOnly;
+  /* v3 keeps the deep field MINIMAL — the noisy Tier-2 extras (kilonova, hypergiant,
+     Eta Carinae, Einstein ring, globular cluster, grav-wave chirp, red dots, cosmic-web
+     markers, spare comets, danger field) crowd the clean planet frames. The tour-worthy
+     landmarks (black hole, pulsar, comet, wormhole, nebulae, Milky Way) stay. */
+  const deepMid = showMid && !v3;
   /* Camera offsets — kept in refs so React state doesn't re-render
      the whole tree on every frame. Mouse parallax and free-roam each
      own their own offset; CameraRig sums them. */
@@ -258,7 +263,7 @@ const Scene = ({ scrollT, activeIdx, itemIdx = 0, onJump, onReady, freeRoamEnabl
             rather than hidden off to the +X side behind the viewer. */}
         {showMid && <BlackHole position={remapPosition(frontOfSun([49, -6, -15]))} radius={32} animate={!reducedMotion} onPointerOver={handleHoverIn} onPointerOut={handleHoverOut} />}
         {/* Spaghettification dread near Gargantua — writes clock.danger. */}
-        {showMid && <DangerField animate={!reducedMotion} />}
+        {deepMid && <DangerField animate={!reducedMotion} />}
         {/* Flyable résumé collectibles — collected while piloting. */}
         {showEggs && <DataFragments active={freeRoamEnabled} animate={!reducedMotion} />}
         {/* Anomaly suite — the discoverable spectacle (tier 2). Motion-heavy ones
@@ -266,39 +271,39 @@ const Scene = ({ scrollT, activeIdx, itemIdx = 0, onJump, onReady, freeRoamEnabl
         {showMid && !reducedMotion && <Comet />}
         {/* 'Oumuamua — the interstellar visitor cutting through on a hyperbolic
             path, tumbling end over end. */}
-        {showMid && !reducedMotion && <InterstellarVisitor animate={!reducedMotion} />}
+        {deepMid && !reducedMotion && <InterstellarVisitor animate={!reducedMotion} />}
         {/* The interstellar comets: 3I/ATLAS (green coma + sunward anti-tail) and
             2I/Borisov (reddish coma) — completing the trio with 'Oumuamua. */}
-        {showMid && !reducedMotion && <AtlasComet />}
-        {showMid && !reducedMotion && (
+        {deepMid && !reducedMotion && <AtlasComet />}
+        {deepMid && !reducedMotion && (
           <AtlasComet start={[-620, -150, 240]} vel={[168, 4, -64]} coma="#e0a890" ion="#cdbfa0" dust="#e8d8b8" antiTail={false} comaR={1.2} respawn={780} />
         )}
         {/* Sungrazer C/2026 A1 — a steep dive through ~the Sun (true-scale path). */}
-        {showMid && !reducedMotion && (
+        {deepMid && !reducedMotion && (
           <AtlasComet start={[560, 130, -380]} vel={[-150, -35, 102]} coma="#cfe8ff" ion="#bfe0ff" dust="#eae6ff" antiTail={false} comaR={1.1} respawn={720} />
         )}
         {/* Clickable wishing meteors. */}
-        {showMid && !reducedMotion && <ShootingStars animate={!reducedMotion} />}
+        {deepMid && !reducedMotion && <ShootingStars animate={!reducedMotion} />}
         {showMid && !isMobile && !reducedMotion && <Meteors />}
         {showMid && !isMobile && !reducedMotion && <Pulsar />}
         {/* New deep-field exotics: Sgr A*, magnetar, brown dwarf, rogue planet. */}
-        {showMid && <ExoticObjects animate={!reducedMotion} />}
+        {deepMid && <ExoticObjects animate={!reducedMotion} />}
         {/* Human-made probes + speculative "mysteries" — removed in v3 (natural only). */}
         {showMid && !naturalOnly && <ProjectProbes animate={!reducedMotion} />}
         {showMid && !naturalOnly && <DeepFieldMysteries animate={!reducedMotion} />}
         {/* PHASE 4 (Wave 1) — deep-sky wonders: a kilonova event + a red supergiant. */}
-        {showMid && <Kilonova animate={!reducedMotion} />}
-        {showMid && <Hypergiant animate={!reducedMotion} />}
+        {deepMid && <Kilonova animate={!reducedMotion} />}
+        {deepMid && <Hypergiant animate={!reducedMotion} />}
         {/* Eta Carinae's bipolar Homunculus + an Einstein-ring lens galaxy. */}
-        {showMid && <EtaCarinae animate={!reducedMotion} />}
-        {showMid && <EinsteinRing animate={!reducedMotion} />}
+        {deepMid && <EtaCarinae animate={!reducedMotion} />}
+        {deepMid && <EinsteinRing animate={!reducedMotion} />}
         {/* Wave 2 — scale & mystery: globular cluster, GW chirp, little red dots, cosmic web. */}
-        {showMid && <GlobularCluster animate={!reducedMotion} />}
-        {showMid && <GravWaveChirp animate={!reducedMotion} />}
-        {showMid && <RedDots animate={!reducedMotion} />}
-        {showMid && <CosmicMarker raw={[-44, 38, 28]} kind="void" count={520} radius={11} glow="#8aa0d8" animate={!reducedMotion} />}
-        {showMid && <CosmicMarker raw={[60, 20, -40]} kind="attractor" count={680} radius={10} glow="#ffd0a0" animate={!reducedMotion} />}
-        {showMid && <CosmicMarker raw={[-64, -10, -48]} kind="wall" count={760} radius={13} glow="#a0b6ff" animate={!reducedMotion} />}
+        {deepMid && <GlobularCluster animate={!reducedMotion} />}
+        {deepMid && <GravWaveChirp animate={!reducedMotion} />}
+        {deepMid && <RedDots animate={!reducedMotion} />}
+        {deepMid && <CosmicMarker raw={[-44, 38, 28]} kind="void" count={520} radius={11} glow="#8aa0d8" animate={!reducedMotion} />}
+        {deepMid && <CosmicMarker raw={[60, 20, -40]} kind="attractor" count={680} radius={10} glow="#ffd0a0" animate={!reducedMotion} />}
+        {deepMid && <CosmicMarker raw={[-64, -10, -48]} kind="wall" count={760} radius={13} glow="#a0b6ff" animate={!reducedMotion} />}
         {/* Wormhole "Beam aboard" portal at the Contact edge — the booking CTA. */}
         {showMid && <Wormhole />}
 
@@ -439,7 +444,9 @@ const Scene = ({ scrollT, activeIdx, itemIdx = 0, onJump, onReady, freeRoamEnabl
           return null;
         })}
 
-        {!isMobile && <LensFlare position={[0, 0, 0]} />}
+        {/* Lens flare OFF in v3 — the sun-driven ghost circles/artifacts clutter the
+            clean planet frames. */}
+        {!isMobile && !v3 && <LensFlare position={[0, 0, 0]} />}
         {/* Orrery rings — the real orbital structure. Shown in overview mode AND on
             the v3 system-overview hero (stop 0). */}
         {showExtras && <OrbitRings wideRef={wideRef} show={v3 && activeIdx === 0} />}
