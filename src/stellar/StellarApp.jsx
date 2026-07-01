@@ -35,6 +35,7 @@ import EclipseDimmer from "./EclipseDimmer";
 import { markCharted, markVisited } from "./data/explorer";
 import { getBodyContent } from "./data/bodies";
 import V3Style from "./v3/V3Style";
+import V3Cursor from "./v3/V3Cursor";
 
 
 /* Hash → destination utilities */
@@ -634,7 +635,7 @@ const StellarApp = ({ v3 = false }) => {
       />
       {introDone && (
         <>
-          <Cursor />
+          {v3 ? <V3Cursor /> : <Cursor />}
           {/* Sky darkens toward totality during an eclipse (scene only; HUD stays lit). */}
           <EclipseDimmer eclipseRef={eclipseRef} />
           {/* D — the star's light floods the canopy on an inward approach (the 3D
