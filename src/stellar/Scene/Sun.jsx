@@ -121,9 +121,9 @@ const SUN_FRAG = /* glsl */ `
     float facula = net * pow(1.0 - ndv, 2.0);
     col += facula * vec3(1.0, 0.93, 0.78) * 0.30;
 
-    /* Over-bright so bloom blooms it into a star — but NOT inside sunspot umbrae,
-       which stay dark enough to survive the bloom as genuine dark spots. */
-    col *= mix(1.55, 0.3, umbra);
+    /* Over-bright so bloom blooms it into a warm glowing star — but NOT inside
+       sunspot umbrae, which stay dark enough to survive the bloom as dark spots. */
+    col *= mix(1.9, 0.35, umbra);
     gl_FragColor = vec4(col, 1.0);
   }
 `;
@@ -138,19 +138,19 @@ const Sun = ({
 }) => {
   const meshRef = useRef();
   const matRef = useRef();
+  const promRef = useRef();
   const sceneClock = useSceneClock();
 
   const uniforms = useMemo(
     () => ({
       uTime: { value: 0 },
       uCameraPos: { value: new THREE.Vector3() },
-      /* Accurate ~5800 K photosphere: near-WHITE (a 5800 K blackbody reads white to
-         the eye in space; the yellow/orange 'sun' is Earth-atmosphere scattering).
-         Hot = white, mid = the faintest warm cream, cool intergranular lanes = a
-         soft warm tan (NOT lava-orange). Sunspot umbrae stay dark (below). */
-      uHot: { value: new THREE.Color("#fffdfa") },
-      uMid: { value: new THREE.Color("#fdf0d8") },
-      uCool: { value: new THREE.Color("#e7c39a") },
+      /* Reddish SOHO/EIT-304 look (per the reference photo): a hot orange-red
+         photosphere. Bright convection peaks = orange-gold, mid = orange, cool
+         intergranular lanes = deep red. Sunspot umbrae stay dark (below). */
+      uHot: { value: new THREE.Color("#ff9a3c") },
+      uMid: { value: new THREE.Color("#e8531a") },
+      uCool: { value: new THREE.Color("#6e1a06") },
     }),
     []
   );
@@ -163,6 +163,8 @@ const Sun = ({
       matRef.current.uniforms.uTime.value = t;
       matRef.current.uniforms.uCameraPos.value.copy(camera.position);
     }
+    /* Prominence loop breathes gently (static under reduced-motion, t pinned 0). */
+    if (promRef.current) promRef.current.material.opacity = 0.7 + Math.sin(t * 1.3) * 0.22;
   });
 
   return (
@@ -180,7 +182,13 @@ const Sun = ({
       </mesh>
       {/* Corona shells removed — no translucent "circle"/halo disc around the Sun.
           Bloom on the over-bright photosphere gives it a natural glow on its own. */}
-      <pointLight color="#ffe5b0" intensity={1.1} distance={600} decay={1.2} />
+      {/* Prominence loop arcing off the upper-right limb (the SOHO signature in the
+          reference photo) — additive orange that blooms into a glowing arc. */}
+      <mesh ref={promRef} position={[radius * 0.58, radius * 0.82, radius * 0.05]} rotation={[0.25, 0, -0.6]}>
+        <torusGeometry args={[radius * 0.3, radius * 0.045, 12, 40, Math.PI * 1.35]} />
+        <meshBasicMaterial color="#ff6a1e" transparent opacity={0.85} toneMapped={false} depthWrite={false} blending={THREE.AdditiveBlending} />
+      </mesh>
+      <pointLight color="#ffb070" intensity={1.1} distance={600} decay={1.2} />
     </group>
   );
 };
