@@ -510,10 +510,11 @@ const CameraRig = ({
     }
 
     /* Pointer parallax — shift the camera along its OWN right/up by a fraction
-       of the framing distance, so the angular sway is identical on every planet
-       and the body stays anchored while the background parallaxes. (Skipped in
-       wide / focus / free-roam, which own the camera.) */
-    if (!wide && !focus && !freeRoamEnabled && parallaxOffsetRef?.current) {
+       of the framing distance, so the angular sway is identical on every body
+       and it stays anchored while the background parallaxes. v2 applied it only
+       off-focus (the hero); v3 applies it on FOCUSED planet stops too, so moving
+       the cursor sways every planet like the hero. (Still skipped in wide/free-roam.) */
+    if (!wide && (!focus || v3) && !freeRoamEnabled && parallaxOffsetRef?.current) {
       _viewDir.copy(_lookTarget).sub(_camTarget);
       const fd = _viewDir.length() || 1;
       _viewDir.divideScalar(fd);
