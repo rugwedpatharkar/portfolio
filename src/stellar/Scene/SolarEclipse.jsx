@@ -23,7 +23,8 @@ import { liveBodyPosition } from "../data/bodies";
  */
 
 const SUN = new THREE.Vector3(0, 0, 0);
-const SUN_R = DESTINATIONS[0].radius; // 1.6
+/* Find the star by kind, not index 0 — v3 puts a non-body "overview" stop at 0. */
+const SUN_R = (DESTINATIONS.find((d) => d.kind === "star") || DESTINATIONS[0]).radius;
 const EARTH = DESTINATIONS.find((d) => d.type === "earth");
 const MOON_R = EARTH.radius * (EARTH.moonScale || 0.27); // the real Moon's radius
 const PLANETS = DESTINATIONS.filter((d) => d.kind === "planet").map((d) => ({ id: d.id, r: d.radius }));

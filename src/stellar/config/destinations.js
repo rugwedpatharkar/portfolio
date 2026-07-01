@@ -20,6 +20,21 @@ const DEG = Math.PI / 180;
 
 export const DESTINATIONS = [
   {
+    /* v3 STOP 00 — the SYSTEM-OVERVIEW landing (name/photo). Renders NO body of its
+       own (kind "overview" → the Scene map skips it); the Sun + planets already draw
+       from their own stops. Its cameraTarget is the wide establishing pose — the whole
+       system framed with the Sun on the FAR RIGHT and the left half dark for the info
+       column. MUST stay the array's first entry (CameraRig's SOL_CAM = DESTINATIONS[0]
+       .cameraTarget = the hero framing). */
+    id: "overview",
+    kind: "overview",
+    label: "Solar System",
+    position: [0, 0, 0],
+    radius: 0,
+    section: "hero",
+    cameraTarget: { position: [12, 8, 118], lookAt: [-34, 2, 0], fov: 41 },
+  },
+  {
     id: "sol",
     kind: "star",
     label: "Sol",
@@ -29,12 +44,11 @@ export const DESTINATIONS = [
     radius: 19.8, // 695,700 km — 109× Earth (0.182)
     color: "#ff9a3c",
     texture: "/textures/planets/sunmap.jpg",
-    section: "hero",
-    /* v3 hero — the whole-system establishing shot, REVERSED: pull back and aim
-       left of the Sun so the giant star sits on the FAR RIGHT and the left half
-       stays dark for the info column. (Was [0,6,60]/lookAt origin — Sun centred,
-       washed out the text.) */
-    cameraTarget: { position: [10, 7, 104], lookAt: [-24, 2, 0], fov: 43 },
+    /* v3 — everyone shifts forward one: the Sun now carries ABOUT (was Mercury). */
+    section: "about",
+    /* About — fly IN from the overview to frame the Sun prominently, still kept
+       right-of-centre so the left info column stays clear. */
+    cameraTarget: { position: [6, 8, 82], lookAt: [-10, 1, 0], fov: 46 },
   },
 
   // Inner system
@@ -49,7 +63,7 @@ export const DESTINATIONS = [
     colorB: "#2f3138",
     texture: "/textures/planets/mercurymap.jpg",
     bumpTexture: "/textures/planets/moonbump1k.jpg",
-    section: "about",
+    section: "funfacts",
     /* Camera closes in to frame the now-tiny world (offset scaled to radius). */
     cameraTarget: { position: [5.65, 0.13, 0.52], lookAt: [5.5, 0.1, 0.3], fov: 44 },
   },
@@ -68,7 +82,7 @@ export const DESTINATIONS = [
        Knock it back so the cloud banding survives the bloom pass. */
     tint: "#c9b48a",
     axialTilt: 177.4 * DEG, // Venus spins retrograde — effectively upside-down
-    section: "funfacts",
+    section: "experience",
     /* Venus — high 3/4 looking down through the haze (offset scaled to radius) */
     cameraTarget: { position: [8.57, 0.27, 1.46], lookAt: [8.2, -0.15, 1.0], fov: 46 },
   },
@@ -98,7 +112,7 @@ export const DESTINATIONS = [
     moonTexture: "/textures/planets/moonmap1k.jpg",
     moonScale: 0.27,
     axialTilt: 23.4 * DEG, // Earth's real obliquity — tips the globe + Moon orbit
-    section: "experience",
+    section: "projects",
     /* Earth — the standout hero shot. These exact values frame the
        day/night terminator without the sun flooding the lens; do not
        move the position or the sun glares the frame orange. */
@@ -124,7 +138,7 @@ export const DESTINATIONS = [
       { color: "#7d7165", scale: 0.05 },  // Phobos — closer, larger
       { color: "#8a7e70", scale: 0.038 }, // Deimos — smaller, smoother
     ],
-    section: "projects",
+    section: "achievements",
     /* Mars — slight low angle (offset scaled to radius) */
     cameraTarget: { position: [15.47, 0.22, 0.81], lookAt: [15.3, 0.2, 0.6], fov: 44 },
   },
@@ -147,7 +161,7 @@ export const DESTINATIONS = [
     color: "#8a8378", // UI accent only — the surface uses the real NASA map
     colorB: "#5b574e",
     texture: "/textures/planets/ceres.jpg", // NASA/JPL Dawn grayscale photomosaic
-    section: "achievements",
+    section: "skills",
     /* Tight framing for the dwarf (offset preserved through the AU remap). */
     cameraTarget: { position: [19.54, 0.43, 0.65], lookAt: [19.5, 0.4, 0.6], fov: 44 },
   },
@@ -164,7 +178,7 @@ export const DESTINATIONS = [
     colorB: "#9a6a3c",
     texture: "/textures/planets/jupitermap_hd.jpg",
     bumpTexture: "/textures/planets/jupiter_bump.jpg",
-    section: "skills",
+    section: "notes",
     /* Jupiter — wide + slight roll to sell the scale (offset scaled to radius) */
     cameraTarget: { position: [27.89, 1.39, 1.02], lookAt: [24.6, 0.1, -1.8], fov: 52, roll: -0.05 },
     axialTilt: 3.1 * DEG, // Jupiter spins nearly upright
@@ -192,7 +206,7 @@ export const DESTINATIONS = [
     colorB: "#a07a3a",
     texture: "/textures/planets/saturnmap_hd.jpg",
     bumpTexture: "/textures/planets/saturn_bump.jpg",
-    section: "notes",
+    section: "education",
     /* Saturn — dutch tilt to throw the rings across the frame (offset scaled) */
     cameraTarget: { position: [33.68, 2.61, 4.69], lookAt: [30.2, 0, 1.5], fov: 50, roll: 0.11 },
     axialTilt: 26.7 * DEG, // Saturn's obliquity — tilts the ring plane across the frame
@@ -224,7 +238,7 @@ export const DESTINATIONS = [
        Uranus's real near-featureless PALE greenish-cyan (gentler than Neptune,
        since Uranus is paler/blander). */
     grade: { sat: 0.6, lift: 0.1, mix: 0.32, tint: "#b8d6d0" },
-    section: "education",
+    section: "hobbies",
     /* Uranus — closer + tighter fov so the planet fills the negative space
        (Education read as empty), with the strong dutch tilt for its 98° axis. */
     cameraTarget: { position: [36.03, 0.87, 0.02], lookAt: [34.8, 0, -1.0], fov: 40, roll: 0.17 },
@@ -257,7 +271,7 @@ export const DESTINATIONS = [
     /* The bundled map is the over-saturated Voyager indigo; grade it to the 2024
        true colour — a PALE greenish-blue, near-Uranus but a touch bluer. */
     grade: { sat: 0.55, lift: 0.08, mix: 0.42, tint: "#9ec6d6" },
-    section: "hobbies",
+    section: "testimonials",
     /* Neptune — pulled back, lonely framing in the deep dark (offset scaled) */
     cameraTarget: { position: [40.54, 0.94, 2.34], lookAt: [39.0, 0, 0.8], fov: 44 },
     axialTilt: 28.3 * DEG, // Neptune's obliquity, close to Earth's
@@ -287,23 +301,14 @@ export const DESTINATIONS = [
     moonScale: 0.5,
     /* Charon — grey, nearly half Pluto's size (the system's true double dwarf). */
     moonSet: [{ color: "#9a948a", scale: 0.5 }],
-    section: "testimonials",
+    section: "contact",
     /* Tight framing for the small dwarf (offset preserved through the AU remap). */
     cameraTarget: { position: [44.08, 0.97, 1.52], lookAt: [44, 0.9, 1.4], fov: 46 },
   },
 
-  // Edge beacon — Contact
-  {
-    id: "contact",
-    kind: "beacon",
-    label: "Edge Beacon",
-    position: [49, 0, 0.5],
-    radius: 0.4,
-    color: "#ff6b6b",
-    section: "contact",
-    /* Edge beacon — pulled back, tiny signal in vast emptiness */
-    cameraTarget: { position: [49, 1.1, 2.4], lookAt: [49, 0, 0.5], fov: 46 },
-  },
+  // (Edge beacon removed in v3 — Contact now lives on Pluto, the last body, after
+  // shifting every section forward one. Deep-space stops extend the tour in a later
+  // phase.)
 ];
 
 /* ────────────────────────────────────────────────────────────────────────

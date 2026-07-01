@@ -21,7 +21,9 @@ export default function HoloBridge({ destination, section, items, bootNonce, pan
   const ref = useHoloParallax();
   const { booting } = useBootReveal(bootNonce);
   const stack = isCompact || isMobile;
-  const isHero = section === "hero" || destination?.id === "sol";
+  /* Hero = the system-overview stop only. (v3 moved the Sun to the "about" stop,
+     so id==="sol" is NO LONGER the hero — key on the section.) */
+  const isHero = section === "hero";
 
   return (
     <div
