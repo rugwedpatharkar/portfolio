@@ -35,6 +35,7 @@ import EclipseDimmer from "./EclipseDimmer";
 /* SoundToggle removed — minimal UI (bridge hum still arms on first gesture) */
 import { markCharted, markVisited } from "./data/explorer";
 import { getBodyContent } from "./data/bodies";
+import V3Style from "./v3/V3Style";
 
 
 /* Hash → destination utilities */
@@ -63,7 +64,7 @@ const OverviewHud = ({ overview }) =>
   ) : null;
 
 
-const StellarApp = () => {
+const StellarApp = ({ v3 = false }) => {
   const scrollTRef = useRef(0);
   /* Progressive-mount tier (0→3) for the heavy extras suite. Mounting the whole
      suite in ONE commit the instant the countdown ended froze a frame for ~3.5s
@@ -105,7 +106,9 @@ const StellarApp = () => {
      + mobile go straight to the tour. `introDone` replaces the old always-true
      `shipWarpDone` gate; `launchPhase` (null | "establish" | "warp") drives
      CameraRig's scripted launch move. */
-  const introEnabled = !reducedMotion && !isMobile;
+  /* v3 removes the warp intro entirely — the tour loads straight into the hero
+     (clean cut), so the cinematic gate is disabled and introDone starts true. */
+  const introEnabled = !reducedMotion && !isMobile && !v3;
   const [introDone, setIntroDone] = useState(!introEnabled);
   const [launchPhase, setLaunchPhase] = useState(null);
   /* Idempotent hand-off to the tour: called by CameraRig's clock-driven
@@ -601,6 +604,9 @@ const StellarApp = () => {
   return (
     <MotionConfig reducedMotion="user">
     <StellarUIContext.Provider value={ui}>
+      {/* v3 skin — injects design tokens + tracks the per-body accent. Mounted
+          only on the #v3 route; #stellar (v2) renders unchanged. */}
+      {v3 && <V3Style accentKey={DESTINATIONS[activeIdx]?.id} />}
       {/* Hide the page scrollbar — scroll still drives the camera, but the
           bar is visual clutter. (Scoped to while the stellar app is mounted.) */}
       <style>{`

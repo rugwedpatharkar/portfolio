@@ -43,6 +43,7 @@ const App = () => {
     const h = window.location.hash;
     if (h === "#design") return "design";
     if (h === "#legacy") return "legacy";
+    if (h === "#v3" || h.startsWith("#v3/")) return "v3";
     return "stellar";
   });
 
@@ -51,6 +52,7 @@ const App = () => {
       const h = window.location.hash;
       if (h === "#design") setRoute("design");
       else if (h === "#legacy") setRoute("legacy");
+      else if (h === "#v3" || h.startsWith("#v3/")) setRoute("v3");
       else setRoute("stellar");
     };
     window.addEventListener("hashchange", onHash);
@@ -76,7 +78,7 @@ const App = () => {
 
   return (
     <Suspense fallback={null}>
-      <StellarApp />
+      <StellarApp v3={route === "v3"} />
     </Suspense>
   );
 };
