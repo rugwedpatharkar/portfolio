@@ -15,6 +15,7 @@ import FactsHologram from "./FactsHologram";
 import DossierHologram from "./DossierHologram";
 import HeroHologram from "./HeroHologram";
 import V3Hero from "../v3/V3Hero";
+import V3Panel from "../v3/V3Panel";
 
 export default function HoloBridge({ destination, section, items, bootNonce, panelHidden, v3 = false }) {
   const { isCompact, isMobile } = useViewport();
@@ -38,9 +39,9 @@ export default function HoloBridge({ destination, section, items, bootNonce, pan
         display: "flex",
         flexDirection: stack ? "column" : "row",
         alignItems: stack ? "stretch" : "center",
-        justifyContent: stack ? "flex-end" : isHero ? "flex-start" : "space-between",
+        justifyContent: stack ? "flex-end" : isHero || v3 ? "flex-start" : "space-between",
         gap: stack ? 10 : 16,
-        padding: stack ? "0 12px 92px" : v3 && isHero ? "0 clamp(28px, 6vw, 120px)" : "0 clamp(18px, 3vw, 46px)",
+        padding: stack ? "0 12px 92px" : v3 ? "0 clamp(28px, 6vw, 120px)" : "0 clamp(18px, 3vw, 46px)",
       }}
     >
       {isHero ? (
@@ -54,6 +55,9 @@ export default function HoloBridge({ destination, section, items, bootNonce, pan
             <HeroHologram booting={booting} />
           </div>
         )
+      ) : v3 ? (
+        /* v3 — premium single content column on the LEFT (résumé + body telemetry). */
+        <V3Panel destination={destination} section={section} items={items} bootNonce={bootNonce} />
       ) : (
         <>
           <div style={{ pointerEvents: "auto", width: stack ? "100%" : "clamp(220px, 22vw, 300px)", maxHeight: "82vh", overflowY: "auto" }}>
