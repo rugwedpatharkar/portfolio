@@ -144,11 +144,13 @@ const Sun = ({
     () => ({
       uTime: { value: 0 },
       uCameraPos: { value: new THREE.Vector3() },
-      /* True ~5800 K photosphere reads near-WHITE with a faint cream cast — not
-         lava-orange. Orange is reserved for the cool intergranular lanes/spots. */
-      uHot: { value: new THREE.Color("#fffdf7") },
-      uMid: { value: new THREE.Color("#ffe7b0") },
-      uCool: { value: new THREE.Color("#ff9a44") },
+      /* Accurate ~5800 K photosphere: near-WHITE (a 5800 K blackbody reads white to
+         the eye in space; the yellow/orange 'sun' is Earth-atmosphere scattering).
+         Hot = white, mid = the faintest warm cream, cool intergranular lanes = a
+         soft warm tan (NOT lava-orange). Sunspot umbrae stay dark (below). */
+      uHot: { value: new THREE.Color("#fffdfa") },
+      uMid: { value: new THREE.Color("#fdf0d8") },
+      uCool: { value: new THREE.Color("#e7c39a") },
     }),
     []
   );
