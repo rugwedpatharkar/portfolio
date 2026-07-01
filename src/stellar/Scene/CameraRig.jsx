@@ -166,12 +166,16 @@ const visualExtentFor = (dest) => {
   if (dest.oblateness) ext = Math.max(ext, r * (1 + dest.oblateness));
   return ext;
 };
-const backDistFor = (extent, halfAngle = BACKLIT_HALF_ANGLE) => Math.max(BACK_FLOOR, (extent / Math.tan(halfAngle)) * BACKLIT_MARGIN);
+const backDistFor = (extent, halfAngle = BACKLIT_HALF_ANGLE, floor = BACK_FLOOR) => Math.max(floor, (extent / Math.tan(halfAngle)) * BACKLIT_MARGIN);
 /* v3 cinematic split: every planet's BODY is framed to the SAME on-screen size (big,
    right of centre, info left). We frame by the body radius (× oblateness so the squashed
    giants don't crop vertically), IGNORING rings — so Saturn's disc matches Jupiter's and
    the rings simply extend off-frame (cinematic), instead of the rings shrinking the body. */
-const V3_HALF_ANGLE = 15 * DEG; // → ~13° body half-angle after margin (Jupiter's liked size)
+const V3_HALF_ANGLE = 18 * DEG; // → ~16° body half-angle (zoomed-in cinematic hero)
+/* Tiny dwarfs (Pluto r≈0.034, Ceres r≈0.06) would clamp to BACK_FLOOR and look small,
+   so v3 uses a much lower floor — just clear of the ~0.1 near-clip (+ the body radius) —
+   letting even Pluto frame near the same size as the giants. */
+const V3_BACK_FLOOR = 0.14;
 const v3ExtentFor = (dest) => dest.radius * (1 + (dest.oblateness || 0));
 
 const CameraRig = ({
@@ -434,7 +438,7 @@ const CameraRig = ({
           /* up ⟂ the travel direction (cinematic lift). */
           _upp.copy(UP).addScaledVector(_dir, -UP.dot(_dir));
           if (_upp.lengthSq() < 1e-6) _upp.set(0, 1, 0); else _upp.normalize();
-          let D = k >= 0 ? FOCUS_DIST : backDistFor(v3 ? v3ExtentFor(tgt) : visualExtentFor(tgt), v3 ? V3_HALF_ANGLE : BACKLIT_HALF_ANGLE);
+          let D = k >= 0 ? FOCUS_DIST : backDistFor(v3 ? v3ExtentFor(tgt) : visualExtentFor(tgt), v3 ? V3_HALF_ANGLE : BACKLIT_HALF_ANGLE, v3 ? V3_BACK_FLOOR : BACK_FLOOR);
           /* Keep the right-of-centre body fully in frame: a small pull-back to make
              up for the frameShift aim-shift on desktop. (v3 wants it big → minimal.) */
           if (frameShift && k < 0) D *= 1 + frameShift * (v3 ? 0.1 : 0.25);
