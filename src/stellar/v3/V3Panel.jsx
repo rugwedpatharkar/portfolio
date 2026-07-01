@@ -93,14 +93,15 @@ export default function V3Panel({ destination, section, items, bootNonce }) {
   }, [section, bootNonce, open, items?.length]);
 
   /* Open a row and float it to the top of the column, so its dossier reads
-     downward from the top instead of leaving the reader mid-scroll. */
+     downward from the top instead of leaving the reader mid-scroll. Scroll AFTER
+     the collapse/expand reveal settles (offsetTop is only final post-layout). */
   const toggle = (i, li) => {
     const opening = open !== i;
     setOpen(opening ? i : -1);
     if (opening && li && wrapRef.current) {
-      requestAnimationFrame(() =>
-        wrapRef.current?.scrollTo({ top: Math.max(0, li.offsetTop - 8), behavior: reduce ? "auto" : "smooth" })
-      );
+      setTimeout(() => {
+        wrapRef.current?.scrollTo({ top: Math.max(0, li.offsetTop - 8), behavior: reduce ? "auto" : "smooth" });
+      }, reduce ? 0 : 320);
     }
   };
 
