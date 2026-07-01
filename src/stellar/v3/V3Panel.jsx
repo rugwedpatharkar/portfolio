@@ -7,7 +7,7 @@
  * (single-open, spring reveal, no back button), then a hairline "body telemetry" facts
  * readout. All from existing data (planetFacts, sectionItems, summaryFor); v3 tokens.
  */
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { motion, useReducedMotion } from "motion/react";
 import { PLANET_FACTS } from "../data/planetFacts";
 import { summaryFor } from "../data/holoSummary";
@@ -75,8 +75,34 @@ function Dossier({ d }) {
 export default function V3Panel({ destination, section, items, bootNonce }) {
   const reduce = useReducedMotion();
   const [open, setOpen] = useState(-1); // single-open accordion; -1 = all collapsed
+  const [overflow, setOverflow] = useState(false); // is the column taller than its box?
+  const wrapRef = useRef(null);
   /* Open the first entry by default so content is visible without a click. */
   useEffect(() => { setOpen(items?.length ? 0 : -1); }, [section, bootNonce, items?.length]);
+
+  /* Track overflow so the bottom edge-fade only appears when there's more below
+     (re-measured after the accordion's 300ms reveal settles). */
+  useEffect(() => {
+    const measure = () => {
+      const el = wrapRef.current;
+      if (el) setOverflow(el.scrollHeight - el.clientHeight > 4);
+    };
+    measure();
+    const id = setTimeout(measure, 360);
+    return () => clearTimeout(id);
+  }, [section, bootNonce, open, items?.length]);
+
+  /* Open a row and float it to the top of the column, so its dossier reads
+     downward from the top instead of leaving the reader mid-scroll. */
+  const toggle = (i, li) => {
+    const opening = open !== i;
+    setOpen(opening ? i : -1);
+    if (opening && li && wrapRef.current) {
+      requestAnimationFrame(() =>
+        wrapRef.current?.scrollTo({ top: Math.max(0, li.offsetTop - 8), behavior: reduce ? "auto" : "smooth" })
+      );
+    }
+  };
 
   const facts = destination && PLANET_FACTS[destination.id];
   const title = SECTION_TITLE[section] || destination?.label || "";
@@ -117,8 +143,13 @@ export default function V3Panel({ destination, section, items, bootNonce }) {
   }
 
   /* ---- résumé stop — inline accordion ---- */
+  const fade = "linear-gradient(to bottom, #000 calc(100% - 46px), transparent)";
   return (
-    <div style={wrap} className="stellar-content-left">
+    <div
+      ref={wrapRef}
+      style={{ ...wrap, position: "relative", maskImage: overflow ? fade : "none", WebkitMaskImage: overflow ? fade : "none" }}
+      className="stellar-content-left"
+    >
       <motion.div key={section} variants={stagger} initial="hidden" animate="show">
         <motion.div variants={rise} style={{ font: `400 var(--v3-type-cap) var(--v3-font-mono)`, letterSpacing: ".28em", textTransform: "uppercase", color: "var(--v3-fg-mute)", display: "flex", alignItems: "center", gap: 12 }}>
           <span style={{ width: 30, height: 1, background: "var(--v3-accent)" }} />{planet}
@@ -146,7 +177,7 @@ export default function V3Panel({ destination, section, items, bootNonce }) {
               return (
                 <li key={it.id || i} style={{ borderBottom: "1px solid var(--v3-line)" }}>
                   <button
-                    onClick={() => setOpen(isOpen ? -1 : i)}
+                    onClick={(e) => toggle(i, e.currentTarget.parentElement)}
                     aria-expanded={isOpen}
                     style={{ all: "unset", cursor: "pointer", display: "flex", alignItems: "baseline", gap: 14, width: "100%", boxSizing: "border-box", padding: "13px 4px" }}
                     onMouseEnter={(e) => { const t = e.currentTarget.querySelector("[data-t]"); if (t) t.style.color = "var(--v3-accent)"; }}

@@ -1,5 +1,5 @@
 /* eslint-disable react/no-unknown-property */
-import { useRef } from "react";
+import { useMemo, useRef } from "react";
 import { useFrame, useThree } from "@react-three/fiber";
 import * as THREE from "three";
 import { DESTINATIONS } from "../config/destinations";
@@ -7,16 +7,42 @@ import { getOrbit, orbitalPosition } from "../config/orbits";
 import { useSceneClock } from "./SceneClock";
 
 /*
- * Faint orbital trails + revolving planet markers. Each planet's REAL eccentric
- * orbit (Sun at a focus, tilted by true inclination) sampled from the SAME Kepler
- * params the planets move on (config/orbits), so each line passes exactly through
- * its planet. In v3 the lines are a uniform premium gold hairline, and a small
- * glowing marker rides each orbit at the planet's LIVE position — so the whole
- * system visibly revolves on the overview. Shown in overview mode + the v3 hero.
+ * Faint orbital trails + REAL revolving planets. Each planet's true eccentric
+ * orbit (Sun at a focus, tilted by inclination) is sampled from the SAME Kepler
+ * params the planets fly on (config/orbits), so each gold hairline passes exactly
+ * through its planet. Riding each orbit is a small LIT planet proxy — a sphere
+ * shaded by the Sun (real day/night terminator), sized by the planet's true
+ * relative radius, with Saturn's ring — tracking its live orbital position so the
+ * whole system visibly revolves. Shown in overview mode + the v3 hero.
  */
 const SAMPLES = 256;
 
-const ORBITS = DESTINATIONS.filter((d) => d.kind === "planet").map((d) => {
+/* Sun-lit sphere: simple Lambert against the world-space direction to the Sun
+   (at the scene origin) + a little ambient fill, so each proxy reads as a real
+   little planet with a lit limb and a dark side — not a flat dot or a glow. */
+const PLANET_VERT = /* glsl */ `
+  varying vec3 vWN;
+  void main() {
+    vWN = normalize(mat3(modelMatrix) * normal);
+    gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
+  }
+`;
+const PLANET_FRAG = /* glsl */ `
+  varying vec3 vWN;
+  uniform vec3 uColor;
+  uniform vec3 uSunDir;
+  uniform float uAmbient;
+  void main() {
+    float d = max(dot(normalize(vWN), normalize(uSunDir)), 0.0);
+    float lit = uAmbient + (1.0 - uAmbient) * d;
+    gl_FragColor = vec4(uColor * lit, 1.0);
+  }
+`;
+
+const PLANETS = DESTINATIONS.filter((d) => d.kind === "planet");
+const MAX_R = Math.max(...PLANETS.map((d) => d.radius));
+
+const ORBITS = PLANETS.map((d) => {
   const o = getOrbit(d);
   const pts = new Float32Array(SAMPLES * 3);
   for (let k = 0; k < SAMPLES; k++) {
@@ -28,16 +54,47 @@ const ORBITS = DESTINATIONS.filter((d) => d.kind === "planet").map((d) => {
     pts[k * 3 + 1] = o.y + zp * o.sinInc; // lift by orbital inclination
     pts[k * 3 + 2] = zp * o.cosInc;
   }
-  /* v3: a single premium faint-gold hairline for the orbit; the marker keeps the
-     planet's real colour so it reads as that world revolving. */
-  return { id: d.id, dest: d, pts, color: "#d4af85", dot: d.color || "#cfd6ff" };
+  /* Compress the huge true radius spread (Jupiter 2.0 → Pluto 0.034) into a
+     visible-but-still-ordered proxy size so gas giants read bigger. */
+  const size = 3.2 + 8.4 * Math.sqrt(d.radius / MAX_R);
+  return {
+    id: d.id,
+    dest: d,
+    pts,
+    color: "#d4af85", // uniform premium gold hairline
+    body: d.color || "#cfd6ff",
+    size,
+    rings: !!d.rings,
+    ringColor: d.ringColor || "#f0d9a0",
+    tilt: d.axialTilt || 0,
+  };
 });
+
+const _sun = new THREE.Vector3();
 
 const OrbitRings = ({ wideRef, show = false }) => {
   const linesRef = useRef();
   const markersRef = useRef();
   const { camera } = useThree();
   const clock = useSceneClock();
+
+  /* One sun-lit material per proxy (its uSunDir tracks the planet's live spot). */
+  const mats = useMemo(
+    () =>
+      ORBITS.map(
+        (o) =>
+          new THREE.ShaderMaterial({
+            vertexShader: PLANET_VERT,
+            fragmentShader: PLANET_FRAG,
+            uniforms: {
+              uColor: { value: new THREE.Color(o.body) },
+              uSunDir: { value: new THREE.Vector3(1, 0, 0) },
+              uAmbient: { value: 0.16 },
+            },
+          })
+      ),
+    []
+  );
 
   useFrame(() => {
     const lines = linesRef.current, marks = markersRef.current;
@@ -47,11 +104,14 @@ const OrbitRings = ({ wideRef, show = false }) => {
     if (marks) marks.visible = on;
     if (!on) return;
 
-    /* revolve the markers along their orbits at the live clock time */
+    /* revolve each proxy along its orbit + relight it from the Sun (origin) */
     if (marks) {
       const t = clock?.t || 0;
       marks.children.forEach((m, i) => {
-        if (ORBITS[i]) orbitalPosition(ORBITS[i].dest, t, m.position);
+        if (!ORBITS[i]) return;
+        orbitalPosition(ORBITS[i].dest, t, m.position);
+        _sun.copy(m.position).multiplyScalar(-1); // direction toward the Sun at origin
+        mats[i].uniforms.uSunDir.value.copy(_sun);
       });
     }
 
@@ -78,18 +138,19 @@ const OrbitRings = ({ wideRef, show = false }) => {
           </line>
         ))}
       </group>
-      {/* revolving planet markers — a bright core + a soft additive halo (glows via Bloom) */}
+      {/* revolving planet proxies — sun-lit spheres at true relative size */}
       <group ref={markersRef} visible={false}>
-        {ORBITS.map((o) => (
+        {ORBITS.map((o, i) => (
           <group key={o.id}>
-            <mesh>
-              <sphereGeometry args={[3.4, 16, 16]} />
-              <meshBasicMaterial color={o.dot} toneMapped={false} />
+            <mesh material={mats[i]}>
+              <sphereGeometry args={[o.size, 24, 24]} />
             </mesh>
-            <mesh>
-              <sphereGeometry args={[7, 16, 16]} />
-              <meshBasicMaterial color={o.dot} transparent opacity={0.28} toneMapped={false} depthWrite={false} blending={THREE.AdditiveBlending} />
-            </mesh>
+            {o.rings && (
+              <mesh rotation={[Math.PI / 2 - 0.4, 0, 0.12]}>
+                <ringGeometry args={[o.size * 1.45, o.size * 2.5, 48]} />
+                <meshBasicMaterial color={o.ringColor} transparent opacity={0.6} side={THREE.DoubleSide} depthWrite={false} />
+              </mesh>
+            )}
           </group>
         ))}
       </group>

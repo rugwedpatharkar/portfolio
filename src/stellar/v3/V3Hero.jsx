@@ -44,8 +44,11 @@ export default function V3Hero() {
     show: { opacity: 1, y: 0, transition: { duration: 0.6, ease } },
   };
   /* masked line reveal — the glyphs slide up from behind an overflow-clip edge.
-     width:max-content so the clip is only VERTICAL (never crops the wide name). */
-  const maskLine = { display: "block", width: "max-content", maxWidth: "none", overflow: "hidden", paddingBottom: "0.08em" };
+     width:max-content so the clip never crops the wide name; horizontal padding
+     gives the italic overhang (final "r") + the negative letter-spacing (first
+     "R") room inside the clip box, and the matching negative margin cancels it so
+     the visual left edge is unmoved. paddingBottom clears descenders (g, p). */
+  const maskLine = { display: "block", width: "max-content", maxWidth: "none", overflow: "hidden", padding: "0.02em 0.18em 0.12em", margin: "0 -0.18em" };
   const lineRise = {
     hidden: { y: reduce ? 0 : "108%" },
     show: { y: 0, transition: { duration: 0.85, ease } },

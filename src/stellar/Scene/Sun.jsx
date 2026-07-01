@@ -92,16 +92,16 @@ const SUN_FRAG = /* glsl */ `
     surface = mix(surface, surface * (0.75 + 0.5 * superg), 0.5);
     surface = mix(surface, detail, 0.12);
 
-    /* Drifting sunspots — realistic UMBRA (near-black core) wrapped in a
-       lighter, filamentary PENUMBRA, from nested thresholds on one low-freq
-       mask. The penumbra picks up high-freq filaments so its fringe shimmers
-       like the real radial penumbral threads. */
-    float spotN = snoise(dir * 1.7 + vec3(uTime * 0.015, 0.0, 0.0));
-    float penumbra = smoothstep(0.24, 0.40, spotN);
-    float umbra    = smoothstep(0.40, 0.50, spotN);
+    /* Active regions — the SOHO/EIT-304 reference has NO big black sunspots, just
+       fine mottling with a few SMALL, soft, slightly-darker filament channels. So
+       this is deliberately gentle: HIGH-freq mask (small cells) + HIGH thresholds
+       (rare + tiny coverage) + shallow darkening (soft dim, never a black crater). */
+    float spotN = snoise(dir * 3.9 + vec3(uTime * 0.015, 0.0, 0.0));
+    float penumbra = smoothstep(0.55, 0.70, spotN);
+    float umbra    = smoothstep(0.70, 0.84, spotN);
     float filament = snoise(dir * 38.0 + warp * 2.0) * 0.5 + 0.5;
-    float spotDark = mix(1.0, 0.45 + 0.18 * filament, penumbra); // penumbral fringe
-    spotDark *= mix(1.0, 0.06, umbra);                           // umbral core (near-black)
+    float spotDark = mix(1.0, 0.74 + 0.14 * filament, penumbra); // soft penumbral dimming
+    spotDark *= mix(1.0, 0.5, umbra);                            // core — dimmer, not black
 
     /* Colour ramp cool → mid → hot. */
     vec3 col = mix(uCool, uMid, smoothstep(0.18, 0.55, surface));
@@ -121,9 +121,9 @@ const SUN_FRAG = /* glsl */ `
     float facula = net * pow(1.0 - ndv, 2.0);
     col += facula * vec3(1.0, 0.93, 0.78) * 0.30;
 
-    /* Over-bright so bloom blooms it into a warm glowing star — but NOT inside
-       sunspot umbrae, which stay dark enough to survive the bloom as dark spots. */
-    col *= mix(1.9, 0.35, umbra);
+    /* Over-bright so bloom blooms it into a warm glowing star; active regions
+       stay only slightly under so they read as soft channels, not black holes. */
+    col *= mix(1.9, 1.25, umbra);
     gl_FragColor = vec4(col, 1.0);
   }
 `;
@@ -147,13 +147,38 @@ const Sun = ({
       uCameraPos: { value: new THREE.Vector3() },
       /* Reddish SOHO/EIT-304 look (per the reference photo): a hot orange-red
          photosphere. Bright convection peaks = orange-gold, mid = orange, cool
-         intergranular lanes = deep red. Sunspot umbrae stay dark (below). */
+         intergranular lanes = deep red; active regions are only soft channels. */
       uHot: { value: new THREE.Color("#ff9a3c") },
       uMid: { value: new THREE.Color("#e8531a") },
       uCool: { value: new THREE.Color("#6e1a06") },
     }),
     []
   );
+
+  /* Prominence — the SOHO signature loop off the upper-right limb. Built as a
+     BUNDLE of thin, slightly-offset arc filaments (not one fat tube) so it reads
+     as a wispy flame handle: each strand rises from the limb, arcs out past the
+     edge and returns, at a slightly different bulge/height → a filamentary wave. */
+  const promGeo = useMemo(() => {
+    const R = radius;
+    const P = (deg, rad, z) => {
+      const a = (deg * Math.PI) / 180;
+      return new THREE.Vector3(Math.cos(a) * rad * R, Math.sin(a) * rad * R, z * R);
+    };
+    const arch = (a0, a1, bulge, lift) => {
+      const mid = (a0 + a1) / 2;
+      const curve = new THREE.CatmullRomCurve3([
+        P(a0, 0.99, 0.05),
+        P(mid - (mid - a0) * 0.36, 1.07 + lift * 0.28, 0.07),
+        P(mid, bulge, 0.06 + lift * 0.05),
+        P(mid + (a1 - mid) * 0.36, 1.07 + lift * 0.28, 0.07),
+        P(a1, 0.99, 0.05),
+      ]);
+      return new THREE.TubeGeometry(curve, 64, R * 0.011, 6, false);
+    };
+    /* three strands: outer wide arc, tight inner arc, and a mid crest */
+    return [arch(33, 51, 1.28, 0.55), arch(35, 49, 1.4, 0.2), arch(34, 50.5, 1.34, 0.9)];
+  }, [radius]);
 
   useFrame(({ camera }) => {
     /* Reduced-motion: freeze the churn + spin (t pinned to 0 → static star). */
@@ -163,8 +188,12 @@ const Sun = ({
       matRef.current.uniforms.uTime.value = t;
       matRef.current.uniforms.uCameraPos.value.copy(camera.position);
     }
-    /* Prominence loop breathes gently (static under reduced-motion, t pinned 0). */
-    if (promRef.current) promRef.current.material.opacity = 0.7 + Math.sin(t * 1.3) * 0.22;
+    /* Prominence flame breathes gently — each strand at a slightly different phase
+       so the bundle shimmers like flowing plasma (static under reduced-motion). */
+    if (promRef.current)
+      promRef.current.children.forEach((c, i) => {
+        if (c.material) c.material.opacity = 0.46 + Math.sin(t * 1.1 + i * 1.7) * 0.16;
+      });
   });
 
   return (
@@ -182,12 +211,22 @@ const Sun = ({
       </mesh>
       {/* Corona shells removed — no translucent "circle"/halo disc around the Sun.
           Bloom on the over-bright photosphere gives it a natural glow on its own. */}
-      {/* Prominence loop arcing off the upper-right limb (the SOHO signature in the
-          reference photo) — additive orange that blooms into a glowing arc. */}
-      <mesh ref={promRef} position={[radius * 0.58, radius * 0.82, radius * 0.05]} rotation={[0.25, 0, -0.6]}>
-        <torusGeometry args={[radius * 0.3, radius * 0.045, 12, 40, Math.PI * 1.35]} />
-        <meshBasicMaterial color="#ff6a1e" transparent opacity={0.85} toneMapped={false} depthWrite={false} blending={THREE.AdditiveBlending} />
-      </mesh>
+      {/* Prominence — wispy flame-arc bundle off the upper-right limb (SOHO look).
+          Thin additive filaments that bloom into a glowing handle, not a fat tube. */}
+      <group ref={promRef}>
+        {promGeo.map((g, i) => (
+          <mesh key={i} geometry={g}>
+            <meshBasicMaterial
+              color={i === 1 ? "#ff8a3c" : "#ff4d14"}
+              transparent
+              opacity={0.55}
+              toneMapped={false}
+              depthWrite={false}
+              blending={THREE.AdditiveBlending}
+            />
+          </mesh>
+        ))}
+      </group>
       <pointLight color="#ffb070" intensity={1.1} distance={600} decay={1.2} />
     </group>
   );

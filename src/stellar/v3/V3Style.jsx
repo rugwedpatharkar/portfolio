@@ -31,6 +31,10 @@ const V3Style = ({ accentKey }) => {
         text-rendering:optimizeLegibility;
       }
       .stellar-v3 ::selection{background:color-mix(in oklab,var(--v3-accent) 40%,transparent);color:var(--v3-fg);}
+      /* Chromeless reading column — kill the (global purple) scrollbar entirely;
+         the edge fade + single-open accordion carry the "there's more" signal. */
+      .stellar-v3 .stellar-content-left{scrollbar-width:none;-ms-overflow-style:none;}
+      .stellar-v3 .stellar-content-left::-webkit-scrollbar{width:0;height:0;display:none;}
       @media (prefers-reduced-motion: reduce){
         .stellar-v3 *{animation-duration:.001ms !important;animation-iteration-count:1 !important;}
       }
