@@ -1,4 +1,4 @@
-/* eslint-disable react/prop-types */
+ 
 import { useState, useEffect, useRef, useMemo, memo, useCallback } from "react";
 import { skills } from "../content";
 import { CATEGORY_COLORS } from "../config/theme";
@@ -254,7 +254,7 @@ const SkillTerminal = () => {
                   className="font-mono text-caption sm:text-body-sm mb-1"
                   style={ls(catDelay)}
                 >
-                  <span style={{ color: color + "60" }}>//</span>{" "}
+                  <span style={{ color: color + "60" }}>{"//"}</span>{" "}
                   <span className="font-bold" style={{ color }}>
                     {category}
                   </span>

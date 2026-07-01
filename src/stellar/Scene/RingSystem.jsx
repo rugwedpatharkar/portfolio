@@ -39,11 +39,15 @@ const VERT = /* glsl */ `
 const DEPTH_FRAG = /* glsl */ `
   #include <packing>
   varying float vR;
+  /* x*x, not pow(x,2.0): the base (r-gap)/width goes negative for inner radii,
+     and pow(negative, …) is spec-undefined → NaN on Metal/ANGLE (which Bloom
+     would smear full-frame). Squaring by multiply is always finite. */
+  float sq(float x){ return x * x; }
   void main() {
     float r = vR;
     float dens = smoothstep(0.0, 0.10, r) * (1.0 - smoothstep(0.94, 1.0, r));
-    dens *= 1.0 - 0.93 * exp(-pow((r - 0.63) / 0.014, 2.0));  // Cassini Division
-    dens *= 1.0 - 0.65 * exp(-pow((r - 0.89) / 0.006, 2.0));  // Encke gap
+    dens *= 1.0 - 0.93 * exp(-sq((r - 0.63) / 0.014));  // Cassini Division
+    dens *= 1.0 - 0.65 * exp(-sq((r - 0.89) / 0.006));  // Encke gap
     if (dens < 0.38) discard;
     gl_FragColor = packDepthToRGBA(gl_FragCoord.z);
   }
@@ -55,6 +59,7 @@ const FRAG = /* glsl */ `
   uniform vec3 uTint;
   uniform float uTime;
 
+  float sq(float x){ return x * x; } // see DEPTH_FRAG: avoids pow(negative, …) NaN
   float hash(float n) { return fract(sin(n) * 43758.5453123); }
   float vnoise(float x) {
     float i = floor(x), f = fract(x);
@@ -79,8 +84,8 @@ const FRAG = /* glsl */ `
     /* Radial density envelope (C → B → Cassini → A → Encke). */
     float dens = smoothstep(0.0, 0.10, r) * (1.0 - smoothstep(0.94, 1.0, r));
     dens *= 0.55 + 0.45 * smoothstep(0.10, 0.30, r);          // B-ring brighter
-    dens *= 1.0 - 0.93 * exp(-pow((r - 0.63) / 0.014, 2.0));  // Cassini Division
-    dens *= 1.0 - 0.65 * exp(-pow((r - 0.89) / 0.006, 2.0));  // Encke gap
+    dens *= 1.0 - 0.93 * exp(-sq((r - 0.63) / 0.014));  // Cassini Division
+    dens *= 1.0 - 0.65 * exp(-sq((r - 0.89) / 0.006));  // Encke gap
 
     float alpha = dens * (0.40 + 0.60 * tex);
     if (alpha < 0.012) discard;

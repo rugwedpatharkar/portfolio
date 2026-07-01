@@ -53,6 +53,34 @@ export const MOONS = [
     facts: { diameter: "504 km", day: "1.4 d", wow: "Its geysers spray ocean water straight into space." },
   },
   {
+    id: "moon-mimas", parent: "notes", label: "Mimas", color: "#c9cdd2", offset: [2.9, 0.4, -1.3],
+    info: "Mimas — Saturn's 'Death Star' moon: one colossal crater (Herschel, ~⅓ its width) dominates a face. In 2024 it sprang a surprise — a young liquid-water ocean hidden under the ice.",
+    facts: { diameter: "396 km", day: "0.9 d", wow: "Its giant crater makes it a dead ringer for the Death Star." },
+  },
+  {
+    /* Surface features ride Mars as scannable pins (the NASA texture already shows them). */
+    id: "mars-olympus", parent: "projects", label: "Olympus Mons", color: "#c98a5a", offset: [0.0, 0.92, 0.34],
+    info: "Olympus Mons — the tallest volcano in the solar system, ~22 km high (about 2.5× Everest) and as wide as France. With no plate tectonics, the hotspot just kept building ONE colossal shield volcano.",
+    facts: { diameter: "~600 km wide", day: "—", wow: "So wide that from its summit, the base curves away below the horizon." },
+  },
+  {
+    id: "mars-valles", parent: "projects", label: "Valles Marineris", color: "#b06a3a", offset: [0.85, -0.2, -0.5],
+    info: "Valles Marineris — a canyon system ~4,000 km long and up to 7 km deep, dwarfing the Grand Canyon. Likely a vast tectonic crack opened by the rise of the nearby Tharsis volcanic bulge.",
+    facts: { diameter: "4,000 km long", day: "—", wow: "On Earth it would run from California to New York." },
+  },
+  {
+    id: "moon-s2025u1", parent: "education", label: "S/2025 U1", color: "#9aa8b0", offset: [-1.3, 0.4, 0.6],
+    info: "S/2025 U1 — a tiny new moon of Uranus (~10 km across) found by JWST in 2025, nudging up Uranus's moon count. So small and dark it hid in plain sight for decades.",
+    facts: { diameter: "~10 km", day: "—", wow: "Found by JWST in 2025 — Uranus keeps more secrets the closer we look." },
+  },
+  {
+    /* Not a moon, but a real Earth EVENT — rides Earth as a scannable pin; the
+       umbra visual on Earth's day side is Scene/EclipseShadow.jsx. */
+    id: "eclipse-2026", parent: "experience", label: "2026 Eclipses", color: "#ffd9a0", offset: [0.0, 1.3, 0.2],
+    info: "Two solar eclipses cross Earth in 2026: an annular 'ring of fire' on Feb 17 (over Antarctica), then a TOTAL eclipse on Aug 12 — the Moon's shadow racing across Greenland, Iceland and Spain. The umbra you see drifting on Earth's day side is that shadow.",
+    facts: { diameter: "umbra ~100–200 km wide", day: "Feb 17 annular · Aug 12 total", wow: "The Moon is ~400× smaller than the Sun but ~400× closer — so they look the same size, and totality is possible." },
+  },
+  {
     id: "moon-titania", parent: "education", label: "Titania", color: "#bcc8c8", offset: [1.5, 0.5, 0.4],
     info: "Titania — Uranus's largest moon, an icy world scarred by huge canyons from an ancient freeze-and-expand.",
     facts: { diameter: "1,578 km", day: "8.7 d", wow: "Canyons longer than Earth's Grand Canyon split its surface." },

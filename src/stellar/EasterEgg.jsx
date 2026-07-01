@@ -1,4 +1,4 @@
-/* eslint-disable react/prop-types */
+ 
 import { useEffect, useState } from "react";
 
 /*
@@ -68,7 +68,7 @@ const EasterEgg = () => {
         border: "1px solid rgba(255, 184, 107, 0.4)",
         borderRadius: 14,
         color: "white",
-        fontFamily: "'JetBrains Mono', monospace",
+        fontFamily: "'Martian Mono', monospace",
         fontSize: 14,
         zIndex: 100,
         boxShadow: "0 24px 60px rgba(0, 0, 0, 0.6), 0 0 60px rgba(255, 184, 107, 0.15)",

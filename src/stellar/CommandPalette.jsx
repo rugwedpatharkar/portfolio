@@ -1,4 +1,4 @@
-/* eslint-disable react/prop-types */
+ 
 import { useEffect, useMemo, useRef, useState } from "react";
 import { motion, AnimatePresence } from "motion/react";
 
@@ -51,10 +51,10 @@ const CommandPalette = ({ open, commands, onClose }) => {
           >
             <input
               ref={inputRef} value={q} onChange={(e) => setQ(e.target.value)} placeholder="Search planets, objects, actions…"
-              style={{ all: "unset", display: "block", width: "100%", boxSizing: "border-box", padding: "15px 18px", fontFamily: "'Exo 2', sans-serif", fontSize: 15, color: "white", borderBottom: "1px solid rgba(255,255,255,0.08)" }}
+              style={{ all: "unset", display: "block", width: "100%", boxSizing: "border-box", padding: "15px 18px", fontFamily: "'Saira', sans-serif", fontSize: 15, color: "white", borderBottom: "1px solid rgba(255,255,255,0.08)" }}
             />
             <div style={{ maxHeight: "48vh", overflowY: "auto", padding: 6 }}>
-              {list.length === 0 && <div style={{ padding: 16, color: "rgba(255,255,255,0.4)", fontFamily: "'JetBrains Mono', monospace", fontSize: 12 }}>No matches</div>}
+              {list.length === 0 && <div style={{ padding: 16, color: "rgba(255,255,255,0.4)", fontFamily: "'Martian Mono', monospace", fontSize: 12 }}>No matches</div>}
               {list.map((c, i) => (
                 <button
                   key={c.id} onClick={() => run(c)} onMouseEnter={() => setActive(i)}
@@ -62,10 +62,10 @@ const CommandPalette = ({ open, commands, onClose }) => {
                 >
                   <span style={{ fontSize: 14, color: c.accent || "#9cc6ff", width: 18, textAlign: "center" }}>{c.icon}</span>
                   <span style={{ flex: 1 }}>
-                    <span style={{ display: "block", fontFamily: "'Exo 2', sans-serif", fontSize: 13.5, color: "white" }}>{c.title}</span>
-                    {c.subtitle && <span style={{ display: "block", fontFamily: "'JetBrains Mono', monospace", fontSize: 9.5, color: "rgba(255,255,255,0.45)" }}>{c.subtitle}</span>}
+                    <span style={{ display: "block", fontFamily: "'Saira', sans-serif", fontSize: 13.5, color: "white" }}>{c.title}</span>
+                    {c.subtitle && <span style={{ display: "block", fontFamily: "'Martian Mono', monospace", fontSize: 9.5, color: "rgba(255,255,255,0.45)" }}>{c.subtitle}</span>}
                   </span>
-                  {c.shortcut && <span style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 9.5, color: "rgba(255,255,255,0.4)", border: "1px solid rgba(255,255,255,0.15)", borderRadius: 4, padding: "2px 6px" }}>{c.shortcut}</span>}
+                  {c.shortcut && <span style={{ fontFamily: "'Martian Mono', monospace", fontSize: 9.5, color: "rgba(255,255,255,0.4)", border: "1px solid rgba(255,255,255,0.15)", borderRadius: 4, padding: "2px 6px" }}>{c.shortcut}</span>}
                 </button>
               ))}
             </div>

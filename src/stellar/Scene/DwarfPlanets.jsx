@@ -20,7 +20,7 @@ const DwarfPlanets = ({ animate = true }) => {
   return (
     <group>
       {DWARF_PLANETS.map((dw, i) => (
-        <mesh key={dw.id} position={dw.position} scale={dw.scale || 1} ref={(el) => { refs.current[i] = el; }}>
+        <mesh key={dw.id} position={dw.position} scale={dw.scale || 1} frustumCulled={false} ref={(el) => { refs.current[i] = el; }}>
           <sphereGeometry args={[dw.radius, 32, 32]} />
           {/* Low emissive floor (not a self-lit bulb): the scene's sun-direction
               KeyLight + fill now sculpt a real day/night terminator on these

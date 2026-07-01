@@ -28,8 +28,13 @@ const FRAG = /* glsl */ `
   varying vec3 vN;
   varying vec3 vV;
   void main() {
-    float f = 1.0 - abs(dot(normalize(vN), normalize(vV)));
-    f = pow(f, 2.6);                 // only the grazing rim of the bubble glows
+    /* max(0.0, …) is load-bearing: dot() of two unit vectors is mathematically
+       in [-1,1], but float rounding can return 1.0+epsilon, so 1.0 - abs(dot)
+       goes slightly NEGATIVE. pow(negative, 2.6) is NaN on Metal/ANGLE (other
+       drivers clamp to 0). A single NaN texel here — additive + toneMapped:false
+       — gets smeared across the WHOLE frame by Bloom's mipmapBlur downsample,
+       turning the entire canvas black. Clamping the base keeps pow finite. */
+    float f = pow(max(0.0, 1.0 - abs(dot(normalize(vN), normalize(vV)))), 2.6); // only the grazing rim glows
     float a = f * uOpacity;
     if (a < 0.003) discard;
     gl_FragColor = vec4(uColor * a, a);

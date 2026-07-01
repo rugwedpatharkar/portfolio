@@ -1,4 +1,4 @@
-/* eslint-disable react/prop-types */
+ 
 import { useEffect, useState } from "react";
 
 /*
@@ -51,7 +51,7 @@ const AnswerListener = () => {
         fontSize: "clamp(120px, 18vw, 220px)",
         fontWeight: 800,
         color: "#7df2c0",
-        fontFamily: "'Sora', sans-serif",
+        fontFamily: "'Chakra Petch', sans-serif",
         textShadow: "0 0 60px rgba(125, 242, 192, 0.55)",
         letterSpacing: "-0.04em",
       }}>42</div>

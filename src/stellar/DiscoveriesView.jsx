@@ -1,4 +1,4 @@
-/* eslint-disable react/prop-types */
+ 
 import { useEffect, useState } from "react";
 import { ACHIEVEMENTS, unlockedSet } from "./data/achievements";
 import { getDiscoveriesModel } from "./data/explorer";
@@ -11,16 +11,16 @@ import useViewport from "./useViewport";
  * and the full achievement grid. Reads fresh on open + on every progress event.
  */
 
-const MONO = "'JetBrains Mono', monospace";
-const TITLE = "'Michroma', sans-serif";
-const ACCENT = "#915eff";
+const MONO = "'Martian Mono', monospace";
+const TITLE = "'Chakra Petch', sans-serif";
+const ACCENT = "#4da6ff";
 
 const read = () => ({ model: getDiscoveriesModel(), unlocked: unlockedSet() });
 
 const SectionLabel = ({ children, right }) => (
   <div style={{ display: "flex", alignItems: "baseline", justifyContent: "space-between", margin: "0 0 10px" }}>
     <span style={{ fontFamily: MONO, fontSize: 9.5, letterSpacing: "0.2em", color: "rgba(223,217,255,0.7)" }}>{children}</span>
-    {right != null && <span style={{ fontFamily: MONO, fontSize: 10, color: "#00cea8" }}>{right}</span>}
+    {right != null && <span style={{ fontFamily: MONO, fontSize: 10, color: "#2fe0b0" }}>{right}</span>}
   </div>
 );
 
@@ -68,7 +68,7 @@ const DiscoveriesView = ({ open, onClose, animate = true }) => {
           padding: "22px 20px 28px",
           overflowY: "auto",
           background: "rgba(7,10,20,0.94)",
-          borderLeft: `1px solid rgba(145,94,255,0.28)`,
+          borderLeft: `1px solid rgba(77,166,255,0.28)`,
           backdropFilter: "blur(18px) saturate(1.2)", WebkitBackdropFilter: "blur(18px) saturate(1.2)",
           boxShadow: "-24px 0 60px rgba(0,0,0,0.55)",
           transform: open ? "translateX(0)" : "translateX(100%)",
@@ -91,7 +91,7 @@ const DiscoveriesView = ({ open, onClose, animate = true }) => {
           <SectionLabel right={`${rank.count} / ${rank.total}`}>EXPLORER RANK</SectionLabel>
           <div style={{ fontFamily: TITLE, fontSize: 22, letterSpacing: "0.03em", textTransform: "uppercase", marginBottom: 9 }}>{rank.label}</div>
           <div style={{ height: 6, borderRadius: 4, background: "rgba(255,255,255,0.08)", overflow: "hidden" }}>
-            <div style={{ height: "100%", width: `${pct}%`, background: `linear-gradient(90deg, ${ACCENT}, #00cea8)`, boxShadow: `0 0 10px ${ACCENT}88`, transition: animate ? "width 480ms cubic-bezier(0.4,0,0.2,1)" : "none" }} />
+            <div style={{ height: "100%", width: `${pct}%`, background: `linear-gradient(90deg, ${ACCENT}, #2fe0b0)`, boxShadow: `0 0 10px ${ACCENT}88`, transition: animate ? "width 480ms cubic-bezier(0.4,0,0.2,1)" : "none" }} />
           </div>
           <div style={{ fontFamily: MONO, fontSize: 9.5, color: "rgba(223,217,255,0.6)", marginTop: 7 }}>
             {rank.next ? `${rank.remaining} more to reach ${rank.next}` : "Maximum rank achieved — the system is fully charted."}
@@ -117,7 +117,7 @@ const DiscoveriesView = ({ open, onClose, animate = true }) => {
                   <div style={{ fontFamily: MONO, fontSize: 11.5, color: it.found ? "white" : "rgba(255,255,255,0.55)", fontWeight: it.found ? 600 : 400 }}>
                     {it.found ? it.label : "Uncharted anomaly"}
                   </div>
-                  <div style={{ fontFamily: "'Exo 2', sans-serif", fontSize: 11, fontStyle: it.found ? "normal" : "italic", color: it.found ? "rgba(0,206,168,0.9)" : "rgba(223,217,255,0.5)", marginTop: 1 }}>
+                  <div style={{ fontFamily: "'Saira', sans-serif", fontSize: 11, fontStyle: it.found ? "normal" : "italic", color: it.found ? "rgba(47, 224, 176,0.9)" : "rgba(223,217,255,0.5)", marginTop: 1 }}>
                     {it.found ? "Charted ✓" : it.hint}
                   </div>
                 </div>

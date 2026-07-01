@@ -103,7 +103,7 @@ export const PLANET_FACTS = {
     atmosphere: "H₂ (90%) · He (10%) · ammonia ice clouds",
     moons: "95 confirmed (Io, Europa, Ganymede, Callisto)",
     missions: "Pioneer · Voyager · Galileo · Juno",
-    wow: "The Great Red Spot is a storm wider than Earth that has raged for at least 350 years. Jupiter's magnetic field is 20,000× stronger than Earth's.",
+    wow: "The Great Red Spot is a storm wider than Earth that has raged 350+ years. That glowing ring is Io's plasma torus — volcanic sulfur trapped in a magnetic field 20,000× Earth's.",
   },
   notes: {
     body: "Saturn — class II gas giant · ringed",
@@ -115,9 +115,9 @@ export const PLANET_FACTS = {
     gravity: "10.44 m/s² · 1.06× Earth",
     temp: "−178 °C",
     atmosphere: "H₂ (96%) · He (3%) · methane",
-    moons: "146 confirmed (Titan, Enceladus, Mimas)",
+    moons: "292 confirmed (Titan, Enceladus, Mimas) — most of any planet",
     missions: "Pioneer 11 · Voyager · Cassini–Huygens",
-    wow: "Saturn's density is less than water — it would float in a bath big enough. Its rings are 99.9% ice, only 10 m thick on average.",
+    wow: "That hexagon turning over the north pole is real — a six-sided jet stream wider than two Earths, stable since Voyager spotted it in 1981. Saturn is also so low-density it would float in a big enough bath.",
   },
   education: {
     body: "Uranus — ice giant · tilted 97.8°",
@@ -145,7 +145,7 @@ export const PLANET_FACTS = {
     atmosphere: "H₂ (80%) · He (19%) · methane",
     moons: "16 (Triton, Nereid)",
     missions: "Voyager 2 (1989 flyby — only visit)",
-    wow: "Fastest winds in the solar system — supersonic, up to 2,100 km/h. Only visited once (Voyager 2 flyby, 1989). Discovered by math before telescope confirmation.",
+    wow: "JWST finally caught Neptune's aurora in 2025 — glowing at MID-latitudes, not the poles, because its magnetic field is tilted ~47° and off-centre. It also has the solar system's fastest winds: supersonic, up to 2,100 km/h.",
   },
   testimonials: {
     body: "Pluto — dwarf planet, in the Kuiper belt",

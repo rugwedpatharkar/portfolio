@@ -42,7 +42,12 @@ const FRAGMENT = /* glsl */ `
   uniform float uTerminator;
   void main() {
     vec3 V = normalize(cameraPosition - vWorldPos);
-    float fres = pow(1.0 - abs(dot(V, vWorldNormal)), uPower);
+    /* max(0.0, …): dot() of unit vectors can round to 1.0+epsilon, so
+       1.0 - abs(dot) goes slightly negative → pow(negative, uPower) is NaN on
+       Metal/ANGLE. This shell is additive + toneMapped:false, so one NaN texel
+       gets smeared full-frame-black by Bloom's mipmapBlur (same class as the
+       Heliosphere fix). Clamp the base so pow stays finite. */
+    float fres = pow(max(0.0, 1.0 - abs(dot(V, vWorldNormal))), uPower);
 
     /* Day factor along the sun direction. */
     float lit = dot(normalize(vWorldNormal), normalize(uSunDir));
@@ -95,7 +100,7 @@ const AtmosphereGlow = ({
   });
 
   return (
-    <mesh ref={meshRef}>
+    <mesh ref={meshRef} frustumCulled={false}>
       <sphereGeometry args={[radius * scale, 48, 32]} />
       <shaderMaterial
         attach="material"

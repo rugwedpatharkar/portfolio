@@ -125,8 +125,6 @@ const ParticleBackground = () => {
       for (const key in grid) {
         const cell = grid[key];
         const k = +key;
-        const cx = k % cols;
-        const cy = (k / cols) | 0;
 
         // Check this cell + 4 neighbors (right, below-left, below, below-right) to avoid duplicates
         const neighborKeys = [k, k + 1, k + cols - 1, k + cols, k + cols + 1];

@@ -1,4 +1,4 @@
-/* eslint-disable react/prop-types */
+ 
 import { useState } from "react";
 
 /*
@@ -53,7 +53,7 @@ export const ProgressRail = ({ destinations, activeIdx, onJump }) => {
           >
             <span
               style={{
-                fontFamily: "'JetBrains Mono', monospace",
+                fontFamily: "'Martian Mono', monospace",
                 fontSize: 9.5,
                 letterSpacing: "0.08em",
                 textTransform: "uppercase",
@@ -108,7 +108,7 @@ export const ScrollHint = ({ visible }) => (
         flexDirection: "column",
         alignItems: "center",
         gap: 3,
-        fontFamily: "'JetBrains Mono', monospace",
+        fontFamily: "'Martian Mono', monospace",
         fontSize: 10.5,
         letterSpacing: "0.14em",
         textTransform: "uppercase",

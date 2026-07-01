@@ -1,4 +1,4 @@
-/* eslint-disable react/prop-types */
+ 
 import { useEffect, useRef, useState } from "react";
 import { getDiscoveriesModel } from "./data/explorer";
 import useViewport from "./useViewport";
@@ -10,7 +10,7 @@ import useViewport from "./useViewport";
  * `stellar:progress` event (a new chart / visit / badge), so it stays live.
  */
 
-const MONO = "'JetBrains Mono', monospace";
+const MONO = "'Martian Mono', monospace";
 
 const read = () => {
   const m = getDiscoveriesModel();
@@ -44,7 +44,7 @@ const RankMeter = ({ onOpen, animate = true }) => {
   }, []);
 
   const pct = Math.round((rank.count / rank.total) * 100);
-  const accent = "#915eff";
+  const accent = "#4da6ff";
 
   return (
     <>
@@ -64,11 +64,11 @@ const RankMeter = ({ onOpen, animate = true }) => {
         padding: isMobile ? "8px 11px 10px" : "9px 13px 11px",
         borderRadius: 12,
         background: "rgba(8,11,24,0.82)",
-        border: `1px solid ${hover ? "rgba(145,94,255,0.55)" : "rgba(255,255,255,0.10)"}`,
+        border: `1px solid ${hover ? "rgba(77,166,255,0.55)" : "rgba(255,255,255,0.10)"}`,
         backdropFilter: "blur(12px) saturate(1.2)",
         WebkitBackdropFilter: "blur(12px) saturate(1.2)",
         boxShadow: hover
-          ? "0 16px 44px rgba(0,0,0,0.5), 0 0 22px rgba(145,94,255,0.22)"
+          ? "0 16px 44px rgba(0,0,0,0.5), 0 0 22px rgba(77,166,255,0.22)"
           : "0 12px 34px rgba(0,0,0,0.42)",
         color: "white",
         transition: animate ? "border-color 220ms ease, box-shadow 220ms ease, transform 220ms ease" : "none",
@@ -83,10 +83,10 @@ const RankMeter = ({ onOpen, animate = true }) => {
       </div>
 
       <div style={{ display: "flex", alignItems: "baseline", justifyContent: "space-between", margin: "3px 0 6px" }}>
-        <span style={{ fontFamily: "'Michroma', sans-serif", fontSize: isMobile ? 12.5 : 14, letterSpacing: "0.04em", textTransform: "uppercase" }}>
+        <span style={{ fontFamily: "'Chakra Petch', sans-serif", fontSize: isMobile ? 12.5 : 14, letterSpacing: "0.04em", textTransform: "uppercase" }}>
           {rank.label}
         </span>
-        <span style={{ fontFamily: MONO, fontSize: 10.5, color: "#00cea8" }}>
+        <span style={{ fontFamily: MONO, fontSize: 10.5, color: "#2fe0b0" }}>
           {rank.count}<span style={{ color: "rgba(255,255,255,0.4)" }}>/{rank.total}</span>
         </span>
       </div>
@@ -98,7 +98,7 @@ const RankMeter = ({ onOpen, animate = true }) => {
             height: "100%",
             width: `${pct}%`,
             borderRadius: 3,
-            background: `linear-gradient(90deg, ${accent}, #00cea8)`,
+            background: `linear-gradient(90deg, ${accent}, #2fe0b0)`,
             boxShadow: `0 0 8px ${accent}88`,
             transition: animate ? "width 420ms cubic-bezier(0.4,0,0.2,1)" : "none",
           }}
@@ -115,13 +115,13 @@ const RankMeter = ({ onOpen, animate = true }) => {
           position: "fixed", top: 96, left: "50%", transform: "translateX(-50%)",
           zIndex: 60, pointerEvents: "none", textAlign: "center",
           padding: "12px 30px", borderRadius: 14,
-          background: "rgba(8,11,24,0.92)", border: "1px solid rgba(145,94,255,0.6)",
+          background: "rgba(8,11,24,0.92)", border: "1px solid rgba(77,166,255,0.6)",
           backdropFilter: "blur(12px)", WebkitBackdropFilter: "blur(12px)",
-          boxShadow: "0 16px 50px rgba(0,0,0,0.55), 0 0 40px rgba(145,94,255,0.3)",
+          boxShadow: "0 16px 50px rgba(0,0,0,0.55), 0 0 40px rgba(77,166,255,0.3)",
           animation: animate ? "rankUpPop 4.5s ease-in-out" : "none",
         }}>
-          <div style={{ fontFamily: MONO, fontSize: 9.5, letterSpacing: "0.25em", color: "#00cea8" }}>⬆ PROMOTION</div>
-          <div style={{ fontFamily: "'Michroma', sans-serif", fontSize: 20, letterSpacing: "0.08em", textTransform: "uppercase", color: "white", marginTop: 4 }}>{rankUp}</div>
+          <div style={{ fontFamily: MONO, fontSize: 9.5, letterSpacing: "0.25em", color: "#2fe0b0" }}>⬆ PROMOTION</div>
+          <div style={{ fontFamily: "'Chakra Petch', sans-serif", fontSize: 20, letterSpacing: "0.08em", textTransform: "uppercase", color: "white", marginTop: 4 }}>{rankUp}</div>
           <div style={{ fontFamily: MONO, fontSize: 9, color: "rgba(223,217,255,0.6)", marginTop: 3 }}>explorer rank advanced</div>
         </div>
       )}

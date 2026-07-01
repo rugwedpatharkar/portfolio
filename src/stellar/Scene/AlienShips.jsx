@@ -1,7 +1,6 @@
 /* eslint-disable react/no-unknown-property */
-import { useMemo, useRef } from "react";
+import { useRef } from "react";
 import { useFrame } from "@react-three/fiber";
-import * as THREE from "three";
 
 /*
  * Two tiny alien ships drift on independent Lissajous curves at distinct
@@ -11,7 +10,7 @@ import * as THREE from "three";
  * Wholly cosmetic — they exist to make the system feel inhabited.
  */
 
-const Ship = ({ a = 14, b = 12, c = 6, p = 1, q = 2, r = 1, phase = 0, color = "#00ffd5", trim = "#00cea8", scale = 1 }) => {
+const Ship = ({ a = 14, b = 12, c = 6, p = 1, q = 2, r = 1, phase = 0, color = "#00ffd5", trim = "#2fe0b0", scale = 1 }) => {
   const groupRef = useRef();
   const lightRef = useRef();
   const tRef = useRef(phase);
@@ -57,8 +56,8 @@ const Ship = ({ a = 14, b = 12, c = 6, p = 1, q = 2, r = 1, phase = 0, color = "
 
 const AlienShips = () => (
   <>
-    <Ship a={18} b={16} c={5} p={1} q={2} r={1} phase={0.3} color="#00ffd5" trim="#00cea8" scale={1.0} />
-    <Ship a={22} b={14} c={4} p={2} q={1} r={1} phase={2.1} color="#ff6bff" trim="#bf61ff" scale={0.85} />
+    <Ship a={18} b={16} c={5} p={1} q={2} r={1} phase={0.3} color="#00ffd5" trim="#2fe0b0" scale={1.0} />
+    <Ship a={22} b={14} c={4} p={2} q={1} r={1} phase={2.1} color="#ff6bff" trim="#ffb84d" scale={0.85} />
   </>
 );
 

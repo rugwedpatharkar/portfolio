@@ -2,7 +2,6 @@
 import { useMemo, useRef } from "react";
 import { useFrame } from "@react-three/fiber";
 import { Html } from "@react-three/drei";
-import * as THREE from "three";
 import { voyagerPositions } from "../data/ephemeris";
 
 /*
@@ -49,7 +48,7 @@ const Probe = ({ name, auFromSun, direction, color }) => {
         distanceFactor={14}
         style={{
           pointerEvents: "none",
-          fontFamily: "'JetBrains Mono', monospace",
+          fontFamily: "'Martian Mono', monospace",
           fontSize: 9,
           color: "#a8d8ff",
           textShadow: "0 1px 6px rgba(0,0,0,0.7)",

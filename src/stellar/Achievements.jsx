@@ -1,4 +1,4 @@
-/* eslint-disable react/prop-types */
+ 
 import { useEffect, useRef, useState } from "react";
 import { DESTINATIONS } from "./config/destinations";
 import { ACHIEVEMENTS, ACHIEVEMENTS_BY_ID, persistUnlocked, unlockedSet } from "./data/achievements";
@@ -87,6 +87,13 @@ const Achievements = ({ activeIdx, showStrip = true }) => {
       ["stellar:watney", find("watney")],
       ["stellar:chandrayaan", find("chandrayaan")],
       ["stellar:mangalyaan", find("mangalyaan")],
+      ["stellar:sandworm", find("sandworm")],
+      ["stellar:rocinante", find("rocinante")],
+      ["stellar:normandy", find("normandy")],
+      ["stellar:discovery", find("discovery")],
+      ["stellar:nostromo", find("nostromo")],
+      ["stellar:perseverance", find("perseverance")],
+      ["stellar:goldenrecord", find("goldenrecord")],
       ["stellar:pulsar", () => { markCharted("pulsar"); unlock("codebreaker"); }],
       /* Meta-badges (also catch map-visit charting via the generic event). */
       ["stellar:progress", () => {
@@ -138,7 +145,7 @@ const Achievements = ({ activeIdx, showStrip = true }) => {
                 display: "flex",
                 alignItems: "center",
                 justifyContent: "center",
-                fontFamily: "'JetBrains Mono', monospace",
+                fontFamily: "'Martian Mono', monospace",
                 fontSize: a.id === "the_answer" ? 7.5 : 11,
                 fontWeight: 600,
                 pointerEvents: "auto",
@@ -166,7 +173,7 @@ const Achievements = ({ activeIdx, showStrip = true }) => {
             border: `1px solid ${toast.color}`,
             borderRadius: 8,
             color: "white",
-            fontFamily: "'JetBrains Mono', monospace",
+            fontFamily: "'Martian Mono', monospace",
             fontSize: 12,
             display: "flex",
             alignItems: "center",

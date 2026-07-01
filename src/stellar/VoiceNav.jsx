@@ -1,4 +1,4 @@
-/* eslint-disable react/prop-types */
+ 
 import { useEffect, useRef, useState } from "react";
 import { DESTINATIONS } from "./config/destinations";
 
@@ -98,7 +98,7 @@ const VoiceNav = ({ onJump, startSignal = 0, hideButton = false }) => {
           backdropFilter: "blur(10px)",
           border: `1px solid ${listening ? "rgba(255, 107, 107, 0.5)" : "rgba(255, 255, 255, 0.15)"}`,
           borderRadius: 6,
-          fontFamily: "'JetBrains Mono', monospace",
+          fontFamily: "'Martian Mono', monospace",
           fontSize: 9.5,
           color: "rgba(255, 255, 255, 0.7)",
           letterSpacing: "0.08em",

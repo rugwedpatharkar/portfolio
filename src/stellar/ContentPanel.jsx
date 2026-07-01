@@ -1,4 +1,4 @@
-/* eslint-disable react/prop-types */
+ 
 import { useEffect, useMemo, useRef, useState } from "react";
 import { motion } from "motion/react";
 import useViewport from "./useViewport";
@@ -40,17 +40,17 @@ const Stat = ({ label, value }) => {
   const m = String(value).match(/^(\d+)(.*)$/);
   return (
     <div style={{ textAlign: "left" }}>
-      <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 22, color: "white", fontWeight: 700, lineHeight: 1 }}>
+      <div style={{ fontFamily: "'Martian Mono', monospace", fontSize: 22, color: "white", fontWeight: 700, lineHeight: 1 }}>
         {m ? <CountUp to={parseInt(m[1], 10)} suffix={m[2]} /> : value}
       </div>
-      <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 9.5, color: "rgba(255,255,255,0.6)", textTransform: "uppercase", letterSpacing: "0.08em", marginTop: 4 }}>{label}</div>
+      <div style={{ fontFamily: "'Martian Mono', monospace", fontSize: 9.5, color: "rgba(255,255,255,0.6)", textTransform: "uppercase", letterSpacing: "0.08em", marginTop: 4 }}>{label}</div>
     </div>
   );
 };
 
-const SectionLabel = ({ children, color = "#b8a0ff" }) => (
+const SectionLabel = ({ children, color = "#8fcfff" }) => (
   <div style={{
-    fontFamily: "'JetBrains Mono', monospace",
+    fontFamily: "'Martian Mono', monospace",
     fontSize: 11,
     color,
     letterSpacing: "0.08em",
@@ -72,7 +72,7 @@ const SectionTitle = () => null;
 
 const SectionLede = ({ children }) => (
   <p style={{
-    fontFamily: "'Exo 2', sans-serif",
+    fontFamily: "'Saira', sans-serif",
     fontSize: 15.5,
     lineHeight: 1.65,
     color: "rgba(255,255,255,0.82)",
@@ -146,7 +146,7 @@ const RoleRotator = () => {
     return () => clearTimeout(t);
   }, [shown, deleting, i, reducedMotion, roles]);
   return (
-    <p style={{ fontFamily: "'Exo 2', sans-serif", fontSize: 17, color: "#ffd9a0", margin: "9px 0 0 0", fontWeight: 600, letterSpacing: "0.01em", minHeight: 24 }}>
+    <p style={{ fontFamily: "'Saira', sans-serif", fontSize: 17, color: "#ffd9a0", margin: "9px 0 0 0", fontWeight: 600, letterSpacing: "0.01em", minHeight: 24 }}>
       {shown}
       {!reducedMotion && <span style={{ opacity: 0.75, animation: "stellarCaret 1s step-end infinite" }}>▍</span>}
     </p>
@@ -183,7 +183,7 @@ const HeroChip = ({ children, href, onClick, primary }) => {
     minHeight: 40,
     borderRadius: 999,
     cursor: "pointer",
-    fontFamily: "'JetBrains Mono', monospace",
+    fontFamily: "'Martian Mono', monospace",
     fontSize: 11.5,
     letterSpacing: "0.04em",
     transition: "background 0.18s ease, border-color 0.18s ease",
@@ -209,7 +209,7 @@ const HeroContent = () => {
       <div style={{ display: "flex", gap: 24, alignItems: "center", margin: "0 0 16px 0" }}>
         <Portrait size={170} color="#ffb86b" />
         <div>
-          <h1 style={{ fontFamily: "'Michroma', sans-serif", fontSize: "clamp(22px, 2.1vw, 33px)", fontWeight: 400, color: "white", margin: 0, letterSpacing: "0.03em", lineHeight: 1.2, textTransform: "uppercase", textWrap: "balance" }}>{personalInfo.fullName}</h1>
+          <h1 style={{ fontFamily: "'Chakra Petch', sans-serif", fontSize: "clamp(22px, 2.1vw, 33px)", fontWeight: 400, color: "white", margin: 0, letterSpacing: "0.03em", lineHeight: 1.2, textTransform: "uppercase", textWrap: "balance" }}>{personalInfo.fullName}</h1>
           <RoleRotator />
         </div>
       </div>
@@ -217,16 +217,16 @@ const HeroContent = () => {
       <div style={{ display: "flex", gap: 36, marginTop: 16, flexWrap: "wrap" }}>
         {heroContent.stats.map((s) => (
           <div key={s.label} style={{ textAlign: "left" }}>
-            <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 22, color: "white", fontWeight: 700, lineHeight: 1 }}>
+            <div style={{ fontFamily: "'Martian Mono', monospace", fontSize: 22, color: "white", fontWeight: 700, lineHeight: 1 }}>
               <CountUp to={s.value} suffix={s.suffix} />
             </div>
-            <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 9.5, color: "rgba(255,255,255,0.6)", textTransform: "uppercase", letterSpacing: "0.08em", marginTop: 4 }}>{s.label}</div>
+            <div style={{ fontFamily: "'Martian Mono', monospace", fontSize: 9.5, color: "rgba(255,255,255,0.6)", textTransform: "uppercase", letterSpacing: "0.08em", marginTop: 4 }}>{s.label}</div>
           </div>
         ))}
       </div>
       {/* Availability + location — a live, professional status line. */}
-      <div style={{ display: "flex", alignItems: "center", gap: 9, marginTop: 18, flexWrap: "wrap", fontFamily: "'JetBrains Mono', monospace", fontSize: 11, color: "rgba(255,255,255,0.62)" }}>
-        <span style={{ width: 7, height: 7, borderRadius: "50%", background: "#00cea8", boxShadow: "0 0 9px #00cea8", animation: "stellarStatusPulse 1.8s ease-in-out infinite", flexShrink: 0 }} />
+      <div style={{ display: "flex", alignItems: "center", gap: 9, marginTop: 18, flexWrap: "wrap", fontFamily: "'Martian Mono', monospace", fontSize: 11, color: "rgba(255,255,255,0.62)" }}>
+        <span style={{ width: 7, height: 7, borderRadius: "50%", background: "#2fe0b0", boxShadow: "0 0 9px #2fe0b0", animation: "stellarStatusPulse 1.8s ease-in-out infinite", flexShrink: 0 }} />
         <span style={{ color: "#7fe9cf" }}>Available for opportunities</span>
         <span style={{ opacity: 0.4 }}>·</span>
         <span>{personalInfo.location}</span>
@@ -259,8 +259,8 @@ const AboutContent = () => (
         ["Based in", personalInfo.location],
       ].map(([k, v]) => (
         <div key={k}>
-          <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 9, color: "rgba(255,255,255,0.4)", textTransform: "uppercase", letterSpacing: "0.08em", marginBottom: 3 }}>{k}</div>
-          <div style={{ fontFamily: "'Exo 2', sans-serif", fontSize: 13, color: "rgba(255,255,255,0.85)" }}>{v}</div>
+          <div style={{ fontFamily: "'Martian Mono', monospace", fontSize: 9, color: "rgba(255,255,255,0.4)", textTransform: "uppercase", letterSpacing: "0.08em", marginBottom: 3 }}>{k}</div>
+          <div style={{ fontFamily: "'Saira', sans-serif", fontSize: 13, color: "rgba(255,255,255,0.85)" }}>{v}</div>
         </div>
       ))}
     </div>
@@ -277,14 +277,14 @@ const FunFactsContent = () => (
         <div key={f.label} style={bareCard}>
           <div style={{ display: "flex", alignItems: "baseline", gap: 6 }}>
             <span style={{ fontSize: 14 }}>{f.icon}</span>
-            <span style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 24, color: "white", fontWeight: 700, lineHeight: 1 }}>{f.value}{f.suffix}</span>
+            <span style={{ fontFamily: "'Martian Mono', monospace", fontSize: 24, color: "white", fontWeight: 700, lineHeight: 1 }}>{f.value}{f.suffix}</span>
           </div>
-          <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 9, color: "rgba(255,255,255,0.6)", marginTop: 4, textTransform: "uppercase", letterSpacing: "0.06em" }}>
+          <div style={{ fontFamily: "'Martian Mono', monospace", fontSize: 9, color: "rgba(255,255,255,0.6)", marginTop: 4, textTransform: "uppercase", letterSpacing: "0.06em" }}>
             {f.label}
           </div>
           {/* The "receipt" — the specific initiative behind the number */}
           {f.detail && (
-            <div style={{ fontFamily: "'Exo 2', sans-serif", fontSize: 10.5, color: "rgba(255,255,255,0.5)", marginTop: 6, lineHeight: 1.45 }}>
+            <div style={{ fontFamily: "'Saira', sans-serif", fontSize: 10.5, color: "rgba(255,255,255,0.5)", marginTop: 6, lineHeight: 1.45 }}>
               {f.detail}
             </div>
           )}
@@ -305,12 +305,12 @@ const ExperienceContent = () => (
         key={e.companyName}
         style={{ marginBottom: 18, paddingTop: ei ? 16 : 4, borderTop: ei ? "1px solid rgba(255,255,255,0.1)" : "none" }}
       >
-        <div style={{ fontFamily: "'Exo 2', sans-serif", fontSize: 19, fontWeight: 700, color: "white", lineHeight: 1.2 }}>{e.title}</div>
-        <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 12.5, color: "#61dafb", marginTop: 3 }}>{e.companyName}</div>
+        <div style={{ fontFamily: "'Saira', sans-serif", fontSize: 19, fontWeight: 700, color: "white", lineHeight: 1.2 }}>{e.title}</div>
+        <div style={{ fontFamily: "'Martian Mono', monospace", fontSize: 12.5, color: "#61dafb", marginTop: 3 }}>{e.companyName}</div>
         <div style={{ display: "flex", alignItems: "center", gap: 12, flexWrap: "wrap", margin: "7px 0 12px 0" }}>
-          <span style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 12, color: "rgba(255,255,255,0.6)" }}>{e.date}</span>
+          <span style={{ fontFamily: "'Martian Mono', monospace", fontSize: 12, color: "rgba(255,255,255,0.6)" }}>{e.date}</span>
           {e.achievement && (
-            <span style={{ display: "inline-flex", alignItems: "center", gap: 5, padding: "3px 9px", background: "rgba(248,197,85,0.12)", border: "1px solid rgba(248,197,85,0.35)", borderRadius: 12, fontFamily: "'JetBrains Mono', monospace", fontSize: 10, color: "#f8c555" }}>
+            <span style={{ display: "inline-flex", alignItems: "center", gap: 5, padding: "3px 9px", background: "rgba(248,197,85,0.12)", border: "1px solid rgba(248,197,85,0.35)", borderRadius: 12, fontFamily: "'Martian Mono', monospace", fontSize: 10, color: "#f8c555" }}>
               ⭐ {e.achievement}
             </span>
           )}
@@ -326,9 +326,9 @@ const ExperienceContent = () => (
         <div style={{ columns: "212px", columnGap: 22 }}>
           {e.categories.map((c) => (
             <div key={c.name} style={{ marginBottom: 9, breakInside: "avoid", WebkitColumnBreakInside: "avoid" }}>
-              <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 10, color: "#61dafb", letterSpacing: "0.06em", textTransform: "uppercase", marginBottom: 4 }}>{c.name}</div>
+              <div style={{ fontFamily: "'Martian Mono', monospace", fontSize: 10, color: "#61dafb", letterSpacing: "0.06em", textTransform: "uppercase", marginBottom: 4 }}>{c.name}</div>
               {c.points.map((p, pi) => (
-                <p key={pi} style={{ fontFamily: "'Exo 2', sans-serif", fontSize: 12.5, color: "rgba(255,255,255,0.8)", margin: "0 0 5px 0", lineHeight: 1.45 }}>• {p}</p>
+                <p key={pi} style={{ fontFamily: "'Saira', sans-serif", fontSize: 12.5, color: "rgba(255,255,255,0.8)", margin: "0 0 5px 0", lineHeight: 1.45 }}>• {p}</p>
               ))}
             </div>
           ))}
@@ -346,23 +346,23 @@ const ProjectsContent = () => (
       {projects.map((p) => (
         <div key={p.name} style={{ ...bareCard, display: "flex", flexDirection: "column" }}>
           <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 8, marginBottom: 4 }}>
-            <span style={{ fontFamily: "'Exo 2', sans-serif", fontSize: 13, color: "white", fontWeight: 600 }}>{p.name}</span>
+            <span style={{ fontFamily: "'Saira', sans-serif", fontSize: 13, color: "white", fontWeight: 600 }}>{p.name}</span>
             {p.status && (
-              <span style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 8, color: p.status === "production" ? "#00cea8" : "#f8c555", textTransform: "uppercase", letterSpacing: "0.06em", whiteSpace: "nowrap" }}>● {p.status}</span>
+              <span style={{ fontFamily: "'Martian Mono', monospace", fontSize: 8, color: p.status === "production" ? "#2fe0b0" : "#f8c555", textTransform: "uppercase", letterSpacing: "0.06em", whiteSpace: "nowrap" }}>● {p.status}</span>
             )}
           </div>
-          <div style={{ fontFamily: "'Exo 2', sans-serif", fontSize: 11.5, color: "rgba(255,255,255,0.7)", lineHeight: 1.42, marginBottom: 6 }}>
+          <div style={{ fontFamily: "'Saira', sans-serif", fontSize: 11.5, color: "rgba(255,255,255,0.7)", lineHeight: 1.42, marginBottom: 6 }}>
             {p.description}
           </div>
           {p.tags && (
             <div style={{ display: "flex", flexWrap: "wrap", gap: 4, marginTop: "auto" }}>
               {p.tags.map((tag) => (
-                <span key={tag.name} style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 8.5, padding: "1px 6px", borderRadius: 8, background: "rgba(145,94,255,0.12)", border: "1px solid rgba(145,94,255,0.25)", color: "#b8a0ff" }}>{tag.name}</span>
+                <span key={tag.name} style={{ fontFamily: "'Martian Mono', monospace", fontSize: 8.5, padding: "1px 6px", borderRadius: 8, background: "rgba(77,166,255,0.12)", border: "1px solid rgba(77,166,255,0.25)", color: "#8fcfff" }}>{tag.name}</span>
               ))}
             </div>
           )}
           {(p.github || p.link) && p.link !== "#" && (
-            <a href={p.github || p.link} target="_blank" rel="noopener noreferrer" style={{ marginTop: 8, fontFamily: "'JetBrains Mono', monospace", fontSize: 9.5, color: "#61dafb", textDecoration: "none" }}>→ view repo</a>
+            <a href={p.github || p.link} target="_blank" rel="noopener noreferrer" style={{ marginTop: 8, fontFamily: "'Martian Mono', monospace", fontSize: 9.5, color: "#61dafb", textDecoration: "none" }}>→ view repo</a>
           )}
         </div>
       ))}
@@ -380,11 +380,11 @@ const AchievementsContent = () => (
         <div key={a.title} style={bareCard}>
           <div style={{ display: "flex", alignItems: "center", gap: 6, marginBottom: 4 }}>
             <span style={{ fontSize: 14 }}>{a.icon}</span>
-            <div style={{ fontFamily: "'Exo 2', sans-serif", fontSize: 13, color: "white", fontWeight: 600 }}>{a.title}</div>
-            {a.year && <span style={{ marginLeft: "auto", fontFamily: "'JetBrains Mono', monospace", fontSize: 9, color: "rgba(255,255,255,0.4)" }}>{a.year}</span>}
+            <div style={{ fontFamily: "'Saira', sans-serif", fontSize: 13, color: "white", fontWeight: 600 }}>{a.title}</div>
+            {a.year && <span style={{ marginLeft: "auto", fontFamily: "'Martian Mono', monospace", fontSize: 9, color: "rgba(255,255,255,0.4)" }}>{a.year}</span>}
           </div>
           {a.description && (
-            <div style={{ fontFamily: "'Exo 2', sans-serif", fontSize: 12, color: "rgba(255,255,255,0.68)", lineHeight: 1.5 }}>{a.description}</div>
+            <div style={{ fontFamily: "'Saira', sans-serif", fontSize: 12, color: "rgba(255,255,255,0.68)", lineHeight: 1.5 }}>{a.description}</div>
           )}
         </div>
       ))}
@@ -404,17 +404,17 @@ const SkillsContent = () => {
       <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(150px, 1fr))", gap: "9px 14px" }}>
         {categories.map(([cat, items]) => (
           <div key={cat} style={{ padding: "1px 2px 6px", breakInside: "avoid" }}>
-            <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 10, color: "#b8a0ff", marginBottom: 6, textTransform: "uppercase", letterSpacing: "0.06em" }}>{cat}</div>
+            <div style={{ fontFamily: "'Martian Mono', monospace", fontSize: 10, color: "#8fcfff", marginBottom: 6, textTransform: "uppercase", letterSpacing: "0.06em" }}>{cat}</div>
             {/* Every skill in the category, each with a proficiency bar. */}
             <div style={{ display: "flex", flexDirection: "column", gap: 4 }}>
               {items.map((s) => (
                 <div key={s.name}>
-                  <div style={{ display: "flex", justifyContent: "space-between", fontFamily: "'Exo 2', sans-serif", fontSize: 11.5, color: "rgba(255,255,255,0.82)", marginBottom: 2 }}>
+                  <div style={{ display: "flex", justifyContent: "space-between", fontFamily: "'Saira', sans-serif", fontSize: 11.5, color: "rgba(255,255,255,0.82)", marginBottom: 2 }}>
                     <span style={{ whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis", maxWidth: "78%" }}>{s.name}</span>
-                    <span style={{ color: "rgba(255,255,255,0.4)", fontFamily: "'JetBrains Mono', monospace", fontSize: 9 }}>{s.level}</span>
+                    <span style={{ color: "rgba(255,255,255,0.4)", fontFamily: "'Martian Mono', monospace", fontSize: 9 }}>{s.level}</span>
                   </div>
                   <div style={{ height: 3, borderRadius: 2, background: "rgba(255,255,255,0.08)", overflow: "hidden" }}>
-                    <div style={{ width: `${s.level}%`, height: "100%", background: "linear-gradient(90deg, #915eff, #bf61ff)", borderRadius: 2 }} />
+                    <div style={{ width: `${s.level}%`, height: "100%", background: "linear-gradient(90deg, #4da6ff, #ffb84d)", borderRadius: 2 }} />
                   </div>
                 </div>
               ))}
@@ -428,16 +428,16 @@ const SkillsContent = () => {
 
 const NotesContent = () => (
   <>
-    <SectionLabel color="#00cea8">SATURN · Writing &amp; ideas</SectionLabel>
+    <SectionLabel color="#2fe0b0">SATURN · Writing &amp; ideas</SectionLabel>
     <SectionTitle>{sectionMeta.notes.heading}</SectionTitle>
     <SectionLede>{sectionMeta.notes.description}</SectionLede>
     <div>
       {blogPosts.map((n, i) => (
         <div key={n.title} style={{ display: "flex", gap: 14, padding: "10px 0", borderTop: i === 0 ? "none" : "1px solid rgba(255,255,255,0.08)" }}>
-          <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 11, color: "rgba(255,255,255,0.35)", minWidth: 24 }}>{String(i + 1).padStart(2, "0")}</div>
+          <div style={{ fontFamily: "'Martian Mono', monospace", fontSize: 11, color: "rgba(255,255,255,0.35)", minWidth: 24 }}>{String(i + 1).padStart(2, "0")}</div>
           <div style={{ flex: 1 }}>
-            <div style={{ fontFamily: "'Exo 2', sans-serif", fontSize: 14, color: "white", fontWeight: 600, marginBottom: 3 }}>{n.title}</div>
-            <div style={{ fontFamily: "'Exo 2', sans-serif", fontSize: 12.5, color: "rgba(255,255,255,0.68)", lineHeight: 1.5 }}>{n.description}</div>
+            <div style={{ fontFamily: "'Saira', sans-serif", fontSize: 14, color: "white", fontWeight: 600, marginBottom: 3 }}>{n.title}</div>
+            <div style={{ fontFamily: "'Saira', sans-serif", fontSize: 12.5, color: "rgba(255,255,255,0.68)", lineHeight: 1.5 }}>{n.description}</div>
           </div>
         </div>
       ))}
@@ -447,24 +447,24 @@ const NotesContent = () => (
 
 const EducationContent = () => (
   <>
-    <SectionLabel color="#bf61ff">URANUS · Academic journey</SectionLabel>
+    <SectionLabel color="#ffb84d">URANUS · Academic journey</SectionLabel>
     <SectionTitle>{sectionMeta.education.heading}</SectionTitle>
     <SectionLede>{sectionMeta.education.description}</SectionLede>
     <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(248px, 1fr))", gap: 16 }}>
       {educations.map((edu) => (
         <div key={edu.degree} style={bareCard}>
           <div style={{ display: "flex", alignItems: "baseline", justifyContent: "space-between", gap: 10 }}>
-            <span style={{ fontFamily: "'Exo 2', sans-serif", fontSize: 14, color: "white", fontWeight: 700, lineHeight: 1.2 }}>{edu.degree}</span>
-            <span style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 16, color: "#bf61ff", fontWeight: 700, whiteSpace: "nowrap" }}>{edu.percentage}%</span>
+            <span style={{ fontFamily: "'Saira', sans-serif", fontSize: 14, color: "white", fontWeight: 700, lineHeight: 1.2 }}>{edu.degree}</span>
+            <span style={{ fontFamily: "'Martian Mono', monospace", fontSize: 16, color: "#ffb84d", fontWeight: 700, whiteSpace: "nowrap" }}>{edu.percentage}%</span>
           </div>
-          <div style={{ fontFamily: "'Exo 2', sans-serif", fontSize: 12, color: "rgba(255,255,255,0.72)", marginTop: 4 }}>{edu.name}</div>
-          <div style={{ display: "flex", gap: 9, marginTop: 5, fontFamily: "'JetBrains Mono', monospace", fontSize: 10, color: "rgba(255,255,255,0.5)" }}>
+          <div style={{ fontFamily: "'Saira', sans-serif", fontSize: 12, color: "rgba(255,255,255,0.72)", marginTop: 4 }}>{edu.name}</div>
+          <div style={{ display: "flex", gap: 9, marginTop: 5, fontFamily: "'Martian Mono', monospace", fontSize: 10, color: "rgba(255,255,255,0.5)" }}>
             <span>{edu.level}</span><span style={{ opacity: 0.5 }}>·</span><span>{edu.year}</span>
           </div>
           {edu.highlights && (
             <div style={{ display: "flex", flexWrap: "wrap", gap: 5, marginTop: 9 }}>
               {edu.highlights.map((h) => (
-                <span key={h} style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 8.5, padding: "2px 7px", borderRadius: 8, background: "rgba(191,97,255,0.12)", border: "1px solid rgba(191,97,255,0.25)", color: "#d3b3ff" }}>{h}</span>
+                <span key={h} style={{ fontFamily: "'Martian Mono', monospace", fontSize: 8.5, padding: "2px 7px", borderRadius: 8, background: "rgba(191,97,255,0.12)", border: "1px solid rgba(191,97,255,0.25)", color: "#8fcfff" }}>{h}</span>
               ))}
             </div>
           )}
@@ -484,16 +484,16 @@ const HobbiesContent = () => (
           <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 8, marginBottom: 4 }}>
             <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
               <span style={{ fontSize: 18 }}>{h.icon}</span>
-              <span style={{ fontFamily: "'Exo 2', sans-serif", fontSize: 13, color: "white", fontWeight: 600 }}>{h.name}</span>
+              <span style={{ fontFamily: "'Saira', sans-serif", fontSize: 13, color: "white", fontWeight: 600 }}>{h.name}</span>
             </div>
             {h.stat && (
-              <span style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 9.5, color: "#61dafb", whiteSpace: "nowrap" }}>{h.stat.value}</span>
+              <span style={{ fontFamily: "'Martian Mono', monospace", fontSize: 9.5, color: "#61dafb", whiteSpace: "nowrap" }}>{h.stat.value}</span>
             )}
           </div>
-          <div style={{ fontFamily: "'Exo 2', sans-serif", fontSize: 12, color: "rgba(255,255,255,0.74)", marginBottom: h.detail ? 5 : 0 }}>{h.tagline}</div>
+          <div style={{ fontFamily: "'Saira', sans-serif", fontSize: 12, color: "rgba(255,255,255,0.74)", marginBottom: h.detail ? 5 : 0 }}>{h.tagline}</div>
           {/* The engineering-analogy detail — connects hobby → how he thinks */}
           {h.detail && (
-            <div style={{ fontFamily: "'Exo 2', sans-serif", fontSize: 10.5, color: "rgba(255,255,255,0.45)", lineHeight: 1.45, fontStyle: "italic" }}>{h.detail}</div>
+            <div style={{ fontFamily: "'Saira', sans-serif", fontSize: 10.5, color: "rgba(255,255,255,0.45)", lineHeight: 1.45, fontStyle: "italic" }}>{h.detail}</div>
           )}
         </div>
       ))}
@@ -508,10 +508,10 @@ const TestimonialsContent = () => (
     <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(240px, 1fr))", gap: 14 }}>
       {testimonials.map((t) => (
         <div key={t.name} style={bareCard}>
-          <div style={{ fontFamily: "'Exo 2', sans-serif", fontSize: 13.5, color: "rgba(255,255,255,0.82)", lineHeight: 1.55, fontStyle: "italic" }}>
+          <div style={{ fontFamily: "'Saira', sans-serif", fontSize: 13.5, color: "rgba(255,255,255,0.82)", lineHeight: 1.55, fontStyle: "italic" }}>
             “{t.quote}”
           </div>
-          <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 10, color: "rgba(255,255,255,0.55)", marginTop: 10 }}>
+          <div style={{ fontFamily: "'Martian Mono', monospace", fontSize: 10, color: "rgba(255,255,255,0.55)", marginTop: 10 }}>
             — {t.name}{t.role ? ` · ${t.role}` : ""}
           </div>
         </div>
@@ -545,7 +545,7 @@ const ContactContent = () => (
           borderRadius: 10,
           color: "white",
           textDecoration: "none",
-          fontFamily: "'JetBrains Mono', monospace",
+          fontFamily: "'Martian Mono', monospace",
           fontSize: 12.5,
         }}>
           <span style={{ color: "#ff6b6b" }}>→</span>
@@ -599,7 +599,7 @@ const PlanetFactsAccordion = ({ destination }) => {
           minHeight: 44,
           padding: "4px 2px",
           boxSizing: "border-box",
-          fontFamily: "'JetBrains Mono', monospace",
+          fontFamily: "'Martian Mono', monospace",
           fontSize: 11.5,
           color: destination.color,
           letterSpacing: "0.1em",
@@ -614,7 +614,7 @@ const PlanetFactsAccordion = ({ destination }) => {
           <div style={{ display: "grid", gridTemplateColumns: "auto 1fr", gap: "5px 16px", fontSize: 11.5 }}>
             {rows.map(([k, v]) => (
               <div key={k} style={{ display: "contents" }}>
-                <span style={{ color: "rgba(255,255,255,0.42)", fontFamily: "'JetBrains Mono', monospace", textTransform: "uppercase", fontSize: 9.5, letterSpacing: "0.08em" }}>{k}</span>
+                <span style={{ color: "rgba(255,255,255,0.42)", fontFamily: "'Martian Mono', monospace", textTransform: "uppercase", fontSize: 9.5, letterSpacing: "0.08em" }}>{k}</span>
                 <span style={{ color: "rgba(255,255,255,0.82)" }}>{v}</span>
               </div>
             ))}
@@ -778,6 +778,12 @@ const ContentPanel = ({ destination }) => {
             <Renderer />
           </div>
         </div>
+        {/* PHASE 2D — holographic scan-sweep down the column on section change
+            (pairs with the content flicker-in so a section ARRIVES like a scan).
+            Keyed on fadeKey to replay; global prefers-reduced-motion rule neutralises it. */}
+        <div key={`${fadeKey}-scan`} aria-hidden className="stellar-scan-sweep" style={{ position: "absolute", left: 0, right: 14, top: 0, height: "89vh", overflow: "hidden", pointerEvents: "none", zIndex: 2 }}>
+          <div style={{ position: "absolute", left: 0, right: 0, height: 70, background: "linear-gradient(to bottom, transparent, rgba(143,207,255,0.16), rgba(143,207,255,0.04), transparent)", boxShadow: "0 0 26px rgba(143,207,255,0.22)", animation: "stellarScanSweep 720ms cubic-bezier(0.4,0,0.2,1) both" }} />
+        </div>
         {/* More-content affordance — only while the column can scroll further.
             Fixes "it's only showing half the information": the fade hints
             depth, the cue invites the scroll. */}
@@ -814,7 +820,7 @@ const ContentPanel = ({ destination }) => {
             >
               <span
                 style={{
-                  fontFamily: "'JetBrains Mono', monospace",
+                  fontFamily: "'Martian Mono', monospace",
                   fontSize: 9.5,
                   letterSpacing: "0.16em",
                   textTransform: "uppercase",
@@ -832,6 +838,11 @@ const ContentPanel = ({ destination }) => {
         @keyframes stellarContentIn {
           0% { opacity: 0; transform: translateY(10px); filter: blur(7px); }
           100% { opacity: 1; transform: translateY(0); filter: blur(0); }
+        }
+        @keyframes stellarScanSweep {
+          0% { transform: translateY(-70px); opacity: 0; }
+          14% { opacity: 1; }
+          100% { transform: translateY(89vh); opacity: 0; }
         }
         @keyframes stellarScrollCue {
           0%, 100% { opacity: 0.3; transform: translateY(0); }

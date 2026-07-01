@@ -1,4 +1,4 @@
-/* eslint-disable react/prop-types */
+ 
 import { DESTINATIONS } from "./config/destinations";
 
 /*
@@ -21,7 +21,7 @@ const Minimap = ({ activeIdx, onJump }) => (
       WebkitBackdropFilter: "blur(10px)",
       border: "1px solid rgba(255, 255, 255, 0.08)",
       borderRadius: "10px",
-      fontFamily: "'JetBrains Mono', monospace",
+      fontFamily: "'Martian Mono', monospace",
       fontSize: "10px",
       color: "rgba(255, 255, 255, 0.65)",
       zIndex: 50,

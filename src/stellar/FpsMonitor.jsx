@@ -1,4 +1,4 @@
-/* eslint-disable react/prop-types */
+ 
 import { useEffect, useRef, useState } from "react";
 
 /*
@@ -45,7 +45,7 @@ const FpsMonitor = () => {
   }, [visible]);
 
   if (!visible) return null;
-  const color = fps > 55 ? "#00cea8" : fps > 45 ? "#ffe066" : "#ff6b6b";
+  const color = fps > 55 ? "#2fe0b0" : fps > 45 ? "#ffe066" : "#ff6b6b";
   return (
     <div
       style={{
@@ -56,7 +56,7 @@ const FpsMonitor = () => {
         backdropFilter: "blur(8px)",
         border: "1px solid rgba(255, 255, 255, 0.18)",
         borderRadius: 6,
-        fontFamily: "'JetBrains Mono', monospace",
+        fontFamily: "'Martian Mono', monospace",
         fontSize: 10,
         color: "rgba(255,255,255,0.75)",
         letterSpacing: "0.08em",

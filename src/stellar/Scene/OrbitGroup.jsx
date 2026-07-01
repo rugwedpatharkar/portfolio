@@ -1,4 +1,4 @@
-/* eslint-disable react/no-unknown-property */
+ 
 import { useRef } from "react";
 import { useFrame } from "@react-three/fiber";
 import { orbitalPosition } from "../config/orbits";

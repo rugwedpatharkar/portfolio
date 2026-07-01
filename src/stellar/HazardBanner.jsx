@@ -1,4 +1,4 @@
-/* eslint-disable react/prop-types */
+ 
 import { useEffect, useRef, useState } from "react";
 
 /*
@@ -32,8 +32,8 @@ const HazardBanner = ({ clock }) => {
       boxShadow: `0 0 ${20 + danger * 50}px rgba(255,60,40,${danger * 0.55})`,
       opacity: Math.min(1, danger * 1.3),
     }}>
-      <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 12, letterSpacing: "0.2em", color: "#ff6b5a", fontWeight: 600 }}>⚠ GRAVITATIONAL HAZARD</div>
-      <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 9, color: "rgba(255,185,175,0.85)", marginTop: 3 }}>
+      <div style={{ fontFamily: "'Martian Mono', monospace", fontSize: 12, letterSpacing: "0.2em", color: "#ff6b5a", fontWeight: 600 }}>⚠ GRAVITATIONAL HAZARD</div>
+      <div style={{ fontFamily: "'Martian Mono', monospace", fontSize: 9, color: "rgba(255,185,175,0.85)", marginTop: 3 }}>
         {danger > 0.85 ? "TIDAL FORCES CRITICAL — PULL UP" : "approaching the event horizon"}
       </div>
     </div>

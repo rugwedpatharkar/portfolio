@@ -28,11 +28,12 @@ const dotSprite = () => {
   return _dot;
 };
 
-const ZodiacalLight = ({ count = 7000, inner = 24, outer = 330, color = "#f3ecd8" }) => {
+const ZodiacalLight = ({ count = 7000, geg = 1500, inner = 24, outer = 330, color = "#f3ecd8" }) => {
   const sprite = useMemo(dotSprite, []);
   const { geometry } = useMemo(() => {
-    const pos = new Float32Array(count * 3);
-    const alpha = new Float32Array(count); // per-point brightness, falls off with radius
+    const total = count + geg;
+    const pos = new Float32Array(total * 3);
+    const alpha = new Float32Array(total); // per-point brightness, falls off with radius
     for (let i = 0; i < count; i++) {
       const a = Math.random() * Math.PI * 2;
       // radius biased strongly toward the Sun (r = inner + span * u^2)
@@ -47,11 +48,28 @@ const ZodiacalLight = ({ count = 7000, inner = 24, outer = 330, color = "#f3ecd8
       // brightness falls steeply outward (zodiacal light is faint past ~2 AU)
       alpha[i] = Math.pow(1 - u, 1.6);
     }
+    /* Gegenschein — the faint oval brightening at the ANTI-solar point (opposite the
+       Sun, ≈ +x in the ecliptic), where interplanetary dust is lit straight-on and
+       backscatters. Real, and much dimmer than the zodiacal band: a soft Gaussian
+       blob hugging the ecliptic. Same additive points cloud (one draw call). */
+    const gx0 = outer * 0.5;
+    for (let j = 0; j < geg; j++) {
+      const i = count + j;
+      const gx = gx0 + (Math.random() + Math.random() - 1) * gx0 * 0.55;
+      const gz = (Math.random() + Math.random() - 1) * gx0 * 0.5;
+      const gy = (Math.random() + Math.random() - 1) * 10;
+      pos[i * 3] = gx;
+      pos[i * 3 + 1] = gy;
+      pos[i * 3 + 2] = gz;
+      const dx = (gx - gx0) / (gx0 * 0.55);
+      const dz = gz / (gx0 * 0.5);
+      alpha[i] = Math.max(0, 0.34 * (1 - Math.min(1, Math.hypot(dx, dz))));
+    }
     const g = new THREE.BufferGeometry();
     g.setAttribute("position", new THREE.BufferAttribute(pos, 3));
     g.setAttribute("aAlpha", new THREE.BufferAttribute(alpha, 1));
     return { geometry: g };
-  }, [count, inner, outer]);
+  }, [count, geg, inner, outer]);
 
   const material = useMemo(
     () =>

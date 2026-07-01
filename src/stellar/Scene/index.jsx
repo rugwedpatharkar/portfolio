@@ -4,8 +4,10 @@ import { Canvas, invalidate } from "@react-three/fiber";
 import * as THREE from "three";
 import { EffectComposer, Bloom } from "@react-three/postprocessing";
 import CinematicGrade from "./CinematicGrade";
+import BloomPulse from "./BloomPulse";
 import SceneClock from "./SceneClock";
 import Stars from "./Stars";
+import StellarDrift from "./StellarDrift";
 import Sun from "./Sun";
 import Planet from "./Planet";
 import CameraRig from "./CameraRig";
@@ -22,10 +24,16 @@ import Pulsar from "./Pulsar";
 import ExoticObjects from "./ExoticObjects";
 import ProjectProbes from "./ProjectProbes";
 import DeepFieldMysteries from "./DeepFieldMysteries";
+import Kilonova from "./Kilonova";
+import Hypergiant from "./Hypergiant";
+import EtaCarinae from "./EtaCarinae";
+import EinsteinRing from "./EinsteinRing";
 import Wormhole from "./Wormhole";
 import LensFlare from "./LensFlare";
 import OrbitRings from "./OrbitRings";
 import Beacon from "./Beacon";
+// LaneObjects retired — the Holo-Bridge dossier cluster replaces the forced-←→ convoy.
+import HyperLoop from "./HyperLoop";
 import SolarProminences from "./SolarProminences";
 import SolarEclipse from "./SolarEclipse";
 import EclipseLights from "./EclipseLights";
@@ -47,6 +55,18 @@ import DangerField from "./DangerField";
 import DataFragments from "./DataFragments";
 import DustParticles from "./DustParticles";
 import AdaptiveQuality from "./AdaptiveQuality";
+import Sonification from "./Sonification";
+import SaturnHexagon from "./SaturnHexagon";
+import IoTorus from "./IoTorus";
+import NeptuneAurora from "./NeptuneAurora";
+import MoonGeysers from "./MoonGeysers";
+import GlobularCluster from "./GlobularCluster";
+import GravWaveChirp from "./GravWaveChirp";
+import CosmicMarker from "./CosmicMarker";
+import RedDots from "./RedDots";
+import MimasMoon from "./MimasMoon";
+import TitanLakes from "./TitanLakes";
+import EclipseShadow from "./EclipseShadow";
 import AutoExposure from "./AutoExposure";
 import KeyLight from "./KeyLight";
 import MouseParallax from "./MouseParallax";
@@ -64,6 +84,20 @@ import WatneyPotato from "./easter/WatneyPotato";
 import Endurance from "./easter/Endurance";
 import StarDestroyer from "./easter/StarDestroyer";
 import Enterprise from "./easter/Enterprise";
+import Monolith from "./easter/Monolith";
+import HaloRing from "./easter/HaloRing";
+import DysonSwarm from "./easter/DysonSwarm";
+import SolGate from "./easter/SolGate";
+import Citadel from "./easter/Citadel";
+import GenerationShip from "./easter/GenerationShip";
+import Heighliner from "./easter/Heighliner";
+import GoldenRecord from "./easter/GoldenRecord";
+import Sandworm from "./easter/Sandworm";
+import Rocinante from "./easter/Rocinante";
+import Normandy from "./easter/Normandy";
+import DiscoveryOne from "./easter/DiscoveryOne";
+import Nostromo from "./easter/Nostromo";
+import MarsRovers from "./easter/MarsRovers";
 import useViewport from "../useViewport";
 import { DESTINATIONS, remapPosition, frontOfSun, BACKGROUND_BELTS } from "../config/destinations";
 import { rotationSpeedFor } from "../config/planetData";
@@ -94,7 +128,7 @@ const ICY_WEIGHTS = [0.45, 0.3, 0.25];
  * tune that based on viewport bucket.
  */
 
-const Scene = ({ scrollT, activeIdx, onJump, onReady, freeRoamEnabled, speedRef, thrustRef, wideRef, wideOrbitRef, focusRef, cameraRef, eclipseRef, clock, extrasPhase = 3 }) => {
+const Scene = ({ scrollT, activeIdx, itemIdx = 0, onJump, onReady, freeRoamEnabled, speedRef, thrustRef, wideRef, wideOrbitRef, focusRef, warpVelRef, cameraRef, eclipseRef, clock, extrasPhase = 3, launchPhase = null, onLaunchComplete }) => {
   const readyRef = useRef(false);
   const { isMobile, isCompact, reducedMotion } = useViewport();
   /* Progressive-mount tiers (StellarApp ramps extrasPhase 0→3 behind the
@@ -109,6 +143,8 @@ const Scene = ({ scrollT, activeIdx, onJump, onReady, freeRoamEnabled, speedRef,
      own their own offset; CameraRig sums them. */
   const parallaxOffsetRef = useRef(new THREE.Vector3());
   const freeRoamOffsetRef = useRef(new THREE.Vector3());
+  /* Bloom effect handle — BloomPulse pulses its intensity with warp velocity. */
+  const bloomRef = useRef();
   /* Earth's Moon world position, published by its Planet, read by SolarEclipse. */
   const moonWorldRef = useRef(new THREE.Vector3());
 
@@ -142,6 +178,9 @@ const Scene = ({ scrollT, activeIdx, onJump, onReady, freeRoamEnabled, speedRef,
         antialias: !isMobile,
         alpha: false,
         powerPreference: "high-performance",
+        /* Photo Mode (Phase 3C) reads the canvas via toDataURL — needs the buffer
+           kept after compositing. Modest cost; fine for a portfolio. */
+        preserveDrawingBuffer: true,
         /* ACES Filmic tone mapping on the renderer side — single
            pipeline, no post-processing ToneMapping pass (that one
            had API issues in v3). */
@@ -197,6 +236,18 @@ const Scene = ({ scrollT, activeIdx, onJump, onReady, freeRoamEnabled, speedRef,
       <KeyLight scrollT={scrollT} castShadow={!isMobile} />
       <directionalLight position={[-30, 10, -25]} intensity={0.5} color="#6f8cff" />
 
+      {/* Lane objects — the active section's résumé items as a co-orbital convoy
+          on the planet's orbital lane (←→ selects them; M2b adds the fly-to). */}
+      {/* lane convoy retired — Holo-Bridge dossier cluster replaces forced ←→ */}
+
+      {/* Hyperloop light-tunnel — pulsed by the nav on a ←→ shift (and the intro
+          warp later). Fresh build in the cockpit palette; in-scene additive mesh,
+          the existing Bloom glows it. */}
+      {!reducedMotion && !isMobile && <HyperLoop warpVelRef={warpVelRef} color="#8fcfff" />}
+      {/* D — interplanetary dust parallax: motion-gated motes that stream past
+          on a hop (depth the 6800u catalogue sky can't give on short inner hops). */}
+      {!reducedMotion && !isMobile && <StellarDrift warpVelRef={warpVelRef} reducedMotion={reducedMotion} />}
+
       <Suspense fallback={null}>
         <Skybox />
         <Stars />
@@ -228,6 +279,10 @@ const Scene = ({ scrollT, activeIdx, onJump, onReady, freeRoamEnabled, speedRef,
         {showMid && !reducedMotion && (
           <AtlasComet start={[-620, -150, 240]} vel={[168, 4, -64]} coma="#e0a890" ion="#cdbfa0" dust="#e8d8b8" antiTail={false} comaR={1.2} respawn={780} />
         )}
+        {/* Sungrazer C/2026 A1 — a steep dive through ~the Sun (true-scale path). */}
+        {showMid && !reducedMotion && (
+          <AtlasComet start={[560, 130, -380]} vel={[-150, -35, 102]} coma="#cfe8ff" ion="#bfe0ff" dust="#eae6ff" antiTail={false} comaR={1.1} respawn={720} />
+        )}
         {/* Clickable wishing meteors. */}
         {showMid && !reducedMotion && <ShootingStars animate={!reducedMotion} />}
         {showMid && !isMobile && !reducedMotion && <Meteors />}
@@ -239,6 +294,19 @@ const Scene = ({ scrollT, activeIdx, onJump, onReady, freeRoamEnabled, speedRef,
         {/* Real unsolved mysteries as deep-field discoverables (Planet Nine,
             Tabby's Star, the Wow! signal, fast radio bursts). */}
         {showMid && <DeepFieldMysteries animate={!reducedMotion} />}
+        {/* PHASE 4 (Wave 1) — deep-sky wonders: a kilonova event + a red supergiant. */}
+        {showMid && <Kilonova animate={!reducedMotion} />}
+        {showMid && <Hypergiant animate={!reducedMotion} />}
+        {/* Eta Carinae's bipolar Homunculus + an Einstein-ring lens galaxy. */}
+        {showMid && <EtaCarinae animate={!reducedMotion} />}
+        {showMid && <EinsteinRing animate={!reducedMotion} />}
+        {/* Wave 2 — scale & mystery: globular cluster, GW chirp, little red dots, cosmic web. */}
+        {showMid && <GlobularCluster animate={!reducedMotion} />}
+        {showMid && <GravWaveChirp animate={!reducedMotion} />}
+        {showMid && <RedDots animate={!reducedMotion} />}
+        {showMid && <CosmicMarker raw={[-44, 38, 28]} kind="void" count={520} radius={11} glow="#8aa0d8" animate={!reducedMotion} />}
+        {showMid && <CosmicMarker raw={[60, 20, -40]} kind="attractor" count={680} radius={10} glow="#ffd0a0" animate={!reducedMotion} />}
+        {showMid && <CosmicMarker raw={[-64, -10, -48]} kind="wall" count={760} radius={13} glow="#a0b6ff" animate={!reducedMotion} />}
         {/* Wormhole "Beam aboard" portal at the Contact edge — the booking CTA. */}
         {showMid && <Wormhole />}
 
@@ -323,6 +391,8 @@ const Scene = ({ scrollT, activeIdx, onJump, onReady, freeRoamEnabled, speedRef,
                     <RocketLaunch earthRadius={d.radius} animate={!reducedMotion} />
                   )}
                   {showExtras && <HomeCallout earthRadius={d.radius} />}
+                  {/* 2026 eclipses — the Moon's umbra drifting across Earth's day side. */}
+                  {showExtras && <EclipseShadow earthRadius={d.radius} animate={!reducedMotion} />}
                   {showExtras && (
                     <IsroProbe
                       orbitRadius={d.radius * 2.2} speed={0.22} tilt={0.4} phase={1.2} scale={d.radius * 0.18}
@@ -336,10 +406,23 @@ const Scene = ({ scrollT, activeIdx, onJump, onReady, freeRoamEnabled, speedRef,
             return (
               <OrbitGroup key={d.id} dest={d} animate={!reducedMotion}>
                 {planetEl}
+                {/* PHASE 4 (Wave 1) — real planetary phenomena: Saturn's hexagon,
+                    Io's plasma torus (Jupiter), Neptune's mid-latitude aurora. */}
+                {d.id === "notes" && <SaturnHexagon radius={d.radius} axialTilt={d.axialTilt || 0} animate={!reducedMotion} />}
+                {d.id === "skills" && <IoTorus radius={d.radius} axialTilt={d.axialTilt || 0} animate={!reducedMotion} />}
+                {d.id === "hobbies" && <NeptuneAurora radius={d.radius} axialTilt={d.axialTilt || 0} animate={!reducedMotion} />}
+                {/* Enceladus (Saturn) + Europa (Jupiter): south-pole water geysers from a
+                    subsurface ocean — rides the parent's orbit at the moon's offset. */}
+                {d.id === "notes" && <MoonGeysers offset={[-4.3, 1.1, 1.7]} radius={0.12} color="#eef3f1" plumeColor="#bfe6ff" jets={6} dir={[0, -1, 0.3]} animate={!reducedMotion} />}
+                {d.id === "skills" && <MoonGeysers offset={[5.2, 1.0, 1.2]} radius={0.16} color="#dde6e3" plumeColor="#cfeaff" jets={4} dir={[0.4, -1, 0]} animate={!reducedMotion} />}
+                {/* Wave 2 — Mimas (Saturn's Death-Star moon) + Triton's nitrogen geysers (Neptune). */}
+                {d.id === "notes" && <MimasMoon offset={[4.6, 1.0, -2.1]} radius={0.13} animate={!reducedMotion} />}
+                {d.id === "notes" && <TitanLakes offset={[4.4, 1.2, 0.9]} radius={0.18} animate={!reducedMotion} />}
+                {d.id === "hobbies" && <MoonGeysers offset={[2.0, 0.8, 0.6]} radius={0.12} color="#d8cabd" plumeColor="#e6c6d6" jets={4} dir={[0.2, -1, 0.2]} animate={!reducedMotion} />}
                 {/* Mangalyaan (Mars Orbiter Mission) rides Mars's group. */}
                 {d.id === "projects" && showExtras && (
                   <IsroProbe
-                    orbitRadius={d.radius * 1.9} speed={0.26} tilt={0.5} phase={0.4} scale={d.radius * 0.15}
+                    orbitRadius={d.radius * 2.4} speed={0.26} tilt={0.5} phase={0.4} scale={d.radius * 0.15}
                     event="stellar:mangalyaan" animate={!reducedMotion}
                     onPointerOver={handleHoverIn} onPointerOut={handleHoverOut}
                   />
@@ -410,6 +493,8 @@ const Scene = ({ scrollT, activeIdx, onJump, onReady, freeRoamEnabled, speedRef,
         {/* Fade the scene lights toward dark at totality (planet → silhouette). */}
         {showExtras && <EclipseLights eclipseRef={eclipseRef} />}
         {!isMobile && !reducedMotion && <DustParticles />}
+        {/* PHASE 3D — proximity sonification (silent until un-muted). */}
+        {!reducedMotion && <Sonification />}
         {/* Non-essential extras defer-mount until the intro completes —
             keeps the warp/countdown window + LCP light, and trims the
             initial scene-graph build. */}
@@ -431,9 +516,27 @@ const Scene = ({ scrollT, activeIdx, onJump, onReady, freeRoamEnabled, speedRef,
         {showEggs && <Endurance />}
         {showEggs && !isMobile && <StarDestroyer />}
         {showEggs && <Enterprise />}
+        {/* Wave 3 — diegetic megastructure cameos (deep field). */}
+        {showEggs && <Monolith animate={!reducedMotion} />}
+        {showEggs && <HaloRing animate={!reducedMotion} />}
+        {showEggs && <DysonSwarm animate={!reducedMotion} />}
+        {showEggs && <SolGate animate={!reducedMotion} />}
+        {showEggs && !isMobile && <Citadel animate={!reducedMotion} />}
+        {/* Wave 3 remainder — beside-planet cameos + deep-field structures. */}
+        {showEggs && <Sandworm />}
+        {showEggs && <MarsRovers />}
+        {showEggs && <Rocinante />}
+        {showEggs && <Normandy />}
+        {showEggs && <DiscoveryOne />}
+        {showEggs && <Nostromo />}
+        {showEggs && <GoldenRecord />}
+        {showEggs && !isMobile && <GenerationShip animate={!reducedMotion} />}
+        {showEggs && !isMobile && <Heighliner animate={!reducedMotion} />}
         {!isMobile && !reducedMotion && <MouseParallax offsetRef={parallaxOffsetRef} />}
         <FreeRoam enabled={freeRoamEnabled} offsetRef={freeRoamOffsetRef} speedRef={speedRef} thrustRef={thrustRef} />
         <CameraShake parallaxOffsetRef={parallaxOffsetRef} />
+        {/* Tier-1 feel — pulse Bloom with warp velocity (bloom punch on the dive). */}
+        <BloomPulse bloomRef={bloomRef} warpVelRef={warpVelRef} base={isMobile ? 0.6 : 0.8} />
         <CameraRig
           scrollT={scrollT}
           parallaxOffsetRef={parallaxOffsetRef}
@@ -442,10 +545,17 @@ const Scene = ({ scrollT, activeIdx, onJump, onReady, freeRoamEnabled, speedRef,
           wideRef={wideRef}
           wideOrbitRef={wideOrbitRef}
           focusRef={focusRef}
+          warpVelRef={warpVelRef}
           cameraRef={cameraRef}
+          launchPhase={launchPhase}
+          onLaunchComplete={onLaunchComplete}
+          /* Reduced-motion + mobile → SNAP (no first-person fly-through; info
+             stays visible). The rig reads these to gate the flight + flyingRef. */
+          reducedMotion={reducedMotion}
+          isMobile={isMobile}
           /* Desktop frames the planet right-of-centre to clear the left
              content column; compact/mobile keep it centred (stacked layout). */
-          frameShift={isCompact ? 0 : 0.3}
+          frameShift={0}
         />
       </Suspense>
 
@@ -473,6 +583,7 @@ const Scene = ({ scrollT, activeIdx, onJump, onReady, freeRoamEnabled, speedRef,
           scene is fully in focus and crisp. */}
       <EffectComposer multisampling={0} disableNormalPass>
         <Bloom
+          ref={bloomRef}
           intensity={isMobile ? 0.6 : 0.8}
           luminanceThreshold={0.9}
           luminanceSmoothing={0.5}
@@ -489,6 +600,7 @@ const Scene = ({ scrollT, activeIdx, onJump, onReady, freeRoamEnabled, speedRef,
           saturation={-0.02}
           vigOffset={0.36}
           vigDarkness={0.38}
+          warpVelRef={warpVelRef}
         />
       </EffectComposer>
       </SceneClock>

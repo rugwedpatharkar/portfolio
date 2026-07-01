@@ -1,4 +1,4 @@
-/* eslint-disable react/no-unknown-property, react/prop-types */
+/* eslint-disable react/no-unknown-property */
 import { useMemo, useRef } from "react";
 import { useFrame } from "@react-three/fiber";
 import * as THREE from "three";
@@ -37,7 +37,7 @@ const SolarEclipse = ({ satelliteRef, eclipseRef, reducedMotion = false }) => {
   const chromoRef = useRef();
   const glintRef = useRef();
   const sceneClock = useSceneClock();
-  const v = useMemo(() => ({ occ: new THREE.Vector3(), dir: new THREE.Vector3(), sunDir: new THREE.Vector3(), bestPos: new THREE.Vector3() }), []);
+  const v = useMemo(() => ({ occ: new THREE.Vector3(), dir: new THREE.Vector3(), sunDir: new THREE.Vector3(), bestPos: new THREE.Vector3(), fwd: new THREE.Vector3() }), []);
 
   useFrame(({ camera }) => {
     const t = reducedMotion ? 0 : sceneClock.t;
@@ -45,6 +45,14 @@ const SolarEclipse = ({ satelliteRef, eclipseRef, reducedMotion = false }) => {
     const sunDist = cam.distanceTo(SUN);
     const sunAppR = SUN_R / sunDist;
     v.sunDir.copy(SUN).sub(cam).normalize();
+    /* An eclipse is a SCREEN event — it only exists when the Sun is actually in
+       view. In the planet-focus framing the camera sits sunward of the body and
+       looks OUTWARD (Sun behind it); the inner planets then drift across the
+       camera→Sun line *behind* the camera and used to score as false eclipses,
+       dimming every light to ~8% (EclipseLights) → the framed planet went black.
+       Gate all scoring on the Sun being in front of the camera. */
+    camera.getWorldDirection(v.fwd);
+    const sunInFront = v.sunDir.dot(v.fwd) > 0;
 
     let best = 0;
     let bestR = SUN_R;
@@ -60,8 +68,10 @@ const SolarEclipse = ({ satelliteRef, eclipseRef, reducedMotion = false }) => {
       const tot = alignment * alignment * cover; // sharper falloff → crisp totality
       if (tot > best) { best = tot; bestR = r; v.bestPos.copy(pos); }
     };
-    if (satelliteRef?.current) consider(satelliteRef.current, MOON_R); // Earth's real Moon
-    for (const p of PLANETS) consider(liveBodyPosition(p.id, t, v.occ), p.r);
+    if (sunInFront) {
+      if (satelliteRef?.current) consider(satelliteRef.current, MOON_R); // Earth's real Moon
+      for (const p of PLANETS) consider(liveBodyPosition(p.id, t, v.occ), p.r);
+    }
 
     const force = typeof window !== "undefined" ? window.__forceEclipse : undefined;
     const totality = force != null ? force : best;

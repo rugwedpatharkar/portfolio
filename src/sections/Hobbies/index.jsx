@@ -1,4 +1,4 @@
-/* eslint-disable react/prop-types */
+ 
 import { memo, forwardRef, useRef, useEffect } from "react";
 import { motion } from "motion/react";
 import CardBorderTrace from "../../components/CardBorderTrace";

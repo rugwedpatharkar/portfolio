@@ -74,7 +74,7 @@ const SYNTHETIC_FALLBACK = [
 
 /* Deterministic colour per repo so each repo's comets read consistently */
 export const repoColor = (repo) => {
-  const palette = ["#ff9a3c", "#00cea8", "#915eff", "#61dafb", "#bf61ff", "#ff6b6b", "#f8c555"];
+  const palette = ["#ff9a3c", "#2fe0b0", "#4da6ff", "#61dafb", "#ffb84d", "#ff6b6b", "#f8c555"];
   let h = 0;
   for (let i = 0; i < repo.length; i++) h = (h * 31 + repo.charCodeAt(i)) >>> 0;
   return palette[h % palette.length];

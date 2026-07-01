@@ -1,4 +1,4 @@
-/* eslint-disable react/prop-types */
+ 
 import { useEffect, useRef, useState } from "react";
 import { DESTINATIONS } from "./config/destinations";
 import { unlockedSet, ACHIEVEMENTS_BY_ID } from "./data/achievements";
@@ -48,7 +48,7 @@ const VisitorLog = () => {
             backdropFilter: "blur(8px)",
             zIndex: 80,
             display: "flex", alignItems: "center", justifyContent: "center",
-            fontFamily: "'JetBrains Mono', monospace",
+            fontFamily: "'Martian Mono', monospace",
             color: "white",
             padding: 24,
             cursor: "pointer",
@@ -61,16 +61,16 @@ const VisitorLog = () => {
               width: "100%",
               padding: "26px 30px",
               background: "rgba(8, 10, 26, 0.95)",
-              border: "1px solid rgba(0, 206, 168, 0.45)",
+              border: "1px solid rgba(47, 224, 176, 0.45)",
               borderRadius: 14,
-              boxShadow: "0 30px 80px rgba(0,0,0,0.6), inset 0 0 80px rgba(0, 206, 168, 0.05)",
+              boxShadow: "0 30px 80px rgba(0,0,0,0.6), inset 0 0 80px rgba(47, 224, 176, 0.05)",
               cursor: "default",
             }}
           >
-            <div style={{ fontSize: 9, color: "#00cea8", letterSpacing: "0.18em", marginBottom: 6 }}>
+            <div style={{ fontSize: 9, color: "#2fe0b0", letterSpacing: "0.18em", marginBottom: 6 }}>
               MISSION REPORT · STELLAR
             </div>
-            <div style={{ fontSize: 24, fontWeight: 700, fontFamily: "'Sora', sans-serif", marginBottom: 16 }}>
+            <div style={{ fontSize: 24, fontWeight: 700, fontFamily: "'Chakra Petch', sans-serif", marginBottom: 16 }}>
               Your transit so far
             </div>
             <div style={{ display: "grid", gridTemplateColumns: "auto 1fr", gap: "8px 18px", fontSize: 12 }}>
@@ -94,7 +94,7 @@ const VisitorLog = () => {
 
             {u.size > 0 && (
               <>
-                <div style={{ marginTop: 18, fontSize: 9, color: "#00cea8", letterSpacing: "0.15em" }}>BADGES</div>
+                <div style={{ marginTop: 18, fontSize: 9, color: "#2fe0b0", letterSpacing: "0.15em" }}>BADGES</div>
                 <div style={{ display: "flex", gap: 8, flexWrap: "wrap", marginTop: 8 }}>
                   {Array.from(u).map((id) => {
                     const a = ACHIEVEMENTS_BY_ID[id];
@@ -122,8 +122,8 @@ const VisitorLog = () => {
               style={{
                 marginTop: 22, padding: "8px 16px",
                 background: "transparent",
-                border: "1px solid rgba(0, 206, 168, 0.5)",
-                color: "#00cea8",
+                border: "1px solid rgba(47, 224, 176, 0.5)",
+                color: "#2fe0b0",
                 borderRadius: 6,
                 fontFamily: "inherit", fontSize: 10, letterSpacing: "0.12em",
                 cursor: "pointer",

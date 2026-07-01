@@ -1,4 +1,4 @@
-/* eslint-disable react/no-unknown-property, react/prop-types */
+/* eslint-disable react/no-unknown-property */
 import { useMemo, useRef } from "react";
 import { useFrame, useLoader } from "@react-three/fiber";
 import * as THREE from "three";
@@ -196,8 +196,10 @@ const NebulaPlane = ({ url, position, scale, opacity, haloTint, coreTint }) => {
 
 const Nebulae = () => (
   <>
-    {NEBULAE.map((n) => (
-      <NebulaPlane key={n.url} {...n} />
+    {NEBULAE.map((n, i) => (
+      // index, not n.url: some textures (carina, orion) are reused for the hero
+      // backdrop, so the path alone is a duplicate key. The array is static.
+      <NebulaPlane key={`${n.url}-${i}`} {...n} />
     ))}
   </>
 );

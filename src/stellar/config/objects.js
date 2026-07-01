@@ -86,6 +86,51 @@ const ANOMALY_RAW = [
     visit: { kind: "focus", cameraTarget: frame([40, 3.5, -19], 4, 1, 42) },
   },
   {
+    id: "sandworm", label: "Shai-Hulud", category: "Easter egg", color: "#d8a35a", position: [14.3, -0.6, 0.8],
+    info: "A Dune sandworm breaching beside the red planet — the system's nearest thing to Arrakis. The spice must flow.",
+    visit: { kind: "focus", cameraTarget: frame([14.3, -0.6, 0.8], 3, 0.9, 40) },
+  },
+  {
+    id: "rocinante", label: "Rocinante", category: "Easter egg", color: "#9fb4c8", position: [20.0, -0.7, -1.4],
+    info: "The Expanse's corvette-class Martian frigate, running patrol near the belt on its blue Epstein drive.",
+    visit: { kind: "focus", cameraTarget: frame([20.0, -0.7, -1.4], 3, 0.9, 40) },
+  },
+  {
+    id: "normandy", label: "SSV Normandy", category: "Easter egg", color: "#bcd0ff", position: [12.0, 0.9, 0.6],
+    info: "Mass Effect's stealth frigate — swept wings and a glowing drive core, cruising over Earth.",
+    visit: { kind: "focus", cameraTarget: frame([12.0, 0.9, 0.6], 2.6, 0.7, 38) },
+  },
+  {
+    id: "discovery", label: "Discovery One", category: "Easter egg", color: "#dfe4ea", position: [24.4, -0.8, 0.6],
+    info: "2001: A Space Odyssey's Jupiter-mission ship — a command sphere on a long engine spine. HAL is aboard.",
+    visit: { kind: "focus", cameraTarget: frame([24.4, -0.8, 0.6], 9, 1.6, 44) },
+  },
+  {
+    id: "nostromo", label: "USCSS Nostromo", category: "Easter egg", color: "#b7b1a4", position: [30.2, -0.6, -1.3],
+    info: "Alien's industrial towing vessel hauling its refinery through the outer dark. In space, no one can hear you scream.",
+    visit: { kind: "focus", cameraTarget: frame([30.2, -0.6, -1.3], 3, 0.9, 40) },
+  },
+  {
+    id: "perseverance", label: "Perseverance & Ingenuity", category: "Probe", color: "#d98a5a", position: [14.6, -0.5, -0.9],
+    info: "NASA's real Mars pair — the car-sized rover and the helicopter that made the first powered flight on another world.",
+    visit: { kind: "focus", cameraTarget: frame([14.6, -0.5, -0.9], 2.4, 0.7, 38) },
+  },
+  {
+    id: "goldenrecord", label: "Golden Record", category: "Probe", color: "#ffd56a", position: [40, 4, -20],
+    info: "The gold phonograph disc on both Voyagers — greetings in 55 languages, whale song, Bach and Chuck Berry, a human heartbeat. Click it to play.",
+    visit: { kind: "focus", cameraTarget: frame([40, 4, -20], 3.2, 0.9, 40) },
+  },
+  {
+    id: "genship", label: "Generation Ship", category: "Megastructure", color: "#5a6070", position: [54, 4, -40],
+    info: "A derelict O'Neill-cylinder ark built for a thousand-year crossing — dark, slowly tumbling, a single porthole still flickering.",
+    visit: { kind: "focus", cameraTarget: frame([54, 4, -40], 9, 2, 44) },
+  },
+  {
+    id: "heighliner", label: "Guild Heighliner", category: "Megastructure", color: "#c79a4a", position: [-44, 30, -38],
+    info: "A Dune Spacing-Guild transport that folds space to 'travel without moving' — a mountain of a hull lit by spice-orange holds.",
+    visit: { kind: "focus", cameraTarget: frame([-44, 30, -38], 9, 2, 44) },
+  },
+  {
     id: "jwst", label: "JWST", category: "Probe", color: "#e8b84a", position: [11.7, 0.5, -1.5],
     info: "James Webb Space Telescope — our largest space observatory, parked at Sun-Earth Lagrange point L2, 1.5 million km beyond Earth, its golden mirror permanently shaded from the Sun.",
     visit: { kind: "focus", cameraTarget: frame([11.7, 0.5, -1.5], 2, 0.6, 38) },
@@ -130,6 +175,11 @@ const ANOMALY_RAW = [
     info: "2I/Borisov — the 2nd interstellar object (2019), a ~1 km comet far richer in carbon monoxide than any local comet, discovered by amateur astronomer Gennady Borisov. The middle of the interstellar trio: 1I/'Oumuamua · 2I/Borisov · 3I/ATLAS.",
     visit: { kind: "focus", cameraTarget: frame([-14, -2, 7], 5, 1.2, 44) },
   },
+  {
+    id: "c2026a1", label: "Comet C/2026 A1", category: "Comet", color: "#cfe8ff", position: [7, -1, -3],
+    info: "C/2026 A1 — a sungrazing comet diving steeply toward the Sun. Sungrazers flare enormously as solar heat blasts gas and dust off them into a long bright tail; many don't survive perihelion, breaking apart in the Sun's glare. A potential naked-eye showpiece of 2026.",
+    visit: { kind: "focus", cameraTarget: frame([7, -1, -3], 6, 1.4, 44) },
+  },
   // ── Space mysteries (deep field; positions match Scene/DeepFieldMysteries) ──
   {
     id: "planetnine", label: "Planet Nine", category: "Mystery", color: "#3a5070", position: [42, -3, -26],
@@ -150,6 +200,26 @@ const ANOMALY_RAW = [
     id: "frb", label: "Fast Radio Burst", category: "Mystery", color: "#d6c0ff", position: [-30, -16, 42],
     info: "Fast Radio Bursts — millisecond flashes of radio energy from across the universe, some releasing a Sun's-worth of energy in an instant. Most flash once and vanish; a few repeat. Their engines remain a mystery.",
     visit: { kind: "focus", cameraTarget: frame([-30, -16, 42], 10, 2, 44) },
+  },
+  {
+    id: "kilonova", label: "Kilonova", category: "Cataclysm", color: "#ffd9a0", position: [-45, -12, -20],
+    info: "A kilonova — two neutron stars merging. In seconds it forges the heavy elements the universe makes no other way: every gram of gold, platinum and uranium you've ever touched was born in a blast like this. GW170817 (2017) was the first seen in gravitational waves AND light.",
+    visit: { kind: "focus", cameraTarget: frame([-45, -12, -20], 12, 2.5, 46) },
+  },
+  {
+    id: "betelgeuse", label: "Betelgeuse", category: "Red supergiant", color: "#ff6a48", position: [40, 16, -28],
+    info: "Betelgeuse — a red supergiant ~700× the Sun's width. Put it where the Sun is and it would swallow Jupiter's orbit. It's near the end of its life and will go supernova (astronomically soon). In 2025 a close companion star was confirmed, nicknamed Siwarħa.",
+    visit: { kind: "focus", cameraTarget: frame([40, 16, -28], 14, 3, 46) },
+  },
+  {
+    id: "etacarinae", label: "Eta Carinae", category: "Nebula", color: "#ff9a5a", position: [-70, 22, -38],
+    info: "Eta Carinae — one of the most massive, luminous stars known (~100× the Sun), so unstable it nearly blew itself apart in the 1840s 'Great Eruption'. That blast flung out the two billowing lobes of the Homunculus Nebula, still expanding today. It's a supernova — maybe a hypernova — waiting to happen.",
+    visit: { kind: "focus", cameraTarget: frame([-70, 22, -38], 14, 3, 46) },
+  },
+  {
+    id: "einsteinring", label: "Einstein Ring", category: "Gravitational lens", color: "#cfe2ff", position: [-66, -26, 28],
+    info: "An Einstein ring — a distant galaxy whose light is bent by a massive galaxy almost exactly in front of it into a near-perfect ring. Einstein predicted it in 1936; the first full ring was imaged in 1998, and Hubble + JWST now find them often. A direct, visible proof that mass curves spacetime.",
+    visit: { kind: "focus", cameraTarget: frame([-66, -26, 28], 13, 2.6, 46) },
   },
   {
     id: "tardis", label: "TARDIS", category: "Easter egg", color: "#5b8dff", position: [30.4, 1.3, 1.0],
@@ -197,6 +267,63 @@ const ANOMALY_RAW = [
     info: "TRAPPIST-1 — an ultracool red-dwarf star 40 ly away with SEVEN Earth-sized rocky planets, three in the habitable zone. The most planets ever found around one star — and one of the best places to hunt for life beyond the solar system.",
     visit: { kind: "focus", cameraTarget: frame([-52, -22, -40], 40, 9, 46) },
   },
+  // ── Wave 2: scale & mystery (cosmological deep field) ──
+  {
+    id: "omegacen", label: "Omega Centauri", category: "Star cluster", color: "#ffe9c2", position: [-58, 30, -44],
+    info: "Omega Centauri — the largest, brightest globular cluster orbiting the Milky Way: ~10 million ancient stars packed into a glittering ball. Hubble (2024-25) found signs of an intermediate-mass black hole hiding at its core — a missing link between stellar and supermassive black holes.",
+    visit: { kind: "focus", cameraTarget: frame([-58, 30, -44], 16, 4, 46) },
+  },
+  {
+    id: "ligo-gw", label: "Gravitational Wave", category: "Gravitational wave", color: "#9fd0ff", position: [52, -28, 36],
+    info: "A gravitational-wave chirp (LIGO O4, e.g. GW250114) — two black holes spiralling together and merging, ringing spacetime itself. LIGO 'hears' the last orbits as a rising chirp; the merger can briefly outshine every star in the observable universe in gravitational energy.",
+    visit: { kind: "focus", cameraTarget: frame([52, -28, 36], 12, 3, 46) },
+  },
+  {
+    id: "reddots", label: "Little Red Dots", category: "Deep field", color: "#e0563f", position: [-50, -34, 30],
+    info: "JWST's 'little red dots' — a surprise population of tiny, intensely red, compact objects from the universe's first billion years. Dust-shrouded baby galaxies, or overfed early black holes? Either way they're rewriting how fast cosmic structure grew.",
+    visit: { kind: "focus", cameraTarget: frame([-50, -34, 30], 14, 3, 46) },
+  },
+  {
+    id: "bootes-void", label: "Boötes Void", category: "Cosmic void", color: "#8aa0d8", position: [-44, 38, 28],
+    info: "The Boötes Void — a near-empty bubble of space ~330 million light-years across, one of the largest known voids. So empty that if the Milky Way sat at its centre, we'd not have known other galaxies existed until the 1960s.",
+    visit: { kind: "focus", cameraTarget: frame([-44, 38, 28], 24, 6, 48) },
+  },
+  {
+    id: "great-attractor", label: "Great Attractor", category: "Cosmic structure", color: "#ffd0a0", position: [60, 20, -40],
+    info: "The Great Attractor — a gravitational anomaly at the heart of Laniakea, our home supercluster. It is pulling the Milky Way and 100,000 other galaxies toward it at ~600 km/s, hidden behind our own galaxy's disk (the 'Zone of Avoidance').",
+    visit: { kind: "focus", cameraTarget: frame([60, 20, -40], 22, 5, 48) },
+  },
+  {
+    id: "hcb-wall", label: "Hercules–Corona Wall", category: "Cosmic structure", color: "#a0b6ff", position: [-64, -10, -48],
+    info: "The Hercules–Corona Borealis Great Wall — the largest known structure in the universe: a filament of galaxies roughly 10 billion light-years across. It is so big it challenges the assumption that the universe looks the same everywhere.",
+    visit: { kind: "focus", cameraTarget: frame([-64, -10, -48], 28, 7, 48) },
+  },
+  // ── Wave 3: diegetic megastructure cameos (deep field) ──
+  {
+    id: "monolith", label: "The Monolith", category: "Megastructure", color: "#3a4a6a", position: [-56, 8, -36],
+    info: "A perfectly black slab in the exact ratio 1 : 4 : 9 (the squares of the first three integers), turning silently in the dark — 2001: A Space Odyssey. Wherever it appears, something is about to change.",
+    visit: { kind: "focus", cameraTarget: frame([-56, 8, -36], 9, 2, 44) },
+  },
+  {
+    id: "haloring", label: "Halo Installation", category: "Megastructure", color: "#7fb0a0", position: [58, -14, -30],
+    info: "A Forerunner Halo — a ribbon-world curved into a ring you live on the INSIDE of, spun for gravity, the far side arcing overhead. Beautiful, and built as a weapon of last resort (Halo).",
+    visit: { kind: "focus", cameraTarget: frame([58, -14, -30], 13, 3, 46) },
+  },
+  {
+    id: "dyson", label: "Dyson Swarm", category: "Megastructure", color: "#ffd070", position: [-48, -28, -34],
+    info: "A Dyson swarm under construction — a Kardashev Type-II project wrapping a star in collectors to harvest its entire energy output. Still half-built; one arc is bare.",
+    visit: { kind: "focus", cameraTarget: frame([-48, -28, -34], 12, 3, 46) },
+  },
+  {
+    id: "solgate", label: "The Ring", category: "Megastructure", color: "#3a6a8a", position: [46, 26, -32],
+    info: "A protomolecule-built gate ring hanging silent in the dark — pass through its membrane into the 'slow zone' and the hub of a thousand gates (The Expanse).",
+    visit: { kind: "focus", cameraTarget: frame([46, 26, -32], 11, 3, 46) },
+  },
+  {
+    id: "citadel", label: "The Citadel", category: "Megastructure", color: "#9ab0c4", position: [-52, 18, -30],
+    info: "A vast deep-space station — five Ward arms that can close like a flower around the central Presidium ring. Built, it turns out, by the Reapers as a trap (Mass Effect).",
+    visit: { kind: "focus", cameraTarget: frame([-52, 18, -30], 11, 3, 46) },
+  },
 ];
 
 /* Free-floating cosmic objects (not tied to a planet) are pulled IN FRONT of the
@@ -206,6 +333,7 @@ const ANOMALY_RAW = [
 const FRONT_OF_SUN_CATEGORIES = new Set([
   "Black hole", "Portal", "Neutron star", "Mystery", "Interstellar object", "Interstellar comet", "Comet",
   "Brown dwarf", "Rogue planet", "Supernova remnant", "Star system", "Star cluster",
+  "Nebula", "Gravitational lens", "Gravitational wave", "Deep field", "Cosmic void", "Cosmic structure", "Megastructure",
 ]);
 const ANOMALY_OBJECTS = ANOMALY_RAW.map((o) => {
   const front = FRONT_OF_SUN_CATEGORIES.has(o.category);

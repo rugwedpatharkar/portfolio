@@ -1,4 +1,4 @@
-/* eslint-disable react/prop-types */
+ 
 import { motion } from "motion/react";
 
 const pathTransition = (delay = 0) => ({

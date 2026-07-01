@@ -1,4 +1,4 @@
-/* eslint-disable react/prop-types */
+ 
 /*
  * <ResponsiveImage> — picks AVIF where the browser supports it, falls back to
  * WebP, then the original PNG. Quality is preserved (AVIF q70, WebP q88) so

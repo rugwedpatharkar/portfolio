@@ -1,4 +1,4 @@
-/* eslint-disable react/prop-types */
+ 
 import { useEffect, useRef, useState } from "react";
 import { DESTINATIONS } from "./config/destinations";
 import useViewport from "./useViewport";
@@ -82,13 +82,13 @@ const SpeedRun = ({ activeIdx, active = false, onToggle }) => {
         background: "rgba(255, 224, 102, 0.12)",
         backdropFilter: "blur(10px)", WebkitBackdropFilter: "blur(10px)",
         border: "1px solid rgba(255, 224, 102, 0.5)",
-        fontFamily: "'JetBrains Mono', monospace", fontSize: 11,
+        fontFamily: "'Martian Mono', monospace", fontSize: 11,
         color: "#ffe066", zIndex: 48, cursor: "pointer", userSelect: "none",
       }}
     >
       <span style={{ fontSize: 13 }}>⚡</span>
       <span style={{ letterSpacing: "0.12em" }}>SPEED RUN</span>
-      <span style={{ color: done ? "#00cea8" : "#ffe066", fontWeight: 600 }}>{fmt(elapsed)}</span>
+      <span style={{ color: done ? "#2fe0b0" : "#ffe066", fontWeight: 600 }}>{fmt(elapsed)}</span>
       {best != null && <span style={{ color: "rgba(255,255,255,0.4)", fontSize: 9 }}>BEST {fmt(best)}</span>}
     </div>
   );

@@ -1,5 +1,5 @@
-/* eslint-disable react/prop-types */
-/* eslint-disable react/no-unknown-property */
+ 
+ 
 import { useRef } from "react";
 import { useFrame } from "@react-three/fiber";
 import { Html } from "@react-three/drei";
@@ -40,7 +40,7 @@ const Label = ({ d }) => {
     >
       <div
         style={{
-          fontFamily: "'JetBrains Mono', monospace",
+          fontFamily: "'Martian Mono', monospace",
           fontSize: 13,
           fontWeight: 600,
           color: "white",
@@ -52,7 +52,7 @@ const Label = ({ d }) => {
       </div>
       <div
         style={{
-          fontFamily: "'JetBrains Mono', monospace",
+          fontFamily: "'Martian Mono', monospace",
           fontSize: 9.5,
           color: d.color,
           letterSpacing: "0.12em",

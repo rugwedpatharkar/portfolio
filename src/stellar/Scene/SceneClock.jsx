@@ -1,4 +1,4 @@
-/* eslint-disable react/prop-types, react-refresh/only-export-components */
+ 
 import { createContext, useContext } from "react";
 import { useFrame } from "@react-three/fiber";
 
