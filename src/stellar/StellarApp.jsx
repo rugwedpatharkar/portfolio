@@ -39,7 +39,10 @@ import V3Style from "./v3/V3Style";
 
 /* Hash → destination utilities */
 const findDestinationIndexByHash = (hash) => {
-  const id = hash?.replace(/^#\/?stellar\/?/, "").replace(/^#/, "");
+  const id = hash
+    ?.replace(/^#v3\/?/, "")
+    .replace(/^#\/?stellar\/?/, "")
+    .replace(/^#/, "");
   if (!id) return -1;
   return DESTINATIONS.findIndex((d) => d.id === id || d.section === id);
 };
@@ -204,8 +207,9 @@ const StellarApp = ({ v3 = false }) => {
       activeIdxRef.current = idx;
       itemIdxRef.current = -1;
       setItemIdx(-1); // arrive in planet-view; ←→ flies out to the lane objects
-      /* Sync URL hash without re-scrolling */
-      const next = `#/stellar/${dest.id}`;
+      /* Sync URL hash without re-scrolling — keep the active route prefix so a
+         reload stays on #v3 (rewriting to #/stellar/… dropped v3 back to v2). */
+      const next = `${v3 ? "#v3" : "#/stellar"}/${dest.id}`;
       if (window.location.hash !== next) {
         window.history.replaceState(null, "", next);
       }
@@ -214,7 +218,7 @@ const StellarApp = ({ v3 = false }) => {
       /* Persist visited stops (powers "stops X/12" + the return greeting). */
       markVisited(dest.id);
     }
-  }, []);
+  }, [v3]);
 
   /* (Camera focus is set synchronously in navTo/navPlanet/navItem below — not in
      an effect — to avoid the frame-loop seeing a stale/null focus on the nav

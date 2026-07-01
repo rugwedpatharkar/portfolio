@@ -30,9 +30,11 @@ export const DESTINATIONS = [
     color: "#ff9a3c",
     texture: "/textures/planets/sunmap.jpg",
     section: "hero",
-    /* Closer + lower to make the giant Sun the dominant hero anchor (was z:100
-       fov:60 — too small/empty). Near the ecliptic. */
-    cameraTarget: { position: [0, 6, 60], lookAt: [0, 0, 0], fov: 50 },
+    /* v3 hero — the whole-system establishing shot, REVERSED: pull back and aim
+       left of the Sun so the giant star sits on the FAR RIGHT and the left half
+       stays dark for the info column. (Was [0,6,60]/lookAt origin — Sun centred,
+       washed out the text.) */
+    cameraTarget: { position: [10, 7, 104], lookAt: [-24, 2, 0], fov: 43 },
   },
 
   // Inner system
