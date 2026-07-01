@@ -257,7 +257,7 @@ const Scene = ({ scrollT, activeIdx, itemIdx = 0, onJump, onReady, freeRoamEnabl
         {showExtras && <ZodiacalLight />}
         {/* Named constellations (Orion, Big Dipper, Cassiopeia) that fade in
             when the camera holds still — built but previously unmounted. */}
-        {showExtras && !isMobile && <Constellations scrollTRef={scrollT} />}
+        {showExtras && !isMobile && !v3 && <Constellations scrollTRef={scrollT} />}
         {/* The edge anomaly — Gargantua, out in front of the camera (behind the
             Sun, −X) so it's a visible deep-space landmark throughout the tour
             rather than hidden off to the +X side behind the viewer. */}
