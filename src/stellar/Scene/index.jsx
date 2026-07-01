@@ -544,9 +544,10 @@ const Scene = ({ scrollT, activeIdx, itemIdx = 0, onJump, onReady, freeRoamEnabl
              stays visible). The rig reads these to gate the flight + flyingRef. */
           reducedMotion={reducedMotion}
           isMobile={isMobile}
-          /* Desktop frames the planet right-of-centre to clear the left
-             content column; compact/mobile keep it centred (stacked layout). */
-          frameShift={0}
+          v3={v3}
+          /* v3 desktop = cinematic split: each planet framed LARGE on the RIGHT so
+             the left info column has room. (v2 kept it centred; compact/mobile stack.) */
+          frameShift={v3 && !isMobile ? 0.42 : 0}
         />
       </Suspense>
 

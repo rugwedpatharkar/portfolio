@@ -166,7 +166,10 @@ const visualExtentFor = (dest) => {
   if (dest.oblateness) ext = Math.max(ext, r * (1 + dest.oblateness));
   return ext;
 };
-const backDistFor = (extent) => Math.max(BACK_FLOOR, (extent / Math.tan(BACKLIT_HALF_ANGLE)) * BACKLIT_MARGIN);
+const backDistFor = (extent, halfAngle = BACKLIT_HALF_ANGLE) => Math.max(BACK_FLOOR, (extent / Math.tan(halfAngle)) * BACKLIT_MARGIN);
+/* v3 frames each planet LARGER (fills the frame) and pushed to the right — the
+   cinematic split shot (big body right, info left). Bigger half-angle = closer = bigger. */
+const V3_HALF_ANGLE = 20 * DEG;
 
 const CameraRig = ({
   scrollT,
@@ -183,6 +186,7 @@ const CameraRig = ({
   frameShift = 0,
   reducedMotion = false,
   isMobile = false,
+  v3 = false,
 }) => {
   const { camera } = useThree();
   const sceneClock = useSceneClock();
@@ -427,10 +431,10 @@ const CameraRig = ({
           /* up ⟂ the travel direction (cinematic lift). */
           _upp.copy(UP).addScaledVector(_dir, -UP.dot(_dir));
           if (_upp.lengthSq() < 1e-6) _upp.set(0, 1, 0); else _upp.normalize();
-          let D = k >= 0 ? FOCUS_DIST : backDistFor(visualExtentFor(tgt));
+          let D = k >= 0 ? FOCUS_DIST : backDistFor(visualExtentFor(tgt), v3 ? V3_HALF_ANGLE : BACKLIT_HALF_ANGLE);
           /* Keep the right-of-centre body fully in frame: a small pull-back to make
-             up for the frameShift aim-shift on desktop. */
-          if (frameShift && k < 0) D *= 1 + frameShift * 0.25;
+             up for the frameShift aim-shift on desktop. (v3 wants it big → minimal.) */
+          if (frameShift && k < 0) D *= 1 + frameShift * (v3 ? 0.1 : 0.25);
           focusBack.current = D;
           /* Camera BEHIND the body (−dir), gently lifted; LOOK AT THE BODY CENTRE so
              it sits centred + fully visible (the look-ahead lives only in the
