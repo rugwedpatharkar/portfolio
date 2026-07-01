@@ -440,8 +440,9 @@ const Scene = ({ scrollT, activeIdx, itemIdx = 0, onJump, onReady, freeRoamEnabl
         })}
 
         {!isMobile && <LensFlare position={[0, 0, 0]} />}
-        {/* Orrery rings — the real orbital structure, shown in the system view. */}
-        {showExtras && <OrbitRings wideRef={wideRef} />}
+        {/* Orrery rings — the real orbital structure. Shown in overview mode AND on
+            the v3 system-overview hero (stop 0). */}
+        {showExtras && <OrbitRings wideRef={wideRef} show={v3 && activeIdx === 0} />}
         {/* Dwarf planets + named belt bodies (Vesta, Eris, Makemake, Haumea). */}
         {showExtras && <DwarfPlanets animate={!reducedMotion} />}
         {/* The asteroid + Kuiper belts as BACKGROUND scenery (no longer tour

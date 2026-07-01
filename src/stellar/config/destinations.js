@@ -32,9 +32,11 @@ export const DESTINATIONS = [
     position: [0, 0, 0],
     radius: 0,
     section: "hero",
-    /* Aim far to the left of the Sun so the disc sits at the EXTREME right edge
-       (partially cropped), leaving the whole left+centre dark for the info. */
-    cameraTarget: { position: [12, 8, 118], lookAt: [-58, 2, 0], fov: 41 },
+    /* v3 system overview — a zoomed-out 3/4 top-down of the real system: the full
+       Sun sits upper-right, the orbit rings + asteroid belt sweep down-left, planets
+       small on their orbits. High Y so the ellipses read cleanly (OrbitRings shows).
+       Framed to reach ~the asteroid belt (2.1–3.3 AU ≈ 200–314u). */
+    cameraTarget: { position: [85, 200, 340], lookAt: [-155, -55, 35], fov: 40 },
   },
   {
     id: "sol",

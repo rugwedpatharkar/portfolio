@@ -29,18 +29,22 @@ const ORBITS = DESTINATIONS.filter((d) => d.kind === "planet").map((d) => {
   return { id: d.id, pts, color: d.color || "#cfd6ff" };
 });
 
-const OrbitRings = ({ wideRef }) => {
+const OrbitRings = ({ wideRef, show = false }) => {
   const groupRef = useRef();
   const { camera } = useThree();
   useFrame(() => {
     const g = groupRef.current;
     if (!g) return;
-    const on = !!wideRef?.current; // overview-only; never shown in the tour
+    const on = !!wideRef?.current || show; // overview mode OR the v3 system-overview hero
     g.visible = on;
     if (!on) return;
-    /* Fade out as the camera nears the orbit plane (edge-on), so the ellipses only
-       show when they read cleanly from above and never collapse into the stray
-       converging lines you get edge-on. elevation: 0 = in-plane, 1 = straight down. */
+    /* v3 hero (show) → fixed opacity so the whole system's orbits read cleanly.
+       Overview mode → fade out as the camera nears the orbit plane (edge-on) so the
+       ellipses never collapse into stray converging lines. */
+    if (show && !wideRef?.current) {
+      g.children.forEach((c) => { if (c.material) c.material.opacity = 0.3; });
+      return;
+    }
     const p = camera.position;
     const elevation = Math.abs(p.y) / (p.length() || 1);
     const fade = THREE.MathUtils.clamp((elevation - 0.12) / 0.33, 0, 1);
