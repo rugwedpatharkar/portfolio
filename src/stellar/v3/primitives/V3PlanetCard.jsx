@@ -17,13 +17,12 @@
  */
 import { useReducedMotion } from "motion/react";
 
+/* Compact card — only 3 headline rows so the whole card fits ABOVE the sun's
+   top edge (~29% viewport y). Full spec sheet lives in the resume content below. */
 const FACT_ROWS = [
   ["Diameter", "diameter"],
   ["Distance", "distance"],
-  ["Day", "day"],
-  ["Year", "year"],
   ["Gravity", "gravity"],
-  ["Temp", "temp"],
 ];
 
 export default function V3PlanetCard({ facts, hidden = false }) {
@@ -110,11 +109,6 @@ export default function V3PlanetCard({ facts, hidden = false }) {
             </div>
           ))}
         </div>
-        {facts.wow && (
-          <div style={{ marginTop: 12, paddingTop: 10, borderTop: "1px solid var(--v3-line)", font: "300 .78rem var(--v3-font-ui)", color: "var(--v3-fg-dim)", lineHeight: 1.5, fontStyle: "italic" }}>
-            {facts.wow}
-          </div>
-        )}
       </div>
       {/* the CSS reveal — hover the hot zone OR the card itself reveals it. Native
           CSS = zero JS overhead + fully reduced-motion safe (media query below). */}
