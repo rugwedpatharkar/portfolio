@@ -44,36 +44,36 @@ const Navigator = ({ scrollTRef, onDestinationChange }) => {
     requestAnimationFrame(raf);
 
     const N = DESTINATIONS.length;
-    /* `settled` = the stop the user is currently resting on. A single user swipe/
-       scroll gesture may only advance the committed stop by ONE from here — so a
-       fast flick's momentum can't skip a planet (the "one swipe lands two planets
-       ahead" bug). Programmatic jumps (handleJump → deep-link / rail / palette /
-       overview-map, flagged via window.__stellarJumping) are followed EXACTLY, uncapped. */
-    let settled = Math.round(lenis.progress * (N - 1)) || 0;
+    /* One user gesture may only advance the committed stop by ±1 (fixes "one swipe
+       skips a planet"). The base stop is snapshotted at the START of a gesture and
+       HELD until the scroll goes fully idle — so a flick's momentum AND the magnetic
+       snap's own glide stay capped to base±1 and can never re-commit in the reverse
+       direction. (That reverse re-commit is what flipped the camera BEHIND the planet
+       facing the Sun — an inward hop — on a forward swipe.) Programmatic jumps
+       (window.__stellarJumping: deep-link / rail / palette / map / keys) are uncapped. */
     let committed = -1;
+    let gestureBase = Math.round(lenis.progress * (N - 1)) || 0;
+    let inGesture = false;
     let snapTimer = null;
+    let idleTimer = null;
 
     const commitTo = (idx) => {
       if (idx === committed) return;
       committed = idx;
       onDestinationChange?.(DESTINATIONS[idx]);
     };
-    /* Target stop for the current scroll position: a programmatic jump takes the
-       exact nearest; a user gesture is capped to settled ± 1. */
     const targetFor = (raw) => {
       const nearest = Math.round(raw);
-      return window.__stellarJumping ? nearest : Math.max(settled - 1, Math.min(settled + 1, nearest));
+      return window.__stellarJumping ? nearest : Math.max(gestureBase - 1, Math.min(gestureBase + 1, nearest));
     };
 
     /* Magnetic snap on settle: glide to the (capped) target so you never rest parked
-       between two bodies, and lock it in as the new `settled` base. Debounced — the
-       snap's own scroll keeps resetting the timer, converging in one move. */
+       between two bodies. Debounced — the snap's own scroll keeps resetting the timer,
+       converging in one move. Does NOT move gestureBase (idle reset owns that). */
     const trySnap = () => {
       const p = lenis.progress;
       const target = Math.max(0, Math.min(N - 1, targetFor(p * (N - 1))));
-      settled = target;
       commitTo(target);
-      window.__stellarJumping = false; // jump consumed once we settle
       const targetP = target / (N - 1);
       if (Math.abs(p - targetP) > 0.004) {
         const max =
@@ -89,21 +89,31 @@ const Navigator = ({ scrollTRef, onDestinationChange }) => {
       scrollTRef.current = progress;
       invalidate(); // request a Three.js render
 
-      /* Commit within a deadband around the target (kills the round() oscillation at
-         the .5 boundary that used to re-fire the warp). The target is capped to
-         settled±1 for user gestures, so a fast swipe commits at most one stop ahead
-         and the snap below glides any overshoot back. */
+      /* First scroll after idle = a new gesture → snapshot the base stop we depart from. */
+      if (!inGesture) {
+        inGesture = true;
+        gestureBase = committed >= 0 ? committed : Math.round(progress * (N - 1));
+      }
+
+      /* Commit within a deadband around the (capped) target — kills the round()
+         oscillation at the .5 boundary AND caps a fast swipe to one stop ahead. */
       const raw = progress * (N - 1);
       const target = Math.max(0, Math.min(N - 1, targetFor(raw)));
       if (Math.abs(raw - target) < 0.35) commitTo(target);
 
       if (snapTimer) clearTimeout(snapTimer);
       snapTimer = setTimeout(trySnap, 150);
+      /* The gesture (and any programmatic-jump flag) ends only after the scroll —
+         snap glide included — has been idle a beat, so the next swipe departs from
+         the freshly-committed stop. */
+      if (idleTimer) clearTimeout(idleTimer);
+      idleTimer = setTimeout(() => { inGesture = false; window.__stellarJumping = false; }, 220);
     };
     lenis.on("scroll", onScroll);
 
     return () => {
       if (snapTimer) clearTimeout(snapTimer);
+      if (idleTimer) clearTimeout(idleTimer);
       lenis.destroy();
       lenisRef.current = null;
     };
