@@ -27,8 +27,8 @@ const ProjectCard = ({ p, delay }) => {
     <V3Scan variant="plot" delay={delay}>
       <div style={{
         position: "relative",
-        display: "flex", flexDirection: "column", gap: 8,
-        padding: "14px 16px 14px",
+        display: "flex", flexDirection: "column", gap: 6,
+        padding: "11px 13px 11px",
         border: "1px solid var(--v3-line)",
         borderRadius: 6,
         background: "color-mix(in oklab, var(--v3-bg-void) 55%, transparent)",
@@ -53,12 +53,12 @@ const ProjectCard = ({ p, delay }) => {
           letterSpacing: "-.005em", color: "var(--v3-fg)", fontOpticalSizing: "auto",
         }}>{p.name}</div>
 
-        {/* description clamped to 2 lines to fit 3 rows in 88vh */}
+        {/* description clamped to 3 lines — enough to convey the pitch */}
         <p style={{
           fontFamily: "var(--v3-font-ui)", fontWeight: 300,
-          fontSize: "clamp(.76rem, 0.85vw, .84rem)",
-          color: "var(--v3-fg-dim)", lineHeight: 1.45, margin: 0,
-          display: "-webkit-box", WebkitLineClamp: 2, WebkitBoxOrient: "vertical",
+          fontSize: "clamp(.72rem, 0.78vw, .8rem)",
+          color: "var(--v3-fg-dim)", lineHeight: 1.4, margin: 0,
+          display: "-webkit-box", WebkitLineClamp: 3, WebkitBoxOrient: "vertical",
           overflow: "hidden",
         }}>{p.description}</p>
 
@@ -120,9 +120,12 @@ export default function ProjectsSection({ index, bootNonce }) {
       index={index}
       scanDir="plot"
       scanKey={bootNonce}
-      gridAreas={`"top top top" "left left ." "left left ." "bottom bottom bottom"`}
+      /* Narrower than Experience: 'left' back to col 1 only. User wants portrait
+         cards that read as taller than wide — narrower content section forces
+         each card to compress horizontally and grow vertically. */
+      gridAreas={`"top top top" "left . ." "left . ." "bottom bottom bottom"`}
     >
-      <div style={{ gridArea: "left", display: "flex", flexDirection: "column", gap: 16, minWidth: 0, overflow: "hidden", maxWidth: "65vw" }}>
+      <div style={{ gridArea: "left", display: "flex", flexDirection: "column", gap: 14, minWidth: 0, overflow: "hidden", maxWidth: "55vw" }}>
         {/* Header */}
         <V3Scan variant="horizontal" delay={0.05}>
           <div>

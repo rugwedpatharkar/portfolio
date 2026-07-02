@@ -391,7 +391,10 @@ const Scene = ({ scrollT, activeIdx, itemIdx = 0, onJump, onReady, freeRoamEnabl
                   {showExtras && !isMobile && !naturalOnly && (
                     <RocketLaunch earthRadius={d.radius} animate={!reducedMotion} />
                   )}
-                  {showExtras && <HomeCallout earthRadius={d.radius} />}
+                  {/* HomeCallout is a v2 feature — in v3 the top-right Body
+                      Telemetry card is the equivalent 'who/where' readout, and
+                      the callout would visually compete + underlap dossier cards. */}
+                  {showExtras && !v3 && <HomeCallout earthRadius={d.radius} />}
                   {/* 2026 eclipses — the Moon's umbra drifting across Earth's day side. */}
                   {showExtras && <EclipseShadow earthRadius={d.radius} animate={!reducedMotion} />}
                   {showExtras && !naturalOnly && (
