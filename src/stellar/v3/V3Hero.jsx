@@ -81,7 +81,7 @@ export default function V3Hero() {
       </motion.div>
 
       {/* name — masked line reveal, italic accent surname */}
-      <h1 style={{ font: `340 var(--v3-type-s6) var(--v3-font-display)`, fontSize: isCompact ? "clamp(2.6rem, 13vw, 4.4rem)" : undefined, fontOpticalSizing: "auto", lineHeight: 0.9, letterSpacing: "-.025em", color: "var(--v3-fg)", margin: ".16em 0 .1em" }}>
+      <h1 style={{ fontFamily: "var(--v3-font-display)", fontWeight: 340, fontSize: isCompact ? "clamp(2.6rem, 13vw, 4.4rem)" : "var(--v3-type-s6)", fontOpticalSizing: "auto", lineHeight: 0.9, letterSpacing: "-.025em", color: "var(--v3-fg)", margin: ".16em 0 .1em" }}>
         <span style={maskLine}><motion.span style={{ display: "block" }} variants={lineRise}>{first}</motion.span></span>
         <span style={maskLine}><motion.span style={{ display: "block" }} variants={lineRise}><em style={{ fontStyle: "italic", fontWeight: 380, color: "var(--v3-accent)" }}>{last}</em></motion.span></span>
       </h1>

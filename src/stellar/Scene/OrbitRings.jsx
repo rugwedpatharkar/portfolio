@@ -1,129 +1,85 @@
 /* eslint-disable react/no-unknown-property */
 import { useMemo, useRef } from "react";
-import { useFrame, useThree } from "@react-three/fiber";
+import { useFrame } from "@react-three/fiber";
+import { useTexture } from "@react-three/drei";
 import * as THREE from "three";
 import { DESTINATIONS } from "../config/destinations";
-import { getOrbit, orbitalPosition } from "../config/orbits";
+import { orbitalPosition } from "../config/orbits";
 import { useSceneClock } from "./SceneClock";
 
 /*
- * Faint orbital trails + REAL revolving planets. Each planet's true eccentric
- * orbit (Sun at a focus, tilted by inclination) is sampled from the SAME Kepler
- * params the planets fly on (config/orbits), so each gold hairline passes exactly
- * through its planet. Riding each orbit is a small LIT planet proxy — a sphere
- * shaded by the Sun (real day/night terminator), sized by the planet's true
- * relative radius, with Saturn's ring — tracking its live orbital position so the
- * whole system visibly revolves. Shown in overview mode + the v3 hero.
+ * v3 SYSTEM-OVERVIEW MAP (first page). The tour is true 1:1 scale, so Neptune sits
+ * ~77× farther than Mercury — at real distance only the inner planets fit on one
+ * screen. So the OVERVIEW uses a COMPRESSED radial layout: evenly-spaced concentric
+ * orbits (anchored to the inner-system distance range that already frames well) so
+ * ALL planets are visible small — an artistic system map for stop 0 ONLY. The tour
+ * itself still flies to each body at its true distance (unchanged).
+ *
+ * Each proxy is TEXTURED with the planet's real NASA map (so it reads as a miniature
+ * of what you see in that planet's section), sized by true relative radius, revolving
+ * at its live orbital angle around the Sun at the origin; Saturn keeps its ring.
+ *
+ * INNER/OUTER are the tuning knobs for how tightly the map packs into the frame.
  */
-const SAMPLES = 256;
-
-/* Sun-lit sphere: simple Lambert against the world-space direction to the Sun
-   (at the scene origin) + a little ambient fill, so each proxy reads as a real
-   little planet with a lit limb and a dark side — not a flat dot or a glow. */
-const PLANET_VERT = /* glsl */ `
-  varying vec3 vWN;
-  void main() {
-    vWN = normalize(mat3(modelMatrix) * normal);
-    gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
-  }
-`;
-const PLANET_FRAG = /* glsl */ `
-  varying vec3 vWN;
-  uniform vec3 uColor;
-  uniform vec3 uSunDir;
-  uniform float uAmbient;
-  void main() {
-    float d = max(dot(normalize(vWN), normalize(uSunDir)), 0.0);
-    float lit = uAmbient + (1.0 - uAmbient) * d;
-    gl_FragColor = vec4(uColor * lit, 1.0);
-  }
-`;
+const SEG = 128;
+const INNER = 45; // compressed radius of the innermost orbit (Mercury)
+const OUTER = 300; // outermost (Pluto) — within the range that frames cleanly
 
 const PLANETS = DESTINATIONS.filter((d) => d.kind === "planet");
 const MAX_R = Math.max(...PLANETS.map((d) => d.radius));
+const N = PLANETS.length;
 
-const ORBITS = PLANETS.map((d) => {
-  const o = getOrbit(d);
-  const pts = new Float32Array(SAMPLES * 3);
-  for (let k = 0; k < SAMPLES; k++) {
-    const th = (k / (SAMPLES - 1)) * Math.PI * 2;
-    const r = o.e ? o.p / (1 + o.e * Math.cos(th)) : o.p; // conic, Sun at focus
-    const x = Math.cos(th) * r;
-    const zp = Math.sin(th) * r;
-    pts[k * 3] = x;
-    pts[k * 3 + 1] = o.y + zp * o.sinInc; // lift by orbital inclination
-    pts[k * 3 + 2] = zp * o.cosInc;
+const ORBITS = PLANETS.map((d, i) => {
+  const rc = N > 1 ? INNER + (OUTER - INNER) * (i / (N - 1)) : INNER; // compressed radius
+  const pts = new Float32Array(SEG * 3);
+  for (let k = 0; k < SEG; k++) {
+    const th = (k / (SEG - 1)) * Math.PI * 2;
+    pts[k * 3] = Math.cos(th) * rc;
+    pts[k * 3 + 1] = 0; // flat ecliptic circle; the high overview camera renders it as an ellipse
+    pts[k * 3 + 2] = Math.sin(th) * rc;
   }
-  /* Compress the huge true radius spread (Jupiter 2.0 → Pluto 0.034) into a
-     visible-but-still-ordered proxy size so gas giants read bigger. */
-  const size = 3.2 + 8.4 * Math.sqrt(d.radius / MAX_R);
-  return {
-    id: d.id,
-    dest: d,
-    pts,
-    color: "#d4af85", // uniform premium gold hairline
-    body: d.color || "#cfd6ff",
-    size,
-    rings: !!d.rings,
-    ringColor: d.ringColor || "#f0d9a0",
-    tilt: d.axialTilt || 0,
-  };
+  const size = 3.5 + 7.5 * Math.sqrt(d.radius / MAX_R); // gas giants read bigger
+  return { id: d.id, dest: d, pts, rc, size, tex: d.texture, rings: !!d.rings, ringColor: d.ringColor || "#f0d9a0" };
 });
 
-const _sun = new THREE.Vector3();
+const _p = new THREE.Vector3();
 
 const OrbitRings = ({ wideRef, show = false }) => {
   const linesRef = useRef();
   const markersRef = useRef();
-  const { camera } = useThree();
   const clock = useSceneClock();
-
-  /* One sun-lit material per proxy (its uSunDir tracks the planet's live spot). */
-  const mats = useMemo(
-    () =>
-      ORBITS.map(
-        (o) =>
-          new THREE.ShaderMaterial({
-            vertexShader: PLANET_VERT,
-            fragmentShader: PLANET_FRAG,
-            uniforms: {
-              uColor: { value: new THREE.Color(o.body) },
-              uSunDir: { value: new THREE.Vector3(1, 0, 0) },
-              uAmbient: { value: 0.16 },
-            },
-          })
-      ),
-    []
-  );
+  /* Reuse each planet's real map — same URLs the full planets load, so drei's
+     loader cache dedupes (no extra download). */
+  const textures = useTexture(ORBITS.map((o) => o.tex));
+  useMemo(() => {
+    (Array.isArray(textures) ? textures : [textures]).forEach((t) => {
+      if (t) t.colorSpace = THREE.SRGBColorSpace;
+    });
+  }, [textures]);
 
   useFrame(() => {
     const lines = linesRef.current, marks = markersRef.current;
     if (!lines) return;
-    const on = !!wideRef?.current || show; // overview mode OR the v3 system-overview hero
+    const on = !!wideRef?.current || show; // overview map / the v3 system-overview hero
     lines.visible = on;
     if (marks) marks.visible = on;
     if (!on) return;
 
-    /* revolve each proxy along its orbit + relight it from the Sun (origin) */
+    /* revolve each proxy: take the planet's LIVE orbital angle, place it on the
+       COMPRESSED circle, and spin it slowly on its axis. */
+    const t = clock?.t || 0;
     if (marks) {
-      const t = clock?.t || 0;
-      marks.children.forEach((m, i) => {
-        if (!ORBITS[i]) return;
-        orbitalPosition(ORBITS[i].dest, t, m.position);
-        _sun.copy(m.position).multiplyScalar(-1); // direction toward the Sun at origin
-        mats[i].uniforms.uSunDir.value.copy(_sun);
+      marks.children.forEach((grp, i) => {
+        const o = ORBITS[i];
+        if (!o) return;
+        orbitalPosition(o.dest, t, _p);
+        const ang = Math.atan2(_p.z, _p.x);
+        grp.position.set(Math.cos(ang) * o.rc, 0, Math.sin(ang) * o.rc);
+        const sphere = grp.children[0];
+        if (sphere) sphere.rotation.y = t * 0.04 + i;
       });
     }
-
-    /* v3 hero (show) → fixed faint opacity; overview → fade near edge-on. */
-    if (show && !wideRef?.current) {
-      lines.children.forEach((c) => { if (c.material) c.material.opacity = 0.16; });
-      return;
-    }
-    const p = camera.position;
-    const elevation = Math.abs(p.y) / (p.length() || 1);
-    const fade = THREE.MathUtils.clamp((elevation - 0.12) / 0.33, 0, 1);
-    lines.children.forEach((c) => { if (c.material) c.material.opacity = 0.24 * fade; });
+    lines.children.forEach((c) => { if (c.material) c.material.opacity = 0.16; });
   });
 
   return (
@@ -134,21 +90,22 @@ const OrbitRings = ({ wideRef, show = false }) => {
             <bufferGeometry>
               <bufferAttribute attach="attributes-position" args={[o.pts, 3]} />
             </bufferGeometry>
-            <lineBasicMaterial color={o.color} transparent opacity={0.16} toneMapped={false} depthWrite={false} blending={THREE.AdditiveBlending} />
+            <lineBasicMaterial color="#d4af85" transparent opacity={0.16} toneMapped={false} depthWrite={false} blending={THREE.AdditiveBlending} />
           </line>
         ))}
       </group>
-      {/* revolving planet proxies — sun-lit spheres at true relative size */}
+      {/* revolving TEXTURED planet proxies at true relative size */}
       <group ref={markersRef} visible={false}>
         {ORBITS.map((o, i) => (
           <group key={o.id}>
-            <mesh material={mats[i]}>
-              <sphereGeometry args={[o.size, 24, 24]} />
+            <mesh>
+              <sphereGeometry args={[o.size, 32, 32]} />
+              <meshBasicMaterial map={Array.isArray(textures) ? textures[i] : textures} color="#d8d8d8" />
             </mesh>
             {o.rings && (
               <mesh rotation={[Math.PI / 2 - 0.4, 0, 0.12]}>
-                <ringGeometry args={[o.size * 1.45, o.size * 2.5, 48]} />
-                <meshBasicMaterial color={o.ringColor} transparent opacity={0.6} side={THREE.DoubleSide} depthWrite={false} />
+                <ringGeometry args={[o.size * 1.5, o.size * 2.6, 48]} />
+                <meshBasicMaterial color={o.ringColor} transparent opacity={0.65} side={THREE.DoubleSide} depthWrite={false} />
               </mesh>
             )}
           </group>

@@ -457,7 +457,11 @@ const CameraRig = ({
             _viewDir.divideScalar(dd);
             _right.crossVectors(_viewDir, UP).normalize();
             const halfW = Math.tan(THREE.MathUtils.degToRad((focus.fov || 42) * 0.5)) * dd * camera.aspect;
-            _lookTarget.addScaledVector(_right, -halfW * frameShift * 0.7);
+            /* Focused planet stops slide the body further right than the overview
+               (the overview uses the full prop below, which must keep the Sun on
+               screen) — so decoupled: a higher multiplier here frames the planet
+               right for the content column without pushing the overview Sun off. */
+            _lookTarget.addScaledVector(_right, -halfW * frameShift * 1.0);
           }
         }
       } else {
