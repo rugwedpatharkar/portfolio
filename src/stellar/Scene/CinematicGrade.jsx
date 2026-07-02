@@ -41,9 +41,9 @@ void mainImage(const in vec4 inputColor, const in vec2 uv, out vec4 outputColor)
   vec3 color = inputColor.rgb;
 
   /* --- BrightnessContrast (postprocessing BrightnessContrastEffect) --- */
-  /* The base contrast already carries the appealing "flare-look" crispness/blacks;
-     uArrival adds only a small extra snap on arrival, then relaxes to that baseline. */
-  float c = contrast + uArrival * 0.025;
+  /* On stop arrival, uArrival (0→1, decaying) momentarily crisps the contrast so
+     the world snaps sharp as the camera settles, then relaxes for reading. */
+  float c = contrast + uArrival * 0.06;
   color += vec3(brightness - 0.5);
   if (c > 0.0) {
     color /= vec3(1.0 - c);

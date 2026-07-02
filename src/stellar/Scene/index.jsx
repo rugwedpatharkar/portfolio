@@ -598,11 +598,11 @@ const Scene = ({ scrollT, activeIdx, itemIdx = 0, onJump, onReady, freeRoamEnabl
           breaks the additive sun/bloom compositing (black flicker). Edge AA
           comes from rendering at native 2× DPR instead. DOF removed, so the
           scene is fully in focus and crisp. */}
-      <ArrivalPulse bloomRef={bloomRef} arrivalRef={arrivalRef} base={isMobile ? 0.75 : 1.0} enabled={!reducedMotion} />
+      <ArrivalPulse bloomRef={bloomRef} arrivalRef={arrivalRef} base={isMobile ? 0.6 : 0.8} enabled={!reducedMotion} />
       <EffectComposer multisampling={0} disableNormalPass>
         <Bloom
           ref={bloomRef}
-          intensity={isMobile ? 0.75 : 1.0}
+          intensity={isMobile ? 0.6 : 0.8}
           luminanceThreshold={0.9}
           luminanceSmoothing={0.5}
           mipmapBlur
@@ -614,7 +614,7 @@ const Scene = ({ scrollT, activeIdx, itemIdx = 0, onJump, onReady, freeRoamEnabl
             realistic colours. */}
         <CinematicGrade
           brightness={0.025}
-          contrast={0.10}
+          contrast={0.04}
           saturation={-0.02}
           vigOffset={0.36}
           vigDarkness={0.38}
