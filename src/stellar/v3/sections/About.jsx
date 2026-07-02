@@ -105,7 +105,15 @@ export default function AboutSection({ index, bootNonce }) {
           </V3Scan>
           <div style={{ display: "flex", flexDirection: "column", justifyContent: "flex-end", minWidth: 0, height: 265, paddingBottom: 4 }}>
             <V3Scan variant="horizontal" delay={0.12}>
-              <div style={{ font: "400 10px var(--v3-font-mono)", letterSpacing: ".28em", textTransform: "uppercase", color: "var(--v3-fg-mute)", marginBottom: 10 }}>
+              <div style={{
+                fontFamily: "var(--v3-font-mono)",
+                fontWeight: 400,
+                fontSize: "clamp(13px, 1.1vw, 16px)",
+                letterSpacing: ".24em",
+                textTransform: "uppercase",
+                color: "var(--v3-fg-dim)",
+                marginBottom: 14,
+              }}>
                 {personalInfo.role}
               </div>
             </V3Scan>
