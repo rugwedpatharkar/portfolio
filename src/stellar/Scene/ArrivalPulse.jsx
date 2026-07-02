@@ -25,7 +25,9 @@ export default function ArrivalPulse({ bloomRef, arrivalRef, base = 0.8, enabled
     if (enabled && pulse.current > 0.001) pulse.current = Math.max(0, pulse.current - dt * 1.5);
     else pulse.current = 0;
     if (arrivalRef) arrivalRef.current = pulse.current;
-    if (bloomRef?.current) bloomRef.current.intensity = base * (1 + pulse.current * 0.28);
+    /* base IS the (now permanent) flare-look bloom; the pulse adds only a gentle
+       extra pop on arrival, settling back to that appealing baseline. */
+    if (bloomRef?.current) bloomRef.current.intensity = base * (1 + pulse.current * 0.1);
   });
 
   return null;
