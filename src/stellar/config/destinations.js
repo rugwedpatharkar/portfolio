@@ -34,11 +34,11 @@ export const DESTINATIONS = [
     position: [0, 0, 0],
     radius: 0,
     section: "hero",
-    /* v3 system overview — a zoomed-out 3/4 top-down of the real system: the full
-       Sun sits upper-right, the orbit rings + asteroid belt sweep down-left, planets
-       small on their orbits. High Y so the ellipses read cleanly (OrbitRings shows).
-       Framed to reach ~the asteroid belt (2.1–3.3 AU ≈ 200–314u). */
-    cameraTarget: { position: [85, 200, 340], lookAt: [-155, -55, 35], fov: 40 },
+    /* v3 system overview — a LOW-angle wide shot so the compressed orbit rings read
+       as flat, cylindrical ellipses (not near-circles) and the system SPANS the whole
+       screen rather than hugging the right. Lower Y = shallower angle = flatter rings;
+       lookAt nearer the Sun centres the system so planets fill the full width. */
+    cameraTarget: { position: [80, 108, 350], lookAt: [-70, -14, 22], fov: 43 },
   },
   {
     id: "sol",

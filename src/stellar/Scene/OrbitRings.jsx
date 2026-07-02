@@ -21,8 +21,8 @@ import { useSceneClock } from "./SceneClock";
  * INNER/OUTER are the tuning knobs for how tightly the map packs into the frame.
  */
 const SEG = 128;
-const INNER = 42; // compressed radius of the innermost orbit (Mercury)
-const OUTER = 215; // outermost (Pluto) — kept < the overview half-field so full orbits stay in frame
+const INNER = 50; // compressed radius of the innermost orbit (Mercury)
+const OUTER = 285; // outermost (Pluto) — wide enough that the flat rings span the full screen width
 
 const PLANETS = DESTINATIONS.filter((d) => d.kind === "planet");
 const MAX_R = Math.max(...PLANETS.map((d) => d.radius));
