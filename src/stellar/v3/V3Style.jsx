@@ -39,6 +39,11 @@ const V3Style = ({ accentKey }) => {
         -webkit-font-smoothing:antialiased;
         text-rendering:optimizeLegibility;
       }
+      /* Cancel the legacy \`* { font-family: Saira }\` reset inside v3 so children
+         inherit their parent's typography instead of falling back to Saira.
+         Without this, any span/div that doesn't inline its own font-family (e.g.
+         V3Ticker's inner span nested inside a DM Serif Display parent) gets Saira. */
+      .stellar-v3 *{font-family:inherit;}
       .stellar-v3 ::selection{background:color-mix(in oklab,var(--v3-accent) 40%,transparent);color:var(--v3-fg);}
       /* Chromeless reading column — kill the (global purple) scrollbar entirely;
          the edge fade + single-open accordion carry the "there's more" signal. */
