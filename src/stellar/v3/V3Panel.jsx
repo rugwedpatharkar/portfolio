@@ -248,7 +248,11 @@ export default function V3Panel({ destination, section, items, bootNonce }) {
   if (Section && !useAccordionFallback()) {
     return (
       <>
-        <div style={{ pointerEvents: "auto", position: "fixed", inset: 0, padding: "clamp(70px, 8vh, 110px) clamp(24px, 4vw, 60px) clamp(60px, 8vh, 90px)", zIndex: 40, display: "flex", overflow: "hidden" }} className="stellar-dossier-frame">
+        {/* pointerEvents:none on the dossier wrapper so pointer-move events pass
+            through to the 3D canvas below — MouseParallax reads canvas pointer,
+            without this the sun never sways. Section content opts back in with
+            pointerEvents:auto on its own child columns. */}
+        <div style={{ pointerEvents: "none", position: "fixed", inset: 0, padding: "clamp(70px, 8vh, 110px) clamp(24px, 4vw, 60px) clamp(60px, 8vh, 90px)", zIndex: 40, display: "flex", overflow: "hidden" }} className="stellar-dossier-frame">
           <Section index={idxOfStop} bootNonce={bootNonce} />
         </div>
         {/* Planet-hover telemetry card — replaces the persistent docked telemetry.

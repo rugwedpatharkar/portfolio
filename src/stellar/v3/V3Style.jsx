@@ -44,6 +44,12 @@ const V3Style = ({ accentKey }) => {
          the edge fade + single-open accordion carry the "there's more" signal. */
       .stellar-v3 .stellar-content-left{scrollbar-width:none;-ms-overflow-style:none;}
       .stellar-v3 .stellar-content-left::-webkit-scrollbar{width:0;height:0;display:none;}
+      /* Dossier pointer routing: dossier wrapper + V3Frame are pointer-events:none
+         so pointer-move passes through to the 3D canvas (needed for MouseParallax
+         → sun sways with cursor). Section content columns opt back in via the
+         inline grid-area attribute so text/buttons stay interactive. */
+      .stellar-dossier-frame [style*="grid-area:"],
+      .stellar-dossier-frame [style*="gridArea:"]{pointer-events:auto;}
       @media (prefers-reduced-motion: reduce){
         .stellar-v3 *{animation-duration:.001ms !important;animation-iteration-count:1 !important;}
       }

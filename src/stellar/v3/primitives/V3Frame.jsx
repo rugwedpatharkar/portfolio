@@ -52,7 +52,12 @@ export default function V3Frame({
         role="region"
         aria-label={`${planet} ${section}`}
         style={{
-          pointerEvents: "auto",
+          /* pointerEvents:none so empty grid cells (e.g. the planet-zone column)
+             pass pointer-move through to the 3D canvas — MouseParallax uses
+             canvas pointer, and without this the sun never sways. Each section's
+             content children opt back in with pointerEvents:auto on their own
+             wrappers (see className="v3-section-content"). */
+          pointerEvents: "none",
           position: "relative",
           width: "100%",
           height: isCompact ? "auto" : "min(88vh, 900px)",
