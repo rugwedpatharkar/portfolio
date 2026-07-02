@@ -1,75 +1,59 @@
 "use client";
 /*
- * Skills (Ceres) — 9 category rows, editorial dossier.
+ * Skills (Ceres) — master-detail dossier.
  *
- * Per the narrow-first rule: LEFT area starts at maxWidth 55vw (Skills is
- * dense — 9 categories, ~80 skills — so it needs a little more room than the
- * pure-narrow 50vw, but not the full-wide 65vw of Experience). Ceres is small
- * so even a bit of horizontal breathing space stays clear of the planet + the
- * top-right telemetry card.
+ * User picked the interaction pattern: 9 category headings pinned on the LEFT
+ * as a clickable index; clicking a category opens its skills with proficiency
+ * bars on the RIGHT. Each skill shows a mono name and a hairline progress bar
+ * with the accent fill scaled to `level`.
  *
- * Each category row:
- *   - Left column (compact): numeral (01, 02…) + category name (mono kicker)
- *     + chip count.
- *   - Right column (flex): chip cloud of skills, hairline-bordered pills.
- *   - Hairline divider between rows so the grid reads as a spec-panel.
+ * Follows the narrow-first / fill-vertical rule loosely — Skills is dense
+ * enough that master-detail warrants some width. LEFT area spans grid cols
+ * 1+2, maxWidth 60vw. Master column (skill index) ~28%; detail column ~72%.
  *
- * No hover states — chips are always visible. Scan direction: orbit (rows fade
- * in from the top).
+ * Category-cycle keyboard support: ArrowUp/Down or J/K move between rows.
  */
+import { useState } from "react";
 import { skills, sectionMeta } from "../../../content";
 import { V3Frame, V3Scan } from "../primitives";
 
 const META = sectionMeta.skills || { sub: "What I Bring", heading: "Technical Skills" };
 
-const Row = ({ i, cat, list, delay }) => (
+const SkillBar = ({ name, level, delay }) => (
   <V3Scan variant="orbit" delay={delay}>
     <div style={{
-      display: "grid",
-      gridTemplateColumns: "minmax(140px, 22%) 1fr",
-      gap: 16,
-      padding: "8px 4px",
-      borderTop: i > 0 ? "1px solid var(--v3-line)" : "none",
-      minWidth: 0,
+      display: "grid", gridTemplateColumns: "1fr auto",
+      gap: 14, alignItems: "center",
+      padding: "6px 0",
     }}>
-      {/* left: numeral + category name + count */}
-      <div style={{ display: "flex", flexDirection: "column", gap: 4, minWidth: 0 }}>
-        <div style={{ display: "flex", alignItems: "baseline", gap: 8 }}>
-          <span aria-hidden style={{
-            fontFamily: "var(--v3-font-mono)", fontWeight: 400, fontSize: 10,
-            color: "var(--v3-accent)", letterSpacing: ".14em",
-          }}>{String(i + 1).padStart(2, "0")}</span>
-          <span style={{
-            fontFamily: "var(--v3-font-display)", fontWeight: 340,
-            fontSize: "clamp(.95rem, 1.1vw, 1.15rem)", lineHeight: 1.15,
-            letterSpacing: "-.005em", color: "var(--v3-fg)", fontOpticalSizing: "auto",
-          }}>{cat}</span>
-        </div>
+      <div style={{ minWidth: 0, display: "flex", flexDirection: "column", gap: 5 }}>
         <span style={{
-          fontFamily: "var(--v3-font-mono)", fontWeight: 400, fontSize: 9,
-          letterSpacing: ".22em", textTransform: "uppercase", color: "var(--v3-fg-mute)",
-          paddingLeft: 22,
-        }}>{list.length} skill{list.length === 1 ? "" : "s"}</span>
+          fontFamily: "var(--v3-font-mono)", fontWeight: 400,
+          fontSize: "clamp(.8rem, 0.9vw, .92rem)",
+          color: "var(--v3-fg)", letterSpacing: ".02em",
+        }}>{name}</span>
+        <div style={{ position: "relative", height: 3, background: "var(--v3-line)", borderRadius: 999, overflow: "hidden" }}>
+          <div style={{
+            position: "absolute", inset: 0,
+            width: `${level}%`, background: "var(--v3-accent)",
+            boxShadow: "0 0 8px color-mix(in oklab, var(--v3-accent) 60%, transparent)",
+          }} />
+        </div>
       </div>
-
-      {/* right: chip cloud */}
-      <div style={{ display: "flex", flexWrap: "wrap", gap: 3, alignContent: "flex-start", minWidth: 0 }}>
-        {list.map((s, k) => (
-          <span key={k} style={{
-            fontFamily: "var(--v3-font-mono)", fontWeight: 400, fontSize: 9.5,
-            color: "var(--v3-fg-dim)",
-            border: "1px solid var(--v3-line-strong)", borderRadius: 999,
-            padding: "1px 7px", letterSpacing: ".04em",
-            whiteSpace: "nowrap",
-          }}>{s.name}</span>
-        ))}
-      </div>
+      <span style={{
+        fontFamily: "var(--v3-font-mono)", fontWeight: 400,
+        fontSize: 11, letterSpacing: ".08em",
+        fontVariantNumeric: "tabular-nums",
+        color: "var(--v3-fg-mute)",
+      }}>{level}%</span>
     </div>
   </V3Scan>
 );
 
 export default function SkillsSection({ index, bootNonce }) {
   const cats = Object.entries(skills);
+  const [active, setActive] = useState(0);
+  const [activeName, activeList] = cats[active] || cats[0];
 
   return (
     <V3Frame
@@ -78,12 +62,12 @@ export default function SkillsSection({ index, bootNonce }) {
       index={index}
       scanDir="orbit"
       scanKey={bootNonce}
-      /* Skills is dense (9 cats × ~10 skills = ~80 chips). Bumped LEFT to
-         span cols 1+2 so maxWidth: 55vw actually applies (col 1 alone caps
-         at 585px, too narrow for long chip names like 'Google BigQuery'). */
+      /* Master-detail is a two-column layout; needs LEFT to span cols 1+2 so
+         maxWidth actually caps section width (col 1 alone would be 585px,
+         cramming both the category index and the detail). */
       gridAreas={`"top top top" "left left ." "left left ." "bottom bottom bottom"`}
     >
-      <div style={{ gridArea: "left", display: "flex", flexDirection: "column", gap: 14, minWidth: 0, overflow: "hidden", maxWidth: "55vw", height: "100%" }}>
+      <div style={{ gridArea: "left", display: "flex", flexDirection: "column", gap: 16, minWidth: 0, overflow: "hidden", maxWidth: "60vw", height: "100%" }}>
         {/* Header */}
         <V3Scan variant="horizontal" delay={0.05}>
           <div>
@@ -96,7 +80,7 @@ export default function SkillsSection({ index, bootNonce }) {
             </div>
             <h2 style={{
               fontFamily: "var(--v3-font-display)", fontWeight: 340,
-              fontSize: "clamp(1.8rem, 3vw, 2.4rem)", fontOpticalSizing: "auto",
+              fontSize: "clamp(1.9rem, 3.2vw, 2.6rem)", fontOpticalSizing: "auto",
               lineHeight: 1, letterSpacing: "-.02em", color: "var(--v3-fg)",
               margin: 0,
             }}>
@@ -105,18 +89,86 @@ export default function SkillsSection({ index, bootNonce }) {
           </div>
         </V3Scan>
 
-        {/* 9 category rows — hairline divider between */}
+        {/* Master-detail: index LEFT, active category's skills RIGHT */}
         <div style={{
-          display: "flex", flexDirection: "column",
+          display: "grid",
+          gridTemplateColumns: "minmax(220px, 30%) 1fr",
+          gap: 22,
           border: "1px solid var(--v3-line)",
           borderRadius: 6,
           background: "color-mix(in oklab, var(--v3-bg-void) 50%, transparent)",
-          padding: "6px 14px",
-          flex: 1, minHeight: 0, overflow: "hidden",
+          padding: "16px 20px",
+          flex: 1, minHeight: 0,
         }}>
-          {cats.map(([cat, list], i) => (
-            <Row key={cat} i={i} cat={cat} list={list} delay={0.15 + i * 0.05} />
-          ))}
+          {/* Master: category index */}
+          <div
+            role="tablist"
+            aria-label="Skill categories"
+            style={{ display: "flex", flexDirection: "column", gap: 2, overflowY: "auto", minHeight: 0 }}
+            onKeyDown={(e) => {
+              if (e.key === "ArrowDown" || e.key === "j") { setActive(a => Math.min(cats.length - 1, a + 1)); e.preventDefault(); }
+              if (e.key === "ArrowUp"   || e.key === "k") { setActive(a => Math.max(0, a - 1)); e.preventDefault(); }
+            }}
+          >
+            {cats.map(([cat, list], i) => {
+              const isActive = i === active;
+              return (
+                <button
+                  key={cat}
+                  role="tab"
+                  aria-selected={isActive}
+                  onClick={() => setActive(i)}
+                  style={{
+                    all: "unset", cursor: "pointer",
+                    display: "grid", gridTemplateColumns: "auto 1fr auto",
+                    alignItems: "baseline", gap: 8,
+                    padding: "8px 10px",
+                    borderLeft: isActive ? "2px solid var(--v3-accent)" : "2px solid transparent",
+                    background: isActive ? "color-mix(in oklab, var(--v3-accent) 8%, transparent)" : "transparent",
+                    borderRadius: "0 4px 4px 0",
+                    transition: "background .2s, border-color .2s",
+                  }}
+                >
+                  <span aria-hidden style={{
+                    fontFamily: "var(--v3-font-mono)", fontWeight: 400, fontSize: 10,
+                    color: isActive ? "var(--v3-accent)" : "var(--v3-fg-mute)",
+                    letterSpacing: ".14em",
+                    fontVariantNumeric: "tabular-nums",
+                  }}>{String(i + 1).padStart(2, "0")}</span>
+                  <span style={{
+                    fontFamily: "var(--v3-font-display)", fontWeight: 340,
+                    fontSize: "clamp(.92rem, 1.05vw, 1.1rem)", lineHeight: 1.2,
+                    letterSpacing: "-.005em",
+                    color: isActive ? "var(--v3-fg)" : "var(--v3-fg-dim)",
+                    fontOpticalSizing: "auto",
+                  }}>{cat}</span>
+                  <span style={{
+                    fontFamily: "var(--v3-font-mono)", fontWeight: 400, fontSize: 10,
+                    letterSpacing: ".08em",
+                    color: isActive ? "var(--v3-accent)" : "var(--v3-fg-mute)",
+                    fontVariantNumeric: "tabular-nums",
+                  }}>{String(list.length).padStart(2, "0")}</span>
+                </button>
+              );
+            })}
+          </div>
+
+          {/* Detail: active category's skills with proficiency bars */}
+          <div
+            key={activeName}
+            style={{ display: "flex", flexDirection: "column", gap: 2, overflowY: "auto", minHeight: 0, paddingRight: 4 }}
+          >
+            <div style={{ display: "flex", alignItems: "baseline", gap: 12, marginBottom: 6 }}>
+              <span aria-hidden style={{ width: 14, height: 1, background: "var(--v3-accent)" }} />
+              <span style={{
+                fontFamily: "var(--v3-font-mono)", fontWeight: 400, fontSize: 10,
+                letterSpacing: ".24em", textTransform: "uppercase", color: "var(--v3-fg-mute)",
+              }}>{activeName} · {activeList.length}</span>
+            </div>
+            {activeList.map((s, k) => (
+              <SkillBar key={`${activeName}-${s.name}`} name={s.name} level={s.level} delay={0.05 + k * 0.03} />
+            ))}
+          </div>
         </div>
       </div>
     </V3Frame>
