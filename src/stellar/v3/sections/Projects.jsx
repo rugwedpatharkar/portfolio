@@ -21,7 +21,7 @@ import { V3Frame, V3Scan } from "../primitives";
 const META = sectionMeta.projects;
 
 const ProjectCard = ({ p, delay }) => {
-  const tags = (p.tags || []).slice(0, 3).map(t => t.name || t);
+  const tags = (p.tags || []).slice(0, 6).map(t => t.name || t);
   const stat = p.highlight || p.stats?.[0] || null;
   return (
     <V3Scan variant="plot" delay={delay}>
@@ -64,8 +64,8 @@ const ProjectCard = ({ p, delay }) => {
           {(p.features || []).slice(0, 4).map((f, k) => (
             <li key={k} style={{
               fontFamily: "var(--v3-font-ui)", fontWeight: 300,
-              fontSize: "clamp(.72rem, 0.8vw, .8rem)",
-              color: "var(--v3-fg-dim)", lineHeight: 1.4,
+              fontSize: "clamp(.7rem, 0.76vw, .76rem)",
+              color: "var(--v3-fg-dim)", lineHeight: 1.35,
               paddingLeft: 14, position: "relative",
             }}>
               <span aria-hidden style={{
@@ -79,13 +79,13 @@ const ProjectCard = ({ p, delay }) => {
 
         {/* footer row: tags LEFT, stat + link RIGHT */}
         <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-end", gap: 12, marginTop: "auto", paddingTop: 8, borderTop: "1px solid var(--v3-line)" }}>
-          <div style={{ display: "flex", flexWrap: "wrap", gap: 4, minWidth: 0 }}>
+          <div style={{ display: "flex", flexWrap: "wrap", gap: 3, minWidth: 0 }}>
             {tags.map((t, k) => (
               <span key={k} style={{
-                fontFamily: "var(--v3-font-mono)", fontWeight: 400, fontSize: 9,
-                letterSpacing: ".08em", textTransform: "uppercase", color: "var(--v3-fg-dim)",
+                fontFamily: "var(--v3-font-mono)", fontWeight: 400, fontSize: 8.5,
+                letterSpacing: ".06em", textTransform: "uppercase", color: "var(--v3-fg-dim)",
                 border: "1px solid var(--v3-line-strong)", borderRadius: 999,
-                padding: "2px 8px", whiteSpace: "nowrap",
+                padding: "1px 6px", whiteSpace: "nowrap",
               }}>{t}</span>
             ))}
           </div>
