@@ -63,13 +63,12 @@ export default function AchievementsSection({ index, bootNonce }) {
       index={index}
       scanDir="circuit"
       scanKey={bootNonce}
-      /* Narrow default — 'left' spans col 1 only, maxWidth 50vw. Grid cells
-         inside stretch to fill remaining vertical space so 8 milestones read
-         as a full-height circuit panel, not a floating 4×2 with empty area
-         below. */
-      gridAreas={`"top top top" "left . ." "left . ." "bottom bottom bottom"`}
+      /* Slightly wider — 'left' spans cols 1+2 so maxWidth: 55vw actually sets
+         the section width (col 1 alone caps at 1.4fr ≈ 585px). Cells still fill
+         vertical via flex:1 + gridAutoRows:1fr. */
+      gridAreas={`"top top top" "left left ." "left left ." "bottom bottom bottom"`}
     >
-      <div style={{ gridArea: "left", display: "flex", flexDirection: "column", gap: 18, minWidth: 0, overflow: "hidden", maxWidth: "50vw", height: "100%" }}>
+      <div style={{ gridArea: "left", display: "flex", flexDirection: "column", gap: 18, minWidth: 0, overflow: "hidden", maxWidth: "55vw", height: "100%" }}>
         {/* Header */}
         <V3Scan variant="horizontal" delay={0.05}>
           <div>
