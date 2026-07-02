@@ -1,5 +1,6 @@
 import { useEffect } from "react";
 import { cssVars, accentFor } from "./tokens";
+import { DESTINATION_BY_ID } from "../config/destinations";
 
 /*
  * Injects the v3 design-token CSS variables onto :root while the v3 surface is
@@ -15,9 +16,17 @@ const V3Style = ({ accentKey }) => {
     return () => document.documentElement.classList.remove("stellar-v3");
   }, []);
 
-  /* Live accent update — cheap, no re-render of the tree. */
+  /* Live accent update — cheap, no re-render of the tree.
+     Per-body accent: PLANETS tint the UI their REAL color (single source of
+     truth = the destination's own `color`), while the Sun / overview / cosmic
+     stops keep the curated ACCENT (warm-gold hero, etc.). Fixes the prior bug
+     where accentFor was keyed by the planet's section-id (about/experience…),
+     which never matched the body-name ACCENT keys → every planet fell back to
+     gold. */
   useEffect(() => {
-    document.documentElement.style.setProperty("--v3-accent", accentFor(accentKey));
+    const dest = DESTINATION_BY_ID[accentKey];
+    const accent = dest?.kind === "planet" ? dest.color : accentFor(accentKey);
+    document.documentElement.style.setProperty("--v3-accent", accent);
   }, [accentKey]);
 
   return (

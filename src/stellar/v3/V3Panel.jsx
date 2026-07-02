@@ -77,8 +77,9 @@ export default function V3Panel({ destination, section, items, bootNonce }) {
   const [open, setOpen] = useState(-1); // single-open accordion; -1 = all collapsed
   const [overflow, setOverflow] = useState(false); // is the column taller than its box?
   const wrapRef = useRef(null);
+  const openRef = useRef(-1); // synchronous mirror of `open` for the keyboard stepper
   /* Open the first entry by default so content is visible without a click. */
-  useEffect(() => { setOpen(items?.length ? 0 : -1); }, [section, bootNonce, items?.length]);
+  useEffect(() => { const v = items?.length ? 0 : -1; openRef.current = v; setOpen(v); }, [section, bootNonce, items?.length]);
 
   /* Track overflow so the bottom edge-fade only appears when there's more below
      (re-measured after the accordion's 300ms reveal settles). */
@@ -92,18 +93,41 @@ export default function V3Panel({ destination, section, items, bootNonce }) {
     return () => clearTimeout(id);
   }, [section, bootNonce, open, items?.length]);
 
-  /* Open a row and float it to the top of the column, so its dossier reads
-     downward from the top instead of leaving the reader mid-scroll. Scroll AFTER
-     the collapse/expand reveal settles (offsetTop is only final post-layout). */
-  const toggle = (i, li) => {
-    const opening = open !== i;
-    setOpen(opening ? i : -1);
-    if (opening && li && wrapRef.current) {
-      setTimeout(() => {
-        wrapRef.current?.scrollTo({ top: Math.max(0, li.offsetTop - 8), behavior: reduce ? "auto" : "smooth" });
-      }, reduce ? 0 : 320);
-    }
+  /* Float an opened row to the top of the column, so its dossier reads downward
+     instead of leaving the reader mid-scroll. Scroll AFTER the 300ms grid reveal
+     settles (offsetTop is only final post-layout). Index-based so both click and
+     keyboard use it. */
+  const floatRow = (i) => {
+    const el = wrapRef.current;
+    const li = el?.querySelectorAll("li")[i];
+    if (!el || !li) return;
+    setTimeout(() => {
+      el.scrollTo({ top: Math.max(0, li.offsetTop - 8), behavior: reduce ? "auto" : "smooth" });
+    }, reduce ? 0 : 320);
   };
+  const toggle = (i) => {
+    const next = open === i ? -1 : i;
+    openRef.current = next;
+    setOpen(next);
+    if (next >= 0) floatRow(i);
+  };
+  /* ←/→ step the accordion — dispatched by StellarApp in v3 so the arrow keys
+     navigate CONTENT (not the camera). Opens from the first/last when nothing is
+     open; clamps at the ends. No-op on stops without a résumé list. */
+  useEffect(() => {
+    const onStep = (e) => {
+      const n = items?.length || 0;
+      if (!n) return;
+      const dir = e.detail?.dir || 0;
+      const o = openRef.current;
+      const next = o < 0 ? (dir > 0 ? 0 : n - 1) : Math.max(0, Math.min(n - 1, o + dir));
+      openRef.current = next;
+      setOpen(next);
+      floatRow(next);
+    };
+    window.addEventListener("v3:accordion", onStep);
+    return () => window.removeEventListener("v3:accordion", onStep);
+  }, [items?.length, reduce]);
 
   const facts = destination && PLANET_FACTS[destination.id];
   const title = SECTION_TITLE[section] || destination?.label || "";
@@ -178,7 +202,7 @@ export default function V3Panel({ destination, section, items, bootNonce }) {
               return (
                 <li key={it.id || i} style={{ borderBottom: "1px solid var(--v3-line)" }}>
                   <button
-                    onClick={(e) => toggle(i, e.currentTarget.parentElement)}
+                    onClick={() => toggle(i)}
                     aria-expanded={isOpen}
                     style={{ all: "unset", cursor: "pointer", display: "flex", alignItems: "baseline", gap: 14, width: "100%", boxSizing: "border-box", padding: "13px 4px" }}
                     onMouseEnter={(e) => { const t = e.currentTarget.querySelector("[data-t]"); if (t) t.style.color = "var(--v3-accent)"; }}

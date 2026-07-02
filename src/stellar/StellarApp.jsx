@@ -304,6 +304,15 @@ const StellarApp = ({ v3 = false }) => {
     applyFocus(p, m);
   }, [applyFocus]);
 
+  /* ←/→ item nav. v3 has NO 3D lane objects, so flying the camera to a
+     laneObjectPosition stranded the view in empty space while the panel
+     (its own accordion) ignored itemIdx. In v3 we instead step the on-screen
+     accordion (V3Panel listens for `v3:accordion`); v2 keeps camera lane-nav. */
+  const stepItem = useCallback((dir) => {
+    if (v3) { window.dispatchEvent(new CustomEvent("v3:accordion", { detail: { dir } })); return; }
+    navItem(dir);
+  }, [v3, navItem]);
+
   /* Keep the camera focused on the ACTIVE body for EVERY nav path. Keyboard /
      nav-pad / navicomputer set focus synchronously (navTo/navItem). But SCROLL
      (Lenis → handleDestinationChange), URL-hash nav, and map "stop" picks only
@@ -499,9 +508,9 @@ const StellarApp = ({ v3 = false }) => {
       } else if (k === "arrowup" || k === "pageup" || k === "w") {
         e.preventDefault(); navPlanet(-1); // ↑ previous lane
       } else if (k === "arrowleft" || k === "a") {
-        e.preventDefault(); navItem(-1); // ← previous object on this lane
+        e.preventDefault(); stepItem(-1); // ← previous item (v3: accordion; v2: lane object)
       } else if (k === "arrowright" || k === "d") {
-        e.preventDefault(); navItem(1); // → next object
+        e.preventDefault(); stepItem(1); // → next item
       } else if (k === "home") {
         e.preventDefault(); navTo(0);
       } else if (k === "end") {
@@ -510,7 +519,7 @@ const StellarApp = ({ v3 = false }) => {
     };
     window.addEventListener("keydown", onKey);
     return () => window.removeEventListener("keydown", onKey);
-  }, [introDone, navTo, navPlanet, navItem, focusedObj, clearFocus, cycleFocus, logOpen, mode, togglePilot]);
+  }, [introDone, navTo, navPlanet, stepItem, focusedObj, clearFocus, cycleFocus, logOpen, mode, togglePilot]);
 
   /* SIDEWAYS SCROLL → ←→ side-object nav. A trackpad two-finger horizontal swipe
      (deltaX) or Shift+wheel cycles the lane objects, debounced one-object-per
@@ -520,7 +529,9 @@ const StellarApp = ({ v3 = false }) => {
     if (!introDone) return undefined;
     let accum = 0, cooldownUntil = 0, resetTimer = null;
     const onWheel = (e) => {
-      if (mode !== "tour" || focusedObj) return;
+      /* v3 has no lane objects — a stray sideways trackpad drift must not fly
+         the camera. (v2 keeps horizontal-swipe → lane-object nav.) */
+      if (v3 || mode !== "tour" || focusedObj) return;
       const horizontal = Math.abs(e.deltaX) > Math.abs(e.deltaY) * 1.5;
       const dx = horizontal ? e.deltaX : e.shiftKey ? e.deltaY : 0;
       if (!dx) return;
@@ -537,7 +548,7 @@ const StellarApp = ({ v3 = false }) => {
     };
     window.addEventListener("wheel", onWheel, { passive: true });
     return () => { window.removeEventListener("wheel", onWheel); clearTimeout(resetTimer); };
-  }, [introDone, mode, focusedObj, navItem]);
+  }, [introDone, mode, focusedObj, navItem, v3]);
 
   /* Browser back/forward should also navigate */
   useEffect(() => {

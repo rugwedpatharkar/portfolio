@@ -436,6 +436,16 @@ DESTINATIONS.forEach((d) => {
   };
 });
 
+/* Identity map. NOTE the three-way naming — they are NOT interchangeable:
+ *   • id      — the URL-hash + lookup anchor (a legacy section name, e.g. Earth's
+ *               id is "experience"). Kept stable across the v3 "shift-forward-one".
+ *   • section — the résumé section this stop DISPLAYS (e.g. Earth shows "projects").
+ *               V3Panel/HoloBridge are section-driven; this is the content key.
+ *   • label   — the real body name ("Earth"); color — the real body color.
+ * The per-body v3 accent reads `color` here (V3Style), NOT the id, because the id
+ * is a section name and would never match a body-keyed palette. Don't collapse
+ * these into one field without re-checking every consumer (hash nav, sectionItems,
+ * planetFacts, holoSummary). */
 export const DESTINATION_BY_ID = Object.fromEntries(
   DESTINATIONS.map((d) => [d.id, d])
 );
