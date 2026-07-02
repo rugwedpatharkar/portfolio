@@ -34,11 +34,14 @@ export const DESTINATIONS = [
     position: [0, 0, 0],
     radius: 0,
     section: "hero",
-    /* v3 system overview — a LOW-angle wide shot so the compressed orbit rings read
-       as flat, cylindrical ellipses (not near-circles) and the system SPANS the whole
-       screen rather than hugging the right. Lower Y = shallower angle = flatter rings;
-       lookAt nearer the Sun centres the system so planets fill the full width. */
-    cameraTarget: { position: [80, 108, 350], lookAt: [-70, -14, 22], fov: 43 },
+    /* v3 system overview — a CORNER SHOT of the whole true-scale system from a far,
+       high vantage. Sun sits on the far RIGHT of the frame, planets + real orbits +
+       asteroid belt + Kuiper haze fan out to screen-LEFT toward Neptune (~2857 units
+       out along +X). Camera is offset in +X beyond the Sun and pulled BACK in +Z, high
+       up in +Y for a ~30° 3/4 angle, wide FOV to fit Neptune's orbit. The lookAt sits
+       ~700u along +X toward Uranus so the Sun renders to the right of centre. This is
+       the real tour system framed at scale — no artistic compression. */
+    cameraTarget: { position: [1400, 900, 1600], lookAt: [700, -60, 100], fov: 60 },
   },
   {
     id: "sol",
@@ -355,7 +358,7 @@ export const AU_UNIT = 95; // scene units per AU — large so the true-size Sun 
 const AU = {
   about: 0.387, funfacts: 0.723, experience: 1.0, projects: 1.524,
   achievements: 2.77, skills: 5.203, notes: 9.537, education: 19.191, // achievements = Ceres @ 2.77 AU
-  hobbies: 30.07, testimonials: 39.48, contact: 50, // testimonials = Pluto @ 39.48 AU
+  hobbies: 30.05, testimonials: 39.48, contact: 50, // testimonials = Pluto @ 39.48 AU (Neptune 30.05 per NASA)
 };
 
 /* The asteroid + Kuiper belts are no longer tour stops — they render as
