@@ -15,6 +15,38 @@ import { COSMIC_BY_ID } from "./cosmicStops";
 import V3ContactForm from "./V3ContactForm";
 import useViewport from "../useViewport";
 import heroPhoto from "../../assets/hero-photo-1024.webp";
+import AboutSection from "./sections/About";
+import FunFactsSection from "./sections/FunFacts";
+import ExperienceSection from "./sections/Experience";
+import SkillsSection from "./sections/Skills";
+import ProjectsSection from "./sections/Projects";
+import NotesSection from "./sections/Notes";
+import AchievementsSection from "./sections/Achievements";
+import EducationSection from "./sections/Education";
+import HobbiesSection from "./sections/Hobbies";
+import TestimonialsSection from "./sections/Testimonials";
+import ContactSection from "./sections/Contact";
+
+/* Planetary Dossier — one bespoke composition per résumé stop. See
+   plans/changes-we-want-to-crispy-pebble.md for the design system.
+   The legacy accordion path is kept behind ?accordion=1 as a safety valve. */
+const SECTION_COMPONENT = {
+  about: AboutSection,
+  funfacts: FunFactsSection,
+  experience: ExperienceSection,
+  skills: SkillsSection,
+  projects: ProjectsSection,
+  notes: NotesSection,
+  achievements: AchievementsSection,
+  education: EducationSection,
+  hobbies: HobbiesSection,
+  testimonials: TestimonialsSection,
+  contact: ContactSection,
+};
+const useAccordionFallback = () => {
+  if (typeof window === "undefined") return false;
+  return new URLSearchParams(window.location.search).get("accordion") === "1";
+};
 
 const SECTION_TITLE = {
   about: "About", funfacts: "Fun facts", experience: "Experience", projects: "Projects",
@@ -195,6 +227,47 @@ export default function V3Panel({ destination, section, items, bootNonce }) {
           )}
         </motion.div>
       </div>
+    );
+  }
+
+  /* ---- Planetary Dossier route — bespoke per-section composition ----
+     Any résumé stop with a registered section component renders through the
+     new dossier system. The legacy accordion path stays available behind
+     ?accordion=1 for one release as a safety valve. The stop number is derived
+     from the destination id; V3Frame formats "SECTION · 03/13" itself. */
+  const Section = SECTION_COMPONENT[section];
+  const idxOfStop = (() => {
+    if (typeof window === "undefined") return "01/13";
+    const total = 13; /* matches DESTINATIONS.length */
+    /* infer from hash for accuracy without importing DESTINATIONS here */
+    const hash = window.location.hash;
+    /* if we can't infer, show a generic placeholder — V3Frame accepts any string */
+    return hash?.match(/\/(\d+)/)?.[1] ? `${hash.match(/\/(\d+)/)[1]}/${total}` : "";
+  })();
+  if (Section && !useAccordionFallback()) {
+    return (
+      <>
+        <div style={{ pointerEvents: "auto", position: "fixed", inset: 0, padding: "clamp(70px, 8vh, 110px) clamp(24px, 4vw, 60px) clamp(60px, 8vh, 90px)", zIndex: 40, display: "flex", overflow: "hidden" }} className="stellar-dossier-frame">
+          <Section index={idxOfStop} bootNonce={bootNonce} />
+        </div>
+        {/* Body telemetry — same docked position/style as the accordion path so
+            the planet's spec sheet stays visible on every résumé stop. Mobile
+            inlines telemetry inside sections; desktop docks it here. */}
+        {!isCompact && facts && (
+          <motion.div
+            key={`tel-${section}`}
+            initial={reduce ? false : { opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.55, ease, delay: 0.35 }}
+            style={{ position: "fixed", right: "clamp(30px, 4vw, 92px)", bottom: "clamp(26px, 6vh, 62px)", width: "min(360px, 30vw)", zIndex: 41, pointerEvents: "none", padding: "24px 30px" }}
+          >
+            <div aria-hidden style={{ position: "absolute", inset: 0, background: "rgba(4,5,9,0.6)", WebkitMaskImage: "radial-gradient(125% 120% at 82% 55%, #000 48%, transparent 100%)", maskImage: "radial-gradient(125% 120% at 82% 55%, #000 48%, transparent 100%)" }} />
+            <div style={{ position: "relative" }}>
+              <Telemetry facts={facts} />
+            </div>
+          </motion.div>
+        )}
+      </>
     );
   }
 
