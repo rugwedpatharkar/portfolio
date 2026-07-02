@@ -44,16 +44,18 @@ const Navigator = ({ scrollTRef, onDestinationChange }) => {
     requestAnimationFrame(raf);
 
     const N = DESTINATIONS.length;
-    /* One user gesture may only advance the committed stop by ±1 (fixes "one swipe
-       skips a planet"). The base stop is snapshotted at the START of a gesture and
-       HELD until the scroll goes fully idle — so a flick's momentum AND the magnetic
-       snap's own glide stay capped to base±1 and can never re-commit in the reverse
-       direction. (That reverse re-commit is what flipped the camera BEHIND the planet
-       facing the Sun — an inward hop — on a forward swipe.) Programmatic jumps
-       (window.__stellarJumping: deep-link / rail / palette / map / keys) are uncapped. */
+    /* Natural Lenis scroll — no gesture base-hold, no ±1 cap. What actually caused
+       "one swipe skips a planet" was the mag-snap's back-glide re-committing in the
+       reverse direction as it settled (raw 6.7 → 7 → back to 6.9 → committed 6),
+       which ALSO flipped every hop to inward and framed the camera behind the planet
+       facing the Sun. Fix at the source: only commit when the current gesture is still
+       moving in its established direction. The snap's back-glide then can't re-commit
+       backwards → no skip, no inward camera flip. Programmatic jumps
+       (window.__stellarJumping: deep-link / rail / palette / map / keys) bypass the
+       direction check and land exactly on their target. */
     let committed = -1;
-    let gestureBase = Math.round(lenis.progress * (N - 1)) || 0;
-    let inGesture = false;
+    let lastRaw = lenis.progress * (N - 1);
+    let dir = 0; // +1 forward, -1 backward, 0 unknown
     let snapTimer = null;
     let idleTimer = null;
 
@@ -62,24 +64,20 @@ const Navigator = ({ scrollTRef, onDestinationChange }) => {
       committed = idx;
       onDestinationChange?.(DESTINATIONS[idx]);
     };
-    const targetFor = (raw) => {
-      const nearest = Math.round(raw);
-      return window.__stellarJumping ? nearest : Math.max(gestureBase - 1, Math.min(gestureBase + 1, nearest));
-    };
 
-    /* Magnetic snap on settle: glide to the (capped) target so you never rest parked
-       between two bodies. Debounced — the snap's own scroll keeps resetting the timer,
-       converging in one move. Does NOT move gestureBase (idle reset owns that). */
+    /* Magnetic snap on settle: glide to the exact nearest stop so you never rest
+       parked between two bodies. Debounced — the snap's own scroll keeps resetting
+       the timer, converging in one move. */
     const trySnap = () => {
       const p = lenis.progress;
-      const target = Math.max(0, Math.min(N - 1, targetFor(p * (N - 1))));
-      commitTo(target);
-      const targetP = target / (N - 1);
+      const nearest = Math.max(0, Math.min(N - 1, Math.round(p * (N - 1))));
+      commitTo(nearest);
+      const targetP = nearest / (N - 1);
       if (Math.abs(p - targetP) > 0.004) {
         const max =
           (document.scrollingElement || document.documentElement).scrollHeight -
           window.innerHeight;
-        lenis.scrollTo(targetP * max, { duration: 0.7, easing: (t) => 1 - Math.pow(1 - t, 3) });
+        lenis.scrollTo(targetP * max, { duration: 0.85, easing: (t) => 1 - Math.pow(1 - t, 3) });
       }
     };
 
@@ -89,25 +87,31 @@ const Navigator = ({ scrollTRef, onDestinationChange }) => {
       scrollTRef.current = progress;
       invalidate(); // request a Three.js render
 
-      /* First scroll after idle = a new gesture → snapshot the base stop we depart from. */
-      if (!inGesture) {
-        inGesture = true;
-        gestureBase = committed >= 0 ? committed : Math.round(progress * (N - 1));
+      const raw = progress * (N - 1);
+      const delta = raw - lastRaw;
+      /* Track the gesture direction from the first sustained move; hysteresis avoids
+         flipping on sub-pixel jitter. */
+      if (Math.abs(delta) > 0.001) {
+        if (dir === 0 || Math.sign(delta) !== dir) dir = Math.sign(delta) || dir;
+      }
+      lastRaw = raw;
+
+      /* Commit within a deadband around the round(). The direction guard prevents the
+         snap's back-glide from committing the previous stop while gliding backwards.
+         Programmatic jumps bypass so they land exactly. */
+      const nearest = Math.round(raw);
+      const inBand = Math.abs(raw - nearest) < 0.35;
+      const withDir = dir === 0 || Math.sign(nearest - (committed >= 0 ? committed : nearest)) === dir;
+      if (inBand && (window.__stellarJumping || withDir)) {
+        commitTo(Math.max(0, Math.min(N - 1, nearest)));
       }
 
-      /* Commit within a deadband around the (capped) target — kills the round()
-         oscillation at the .5 boundary AND caps a fast swipe to one stop ahead. */
-      const raw = progress * (N - 1);
-      const target = Math.max(0, Math.min(N - 1, targetFor(raw)));
-      if (Math.abs(raw - target) < 0.35) commitTo(target);
-
       if (snapTimer) clearTimeout(snapTimer);
-      snapTimer = setTimeout(trySnap, 150);
-      /* The gesture (and any programmatic-jump flag) ends only after the scroll —
-         snap glide included — has been idle a beat, so the next swipe departs from
-         the freshly-committed stop. */
+      snapTimer = setTimeout(trySnap, 200);
+      /* End the gesture (and clear the jump flag) after the scroll has been idle a
+         beat so the next flick can pick a fresh direction. */
       if (idleTimer) clearTimeout(idleTimer);
-      idleTimer = setTimeout(() => { inGesture = false; window.__stellarJumping = false; }, 220);
+      idleTimer = setTimeout(() => { dir = 0; window.__stellarJumping = false; }, 260);
     };
     lenis.on("scroll", onScroll);
 
