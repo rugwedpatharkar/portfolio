@@ -32,36 +32,39 @@ export default function V3PlanetCard({ facts, hidden = false }) {
   const rows = FACT_ROWS.filter(([, k]) => facts[k]);
   return (
     <>
-      {/* invisible hover hot zone over where the planet renders. Pointer-events
-          auto ONLY here; the rest of the dossier stays interactable. */}
+      {/* invisible hover hot zone over where the planet renders. Sun span with
+          V3_HALF_ANGLE=12°, frameShift=0.42×1.0: horizontally ~54%→87% x, so hot
+          zone at right:11vw width:28vw covers 61%→89%, safely inside the sun. */}
       <div
         className="v3-planet-hz"
         aria-hidden={hidden}
         style={{
           position: "fixed",
-          right: "clamp(30px, 5vw, 90px)",
+          right: "11vw",
           top: "50%",
           transform: "translateY(-50%)",
-          width: "clamp(180px, 18vw, 260px)",
-          height: "clamp(180px, 18vw, 260px)",
+          width: "clamp(240px, 26vw, 380px)",
+          height: "clamp(240px, 26vw, 380px)",
           borderRadius: "50%",
           pointerEvents: hidden ? "none" : "auto",
-          zIndex: 42, // above the section (40) + telemetry old slot (41), below hero HUD (44)
+          zIndex: 42,
           cursor: "default",
         }}
       />
-      {/* the specimen card — slides in from the planet's LEFT edge with a tick.
-          Position: bottom-right area, offset LEFT of the planet's centre. */}
+      {/* Specimen card — anchored TOP-RIGHT, above the sun. Tick points DOWN.
+          Position chosen to fit the currently-empty top strip area: right of
+          the "SOL · ABOUT · 02/13" kicker, above the sun's top edge (~29% y).
+          Card slides in from above with a small downward translate on reveal. */}
       <div
         className="v3-planet-card"
         role="tooltip"
         aria-live="polite"
         style={{
           position: "fixed",
-          right: "calc(clamp(30px, 5vw, 90px) + clamp(200px, 19vw, 280px))",
-          top: "50%",
-          transform: "translate(10px, -50%)",
-          width: "min(300px, 26vw)",
+          right: "clamp(30px, 4vw, 80px)",
+          top: "clamp(60px, 8vh, 100px)",
+          transform: "translateY(-10px)",
+          width: "min(320px, 26vw)",
           padding: "16px 18px 18px",
           background: "rgba(6,7,12,0.86)",
           backdropFilter: "blur(8px)",
@@ -78,9 +81,9 @@ export default function V3PlanetCard({ facts, hidden = false }) {
         {/* accent tick top-left */}
         <span aria-hidden style={{ position: "absolute", top: -1, left: -1, width: 12, height: 1, background: "var(--v3-accent)" }} />
         <span aria-hidden style={{ position: "absolute", top: -1, left: -1, width: 1, height: 12, background: "var(--v3-accent)" }} />
-        {/* pointer tick on the right, linking to the planet */}
-        <div aria-hidden style={{ position: "absolute", top: "50%", right: -16, transform: "translateY(-50%)", display: "flex", alignItems: "center", gap: 2 }}>
-          <span style={{ width: 14, height: 1, background: "var(--v3-accent)" }} />
+        {/* pointer tick on the BOTTOM, linking DOWN to the sun below. */}
+        <div aria-hidden style={{ position: "absolute", bottom: -18, left: "50%", transform: "translateX(-50%)", display: "flex", flexDirection: "column", alignItems: "center", gap: 2 }}>
+          <span style={{ width: 1, height: 14, background: "var(--v3-accent)" }} />
           <span style={{ width: 5, height: 5, borderRadius: "50%", background: "var(--v3-accent)", boxShadow: "0 0 8px var(--v3-accent)" }} />
         </div>
 
@@ -120,7 +123,7 @@ export default function V3PlanetCard({ facts, hidden = false }) {
         .v3-planet-hz:focus ~ .v3-planet-card,
         .v3-planet-card:hover {
           opacity: 1 !important;
-          transform: translate(0, -50%) !important;
+          transform: translateY(0) !important;
           pointer-events: auto !important;
         }
         @media (prefers-reduced-motion: reduce) {

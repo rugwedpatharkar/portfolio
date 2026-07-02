@@ -83,8 +83,10 @@ export default function AboutSection({ index, bootNonce }) {
          so the sphere never has content overlapping it. */
       gridAreas={`"top top top" "left . ." "left . ." "bottom bottom bottom"`}
     >
-      {/* LEFT — everything stacks here */}
-      <div style={{ gridArea: "left", display: "flex", flexDirection: "column", gap: 22, minWidth: 0, overflow: "hidden", maxWidth: "58vw" }}>
+      {/* LEFT — everything stacks here. maxWidth 50vw so the column ends BEFORE
+          the sun's actual left edge (~54% x with V3_HALF_ANGLE=12° + frameShift
+          0.42×1.0) — no horizontal overlap with the sphere. */}
+      <div style={{ gridArea: "left", display: "flex", flexDirection: "column", gap: 22, minWidth: 0, overflow: "hidden", maxWidth: "50vw" }}>
         {/* Portrait + name */}
         <V3DepthLayer depth={2} style={{ display: "flex", gap: 20, alignItems: "flex-end", minWidth: 0 }}>
           <V3Scan variant="horizontal" delay={0.05}>
