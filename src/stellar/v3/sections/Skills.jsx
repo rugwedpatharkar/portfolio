@@ -24,25 +24,25 @@ const SkillBar = ({ name, level, delay }) => (
     <div style={{
       display: "grid", gridTemplateColumns: "1fr auto",
       gap: 14, alignItems: "center",
-      padding: "6px 0",
+      padding: "9px 0",
     }}>
-      <div style={{ minWidth: 0, display: "flex", flexDirection: "column", gap: 5 }}>
+      <div style={{ minWidth: 0, display: "flex", flexDirection: "column", gap: 7 }}>
         <span style={{
           fontFamily: "var(--v3-font-mono)", fontWeight: 400,
-          fontSize: "clamp(.8rem, 0.9vw, .92rem)",
+          fontSize: "clamp(.95rem, 1.05vw, 1.08rem)",
           color: "var(--v3-fg)", letterSpacing: ".02em",
         }}>{name}</span>
-        <div style={{ position: "relative", height: 3, background: "var(--v3-line)", borderRadius: 999, overflow: "hidden" }}>
+        <div style={{ position: "relative", height: 4, background: "var(--v3-line)", borderRadius: 999, overflow: "hidden" }}>
           <div style={{
             position: "absolute", inset: 0,
             width: `${level}%`, background: "var(--v3-accent)",
-            boxShadow: "0 0 8px color-mix(in oklab, var(--v3-accent) 60%, transparent)",
+            boxShadow: "0 0 10px color-mix(in oklab, var(--v3-accent) 60%, transparent)",
           }} />
         </div>
       </div>
       <span style={{
         fontFamily: "var(--v3-font-mono)", fontWeight: 400,
-        fontSize: 11, letterSpacing: ".08em",
+        fontSize: 13, letterSpacing: ".08em",
         fontVariantNumeric: "tabular-nums",
         color: "var(--v3-fg-mute)",
       }}>{level}%</span>
@@ -67,7 +67,7 @@ export default function SkillsSection({ index, bootNonce }) {
          cramming both the category index and the detail). */
       gridAreas={`"top top top" "left left ." "left left ." "bottom bottom bottom"`}
     >
-      <div style={{ gridArea: "left", display: "flex", flexDirection: "column", gap: 16, minWidth: 0, overflow: "hidden", maxWidth: "60vw", height: "100%" }}>
+      <div style={{ gridArea: "left", display: "flex", flexDirection: "column", gap: 16, minWidth: 0, overflow: "hidden", maxWidth: "52vw", height: "100%" }}>
         {/* Header */}
         <V3Scan variant="horizontal" delay={0.05}>
           <div>
@@ -137,7 +137,7 @@ export default function SkillsSection({ index, bootNonce }) {
                   }}>{String(i + 1).padStart(2, "0")}</span>
                   <span style={{
                     fontFamily: "var(--v3-font-display)", fontWeight: 340,
-                    fontSize: "clamp(.92rem, 1.05vw, 1.1rem)", lineHeight: 1.2,
+                    fontSize: "clamp(1rem, 1.15vw, 1.2rem)", lineHeight: 1.2,
                     letterSpacing: "-.005em",
                     color: isActive ? "var(--v3-fg)" : "var(--v3-fg-dim)",
                     fontOpticalSizing: "auto",
