@@ -3,7 +3,6 @@ import { useRef, useState, useCallback, useEffect, useMemo } from "react";
 import { MotionConfig } from "motion/react";
 import Scene from "./Scene";
 import Navigator from "./Navigator";
-import ContentPanel from "./ContentPanel";
 import ItemDossier from "./ItemDossier";
 import HoloBridge from "./holobridge/HoloBridge";
 import Cursor from "./Cursor";
