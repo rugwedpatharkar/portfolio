@@ -38,7 +38,17 @@ const V3Style = ({ accentKey }) => {
         font-family:var(--v3-font-ui);
         -webkit-font-smoothing:antialiased;
         text-rendering:optimizeLegibility;
+        /* Base rem — every rem-based clamp() min/max in every section scales
+           proportionally with viewport bracket, so we don't have to touch
+           7 section files to make type breathe on bigger monitors. */
+        font-size: 16px;
       }
+      /* 1920+ (Full HD) → +12.5% rem-scale so 1rem=18px, 2.6rem=46.8px, etc. */
+      @media (min-width: 1920px){ .stellar-v3{ font-size: 18px; } }
+      /* 2400+ (27" QHD) → +25% rem-scale. clamp maxes lift into headline range. */
+      @media (min-width: 2400px){ .stellar-v3{ font-size: 20px; } }
+      /* Small laptop guard — never smaller than default. */
+      @media (max-width: 1279px){ .stellar-v3{ font-size: 15px; } }
       /* Cancel the legacy \`* { font-family: Saira }\` reset inside v3 so children
          inherit their parent's typography instead of falling back to Saira.
          Without this, any span/div that doesn't inline its own font-family (e.g.
