@@ -53,15 +53,29 @@ const ProjectCard = ({ p, delay }) => {
           letterSpacing: "-.005em", color: "var(--v3-fg)", fontOpticalSizing: "auto",
         }}>{p.name}</div>
 
-        {/* description — clamped to 4 lines so the tallest description doesn't
-            push the last row past viewport bottom. */}
-        <p style={{
-          fontFamily: "var(--v3-font-ui)", fontWeight: 300,
-          fontSize: "clamp(.76rem, 0.85vw, .85rem)",
-          color: "var(--v3-fg-dim)", lineHeight: 1.5, margin: 0, flex: 1,
-          display: "-webkit-box", WebkitLineClamp: 4, WebkitBoxOrient: "vertical",
-          overflow: "hidden",
-        }}>{p.description}</p>
+        {/* features bullets — replaces the paragraph description. Short bullet
+            claims are card-shaped; the paragraph pitch always got clamped
+            mid-sentence at card width. Up to 4 features so cards read as
+            spec-lists, not truncated essays. */}
+        <ul style={{
+          listStyle: "none", padding: 0, margin: 0, flex: 1,
+          display: "flex", flexDirection: "column", gap: 4,
+        }}>
+          {(p.features || []).slice(0, 4).map((f, k) => (
+            <li key={k} style={{
+              fontFamily: "var(--v3-font-ui)", fontWeight: 300,
+              fontSize: "clamp(.72rem, 0.8vw, .8rem)",
+              color: "var(--v3-fg-dim)", lineHeight: 1.4,
+              paddingLeft: 14, position: "relative",
+            }}>
+              <span aria-hidden style={{
+                position: "absolute", left: 0, top: "0.55em",
+                width: 6, height: 1, background: "var(--v3-line-strong)",
+              }} />
+              {f}
+            </li>
+          ))}
+        </ul>
 
         {/* footer row: tags LEFT, stat + link RIGHT */}
         <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-end", gap: 12, marginTop: "auto", paddingTop: 8, borderTop: "1px solid var(--v3-line)" }}>
