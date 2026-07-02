@@ -1,5 +1,19 @@
 import { Suspense, lazy, useEffect, useRef, useState } from "react";
+import { Analytics } from "@vercel/analytics/react";
+import { SpeedInsights } from "@vercel/speed-insights/react";
+import AppErrorBoundary from "./AppErrorBoundary";
 import { easterEggs } from "./content";
+
+/* One-shot WebGL feature check — recruiters with WebGL disabled, ancient browsers,
+   or a broken graphics driver should NOT see the 3D tour crash. We probe once at
+   module load; a WebGL2 OR WebGL1 context both satisfy Three.js's requirements. */
+const hasWebGL = (() => {
+  if (typeof window === "undefined") return true; // don't force fallback in SSR
+  try {
+    const canvas = document.createElement("canvas");
+    return !!(canvas.getContext("webgl2") || canvas.getContext("webgl") || canvas.getContext("experimental-webgl"));
+  } catch (_) { return false; }
+})();
 
 /*
  * Stellar 3D solar-system portfolio is now the default surface.
@@ -16,10 +30,13 @@ const Design = lazy(() => import("./sections/Design"));
 const LegacyApp = lazy(() => import("./LegacyApp"));
 
 /* v3 is the DEFAULT landing experience. #stellar → the v2 cockpit, #legacy →
-   the old scroll site, #design → the token page; anything else (incl. bare "/") → v3. */
+   the old scroll site, #design → the token page; anything else (incl. bare "/") → v3.
+   If the browser can't do WebGL, force EVERYTHING (default, #v3, #stellar) to the
+   #legacy scroll site — the 3D tour would only crash otherwise. */
 const routeForHash = (h = "") => {
   if (h === "#design") return "design";
   if (h === "#legacy") return "legacy";
+  if (!hasWebGL) return "legacy";
   if (h === "#stellar" || h.startsWith("#stellar/") || h.startsWith("#/stellar")) return "stellar";
   return "v3";
 };
@@ -70,27 +87,31 @@ const App = () => {
     return () => window.removeEventListener("hashchange", onHash);
   }, []);
 
-  if (route === "design") {
-    return (
+  const routed = (() => {
+    if (route === "design") return (
       <main id="main-content" className="relative z-0">
-        <Suspense fallback={null}>
-          <Design />
-        </Suspense>
+        <Suspense fallback={null}><Design /></Suspense>
       </main>
     );
-  }
-  if (route === "legacy") {
+    if (route === "legacy") return (
+      <Suspense fallback={null}><LegacyApp /></Suspense>
+    );
     return (
-      <Suspense fallback={null}>
-        <LegacyApp />
+      <Suspense fallback={<BootReveal />}>
+        <StellarApp v3={route === "v3"} />
       </Suspense>
     );
-  }
+  })();
 
   return (
-    <Suspense fallback={<BootReveal />}>
-      <StellarApp v3={route === "v3"} />
-    </Suspense>
+    <AppErrorBoundary>
+      {routed}
+      {/* Vercel Analytics + Speed Insights — mount at the app root so ALL routes
+          are covered. Auto-tracks page views; no-op locally (dev mode has no
+          network call by default). */}
+      <Analytics />
+      <SpeedInsights />
+    </AppErrorBoundary>
   );
 };
 

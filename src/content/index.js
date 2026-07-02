@@ -963,7 +963,7 @@ export const easterEggs = {
   ascii: "  ██████╗ ██╗   ██╗ ██████╗ ██╗    ██╗███████╗██████╗ \n  ██╔══██╗██║   ██║██╔════╝ ██║    ██║██╔════╝██╔══██╗\n  ██████╔╝██║   ██║██║  ███╗██║ █╗ ██║█████╗  ██║  ██║\n  ██╔══██╗██║   ██║██║   ██║██║███╗██║██╔══╝  ██║  ██║\n  ██║  ██║╚██████╔╝╚██████╔╝╚███╔███╔╝███████╗██████╔╝\n  ╚═╝  ╚═╝ ╚═════╝  ╚═════╝  ╚══╝╚══╝ ╚══════╝╚═════╝ ",
   greeting: "Hey there, fellow developer! 👋",
   repoLink: "Curious about the code? Check it out: https://github.com/rugwedpatharkar/portfolio",
-  hint: "Hint: Try pressing Ctrl+` for a surprise 🎮",
+  hint: "🛸  Try the Konami code. Click the sun. Drag to explore.",
 };
 
 export const builtWith = [

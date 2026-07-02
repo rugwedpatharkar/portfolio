@@ -12,6 +12,7 @@ import { motion, useReducedMotion } from "motion/react";
 import { PLANET_FACTS } from "../data/planetFacts";
 import { summaryFor } from "../data/holoSummary";
 import { COSMIC_BY_ID } from "./cosmicStops";
+import V3ContactForm from "./V3ContactForm";
 import useViewport from "../useViewport";
 import heroPhoto from "../../assets/hero-photo-1024.webp";
 
@@ -162,6 +163,7 @@ export default function V3Panel({ destination, section, items, bootNonce }) {
   const title = SECTION_TITLE[section] || destination?.label || "";
   const planet = (facts?.body || destination?.label || "").split("—")[0].trim();
   const isAbout = section === "about";
+  const isContact = section === "contact";
 
   const stagger = { hidden: {}, show: { transition: { staggerChildren: reduce ? 0 : 0.055, delayChildren: reduce ? 0 : 0.08 } } };
   const rise = { hidden: { opacity: 0, y: reduce ? 0 : 14 }, show: { opacity: 1, y: 0, transition: { duration: 0.5, ease } } };
@@ -250,6 +252,10 @@ export default function V3Panel({ destination, section, items, bootNonce }) {
         <motion.p variants={rise} style={{ font: `300 var(--v3-type-body) var(--v3-font-ui)`, color: "var(--v3-fg-dim)", lineHeight: 1.55, margin: 0, maxWidth: "58ch" }}>
           {summaryFor(section)}
         </motion.p>
+
+        {/* Contact stop: real EmailJS-powered send-a-message form ABOVE the outbound
+            links (Email / Calendar / GitHub / LinkedIn / Resume in the accordion). */}
+        {isContact && <V3ContactForm />}
 
         {items?.length > 0 && (
           <motion.ul variants={rise} style={{ listStyle: "none", margin: "24px 0 0", padding: 0, borderTop: "1px solid var(--v3-line)" }}>

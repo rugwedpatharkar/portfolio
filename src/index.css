@@ -1271,6 +1271,23 @@ body.matrix-mode .bg-gradient-to-r {
 }
 
 /* ===== PRINT-OPTIMIZED RESUME ===== */
+/* v3 stellar print: hide EVERYTHING and show a single "download the PDF" note.
+   Printing a 3D scroll tour is nonsense — direct people to the actual paper resume.
+   Only active on the v3 route (html.stellar-v3), which is set by V3Style. */
+@media print {
+  html.stellar-v3 body > * { display: none !important; }
+  html.stellar-v3 body::before {
+    content: "Rugwed Patharkar — Resume\A The web portfolio is a 3D experience, best viewed at rugwedpatharkar.vercel.app.\A For a printable version, download the PDF: rugwedpatharkar.vercel.app/Rugwed-Patharkar-Resume.pdf";
+    white-space: pre-line;
+    display: block;
+    padding: 1.5in 0.75in;
+    font-family: Georgia, "Times New Roman", serif;
+    font-size: 13pt;
+    line-height: 1.6;
+    color: #1a1a1a;
+  }
+}
+
 @media print {
   /* Reset background */
   *, *::before, *::after {
