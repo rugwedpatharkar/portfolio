@@ -29,7 +29,15 @@ export default function V3Hero() {
   const reduce = useReducedMotion();
   const { isCompact } = useViewport();
   const ctaRef = useRef(null);
+  const linksRef = useRef(null);
   useEffect(() => magnetic(ctaRef.current, { strength: 0.3 }), []);
+  /* Lighter magnetic pull on the secondary links (Resume/GitHub/LinkedIn) so the
+     whole CTA row feels alive. No-op under reduced motion (magnetic() gates). */
+  useEffect(() => {
+    if (!linksRef.current) return undefined;
+    const cleanups = [...linksRef.current.querySelectorAll("a")].map((a) => magnetic(a, { strength: 0.2 }));
+    return () => cleanups.forEach((fn) => fn && fn());
+  }, []);
 
   const [first, ...rest] = (personalInfo.fullName || "").split(" ");
   const last = rest.join(" ");
@@ -89,7 +97,7 @@ export default function V3Hero() {
         )}
       </motion.div>
 
-      <motion.div variants={rise} style={{ marginTop: 40, display: "flex", gap: 14, alignItems: "center", flexWrap: "wrap" }}>
+      <motion.div ref={linksRef} variants={rise} style={{ marginTop: 40, display: "flex", gap: 14, alignItems: "center", flexWrap: "wrap" }}>
         <button
           ref={ctaRef}
           onClick={beginTour}

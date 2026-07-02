@@ -37,6 +37,7 @@ import { getBodyContent } from "./data/bodies";
 import V3Style from "./v3/V3Style";
 import V3Cursor from "./v3/V3Cursor";
 import V3Hud from "./v3/V3Hud";
+import V3Reticle from "./v3/V3Reticle";
 
 
 /* Section → document-title label (recruiter-facing tab title + a11y context). */
@@ -727,6 +728,10 @@ const StellarApp = ({ v3 = false }) => {
           {/* v3 FUI chrome — hairline frame, stop counter, clickable system rail. */}
           {v3 && mode === "tour" && (
             <V3Hud stops={DESTINATIONS} activeIdx={activeIdx} label={DESTINATIONS[activeIdx]?.label} section={DESTINATIONS[activeIdx]?.section} onJump={handleJump} />
+          )}
+          {/* Focused-planet FUI reticle — tracks the active body via camera projection. */}
+          {v3 && mode === "tour" && (
+            <V3Reticle cameraRef={cameraRef} clock={sceneClockRef.current} activeIdx={activeIdx} />
           )}
           {!v3 && focusedObj && (
             <ScanReadout

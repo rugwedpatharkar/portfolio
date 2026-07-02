@@ -6,7 +6,7 @@
  * clickable to jump). Pointer-transparent except the rail. Per-body accent via
  * --v3-accent. Hidden during the reveal-on-arrival flight fade is handled by opacity.
  */
-import { motion } from "motion/react";
+import { motion, useReducedMotion } from "motion/react";
 import useViewport from "../useViewport";
 
 const Corner = ({ pos }) => {
@@ -22,6 +22,7 @@ const Corner = ({ pos }) => {
 
 export default function V3Hud({ stops = [], activeIdx = 0, label = "", section = "", onJump }) {
   const { isCompact } = useViewport();
+  const reduce = useReducedMotion();
   const total = stops.length;
   const num = (n) => String(n + 1).padStart(2, "0");
 
@@ -31,6 +32,16 @@ export default function V3Hud({ stops = [], activeIdx = 0, label = "", section =
       <div style={{ position: "absolute", inset: 20, border: "1px solid var(--v3-line)", borderRadius: 11 }}>
         <Corner pos="tl" /><Corner pos="tr" /><Corner pos="bl" /><Corner pos="br" />
       </div>
+
+      {/* section-arrival scan-sweep — a subtle per-body accent line crossing the
+          frame on each stop arrival; keyed on activeIdx to replay, off under
+          reduced motion. */}
+      {!reduce && (
+        <div key={activeIdx} aria-hidden style={{ position: "absolute", inset: 20, overflow: "hidden", borderRadius: 11, pointerEvents: "none" }}>
+          <div style={{ position: "absolute", left: 0, right: 0, top: 0, height: 2, background: "linear-gradient(90deg, transparent, var(--v3-accent), transparent)", opacity: 0, boxShadow: "0 0 22px var(--v3-accent)", animation: "v3ArrivalSweep 620ms cubic-bezier(.22,1,.36,1) forwards" }} />
+        </div>
+      )}
+      <style>{`@keyframes v3ArrivalSweep{0%{transform:translateY(0);opacity:0}14%{opacity:.4}100%{transform:translateY(calc(100vh - 42px));opacity:0}}`}</style>
 
       {/* top-left wordmark (hidden on compact — the counter carries context) */}
       {!isCompact && (
