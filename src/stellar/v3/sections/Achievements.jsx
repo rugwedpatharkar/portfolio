@@ -18,8 +18,8 @@ const META = sectionMeta.achievements || {
 const Node = ({ a, delay, row, col }) => (
   <V3Scan variant="circuit" delay={delay}>
     <div style={{
-      display: "flex", flexDirection: "column", gap: 8,
-      padding: "14px 16px 14px",
+      display: "flex", flexDirection: "column", gap: 6,
+      padding: "10px 14px 10px",
       borderTop: row > 0 ? "1px solid var(--v3-line)" : "none",
       borderLeft: col > 0 ? "1px solid var(--v3-line)" : "none",
       minWidth: 0, position: "relative",
@@ -31,21 +31,21 @@ const Node = ({ a, delay, row, col }) => (
         boxShadow: "0 0 8px var(--v3-accent)",
       }} />
       <div style={{
-        fontFamily: "var(--v3-font-mono)", fontWeight: 400, fontSize: 9,
+        fontFamily: "var(--v3-font-mono)", fontWeight: 400, fontSize: 10.5,
         letterSpacing: ".22em", textTransform: "uppercase", color: "var(--v3-fg-mute)",
       }}>{a.year ? `Logged ${a.year}` : "Milestone"}</div>
-      <div style={{ display: "flex", alignItems: "flex-start", gap: 10 }}>
-        <span aria-hidden style={{ fontSize: "1.4rem", flexShrink: 0, lineHeight: 1 }}>{a.icon}</span>
+      <div style={{ display: "flex", alignItems: "flex-start", gap: 12 }}>
+        <span aria-hidden style={{ fontSize: "1.7rem", flexShrink: 0, lineHeight: 1 }}>{a.icon}</span>
         <div style={{
           fontFamily: "var(--v3-font-display)", fontWeight: 340,
-          fontSize: "clamp(.95rem, 1.1vw, 1.1rem)", lineHeight: 1.15,
+          fontSize: "clamp(1.1rem, 1.35vw, 1.35rem)", lineHeight: 1.15,
           letterSpacing: "-.005em", color: "var(--v3-fg)", fontOpticalSizing: "auto",
         }}>{a.title}</div>
       </div>
       <p style={{
         fontFamily: "var(--v3-font-ui)", fontWeight: 300,
-        fontSize: "clamp(.7rem, 0.78vw, .78rem)",
-        color: "var(--v3-fg-dim)", lineHeight: 1.4, margin: 0,
+        fontSize: "clamp(.85rem, 0.95vw, .95rem)",
+        color: "var(--v3-fg-dim)", lineHeight: 1.5, margin: 0,
         display: "-webkit-box", WebkitLineClamp: 3, WebkitBoxOrient: "vertical",
         overflow: "hidden",
       }}>{a.description}</p>
