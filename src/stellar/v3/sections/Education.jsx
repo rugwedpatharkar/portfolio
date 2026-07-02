@@ -1,66 +1,155 @@
 "use client";
 /*
- * Education (Uranus) — Horizontal drill-down: 4 degree nodes on a V3Circuit
- * horizontal strip, each with a small SVG progress ring for the score. Below
- * each node: school + year + highlight bullets. Scan direction: circuit.
+ * Education (Saturn) — 4 degree records, progress-ring per row.
+ *
+ * Correct planet per destinations config: destination 'notes' has label
+ * 'Saturn' and section 'education', so the planet visible during this
+ * section is Saturn (was mislabeled URANUS in the old file).
+ *
+ * Narrow-first per v3 rule: LEFT area spans grid col 1 only, maxWidth 50vw.
+ * 4 rows stacked, distributed with justify-content: space-between so they
+ * fill the LEFT column height instead of clustering at the top.
+ *
+ * Row structure:
+ *   - Left rail (~110px): SVG progress ring showing degree score %.
+ *   - Right column: mono kicker (level · year), DM Serif Display degree +
+ *     school, hairline chip list of highlights.
+ * Hairline divider between rows.
+ * Scan direction: circuit (rows wire in progressively).
  */
-import { educations } from "../../../content";
-import { V3Frame, V3Callout, V3Circuit, V3Channel } from "../primitives";
+import { educations, sectionMeta } from "../../../content";
+import { V3Frame, V3Scan } from "../primitives";
 
-const RING = ({ pct = 0 }) => {
-  const r = 22;
+const META = sectionMeta.education || {
+  sub: "Formation",
+  heading: "Academic Track",
+};
+
+const Ring = ({ pct = 0 }) => {
+  const r = 26;
   const c = 2 * Math.PI * r;
   const dash = c * (pct / 100);
   return (
-    <svg width="56" height="56" viewBox="0 0 56 56" aria-hidden style={{ display: "block" }}>
-      <circle cx="28" cy="28" r={r} stroke="var(--v3-line)" strokeWidth="2" fill="none" />
-      <circle cx="28" cy="28" r={r} stroke="var(--v3-accent)" strokeWidth="2" fill="none"
-        strokeDasharray={`${dash} ${c - dash}`} strokeDashoffset={c / 4} strokeLinecap="round"
-        style={{ transformOrigin: "center", transform: "rotate(-90deg)" }} />
-      <text x="28" y="32" textAnchor="middle" style={{ fill: "var(--v3-fg)", font: "400 12px var(--v3-font-mono)", letterSpacing: ".04em" }}>
-        {Math.round(pct)}%
-      </text>
+    <svg width="64" height="64" viewBox="0 0 64 64" aria-hidden style={{ display: "block", flexShrink: 0 }}>
+      <circle cx="32" cy="32" r={r} stroke="var(--v3-line)" strokeWidth="2" fill="none" />
+      <circle
+        cx="32" cy="32" r={r}
+        stroke="var(--v3-accent)" strokeWidth="2" fill="none"
+        strokeDasharray={`${dash} ${c - dash}`}
+        strokeDashoffset={c / 4}
+        strokeLinecap="round"
+        style={{ transformOrigin: "center", transform: "rotate(-90deg)" }}
+      />
+      <text
+        x="32" y="36" textAnchor="middle"
+        style={{
+          fill: "var(--v3-fg)",
+          font: "400 13px var(--v3-font-mono)",
+          letterSpacing: ".02em",
+        }}
+      >{Math.round(pct)}%</text>
     </svg>
   );
 };
 
-export default function EducationSection({ index, bootNonce }) {
-  const nodes = (educations || []).map((e, i) => ({
-    id: `edu-${i}`,
-    render: (
-      <div>
-        <div style={{ display: "flex", alignItems: "center", gap: 12, marginBottom: 10 }}>
-          <RING pct={e.percentage || 0} />
-          <div style={{ minWidth: 0 }}>
-            <div style={{ font: `400 10px var(--v3-font-mono)`, letterSpacing: ".18em", textTransform: "uppercase", color: "var(--v3-fg-mute)" }}>
-              {e.shortName || e.level}
-            </div>
-            <div style={{ font: `400 1rem var(--v3-font-serif)`, color: "var(--v3-fg)", lineHeight: 1.15, letterSpacing: "-.005em", marginTop: 2, fontOpticalSizing: "auto" }}>
-              {e.degree}
-            </div>
-          </div>
+const Row = ({ i, edu, delay }) => (
+  <V3Scan variant="circuit" delay={delay}>
+    <div style={{
+      display: "grid",
+      gridTemplateColumns: "auto 1fr",
+      gap: 18, alignItems: "flex-start",
+      padding: "14px 4px",
+      borderTop: i > 0 ? "1px solid var(--v3-line)" : "none",
+      minWidth: 0,
+    }}>
+      <Ring pct={edu.percentage || 0} />
+      <div style={{ display: "flex", flexDirection: "column", gap: 6, minWidth: 0 }}>
+        <div style={{
+          fontFamily: "var(--v3-font-mono)", fontWeight: 400, fontSize: 10,
+          letterSpacing: ".22em", textTransform: "uppercase", color: "var(--v3-fg-mute)",
+        }}>
+          {edu.shortName || edu.level}{edu.year ? ` · ${edu.year}` : ""}
         </div>
-        <V3Channel label={e.year} scanDelay={0} size="sm" tick={false}>
-          <span style={{ font: `300 var(--v3-type-cap) var(--v3-font-ui)`, color: "var(--v3-fg-dim)" }}>{e.name}</span>
-        </V3Channel>
-        {e.highlights?.length > 0 && (
-          <ul style={{ listStyle: "none", padding: 0, margin: "10px 0 0", display: "flex", flexDirection: "column", gap: 4 }}>
-            {e.highlights.map((h, k) => (
-              <li key={k} style={{ font: `300 var(--v3-type-cap) var(--v3-font-ui)`, color: "var(--v3-fg-dim)", paddingLeft: 12, position: "relative", lineHeight: 1.5 }}>
-                <span aria-hidden style={{ position: "absolute", left: 0, color: "var(--v3-accent)" }}>—</span>{h}
-              </li>
+        <h3 style={{
+          fontFamily: "var(--v3-font-display)", fontWeight: 340,
+          fontSize: "clamp(1.05rem, 1.25vw, 1.3rem)", fontOpticalSizing: "auto",
+          lineHeight: 1.15, letterSpacing: "-.005em",
+          color: "var(--v3-fg)", margin: 0,
+        }}>
+          {edu.degree}
+        </h3>
+        <div style={{
+          fontFamily: "var(--v3-font-ui)", fontWeight: 300,
+          fontSize: "clamp(.82rem, 0.9vw, .9rem)",
+          color: "var(--v3-fg-dim)", lineHeight: 1.4,
+        }}>{edu.name}</div>
+        {edu.highlights?.length > 0 && (
+          <div style={{ display: "flex", flexWrap: "wrap", gap: 4, marginTop: 4 }}>
+            {edu.highlights.map((h, k) => (
+              <span key={k} style={{
+                fontFamily: "var(--v3-font-mono)", fontWeight: 400, fontSize: 9.5,
+                letterSpacing: ".06em", color: "var(--v3-fg-dim)",
+                border: "1px solid var(--v3-line-strong)", borderRadius: 999,
+                padding: "1px 8px", whiteSpace: "nowrap",
+              }}>{h}</span>
             ))}
-          </ul>
+          </div>
         )}
       </div>
-    ),
-  }));
+    </div>
+  </V3Scan>
+);
 
+export default function EducationSection({ index, bootNonce }) {
+  const list = educations || [];
   return (
-    <V3Frame section="Education" planet="URANUS" index={index} scanDir="circuit" scanKey={bootNonce}>
-      <div style={{ gridArea: "left / left / right-top / right-top", display: "flex", flexDirection: "column", gap: 22, minWidth: 0 }}>
-        <V3Callout size="s4" emphasis="of the engineer">Formation</V3Callout>
-        <V3Circuit mode="horizontal" nodes={nodes} gap={22} />
+    <V3Frame
+      section="Education"
+      planet="SATURN"
+      index={index}
+      scanDir="circuit"
+      scanKey={bootNonce}
+      /* Narrow-first: 'left' spans col 1 only, maxWidth 50vw. 4 degrees
+         stack vertically with justify-content: space-between so they fill
+         the LEFT column instead of clustering at the top. */
+      gridAreas={`"top top top" "left . ." "left . ." "bottom bottom bottom"`}
+    >
+      <div style={{ gridArea: "left", display: "flex", flexDirection: "column", gap: 16, minWidth: 0, overflow: "hidden", maxWidth: "50vw", height: "100%" }}>
+        {/* Header */}
+        <V3Scan variant="horizontal" delay={0.05}>
+          <div>
+            <div style={{ display: "flex", alignItems: "center", gap: 12, marginBottom: 10 }}>
+              <span style={{ width: 22, height: 1, background: "var(--v3-accent)" }} />
+              <span style={{
+                fontFamily: "var(--v3-font-mono)", fontWeight: 400, fontSize: 10,
+                letterSpacing: ".28em", textTransform: "uppercase", color: "var(--v3-fg-mute)",
+              }}>{META.sub}</span>
+            </div>
+            <h2 style={{
+              fontFamily: "var(--v3-font-display)", fontWeight: 340,
+              fontSize: "clamp(1.9rem, 3vw, 2.4rem)", fontOpticalSizing: "auto",
+              lineHeight: 1, letterSpacing: "-.02em", color: "var(--v3-fg)",
+              margin: 0,
+            }}>
+              {META.heading}
+            </h2>
+          </div>
+        </V3Scan>
+
+        {/* 4 degree rows */}
+        <div style={{
+          display: "flex", flexDirection: "column",
+          justifyContent: "space-between",
+          border: "1px solid var(--v3-line)",
+          borderRadius: 6,
+          background: "color-mix(in oklab, var(--v3-bg-void) 50%, transparent)",
+          padding: "4px 18px",
+          flex: 1, minHeight: 0, overflow: "hidden",
+        }}>
+          {list.slice(0, 4).map((edu, i) => (
+            <Row key={i} i={i} edu={edu} delay={0.15 + i * 0.06} />
+          ))}
+        </div>
       </div>
     </V3Frame>
   );
