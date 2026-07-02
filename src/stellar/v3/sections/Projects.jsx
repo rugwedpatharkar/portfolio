@@ -205,14 +205,15 @@ export default function ProjectsSection({ index, bootNonce }) {
         </V3Scan>
 
         {/* Cards grid — 3-col at wider section width so each card stays portrait.
-            flex: 1 + gridAutoRows: 1fr → rows stretch to fill the LEFT column's
-            remaining vertical space, so cards grow to consume the empty area
-            below rather than leaving it blank. */}
+            gridAutoRows: min-content + alignContent: start → rows size to their
+            content, so Personal tab (single row of 3) doesn't stretch cards to
+            fill the whole remaining vertical space. Professional tab (2 rows of
+            3) stacks naturally with rowGap between. */}
         <div key={`grid-${tab}`} style={{
           display: "grid", gridTemplateColumns: "1fr 1fr 1fr",
           columnGap: 14, rowGap: 14,
-          gridAutoRows: "1fr",
-          flex: 1, minHeight: 0,
+          gridAutoRows: "min-content",
+          alignContent: "start",
         }}>
           {list.map((p, i) => (
             <ProjectCard key={`${tab}-${i}`} p={p} delay={0.18 + i * 0.06} />
