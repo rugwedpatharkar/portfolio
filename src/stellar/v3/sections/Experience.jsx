@@ -37,10 +37,15 @@ export default function ExperienceSection({ index, bootNonce }) {
       index={index}
       scanDir="drill"
       scanKey={bootNonce}
-      gridAreas={`"top top top" "left . ." "left . ." "bottom bottom bottom"`}
+      /* Wider left region for Experience: 'left' spans cols 1+2 so the grid cell
+         itself is 2.4fr of 3fr ≈ 80% of the frame. Content still capped at 65vw
+         so it doesn't crowd the sun/planet + top-right telemetry card. */
+      gridAreas={`"top top top" "left left ." "left left ." "bottom bottom bottom"`}
     >
-      {/* LEFT — all content, maxWidth 50vw so it never touches Earth. */}
-      <div style={{ gridArea: "left", display: "flex", flexDirection: "column", gap: 20, minWidth: 0, overflow: "hidden", maxWidth: "50vw" }}>
+      {/* LEFT — all content. Wider than About/FunFacts because Experience is the
+          densest section; Earth is a small planet so the extra width still clears
+          the sphere + top-right telemetry card. */}
+      <div style={{ gridArea: "left", display: "flex", flexDirection: "column", gap: 16, minWidth: 0, overflow: "hidden", maxWidth: "65vw" }}>
         {/* Section header — same voice as About + FunFacts */}
         <V3Scan variant="horizontal" delay={0.05}>
           <div>
@@ -100,33 +105,36 @@ export default function ExperienceSection({ index, bootNonce }) {
           </div>
         </V3Scan>
 
-        {/* Active role hero — title big, company italic accent, date mono */}
+        {/* Active role hero — title + company on one line, achievement pill inline
+            beside them to save vertical footprint (Experience is the densest section). */}
         <V3Scan variant="horizontal" delay={0.18} key={`role-${active}`}>
-          <div>
-            <div style={{
-              fontFamily: "var(--v3-font-mono)", fontWeight: 400, fontSize: "clamp(11px, 0.95vw, 13px)",
-              letterSpacing: ".22em", textTransform: "uppercase", color: "var(--v3-fg-dim)",
-              marginBottom: 8,
-            }}>
-              {exp.title}
-            </div>
-            <div style={{
-              fontFamily: "var(--v3-font-display)", fontWeight: 340,
-              fontSize: "clamp(1.6rem, 2.6vw, 2.2rem)", fontOpticalSizing: "auto",
-              lineHeight: 1.05, letterSpacing: "-.015em", color: "var(--v3-fg)",
-            }}>
-              at <span style={{ fontStyle: "italic", color: "var(--v3-accent)" }}>{exp.companyName}</span>
+          <div style={{ display: "flex", alignItems: "flex-end", gap: 16, flexWrap: "wrap" }}>
+            <div>
+              <div style={{
+                fontFamily: "var(--v3-font-mono)", fontWeight: 400, fontSize: "clamp(10px, 0.85vw, 12px)",
+                letterSpacing: ".22em", textTransform: "uppercase", color: "var(--v3-fg-dim)",
+                marginBottom: 4,
+              }}>
+                {exp.title}
+              </div>
+              <div style={{
+                fontFamily: "var(--v3-font-display)", fontWeight: 340,
+                fontSize: "clamp(1.4rem, 2.2vw, 1.9rem)", fontOpticalSizing: "auto",
+                lineHeight: 1.05, letterSpacing: "-.015em", color: "var(--v3-fg)",
+              }}>
+                at <span style={{ fontStyle: "italic", color: "var(--v3-accent)" }}>{exp.companyName}</span>
+              </div>
             </div>
             {exp.achievement && (
               <div style={{
                 display: "inline-flex", alignItems: "center", gap: 8,
-                marginTop: 12,
+                marginBottom: 4,
                 padding: "5px 12px",
                 border: "1px solid var(--v3-accent)",
                 borderRadius: 999,
                 background: "color-mix(in oklab, var(--v3-accent) 10%, transparent)",
                 fontFamily: "var(--v3-font-mono)", fontWeight: 400, fontSize: 10,
-                letterSpacing: ".16em", textTransform: "uppercase",
+                letterSpacing: ".14em", textTransform: "uppercase",
                 color: "var(--v3-fg)",
               }}>
                 <span aria-hidden style={{ width: 5, height: 5, borderRadius: "50%", background: "var(--v3-accent)", boxShadow: "0 0 8px var(--v3-accent)" }} />
@@ -153,7 +161,7 @@ export default function ExperienceSection({ index, bootNonce }) {
                 }}>
                   <span style={{
                     fontFamily: "var(--v3-font-display)", fontWeight: 340,
-                    fontSize: "clamp(1.4rem, 2vw, 1.8rem)", lineHeight: 1,
+                    fontSize: "clamp(1.2rem, 1.75vw, 1.6rem)", lineHeight: 1,
                     letterSpacing: "-.015em", color: "var(--v3-fg)", fontOpticalSizing: "auto",
                     fontVariantNumeric: "tabular-nums",
                   }}>{m.value}</span>
@@ -173,11 +181,13 @@ export default function ExperienceSection({ index, bootNonce }) {
         <V3Scan variant="horizontal" delay={0.3} key={`cats-${active}`}>
           <div style={{
             display: "grid",
-            gridTemplateColumns: exp.categories?.length > 3 ? "1fr 1fr" : "1fr",
-            columnGap: 28, rowGap: 18,
+            gridTemplateColumns: exp.categories?.length > 3 ? "1fr 1fr 1fr" : exp.categories?.length > 1 ? "1fr 1fr" : "1fr",
+            columnGap: 24, rowGap: 18,
           }}>
             {(exp.categories || []).map((c, i) => {
-              const shown = (c.points || []).slice(0, 2);
+              /* Show 1 bullet per category — the lead claim. Extras count as
+                 '+N more' hint (real numbers only, no misleading '+0 more'). */
+              const shown = (c.points || []).slice(0, 1);
               const extra = (c.points || []).length - shown.length;
               return (
                 <div key={i} style={{ minWidth: 0 }}>
@@ -197,8 +207,8 @@ export default function ExperienceSection({ index, bootNonce }) {
                     {shown.map((p, k) => (
                       <li key={k} style={{
                         fontFamily: "var(--v3-font-ui)", fontWeight: 300,
-                        fontSize: "clamp(.8rem, 0.9vw, .88rem)",
-                        color: "var(--v3-fg-dim)", lineHeight: 1.5,
+                        fontSize: "clamp(.74rem, 0.82vw, .82rem)",
+                        color: "var(--v3-fg-dim)", lineHeight: 1.4,
                         paddingLeft: 12, position: "relative",
                       }}>
                         <span aria-hidden style={{ position: "absolute", left: 0, top: "0.75em", width: 6, height: 1, background: "var(--v3-line-strong)" }} />
