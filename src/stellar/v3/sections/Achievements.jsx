@@ -63,9 +63,13 @@ export default function AchievementsSection({ index, bootNonce }) {
       index={index}
       scanDir="circuit"
       scanKey={bootNonce}
-      gridAreas={`"top top top" "left left ." "left left ." "bottom bottom bottom"`}
+      /* Narrow default — 'left' spans col 1 only, maxWidth 50vw. Grid cells
+         inside stretch to fill remaining vertical space so 8 milestones read
+         as a full-height circuit panel, not a floating 4×2 with empty area
+         below. */
+      gridAreas={`"top top top" "left . ." "left . ." "bottom bottom bottom"`}
     >
-      <div style={{ gridArea: "left", display: "flex", flexDirection: "column", gap: 18, minWidth: 0, overflow: "hidden", maxWidth: "60vw" }}>
+      <div style={{ gridArea: "left", display: "flex", flexDirection: "column", gap: 18, minWidth: 0, overflow: "hidden", maxWidth: "50vw", height: "100%" }}>
         {/* Header */}
         <V3Scan variant="horizontal" delay={0.05}>
           <div>
@@ -94,20 +98,22 @@ export default function AchievementsSection({ index, bootNonce }) {
           </div>
         </V3Scan>
 
-        {/* 4×2 milestone circuit grid — hairline dividers imply node connections */}
+        {/* 2×4 milestone circuit grid — narrower section fits 2 cols per row
+            comfortably; 4 rows fill vertical. gridAutoRows: 1fr + flex: 1
+            stretch cells to consume the full remaining LEFT column height. */}
         <div style={{
           display: "grid",
-          gridTemplateColumns: "1fr 1fr 1fr 1fr",
-          gridAutoRows: "min-content",
-          alignContent: "start",
+          gridTemplateColumns: "1fr 1fr",
+          gridAutoRows: "1fr",
           border: "1px solid var(--v3-line)",
           borderRadius: 6,
           background: "color-mix(in oklab, var(--v3-bg-void) 50%, transparent)",
           position: "relative",
+          flex: 1, minHeight: 0,
         }}>
           {list.slice(0, 8).map((a, i) => {
-            const row = Math.floor(i / 4);
-            const col = i % 4;
+            const row = Math.floor(i / 2);
+            const col = i % 2;
             return (
               <Node
                 key={i}
