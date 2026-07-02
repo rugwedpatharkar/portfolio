@@ -153,10 +153,12 @@ export default function SkillsSection({ index, bootNonce }) {
             })}
           </div>
 
-          {/* Detail: active category's skills with proficiency bars */}
+          {/* Detail: active category's skills with proficiency bars. paddingRight
+              leaves clearance for the 6px v3 scrollbar so the level% column
+              doesn't sit underneath it. */}
           <div
             key={activeName}
-            style={{ display: "flex", flexDirection: "column", gap: 2, overflowY: "auto", minHeight: 0, paddingRight: 4 }}
+            style={{ display: "flex", flexDirection: "column", gap: 2, overflowY: "auto", minHeight: 0, paddingRight: 16 }}
           >
             <div style={{ display: "flex", alignItems: "baseline", gap: 12, marginBottom: 6 }}>
               <span aria-hidden style={{ width: 14, height: 1, background: "var(--v3-accent)" }} />
