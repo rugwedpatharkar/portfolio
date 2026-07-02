@@ -72,18 +72,18 @@ export default function V3PlanetCard({ facts, hidden = false }) {
       <div style={{ display: "flex", flexDirection: "column" }}>
         {rows.map(([label, k], i) => (
           <div key={k} style={{
-            display: "flex", justifyContent: "space-between", alignItems: "baseline",
-            gap: 12, padding: "5px 0", borderTop: i === 0 ? "0" : "1px solid var(--v3-line)",
+            display: "flex", flexDirection: "column", gap: 2,
+            padding: "7px 0", borderTop: i === 0 ? "0" : "1px solid var(--v3-line)",
           }}>
             <span style={{
               fontFamily: "var(--v3-font-mono)", fontWeight: 400, fontSize: 9,
-              letterSpacing: ".16em", textTransform: "uppercase", color: "var(--v3-fg-mute)", flexShrink: 0,
+              letterSpacing: ".16em", textTransform: "uppercase", color: "var(--v3-fg-mute)",
             }}>
               {label}
             </span>
             <span style={{
-              fontFamily: "var(--v3-font-mono)", fontWeight: 400, fontSize: ".72rem",
-              fontVariantNumeric: "tabular-nums", color: "var(--v3-fg)", textAlign: "right",
+              fontFamily: "var(--v3-font-mono)", fontWeight: 400, fontSize: ".78rem",
+              fontVariantNumeric: "tabular-nums", color: "var(--v3-fg)",
               letterSpacing: ".01em", lineHeight: 1.35,
             }}>
               {facts[k]}
