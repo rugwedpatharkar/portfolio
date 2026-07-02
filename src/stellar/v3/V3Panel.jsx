@@ -73,6 +73,33 @@ function Dossier({ d }) {
   );
 }
 
+/* Body telemetry — the scientific facts about the framed body. Docked as a HUD
+   readout (bottom-right on desktop, inline on mobile) so it's clearly the
+   PLANET's data, separate from the résumé reading column. */
+function Telemetry({ facts }) {
+  const rows = FACT_ROWS.filter(([, k]) => facts[k]);
+  return (
+    <>
+      <div style={{ display: "flex", alignItems: "center", gap: 9, marginBottom: 15 }}>
+        <span style={{ width: 16, height: 1, background: "var(--v3-accent)", opacity: 0.7 }} />
+        <span style={{ font: `400 10px var(--v3-font-mono)`, letterSpacing: ".26em", textTransform: "uppercase", color: "var(--v3-fg-mute)" }}>Body telemetry</span>
+      </div>
+      {/* spec-sheet rows: label left, value right — one line each, no cramped wrap */}
+      <div style={{ display: "flex", flexDirection: "column", gap: 11 }}>
+        {rows.map(([label, k]) => (
+          <div key={k} style={{ display: "flex", justifyContent: "space-between", alignItems: "baseline", gap: 18 }}>
+            <span style={{ flexShrink: 0, font: `400 10px var(--v3-font-mono)`, letterSpacing: ".16em", textTransform: "uppercase", color: "var(--v3-fg-mute)" }}>{label}</span>
+            <span style={{ font: `400 var(--v3-type-cap) var(--v3-font-mono)`, color: "var(--v3-fg)", textAlign: "right", lineHeight: 1.3 }}>{facts[k]}</span>
+          </div>
+        ))}
+      </div>
+      {facts.wow && (
+        <div style={{ font: `300 var(--v3-type-cap) var(--v3-font-ui)`, color: "var(--v3-fg-dim)", lineHeight: 1.55, marginTop: 16, paddingTop: 14, borderTop: "1px solid var(--v3-line)" }}>{facts.wow}</div>
+      )}
+    </>
+  );
+}
+
 export default function V3Panel({ destination, section, items, bootNonce }) {
   const reduce = useReducedMotion();
   const { isCompact } = useViewport();
@@ -138,7 +165,7 @@ export default function V3Panel({ destination, section, items, bootNonce }) {
 
   const stagger = { hidden: {}, show: { transition: { staggerChildren: reduce ? 0 : 0.055, delayChildren: reduce ? 0 : 0.08 } } };
   const rise = { hidden: { opacity: 0, y: reduce ? 0 : 14 }, show: { opacity: 1, y: 0, transition: { duration: 0.5, ease } } };
-  const wrap = { pointerEvents: "auto", maxWidth: isCompact ? "100%" : "min(46ch, 42vw)", maxHeight: isCompact ? "60vh" : "82vh", overflowY: "auto", overflowX: "hidden" };
+  const wrap = { pointerEvents: "auto", maxWidth: isCompact ? "100%" : "min(66ch, 54vw)", maxHeight: isCompact ? "60vh" : "84vh", overflowY: "auto", overflowX: "hidden" };
 
   /* ---- cosmic epilogue stop (no résumé items — the phenomenon's facts + wow) ---- */
   const cosmic = destination && COSMIC_BY_ID[destination.id];
@@ -172,6 +199,7 @@ export default function V3Panel({ destination, section, items, bootNonce }) {
   /* ---- résumé stop — inline accordion ---- */
   const fade = "linear-gradient(to bottom, #000 calc(100% - 46px), transparent)";
   return (
+    <>
     <div
       ref={wrapRef}
       style={{ ...wrap, position: "relative", maskImage: overflow ? fade : "none", WebkitMaskImage: overflow ? fade : "none" }}
@@ -182,17 +210,35 @@ export default function V3Panel({ destination, section, items, bootNonce }) {
           <span style={{ width: 30, height: 1, background: "var(--v3-accent)" }} />{planet}
         </motion.div>
 
-        {/* About stop — the personal header with photo */}
+        {/* About stop — the personal header with photo. The source is a portrait
+            cutout with the subject right-of-centre over transparency, so a plain
+            square objectFit:cover shows the empty left + a torso-heavy, tiny face.
+            Frame it as a background cropped to a head-and-shoulders square centred
+            on the face (≈x[13–80%], y[3–48%]): headroom above the hair, eyes on the
+            upper third, shoulders at the base. */}
         {isAbout ? (
-          <motion.div variants={rise} style={{ display: "flex", gap: 20, alignItems: "center", margin: ".2em 0 .1em" }}>
-            <img src={heroPhoto} alt={destination?.label || "Portrait"} style={{ width: 96, height: 96, borderRadius: 14, objectFit: "cover", border: "1px solid var(--v3-accent)", boxShadow: "0 0 22px color-mix(in oklab, var(--v3-accent) 32%, transparent)", flexShrink: 0 }} />
+          <motion.div variants={rise} style={{ display: "flex", gap: 22, alignItems: "center", margin: ".2em 0 .1em" }}>
+            <div
+              role="img"
+              aria-label={destination?.label || "Portrait"}
+              style={{
+                width: 106, height: 106, flexShrink: 0, borderRadius: 16,
+                backgroundImage: `url(${heroPhoto})`,
+                backgroundSize: "150% auto",
+                backgroundPosition: "39% 6%",
+                backgroundRepeat: "no-repeat",
+                backgroundColor: "rgba(255,255,255,0.03)",
+                border: "1px solid var(--v3-accent)",
+                boxShadow: "0 0 26px color-mix(in oklab, var(--v3-accent) 30%, transparent)",
+              }}
+            />
             <h2 style={{ font: `400 var(--v3-type-s4) var(--v3-font-serif)`, color: "var(--v3-fg)", lineHeight: 1.0, letterSpacing: "-.02em", margin: 0 }}>{title}</h2>
           </motion.div>
         ) : (
           <motion.h2 variants={rise} style={{ font: `400 var(--v3-type-s4) var(--v3-font-serif)`, color: "var(--v3-fg)", lineHeight: 1.02, letterSpacing: "-.02em", margin: ".12em 0 .2em" }}>{title}</motion.h2>
         )}
 
-        <motion.p variants={rise} style={{ font: `300 var(--v3-type-body) var(--v3-font-ui)`, color: "var(--v3-fg-dim)", lineHeight: 1.55, margin: 0, maxWidth: "40ch" }}>
+        <motion.p variants={rise} style={{ font: `300 var(--v3-type-body) var(--v3-font-ui)`, color: "var(--v3-fg-dim)", lineHeight: 1.55, margin: 0, maxWidth: "58ch" }}>
           {summaryFor(section)}
         </motion.p>
 
@@ -230,24 +276,34 @@ export default function V3Panel({ destination, section, items, bootNonce }) {
           </motion.ul>
         )}
 
-        {/* body telemetry — the scientific facts, hairline FUI readout */}
-        {facts && (
+        {/* Body telemetry inline ONLY on compact (mobile); desktop docks it
+            bottom-right (below) so the reading column stays pure résumé. */}
+        {isCompact && facts && (
           <motion.div variants={rise} style={{ marginTop: 28, borderTop: "1px solid var(--v3-line)", paddingTop: 16 }}>
-            <div style={{ font: `400 var(--v3-type-cap) var(--v3-font-mono)`, letterSpacing: ".2em", textTransform: "uppercase", color: "var(--v3-fg-mute)", marginBottom: 12 }}>◦ Body telemetry</div>
-            <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "10px 24px" }}>
-              {FACT_ROWS.filter(([, k]) => facts[k]).map(([label, k]) => (
-                <div key={k} style={{ minWidth: 0 }}>
-                  <div style={{ font: `400 10px var(--v3-font-mono)`, letterSpacing: ".1em", color: "var(--v3-fg-mute)" }}>{label}</div>
-                  <div style={{ font: `400 var(--v3-type-cap) var(--v3-font-mono)`, color: "var(--v3-fg-dim)", marginTop: 2 }}>{facts[k]}</div>
-                </div>
-              ))}
-            </div>
-            {facts.wow && (
-              <div style={{ font: `300 var(--v3-type-cap) var(--v3-font-ui)`, color: "var(--v3-fg-dim)", lineHeight: 1.5, marginTop: 14, paddingLeft: 14, borderLeft: "2px solid var(--v3-accent)" }}>{facts.wow}</div>
-            )}
+            <Telemetry facts={facts} />
           </motion.div>
         )}
       </motion.div>
     </div>
+    {/* desktop: dock telemetry bottom-right as a scanner data panel near the body,
+        on its own dark backing so it reads over the planet. */}
+    {!isCompact && facts && (
+      <motion.div
+        key={`tel-${section}`}
+        initial={reduce ? false : { opacity: 0, y: 10 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.55, ease, delay: 0.15 }}
+        style={{ position: "fixed", right: "clamp(30px, 4vw, 92px)", bottom: "clamp(26px, 6vh, 62px)", width: "min(360px, 30vw)", zIndex: 41, pointerEvents: "none", padding: "24px 30px" }}
+      >
+        {/* feathered dark backing — dissolves at the edges (no boxy card/border) so
+            the readout floats over the planet; a separate layer, so the text on top
+            is never masked/faded. */}
+        <div aria-hidden style={{ position: "absolute", inset: 0, background: "rgba(4,5,9,0.6)", WebkitMaskImage: "radial-gradient(125% 120% at 82% 55%, #000 48%, transparent 100%)", maskImage: "radial-gradient(125% 120% at 82% 55%, #000 48%, transparent 100%)" }} />
+        <div style={{ position: "relative" }}>
+          <Telemetry facts={facts} />
+        </div>
+      </motion.div>
+    )}
+    </>
   );
 }

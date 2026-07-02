@@ -78,6 +78,18 @@ const OverviewHud = ({ overview }) =>
   ) : null;
 
 
+/* v3 readability scrim — a soft dark gradient behind the content column so text
+   stays legible over the starfield / asteroid belt / planet glow. Anchored to the
+   info side (left on desktop, bottom when the panel stacks on mobile) and fades
+   to transparent before the planet, so the body stays crisp. */
+const V3Scrim = () => {
+  const { isCompact } = useViewport();
+  const bg = isCompact
+    ? "linear-gradient(to top, rgba(4,5,9,0.95) 0%, rgba(4,5,9,0.7) 34%, rgba(4,5,9,0) 62%)"
+    : "linear-gradient(100deg, rgba(4,5,9,0.96) 0%, rgba(4,5,9,0.82) 26%, rgba(4,5,9,0.45) 45%, rgba(4,5,9,0) 60%)";
+  return <div aria-hidden style={{ position: "fixed", inset: 0, zIndex: 30, pointerEvents: "none", background: bg }} />;
+};
+
 const StellarApp = ({ v3 = false }) => {
   const scrollTRef = useRef(0);
   /* Progressive-mount tier (0→3) for the heavy extras suite. Mounting the whole
@@ -618,6 +630,8 @@ const StellarApp = ({ v3 = false }) => {
       {/* v3 skin — injects design tokens + tracks the per-body accent. Mounted
           only on the #v3 route; #stellar (v2) renders unchanged. */}
       {v3 && <V3Style accentKey={DESTINATIONS[activeIdx]?.id} />}
+      {/* v3 dark scrim behind the content column (readability over the busy scene). */}
+      {v3 && <V3Scrim />}
       {/* Hide the page scrollbar — scroll still drives the camera, but the
           bar is visual clutter. (Scoped to while the stellar app is mounted.) */}
       <style>{`
