@@ -41,7 +41,13 @@ export default function V3Hud({ stops = [], activeIdx = 0, label = "", section =
           <div style={{ position: "absolute", left: 0, right: 0, top: 0, height: 2, background: "linear-gradient(90deg, transparent, var(--v3-accent), transparent)", opacity: 0, boxShadow: "0 0 22px var(--v3-accent)", animation: "v3ArrivalSweep 620ms cubic-bezier(.22,1,.36,1) forwards" }} />
         </div>
       )}
-      <style>{`@keyframes v3ArrivalSweep{0%{transform:translateY(0);opacity:0}14%{opacity:.4}100%{transform:translateY(calc(100vh - 42px));opacity:0}}`}</style>
+      <style>{`
+        @keyframes v3ArrivalSweep{0%{transform:translateY(0);opacity:0}14%{opacity:.4}100%{transform:translateY(calc(100vh - 42px));opacity:0}}
+        .v3-rail-tick{transition:transform 140ms cubic-bezier(.22,1,.36,1)}
+        .v3-rail-tick:hover .v3-rail-label{opacity:.6!important}
+        .v3-rail-tick:active{transform:scale(0.86)}
+        @media (prefers-reduced-motion: reduce){.v3-rail-tick{transition:none}.v3-rail-tick:active{transform:none}}
+      `}</style>
 
       {/* top-left wordmark (hidden on compact — the counter carries context) */}
       {!isCompact && (
@@ -69,9 +75,10 @@ export default function V3Hud({ stops = [], activeIdx = 0, label = "", section =
               title={s.label}
               aria-label={`Go to ${s.label}`}
               data-cursor
+              className="v3-rail-tick"
               style={{ all: "unset", cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "flex-end", gap: 8, height: 12 }}
             >
-              <span style={{ fontSize: ".6rem", letterSpacing: ".1em", color: "var(--v3-accent)", opacity: on ? 1 : 0, transition: "opacity .25s", textTransform: "uppercase" }}>{s.label}</span>
+              <span className="v3-rail-label" style={{ fontSize: ".6rem", letterSpacing: ".1em", color: "var(--v3-accent)", opacity: on ? 1 : 0, transition: "opacity .25s", textTransform: "uppercase" }}>{s.label}</span>
               <motion.span
                 animate={{ width: on ? 22 : 10, backgroundColor: on ? "var(--v3-accent)" : "rgba(255,255,255,0.28)" }}
                 transition={{ type: "spring", stiffness: 320, damping: 26 }}

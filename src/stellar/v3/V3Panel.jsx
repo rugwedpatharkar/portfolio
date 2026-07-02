@@ -67,7 +67,7 @@ function Dossier({ d }) {
         </div>
       )}
       {d.href && (
-        <a href={d.href} target="_blank" rel="noreferrer" style={{ display: "inline-block", marginTop: 16, font: `400 var(--v3-type-cap) var(--v3-font-mono)`, letterSpacing: ".1em", textTransform: "uppercase", color: "var(--v3-bg-void)", background: "var(--v3-accent)", borderRadius: 6, padding: "9px 16px", textDecoration: "none" }}>Open channel →</a>
+        <a className="v3-press" href={d.href} target="_blank" rel="noreferrer" style={{ display: "inline-block", marginTop: 16, font: `400 var(--v3-type-cap) var(--v3-font-mono)`, letterSpacing: ".1em", textTransform: "uppercase", color: "var(--v3-bg-void)", background: "var(--v3-accent)", borderRadius: 6, padding: "9px 16px", textDecoration: "none" }}>Open channel →</a>
       )}
     </>
   );
@@ -200,6 +200,15 @@ export default function V3Panel({ destination, section, items, bootNonce }) {
   const fade = "linear-gradient(to bottom, #000 calc(100% - 46px), transparent)";
   return (
     <>
+    {/* Emil-style press feedback: rows get a subtle scale + accent wash on :active,
+        the CTA a firmer scale. Native :active (no JS), reduced-motion no-op. */}
+    <style>{`
+      .v3-row { transition: transform 150ms cubic-bezier(.22,1,.36,1), background-color 160ms ease; border-radius: 6px; }
+      .v3-row:active { transform: scale(0.994); background-color: color-mix(in oklab, var(--v3-accent) 8%, transparent); }
+      .v3-press { transition: transform 150ms cubic-bezier(.22,1,.36,1); }
+      .v3-press:active { transform: scale(0.96); }
+      @media (prefers-reduced-motion: reduce) { .v3-row, .v3-press { transition: none; } .v3-row:active, .v3-press:active { transform: none; } }
+    `}</style>
     <div
       ref={wrapRef}
       style={{ ...wrap, position: "relative", maskImage: overflow ? fade : "none", WebkitMaskImage: overflow ? fade : "none" }}
@@ -252,6 +261,7 @@ export default function V3Panel({ destination, section, items, bootNonce }) {
                   <button
                     onClick={() => toggle(i)}
                     aria-expanded={isOpen}
+                    className="v3-row"
                     style={{ all: "unset", cursor: "pointer", display: "flex", alignItems: "baseline", gap: 14, width: "100%", boxSizing: "border-box", padding: "13px 4px" }}
                     onMouseEnter={(e) => { const t = e.currentTarget.querySelector("[data-t]"); if (t) t.style.color = "var(--v3-accent)"; }}
                     onMouseLeave={(e) => { const t = e.currentTarget.querySelector("[data-t]"); if (t && !isOpen) t.style.color = "var(--v3-fg)"; }}
