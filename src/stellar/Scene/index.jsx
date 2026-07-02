@@ -31,7 +31,6 @@ import LensFlare from "./LensFlare";
 import OrbitRings from "./OrbitRings";
 import Beacon from "./Beacon";
 // LaneObjects retired — the Holo-Bridge dossier cluster replaces the forced-←→ convoy.
-import SolarProminences from "./SolarProminences";
 import SolarEclipse from "./SolarEclipse";
 import EclipseLights from "./EclipseLights";
 import DwarfPlanets from "./DwarfPlanets";
@@ -145,6 +144,11 @@ const Scene = ({ scrollT, activeIdx, itemIdx = 0, onJump, onReady, freeRoamEnabl
      markers, spare comets, danger field) crowd the clean planet frames. The tour-worthy
      landmarks (black hole, pulsar, comet, wormhole, nebulae, Milky Way) stay. */
   const deepMid = showMid && !v3;
+  /* v3 HOMEPAGE OVERVIEW (stop 0) = a clean system map: no asteroid belt / belt dust /
+     floating dust / zodiacal scatter cluttering the Sun (the "white dots"), and no
+     orbit lines (OrbitRings draws only the revolving planets). They return on the
+     per-planet stops. */
+  const overview = v3 && activeIdx === 0;
   /* Camera offsets — kept in refs so React state doesn't re-render
      the whole tree on every frame. Mouse parallax and free-roam each
      own their own offset; CameraRig sums them. */
@@ -254,7 +258,7 @@ const Scene = ({ scrollT, activeIdx, itemIdx = 0, onJump, onReady, freeRoamEnabl
         {/* Grand faint galactic band — far backdrop for depth. */}
         <MilkyWay animate={!reducedMotion} />
         {/* Zodiacal light — faint sunlight scattered by ecliptic-plane dust. */}
-        {showExtras && <ZodiacalLight />}
+        {showExtras && !overview && <ZodiacalLight />}
         {/* Named constellations (Orion, Big Dipper, Cassiopeia) that fade in
             when the camera holds still — built but previously unmounted. */}
         {showExtras && !isMobile && !v3 && <Constellations scrollTRef={scrollT} />}
@@ -329,7 +333,6 @@ const Scene = ({ scrollT, activeIdx, itemIdx = 0, onJump, onReady, freeRoamEnabl
                   onPointerOver={handleHoverIn}
                   onPointerOut={handleHoverOut}
                 />
-                <SolarProminences position={d.position} radius={d.radius} />
               </group>
             );
           }
@@ -475,17 +478,17 @@ const Scene = ({ scrollT, activeIdx, itemIdx = 0, onJump, onReady, freeRoamEnabl
             (tier 1), the heavy dust haze next (tier 2), the faint gas last
             (tier 3). Main belt = realistic C/S/M mix (~75% dark C-type); Kuiper =
             icy (blue/white ice + reddish tholins). Full dust→giant size range. */}
-        {showExtras && (
+        {showExtras && !overview && (
           <AsteroidBelt count={isMobile ? 5000 : 12000} innerRadius={BACKGROUND_BELTS.asteroid.inner} outerRadius={BACKGROUND_BELTS.asteroid.outer} size={0.18} thickness={BACKGROUND_BELTS.asteroid.thickness} gaps={KIRKWOOD_GAPS} animate={!reducedMotion} />
         )}
-        {showExtras && !isMobile && (
+        {showExtras && !isMobile && !overview && (
           <AsteroidBelt count={6500} innerRadius={BACKGROUND_BELTS.kuiper.inner} outerRadius={BACKGROUND_BELTS.kuiper.outer} size={0.55} thickness={BACKGROUND_BELTS.kuiper.thickness} families={ICY_FAMILIES} weights={ICY_WEIGHTS} cliff animate={!reducedMotion} />
         )}
         {/* Dust haze — tier 2 (the heaviest point build, deferred one tier). */}
-        {showMid && (
+        {showMid && !overview && (
           <BeltDust count={isMobile ? 34000 : 80000} innerRadius={BACKGROUND_BELTS.asteroid.inner} outerRadius={BACKGROUND_BELTS.asteroid.outer} thickness={BACKGROUND_BELTS.asteroid.thickness} color={BACKGROUND_BELTS.asteroid.color} size={2.6} opacity={0.3} gaps={KIRKWOOD_GAPS} animate={!reducedMotion} />
         )}
-        {showMid && !isMobile && (
+        {showMid && !isMobile && !overview && (
           <BeltDust count={55000} innerRadius={BACKGROUND_BELTS.kuiper.inner} outerRadius={BACKGROUND_BELTS.kuiper.outer} thickness={BACKGROUND_BELTS.kuiper.thickness} color={BACKGROUND_BELTS.kuiper.color} size={2.3} opacity={0.26} cliff animate={!reducedMotion} />
         )}
         {/* Tenuous gas/dust clouds — tier 3 (big, faint, soft; distance-faded by
@@ -498,7 +501,7 @@ const Scene = ({ scrollT, activeIdx, itemIdx = 0, onJump, onReady, freeRoamEnabl
         )}
         {/* Jupiter's Trojan asteroids — two swarms 60° ahead/behind Jupiter at
             the L4/L5 Lagrange points (true orbital radius). */}
-        {showExtras && <TrojanAsteroids count={isMobile ? 70 : 160} />}
+        {showExtras && !overview && <TrojanAsteroids count={isMobile ? 70 : 160} />}
         {/* The Oort cloud wrapping the whole system + the heliosphere boundary
             bubble out at the edge (where Voyager crossed). */}
         {showExtras && <OortCloud count={isMobile ? 700 : 1400} />}
@@ -508,7 +511,7 @@ const Scene = ({ scrollT, activeIdx, itemIdx = 0, onJump, onReady, freeRoamEnabl
         {showExtras && <SolarEclipse satelliteRef={moonWorldRef} eclipseRef={eclipseRef} reducedMotion={reducedMotion} />}
         {/* Fade the scene lights toward dark at totality (planet → silhouette). */}
         {showExtras && <EclipseLights eclipseRef={eclipseRef} />}
-        {!isMobile && !reducedMotion && <DustParticles />}
+        {!isMobile && !reducedMotion && !overview && <DustParticles />}
         {/* PHASE 3D — proximity sonification (silent until un-muted). */}
         {!reducedMotion && <Sonification />}
         {/* Non-essential extras defer-mount until the intro completes —

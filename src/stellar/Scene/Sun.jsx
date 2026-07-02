@@ -138,7 +138,6 @@ const Sun = ({
 }) => {
   const meshRef = useRef();
   const matRef = useRef();
-  const promRef = useRef();
   const sceneClock = useSceneClock();
 
   const uniforms = useMemo(
@@ -155,31 +154,6 @@ const Sun = ({
     []
   );
 
-  /* Prominence — the SOHO signature loop off the upper-right limb. Built as a
-     BUNDLE of thin, slightly-offset arc filaments (not one fat tube) so it reads
-     as a wispy flame handle: each strand rises from the limb, arcs out past the
-     edge and returns, at a slightly different bulge/height → a filamentary wave. */
-  const promGeo = useMemo(() => {
-    const R = radius;
-    const P = (deg, rad, z) => {
-      const a = (deg * Math.PI) / 180;
-      return new THREE.Vector3(Math.cos(a) * rad * R, Math.sin(a) * rad * R, z * R);
-    };
-    const arch = (a0, a1, bulge, lift) => {
-      const mid = (a0 + a1) / 2;
-      const curve = new THREE.CatmullRomCurve3([
-        P(a0, 0.99, 0.05),
-        P(mid - (mid - a0) * 0.36, 1.07 + lift * 0.28, 0.07),
-        P(mid, bulge, 0.06 + lift * 0.05),
-        P(mid + (a1 - mid) * 0.36, 1.07 + lift * 0.28, 0.07),
-        P(a1, 0.99, 0.05),
-      ]);
-      return new THREE.TubeGeometry(curve, 64, R * 0.011, 6, false);
-    };
-    /* three strands: outer wide arc, tight inner arc, and a mid crest */
-    return [arch(33, 51, 1.28, 0.55), arch(35, 49, 1.4, 0.2), arch(34, 50.5, 1.34, 0.9)];
-  }, [radius]);
-
   useFrame(({ camera }) => {
     /* Reduced-motion: freeze the churn + spin (t pinned to 0 → static star). */
     const t = animate ? sceneClock.t : 0;
@@ -188,12 +162,6 @@ const Sun = ({
       matRef.current.uniforms.uTime.value = t;
       matRef.current.uniforms.uCameraPos.value.copy(camera.position);
     }
-    /* Prominence flame breathes gently — each strand at a slightly different phase
-       so the bundle shimmers like flowing plasma (static under reduced-motion). */
-    if (promRef.current)
-      promRef.current.children.forEach((c, i) => {
-        if (c.material) c.material.opacity = 0.46 + Math.sin(t * 1.1 + i * 1.7) * 0.16;
-      });
   });
 
   return (
@@ -209,24 +177,8 @@ const Sun = ({
           toneMapped={false}
         />
       </mesh>
-      {/* Corona shells removed — no translucent "circle"/halo disc around the Sun.
-          Bloom on the over-bright photosphere gives it a natural glow on its own. */}
-      {/* Prominence — wispy flame-arc bundle off the upper-right limb (SOHO look).
-          Thin additive filaments that bloom into a glowing handle, not a fat tube. */}
-      <group ref={promRef}>
-        {promGeo.map((g, i) => (
-          <mesh key={i} geometry={g}>
-            <meshBasicMaterial
-              color={i === 1 ? "#ff8a3c" : "#ff4d14"}
-              transparent
-              opacity={0.55}
-              toneMapped={false}
-              depthWrite={false}
-              blending={THREE.AdditiveBlending}
-            />
-          </mesh>
-        ))}
-      </group>
+      {/* Corona shells + prominence flare-loops removed — a clean photosphere. Bloom
+          on the over-bright surface gives it a natural glow on its own. */}
       <pointLight color="#ffb070" intensity={1.1} distance={600} decay={1.2} />
     </group>
   );

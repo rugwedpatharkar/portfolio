@@ -47,7 +47,6 @@ const ORBITS = PLANETS.map((d, i) => {
 });
 
 const OrbitRings = ({ wideRef, show = false }) => {
-  const linesRef = useRef();
   const markersRef = useRef();
   const clock = useSceneClock();
   /* Reuse each planet's real map — same URLs the full planets load, so drei's
@@ -60,42 +59,29 @@ const OrbitRings = ({ wideRef, show = false }) => {
   }, [textures]);
 
   useFrame(() => {
-    const lines = linesRef.current, marks = markersRef.current;
-    if (!lines) return;
+    const marks = markersRef.current;
+    if (!marks) return;
     const on = !!wideRef?.current || show; // overview map / the v3 system-overview hero
-    lines.visible = on;
-    if (marks) marks.visible = on;
+    marks.visible = on;
     if (!on) return;
 
     /* revolve each proxy along its COMPRESSED circle at the synthetic angle, and
        spin it slowly on its axis — the whole system visibly turns within the frame. */
     const t = clock?.t || 0;
-    if (marks) {
-      marks.children.forEach((grp, i) => {
-        const o = ORBITS[i];
-        if (!o) return;
-        const ang = o.theta0 + t * o.omega;
-        grp.position.set(Math.cos(ang) * o.rc, 0, Math.sin(ang) * o.rc);
-        const sphere = grp.children[0];
-        if (sphere) sphere.rotation.y = t * 0.04 + i;
-      });
-    }
-    lines.children.forEach((c) => { if (c.material) c.material.opacity = 0.16; });
+    marks.children.forEach((grp, i) => {
+      const o = ORBITS[i];
+      if (!o) return;
+      const ang = o.theta0 + t * o.omega;
+      grp.position.set(Math.cos(ang) * o.rc, 0, Math.sin(ang) * o.rc);
+      const sphere = grp.children[0];
+      if (sphere) sphere.rotation.y = t * 0.04 + i;
+    });
   });
 
   return (
     <group>
-      <group ref={linesRef} visible={false}>
-        {ORBITS.map((o) => (
-          <line key={o.id} frustumCulled={false}>
-            <bufferGeometry>
-              <bufferAttribute attach="attributes-position" args={[o.pts, 3]} />
-            </bufferGeometry>
-            <lineBasicMaterial color="#d4af85" transparent opacity={0.16} toneMapped={false} depthWrite={false} blending={THREE.AdditiveBlending} />
-          </line>
-        ))}
-      </group>
-      {/* revolving TEXTURED planet proxies at true relative size */}
+      {/* Orbit trail lines removed — the overview shows just the revolving TEXTURED
+          planet proxies (no gold ellipses), per the clean-homepage request. */}
       <group ref={markersRef} visible={false}>
         {ORBITS.map((o, i) => (
           <group key={o.id}>
