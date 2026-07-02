@@ -36,12 +36,36 @@ const Row = ({ label, children }) => (
 
 const Stat = ({ big, valueFontSize, value, suffix, label, sub, decimals }) => (
   <div style={{ display: "flex", flexDirection: "column", gap: 6, alignItems: "flex-start" }}>
-    <div style={{ font: `340 ${valueFontSize} var(--v3-font-display)`, lineHeight: 1, letterSpacing: "-.02em", color: "var(--v3-fg)", fontOpticalSizing: "auto" }}>
+    <div style={{
+      fontFamily: "var(--v3-font-display)",
+      fontWeight: 340,
+      fontSize: valueFontSize,
+      lineHeight: 1,
+      letterSpacing: "-.02em",
+      color: "var(--v3-fg)",
+      fontOpticalSizing: "auto",
+    }}>
       <V3Ticker value={value} suffix={suffix || ""} decimals={decimals} />
     </div>
     <div style={{ display: "flex", flexDirection: "column", gap: 2 }}>
-      <div style={{ font: `400 ${big ? "11px" : "10px"} var(--v3-font-mono)`, letterSpacing: ".16em", textTransform: "uppercase", color: "var(--v3-fg-mute)" }}>{label}</div>
-      {sub && <div style={{ font: `300 var(--v3-type-cap) var(--v3-font-ui)`, color: "var(--v3-fg-dim)", lineHeight: 1.4, maxWidth: big ? "34ch" : "26ch" }}>{sub}</div>}
+      <div style={{
+        fontFamily: "var(--v3-font-mono)",
+        fontWeight: 400,
+        fontSize: big ? 11 : 10,
+        letterSpacing: ".16em",
+        textTransform: "uppercase",
+        color: "var(--v3-fg-mute)",
+      }}>{label}</div>
+      {sub && (
+        <div style={{
+          fontFamily: "var(--v3-font-ui)",
+          fontWeight: 300,
+          fontSize: "var(--v3-type-cap)",
+          color: "var(--v3-fg-dim)",
+          lineHeight: 1.4,
+          maxWidth: big ? "34ch" : "26ch",
+        }}>{sub}</div>
+      )}
     </div>
   </div>
 );
@@ -68,18 +92,18 @@ export default function AboutSection({ index, bootNonce }) {
               role="img"
               aria-label={`Portrait of ${personalInfo.fullName}`}
               style={{
-                width: 152, height: 200, flexShrink: 0, borderRadius: 12,
+                width: 200, height: 265, flexShrink: 0, borderRadius: 14,
                 backgroundImage: `url(${heroPhoto})`,
                 backgroundSize: "180% auto",
                 backgroundPosition: "42% 8%",
                 backgroundRepeat: "no-repeat",
                 backgroundColor: "rgba(255,255,255,0.03)",
                 border: "1px solid var(--v3-accent)",
-                boxShadow: "0 0 32px color-mix(in oklab, var(--v3-accent) 22%, transparent)",
+                boxShadow: "0 0 36px color-mix(in oklab, var(--v3-accent) 24%, transparent)",
               }}
             />
           </V3Scan>
-          <div style={{ display: "flex", flexDirection: "column", justifyContent: "flex-end", minWidth: 0, height: 200, paddingBottom: 4 }}>
+          <div style={{ display: "flex", flexDirection: "column", justifyContent: "flex-end", minWidth: 0, height: 265, paddingBottom: 4 }}>
             <V3Scan variant="horizontal" delay={0.12}>
               <div style={{ font: "400 10px var(--v3-font-mono)", letterSpacing: ".28em", textTransform: "uppercase", color: "var(--v3-fg-mute)", marginBottom: 10 }}>
                 {personalInfo.role}
@@ -148,29 +172,36 @@ export default function AboutSection({ index, bootNonce }) {
         </V3Scan>
       </div>
 
-      {/* BOTTOM — full-width hero stat + supporting stats */}
-      <div style={{ gridArea: "bottom", display: "grid", gridTemplateColumns: "1.6fr 1fr", gap: 24, alignItems: "stretch", minWidth: 0, paddingTop: 8, borderTop: "1px solid var(--v3-line)" }}>
+      {/* BOTTOM — three stats in a single row (1 | 2 | 3), equal treatment,
+          hairline separators between. Value size unified so they read as a
+          spec sheet strip, not a hero + supporting. */}
+      <div style={{ gridArea: "bottom", display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: 0, alignItems: "stretch", minWidth: 0, paddingTop: 12, borderTop: "1px solid var(--v3-line)" }}>
         <V3Scan variant="horizontal" delay={0.36}>
-          <Stat
-            big
-            valueFontSize="clamp(3rem, 6vw, 4.6rem)"
-            value={HERO_STAT.value}
-            suffix={HERO_STAT.suffix || "%"}
-            label={HERO_STAT.label}
-            sub="p95 API latency: 5s → 200ms via Redis caching, connection pooling, query optimisation."
-          />
-        </V3Scan>
-        <V3Scan variant="horizontal" delay={0.44}>
-          <div style={{ display: "flex", flexDirection: "column", gap: 18, justifyContent: "center", borderLeft: "1px solid var(--v3-line)", paddingLeft: 22 }}>
+          <div style={{ paddingRight: 24 }}>
             <Stat
-              valueFontSize="clamp(1.4rem, 2.2vw, 2rem)"
+              valueFontSize="clamp(2.2rem, 4vw, 3rem)"
+              value={HERO_STAT.value}
+              suffix={HERO_STAT.suffix || "%"}
+              label={HERO_STAT.label}
+              sub="p95 API latency: 5s → 200ms via Redis caching, connection pooling, query optimisation."
+            />
+          </div>
+        </V3Scan>
+        <V3Scan variant="horizontal" delay={0.4}>
+          <div style={{ borderLeft: "1px solid var(--v3-line)", paddingLeft: 24, paddingRight: 24 }}>
+            <Stat
+              valueFontSize="clamp(2.2rem, 4vw, 3rem)"
               value={SUPPORT_A.value}
               suffix={SUPPORT_A.suffix || ""}
               label={SUPPORT_A.label}
               sub="Multi-tenant Python/FastAPI/gRPC platform on GKE."
             />
+          </div>
+        </V3Scan>
+        <V3Scan variant="horizontal" delay={0.44}>
+          <div style={{ borderLeft: "1px solid var(--v3-line)", paddingLeft: 24 }}>
             <Stat
-              valueFontSize="clamp(1.4rem, 2.2vw, 2rem)"
+              valueFontSize="clamp(2.2rem, 4vw, 3rem)"
               value={SUPPORT_B.value}
               suffix={SUPPORT_B.suffix || "+"}
               label={SUPPORT_B.label}
