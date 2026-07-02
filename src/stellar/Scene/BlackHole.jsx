@@ -139,7 +139,12 @@ const BlackHole = ({
     /* Photon ring + lensed halo billboard to the camera — the halo is the
        Interstellar "wrap": disk light bent up and over the hole so the glow
        rings the black sphere from every angle. */
-    if (ringRef.current) ringRef.current.lookAt(camera.position);
+    if (ringRef.current) {
+      ringRef.current.lookAt(camera.position);
+      /* The photon ring shimmers — light that orbited the hole flickers faintly as
+         it escapes (two beat frequencies). Static under reduced-motion (t pinned 0). */
+      if (animate) ringRef.current.material.opacity = 0.82 + Math.sin(t * 3.1) * 0.1 + Math.sin(t * 7.7) * 0.05;
+    }
     if (haloRef.current) haloRef.current.lookAt(camera.position);
   });
 

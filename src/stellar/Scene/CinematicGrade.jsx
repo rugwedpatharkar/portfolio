@@ -33,6 +33,8 @@ uniform float contrast;
 uniform float saturation;
 uniform float vigOffset;
 uniform float vigDarkness;
+uniform float uTime;
+uniform float vigBreathe;
 
 void mainImage(const in vec4 inputColor, const in vec2 uv, out vec4 outputColor) {
   vec3 color = inputColor.rgb;
@@ -51,15 +53,18 @@ void mainImage(const in vec4 inputColor, const in vec2 uv, out vec4 outputColor)
   color = mix(vec3(luma), color, saturation + 1.0);
 
   /* --- Vignette (VignetteEffect, default technique) --- */
+  /* Darkness gently breathes so the frame feels alive — invisible-but-felt depth.
+     Static when vigBreathe = 0 (reduced motion). */
+  float vigD = vigDarkness + sin(uTime * 0.22) * vigBreathe;
   float d = distance(uv, vec2(0.5));
-  color *= smoothstep(0.8, vigOffset * 0.799, d * (vigDarkness + vigOffset));
+  color *= smoothstep(0.8, vigOffset * 0.799, d * (vigD + vigOffset));
 
   outputColor = vec4(color, inputColor.a);
 }
 `;
 
 class CinematicGradeEffect extends Effect {
-  constructor({ brightness, contrast, saturation, vigOffset, vigDarkness }) {
+  constructor({ brightness, contrast, saturation, vigOffset, vigDarkness, vigBreathe }) {
     super("CinematicGrade", fragmentShader, {
       uniforms: new Map([
         ["brightness", new Uniform(brightness)],
@@ -67,8 +72,17 @@ class CinematicGradeEffect extends Effect {
         ["saturation", new Uniform(saturation)],
         ["vigOffset", new Uniform(vigOffset)],
         ["vigDarkness", new Uniform(vigDarkness)],
+        ["uTime", new Uniform(0)],
+        ["vigBreathe", new Uniform(vigBreathe)],
       ]),
     });
+  }
+
+  /* Advance the breathing clock each frame (postprocessing calls this per render). */
+  update(renderer, inputBuffer, deltaTime) {
+    if (this.uniforms.get("vigBreathe").value > 0) {
+      this.uniforms.get("uTime").value += deltaTime;
+    }
   }
 }
 
@@ -80,12 +94,13 @@ const CinematicGrade = forwardRef(
       saturation = 0.12,
       vigOffset = 0.3,
       vigDarkness = 0.82,
+      vigBreathe = 0,
     },
     ref
   ) => {
     const effect = useMemo(
-      () => new CinematicGradeEffect({ brightness, contrast, saturation, vigOffset, vigDarkness }),
-      [brightness, contrast, saturation, vigOffset, vigDarkness]
+      () => new CinematicGradeEffect({ brightness, contrast, saturation, vigOffset, vigDarkness, vigBreathe }),
+      [brightness, contrast, saturation, vigOffset, vigDarkness, vigBreathe]
     );
     return <primitive ref={ref} object={effect} dispose={null} />;
   }
