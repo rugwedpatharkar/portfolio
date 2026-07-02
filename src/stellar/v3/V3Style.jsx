@@ -49,6 +49,27 @@ const V3Style = ({ accentKey }) => {
          the edge fade + single-open accordion carry the "there's more" signal. */
       .stellar-v3 .stellar-content-left{scrollbar-width:none;-ms-overflow-style:none;}
       .stellar-v3 .stellar-content-left::-webkit-scrollbar{width:0;height:0;display:none;}
+      /* Override the global purple #915eff scrollbar for anything inside .stellar-v3.
+         Elegant version: hairline track, low-opacity accent thumb, tighter width.
+         Firefox uses scrollbar-width/color; WebKit gets a full ::-webkit-scrollbar
+         override at higher specificity than the global rule. */
+      .stellar-v3, .stellar-v3 *{
+        scrollbar-width:thin;
+        scrollbar-color: color-mix(in oklab, var(--v3-fg) 22%, transparent) transparent;
+      }
+      .stellar-v3 ::-webkit-scrollbar{width:6px;height:6px;}
+      .stellar-v3 ::-webkit-scrollbar-track{background:transparent;}
+      .stellar-v3 ::-webkit-scrollbar-thumb{
+        background: color-mix(in oklab, var(--v3-fg) 20%, transparent);
+        border-radius: 999px;
+        border: 1px solid transparent;
+        background-clip: padding-box;
+      }
+      .stellar-v3 ::-webkit-scrollbar-thumb:hover{
+        background: color-mix(in oklab, var(--v3-accent) 55%, transparent);
+        background-clip: padding-box;
+      }
+      .stellar-v3 ::-webkit-scrollbar-corner{background:transparent;}
       /* Dossier pointer routing: dossier wrapper + V3Frame are pointer-events:none
          so pointer-move passes through to the 3D canvas (needed for MouseParallax
          → sun sways with cursor). Section content columns opt back in via the
