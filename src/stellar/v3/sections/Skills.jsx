@@ -100,11 +100,12 @@ export default function SkillsSection({ index, bootNonce }) {
           padding: "16px 20px",
           flex: 1, minHeight: 0,
         }}>
-          {/* Master: category index */}
+          {/* Master: category index. overflowY: 'scroll' keeps the rail visible
+              always as a scroll affordance — user knows there's more even at rest. */}
           <div
             role="tablist"
             aria-label="Skill categories"
-            style={{ display: "flex", flexDirection: "column", gap: 2, overflowY: "auto", minHeight: 0 }}
+            style={{ display: "flex", flexDirection: "column", gap: 2, overflowY: "scroll", minHeight: 0 }}
             onKeyDown={(e) => {
               if (e.key === "ArrowDown" || e.key === "j") { setActive(a => Math.min(cats.length - 1, a + 1)); e.preventDefault(); }
               if (e.key === "ArrowUp"   || e.key === "k") { setActive(a => Math.max(0, a - 1)); e.preventDefault(); }
@@ -155,10 +156,12 @@ export default function SkillsSection({ index, bootNonce }) {
 
           {/* Detail: active category's skills with proficiency bars. paddingRight
               leaves clearance for the 6px v3 scrollbar so the level% column
-              doesn't sit underneath it. */}
+              doesn't sit underneath it. overflowY: 'scroll' keeps the rail
+              permanently visible as a scroll affordance — user immediately sees
+              they can scroll to reveal more skills. */}
           <div
             key={activeName}
-            style={{ display: "flex", flexDirection: "column", gap: 2, overflowY: "auto", minHeight: 0, paddingRight: 16 }}
+            style={{ display: "flex", flexDirection: "column", gap: 2, overflowY: "scroll", minHeight: 0, paddingRight: 16 }}
           >
             <div style={{ display: "flex", alignItems: "baseline", gap: 12, marginBottom: 6 }}>
               <span aria-hidden style={{ width: 14, height: 1, background: "var(--v3-accent)" }} />

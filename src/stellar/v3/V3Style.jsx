@@ -58,15 +58,19 @@ const V3Style = ({ accentKey }) => {
         scrollbar-color: color-mix(in oklab, var(--v3-fg) 22%, transparent) transparent;
       }
       .stellar-v3 ::-webkit-scrollbar{width:6px;height:6px;}
-      .stellar-v3 ::-webkit-scrollbar-track{background:transparent;}
+      /* Rail is faintly visible even at rest — a subtle 'you can scroll here' hint. */
+      .stellar-v3 ::-webkit-scrollbar-track{
+        background: color-mix(in oklab, var(--v3-fg) 6%, transparent);
+        border-radius: 999px;
+      }
       .stellar-v3 ::-webkit-scrollbar-thumb{
-        background: color-mix(in oklab, var(--v3-fg) 20%, transparent);
+        background: color-mix(in oklab, var(--v3-fg) 30%, transparent);
         border-radius: 999px;
         border: 1px solid transparent;
         background-clip: padding-box;
       }
       .stellar-v3 ::-webkit-scrollbar-thumb:hover{
-        background: color-mix(in oklab, var(--v3-accent) 55%, transparent);
+        background: color-mix(in oklab, var(--v3-accent) 65%, transparent);
         background-clip: padding-box;
       }
       .stellar-v3 ::-webkit-scrollbar-corner{background:transparent;}
