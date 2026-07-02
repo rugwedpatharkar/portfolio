@@ -27,8 +27,8 @@ const ProjectCard = ({ p, delay }) => {
     <V3Scan variant="plot" delay={delay}>
       <div style={{
         position: "relative",
-        display: "flex", flexDirection: "column", gap: 6,
-        padding: "11px 13px 11px",
+        display: "flex", flexDirection: "column", gap: 10,
+        padding: "16px 18px 16px",
         border: "1px solid var(--v3-line)",
         borderRadius: 6,
         background: "color-mix(in oklab, var(--v3-bg-void) 55%, transparent)",
@@ -53,12 +53,13 @@ const ProjectCard = ({ p, delay }) => {
           letterSpacing: "-.005em", color: "var(--v3-fg)", fontOpticalSizing: "auto",
         }}>{p.name}</div>
 
-        {/* description clamped to 3 lines — enough to convey the pitch */}
+        {/* description — clamped to 4 lines so the tallest description doesn't
+            push the last row past viewport bottom. */}
         <p style={{
           fontFamily: "var(--v3-font-ui)", fontWeight: 300,
-          fontSize: "clamp(.72rem, 0.78vw, .8rem)",
-          color: "var(--v3-fg-dim)", lineHeight: 1.4, margin: 0,
-          display: "-webkit-box", WebkitLineClamp: 3, WebkitBoxOrient: "vertical",
+          fontSize: "clamp(.76rem, 0.85vw, .85rem)",
+          color: "var(--v3-fg-dim)", lineHeight: 1.5, margin: 0, flex: 1,
+          display: "-webkit-box", WebkitLineClamp: 4, WebkitBoxOrient: "vertical",
           overflow: "hidden",
         }}>{p.description}</p>
 
@@ -120,12 +121,12 @@ export default function ProjectsSection({ index, bootNonce }) {
       index={index}
       scanDir="plot"
       scanKey={bootNonce}
-      /* 'left' spans cols 1+2 so maxWidth actually determines the section width
-         (not the grid cell). 60vw is between About/FunFacts (50vw) and Experience
-         (65vw) — gives cards more breathing room without over-covering Jupiter. */
-      gridAreas={`"top top top" "left left ." "left left ." "bottom bottom bottom"`}
+      /* Full-width span — 'left' spans all 3 grid cols. maxWidth: 68vw ends
+         just before the top-right telemetry card (which sits at 78% viewport)
+         and stays inside the visible frame. */
+      gridAreas={`"top top top" "left left left" "left left left" "bottom bottom bottom"`}
     >
-      <div style={{ gridArea: "left", display: "flex", flexDirection: "column", gap: 14, minWidth: 0, overflow: "hidden", maxWidth: "60vw" }}>
+      <div style={{ gridArea: "left", display: "flex", flexDirection: "column", gap: 18, minWidth: 0, overflow: "hidden", maxWidth: "56vw", height: "100%" }}>
         {/* Header */}
         <V3Scan variant="horizontal" delay={0.05}>
           <div>
@@ -189,13 +190,15 @@ export default function ProjectsSection({ index, bootNonce }) {
           </div>
         </V3Scan>
 
-        {/* Cards grid — 3-col at wider section width so each card stays portrait
-            (2-col at 60vw would push cards back to landscape 2.27:1). 6 pro cards
-            → 2 rows of 3, 3 personal → 1 row of 3. */}
+        {/* Cards grid — 3-col at wider section width so each card stays portrait.
+            flex: 1 + gridAutoRows: 1fr → rows stretch to fill the LEFT column's
+            remaining vertical space, so cards grow to consume the empty area
+            below rather than leaving it blank. */}
         <div key={`grid-${tab}`} style={{
           display: "grid", gridTemplateColumns: "1fr 1fr 1fr",
           columnGap: 14, rowGap: 14,
           gridAutoRows: "1fr",
+          flex: 1, minHeight: 0,
         }}>
           {list.map((p, i) => (
             <ProjectCard key={`${tab}-${i}`} p={p} delay={0.18 + i * 0.06} />

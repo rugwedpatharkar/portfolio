@@ -380,9 +380,14 @@ const Scene = ({ scrollT, activeIdx, itemIdx = 0, onJump, onReady, freeRoamEnabl
             if (d.type === "earth") {
               return (
                 <OrbitGroup key={d.id} dest={d} animate={!reducedMotion}>
-                  {/* The Pune "I'm here" pin rides Earth's rotating mesh; the
-                      Moon publishes its world position for the eclipse system. */}
-                  {cloneElement(planetEl, { satelliteRef: moonWorldRef }, <HomePin radius={d.radius} animate={!reducedMotion} />)}
+                  {/* Moon publishes its world position for the eclipse system.
+                      HomePin (Pune 'I'm here' marker) is v2-only — v3 uses the
+                      top-right Body Telemetry card as the who/where readout;
+                      the pin visually competed with the corner card + section
+                      dossier and was distracting on planet approach. */}
+                  {v3
+                    ? cloneElement(planetEl, { satelliteRef: moonWorldRef })
+                    : cloneElement(planetEl, { satelliteRef: moonWorldRef }, <HomePin radius={d.radius} animate={!reducedMotion} />)}
                   {/* ISS on low Earth orbit — inherits Earth's live solar
                       position from the OrbitGroup, runs its own fast LEO. */}
                   {showExtras && !isMobile && !naturalOnly && (
