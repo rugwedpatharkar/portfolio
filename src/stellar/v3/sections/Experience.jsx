@@ -33,7 +33,7 @@ export default function ExperienceSection({ index, bootNonce }) {
   return (
     <V3Frame
       section="Experience"
-      planet="EARTH"
+      planet="VENUS"
       index={index}
       scanDir="drill"
       scanKey={bootNonce}

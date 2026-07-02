@@ -131,7 +131,7 @@ export default function ProjectsSection({ index, bootNonce }) {
   return (
     <V3Frame
       section="Projects"
-      planet="JUPITER"
+      planet="EARTH"
       index={index}
       scanDir="plot"
       scanKey={bootNonce}
