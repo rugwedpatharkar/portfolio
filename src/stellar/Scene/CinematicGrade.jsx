@@ -16,15 +16,15 @@ import { Uniform } from "three";
  * post chain: ?nofx and any single effect = correct; any 2 merged =
  * white).
  *
- * The fix: do all grades (brightness/contrast, saturation, vignette, and
- * the warp tunnel) inside ONE Effect → only ever one mainImage in the
- * merged pass → no merge bug. Bloom stays a separate convolution pass (it
- * never merges with mainImage effects), so it's unaffected.
+ * The fix: do all grades (brightness/contrast, saturation, vignette)
+ * inside ONE Effect → only ever one mainImage in the merged pass → no
+ * merge bug. Bloom stays a separate convolution pass (it never merges
+ * with mainImage effects), so it's unaffected.
  *
  * The math below faithfully reproduces postprocessing's own
  * BrightnessContrastEffect, HueSaturationEffect (saturation term, hue=0)
  * and VignetteEffect (default technique) so the look is preserved, in
- * the same order the chain applied them — plus a warp term (see uWarp).
+ * the same order the chain applied them.
  */
 
 const fragmentShader = /* glsl */ `
@@ -33,7 +33,8 @@ uniform float contrast;
 uniform float saturation;
 uniform float vigOffset;
 uniform float vigDarkness;
-uniform float uWarp;
+uniform float uTime;
+uniform float vigBreathe;
 
 void mainImage(const in vec4 inputColor, const in vec2 uv, out vec4 outputColor) {
   vec3 color = inputColor.rgb;
@@ -52,25 +53,18 @@ void mainImage(const in vec4 inputColor, const in vec2 uv, out vec4 outputColor)
   color = mix(vec3(luma), color, saturation + 1.0);
 
   /* --- Vignette (VignetteEffect, default technique) --- */
+  /* Darkness gently breathes so the frame feels alive — invisible-but-felt depth.
+     Static when vigBreathe = 0 (reduced motion). */
+  float vigD = vigDarkness + sin(uTime * 0.22) * vigBreathe;
   float d = distance(uv, vec2(0.5));
-  color *= smoothstep(0.8, vigOffset * 0.799, d * (vigDarkness + vigOffset));
-
-  /* --- Warp tunnel --- as a lane-jump fires, smudge the periphery to black so the
-     streaks read inside a dark circular tube. uWarp is driven from warpVelRef each
-     frame (see update()); clamped, smoothstep-only → Metal-NaN safe. */
-  float wt = clamp(uWarp, 0.0, 1.0);
-  if (wt > 0.0) {
-    float dw = distance(uv, vec2(0.5));
-    float tunnel = smoothstep(0.16, 0.60, dw); // 0 at centre → 1 at the edges
-    color *= 1.0 - tunnel * wt * 0.92;
-  }
+  color *= smoothstep(0.8, vigOffset * 0.799, d * (vigD + vigOffset));
 
   outputColor = vec4(color, inputColor.a);
 }
 `;
 
 class CinematicGradeEffect extends Effect {
-  constructor({ brightness, contrast, saturation, vigOffset, vigDarkness, warpVelRef }) {
+  constructor({ brightness, contrast, saturation, vigOffset, vigDarkness, vigBreathe }) {
     super("CinematicGrade", fragmentShader, {
       uniforms: new Map([
         ["brightness", new Uniform(brightness)],
@@ -78,16 +72,17 @@ class CinematicGradeEffect extends Effect {
         ["saturation", new Uniform(saturation)],
         ["vigOffset", new Uniform(vigOffset)],
         ["vigDarkness", new Uniform(vigDarkness)],
-        ["uWarp", new Uniform(0)],
+        ["uTime", new Uniform(0)],
+        ["vigBreathe", new Uniform(vigBreathe)],
       ]),
     });
-    this.warpVelRef = warpVelRef || null;
   }
 
-  /* Pull the live warp intensity each frame (EffectPass calls update()). */
-  update() {
-    const w = this.warpVelRef ? Math.min(1, Math.abs(this.warpVelRef.current || 0)) : 0;
-    this.uniforms.get("uWarp").value = w;
+  /* Advance the breathing clock each frame (postprocessing calls this per render). */
+  update(renderer, inputBuffer, deltaTime) {
+    if (this.uniforms.get("vigBreathe").value > 0) {
+      this.uniforms.get("uTime").value += deltaTime;
+    }
   }
 }
 
@@ -99,13 +94,13 @@ const CinematicGrade = forwardRef(
       saturation = 0.12,
       vigOffset = 0.3,
       vigDarkness = 0.82,
-      warpVelRef,
+      vigBreathe = 0,
     },
     ref
   ) => {
     const effect = useMemo(
-      () => new CinematicGradeEffect({ brightness, contrast, saturation, vigOffset, vigDarkness, warpVelRef }),
-      [brightness, contrast, saturation, vigOffset, vigDarkness, warpVelRef]
+      () => new CinematicGradeEffect({ brightness, contrast, saturation, vigOffset, vigDarkness, vigBreathe }),
+      [brightness, contrast, saturation, vigOffset, vigDarkness, vigBreathe]
     );
     return <primitive ref={ref} object={effect} dispose={null} />;
   }

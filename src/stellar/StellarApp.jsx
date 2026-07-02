@@ -3,7 +3,6 @@ import { useRef, useState, useCallback, useEffect, useMemo } from "react";
 import { MotionConfig } from "motion/react";
 import Scene from "./Scene";
 import Navigator from "./Navigator";
-import ContentPanel from "./ContentPanel";
 import ItemDossier from "./ItemDossier";
 import HoloBridge from "./holobridge/HoloBridge";
 import Cursor from "./Cursor";
@@ -21,7 +20,6 @@ import DiscoveriesView from "./DiscoveriesView";
 import EasterEgg from "./EasterEgg";
 import AnswerListener from "./AnswerListener";
 import useViewport from "./useViewport";
-import IntroSequence from "./IntroSequence";
 import CoPilot from "./CoPilot";
 import PhotoMode from "./PhotoMode";
 import SpeedRun from "./SpeedRun";
@@ -35,11 +33,27 @@ import EclipseDimmer from "./EclipseDimmer";
 /* SoundToggle removed — minimal UI (bridge hum still arms on first gesture) */
 import { markCharted, markVisited } from "./data/explorer";
 import { getBodyContent } from "./data/bodies";
+import V3Style from "./v3/V3Style";
+import V3Cursor from "./v3/V3Cursor";
+import V3Hud from "./v3/V3Hud";
+import V3Reticle from "./v3/V3Reticle";
 
+
+/* Section → document-title label (recruiter-facing tab title + a11y context). */
+const DOC_SECTION = {
+  hero: "", about: "About", funfacts: "Impact", experience: "Experience",
+  projects: "Projects", achievements: "Achievements", skills: "Skills",
+  notes: "Writing", education: "Education", hobbies: "Hobbies",
+  testimonials: "Testimonials", contact: "Contact", "cosmic-blackhole": "The Edge",
+};
+const DOC_DEFAULT_TITLE = "Rugwed Patharkar — Backend & Agentic AI Engineer";
 
 /* Hash → destination utilities */
 const findDestinationIndexByHash = (hash) => {
-  const id = hash?.replace(/^#\/?stellar\/?/, "").replace(/^#/, "");
+  const id = hash
+    ?.replace(/^#v3\/?/, "")
+    .replace(/^#\/?stellar\/?/, "")
+    .replace(/^#/, "");
   if (!id) return -1;
   return DESTINATIONS.findIndex((d) => d.id === id || d.section === id);
 };
@@ -63,7 +77,19 @@ const OverviewHud = ({ overview }) =>
   ) : null;
 
 
-const StellarApp = () => {
+/* v3 readability scrim — a soft dark gradient behind the content column so text
+   stays legible over the starfield / asteroid belt / planet glow. Anchored to the
+   info side (left on desktop, bottom when the panel stacks on mobile) and fades
+   to transparent before the planet, so the body stays crisp. */
+const V3Scrim = () => {
+  const { isCompact } = useViewport();
+  const bg = isCompact
+    ? "linear-gradient(to top, rgba(4,5,9,0.95) 0%, rgba(4,5,9,0.7) 34%, rgba(4,5,9,0) 62%)"
+    : "linear-gradient(100deg, rgba(4,5,9,0.96) 0%, rgba(4,5,9,0.82) 26%, rgba(4,5,9,0.45) 45%, rgba(4,5,9,0) 60%)";
+  return <div aria-hidden style={{ position: "fixed", inset: 0, zIndex: 30, pointerEvents: "none", background: bg }} />;
+};
+
+const StellarApp = ({ v3 = false }) => {
   const scrollTRef = useRef(0);
   /* Progressive-mount tier (0→3) for the heavy extras suite. Mounting the whole
      suite in ONE commit the instant the countdown ended froze a frame for ~3.5s
@@ -100,31 +126,13 @@ const StellarApp = () => {
     return () => window.removeEventListener("stellar:flight", onFlight);
   }, []);
   const { reducedMotion, isMobile } = useViewport();
-  /* PHASE 1 — THE ARRIVAL. The visitor must EARN the world: desktop plays the
-     cinematic gate (black → establish pull-back → warp dive → Sol); reduced-motion
-     + mobile go straight to the tour. `introDone` replaces the old always-true
-     `shipWarpDone` gate; `launchPhase` (null | "establish" | "warp") drives
-     CameraRig's scripted launch move. */
-  const introEnabled = !reducedMotion && !isMobile;
-  const [introDone, setIntroDone] = useState(!introEnabled);
-  const [launchPhase, setLaunchPhase] = useState(null);
-  /* Idempotent hand-off to the tour: called by CameraRig's clock-driven
-     onLaunchComplete (normal warp end) AND by IntroSequence (skip / safety net). */
-  const finishIntro = useCallback(() => {
-    setLaunchPhase(null);
-    setIntroDone(true);
-  }, []);
-  /* CameraRig's clock-driven warp arrival → let IntroSequence play the drop-out /
-     HUD-boot beat (it owns the fine enum); the arrival beat then calls finishIntro.
-     Keeping launchPhase "warp" until then pins the camera at Sol (no snap). */
-  const handleLaunchComplete = useCallback(() => {
-    window.dispatchEvent(new CustomEvent("stellar:intro:warpdone"));
-  }, []);
-  /* Safety: if useViewport only resolves RM/mobile after first paint, never strand
-     them behind the intro gate (which hides the tour UI). */
-  useEffect(() => {
-    if (!introEnabled) setIntroDone(true);
-  }, [introEnabled]);
+  /* The warp/countdown cinematic intro was removed entirely — every visitor loads
+     straight into the hero (a clean cut). `introDone` is permanently true (kept as
+     a constant so the many downstream `introDone &&` gates still read cleanly);
+     `launchPhase` stays null so CameraRig's now-inert scripted-launch branch never
+     runs. CameraRig itself is unchanged. */
+  const introDone = true;
+  const launchPhase = null;
   const [activeIdx, setActiveIdx] = useState(0);
   const activeIdxRef = useRef(0);
   /* Item index within the active section — ←→ moves along the planet's lane.
@@ -222,8 +230,9 @@ const StellarApp = () => {
       activeIdxRef.current = idx;
       itemIdxRef.current = -1;
       setItemIdx(-1); // arrive in planet-view; ←→ flies out to the lane objects
-      /* Sync URL hash without re-scrolling */
-      const next = `#/stellar/${dest.id}`;
+      /* Sync URL hash without re-scrolling — keep the active route prefix so a
+         reload stays on #v3 (rewriting to #/stellar/… dropped v3 back to v2). */
+      const next = `${v3 ? "#v3" : "#/stellar"}/${dest.id}`;
       if (window.location.hash !== next) {
         window.history.replaceState(null, "", next);
       }
@@ -231,8 +240,11 @@ const StellarApp = () => {
       window.dispatchEvent(new CustomEvent("stellar:destination", { detail: { id: dest.id, index: idx } }));
       /* Persist visited stops (powers "stops X/12" + the return greeting). */
       markVisited(dest.id);
+      /* Keep the tab title + a11y context in sync with the active section. */
+      const sec = DOC_SECTION[dest.section];
+      document.title = sec ? `${sec} · Rugwed Patharkar` : DOC_DEFAULT_TITLE;
     }
-  }, []);
+  }, [v3]);
 
   /* (Camera focus is set synchronously in navTo/navPlanet/navItem below — not in
      an effect — to avoid the frame-loop seeing a stale/null focus on the nav
@@ -260,6 +272,9 @@ const StellarApp = () => {
       (document.scrollingElement || document.documentElement).scrollHeight -
       window.innerHeight;
     const targetY = (idx / (DESTINATIONS.length - 1)) * max;
+    /* Tell the Navigator this scroll is a deliberate jump (deep-link / rail / palette /
+       map / key), so its one-stop-per-swipe cap is bypassed and it lands EXACTLY here. */
+    window.__stellarJumping = true;
     if (window.__lenis) {
       /* Snap the scroll INSTANTLY — the camera travel is the warp-jump now
          (CameraRig), so the scroll only needs to keep scrollT (→ KeyLight + the
@@ -286,7 +301,6 @@ const StellarApp = () => {
     focusRef.current = { live: true, target, from: changed ? from : null, fov: k >= 0 ? 42 : 50 };
     prevTargetRef.current = target;
     if (changed) {
-      window.dispatchEvent(new CustomEvent("stellar:whoosh"));
       window.dispatchEvent(new CustomEvent("stellar:sound:jump"));
     }
   }, []);
@@ -316,6 +330,15 @@ const StellarApp = () => {
     setItemIdx(m);
     applyFocus(p, m);
   }, [applyFocus]);
+
+  /* ←/→ item nav. v3 has NO 3D lane objects, so flying the camera to a
+     laneObjectPosition stranded the view in empty space while the panel
+     (its own accordion) ignored itemIdx. In v3 we instead step the on-screen
+     accordion (V3Panel listens for `v3:accordion`); v2 keeps camera lane-nav. */
+  const stepItem = useCallback((dir) => {
+    if (v3) { window.dispatchEvent(new CustomEvent("v3:accordion", { detail: { dir } })); return; }
+    navItem(dir);
+  }, [v3, navItem]);
 
   /* Keep the camera focused on the ACTIVE body for EVERY nav path. Keyboard /
      nav-pad / navicomputer set focus synchronously (navTo/navItem). But SCROLL
@@ -512,9 +535,9 @@ const StellarApp = () => {
       } else if (k === "arrowup" || k === "pageup" || k === "w") {
         e.preventDefault(); navPlanet(-1); // ↑ previous lane
       } else if (k === "arrowleft" || k === "a") {
-        e.preventDefault(); navItem(-1); // ← previous object on this lane
+        e.preventDefault(); stepItem(-1); // ← previous item (v3: accordion; v2: lane object)
       } else if (k === "arrowright" || k === "d") {
-        e.preventDefault(); navItem(1); // → next object
+        e.preventDefault(); stepItem(1); // → next item
       } else if (k === "home") {
         e.preventDefault(); navTo(0);
       } else if (k === "end") {
@@ -523,7 +546,7 @@ const StellarApp = () => {
     };
     window.addEventListener("keydown", onKey);
     return () => window.removeEventListener("keydown", onKey);
-  }, [introDone, navTo, navPlanet, navItem, focusedObj, clearFocus, cycleFocus, logOpen, mode, togglePilot]);
+  }, [introDone, navTo, navPlanet, stepItem, focusedObj, clearFocus, cycleFocus, logOpen, mode, togglePilot]);
 
   /* SIDEWAYS SCROLL → ←→ side-object nav. A trackpad two-finger horizontal swipe
      (deltaX) or Shift+wheel cycles the lane objects, debounced one-object-per
@@ -533,7 +556,9 @@ const StellarApp = () => {
     if (!introDone) return undefined;
     let accum = 0, cooldownUntil = 0, resetTimer = null;
     const onWheel = (e) => {
-      if (mode !== "tour" || focusedObj) return;
+      /* v3 has no lane objects — a stray sideways trackpad drift must not fly
+         the camera. (v2 keeps horizontal-swipe → lane-object nav.) */
+      if (v3 || mode !== "tour" || focusedObj) return;
       const horizontal = Math.abs(e.deltaX) > Math.abs(e.deltaY) * 1.5;
       const dx = horizontal ? e.deltaX : e.shiftKey ? e.deltaY : 0;
       if (!dx) return;
@@ -550,7 +575,7 @@ const StellarApp = () => {
     };
     window.addEventListener("wheel", onWheel, { passive: true });
     return () => { window.removeEventListener("wheel", onWheel); clearTimeout(resetTimer); };
-  }, [introDone, mode, focusedObj, navItem]);
+  }, [introDone, mode, focusedObj, navItem, v3]);
 
   /* Browser back/forward should also navigate */
   useEffect(() => {
@@ -601,6 +626,14 @@ const StellarApp = () => {
   return (
     <MotionConfig reducedMotion="user">
     <StellarUIContext.Provider value={ui}>
+      {/* Skip-to-content — first focusable element, for keyboard/AT users to
+          bypass the 3D canvas and jump to the résumé content column. */}
+      <a className="stellar-skip" href="#main-content">Skip to content</a>
+      {/* v3 skin — injects design tokens + tracks the per-body accent. Mounted
+          only on the #v3 route; #stellar (v2) renders unchanged. */}
+      {v3 && <V3Style accentKey={DESTINATIONS[activeIdx]?.id} />}
+      {/* v3 dark scrim behind the content column (readability over the busy scene). */}
+      {v3 && <V3Scrim />}
       {/* Hide the page scrollbar — scroll still drives the camera, but the
           bar is visual clutter. (Scoped to while the stellar app is mounted.) */}
       <style>{`
@@ -610,10 +643,19 @@ const StellarApp = () => {
            via :focus-visible). */
         .stellar-content-left a:focus-visible, .stellar-content-left button:focus-visible,
         button:focus-visible, a:focus-visible, [tabindex]:focus-visible {
-          outline: 2px solid rgba(150, 195, 255, 0.95) !important;
+          outline: 2px solid var(--focus-ring, rgba(150, 195, 255, 0.95)) !important;
           outline-offset: 3px;
           border-radius: 5px;
         }
+        /* Skip-to-content — the first focusable element; slides in on keyboard focus. */
+        .stellar-skip {
+          position: fixed; left: 16px; top: -64px; z-index: 200;
+          padding: 10px 16px; border-radius: 8px;
+          background: var(--focus-ring, #915eff); color: #050609;
+          font: 600 14px/1 'Space Grotesk', system-ui, sans-serif; text-decoration: none;
+          transition: top .2s ease;
+        }
+        .stellar-skip:focus { top: 16px; outline: none; }
         @keyframes stellarChevron { 0%, 100% { transform: translateY(0); opacity: 0.55; } 50% { transform: translateY(4px); opacity: 1; } }
         @keyframes stellarCaret { 50% { opacity: 0; } }
         @keyframes stellarStatusPulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.45; } }
@@ -638,47 +680,44 @@ const StellarApp = () => {
         clock={sceneClockRef.current}
         extrasPhase={extrasPhase}
         launchPhase={launchPhase}
-        onLaunchComplete={handleLaunchComplete}
+        v3={v3}
       />
-      {/* PHASE 1 — the cinematic gate. Desktop only; drives launchPhase + the
-          black curtain, hands off to the tour via finishIntro. */}
-      {introEnabled && !introDone && (
-        <IntroSequence onPhase={setLaunchPhase} onFinish={finishIntro} />
-      )}
       <Navigator
         scrollTRef={scrollTRef}
         onDestinationChange={handleDestinationChange}
       />
       {introDone && (
         <>
-          <Cursor />
+          {v3 ? <V3Cursor /> : <Cursor />}
           {/* Sky darkens toward totality during an eclipse (scene only; HUD stays lit). */}
           <EclipseDimmer eclipseRef={eclipseRef} />
           {/* D — the star's light floods the canopy on an inward approach (the 3D
               LensFlare only fires when the Sun is in front; this covers behind). */}
           <StellarGlare cameraRef={cameraRef} warpVelRef={warpVelRef} reducedMotion={reducedMotion} />
-          {/* Discovery + toasts — shared by both modes. */}
-          <Achievements activeIdx={activeIdx} showStrip={false} />
-          <EasterEgg />
-          <AnswerListener />
-          {/* PHASE 3A — reactive co-pilot rules-engine (logic-only; drives the
-              CockpitHUD co-pilot line via stellar:copilot). */}
-          <CoPilot />
-          {/* PHASE 3C — Photo mode (C): freeze + capture a shareable postcard. */}
-          <PhotoMode
-            bodyLabel={focusedItem ? focusedItem.label : DESTINATIONS[activeIdx]?.label}
-            setTimeScale={(s) => { sceneClockRef.current.scale = s; }}
-          />
-          <DiscoveriesView open={logOpen} onClose={() => setLogOpen(false)} animate={!reducedMotion} />
-          <CommandPalette open={paletteOpen} commands={commands} onClose={() => setPaletteOpen(false)} />
-          <FragmentToast />
-          <HazardBanner clock={sceneClockRef.current} />
+          {/* v2 chrome/gamification — CUT from v3 (Explorer log, ⌘K palette,
+              achievements, co-pilot, photo mode, cockpit HUD, hazard banner,
+              toasts). v3 gets its own minimal FUI HUD in a later phase. */}
+          {!v3 && (
+            <>
+              <Achievements activeIdx={activeIdx} showStrip={false} />
+              <EasterEgg />
+              <AnswerListener />
+              <CoPilot />
+              <PhotoMode
+                bodyLabel={focusedItem ? focusedItem.label : DESTINATIONS[activeIdx]?.label}
+                setTimeScale={(s) => { sceneClockRef.current.scale = s; }}
+              />
+              <DiscoveriesView open={logOpen} onClose={() => setLogOpen(false)} animate={!reducedMotion} />
+              <CommandPalette open={paletteOpen} commands={commands} onClose={() => setPaletteOpen(false)} />
+              <FragmentToast />
+              <HazardBanner clock={sceneClockRef.current} />
+            </>
+          )}
           {/* Minimal canopy HUD for the read-mode pilot (P key). */}
           <CockpitFrame enabled={mode === "pilot"} speedRef={pilotSpeedRef} />
-          {/* READ — the cockpit tour. CockpitHUD = the new diegetic chrome
-              (canopy, system ladder, item dial, nav pad, co-pilot); ContentPanel
-              carries the section content (becomes the item-view dossier in M2). */}
-          {mode === "tour" && (
+          {/* READ — v2 cockpit HUD (system ladder, item dial, nav pad, co-pilot).
+              Cut from v3, which uses its own FUI HUD. */}
+          {!v3 && mode === "tour" && (
             <CockpitHUD
               destination={DESTINATIONS[activeIdx]}
               activeIdx={activeIdx}
@@ -698,10 +737,19 @@ const StellarApp = () => {
               items={laneItems}
               bootNonce={activeIdx}
               panelHidden={panelHidden}
+              v3={v3}
             />
           )}
-          {mode === "tour" && <ScrollHint visible={activeIdx === 0 && !interacted} />}
-          {focusedObj && (
+          {mode === "tour" && !v3 && <ScrollHint visible={activeIdx === 0 && !interacted} />}
+          {/* v3 FUI chrome — hairline frame, stop counter, clickable system rail. */}
+          {v3 && mode === "tour" && (
+            <V3Hud stops={DESTINATIONS} activeIdx={activeIdx} label={DESTINATIONS[activeIdx]?.label} section={DESTINATIONS[activeIdx]?.section} onJump={handleJump} />
+          )}
+          {/* Focused-planet FUI reticle — tracks the active body via camera projection. */}
+          {v3 && mode === "tour" && (
+            <V3Reticle cameraRef={cameraRef} clock={sceneClockRef.current} activeIdx={activeIdx} />
+          )}
+          {!v3 && focusedObj && (
             <ScanReadout
               content={getBodyContent(focusedObj.id)}
               onBack={clearFocus}
@@ -709,8 +757,7 @@ const StellarApp = () => {
               onNext={() => cycleFocus(1)}
             />
           )}
-          {/* Minimal by design — just the résumé tour + the system overview (Z). */}
-          <SpeedRun activeIdx={activeIdx} active={speedRunOn} onToggle={() => setSpeedRunOn((v) => !v)} />
+          {!v3 && <SpeedRun activeIdx={activeIdx} active={speedRunOn} onToggle={() => setSpeedRunOn((v) => !v)} />}
         </>
       )}
     </StellarUIContext.Provider>

@@ -96,7 +96,7 @@ const Design = () => {
           — change the token, both this page and the live app shift in lockstep.
         </p>
         <a
-          href="#about"
+          href="/"
           className="inline-flex items-center gap-2 mt-6 text-[#915eff] hover:text-white text-body-sm font-mono transition-colors"
         >
           ← Back to portfolio

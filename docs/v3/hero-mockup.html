@@ -1,0 +1,96 @@
+<!doctype html>
+<meta charset="utf-8">
+<title>Stellar v3 — hero look (elevated)</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300..600;1,9..144,300..500&family=Space+Grotesk:wght@300;400;500&family=JetBrains+Mono:wght@300;400&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg-void:#050609; --line:rgba(255,255,255,.07); --line-strong:rgba(255,255,255,.15);
+    --fg:#f5f7fc; --fg-dim:#b3b9c7; --fg-mute:#6b7280; --accent:#e9c675; /* Sol = warm-white gold */
+  }
+  *{margin:0;padding:0;box-sizing:border-box}
+  html,body{height:100%}
+  body{background:radial-gradient(120% 120% at 80% 50%, #0a0d14 0%, var(--bg-void) 60%);color:var(--fg);font-family:'Space Grotesk',sans-serif;overflow:hidden}
+  #stars{position:fixed;inset:0;z-index:0}
+  /* accurate WHITE photosphere sun — de-emphasized, far right */
+  .sun{position:fixed;z-index:1;right:-19vh;top:50%;transform:translateY(-50%);
+    width:60vh;height:60vh;border-radius:50%;
+    background:
+      radial-gradient(circle at 46% 46%, #ffffff 0%, #fdfaf1 30%, #fff0cf 52%, #f6d089 70%, #c98f2e 84%, rgba(120,70,10,0) 93%);
+    box-shadow:0 0 16vh 3vh rgba(255,245,220,.22), 0 0 46vh 16vh rgba(255,225,160,.07);}
+  .sun::after{content:"";position:absolute;inset:0;border-radius:50%;opacity:.35;mix-blend-mode:overlay;
+    background:
+      radial-gradient(2.6% 2% at 44% 52%, rgba(120,70,10,.7), transparent 60%),
+      radial-gradient(2% 1.6% at 54% 45%, rgba(120,70,10,.6), transparent 60%),
+      radial-gradient(circle at 46% 46%, transparent 62%, rgba(120,60,0,.35) 82%, rgba(60,30,0,.6) 100%);}
+  /* orbital arcs CENTERED ON THE SUN (far right) → sweep across the middle to the left */
+  .orbits{position:fixed;z-index:1;right:11vh;top:50%;transform:translateY(-50%);pointer-events:none}
+  .ring{fill:none;stroke:var(--line);stroke-width:1}
+  .ring.hot{stroke:rgba(233,198,117,.16)}
+  .planet{fill:#cbd2df}
+  .info{position:fixed;z-index:2;left:clamp(30px,6.5vw,140px);top:50%;transform:translateY(-50%);max-width:min(52ch,50vw)}
+  .kicker{font-family:'JetBrains Mono',monospace;font-size:.72rem;letter-spacing:.3em;text-transform:uppercase;color:var(--fg-mute);display:flex;gap:14px;align-items:center}
+  .kicker::before{content:"";width:40px;height:1px;background:var(--line-strong)}
+  .name{font-family:'Fraunces',serif;font-weight:340;line-height:.9;letter-spacing:-.025em;
+    font-size:clamp(5.2rem,3rem+9.5vw,10.5rem);margin:.14em 0 .12em;font-optical-sizing:auto}
+  .name em{font-style:italic;font-weight:380;color:var(--accent)}
+  .role{font-size:clamp(1.05rem,.92rem+.55vw,1.4rem);color:var(--fg-dim);font-weight:300;letter-spacing:.005em;max-width:42ch;line-height:1.5}
+  .meta{margin-top:30px;display:flex;gap:30px;font-family:'JetBrains Mono',monospace;font-size:.76rem;color:var(--fg-mute)}
+  .meta b{color:var(--fg-dim);font-weight:400;letter-spacing:.02em}
+  .cta{margin-top:42px;display:flex;gap:14px;align-items:center}
+  .btn{font-family:'Space Grotesk';font-size:.88rem;letter-spacing:.01em;padding:13px 24px;border:1px solid var(--line-strong);
+    border-radius:7px;color:var(--fg);background:rgba(255,255,255,.02);cursor:pointer;transition:.25s cubic-bezier(.22,1,.36,1)}
+  .btn.primary{border-color:transparent;color:#0a0c11;background:linear-gradient(180deg,#fff7e6,#e9c675)}
+  .btn:hover{transform:translateY(-2px)}
+  .btn.primary:hover{box-shadow:0 8px 30px rgba(233,198,117,.25)}
+  .hud{position:fixed;inset:22px;z-index:2;border:1px solid var(--line);border-radius:12px;pointer-events:none}
+  .corner{position:absolute;width:15px;height:15px;border:1px solid var(--line-strong)}
+  .tl{top:-1px;left:-1px;border-right:0;border-bottom:0}.tr{top:-1px;right:-1px;border-left:0;border-bottom:0}
+  .bl{bottom:-1px;left:-1px;border-right:0;border-top:0}.br{bottom:-1px;right:-1px;border-left:0;border-top:0}
+  .telemetry{position:fixed;z-index:2;right:48px;bottom:48px;text-align:right;font-family:'JetBrains Mono',monospace;font-size:.7rem;color:var(--fg-mute);line-height:2}
+  .telemetry b{color:var(--accent);font-weight:400}
+  .scrollhint{position:fixed;z-index:2;left:50%;bottom:36px;transform:translateX(-50%);font-family:'JetBrains Mono',monospace;font-size:.66rem;letter-spacing:.26em;text-transform:uppercase;color:var(--fg-mute);animation:pulse 2.6s ease-in-out infinite}
+  @keyframes pulse{0%,100%{opacity:.3}50%{opacity:.8}}
+  .stopnav{position:fixed;z-index:2;left:48px;bottom:48px;display:flex;flex-direction:column;gap:10px}
+  .dot{width:6px;height:6px;border-radius:50%;background:var(--line-strong);transition:.3s}
+  .dot.active{background:var(--accent);box-shadow:0 0 9px var(--accent)}
+</style>
+<canvas id="stars"></canvas>
+<div class="sun"></div>
+<div class="orbits">
+  <svg width="4" height="1000" viewBox="-2 -500 4 1000" style="overflow:visible">
+    <ellipse class="ring hot" rx="120" ry="118"/><ellipse class="ring" rx="230" ry="224"/>
+    <ellipse class="ring" rx="360" ry="350"/><ellipse class="ring" rx="520" ry="500"/>
+    <ellipse class="ring" rx="720" ry="690"/><ellipse class="ring" rx="960" ry="915"/>
+    <circle class="planet" cx="-92" cy="-70" r="2.6"/>
+    <circle class="planet" cx="-176" cy="130" r="3.2" fill="#e6c98a"/>
+    <circle class="planet" cx="-300" cy="-150" r="3.6" fill="#3d7fd6"/>
+    <circle class="planet" cx="-470" cy="220" r="3.2" fill="#c1440e"/>
+    <circle class="planet" cx="-640" cy="-300" r="7" fill="#d8a06a"/>
+    <circle class="planet" cx="-880" cy="360" r="6" fill="#e3c07a"/>
+  </svg>
+</div>
+<div class="info">
+  <div class="kicker">Software Engineer · Pune, India</div>
+  <h1 class="name">Rugwed<br><em>Patharkar</em></h1>
+  <p class="role">Backend &amp; agentic-AI infrastructure — 2+ years turning hard problems into software that ships.</p>
+  <div class="meta"><span><b>STATUS</b> Open to roles</span><span><b>FOCUS</b> Backend · AI</span></div>
+  <div class="cta"><button class="btn primary">Begin the tour ↓</button><button class="btn">Résumé</button></div>
+</div>
+<div class="hud"><i class="corner tl"></i><i class="corner tr"></i><i class="corner bl"></i><i class="corner br"></i></div>
+<div class="telemetry">SOL SYSTEM · 00 / 18<br><b>HELIOCENTRIC OVERVIEW</b><br>RA 17ʰ45ᵐ · DEC −29°</div>
+<div class="stopnav"><span class="dot active"></span><span class="dot"></span><span class="dot"></span><span class="dot"></span><span class="dot"></span><span class="dot"></span></div>
+<div class="scrollhint">scroll to enter ↓</div>
+<script>
+  const c=document.getElementById('stars'),x=c.getContext('2d');let w,h,S=[];
+  function rs(){w=c.width=innerWidth;h=c.height=innerHeight;S=[];const n=Math.min(460,innerWidth/2.6);
+    for(let i=0;i<n;i++)S.push({x:Math.random()*w,y:Math.random()*h,z:Math.random(),p:Math.random()*6.28,s:Math.random()*1.4+.2})}
+  addEventListener('resize',rs);rs();
+  let mx=0,my=0,tx=0,ty=0;addEventListener('mousemove',e=>{tx=(e.clientX/w-.5);ty=(e.clientY/h-.5)});
+  let t=0;(function loop(){t+=.016;mx+=(tx-mx)*.05;my+=(ty-my)*.05;x.clearRect(0,0,w,h);
+    for(const st of S){const tw=.5+.5*Math.sin(t*1.5+st.p);const px=st.x+mx*46*st.z,py=st.y+my*46*st.z;
+      x.globalAlpha=(.22+.78*tw)*(.35+st.z*.65);x.fillStyle=st.z>.86?'#dfe9ff':'#ffffff';
+      x.beginPath();x.arc(px,py,st.s*(.6+tw*.5),0,6.28);x.fill()}
+    x.globalAlpha=1;requestAnimationFrame(loop)})();
+</script>

@@ -15,7 +15,7 @@
 // Bump this on every deploy. With no auto-versioning we keep a manual counter;
 // users who arrive after a deploy will re-fetch index.html on first nav and
 // the new SW will swap in via skipWaiting.
-const CACHE_VERSION = 'v3';
+const CACHE_VERSION = 'v4';
 const SHELL_CACHE = `portfolio-shell-${CACHE_VERSION}`;
 const ASSET_CACHE = `portfolio-assets-${CACHE_VERSION}`;
 const IMAGE_CACHE = `portfolio-images-${CACHE_VERSION}`;
@@ -68,13 +68,17 @@ const staleWhileRevalidate = async (request, cacheName) => {
 };
 
 const networkFirstNavigation = async (request) => {
+  const cache = await caches.open(SHELL_CACHE);
   try {
-    const fresh = await fetch(request);
-    const cache = await caches.open(SHELL_CACHE);
+    /* Race the network against a 5s timeout so a hanging connection falls back
+       to the cached shell instead of leaving the visitor on a blank page. */
+    const fresh = await Promise.race([
+      fetch(request),
+      new Promise((_, reject) => setTimeout(() => reject(new Error('timeout')), 5000)),
+    ]);
     if (fresh.ok) cache.put('/index.html', fresh.clone());
     return fresh;
   } catch {
-    const cache = await caches.open(SHELL_CACHE);
     return (await cache.match(request)) || (await cache.match('/index.html'));
   }
 };

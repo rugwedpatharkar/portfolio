@@ -73,7 +73,7 @@ export const ProgressRail = ({ destinations, activeIdx, onJump }) => {
                 width: active ? 9 : 6,
                 height: active ? 9 : 6,
                 borderRadius: "50%",
-                background: active ? d.color : "rgba(255,255,255,0.34)",
+                background: active ? d.color : "rgba(255,255,255,0.55)",
                 boxShadow: active ? `0 0 9px ${d.color}` : "none",
                 transition: "all 0.25s ease",
                 flexShrink: 0,

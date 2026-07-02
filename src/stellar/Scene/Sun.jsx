@@ -92,16 +92,16 @@ const SUN_FRAG = /* glsl */ `
     surface = mix(surface, surface * (0.75 + 0.5 * superg), 0.5);
     surface = mix(surface, detail, 0.12);
 
-    /* Drifting sunspots — realistic UMBRA (near-black core) wrapped in a
-       lighter, filamentary PENUMBRA, from nested thresholds on one low-freq
-       mask. The penumbra picks up high-freq filaments so its fringe shimmers
-       like the real radial penumbral threads. */
-    float spotN = snoise(dir * 1.7 + vec3(uTime * 0.015, 0.0, 0.0));
-    float penumbra = smoothstep(0.24, 0.40, spotN);
-    float umbra    = smoothstep(0.40, 0.50, spotN);
+    /* Active regions — the SOHO/EIT-304 reference has NO big black sunspots, just
+       fine mottling with a few SMALL, soft, slightly-darker filament channels. So
+       this is deliberately gentle: HIGH-freq mask (small cells) + HIGH thresholds
+       (rare + tiny coverage) + shallow darkening (soft dim, never a black crater). */
+    float spotN = snoise(dir * 3.9 + vec3(uTime * 0.015, 0.0, 0.0));
+    float penumbra = smoothstep(0.55, 0.70, spotN);
+    float umbra    = smoothstep(0.70, 0.84, spotN);
     float filament = snoise(dir * 38.0 + warp * 2.0) * 0.5 + 0.5;
-    float spotDark = mix(1.0, 0.45 + 0.18 * filament, penumbra); // penumbral fringe
-    spotDark *= mix(1.0, 0.06, umbra);                           // umbral core (near-black)
+    float spotDark = mix(1.0, 0.74 + 0.14 * filament, penumbra); // soft penumbral dimming
+    spotDark *= mix(1.0, 0.5, umbra);                            // core — dimmer, not black
 
     /* Colour ramp cool → mid → hot. */
     vec3 col = mix(uCool, uMid, smoothstep(0.18, 0.55, surface));
@@ -121,9 +121,9 @@ const SUN_FRAG = /* glsl */ `
     float facula = net * pow(1.0 - ndv, 2.0);
     col += facula * vec3(1.0, 0.93, 0.78) * 0.30;
 
-    /* Over-bright so bloom blooms it into a star — but NOT inside sunspot umbrae,
-       which stay dark enough to survive the bloom as genuine dark spots. */
-    col *= mix(1.55, 0.3, umbra);
+    /* Over-bright so bloom blooms it into a warm glowing star; active regions
+       stay only slightly under so they read as soft channels, not black holes. */
+    col *= mix(1.9, 1.25, umbra);
     gl_FragColor = vec4(col, 1.0);
   }
 `;
@@ -138,19 +138,18 @@ const Sun = ({
 }) => {
   const meshRef = useRef();
   const matRef = useRef();
-  const innerCoronaRef = useRef();
-  const outerCoronaRef = useRef();
   const sceneClock = useSceneClock();
 
   const uniforms = useMemo(
     () => ({
       uTime: { value: 0 },
       uCameraPos: { value: new THREE.Vector3() },
-      /* True ~5800 K photosphere reads near-WHITE with a faint cream cast — not
-         lava-orange. Orange is reserved for the cool intergranular lanes/spots. */
-      uHot: { value: new THREE.Color("#fffdf7") },
-      uMid: { value: new THREE.Color("#ffe7b0") },
-      uCool: { value: new THREE.Color("#ff9a44") },
+      /* Reddish SOHO/EIT-304 look (per the reference photo): a hot orange-red
+         photosphere. Bright convection peaks = orange-gold, mid = orange, cool
+         intergranular lanes = deep red; active regions are only soft channels. */
+      uHot: { value: new THREE.Color("#ff9a3c") },
+      uMid: { value: new THREE.Color("#e8531a") },
+      uCool: { value: new THREE.Color("#6e1a06") },
     }),
     []
   );
@@ -162,16 +161,6 @@ const Sun = ({
     if (matRef.current) {
       matRef.current.uniforms.uTime.value = t;
       matRef.current.uniforms.uCameraPos.value.copy(camera.position);
-    }
-    if (innerCoronaRef.current) {
-      const pulse = 1 + Math.sin(t * 0.9) * 0.04 + Math.sin(t * 2.3 + 1.7) * 0.02;
-      innerCoronaRef.current.scale.setScalar(pulse);
-      innerCoronaRef.current.material.opacity = 0.34 + Math.sin(t * 1.3) * 0.06;
-    }
-    if (outerCoronaRef.current) {
-      const pulse = 1 + Math.sin(t * 0.55 + 0.8) * 0.05;
-      outerCoronaRef.current.scale.setScalar(pulse);
-      outerCoronaRef.current.material.opacity = 0.17 + Math.sin(t * 0.7 + 2.1) * 0.04;
     }
   });
 
@@ -188,19 +177,9 @@ const Sun = ({
           toneMapped={false}
         />
       </mesh>
-      {/* Inner corona — pearly chromospheric aureole (desaturated cream, not
-          amber) so it doesn't fuzz the photosphere edge into an orange ball. */}
-      <mesh ref={innerCoronaRef}>
-        <sphereGeometry args={[radius * 1.14, 32, 32]} />
-        <meshBasicMaterial color="#ffe8cc" transparent opacity={0.34} side={THREE.BackSide} toneMapped={false} depthWrite={false} />
-      </mesh>
-      {/* Outer corona — wide soft falloff, faint warm-white. Larger so the Sun
-          reads as a grand glowing star that fills the hero, not a bare ball. */}
-      <mesh ref={outerCoronaRef}>
-        <sphereGeometry args={[radius * 2.1, 32, 32]} />
-        <meshBasicMaterial color="#ffd6ac" transparent opacity={0.17} side={THREE.BackSide} toneMapped={false} depthWrite={false} />
-      </mesh>
-      <pointLight color="#ffe5b0" intensity={1.1} distance={600} decay={1.2} />
+      {/* Corona shells + prominence flare-loops removed — a clean photosphere. Bloom
+          on the over-bright surface gives it a natural glow on its own. */}
+      <pointLight color="#ffb070" intensity={1.1} distance={600} decay={1.2} />
     </group>
   );
 };
