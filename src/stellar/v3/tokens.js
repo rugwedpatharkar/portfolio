@@ -50,10 +50,15 @@ export const accentFor = (key) =>
 
 /* ---- type ----------------------------------------------------------------- */
 export const FONT = {
-  display: "'Fraunces', Georgia, serif", // giant hero name (variable, high-contrast)
-  serif: "'Instrument Serif', Georgia, serif", // section headlines
-  ui: "'Space Grotesk', system-ui, sans-serif", // labels / body / buttons
-  mono: "'JetBrains Mono', ui-monospace, monospace", // data / telemetry
+  /* Font stack — Option B: cinematic magazine-cover feel.
+     DM Serif Display: high-contrast, dramatic serif for headlines + big stat values.
+     Instrument Serif: italic-forward serif for section heads (kept as accent).
+     Manrope: warmer geometric sans for UI/body — better readability at small sizes.
+     Geist Mono: Vercel's modern monospace for data channels + kicker labels. */
+  display: "'DM Serif Display', Georgia, serif",
+  serif: "'Instrument Serif', Georgia, serif",
+  ui: "'Manrope', system-ui, sans-serif",
+  mono: "'Geist Mono', ui-monospace, monospace",
 };
 
 /* Utopia fluid clamp() steps (type). Hero name (step6) bumped per sign-off. */

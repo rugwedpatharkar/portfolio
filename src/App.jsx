@@ -46,7 +46,7 @@ const routeForHash = (h = "") => {
    flash. Uses hardcoded v3 colors since the token skin mounts after this. */
 const BootReveal = () => (
   <div style={{ position: "fixed", inset: 0, zIndex: 9999, background: "#050609", display: "flex", alignItems: "center", justifyContent: "center" }}>
-    <div style={{ fontFamily: "'Fraunces', Georgia, serif", fontWeight: 340, fontSize: "clamp(1.5rem, 5vw, 2.4rem)", letterSpacing: "-.01em", color: "#f5f7fc", opacity: 0, animation: "stellarBoot 700ms cubic-bezier(.22,1,.36,1) forwards" }}>
+    <div style={{ fontFamily: "'DM Serif Display', Georgia, serif", fontWeight: 340, fontSize: "clamp(1.5rem, 5vw, 2.4rem)", letterSpacing: "-.01em", color: "#f5f7fc", opacity: 0, animation: "stellarBoot 700ms cubic-bezier(.22,1,.36,1) forwards" }}>
       Rugwed <em style={{ fontStyle: "italic", color: "#e9c675" }}>Patharkar</em>
     </div>
     <style>{`@keyframes stellarBoot{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
