@@ -4,7 +4,6 @@ import { Canvas, invalidate } from "@react-three/fiber";
 import * as THREE from "three";
 import { EffectComposer, Bloom } from "@react-three/postprocessing";
 import CinematicGrade from "./CinematicGrade";
-import ArrivalPulse from "./ArrivalPulse";
 import SceneClock from "./SceneClock";
 import Stars from "./Stars";
 import Sun from "./Sun";
@@ -153,7 +152,6 @@ const Scene = ({ scrollT, activeIdx, itemIdx = 0, onJump, onReady, freeRoamEnabl
   const freeRoamOffsetRef = useRef(new THREE.Vector3());
   /* Bloom effect handle (static intensity; warp pulse removed in v3). */
   const bloomRef = useRef();
-  const arrivalRef = useRef(0); // decaying 0→1 pulse on stop arrival (bloom swell + grade crisp)
   /* Earth's Moon world position, published by its Planet, read by SolarEclipse. */
   const moonWorldRef = useRef(new THREE.Vector3());
 
@@ -598,7 +596,6 @@ const Scene = ({ scrollT, activeIdx, itemIdx = 0, onJump, onReady, freeRoamEnabl
           breaks the additive sun/bloom compositing (black flicker). Edge AA
           comes from rendering at native 2× DPR instead. DOF removed, so the
           scene is fully in focus and crisp. */}
-      <ArrivalPulse bloomRef={bloomRef} arrivalRef={arrivalRef} base={isMobile ? 0.6 : 0.8} enabled={!reducedMotion} />
       <EffectComposer multisampling={0} disableNormalPass>
         <Bloom
           ref={bloomRef}
@@ -619,7 +616,6 @@ const Scene = ({ scrollT, activeIdx, itemIdx = 0, onJump, onReady, freeRoamEnabl
           vigOffset={0.36}
           vigDarkness={0.38}
           vigBreathe={reducedMotion ? 0 : 0.05}
-          arrivalRef={arrivalRef}
         />
       </EffectComposer>
       </SceneClock>
