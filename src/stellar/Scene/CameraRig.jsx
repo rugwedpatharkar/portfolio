@@ -171,7 +171,9 @@ const backDistFor = (extent, halfAngle = BACKLIT_HALF_ANGLE, floor = BACK_FLOOR)
    right of centre, info left). We frame by the body radius (× oblateness so the squashed
    giants don't crop vertically), IGNORING rings — so Saturn's disc matches Jupiter's and
    the rings simply extend off-frame (cinematic), instead of the rings shrinking the body. */
-const V3_HALF_ANGLE = 18 * DEG; // → ~16° body half-angle (zoomed-in cinematic hero)
+const V3_HALF_ANGLE = 12 * DEG; // → ~10° body half-angle (smaller specimen — the planet
+//                                is a discoverable interaction, not the dominant hero;
+//                                content wraps around it, telemetry appears on hover)
 /* Tiny dwarfs (Pluto r≈0.034, Ceres r≈0.06) would clamp to BACK_FLOOR and look small,
    so v3 uses a much lower floor — just clear of the ~0.1 near-clip (+ the body radius) —
    letting even Pluto frame near the same size as the giants. */

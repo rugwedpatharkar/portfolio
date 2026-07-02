@@ -15,6 +15,7 @@ import { COSMIC_BY_ID } from "./cosmicStops";
 import V3ContactForm from "./V3ContactForm";
 import useViewport from "../useViewport";
 import heroPhoto from "../../assets/hero-photo-1024.webp";
+import { V3PlanetCard } from "./primitives";
 import AboutSection from "./sections/About";
 import FunFactsSection from "./sections/FunFacts";
 import ExperienceSection from "./sections/Experience";
@@ -250,23 +251,11 @@ export default function V3Panel({ destination, section, items, bootNonce }) {
         <div style={{ pointerEvents: "auto", position: "fixed", inset: 0, padding: "clamp(70px, 8vh, 110px) clamp(24px, 4vw, 60px) clamp(60px, 8vh, 90px)", zIndex: 40, display: "flex", overflow: "hidden" }} className="stellar-dossier-frame">
           <Section index={idxOfStop} bootNonce={bootNonce} />
         </div>
-        {/* Body telemetry — same docked position/style as the accordion path so
-            the planet's spec sheet stays visible on every résumé stop. Mobile
-            inlines telemetry inside sections; desktop docks it here. */}
-        {!isCompact && facts && (
-          <motion.div
-            key={`tel-${section}`}
-            initial={reduce ? false : { opacity: 0, y: 10 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.55, ease, delay: 0.35 }}
-            style={{ position: "fixed", right: "clamp(30px, 4vw, 92px)", bottom: "clamp(26px, 6vh, 62px)", width: "min(360px, 30vw)", zIndex: 41, pointerEvents: "none", padding: "24px 30px" }}
-          >
-            <div aria-hidden style={{ position: "absolute", inset: 0, background: "rgba(4,5,9,0.6)", WebkitMaskImage: "radial-gradient(125% 120% at 82% 55%, #000 48%, transparent 100%)", maskImage: "radial-gradient(125% 120% at 82% 55%, #000 48%, transparent 100%)" }} />
-            <div style={{ position: "relative" }}>
-              <Telemetry facts={facts} />
-            </div>
-          </motion.div>
-        )}
+        {/* Planet-hover telemetry card — replaces the persistent docked telemetry.
+            The frame stays clean; hovering the 3D planet reveals a floating specimen
+            card with a tick pointing at the sphere. Touch devices skip this entirely
+            (mobile sections inline compact facts per plan). */}
+        {!isCompact && facts && <V3PlanetCard facts={facts} />}
       </>
     );
   }

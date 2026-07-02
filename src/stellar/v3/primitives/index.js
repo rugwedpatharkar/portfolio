@@ -9,3 +9,4 @@ export { default as V3Constellation } from "./V3Constellation";
 export { default as V3Circuit } from "./V3Circuit";
 export { default as V3Quote } from "./V3Quote";
 export { default as V3DepthLayer } from "./V3DepthLayer";
+export { default as V3PlanetCard } from "./V3PlanetCard";
