@@ -35,16 +35,20 @@ uniform float vigOffset;
 uniform float vigDarkness;
 uniform float uTime;
 uniform float vigBreathe;
+uniform float uArrival;
 
 void mainImage(const in vec4 inputColor, const in vec2 uv, out vec4 outputColor) {
   vec3 color = inputColor.rgb;
 
   /* --- BrightnessContrast (postprocessing BrightnessContrastEffect) --- */
+  /* On stop arrival, uArrival (0→1, decaying) momentarily crisps the contrast so
+     the world snaps sharp as the camera settles, then relaxes for reading. */
+  float c = contrast + uArrival * 0.06;
   color += vec3(brightness - 0.5);
-  if (contrast > 0.0) {
-    color /= vec3(1.0 - contrast);
+  if (c > 0.0) {
+    color /= vec3(1.0 - c);
   } else {
-    color *= vec3(1.0 + contrast);
+    color *= vec3(1.0 + c);
   }
   color += vec3(0.5);
 
@@ -64,7 +68,7 @@ void mainImage(const in vec4 inputColor, const in vec2 uv, out vec4 outputColor)
 `;
 
 class CinematicGradeEffect extends Effect {
-  constructor({ brightness, contrast, saturation, vigOffset, vigDarkness, vigBreathe }) {
+  constructor({ brightness, contrast, saturation, vigOffset, vigDarkness, vigBreathe, arrivalRef }) {
     super("CinematicGrade", fragmentShader, {
       uniforms: new Map([
         ["brightness", new Uniform(brightness)],
@@ -74,15 +78,19 @@ class CinematicGradeEffect extends Effect {
         ["vigDarkness", new Uniform(vigDarkness)],
         ["uTime", new Uniform(0)],
         ["vigBreathe", new Uniform(vigBreathe)],
+        ["uArrival", new Uniform(0)],
       ]),
     });
+    this._arrivalRef = arrivalRef || null; // decaying 0→1 arrival pulse (from ArrivalPulse)
   }
 
-  /* Advance the breathing clock each frame (postprocessing calls this per render). */
+  /* Advance the breathing clock + read the arrival pulse each frame (postprocessing
+     calls this per render). */
   update(renderer, inputBuffer, deltaTime) {
     if (this.uniforms.get("vigBreathe").value > 0) {
       this.uniforms.get("uTime").value += deltaTime;
     }
+    this.uniforms.get("uArrival").value = this._arrivalRef && this._arrivalRef.current ? this._arrivalRef.current : 0;
   }
 }
 
@@ -95,12 +103,13 @@ const CinematicGrade = forwardRef(
       vigOffset = 0.3,
       vigDarkness = 0.82,
       vigBreathe = 0,
+      arrivalRef = null,
     },
     ref
   ) => {
     const effect = useMemo(
-      () => new CinematicGradeEffect({ brightness, contrast, saturation, vigOffset, vigDarkness, vigBreathe }),
-      [brightness, contrast, saturation, vigOffset, vigDarkness, vigBreathe]
+      () => new CinematicGradeEffect({ brightness, contrast, saturation, vigOffset, vigDarkness, vigBreathe, arrivalRef }),
+      [brightness, contrast, saturation, vigOffset, vigDarkness, vigBreathe, arrivalRef]
     );
     return <primitive ref={ref} object={effect} dispose={null} />;
   }
