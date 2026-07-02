@@ -39,6 +39,15 @@ import V3Cursor from "./v3/V3Cursor";
 import V3Hud from "./v3/V3Hud";
 
 
+/* Section → document-title label (recruiter-facing tab title + a11y context). */
+const DOC_SECTION = {
+  hero: "", about: "About", funfacts: "Impact", experience: "Experience",
+  projects: "Projects", achievements: "Achievements", skills: "Skills",
+  notes: "Writing", education: "Education", hobbies: "Hobbies",
+  testimonials: "Testimonials", contact: "Contact", "cosmic-blackhole": "The Edge",
+};
+const DOC_DEFAULT_TITLE = "Rugwed Patharkar — Backend & Agentic AI Engineer";
+
 /* Hash → destination utilities */
 const findDestinationIndexByHash = (hash) => {
   const id = hash
@@ -219,6 +228,9 @@ const StellarApp = ({ v3 = false }) => {
       window.dispatchEvent(new CustomEvent("stellar:destination", { detail: { id: dest.id, index: idx } }));
       /* Persist visited stops (powers "stops X/12" + the return greeting). */
       markVisited(dest.id);
+      /* Keep the tab title + a11y context in sync with the active section. */
+      const sec = DOC_SECTION[dest.section];
+      document.title = sec ? `${sec} · Rugwed Patharkar` : DOC_DEFAULT_TITLE;
     }
   }, [v3]);
 
@@ -599,6 +611,9 @@ const StellarApp = ({ v3 = false }) => {
   return (
     <MotionConfig reducedMotion="user">
     <StellarUIContext.Provider value={ui}>
+      {/* Skip-to-content — first focusable element, for keyboard/AT users to
+          bypass the 3D canvas and jump to the résumé content column. */}
+      <a className="stellar-skip" href="#main-content">Skip to content</a>
       {/* v3 skin — injects design tokens + tracks the per-body accent. Mounted
           only on the #v3 route; #stellar (v2) renders unchanged. */}
       {v3 && <V3Style accentKey={DESTINATIONS[activeIdx]?.id} />}
@@ -611,10 +626,19 @@ const StellarApp = ({ v3 = false }) => {
            via :focus-visible). */
         .stellar-content-left a:focus-visible, .stellar-content-left button:focus-visible,
         button:focus-visible, a:focus-visible, [tabindex]:focus-visible {
-          outline: 2px solid rgba(150, 195, 255, 0.95) !important;
+          outline: 2px solid var(--focus-ring, rgba(150, 195, 255, 0.95)) !important;
           outline-offset: 3px;
           border-radius: 5px;
         }
+        /* Skip-to-content — the first focusable element; slides in on keyboard focus. */
+        .stellar-skip {
+          position: fixed; left: 16px; top: -64px; z-index: 200;
+          padding: 10px 16px; border-radius: 8px;
+          background: var(--focus-ring, #915eff); color: #050609;
+          font: 600 14px/1 'Space Grotesk', system-ui, sans-serif; text-decoration: none;
+          transition: top .2s ease;
+        }
+        .stellar-skip:focus { top: 16px; outline: none; }
         @keyframes stellarChevron { 0%, 100% { transform: translateY(0); opacity: 0.55; } 50% { transform: translateY(4px); opacity: 1; } }
         @keyframes stellarCaret { 50% { opacity: 0; } }
         @keyframes stellarStatusPulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.45; } }
@@ -699,7 +723,7 @@ const StellarApp = ({ v3 = false }) => {
               v3={v3}
             />
           )}
-          {mode === "tour" && <ScrollHint visible={activeIdx === 0 && !interacted} />}
+          {mode === "tour" && !v3 && <ScrollHint visible={activeIdx === 0 && !interacted} />}
           {/* v3 FUI chrome — hairline frame, stop counter, clickable system rail. */}
           {v3 && mode === "tour" && (
             <V3Hud stops={DESTINATIONS} activeIdx={activeIdx} label={DESTINATIONS[activeIdx]?.label} section={DESTINATIONS[activeIdx]?.section} onJump={handleJump} />

@@ -17,7 +17,7 @@ export const COLOR = {
   lineStrong: "rgba(255,255,255,0.15)",
   fg: "#f5f7fc", // primary (~96%, never pure white)
   fgDim: "#b3b9c7", // secondary
-  fgMute: "#6b7280", // mono meta / captions
+  fgMute: "#7c8391", // mono meta / captions — ~5.3:1 on the void (WCAG AA small text; was #6b7280 ≈ 4.2:1)
   accent: "#e9c675", // Sol default (warm-white gold)
 };
 
@@ -99,6 +99,7 @@ export const cssVars = () => `
   --v3-fg-dim:${COLOR.fgDim};
   --v3-fg-mute:${COLOR.fgMute};
   --v3-accent:${COLOR.accent};
+  --focus-ring:var(--v3-accent);
   --v3-font-display:${FONT.display};
   --v3-font-serif:${FONT.serif};
   --v3-font-ui:${FONT.ui};

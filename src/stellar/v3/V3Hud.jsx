@@ -7,6 +7,7 @@
  * --v3-accent. Hidden during the reveal-on-arrival flight fade is handled by opacity.
  */
 import { motion } from "motion/react";
+import useViewport from "../useViewport";
 
 const Corner = ({ pos }) => {
   const base = { position: "absolute", width: 14, height: 14, borderColor: "var(--v3-line-strong)", borderStyle: "solid", borderWidth: 0 };
@@ -20,6 +21,7 @@ const Corner = ({ pos }) => {
 };
 
 export default function V3Hud({ stops = [], activeIdx = 0, label = "", section = "", onJump }) {
+  const { isCompact } = useViewport();
   const total = stops.length;
   const num = (n) => String(n + 1).padStart(2, "0");
 
@@ -30,19 +32,23 @@ export default function V3Hud({ stops = [], activeIdx = 0, label = "", section =
         <Corner pos="tl" /><Corner pos="tr" /><Corner pos="bl" /><Corner pos="br" />
       </div>
 
-      {/* top-left wordmark */}
-      <div style={{ position: "absolute", top: 34, left: 40, fontSize: ".72rem", letterSpacing: ".24em", textTransform: "uppercase", color: "var(--v3-fg-mute)", display: "flex", alignItems: "center", gap: 10 }}>
-        <span style={{ width: 6, height: 6, borderRadius: "50%", background: "var(--v3-accent)", boxShadow: "0 0 8px var(--v3-accent)" }} />
-        Stellar · System Tour
-      </div>
+      {/* top-left wordmark (hidden on compact — the counter carries context) */}
+      {!isCompact && (
+        <div style={{ position: "absolute", top: 34, left: 40, fontSize: ".72rem", letterSpacing: ".24em", textTransform: "uppercase", color: "var(--v3-fg-mute)", display: "flex", alignItems: "center", gap: 10 }}>
+          <span style={{ width: 6, height: 6, borderRadius: "50%", background: "var(--v3-accent)", boxShadow: "0 0 8px var(--v3-accent)" }} />
+          Stellar · System Tour
+        </div>
+      )}
 
       {/* top-right live stop counter */}
       <div style={{ position: "absolute", top: 34, right: 40, fontSize: ".72rem", letterSpacing: ".18em", textTransform: "uppercase", color: "var(--v3-fg-mute)", textAlign: "right" }}>
         <span style={{ color: "var(--v3-accent)" }}>{num(activeIdx)}</span> / {num(total - 1)} · {label}
       </div>
 
-      {/* right-edge system rail — one tick per stop, clickable */}
-      <div style={{ position: "absolute", top: "50%", right: 34, transform: "translateY(-50%)", display: "flex", flexDirection: "column", gap: 9, pointerEvents: "auto" }}>
+      {/* right-edge system rail — one tick per stop, clickable (desktop/tablet only;
+          on compact the touch-scroll + counter cover navigation) */}
+      {!isCompact && (
+        <div style={{ position: "absolute", top: "50%", right: 34, transform: "translateY(-50%)", display: "flex", flexDirection: "column", gap: 9, pointerEvents: "auto" }}>
         {stops.map((s, i) => {
           const on = i === activeIdx;
           return (
@@ -63,7 +69,8 @@ export default function V3Hud({ stops = [], activeIdx = 0, label = "", section =
             </button>
           );
         })}
-      </div>
+        </div>
+      )}
     </div>
   );
 }

@@ -29,6 +29,10 @@ export default function HoloBridge({ destination, section, items, bootNonce, pan
   return (
     <div
       ref={ref}
+      id="main-content"
+      role="main"
+      tabIndex={-1}
+      aria-label="Portfolio content"
       style={{
         position: "fixed",
         inset: 0,
@@ -41,7 +45,9 @@ export default function HoloBridge({ destination, section, items, bootNonce, pan
         alignItems: stack ? "stretch" : "center",
         justifyContent: stack ? "flex-end" : isHero || v3 ? "flex-start" : "space-between",
         gap: stack ? 10 : 16,
-        padding: stack ? "0 12px 92px" : v3 ? "0 clamp(28px, 6vw, 120px)" : "0 clamp(18px, 3vw, 46px)",
+        padding: stack
+          ? "0 12px calc(92px + env(safe-area-inset-bottom, 0px))"
+          : v3 ? "0 clamp(28px, 6vw, 120px)" : "0 clamp(18px, 3vw, 46px)",
       }}
     >
       {isHero ? (

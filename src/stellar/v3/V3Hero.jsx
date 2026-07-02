@@ -12,6 +12,7 @@ import { motion, useReducedMotion } from "motion/react";
 import { personalInfo, heroContent, contactLinks } from "../../content";
 import { DESTINATIONS } from "../config/destinations";
 import { magnetic } from "./motion";
+import useViewport from "../useViewport";
 
 const SECONDARY = ["Resume", "GitHub", "LinkedIn"];
 const ease = [0.22, 1, 0.36, 1];
@@ -26,6 +27,7 @@ const beginTour = () => {
 
 export default function V3Hero() {
   const reduce = useReducedMotion();
+  const { isCompact } = useViewport();
   const ctaRef = useRef(null);
   useEffect(() => magnetic(ctaRef.current, { strength: 0.3 }), []);
 
@@ -59,7 +61,7 @@ export default function V3Hero() {
       variants={container}
       initial="hidden"
       animate="show"
-      style={{ pointerEvents: "auto", maxWidth: "min(52ch, 46vw)", display: "flex", flexDirection: "column" }}
+      style={{ pointerEvents: "auto", maxWidth: isCompact ? "100%" : "min(52ch, 46vw)", display: "flex", flexDirection: "column" }}
     >
       {/* kicker */}
       <motion.div
@@ -71,7 +73,7 @@ export default function V3Hero() {
       </motion.div>
 
       {/* name — masked line reveal, italic accent surname */}
-      <h1 style={{ font: `340 var(--v3-type-s6) var(--v3-font-display)`, fontOpticalSizing: "auto", lineHeight: 0.9, letterSpacing: "-.025em", color: "var(--v3-fg)", margin: ".16em 0 .1em" }}>
+      <h1 style={{ font: `340 var(--v3-type-s6) var(--v3-font-display)`, fontSize: isCompact ? "clamp(2.6rem, 13vw, 4.4rem)" : undefined, fontOpticalSizing: "auto", lineHeight: 0.9, letterSpacing: "-.025em", color: "var(--v3-fg)", margin: ".16em 0 .1em" }}>
         <span style={maskLine}><motion.span style={{ display: "block" }} variants={lineRise}>{first}</motion.span></span>
         <span style={maskLine}><motion.span style={{ display: "block" }} variants={lineRise}><em style={{ fontStyle: "italic", fontWeight: 380, color: "var(--v3-accent)" }}>{last}</em></motion.span></span>
       </h1>

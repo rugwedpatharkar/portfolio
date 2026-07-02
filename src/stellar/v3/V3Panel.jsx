@@ -12,6 +12,7 @@ import { motion, useReducedMotion } from "motion/react";
 import { PLANET_FACTS } from "../data/planetFacts";
 import { summaryFor } from "../data/holoSummary";
 import { COSMIC_BY_ID } from "./cosmicStops";
+import useViewport from "../useViewport";
 import heroPhoto from "../../assets/hero-photo-1024.webp";
 
 const SECTION_TITLE = {
@@ -74,6 +75,7 @@ function Dossier({ d }) {
 
 export default function V3Panel({ destination, section, items, bootNonce }) {
   const reduce = useReducedMotion();
+  const { isCompact } = useViewport();
   const [open, setOpen] = useState(-1); // single-open accordion; -1 = all collapsed
   const [overflow, setOverflow] = useState(false); // is the column taller than its box?
   const wrapRef = useRef(null);
@@ -136,7 +138,7 @@ export default function V3Panel({ destination, section, items, bootNonce }) {
 
   const stagger = { hidden: {}, show: { transition: { staggerChildren: reduce ? 0 : 0.055, delayChildren: reduce ? 0 : 0.08 } } };
   const rise = { hidden: { opacity: 0, y: reduce ? 0 : 14 }, show: { opacity: 1, y: 0, transition: { duration: 0.5, ease } } };
-  const wrap = { pointerEvents: "auto", maxWidth: "min(46ch, 42vw)", maxHeight: "82vh", overflowY: "auto", overflowX: "hidden" };
+  const wrap = { pointerEvents: "auto", maxWidth: isCompact ? "100%" : "min(46ch, 42vw)", maxHeight: isCompact ? "60vh" : "82vh", overflowY: "auto", overflowX: "hidden" };
 
   /* ---- cosmic epilogue stop (no résumé items — the phenomenon's facts + wow) ---- */
   const cosmic = destination && COSMIC_BY_ID[destination.id];
