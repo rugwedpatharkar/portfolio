@@ -71,10 +71,21 @@ export const HomePin = ({ radius = 0.75, animate = true }) => {
         <ringGeometry args={[s * 0.05, s * 0.075, 32]} />
         <meshBasicMaterial color={GOLD} transparent opacity={0.5} side={THREE.DoubleSide} toneMapped={false} depthWrite={false} />
       </mesh>
-      {/* "you are here" light beam rising from the pin */}
-      <mesh position={[0, s * 0.55, 0]}>
-        <cylinderGeometry args={[s * 0.012, s * 0.026, s * 0.85, 12, 1, true]} />
-        <meshBasicMaterial color={GOLD} transparent opacity={0.2} side={THREE.DoubleSide} toneMapped={false} depthWrite={false} blending={THREE.AdditiveBlending} />
+      {/* "you are here" light beam rising from the pin — visible signal column.
+          Two nested cylinders: inner brighter/tighter core, outer soft glow halo. */}
+      <mesh position={[0, s * 0.75, 0]}>
+        <cylinderGeometry args={[s * 0.006, s * 0.02, s * 1.25, 12, 1, true]} />
+        <meshBasicMaterial color={GOLD} transparent opacity={0.85} side={THREE.DoubleSide} toneMapped={false} depthWrite={false} blending={THREE.AdditiveBlending} />
+      </mesh>
+      <mesh position={[0, s * 0.75, 0]}>
+        <cylinderGeometry args={[s * 0.02, s * 0.055, s * 1.25, 16, 1, true]} />
+        <meshBasicMaterial color={GOLD} transparent opacity={0.32} side={THREE.DoubleSide} toneMapped={false} depthWrite={false} blending={THREE.AdditiveBlending} />
+      </mesh>
+      {/* Beam cap — a soft disc at the top so the beam terminates as a signal
+          transmitting point, not a truncated cylinder. */}
+      <mesh position={[0, s * 1.38, 0]} rotation={[-Math.PI / 2, 0, 0]}>
+        <ringGeometry args={[0, s * 0.06, 24]} />
+        <meshBasicMaterial color={GOLD} transparent opacity={0.55} toneMapped={false} depthWrite={false} blending={THREE.AdditiveBlending} />
       </mesh>
     </group>
   );

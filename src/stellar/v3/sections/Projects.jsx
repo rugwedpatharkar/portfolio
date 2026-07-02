@@ -120,12 +120,12 @@ export default function ProjectsSection({ index, bootNonce }) {
       index={index}
       scanDir="plot"
       scanKey={bootNonce}
-      /* Narrower than Experience: 'left' back to col 1 only. User wants portrait
-         cards that read as taller than wide — narrower content section forces
-         each card to compress horizontally and grow vertically. */
-      gridAreas={`"top top top" "left . ." "left . ." "bottom bottom bottom"`}
+      /* 'left' spans cols 1+2 so maxWidth actually determines the section width
+         (not the grid cell). 60vw is between About/FunFacts (50vw) and Experience
+         (65vw) — gives cards more breathing room without over-covering Jupiter. */
+      gridAreas={`"top top top" "left left ." "left left ." "bottom bottom bottom"`}
     >
-      <div style={{ gridArea: "left", display: "flex", flexDirection: "column", gap: 14, minWidth: 0, overflow: "hidden", maxWidth: "55vw" }}>
+      <div style={{ gridArea: "left", display: "flex", flexDirection: "column", gap: 14, minWidth: 0, overflow: "hidden", maxWidth: "60vw" }}>
         {/* Header */}
         <V3Scan variant="horizontal" delay={0.05}>
           <div>
@@ -189,10 +189,12 @@ export default function ProjectsSection({ index, bootNonce }) {
           </div>
         </V3Scan>
 
-        {/* Cards grid — 2-col so projects breathe at 65vw */}
+        {/* Cards grid — 3-col at wider section width so each card stays portrait
+            (2-col at 60vw would push cards back to landscape 2.27:1). 6 pro cards
+            → 2 rows of 3, 3 personal → 1 row of 3. */}
         <div key={`grid-${tab}`} style={{
-          display: "grid", gridTemplateColumns: "1fr 1fr",
-          columnGap: 16, rowGap: 16,
+          display: "grid", gridTemplateColumns: "1fr 1fr 1fr",
+          columnGap: 14, rowGap: 14,
           gridAutoRows: "1fr",
         }}>
           {list.map((p, i) => (
