@@ -61,13 +61,15 @@ export const FONT = {
   mono: "'Geist Mono', ui-monospace, monospace",
 };
 
-/* Utopia fluid clamp() steps (type). Hero name (step6) bumped per sign-off. */
+/* Fluid clamp() steps — proportional scaling from 1280→2560 viewport.
+   Formula: clamp(minAt1280, minRem + Xvw, maxAt2560). Max caps bumped so
+   type reads comfortably on 27" QHD external monitors, not just 1440. */
 export const TYPE = {
-  cap: "clamp(0.8rem, 0.76rem + 0.18vw, 0.9rem)", // mono caption
-  body: "clamp(1rem, 0.94rem + 0.3vw, 1.15rem)",
-  s2: "clamp(1.55rem, 1.3rem + 1.2vw, 2.3rem)", // subhead
-  s4: "clamp(2.7rem, 2rem + 3.4vw, 4.6rem)", // section head (serif)
-  s6: "clamp(5.2rem, 3rem + 9.5vw, 10.5rem)", // hero name (Fraunces)
+  cap: "clamp(0.8rem, 0.7rem + 0.28vw, 1.05rem)", // mono caption
+  body: "clamp(1rem, 0.88rem + 0.5vw, 1.35rem)",
+  s2: "clamp(1.55rem, 1.15rem + 1.8vw, 3rem)", // subhead
+  s4: "clamp(2.7rem, 1.6rem + 4.8vw, 5.6rem)", // section head (serif)
+  s6: "clamp(5.2rem, 2.4rem + 11.6vw, 13.5rem)", // hero name (Fraunces)
 };
 
 /* ---- space (8pt grid) ----------------------------------------------------- */
