@@ -4,7 +4,6 @@ import { useFrame } from "@react-three/fiber";
 import { useTexture } from "@react-three/drei";
 import * as THREE from "three";
 import { DESTINATIONS } from "../config/destinations";
-import { orbitalPosition } from "../config/orbits";
 import { useSceneClock } from "./SceneClock";
 
 /*
@@ -22,8 +21,8 @@ import { useSceneClock } from "./SceneClock";
  * INNER/OUTER are the tuning knobs for how tightly the map packs into the frame.
  */
 const SEG = 128;
-const INNER = 45; // compressed radius of the innermost orbit (Mercury)
-const OUTER = 300; // outermost (Pluto) — within the range that frames cleanly
+const INNER = 42; // compressed radius of the innermost orbit (Mercury)
+const OUTER = 215; // outermost (Pluto) — kept < the overview half-field so full orbits stay in frame
 
 const PLANETS = DESTINATIONS.filter((d) => d.kind === "planet");
 const MAX_R = Math.max(...PLANETS.map((d) => d.radius));
@@ -38,11 +37,14 @@ const ORBITS = PLANETS.map((d, i) => {
     pts[k * 3 + 1] = 0; // flat ecliptic circle; the high overview camera renders it as an ellipse
     pts[k * 3 + 2] = Math.sin(th) * rc;
   }
-  const size = 3.5 + 7.5 * Math.sqrt(d.radius / MAX_R); // gas giants read bigger
-  return { id: d.id, dest: d, pts, rc, size, tex: d.texture, rings: !!d.rings, ringColor: d.ringColor || "#f0d9a0" };
+  const size = 4.6 + 9 * Math.sqrt(d.radius / MAX_R); // gas giants read bigger
+  /* Synthetic revolve for the overview (true periods make outer planets look
+     frozen). Golden-angle stagger so they never line up; inner planets faster
+     (Keplerian feel) but ALL visibly moving — a loop takes ~30s (inner) to ~70s. */
+  const theta0 = i * 2.39996;
+  const omega = 0.22 * Math.sqrt(INNER / rc);
+  return { id: d.id, dest: d, pts, rc, size, theta0, omega, tex: d.texture, rings: !!d.rings, ringColor: d.ringColor || "#f0d9a0" };
 });
-
-const _p = new THREE.Vector3();
 
 const OrbitRings = ({ wideRef, show = false }) => {
   const linesRef = useRef();
@@ -65,15 +67,14 @@ const OrbitRings = ({ wideRef, show = false }) => {
     if (marks) marks.visible = on;
     if (!on) return;
 
-    /* revolve each proxy: take the planet's LIVE orbital angle, place it on the
-       COMPRESSED circle, and spin it slowly on its axis. */
+    /* revolve each proxy along its COMPRESSED circle at the synthetic angle, and
+       spin it slowly on its axis — the whole system visibly turns within the frame. */
     const t = clock?.t || 0;
     if (marks) {
       marks.children.forEach((grp, i) => {
         const o = ORBITS[i];
         if (!o) return;
-        orbitalPosition(o.dest, t, _p);
-        const ang = Math.atan2(_p.z, _p.x);
+        const ang = o.theta0 + t * o.omega;
         grp.position.set(Math.cos(ang) * o.rc, 0, Math.sin(ang) * o.rc);
         const sphere = grp.children[0];
         if (sphere) sphere.rotation.y = t * 0.04 + i;

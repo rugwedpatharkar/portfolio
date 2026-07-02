@@ -510,7 +510,11 @@ const CameraRig = ({
       _viewDir.divideScalar(dist);
       _right.crossVectors(_viewDir, UP).normalize();
       const halfW = Math.tan(THREE.MathUtils.degToRad(fovTarget * 0.5)) * dist * camera.aspect;
-      _lookTarget.addScaledVector(_right, -halfW * frameShift);
+      /* Overview (the only non-focus v3 stop): use a GENTLER shift than the raw
+         prop so the Sun sits inward-right (not jammed at the edge), leaving room on
+         its right for the full compressed orbit system to stay in frame as the
+         planets revolve. The base look angle already places the Sun right. */
+      _lookTarget.addScaledVector(_right, -halfW * frameShift * 0.5);
     }
 
     /* Pointer parallax — shift the camera along its OWN right/up by a fraction
