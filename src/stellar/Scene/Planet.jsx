@@ -126,22 +126,41 @@ const Planet = ({
     return out;
   }, [loadedColor, loadedData, colorUrls, dataUrls]);
 
-  /* Optional texture colour-correction. A multiply-only `tint` can't LIGHTEN an
-     over-saturated map (e.g. the legacy deep-indigo Neptune), so this patches
-     the standard material after the map sample to desaturate → lift → pull
-     toward the true hue. Used to bring Neptune to its 2024 true-colour pale
-     greenish-blue while keeping its banding. */
-  const gradeCompile = useMemo(() => {
-    if (!grade) return undefined;
-    const sat = grade.sat ?? 1;
-    const lift = grade.lift ?? 0;
-    const mix = grade.mix ?? 0;
-    const target = new THREE.Color(grade.tint || "#ffffff");
+  /* Surface shader patch (onBeforeCompile) for the textured planets:
+     1. LIMB DARKENING — dim gently toward the disc edge (μ = geometric-normal · view
+        dir), so every planet reads as a lit SPHERE with rounded depth, not a flat
+        textured disc. Applied pre-tonemap; kept subtle (edge → ~70%) so it's depth,
+        not a dark ring. Universal (all textured planets).
+     2. Optional texture colour-correction — a multiply-only `tint` can't LIGHTEN an
+        over-saturated map (e.g. the legacy deep-indigo Neptune), so this desaturates
+        → lifts → pulls toward the true hue (Neptune's 2024 true-colour). */
+  const surfaceCompile = useMemo(() => {
+    /* Limb darkening — applied to EVERY textured planet (μ = geometric normal · view
+       dir; dim toward the disc edge, pre-tonemap, gentle). */
+    const limb = (shader) => {
+      shader.uniforms.uLimb = { value: 0.3 };
+      shader.fragmentShader =
+        "uniform float uLimb;\n" +
+        shader.fragmentShader.replace(
+          "#include <tonemapping_fragment>",
+          `{
+            float _mu = clamp(dot(normalize(vNormal), normalize(vViewPosition)), 0.0, 1.0);
+            gl_FragColor.rgb *= 1.0 - (1.0 - _mu) * uLimb;
+          }
+          #include <tonemapping_fragment>`
+        );
+    };
+    if (!grade) return limb;
+    /* Neptune (etc.): limb + true-colour grade. Distinct function body on purpose —
+       three's program cache keys on onBeforeCompile.toString(), so a graded planet
+       must not share a source string with the limb-only planets. */
+    const gg = { sat: grade.sat ?? 1, lift: grade.lift ?? 0, mix: grade.mix ?? 0, tint: new THREE.Color(grade.tint || "#ffffff") };
     return (shader) => {
-      shader.uniforms.uGSat = { value: sat };
-      shader.uniforms.uGLift = { value: lift };
-      shader.uniforms.uGMix = { value: mix };
-      shader.uniforms.uGTint = { value: target };
+      limb(shader);
+      shader.uniforms.uGSat = { value: gg.sat };
+      shader.uniforms.uGLift = { value: gg.lift };
+      shader.uniforms.uGMix = { value: gg.mix };
+      shader.uniforms.uGTint = { value: gg.tint };
       shader.fragmentShader =
         "uniform float uGSat; uniform float uGLift; uniform float uGMix; uniform vec3 uGTint;\n" +
         shader.fragmentShader.replace(
@@ -282,7 +301,7 @@ const Planet = ({
             /* tint multiplies the texture — used to knock back Venus,
                which otherwise blooms to pure white. Defaults to neutral. */
             color={tint || "#ffffff"}
-            onBeforeCompile={gradeCompile}
+            onBeforeCompile={surfaceCompile}
             normalMap={textureMap[normalTexture] || null}
             normalScale={textureMap[normalTexture] ? new THREE.Vector2(0.85, 0.85) : undefined}
             /* Specular map carries Earth's ocean mask — bright on water,
