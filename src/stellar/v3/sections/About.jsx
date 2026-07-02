@@ -35,7 +35,7 @@ const Row = ({ label, children }) => (
 );
 
 const Stat = ({ big, valueFontSize, value, suffix, label, sub, decimals }) => (
-  <div style={{ display: "flex", flexDirection: "column", gap: 6, alignItems: "flex-start" }}>
+  <div style={{ display: "flex", flexDirection: "column", gap: 10, alignItems: "flex-start" }}>
     <div style={{
       fontFamily: "var(--v3-font-display)",
       fontWeight: 340,
@@ -47,12 +47,12 @@ const Stat = ({ big, valueFontSize, value, suffix, label, sub, decimals }) => (
     }}>
       <V3Ticker value={value} suffix={suffix || ""} decimals={decimals} />
     </div>
-    <div style={{ display: "flex", flexDirection: "column", gap: 2 }}>
+    <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
       <div style={{
         fontFamily: "var(--v3-font-mono)",
         fontWeight: 400,
-        fontSize: big ? 11 : 10,
-        letterSpacing: ".16em",
+        fontSize: "clamp(11px, 0.95vw, 13px)",
+        letterSpacing: ".18em",
         textTransform: "uppercase",
         color: "var(--v3-fg-mute)",
       }}>{label}</div>
@@ -60,9 +60,9 @@ const Stat = ({ big, valueFontSize, value, suffix, label, sub, decimals }) => (
         <div style={{
           fontFamily: "var(--v3-font-ui)",
           fontWeight: 300,
-          fontSize: "var(--v3-type-cap)",
+          fontSize: "clamp(.88rem, 1.05vw, 1.02rem)",
           color: "var(--v3-fg-dim)",
-          lineHeight: 1.4,
+          lineHeight: 1.5,
           maxWidth: big ? "34ch" : "26ch",
         }}>{sub}</div>
       )}
