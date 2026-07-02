@@ -44,24 +44,42 @@ const Navigator = ({ scrollTRef, onDestinationChange }) => {
     requestAnimationFrame(raf);
 
     const N = DESTINATIONS.length;
-    let lastDest = -1;
+    /* `settled` = the stop the user is currently resting on. A single user swipe/
+       scroll gesture may only advance the committed stop by ONE from here — so a
+       fast flick's momentum can't skip a planet (the "one swipe lands two planets
+       ahead" bug). Programmatic jumps (handleJump → deep-link / rail / palette /
+       overview-map, flagged via window.__stellarJumping) are followed EXACTLY, uncapped. */
+    let settled = Math.round(lenis.progress * (N - 1)) || 0;
+    let committed = -1;
     let snapTimer = null;
 
-    /* Magnetic snap: when scrolling settles, glide to the EXACT nearest
-       destination so you never rest parked between two bodies. Implemented
-       as a debounce — the snap's own scroll keeps resetting the timer, so it
-       only fires 150 ms after the last real scroll, then converges in one
-       move (next fire finds the offset ~0 and does nothing). No lock flag
-       needed, and a fresh user scroll simply restarts the debounce. */
+    const commitTo = (idx) => {
+      if (idx === committed) return;
+      committed = idx;
+      onDestinationChange?.(DESTINATIONS[idx]);
+    };
+    /* Target stop for the current scroll position: a programmatic jump takes the
+       exact nearest; a user gesture is capped to settled ± 1. */
+    const targetFor = (raw) => {
+      const nearest = Math.round(raw);
+      return window.__stellarJumping ? nearest : Math.max(settled - 1, Math.min(settled + 1, nearest));
+    };
+
+    /* Magnetic snap on settle: glide to the (capped) target so you never rest parked
+       between two bodies, and lock it in as the new `settled` base. Debounced — the
+       snap's own scroll keeps resetting the timer, converging in one move. */
     const trySnap = () => {
       const p = lenis.progress;
-      const nearest = Math.round(p * (N - 1));
-      const targetP = nearest / (N - 1);
+      const target = Math.max(0, Math.min(N - 1, targetFor(p * (N - 1))));
+      settled = target;
+      commitTo(target);
+      window.__stellarJumping = false; // jump consumed once we settle
+      const targetP = target / (N - 1);
       if (Math.abs(p - targetP) > 0.004) {
         const max =
           (document.scrollingElement || document.documentElement).scrollHeight -
           window.innerHeight;
-        lenis.scrollTo(targetP * max, { duration: 0.9, easing: (t) => 1 - Math.pow(1 - t, 3) });
+        lenis.scrollTo(targetP * max, { duration: 0.7, easing: (t) => 1 - Math.pow(1 - t, 3) });
       }
     };
 
@@ -71,19 +89,13 @@ const Navigator = ({ scrollTRef, onDestinationChange }) => {
       scrollTRef.current = progress;
       invalidate(); // request a Three.js render
 
-      /* Commit a destination only when we're solidly inside its zone (a deadband
-         around the .5 boundary). The magnetic snap below animates the scroll ACROSS
-         that boundary, which re-enters onScroll and made Math.round() oscillate
-         (6→7→6→7) — firing onDestinationChange repeatedly and re-triggering the warp
-         3× with a mid-flight reversal (the Saturn→Uranus glitch). Requiring progress
-         to be within 0.35 of an integer index kills the oscillation: a glide that
-         dips to 6.6 no longer flips the committed index. */
+      /* Commit within a deadband around the target (kills the round() oscillation at
+         the .5 boundary that used to re-fire the warp). The target is capped to
+         settled±1 for user gestures, so a fast swipe commits at most one stop ahead
+         and the snap below glides any overshoot back. */
       const raw = progress * (N - 1);
-      const nearest = Math.round(raw);
-      if (nearest !== lastDest && Math.abs(raw - nearest) < 0.35) {
-        lastDest = nearest;
-        onDestinationChange?.(DESTINATIONS[nearest]);
-      }
+      const target = Math.max(0, Math.min(N - 1, targetFor(raw)));
+      if (Math.abs(raw - target) < 0.35) commitTo(target);
 
       if (snapTimer) clearTimeout(snapTimer);
       snapTimer = setTimeout(trySnap, 150);

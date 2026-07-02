@@ -272,6 +272,9 @@ const StellarApp = ({ v3 = false }) => {
       (document.scrollingElement || document.documentElement).scrollHeight -
       window.innerHeight;
     const targetY = (idx / (DESTINATIONS.length - 1)) * max;
+    /* Tell the Navigator this scroll is a deliberate jump (deep-link / rail / palette /
+       map / key), so its one-stop-per-swipe cap is bypassed and it lands EXACTLY here. */
+    window.__stellarJumping = true;
     if (window.__lenis) {
       /* Snap the scroll INSTANTLY — the camera travel is the warp-jump now
          (CameraRig), so the scroll only needs to keep scrollT (→ KeyLight + the
