@@ -144,11 +144,12 @@ const Scene = ({ scrollT, activeIdx, itemIdx = 0, onJump, onReady, freeRoamEnabl
      markers, spare comets, danger field) crowd the clean planet frames. The tour-worthy
      landmarks (black hole, pulsar, comet, wormhole, nebulae, Milky Way) stay. */
   const deepMid = showMid && !v3;
-  /* v3 = NO BELT DUST anywhere. The asteroid + Kuiper belt dust, floating dust particles,
-     Trojan asteroid swarms and zodiacal-light haze all render as "white dots around the Sun"
-     when the star is in the background — visually noisy on every planet stop. Rocks + textures
-     stay, only the DUST HAZES are gated. v2 keeps the full set. */
-  const noDust = v3;
+  /* v3 = NO BELT DUST anywhere EXCEPT the overview (stop 0). On any other v3 stop the
+     asteroid + Kuiper belt dust, floating dust particles, Trojan asteroids and zodiacal
+     light render as "white dots around the Sun" — visually noisy. On the overview the
+     real belt IS the point (true-scale corner shot), so those come back for stop 0 only.
+     v2 keeps the full set. */
+  const noDust = v3 && activeIdx !== 0;
   /* Camera offsets — kept in refs so React state doesn't re-render
      the whole tree on every frame. Mouse parallax and free-roam each
      own their own offset; CameraRig sums them. */
