@@ -61,7 +61,7 @@ const PillarRow = ({ i, p, delay }) => (
       gridTemplateColumns: "auto 1fr",
       gap: "clamp(12px, 1.2vw, 22px)",
       alignItems: "flex-start",
-      padding: "clamp(6px, 0.7vw, 10px) 4px",
+      padding: "clamp(4px, 0.55vw, 8px) 4px",
       borderTop: i > 0 ? "1px solid var(--v3-line)" : "none",
       minWidth: 0,
     }}>

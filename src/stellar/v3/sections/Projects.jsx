@@ -34,7 +34,7 @@ const ProjectCard = ({ p, delay }) => {
         borderRadius: 6,
         background: "color-mix(in oklab, var(--v3-bg-void) 55%, transparent)",
         minWidth: 0, height: "100%",
-        minHeight: "clamp(200px, 20vh, 260px)",
+        minHeight: "clamp(180px, 18vh, 230px)",
       }}>
         {/* accent corner tick */}
         <span aria-hidden style={{ position: "absolute", top: -1, left: -1, width: 12, height: 1, background: "var(--v3-accent)" }} />

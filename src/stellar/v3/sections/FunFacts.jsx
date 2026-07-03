@@ -27,7 +27,7 @@ const Stat = ({ icon, value, suffix, label, detail, delay = 0.2, decimals }) => 
           fontFamily: "var(--v3-font-display)", fontWeight: 340,
           /* Wider slope so the big number scales smoothly from 1280 → 2560 without
              looking tiny on narrow or oversized on ultra-wide. */
-          fontSize: "clamp(1.4rem, 0.6vw + 0.9rem, 2.2rem)", lineHeight: 1,
+          fontSize: "clamp(1.2rem, 0.5vw + 0.75rem, 1.85rem)", lineHeight: 1,
           letterSpacing: "-.02em", color: "var(--v3-fg)", fontOpticalSizing: "auto",
           overflowWrap: "anywhere",
         }}>
@@ -90,7 +90,7 @@ export default function FunFactsSection({ index, bootNonce }) {
                  2560 without dominating at 1280 / 125% zoom. */
               fontSize: "clamp(1.9rem, 1.4vw + 1.2rem, 3.6rem)", fontOpticalSizing: "auto",
               lineHeight: 1, letterSpacing: "-.02em", color: "var(--v3-fg)",
-              margin: "0 0 12px",
+              margin: "0 0 8px",
               overflowWrap: "anywhere",
             }}>
               {META.heading}
