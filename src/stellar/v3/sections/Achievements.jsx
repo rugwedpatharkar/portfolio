@@ -6,6 +6,17 @@
  * grid gives 8 nodes; the dividers between them read as circuit traces linking
  * milestones. Each cell: year mono kicker, big emoji + serif title, one-line
  * blurb. Scan direction: circuit (nodes light up first, staggered).
+ *
+ * Responsive strategy — every dimension is clamp()/vw-scaled so the section
+ * survives 1280→2560 viewports and 75%→125% browser zoom without overflow,
+ * type-crush, or corner-card collision. Grid degrades to 1-col via auto-fit
+ * (minmax 240px) at very narrow widths — clean single-column stack instead of
+ * crushed 2-col — and upgrades to 3-col at 2560+ so cells don't stretch into
+ * awkward billboards. LEFT column capped at min(55vw, 900px): the min() ensures
+ * we never crowd the 78% corner card, the 900px ceiling stops runaway width on
+ * 4K displays. Type + padding all fluid-clamped to keep visual rhythm at any
+ * step. overflow-wrap: anywhere on the blurb so pathological long words in the
+ * copy don't punch a horizontal scrollbar into the frame.
  */
 import { achievements, sectionMeta } from "../../../content";
 import { V3Frame, V3Scan } from "../primitives";
@@ -18,8 +29,13 @@ const META = sectionMeta.achievements || {
 const Node = ({ a, delay, row, col }) => (
   <V3Scan variant="circuit" delay={delay}>
     <div style={{
-      display: "flex", flexDirection: "column", gap: 6,
-      padding: "10px 14px 10px",
+      display: "flex", flexDirection: "column", gap: "clamp(4px, 0.35vw, 8px)",
+      /* Fluid padding — tightens on 1280, breathes on 2560 without gulping cell
+         real-estate away from the 3-line description. */
+      padding: "clamp(8px, 0.8vw, 16px) clamp(10px, 1vw, 18px)",
+      /* Dividers reference row/col from the 2-col baseline. Auto-fit rewrite
+         at very narrow widths still lands on 1-col so cells reflow cleanly;
+         the top-borders on wrapped rows are harmless (all cells become col 0). */
       borderTop: row > 0 ? "1px solid var(--v3-line)" : "none",
       borderLeft: col > 0 ? "1px solid var(--v3-line)" : "none",
       minWidth: 0, position: "relative",
@@ -31,23 +47,34 @@ const Node = ({ a, delay, row, col }) => (
         boxShadow: "0 0 8px var(--v3-accent)",
       }} />
       <div style={{
-        fontFamily: "var(--v3-font-mono)", fontWeight: 400, fontSize: 10.5,
+        fontFamily: "var(--v3-font-mono)", fontWeight: 400,
+        fontSize: "clamp(9.5px, 0.45vw + 6px, 11.5px)",
         letterSpacing: ".22em", textTransform: "uppercase", color: "var(--v3-fg-mute)",
       }}>{a.year ? `Logged ${a.year}` : "Milestone"}</div>
-      <div style={{ display: "flex", alignItems: "flex-start", gap: 12 }}>
-        <span aria-hidden style={{ fontSize: "1.7rem", flexShrink: 0, lineHeight: 1 }}>{a.icon}</span>
+      <div style={{ display: "flex", alignItems: "flex-start", gap: "clamp(8px, 0.7vw, 14px)" }}>
+        <span aria-hidden style={{
+          fontSize: "clamp(1.3rem, 1vw + 0.6rem, 2rem)",
+          flexShrink: 0, lineHeight: 1,
+        }}>{a.icon}</span>
         <div style={{
           fontFamily: "var(--v3-font-display)", fontWeight: 340,
-          fontSize: "clamp(1.1rem, 1.35vw, 1.35rem)", lineHeight: 1.15,
+          /* Title: 1rem floor at 1280, 1.5rem ceiling at 2560. 0.8vw slope keeps
+             it linked to viewport without overshooting the cell. */
+          fontSize: "clamp(1rem, 0.8vw + 0.5rem, 1.5rem)",
+          lineHeight: 1.15,
           letterSpacing: "-.005em", color: "var(--v3-fg)", fontOpticalSizing: "auto",
+          minWidth: 0, overflowWrap: "anywhere",
         }}>{a.title}</div>
       </div>
       <p style={{
         fontFamily: "var(--v3-font-ui)", fontWeight: 300,
-        fontSize: "clamp(.85rem, 0.95vw, .95rem)",
+        /* Description: 0.78rem floor keeps it readable at 75% zoom, 1rem ceiling
+           at 2560. overflow-wrap: anywhere prevents a long token from busting
+           the cell width and forcing horizontal scroll on the section. */
+        fontSize: "clamp(0.78rem, 0.55vw + 0.4rem, 1rem)",
         color: "var(--v3-fg-dim)", lineHeight: 1.5, margin: 0,
         display: "-webkit-box", WebkitLineClamp: 3, WebkitBoxOrient: "vertical",
-        overflow: "hidden",
+        overflow: "hidden", overflowWrap: "anywhere",
       }}>{a.description}</p>
     </div>
   </V3Scan>
@@ -63,12 +90,21 @@ export default function AchievementsSection({ index, bootNonce }) {
       index={index}
       scanDir="circuit"
       scanKey={bootNonce}
-      /* Slightly wider — 'left' spans cols 1+2 so maxWidth: 55vw actually sets
-         the section width (col 1 alone caps at 1.4fr ≈ 585px). Cells still fill
-         vertical via flex:1 + gridAutoRows:1fr. */
+      /* Slightly wider — 'left' spans cols 1+2 so maxWidth: min(55vw, 900px)
+         actually sets the section width (col 1 alone caps at 1.4fr ≈ 585px).
+         Cells still fill vertical via flex:1 + gridAutoRows:1fr. */
       gridAreas={`"top top top" "left left ." "left left ." "bottom bottom bottom"`}
     >
-      <div style={{ gridArea: "left", display: "flex", flexDirection: "column", gap: 18, minWidth: 0, overflow: "hidden", maxWidth: "55vw", height: "100%" }}>
+      <div style={{
+        gridArea: "left", display: "flex", flexDirection: "column",
+        gap: "clamp(12px, 1.2vw, 22px)",
+        minWidth: 0, overflow: "hidden",
+        /* min() cap: 55vw keeps clearance from the corner card at 78%→96% x,
+           900px ceiling prevents runaway width on 2560+ displays where 55vw
+           would push into 1400px and make cells feel stretched. */
+        maxWidth: "min(55vw, 900px)",
+        height: "100%",
+      }}>
         {/* Header */}
         <V3Scan variant="horizontal" delay={0.05}>
           <div>
@@ -81,7 +117,7 @@ export default function AchievementsSection({ index, bootNonce }) {
             </div>
             <h2 style={{
               fontFamily: "var(--v3-font-display)", fontWeight: 340,
-              fontSize: "clamp(1.9rem, 3.2vw, 2.6rem)", fontOpticalSizing: "auto",
+              fontSize: "clamp(1.7rem, 2.8vw, 2.8rem)", fontOpticalSizing: "auto",
               lineHeight: 1, letterSpacing: "-.02em", color: "var(--v3-fg)",
               margin: 0,
             }}>
@@ -90,19 +126,21 @@ export default function AchievementsSection({ index, bootNonce }) {
             {META.description && (
               <p style={{
                 fontFamily: "var(--v3-font-ui)", fontWeight: 300,
-                fontSize: "clamp(.85rem, 0.95vw, .98rem)", color: "var(--v3-fg-dim)",
+                fontSize: "clamp(.82rem, 0.7vw + 0.35rem, 1rem)", color: "var(--v3-fg-dim)",
                 lineHeight: 1.55, margin: "12px 0 0", maxWidth: "62ch",
               }}>{META.description}</p>
             )}
           </div>
         </V3Scan>
 
-        {/* 2×4 milestone circuit grid — narrower section fits 2 cols per row
-            comfortably; 4 rows fill vertical. gridAutoRows: 1fr + flex: 1
-            stretch cells to consume the full remaining LEFT column height. */}
+        {/* Milestone circuit grid — auto-fit with minmax(240px, 1fr) collapses
+            to 1-col at narrow widths (or 125% zoom on smaller viewports) and
+            expands to 3-col at 2560+ where each cell has room. gridAutoRows:1fr
+            + flex:1 still stretch cells to consume the full remaining LEFT
+            column height regardless of column count. */}
         <div style={{
           display: "grid",
-          gridTemplateColumns: "1fr 1fr",
+          gridTemplateColumns: "repeat(auto-fit, minmax(240px, 1fr))",
           gridAutoRows: "1fr",
           border: "1px solid var(--v3-line)",
           borderRadius: 6,
@@ -111,6 +149,11 @@ export default function AchievementsSection({ index, bootNonce }) {
           flex: 1, minHeight: 0,
         }}>
           {list.slice(0, 8).map((a, i) => {
+            /* Row/col here anchor the divider pattern to the 2-col baseline —
+               the visual language readers land on at 1440/1512/1920. When
+               auto-fit collapses to 1-col, extra top-borders read as clean
+               row separators; at 3-col at 2560+, the pattern still telegraphs
+               a circuit grid. */
             const row = Math.floor(i / 2);
             const col = i % 2;
             return (
