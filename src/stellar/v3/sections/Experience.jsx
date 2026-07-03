@@ -281,11 +281,16 @@ export default function ExperienceSection({ index, bootNonce }) {
               width: "100%", height: "100%",
               alignItems: "start",
             }}>
-              {/* Master: category index */}
+              {/* Master: category index — stretched to full card height and
+                  `justify-content: space-between` so the N category rows
+                  distribute evenly. First row hugs the top, last row hugs
+                  the bottom, extra space becomes gap between rows.
+                  `alignSelf: stretch` overrides the grid card's
+                  `alignItems: start` so this cell fills its grid cell. */}
               <div
                 role="tablist"
                 aria-label="Experience categories"
-                style={{ display: "flex", flexDirection: "column", gap: 2, minWidth: 0 }}
+                style={{ display: "flex", flexDirection: "column", justifyContent: "space-between", gap: 2, minWidth: 0, alignSelf: "stretch", height: "100%" }}
                 onKeyDown={(e) => {
                   if (e.key === "ArrowDown" || e.key === "j") { setActiveCat(a => Math.min(cats.length - 1, a + 1)); e.preventDefault(); }
                   if (e.key === "ArrowUp"   || e.key === "k") { setActiveCat(a => Math.max(0, a - 1)); e.preventDefault(); }
