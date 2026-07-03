@@ -18,18 +18,75 @@
  *     paragraph. All fluid clamps for scalability without upper caps that
  *     force cut-off.
  */
+import { motion, useReducedMotion } from "motion/react";
 import { funFacts, sectionMeta } from "../../../content";
 import { V3Frame, V3Scan, V3Ticker } from "../primitives";
 
 const META = sectionMeta.funFacts;
 
+/*
+ * GaugeArc — the signature moment for FunFacts.
+ *
+ * Renders a semicircle "instrument dial" behind the stat: an accent-colored
+ * ∩-shaped arc with hairline tick marks radiating outward every 15°. On
+ * scroll-into-view the arc's pathLength animates 0→1 (~600 ms, ease-smooth),
+ * then ticks fade in staggered — reads as a cockpit gauge powering up.
+ * Reduced motion → gauge appears in its rest state instantly.
+ *
+ * Positioned absolutely at the top of the parent cell; consumers must give
+ * their card `position: relative`. Height caps at ~48 % of the cell so
+ * emoji + number + label stack cleanly beneath the arc without overlap.
+ */
+const GAUGE_TICKS = Array.from({ length: 11 }, (_, i) => -75 + i * 15);
+const GaugeArc = ({ delay = 0, reduce }) => (
+  <svg aria-hidden viewBox="0 0 200 110" preserveAspectRatio="xMidYMax meet"
+    style={{
+      position: "absolute", top: 0, left: 0,
+      width: "100%", height: "48%",
+      pointerEvents: "none", zIndex: 0,
+    }}>
+    <motion.path
+      d="M 15.4 100 A 90 90 0 0 1 184.6 100"
+      fill="none" stroke="var(--v3-accent)" strokeWidth="0.6"
+      strokeLinecap="round" opacity="0.55"
+      initial={reduce ? { pathLength: 1 } : { pathLength: 0 }}
+      whileInView={{ pathLength: 1 }}
+      viewport={{ once: true, amount: 0.4 }}
+      transition={{ duration: 0.6, ease: [0.22, 1, 0.36, 1], delay }}
+    />
+    {GAUGE_TICKS.map((deg, k) => {
+      const rad = (deg * Math.PI) / 180;
+      const inner = 90, outer = 96;
+      const x1 = 100 + inner * Math.sin(rad);
+      const y1 = 100 - inner * Math.cos(rad);
+      const x2 = 100 + outer * Math.sin(rad);
+      const y2 = 100 - outer * Math.cos(rad);
+      return (
+        <motion.line key={k}
+          x1={x1} y1={y1} x2={x2} y2={y2}
+          stroke="var(--v3-fg-mute)" strokeWidth="0.5"
+          initial={reduce ? { opacity: 0.6 } : { opacity: 0 }}
+          whileInView={{ opacity: 0.6 }}
+          viewport={{ once: true, amount: 0.4 }}
+          transition={{ duration: 0.3, ease: "easeOut", delay: delay + 0.35 + k * 0.02 }}
+        />
+      );
+    })}
+  </svg>
+);
+
 const StatCard = ({ f, i, cols }) => {
   const row = Math.floor(i / cols);
   const col = i % cols;
   const isFloat = !Number.isInteger(f.value);
+  const reduce = useReducedMotion();
+  /* Stagger the gauge draw so 8 gauges don't all animate simultaneously —
+     reads as instruments powering up in sequence, not a batch reveal. */
+  const gaugeDelay = 0.05 + (row + col) * 0.06;
   return (
     <V3Scan variant="radial" delay={0.15 + (row + col) * 0.05}>
       <div style={{
+        position: "relative",
         display: "flex", flexDirection: "column",
         gap: "clamp(6px, 0.55vw, 10px)",
         padding: "clamp(12px, 1.1vw, 18px) clamp(12px, 1.15vw, 20px)",
@@ -37,8 +94,9 @@ const StatCard = ({ f, i, cols }) => {
         borderLeft: col > 0 ? "1px solid var(--v3-line)" : "none",
         minWidth: 0, height: "100%", minHeight: 0,
       }}>
-        {/* emoji + big number inline */}
-        <div style={{ display: "flex", alignItems: "baseline", gap: "clamp(6px, 0.6vw, 10px)", flexWrap: "wrap" }}>
+        <GaugeArc delay={gaugeDelay} reduce={reduce} />
+        {/* emoji + big number inline — z-index 1 keeps them above the gauge SVG */}
+        <div style={{ position: "relative", zIndex: 1, display: "flex", alignItems: "baseline", gap: "clamp(6px, 0.6vw, 10px)", flexWrap: "wrap" }}>
           <span aria-hidden style={{
             fontSize: "clamp(1rem, 0.6vw + 0.5rem, 1.35rem)",
             opacity: 0.85, flexShrink: 0,
