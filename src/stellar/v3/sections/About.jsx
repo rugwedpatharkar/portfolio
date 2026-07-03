@@ -81,15 +81,25 @@ export default function AboutSection({ index, bootNonce }) {
       index={index}
       scanDir="horizontal"
       scanKey={bootNonce}
-      /* LEFT column takes ~55% of the frame, holds ALL section content. The
-         right ~45% is empty in DOM — reserved for the 3D planet + hover card
-         so the sphere never has content overlapping it. */
-      gridAreas={`"top top top" "left . ." "left . ." "bottom bottom bottom"`}
+      /* User asked for a redesign that gives the About info the whole vertical
+         and shows the 3 stats *beside* it (not below) as a stack rail.
+         Removed the BOTTOM row; LEFT now spans grid cols 1+2 and holds a
+         2-col internal grid: main-info + stat-rail. */
+      gridAreas={`"top top top" "left left ." "left left ." "left left ."`}
     >
-      {/* LEFT — everything stacks here. maxWidth 50vw so the column ends BEFORE
-          the sun's actual left edge (~54% x with V3_HALF_ANGLE=12° + frameShift
-          0.42×1.0) — no horizontal overlap with the sphere. */}
-      <div style={{ gridArea: "left", display: "flex", flexDirection: "column", gap: "clamp(10px, 0.9vw, 16px)", minWidth: 0, overflow: "auto", maxWidth: "min(50vw, 780px)" }}>
+      {/* LEFT — full-height wrapper for the redesigned two-column layout:
+          about-info on the left, 3 stats stacked on the right. Uses grid so
+          both columns fill viewport height together. */}
+      <div style={{
+        gridArea: "left",
+        display: "grid",
+        gridTemplateColumns: "minmax(0, 2fr) minmax(240px, 1fr)",
+        gap: "clamp(18px, 2vw, 32px)",
+        minWidth: 0, minHeight: 0, overflow: "hidden",
+        maxWidth: "min(65vw, 1200px)", height: "100%",
+      }}>
+        {/* Column 1 — about info (portrait+name, unclamped overview, availability + spec) */}
+        <div style={{ display: "flex", flexDirection: "column", gap: "clamp(12px, 1vw, 20px)", minWidth: 0, overflow: "auto", paddingRight: "clamp(4px, 0.5vw, 8px)" }}>
         {/* Portrait + name */}
         <V3DepthLayer depth={2} style={{ display: "flex", gap: "clamp(12px, 1.1vw, 18px)", alignItems: "flex-end", minWidth: 0, flexWrap: "wrap" }}>
           <V3Scan variant="horizontal" delay={0.05}>
@@ -143,11 +153,9 @@ export default function AboutSection({ index, bootNonce }) {
             </div>
             <p style={{
               fontFamily: "var(--v3-font-ui)", fontWeight: 300,
-              fontSize: "clamp(.85rem, 0.5vw + 0.5rem, .88rem)",
+              fontSize: "clamp(.85rem, 0.5vw + 0.5rem, .95rem)",
               color: "var(--v3-fg-dim)", lineHeight: 1.55, margin: 0,
               overflowWrap: "break-word", hyphens: "auto",
-              display: "-webkit-box", WebkitLineClamp: 4, WebkitBoxOrient: "vertical",
-              overflow: "hidden",
             }}>
               {personalInfo.about}
             </p>
@@ -196,45 +204,56 @@ export default function AboutSection({ index, bootNonce }) {
             </div>
           </div>
         </V3Scan>
-      </div>
+        </div>
 
-      {/* BOTTOM — three stats in a single row (1 | 2 | 3), equal treatment,
-          hairline separators between. Value size unified so they read as a
-          spec sheet strip, not a hero + supporting. */}
-      <div style={{ gridArea: "bottom", display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(min(220px, 100%), 1fr))", gap: 0, alignItems: "stretch", minWidth: 0, paddingTop: "clamp(10px, 1.1vw, 16px)", borderTop: "1px solid var(--v3-line)" }}>
-        <V3Scan variant="horizontal" delay={0.36}>
-          <div style={{ paddingRight: "clamp(14px, 1.8vw, 28px)", minWidth: 0 }}>
-            <Stat
-              valueFontSize="clamp(1.8rem, 1.2rem + 2.4vw, 3rem)"
-              value={HERO_STAT.value}
-              suffix={HERO_STAT.suffix || "%"}
-              label={HERO_STAT.label}
-              sub="p95 API latency: 5s → 200ms via Redis caching, connection pooling, query optimisation."
-            />
-          </div>
-        </V3Scan>
-        <V3Scan variant="horizontal" delay={0.4}>
-          <div style={{ borderLeft: "1px solid var(--v3-line)", paddingLeft: "clamp(14px, 1.8vw, 28px)", paddingRight: "clamp(14px, 1.8vw, 28px)", minWidth: 0 }}>
-            <Stat
-              valueFontSize="clamp(1.8rem, 1.2rem + 2.4vw, 3rem)"
-              value={SUPPORT_A.value}
-              suffix={SUPPORT_A.suffix || ""}
-              label={SUPPORT_A.label}
-              sub="Multi-tenant Python/FastAPI/gRPC platform on GKE."
-            />
-          </div>
-        </V3Scan>
-        <V3Scan variant="horizontal" delay={0.44}>
-          <div style={{ borderLeft: "1px solid var(--v3-line)", paddingLeft: "clamp(14px, 1.8vw, 28px)", minWidth: 0 }}>
-            <Stat
-              valueFontSize="clamp(1.8rem, 1.2rem + 2.4vw, 3rem)"
-              value={SUPPORT_B.value}
-              suffix={SUPPORT_B.suffix || "+"}
-              label={SUPPORT_B.label}
-              sub="Apaleo · Opera · Cloudbeds · RMS · Clock · Maxxton · ASSA ABLOY."
-            />
-          </div>
-        </V3Scan>
+        {/* Column 2 — 3 stats stacked vertically, distributed with
+            justify-content: space-between so they fill the same vertical as
+            the info column. Hairline dividers between rows (was columns). */}
+        <div style={{
+          display: "flex", flexDirection: "column",
+          justifyContent: "space-between",
+          gap: "clamp(14px, 1.4vw, 22px)",
+          minWidth: 0, minHeight: 0, overflow: "auto",
+          paddingLeft: "clamp(12px, 1.4vw, 22px)",
+          borderLeft: "1px solid var(--v3-line)",
+        }}>
+          <V3Scan variant="horizontal" delay={0.36}>
+            <div style={{ minWidth: 0 }}>
+              <Stat
+                valueFontSize="clamp(1.6rem, 1.1rem + 2vw, 2.6rem)"
+                value={HERO_STAT.value}
+                suffix={HERO_STAT.suffix || "%"}
+                label={HERO_STAT.label}
+                sub="p95 API latency: 5s → 200ms via Redis caching, connection pooling, query optimisation."
+                big
+              />
+            </div>
+          </V3Scan>
+          <V3Scan variant="horizontal" delay={0.4}>
+            <div style={{ borderTop: "1px solid var(--v3-line)", paddingTop: "clamp(14px, 1.4vw, 22px)", minWidth: 0 }}>
+              <Stat
+                valueFontSize="clamp(1.6rem, 1.1rem + 2vw, 2.6rem)"
+                value={SUPPORT_A.value}
+                suffix={SUPPORT_A.suffix || ""}
+                label={SUPPORT_A.label}
+                sub="Multi-tenant Python/FastAPI/gRPC platform on GKE."
+                big
+              />
+            </div>
+          </V3Scan>
+          <V3Scan variant="horizontal" delay={0.44}>
+            <div style={{ borderTop: "1px solid var(--v3-line)", paddingTop: "clamp(14px, 1.4vw, 22px)", minWidth: 0 }}>
+              <Stat
+                valueFontSize="clamp(1.6rem, 1.1rem + 2vw, 2.6rem)"
+                value={SUPPORT_B.value}
+                suffix={SUPPORT_B.suffix || "+"}
+                label={SUPPORT_B.label}
+                sub="Apaleo · Opera · Cloudbeds · RMS · Clock · Maxxton · ASSA ABLOY."
+                big
+              />
+            </div>
+          </V3Scan>
+        </div>
       </div>
     </V3Frame>
   );
