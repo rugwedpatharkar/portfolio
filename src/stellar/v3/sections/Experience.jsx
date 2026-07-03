@@ -21,10 +21,43 @@
  * plan without cramming.
  */
 import { useState, useEffect } from "react";
+import { motion, AnimatePresence, useReducedMotion } from "motion/react";
 import { experiences, sectionMeta } from "../../../content";
 import { V3Frame, V3Scan } from "../primitives";
 
 const META = sectionMeta.experience;
+
+/*
+ * Signature moment — broadsheet stagger on category switch.
+ *
+ * When the active category changes, the detail column composes as if
+ * a newspaper column is setting: track kicker slides in from top-left
+ * (10px), h3 fades with a 6px slide, bullet list staggers left→right
+ * at 40ms increments. AnimatePresence uses `mode="wait"` so rapid
+ * arrow-key nav queues cleanly instead of interleaving.
+ *
+ * Reduced motion → sections appear in rest state instantly.
+ */
+const KICKER_VARIANTS = {
+  hidden: { opacity: 0, x: -10, y: -6 },
+  show:   { opacity: 1, x: 0, y: 0, transition: { duration: 0.28, ease: [0.22, 1, 0.36, 1] } },
+  exit:   { opacity: 0, transition: { duration: 0.15 } },
+};
+const HEADING_VARIANTS = {
+  hidden: { opacity: 0, y: 6 },
+  show:   { opacity: 1, y: 0, transition: { duration: 0.32, ease: [0.22, 1, 0.36, 1], delay: 0.05 } },
+  exit:   { opacity: 0, transition: { duration: 0.15 } },
+};
+const LIST_VARIANTS = {
+  hidden: {},
+  show:   { transition: { staggerChildren: 0.04, delayChildren: 0.1 } },
+  exit:   { transition: { staggerChildren: 0.02, staggerDirection: -1 } },
+};
+const BULLET_VARIANTS = {
+  hidden: { opacity: 0, x: -8 },
+  show:   { opacity: 1, x: 0, transition: { duration: 0.28, ease: [0.22, 1, 0.36, 1] } },
+  exit:   { opacity: 0, x: -4, transition: { duration: 0.12 } },
+};
 
 export default function ExperienceSection({ index, bootNonce }) {
   const [active, setActive] = useState(0);
@@ -32,6 +65,7 @@ export default function ExperienceSection({ index, bootNonce }) {
   const exp = experiences[active] || experiences[0];
   const cats = exp.categories || [];
   const cat = cats[activeCat] || cats[0];
+  const reduce = useReducedMotion();
 
   // Reset category selection when switching roles
   useEffect(() => { setActiveCat(0); }, [active]);
@@ -250,13 +284,19 @@ export default function ExperienceSection({ index, bootNonce }) {
                         minWidth: 0,
                       }}
                     >
-                      <span aria-hidden style={{
-                        fontFamily: "var(--v3-font-mono)", fontWeight: 400,
-                        fontSize: "clamp(9px, 0.3vw + 6px, 11px)",
-                        color: isActive ? "var(--v3-accent)" : "var(--v3-fg-mute)",
-                        letterSpacing: ".14em",
-                        fontVariantNumeric: "tabular-nums",
-                      }}>{String(i + 1).padStart(2, "0")}</span>
+                      <motion.span aria-hidden
+                        /* Pulse briefly on activation — accent color reads
+                           as "selected", scale bump reads as focus lock. */
+                        animate={isActive && !reduce ? { scale: [1, 1.18, 1] } : { scale: 1 }}
+                        transition={{ duration: 0.34, ease: [0.22, 1, 0.36, 1] }}
+                        style={{
+                          fontFamily: "var(--v3-font-mono)", fontWeight: 400,
+                          fontSize: "clamp(9px, 0.3vw + 6px, 11px)",
+                          color: isActive ? "var(--v3-accent)" : "var(--v3-fg-mute)",
+                          letterSpacing: ".14em",
+                          fontVariantNumeric: "tabular-nums",
+                          display: "inline-block", transformOrigin: "center",
+                        }}>{String(i + 1).padStart(2, "0")}</motion.span>
                       <span style={{
                         fontFamily: "var(--v3-font-display)", fontWeight: 340,
                         fontSize: "clamp(0.88rem, 0.4vw + 0.55rem, 1.05rem)", lineHeight: 1.2,
@@ -276,36 +316,51 @@ export default function ExperienceSection({ index, bootNonce }) {
                 })}
               </div>
 
-              {/* Detail: active category's bullets — no truncation */}
-              <div key={`cat-${active}-${activeCat}`} style={{ display: "flex", flexDirection: "column", gap: "clamp(10px, 1vw, 16px)", minWidth: 0 }}>
-                <div style={{
-                  fontFamily: "var(--v3-font-mono)", fontWeight: 400, fontSize: "clamp(9px, 0.3vw + 6px, 11px)",
-                  letterSpacing: ".22em", textTransform: "uppercase", color: "var(--v3-fg-mute)",
-                }}>Track · {String(activeCat + 1).padStart(2, "0")}</div>
-                <h3 style={{
-                  fontFamily: "var(--v3-font-display)", fontWeight: 340,
-                  fontSize: "clamp(1.1rem, 0.7vw + 0.6rem, 1.6rem)",
-                  lineHeight: 1.15, letterSpacing: "-.005em",
-                  color: "var(--v3-fg)", margin: 0, fontOpticalSizing: "auto",
-                  overflowWrap: "anywhere",
-                }}>{cat?.name}</h3>
-                <ul style={{ listStyle: "none", padding: 0, margin: 0, display: "flex", flexDirection: "column", gap: "clamp(6px, 0.6vw, 10px)", minWidth: 0 }}>
-                  {(cat?.points || []).map((p, k) => (
-                    <li key={k} style={{
-                      fontFamily: "var(--v3-font-ui)", fontWeight: 300,
-                      fontSize: "clamp(0.78rem, 0.3vw + 0.55rem, 0.92rem)",
-                      color: "var(--v3-fg-dim)", lineHeight: 1.5,
-                      paddingLeft: 16, position: "relative",
+              {/* Detail: active category — broadsheet stagger on switch.
+                  AnimatePresence mode="wait" so rapid key/click swaps queue
+                  cleanly instead of interleaving mid-animation. Kicker →
+                  heading → bullets each stagger via their own variants;
+                  bullets share LIST_VARIANTS.staggerChildren. Reduced motion
+                  short-circuits into rest state via `initial={false}`. */}
+              <div style={{ display: "flex", flexDirection: "column", gap: "clamp(10px, 1vw, 16px)", minWidth: 0, overflow: "hidden" }}>
+                <AnimatePresence mode="wait" initial={false}>
+                  <motion.div
+                    key={`cat-${active}-${activeCat}`}
+                    style={{ display: "flex", flexDirection: "column", gap: "clamp(10px, 1vw, 16px)", minWidth: 0 }}
+                    initial={reduce ? false : "hidden"}
+                    animate="show"
+                    exit="exit"
+                  >
+                    <motion.div variants={KICKER_VARIANTS} style={{
+                      fontFamily: "var(--v3-font-mono)", fontWeight: 400, fontSize: "clamp(9px, 0.3vw + 6px, 11px)",
+                      letterSpacing: ".22em", textTransform: "uppercase", color: "var(--v3-fg-mute)",
+                    }}>Track · {String(activeCat + 1).padStart(2, "0")}</motion.div>
+                    <motion.h3 variants={HEADING_VARIANTS} style={{
+                      fontFamily: "var(--v3-font-display)", fontWeight: 340,
+                      fontSize: "clamp(1.1rem, 0.7vw + 0.6rem, 1.6rem)",
+                      lineHeight: 1.15, letterSpacing: "-.005em",
+                      color: "var(--v3-fg)", margin: 0, fontOpticalSizing: "auto",
                       overflowWrap: "anywhere",
-                    }}>
-                      <span aria-hidden style={{
-                        position: "absolute", left: 0, top: "0.65em",
-                        width: 8, height: 1, background: "var(--v3-line-strong)",
-                      }} />
-                      {p}
-                    </li>
-                  ))}
-                </ul>
+                    }}>{cat?.name}</motion.h3>
+                    <motion.ul variants={LIST_VARIANTS} style={{ listStyle: "none", padding: 0, margin: 0, display: "flex", flexDirection: "column", gap: "clamp(6px, 0.6vw, 10px)", minWidth: 0 }}>
+                      {(cat?.points || []).map((p, k) => (
+                        <motion.li key={k} variants={BULLET_VARIANTS} style={{
+                          fontFamily: "var(--v3-font-ui)", fontWeight: 300,
+                          fontSize: "clamp(0.78rem, 0.3vw + 0.55rem, 0.92rem)",
+                          color: "var(--v3-fg-dim)", lineHeight: 1.5,
+                          paddingLeft: 16, position: "relative",
+                          overflowWrap: "anywhere",
+                        }}>
+                          <span aria-hidden style={{
+                            position: "absolute", left: 0, top: "0.65em",
+                            width: 8, height: 1, background: "var(--v3-line-strong)",
+                          }} />
+                          {p}
+                        </motion.li>
+                      ))}
+                    </motion.ul>
+                  </motion.div>
+                </AnimatePresence>
               </div>
             </div>
           </V3Scan>
