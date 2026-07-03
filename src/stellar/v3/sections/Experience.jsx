@@ -21,6 +21,7 @@
  * plan without cramming.
  */
 import { useState, useEffect } from "react";
+import { flushSync } from "react-dom";
 import { motion, AnimatePresence, useReducedMotion } from "motion/react";
 import { experiences, sectionMeta } from "../../../content";
 import { V3Frame, V3Scan } from "../primitives";
@@ -70,6 +71,21 @@ export default function ExperienceSection({ index, bootNonce }) {
   // Reset category selection when switching roles
   useEffect(() => { setActiveCat(0); }, [active]);
 
+  /* Role switch — if the browser supports the View Transition API, wrap the
+     state update in `document.startViewTransition` + `flushSync` so React's
+     re-render happens synchronously inside the transition capture. The whole
+     role spread (hero → metrics → categories → tech rail) then cross-fades
+     into the new one via the browser's native VT engine. Unsupported browsers
+     fall through to a plain setActive. Reduced-motion → skip VT so no fade. */
+  const switchRole = (i) => {
+    if (i === active) return;
+    if (!reduce && typeof document !== "undefined" && typeof document.startViewTransition === "function") {
+      document.startViewTransition(() => { flushSync(() => setActive(i)); });
+    } else {
+      setActive(i);
+    }
+  };
+
   return (
     <V3Frame
       section="Experience"
@@ -112,47 +128,96 @@ export default function ExperienceSection({ index, bootNonce }) {
           </div>
         </V3Scan>
 
-        {/* Role tabs — 2 buttons, active gets accent underline + fg text.
-            flexWrap allows tabs to stack on ultra-narrow / high-zoom viewports
-            instead of overflowing the container. */}
+        {/* Role wire — hairline horizontal rule with a dot per role.
+            Per the taste-stack table: "Role dots along a horizontal wire;
+            clicking one triggers a View Transition where the current spread
+            dissolves and the new one composes in." Wire runs 8%→92% of
+            the section width; dots evenly spaced via a grid. The accent
+            "filled" portion of the wire tracks the active role — animated
+            width transition so hovering left/right feels like the current
+            reading head is moving along a timeline. */}
         <V3Scan variant="horizontal" delay={0.12}>
-          <div role="tablist" style={{ display: "flex", flexWrap: "wrap", gap: 0, borderBottom: "1px solid var(--v3-line)", minWidth: 0 }}>
-            {experiences.map((e, i) => {
-              const isActive = i === active;
-              return (
-                <button
-                  key={i}
-                  role="tab"
-                  aria-selected={isActive}
-                  onClick={() => setActive(i)}
-                  style={{
-                    all: "unset", cursor: "pointer",
-                    padding: "clamp(8px, 0.7vw, 12px) clamp(12px, 1.2vw, 22px) clamp(10px, 0.9vw, 14px)",
-                    borderBottom: isActive ? "2px solid var(--v3-accent)" : "2px solid transparent",
-                    marginBottom: -1,
-                    display: "flex", flexDirection: "column", gap: 4,
-                    transition: "border-color .2s",
-                    minWidth: 0,
-                  }}
-                >
-                  <span style={{
-                    fontFamily: "var(--v3-font-mono)", fontWeight: 400, fontSize: 9,
-                    letterSpacing: ".2em", textTransform: "uppercase",
-                    color: isActive ? "var(--v3-accent)" : "var(--v3-fg-mute)",
-                  }}>{e.date}</span>
-                  <span style={{
-                    fontFamily: "var(--v3-font-display)", fontWeight: 340,
-                    fontSize: "clamp(0.95rem, 0.6vw + 0.6rem, 1.3rem)",
-                    color: isActive ? "var(--v3-fg)" : "var(--v3-fg-dim)",
-                    letterSpacing: "-.005em", lineHeight: 1.15,
-                    fontOpticalSizing: "auto",
-                  }}>{e.companyName.split(" ")[0]}</span>
-                </button>
-              );
-            })}
+          <div style={{ position: "relative", padding: "clamp(20px, 2vw, 32px) 0", minWidth: 0 }}>
+            {/* Base wire — dim */}
+            <div aria-hidden style={{
+              position: "absolute", top: "50%", left: "8%", right: "8%",
+              height: 1, background: "var(--v3-line-strong)",
+              transform: "translateY(-0.5px)",
+            }} />
+            {/* Accent-filled portion — 0 at first role, 100% at last */}
+            {experiences.length > 1 && (
+              <div aria-hidden style={{
+                position: "absolute", top: "50%", left: "8%",
+                height: 1, background: "var(--v3-accent)",
+                width: `calc(84% * ${active} / ${experiences.length - 1})`,
+                transform: "translateY(-0.5px)",
+                transition: "width .4s var(--v3-ease-smooth)",
+                boxShadow: "0 0 6px color-mix(in oklab, var(--v3-accent) 40%, transparent)",
+              }} />
+            )}
+            {/* Dots layer — evenly spaced via grid */}
+            <div role="tablist" aria-label="Experience roles" style={{
+              display: "grid",
+              gridTemplateColumns: `repeat(${experiences.length}, 1fr)`,
+              alignItems: "center", minWidth: 0, position: "relative",
+            }}>
+              {experiences.map((e, i) => {
+                const isActive = i === active;
+                return (
+                  <button
+                    key={i}
+                    role="tab"
+                    aria-selected={isActive}
+                    onClick={() => switchRole(i)}
+                    style={{
+                      all: "unset", cursor: "pointer",
+                      display: "flex", flexDirection: "column",
+                      alignItems: "center", gap: "clamp(6px, 0.7vw, 10px)",
+                      minWidth: 0, textAlign: "center",
+                    }}
+                  >
+                    <span style={{
+                      fontFamily: "var(--v3-font-mono)", fontWeight: 400, fontSize: 9,
+                      letterSpacing: ".2em", textTransform: "uppercase",
+                      color: isActive ? "var(--v3-accent)" : "var(--v3-fg-mute)",
+                      transition: "color .2s",
+                    }}>{e.date}</span>
+                    <span aria-hidden style={{
+                      width: isActive ? 14 : 10, height: isActive ? 14 : 10,
+                      borderRadius: "50%",
+                      background: isActive ? "var(--v3-accent)" : "var(--v3-bg-void)",
+                      border: `1.5px solid ${isActive ? "var(--v3-accent)" : "var(--v3-line-strong)"}`,
+                      boxShadow: isActive ? "0 0 12px color-mix(in oklab, var(--v3-accent) 50%, transparent)" : "none",
+                      transition: "background .2s, border-color .2s, box-shadow .2s, width .2s, height .2s",
+                    }} />
+                    <span style={{
+                      fontFamily: "var(--v3-font-display)", fontWeight: 340,
+                      fontSize: "clamp(0.95rem, 0.6vw + 0.6rem, 1.3rem)",
+                      color: isActive ? "var(--v3-fg)" : "var(--v3-fg-dim)",
+                      letterSpacing: "-.005em", lineHeight: 1.15,
+                      fontOpticalSizing: "auto",
+                      transition: "color .2s",
+                    }}>{e.companyName.split(" ")[0]}</span>
+                  </button>
+                );
+              })}
+            </div>
           </div>
         </V3Scan>
 
+        {/* Role-scoped spread — hero + metrics + categories + tech rail.
+            Given a single `viewTransitionName` so a role switch (through
+            `switchRole`) triggers the browser's native VT cross-fade of the
+            whole spread as one unit. Preserve the LEFT wrapper's flex-column
+            gap by mirroring it here. `contain: layout` is a hint to the VT
+            engine that this box owns its own layout region. */}
+        <div style={{
+          display: "flex", flexDirection: "column",
+          gap: "clamp(12px, 1.2vw, 18px)",
+          minWidth: 0,
+          viewTransitionName: "experience-spread",
+          contain: "layout",
+        }}>
         {/* Active role hero — title + company on one line, achievement pill inline
             beside them to save vertical footprint (Experience is the densest section).
             flexWrap already handled; minWidth: 0 on children lets them shrink under
@@ -392,6 +457,7 @@ export default function ExperienceSection({ index, bootNonce }) {
             </div>
           </V3Scan>
         )}
+        </div>
       </div>
     </V3Frame>
   );
