@@ -37,17 +37,20 @@ export default function ExperienceSection({ index, bootNonce }) {
       index={index}
       scanDir="drill"
       scanKey={bootNonce}
-      /* Wider left region for Experience: 'left' spans cols 1+2 so the grid cell
-         itself is 2.4fr of 3fr ≈ 80% of the frame. Content still capped at 65vw
-         so it doesn't crowd the sun/planet + top-right telemetry card. */
-      gridAreas={`"top top top" "left left ." "left left ." "bottom bottom bottom"`}
+      /* User asked to never cut or clamp: retire BOTTOM row so LEFT gets full
+         88vh, tech chip rail moves inside LEFT at bottom of the scroll area. */
+      gridAreas={`"top top top" "left left ." "left left ." "left left ."`}
     >
-      {/* LEFT — all content. Wider than About/FunFacts because Experience is the
-          densest section; Earth is a small planet so the extra width still clears
-          the sphere + top-right telemetry card. maxWidth uses min(65vw, 1100px)
-          so ultra-wide (2560+) viewports cap gracefully instead of ballooning
-          the reading measure, while sub-1280 zoomed viewports still flex down. */}
-      <div style={{ gridArea: "left", display: "flex", flexDirection: "column", gap: "clamp(12px, 1.2vw, 18px)", minWidth: 0, overflow: "auto", maxWidth: "min(65vw, 1100px)" }}>
+      {/* LEFT — full-height wrapper. overflow: auto lets the elegant v3
+          scrollbar catch anything Upswing's density can't fit — no data is
+          hidden or truncated. */}
+      <div style={{
+        gridArea: "left",
+        display: "flex", flexDirection: "column",
+        gap: "clamp(12px, 1.2vw, 18px)",
+        minWidth: 0, minHeight: 0, overflow: "auto",
+        maxWidth: "min(70vw, 1200px)", height: "100%",
+      }}>
         {/* Section header — same voice as About + FunFacts */}
         <V3Scan variant="horizontal" delay={0.05}>
           <div>
@@ -203,10 +206,10 @@ export default function ExperienceSection({ index, bootNonce }) {
             columnGap: "clamp(16px, 1.6vw, 28px)", rowGap: "clamp(14px, 1.2vw, 20px)",
           }}>
             {(exp.categories || []).map((c, i) => {
-              /* Show 1 bullet per category — the lead claim. Extras count as
-                 '+N more' hint (real numbers only, no misleading '+0 more'). */
-              const shown = (c.points || []).slice(0, 1);
-              const extra = (c.points || []).length - shown.length;
+              /* Show ALL bullets — user asked for no truncation. LEFT column
+                 overflow: auto catches anything that can't fit. */
+              const shown = c.points || [];
+              const extra = 0;
               return (
                 <div key={i} style={{ minWidth: 0 }}>
                   <div style={{
@@ -251,37 +254,34 @@ export default function ExperienceSection({ index, bootNonce }) {
             })}
           </div>
         </V3Scan>
-      </div>
 
-      {/* BOTTOM — tech chip rail; mono with tracked letter-spacing so it reads
-          as a "stack manifest" rather than tags. gridArea goes on V3Scan itself
-          (the direct grid child), not the inner div. min-width: 0 on the outer
-          wrapper prevents the flex chip rail from pushing the full-width bottom
-          strip beyond its grid cell under heavy zoom. */}
-      {exp.tech?.length > 0 && (
-        <V3Scan variant="horizontal" delay={0.36} key={`tech-${active}`} style={{ gridArea: "bottom", minWidth: 0 }}>
-          <div style={{
-            display: "flex", flexWrap: "wrap", gap: 6, alignItems: "center",
-            paddingTop: "clamp(10px, 1vw, 16px)", borderTop: "1px solid var(--v3-line)",
-            minWidth: 0,
-          }}>
-            <span style={{
-              fontFamily: "var(--v3-font-mono)", fontWeight: 400, fontSize: "clamp(9px, 0.3vw + 7px, 11px)",
-              letterSpacing: ".24em", textTransform: "uppercase", color: "var(--v3-fg-mute)",
-              marginRight: 10,
-            }}>Stack</span>
-            {exp.tech.map((t, i) => (
-              <span key={i} style={{
+        {/* Tech chip rail — moved inside LEFT since we retired the BOTTOM row.
+            Sits below categories inside the scrollable LEFT column. */}
+        {exp.tech?.length > 0 && (
+          <V3Scan variant="horizontal" delay={0.36} key={`tech-${active}`} style={{ minWidth: 0 }}>
+            <div style={{
+              display: "flex", flexWrap: "wrap", gap: 6, alignItems: "center",
+              paddingTop: "clamp(10px, 1vw, 16px)", borderTop: "1px solid var(--v3-line)",
+              minWidth: 0,
+            }}>
+              <span style={{
                 fontFamily: "var(--v3-font-mono)", fontWeight: 400, fontSize: "clamp(9px, 0.3vw + 7px, 11px)",
-                letterSpacing: ".06em", color: "var(--v3-fg-dim)",
-                border: "1px solid var(--v3-line-strong)", borderRadius: 999,
-                padding: "clamp(2px, 0.2vw, 4px) clamp(8px, 0.7vw, 12px)",
-                maxWidth: "100%", overflowWrap: "anywhere",
-              }}>{t}</span>
-            ))}
-          </div>
-        </V3Scan>
-      )}
+                letterSpacing: ".24em", textTransform: "uppercase", color: "var(--v3-fg-mute)",
+                marginRight: 10,
+              }}>Stack</span>
+              {exp.tech.map((t, i) => (
+                <span key={i} style={{
+                  fontFamily: "var(--v3-font-mono)", fontWeight: 400, fontSize: "clamp(9px, 0.3vw + 7px, 11px)",
+                  letterSpacing: ".06em", color: "var(--v3-fg-dim)",
+                  border: "1px solid var(--v3-line-strong)", borderRadius: 999,
+                  padding: "clamp(2px, 0.2vw, 4px) clamp(8px, 0.7vw, 12px)",
+                  maxWidth: "100%", overflowWrap: "anywhere",
+                }}>{t}</span>
+              ))}
+            </div>
+          </V3Scan>
+        )}
+      </div>
     </V3Frame>
   );
 }
