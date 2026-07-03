@@ -277,11 +277,13 @@ export default function HobbiesSection({ index, bootNonce }) {
 
         {/* Hover CSS — crossfade default → detail on hover of the cell.
             Scoped via `.v3-hobby-cell` so no other card picks it up.
-            `pointerEvents` toggle so tag chips inside the overlay aren't
-            clickable when it's hidden. */}
+            `!important` beats the inline `opacity: 0` / `transform` on the
+            overlay's style prop (inline styles otherwise win over class
+            rules). `pointerEvents` toggle so tag chips inside the overlay
+            aren't clickable when it's hidden. */}
         <style>{`
-          .v3-hobby-cell:hover .v3-hobby-default { opacity: 0; transition: opacity .22s var(--v3-ease-smooth); }
-          .v3-hobby-cell:hover .v3-hobby-detail  { opacity: 1; transform: translateY(0); pointer-events: auto; }
+          .v3-hobby-cell:hover .v3-hobby-default { opacity: 0 !important; transition: opacity .22s var(--v3-ease-smooth); }
+          .v3-hobby-cell:hover .v3-hobby-detail  { opacity: 1 !important; transform: translateY(0) !important; pointer-events: auto !important; }
           .v3-hobby-cell:focus-visible { outline: 1px solid var(--v3-accent); outline-offset: 3px; }
         `}</style>
       </div>
