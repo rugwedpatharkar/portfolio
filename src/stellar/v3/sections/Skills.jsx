@@ -28,12 +28,33 @@ import { V3Frame, V3Scan } from "../primitives";
 
 const META = sectionMeta.skills || { sub: "What I Bring", heading: "Technical Skills" };
 
-/* Chart constants */
+/* Chart constants — shrunk so long skill names ("Integration & smoke
+   test", "Firebase Authentication") don't run past the right edge of
+   the detail column. Labels sit inside the viewBox with clearance. */
 const CX = 200;
 const CY = 200;
-const R = 150;                    // max radius (100%)
-const LABEL_R = 178;               // label placement radius
+const R = 118;                    // max radius (100%)
+const LABEL_R = 140;               // label placement radius
 const RING_LEVELS = [0.25, 0.5, 0.75, 1];
+
+/* Split a long skill name into up to 2 balanced lines for the chart
+   label. If the name fits (<= 18 chars), returns one line. */
+const wrapLabel = (name, maxLen = 18) => {
+  const s = String(name || "");
+  if (s.length <= maxLen) return [s];
+  const words = s.split(/\s+/);
+  if (words.length === 1) return [s]; // single long word — no good break
+  /* Greedy split — first line collects words until adding the next would
+     push past `maxLen`. Remainder becomes line 2. */
+  let line1 = words[0];
+  let i = 1;
+  while (i < words.length && (line1 + " " + words[i]).length <= maxLen) {
+    line1 = line1 + " " + words[i];
+    i++;
+  }
+  const line2 = words.slice(i).join(" ") || "";
+  return line2 ? [line1, line2] : [line1];
+};
 
 /* Compute (x, y) on the circle at (angle, radius). Angle 0 = 12 o'clock,
    positive = clockwise (standard radar orientation). */
@@ -305,27 +326,37 @@ export default function SkillsSection({ index, bootNonce }) {
                         stroke="var(--v3-bg-void)"
                         strokeWidth={1.5}
                       />
-                      {/* Skill name */}
-                      <text
-                        x={a.label.x} y={a.label.y}
-                        textAnchor={a.anchor}
-                        dominantBaseline={a.vAlign}
-                        fontFamily="var(--v3-font-mono)"
-                        fontSize={10.5}
-                        fill="var(--v3-fg)"
-                        letterSpacing=".04em"
-                      >{a.skill.name}</text>
-                      {/* Proficiency number, small, below the name */}
-                      <text
-                        x={a.label.x} y={a.label.y + (a.vAlign === "hanging" ? 12 : a.vAlign === "text-after-edge" ? -12 : 12)}
-                        textAnchor={a.anchor}
-                        dominantBaseline={a.vAlign}
-                        fontFamily="var(--v3-font-mono)"
-                        fontSize={9}
-                        fill="var(--v3-accent)"
-                        letterSpacing=".08em"
-                        style={{ fontVariantNumeric: "tabular-nums" }}
-                      >{a.skill.level}</text>
+                      {/* Skill name — up to 2 lines via tspan so long
+                          names ("Firebase Authentication", "Integration
+                          & smoke test") don't run past the column edge. */}
+                      {(() => {
+                        const lines = wrapLabel(a.skill.name);
+                        const baseY = a.label.y;
+                        return (
+                          <text
+                            x={a.label.x} y={baseY}
+                            textAnchor={a.anchor}
+                            dominantBaseline={a.vAlign}
+                            fontFamily="var(--v3-font-mono)"
+                            fontSize={10}
+                            fill="var(--v3-fg)"
+                            letterSpacing=".04em"
+                          >
+                            {lines.map((ln, li) => (
+                              <tspan key={li} x={a.label.x} dy={li === 0 ? 0 : 12}>{ln}</tspan>
+                            ))}
+                            {/* Proficiency number on its own line under the name. */}
+                            <tspan
+                              x={a.label.x}
+                              dy={12}
+                              fill="var(--v3-accent)"
+                              fontSize={9}
+                              letterSpacing=".08em"
+                              style={{ fontVariantNumeric: "tabular-nums" }}
+                            >{a.skill.level}</tspan>
+                          </text>
+                        );
+                      })()}
                     </motion.g>
                   ))}
                 </svg>
