@@ -261,14 +261,17 @@ export default function ExperienceSection({ index, bootNonce }) {
         {cats.length > 0 && (
           <V3Scan variant="horizontal" delay={0.3} key={`cats-${active}`} style={{ minWidth: 0, flex: 1, minHeight: 0, display: "flex" }}>
             {/* Fixed-height card — flex:1 on the V3Scan wrapper lets this
-                consume the remaining vertical of the LEFT column, so the
-                card height stays constant regardless of which category is
-                active. Content aligns to the top; extra vertical shows as
-                empty space below. Prevents the card from breathing 2→4→2
-                bullets and shifting the Stack rail up/down. */}
+                consume the remaining vertical of the LEFT column.
+                gridTemplateRows: "1fr" forces the single row to take the
+                container's full height so the two cells (master + detail)
+                always stretch to the same fixed height, regardless of the
+                active category's bullet count. Content inside each cell
+                aligns to the top. Prevents the card from breathing
+                2→4→2 bullets and shifting the Stack rail up/down. */}
             <div style={{
               display: "grid",
               gridTemplateColumns: "minmax(220px, 30%) 1fr",
+              gridTemplateRows: "1fr",
               gap: "clamp(14px, 1.4vw, 22px)",
               border: "1px solid var(--v3-line)",
               borderRadius: 6,
@@ -276,7 +279,7 @@ export default function ExperienceSection({ index, bootNonce }) {
               padding: "clamp(8px, 0.8vw, 14px) clamp(12px, 1.2vw, 18px)",
               minWidth: 0,
               width: "100%", height: "100%",
-              alignContent: "start",
+              alignItems: "start",
             }}>
               {/* Master: category index */}
               <div
