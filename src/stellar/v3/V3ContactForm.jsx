@@ -204,17 +204,34 @@ export default function V3ContactForm() {
           <label style={label} htmlFor="v3-cmsg">Message</label>
           <span style={{ font: "400 10px var(--v3-font-mono)", color: "var(--v3-fg-mute)" }}>{remaining}</span>
         </div>
+        {/* Textarea styled with explicit properties instead of
+            `...inputStyle` — that shared style opens with `all: unset`
+            which resets `display` to `inline`. When `all: unset` and
+            `display: block` are both in the SAME style object, React
+            may serialize them in an order where `all` gets emitted
+            AFTER `display`, wiping the block back to `inline` — and on
+            an inline element `height` is silently ignored. Rendering
+            with explicit properties (no `all: unset`) sidesteps the
+            problem entirely and gives us the 120 px block we asked for. */}
         <textarea
           id="v3-cmsg"
           style={{
-            ...inputStyle,
-            /* `all: unset` in inputStyle resets display to `inline` — on
-               an inline box, `height` is ignored, so the textarea
-               collapsed to its 2-row default and the button row below
-               visually overlapped its area. Explicit `display: block`
-               restores box-model sizing. */
             display: "block",
-            height: 120, resize: "vertical", lineHeight: 1.5,
+            width: "100%",
+            boxSizing: "border-box",
+            height: 120,
+            resize: "vertical",
+            fontFamily: "var(--v3-font-ui)",
+            fontSize: ".95rem",
+            fontWeight: 400,
+            lineHeight: 1.5,
+            color: "var(--v3-fg)",
+            background: "transparent",
+            padding: "10px 2px 8px",
+            border: "none",
+            borderBottom: "1px solid var(--v3-line)",
+            outline: "none",
+            transition: "border-color .2s",
           }}
           placeholder={contactContent.placeholders.message}
           value={form.message}
