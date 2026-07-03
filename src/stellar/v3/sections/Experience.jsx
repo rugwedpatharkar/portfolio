@@ -103,7 +103,7 @@ export default function ExperienceSection({ index, bootNonce }) {
       <div style={{
         gridArea: "left",
         display: "flex", flexDirection: "column",
-        gap: "clamp(12px, 1.2vw, 18px)",
+        gap: "clamp(8px, 0.8vw, 14px)",
         minWidth: 0, minHeight: 0, overflow: "hidden",
         maxWidth: "min(60vw, 1200px)", height: "100%",
       }}>
@@ -198,7 +198,7 @@ export default function ExperienceSection({ index, bootNonce }) {
             engine that this box owns its own layout region. */}
         <div style={{
           display: "flex", flexDirection: "column",
-          gap: "clamp(12px, 1.2vw, 18px)",
+          gap: "clamp(8px, 0.8vw, 14px)",
           minWidth: 0,
           viewTransitionName: "experience-spread",
           contain: "layout",
@@ -255,7 +255,7 @@ export default function ExperienceSection({ index, bootNonce }) {
               display: "grid",
               gridTemplateColumns: `repeat(auto-fit, minmax(clamp(110px, 12vw, 150px), 1fr))`,
               gap: 0, borderTop: "1px solid var(--v3-line)", borderBottom: "1px solid var(--v3-line)",
-              padding: "clamp(10px, 1vw, 16px) 0",
+              padding: "clamp(6px, 0.6vw, 10px) 0",
             }}>
               {exp.metrics.map((m, i) => (
                 <div key={i} style={{
@@ -296,11 +296,11 @@ export default function ExperienceSection({ index, bootNonce }) {
             <div style={{
               display: "grid",
               gridTemplateColumns: "minmax(220px, 30%) 1fr",
-              gap: "clamp(16px, 1.6vw, 26px)",
+              gap: "clamp(14px, 1.4vw, 22px)",
               border: "1px solid var(--v3-line)",
               borderRadius: 6,
               background: "color-mix(in oklab, var(--v3-bg-void) 50%, transparent)",
-              padding: "clamp(12px, 1.2vw, 20px) clamp(14px, 1.4vw, 22px)",
+              padding: "clamp(8px, 0.8vw, 14px) clamp(12px, 1.2vw, 18px)",
               minWidth: 0,
             }}>
               {/* Master: category index */}
@@ -326,7 +326,7 @@ export default function ExperienceSection({ index, bootNonce }) {
                         all: "unset", cursor: "pointer",
                         display: "grid", gridTemplateColumns: "auto minmax(0, 1fr) auto",
                         alignItems: "center", gap: 10,
-                        padding: "clamp(8px, 0.8vw, 12px) clamp(8px, 0.9vw, 12px)",
+                        padding: "clamp(5px, 0.5vw, 8px) clamp(8px, 0.9vw, 12px)",
                         borderLeft: isActive ? "2px solid var(--v3-accent)" : "2px solid transparent",
                         background: isActive ? "color-mix(in oklab, var(--v3-accent) 8%, transparent)" : "transparent",
                         borderRadius: "0 4px 4px 0",
@@ -372,11 +372,11 @@ export default function ExperienceSection({ index, bootNonce }) {
                   heading → bullets each stagger via their own variants;
                   bullets share LIST_VARIANTS.staggerChildren. Reduced motion
                   short-circuits into rest state via `initial={false}`. */}
-              <div style={{ display: "flex", flexDirection: "column", gap: "clamp(10px, 1vw, 16px)", minWidth: 0, overflow: "hidden" }}>
+              <div style={{ display: "flex", flexDirection: "column", gap: "clamp(6px, 0.7vw, 12px)", minWidth: 0, overflow: "hidden" }}>
                 <AnimatePresence mode="wait" initial={false}>
                   <motion.div
                     key={`cat-${active}-${activeCat}`}
-                    style={{ display: "flex", flexDirection: "column", gap: "clamp(10px, 1vw, 16px)", minWidth: 0 }}
+                    style={{ display: "flex", flexDirection: "column", gap: "clamp(6px, 0.7vw, 12px)", minWidth: 0 }}
                     initial={reduce ? false : "hidden"}
                     animate="show"
                     exit="exit"
@@ -392,7 +392,7 @@ export default function ExperienceSection({ index, bootNonce }) {
                       color: "var(--v3-fg)", margin: 0, fontOpticalSizing: "auto",
                       overflowWrap: "anywhere",
                     }}>{cat?.name}</motion.h3>
-                    <motion.ul variants={LIST_VARIANTS} style={{ listStyle: "none", padding: 0, margin: 0, display: "flex", flexDirection: "column", gap: "clamp(6px, 0.6vw, 10px)", minWidth: 0 }}>
+                    <motion.ul variants={LIST_VARIANTS} style={{ listStyle: "none", padding: 0, margin: 0, display: "flex", flexDirection: "column", gap: "clamp(4px, 0.5vw, 8px)", minWidth: 0 }}>
                       {(cat?.points || []).map((p, k) => (
                         <motion.li key={k} variants={BULLET_VARIANTS} style={{
                           fontFamily: "var(--v3-font-ui)", fontWeight: 300,
@@ -422,7 +422,7 @@ export default function ExperienceSection({ index, bootNonce }) {
           <V3Scan variant="horizontal" delay={0.36} key={`tech-${active}`} style={{ minWidth: 0 }}>
             <div style={{
               display: "flex", flexWrap: "wrap", gap: 6, alignItems: "center",
-              paddingTop: "clamp(10px, 1vw, 16px)", borderTop: "1px solid var(--v3-line)",
+              paddingTop: "clamp(6px, 0.6vw, 10px)", borderTop: "1px solid var(--v3-line)",
               minWidth: 0,
             }}>
               <span style={{
