@@ -126,7 +126,11 @@ export default function AchievementsSection({ index, bootNonce }) {
                 borderRadius: 8,
                 background: "color-mix(in oklab, var(--v3-accent) 8%, transparent)",
                 boxShadow: "0 0 32px color-mix(in oklab, var(--v3-accent) 18%, transparent)",
-                minWidth: 0, minHeight: "clamp(140px, 12vw, 200px)",
+                minWidth: 0,
+                /* Fixed height — card never reflows when descriptions differ
+                   in line count. Clamp keeps it fluid across viewports. */
+                height: "clamp(180px, 14vw, 230px)",
+                overflow: "hidden",
               }}
             >
               {/* Emblem — swaps with the active achievement */}
@@ -208,6 +212,12 @@ export default function AchievementsSection({ index, bootNonce }) {
                         color: "var(--v3-fg-dim)", lineHeight: 1.6, margin: 0,
                         maxWidth: "min(64ch, 100%)",
                         overflowWrap: "break-word",
+                        /* Clamp to 2 lines so the card's fixed height stays
+                           consistent regardless of description length. */
+                        display: "-webkit-box",
+                        WebkitLineClamp: 2,
+                        WebkitBoxOrient: "vertical",
+                        overflow: "hidden",
                       }}>{hero.description}</p>
                     )}
                   </motion.div>
