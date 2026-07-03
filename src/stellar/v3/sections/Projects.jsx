@@ -58,15 +58,14 @@ const ProjectCard = ({ p, delay }) => {
           overflowWrap: "anywhere",
         }}>{p.name}</div>
 
-        {/* features bullets — replaces the paragraph description. Short bullet
-            claims are card-shaped; the paragraph pitch always got clamped
-            mid-sentence at card width. Up to 4 features so cards read as
-            spec-lists, not truncated essays. */}
+        {/* features bullets — ALL features shown (no slice) per the user's
+            'never cut or clamp' rule. If a card grows past the row, the LEFT
+            column scroll picks it up. */}
         <ul style={{
           listStyle: "none", padding: 0, margin: 0, flex: 1,
           display: "flex", flexDirection: "column", gap: "clamp(3px, 0.3vw, 6px)",
         }}>
-          {(p.features || []).slice(0, 4).map((f, k) => (
+          {(p.features || []).map((f, k) => (
             <li key={k} style={{
               fontFamily: "var(--v3-font-ui)", fontWeight: 300,
               fontSize: "clamp(0.7rem, 0.4vw + 0.5rem, 0.85rem)",
