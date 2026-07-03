@@ -23,26 +23,37 @@ const SkillBar = ({ name, level, delay }) => (
   <V3Scan variant="orbit" delay={delay}>
     <div style={{
       display: "grid", gridTemplateColumns: "1fr auto",
-      gap: 14, alignItems: "center",
-      padding: "9px 0",
+      gap: "clamp(8px, 0.8vw, 14px)", alignItems: "center",
+      padding: "clamp(6px, 0.7vh, 10px) 0",
     }}>
-      <div style={{ minWidth: 0, display: "flex", flexDirection: "column", gap: 7 }}>
+      <div style={{ minWidth: 0, display: "flex", flexDirection: "column", gap: "clamp(5px, 0.5vh, 8px)" }}>
         <span style={{
           fontFamily: "var(--v3-font-mono)", fontWeight: 400,
-          fontSize: "clamp(.95rem, 1.05vw, 1.08rem)",
+          /* Scales with both viewport width (vw) AND root em (zoom-aware).
+             Floor .9rem keeps mono legible at 75% zoom / 1280px. */
+          fontSize: "clamp(0.9rem, 0.6vw + 0.5rem, 1.2rem)",
           color: "var(--v3-fg)", letterSpacing: ".02em",
+          overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap",
         }}>{name}</span>
-        <div style={{ position: "relative", height: 4, background: "var(--v3-line)", borderRadius: 999, overflow: "hidden" }}>
+        <div style={{
+          position: "relative",
+          /* Bar height scales gently with viewport height so it reads on both
+             tall (1440p, zoomed-out) and short (zoomed-in, small laptop) viewports. */
+          height: "clamp(3px, 0.3vh, 5px)",
+          background: "var(--v3-line)", borderRadius: 999, overflow: "hidden",
+        }}>
           <div style={{
             position: "absolute", inset: 0,
             width: `${level}%`, background: "var(--v3-accent)",
             boxShadow: "0 0 10px color-mix(in oklab, var(--v3-accent) 60%, transparent)",
+            /* Smooth width transition on category swap so bars re-fill fluidly. */
+            transition: "width .6s ease",
           }} />
         </div>
       </div>
       <span style={{
         fontFamily: "var(--v3-font-mono)", fontWeight: 400,
-        fontSize: 13, letterSpacing: ".08em",
+        fontSize: "clamp(11px, 0.35vw + 0.5rem, 15px)", letterSpacing: ".08em",
         fontVariantNumeric: "tabular-nums",
         color: "var(--v3-fg-mute)",
       }}>{level}%</span>
@@ -67,7 +78,10 @@ export default function SkillsSection({ index, bootNonce }) {
          cramming both the category index and the detail). */
       gridAreas={`"top top top" "left left ." "left left ." "bottom bottom bottom"`}
     >
-      <div style={{ gridArea: "left", display: "flex", flexDirection: "column", gap: 16, minWidth: 0, overflow: "hidden", maxWidth: "52vw", height: "100%" }}>
+      {/* Cap absolute width at 850px so the master-detail doesn't get too wide on
+          2560+ screens (bars would run under the corner card). min(52vw, 850px)
+          keeps proportion on small viewports and locks a ceiling on large ones. */}
+      <div style={{ gridArea: "left", display: "flex", flexDirection: "column", gap: "clamp(12px, 1.2vh, 20px)", minWidth: 0, overflow: "hidden", maxWidth: "min(52vw, 850px)", height: "100%" }}>
         {/* Header */}
         <V3Scan variant="horizontal" delay={0.05}>
           <div>
@@ -80,7 +94,9 @@ export default function SkillsSection({ index, bootNonce }) {
             </div>
             <h2 style={{
               fontFamily: "var(--v3-font-display)", fontWeight: 340,
-              fontSize: "clamp(1.9rem, 3.2vw, 2.6rem)", fontOpticalSizing: "auto",
+              /* Zoom-aware: rem floor keeps heading legible at high zoom,
+                 vw scale keeps proportional to viewport at 1x. */
+              fontSize: "clamp(1.7rem, 1.8vw + 0.6rem, 2.6rem)", fontOpticalSizing: "auto",
               lineHeight: 1, letterSpacing: "-.02em", color: "var(--v3-fg)",
               margin: 0,
             }}>
@@ -89,15 +105,18 @@ export default function SkillsSection({ index, bootNonce }) {
           </div>
         </V3Scan>
 
-        {/* Master-detail: index LEFT, active category's skills RIGHT */}
+        {/* Master-detail: index LEFT, active category's skills RIGHT.
+            Master column uses minmax(min(220px, 40%), 30%) so on very narrow
+            viewports (or high browser zoom) the master can shrink below 220px
+            rather than force horizontal overflow. */}
         <div style={{
           display: "grid",
-          gridTemplateColumns: "minmax(220px, 30%) 1fr",
-          gap: 22,
+          gridTemplateColumns: "minmax(min(220px, 40%), 30%) 1fr",
+          gap: "clamp(12px, 1.4vw, 24px)",
           border: "1px solid var(--v3-line)",
           borderRadius: 6,
           background: "color-mix(in oklab, var(--v3-bg-void) 50%, transparent)",
-          padding: "16px 20px",
+          padding: "clamp(10px, 1vw, 18px) clamp(12px, 1.3vw, 22px)",
           flex: 1, minHeight: 0,
         }}>
           {/* Master: category index. overflowY: 'scroll' keeps the rail visible
@@ -121,30 +140,37 @@ export default function SkillsSection({ index, bootNonce }) {
                   onClick={() => setActive(i)}
                   style={{
                     all: "unset", cursor: "pointer",
-                    display: "grid", gridTemplateColumns: "auto 1fr auto",
-                    alignItems: "baseline", gap: 8,
-                    padding: "8px 10px",
+                    display: "grid", gridTemplateColumns: "auto minmax(0, 1fr) auto",
+                    alignItems: "baseline", gap: "clamp(6px, 0.6vw, 10px)",
+                    /* Button padding scales with viewport so touch targets stay
+                       comfortable at wide/zoomed-out sizes without eating space at 1280px. */
+                    padding: "clamp(6px, 0.6vw, 12px) clamp(8px, 0.8vw, 14px)",
                     borderLeft: isActive ? "2px solid var(--v3-accent)" : "2px solid transparent",
                     background: isActive ? "color-mix(in oklab, var(--v3-accent) 8%, transparent)" : "transparent",
                     borderRadius: "0 4px 4px 0",
                     transition: "background .2s, border-color .2s",
+                    minWidth: 0,
                   }}
                 >
                   <span aria-hidden style={{
-                    fontFamily: "var(--v3-font-mono)", fontWeight: 400, fontSize: 10,
+                    fontFamily: "var(--v3-font-mono)", fontWeight: 400,
+                    fontSize: "clamp(10px, 0.25vw + 0.5rem, 12px)",
                     color: isActive ? "var(--v3-accent)" : "var(--v3-fg-mute)",
                     letterSpacing: ".14em",
                     fontVariantNumeric: "tabular-nums",
                   }}>{String(i + 1).padStart(2, "0")}</span>
                   <span style={{
                     fontFamily: "var(--v3-font-display)", fontWeight: 340,
-                    fontSize: "clamp(1rem, 1.15vw, 1.2rem)", lineHeight: 1.2,
+                    /* Category name — rem-anchored so zoom scales it too. */
+                    fontSize: "clamp(0.95rem, 0.6vw + 0.5rem, 1.3rem)", lineHeight: 1.2,
                     letterSpacing: "-.005em",
                     color: isActive ? "var(--v3-fg)" : "var(--v3-fg-dim)",
                     fontOpticalSizing: "auto",
+                    minWidth: 0, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap",
                   }}>{cat}</span>
                   <span style={{
-                    fontFamily: "var(--v3-font-mono)", fontWeight: 400, fontSize: 10,
+                    fontFamily: "var(--v3-font-mono)", fontWeight: 400,
+                    fontSize: "clamp(10px, 0.25vw + 0.5rem, 12px)",
                     letterSpacing: ".08em",
                     color: isActive ? "var(--v3-accent)" : "var(--v3-fg-mute)",
                     fontVariantNumeric: "tabular-nums",
@@ -161,12 +187,13 @@ export default function SkillsSection({ index, bootNonce }) {
               they can scroll to reveal more skills. */}
           <div
             key={activeName}
-            style={{ display: "flex", flexDirection: "column", gap: 2, overflowY: "scroll", minHeight: 0, paddingRight: 16 }}
+            style={{ display: "flex", flexDirection: "column", gap: 2, overflowY: "scroll", minHeight: 0, minWidth: 0, paddingRight: "clamp(10px, 1vw, 18px)" }}
           >
             <div style={{ display: "flex", alignItems: "baseline", gap: 12, marginBottom: 6 }}>
               <span aria-hidden style={{ width: 14, height: 1, background: "var(--v3-accent)" }} />
               <span style={{
-                fontFamily: "var(--v3-font-mono)", fontWeight: 400, fontSize: 10,
+                fontFamily: "var(--v3-font-mono)", fontWeight: 400,
+                fontSize: "clamp(10px, 0.25vw + 0.5rem, 12px)",
                 letterSpacing: ".24em", textTransform: "uppercase", color: "var(--v3-fg-mute)",
               }}>{activeName} · {activeList.length}</span>
             </div>
