@@ -88,7 +88,9 @@ export default function AboutSection({ index, bootNonce }) {
       <div ref={sectionRef} style={{
         gridArea: "left",
         display: "flex", flexDirection: "column",
-        gap: "clamp(14px, 1.2vw, 24px)",
+        /* Extra breathing room between blocks so the portrait's accent
+           glow (below) doesn't visually bleed into the "OVERVIEW" kicker. */
+        gap: "clamp(24px, 2vw, 40px)",
         minWidth: 0, minHeight: 0, overflow: "hidden",
         paddingRight: "clamp(4px, 0.5vw, 8px)",
         maxWidth: "min(60vw, 1200px)", height: "100%",
@@ -121,7 +123,7 @@ export default function AboutSection({ index, bootNonce }) {
                   backgroundRepeat: "no-repeat",
                   backgroundColor: "rgba(255,255,255,0.03)",
                   border: "1px solid var(--v3-accent)",
-                  boxShadow: "0 0 36px color-mix(in oklab, var(--v3-accent) 24%, transparent)",
+                  boxShadow: "0 0 16px color-mix(in oklab, var(--v3-accent) 18%, transparent)",
                   willChange: reduce ? "auto" : "transform",
                 }}
               />
