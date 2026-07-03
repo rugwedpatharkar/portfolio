@@ -185,7 +185,7 @@ export default function EducationSection({ index, bootNonce }) {
           borderRadius: 6,
           background: "color-mix(in oklab, var(--v3-bg-void) 50%, transparent)",
           padding: "4px clamp(10px, 1.2vw, 22px)",
-          flex: 1, minHeight: 0, overflow: "hidden",
+          flex: 1, minHeight: 0, overflow: "visible",
           minWidth: 0,
         }}>
           {list.slice(0, 4).map((edu, i) => (

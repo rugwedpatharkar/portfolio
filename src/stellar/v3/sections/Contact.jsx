@@ -66,7 +66,7 @@ export default function ContactSection({ index, bootNonce }) {
           display: "grid",
           gridTemplateColumns: "repeat(auto-fit, minmax(min(400px, 100%), 1fr))",
           gap: "clamp(16px, 1.5vw, 28px)",
-          flex: 1, minHeight: 0, overflow: "hidden",
+          flex: 1, minHeight: 0, overflow: "visible",
         }}>
           {/* Form panel */}
           <V3Scan variant="horizontal" delay={0.15} style={{

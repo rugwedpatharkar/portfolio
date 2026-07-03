@@ -170,7 +170,7 @@ export default function TestimonialsSection({ index, bootNonce }) {
           borderRadius: 6,
           background: "color-mix(in oklab, var(--v3-bg-void) 50%, transparent)",
           padding: "4px clamp(12px, 1.2vw, 22px)",
-          flex: 1, minHeight: 0, overflow: "hidden", minWidth: 0,
+          flex: 1, minHeight: 0, overflow: "visible", minWidth: 0,
         }}>
           {list.map((t, i) => (
             <QuoteRow key={i} i={i} t={t} delay={0.15 + i * 0.08} />

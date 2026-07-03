@@ -155,7 +155,7 @@ export default function HobbiesSection({ index, bootNonce }) {
           border: "1px solid var(--v3-line)",
           borderRadius: 6,
           background: "color-mix(in oklab, var(--v3-bg-void) 50%, transparent)",
-          flex: 1, minHeight: 0, overflow: "hidden",
+          flex: 1, minHeight: 0, overflow: "visible",
         }}>
           {list.slice(0, 8).map((h, i) => {
             /* Row/col here anchor the divider pattern to the 2-col baseline —

@@ -156,7 +156,7 @@ export default function NotesSection({ index, bootNonce }) {
           borderRadius: 6,
           background: "color-mix(in oklab, var(--v3-bg-void) 50%, transparent)",
           padding: "4px clamp(12px, 1.2vw, 22px)",
-          flex: 1, minHeight: 0, overflow: "hidden", minWidth: 0,
+          flex: 1, minHeight: 0, overflow: "visible", minWidth: 0,
         }}>
           {(blogPosts || []).map((post, i) => (
             <NoteRow key={i} i={i} post={post} delay={0.15 + i * 0.08} />
