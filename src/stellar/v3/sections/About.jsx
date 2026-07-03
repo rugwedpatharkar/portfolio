@@ -16,9 +16,33 @@
  *   - Hero stat 96% p95 cut + descriptor
  *   - Two supporting stats (31 services, 7+ vendors) stacked to the right
  */
+import { useRef } from "react";
+import { motion, useScroll, useTransform, useSpring, useReducedMotion } from "motion/react";
 import { personalInfo, heroContent } from "../../../content";
 import { V3Frame, V3Scan, V3Ticker, V3DepthLayer } from "../primitives";
 import heroPhoto from "../../../assets/hero-photo-1024.webp";
+
+/*
+ * Corner registration ticks — hairline SVG arms in each corner of a
+ * container. Reads as photographic-plate registration marks. Purely
+ * decorative; positioned absolutely so consumers just wrap them in a
+ * `position: relative` parent.
+ */
+const RegistrationTicks = ({ arm = 10, inset = -1, color = "var(--v3-line-strong)" }) => (
+  <>
+    {[
+      { top: inset, left: inset, d: `M0 ${arm} L0 0 L${arm} 0` },
+      { top: inset, right: inset, d: `M${arm} ${arm} L${arm} 0 L0 0`, transform: `translateX(-${arm}px)` },
+      { bottom: inset, left: inset, d: `M0 0 L0 ${arm} L${arm} ${arm}` },
+      { bottom: inset, right: inset, d: `M${arm} 0 L${arm} ${arm} L0 ${arm}` },
+    ].map((c, i) => (
+      <svg key={i} aria-hidden width={arm + 1} height={arm + 1} viewBox={`0 0 ${arm + 1} ${arm + 1}`}
+        style={{ position: "absolute", top: c.top, left: c.left, right: c.right, bottom: c.bottom, pointerEvents: "none" }}>
+        <path d={c.d} stroke={color} strokeWidth="1" fill="none" />
+      </svg>
+    ))}
+  </>
+);
 
 const [FIRST, ...REST] = (personalInfo.fullName || "").split(" ");
 const LAST = REST.join(" ");
@@ -74,6 +98,26 @@ const Stat = ({ big, valueFontSize, value, suffix, label, sub, decimals }) => (
 );
 
 export default function AboutSection({ index, bootNonce }) {
+  /*
+   * Signature moment — scroll-linked portrait parallax.
+   *
+   * useScroll targets the About section's outer DOM node with an
+   * "start end" → "end start" offset. In a GSAP-pinned setup the target
+   * remains near-stationary while the user scrolls through the pin range,
+   * so scrollYProgress advances gradually across the stop. useSpring
+   * smooths the raw progress into a physical camera glide. Reduced-motion
+   * users get a static portrait — the spring output is bypassed.
+   */
+  const sectionRef = useRef(null);
+  const portraitRef = useRef(null);
+  const reduce = useReducedMotion();
+  const { scrollYProgress } = useScroll({
+    target: sectionRef,
+    offset: ["start end", "end start"],
+  });
+  const rawY = useTransform(scrollYProgress, [0, 1], [-24, 24]);
+  const y = useSpring(rawY, { stiffness: 120, damping: 22, restDelta: 0.001 });
+
   return (
     <V3Frame
       section="About"
@@ -90,7 +134,7 @@ export default function AboutSection({ index, bootNonce }) {
       {/* LEFT — full-height wrapper for the redesigned two-column layout:
           about-info on the left, 3 stats stacked on the right. Uses grid so
           both columns fill viewport height together. */}
-      <div style={{
+      <div ref={sectionRef} style={{
         gridArea: "left",
         display: "grid",
         gridTemplateColumns: "minmax(0, 2fr) minmax(240px, 1fr)",
@@ -103,22 +147,39 @@ export default function AboutSection({ index, bootNonce }) {
         {/* Portrait + name */}
         <V3DepthLayer depth={2} style={{ display: "flex", gap: "clamp(12px, 1.1vw, 18px)", alignItems: "flex-end", minWidth: 0, flexWrap: "wrap" }}>
           <V3Scan variant="horizontal" delay={0.05}>
+            {/* Portrait plate — wrapped in a relative container so the
+                registration ticks sit exactly at each corner. The plate
+                itself is a motion.div driven by scrollYProgress (spring-
+                smoothed) so the whole photograph translates as the user
+                scrolls through the About stop — cinematic camera glide. */}
             <div
-              role="img"
-              aria-label={`Portrait of ${personalInfo.fullName}`}
+              ref={portraitRef}
               style={{
+                position: "relative",
                 width: "clamp(110px, 9vw, 160px)",
                 height: "clamp(146px, 12vw, 212px)",
-                flexShrink: 0, borderRadius: 14,
-                backgroundImage: `url(${heroPhoto})`,
-                backgroundSize: "180% auto",
-                backgroundPosition: "42% 8%",
-                backgroundRepeat: "no-repeat",
-                backgroundColor: "rgba(255,255,255,0.03)",
-                border: "1px solid var(--v3-accent)",
-                boxShadow: "0 0 36px color-mix(in oklab, var(--v3-accent) 24%, transparent)",
+                flexShrink: 0,
               }}
-            />
+            >
+              <motion.div
+                role="img"
+                aria-label={`Portrait of ${personalInfo.fullName}`}
+                style={{
+                  y: reduce ? 0 : y,
+                  width: "100%", height: "100%",
+                  borderRadius: 14,
+                  backgroundImage: `url(${heroPhoto})`,
+                  backgroundSize: "180% auto",
+                  backgroundPosition: "42% 8%",
+                  backgroundRepeat: "no-repeat",
+                  backgroundColor: "rgba(255,255,255,0.03)",
+                  border: "1px solid var(--v3-accent)",
+                  boxShadow: "0 0 36px color-mix(in oklab, var(--v3-accent) 24%, transparent)",
+                  willChange: reduce ? "auto" : "transform",
+                }}
+              />
+              <RegistrationTicks arm={10} inset={-2} color="var(--v3-line-strong)" />
+            </div>
           </V3Scan>
           <div style={{ display: "flex", flexDirection: "column", justifyContent: "flex-end", minWidth: 0, flex: "1 1 220px", height: "clamp(146px, 12vw, 212px)", paddingBottom: 2 }}>
             <V3Scan variant="horizontal" delay={0.12}>
@@ -144,14 +205,19 @@ export default function AboutSection({ index, bootNonce }) {
           </div>
         </V3DepthLayer>
 
-        {/* Overview lede */}
+        {/* Overview lede — DM Serif Display drop-cap on the opening
+            paragraph. Editorial cue that this is the primary voice, not
+            marketing copy. `::first-letter` targets grapheme 1 in every
+            supported browser; falls back to the base body style
+            gracefully. Scoped via `.v3-about-lede` so no other paragraph
+            picks up the drop-cap. */}
         <V3Scan variant="horizontal" delay={0.24}>
           <div style={{ maxWidth: "min(70ch, 48vw)", minWidth: 0 }}>
             <div style={{ display: "flex", alignItems: "center", gap: "clamp(8px, 0.9vw, 14px)", marginBottom: 8, flexWrap: "wrap" }}>
               <span style={{ width: "clamp(16px, 1.6vw, 26px)", height: 1, background: "var(--v3-accent)" }} />
               <span style={{ fontFamily: "var(--v3-font-mono)", fontWeight: 400, fontSize: "clamp(9px, 0.6vw + 0.2rem, 11px)", letterSpacing: ".28em", textTransform: "uppercase", color: "var(--v3-fg-mute)" }}>Overview</span>
             </div>
-            <p style={{
+            <p className="v3-about-lede" style={{
               fontFamily: "var(--v3-font-ui)", fontWeight: 300,
               fontSize: "clamp(.85rem, 0.5vw + 0.5rem, .95rem)",
               color: "var(--v3-fg-dim)", lineHeight: 1.55, margin: 0,
@@ -159,6 +225,20 @@ export default function AboutSection({ index, bootNonce }) {
             }}>
               {personalInfo.about}
             </p>
+            <style>{`
+              .v3-about-lede::first-letter {
+                font-family: var(--v3-font-display);
+                font-weight: 340;
+                font-size: 3.6em;
+                line-height: 0.82;
+                float: left;
+                padding: 0.06em 0.14em 0 0;
+                margin-right: 0.02em;
+                color: var(--v3-fg);
+                font-optical-sizing: auto;
+                letter-spacing: -0.02em;
+              }
+            `}</style>
           </div>
         </V3Scan>
 
