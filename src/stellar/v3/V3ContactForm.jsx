@@ -7,12 +7,21 @@
  * success/error states inline (no toast dep). Ships alongside the outbound-link
  * accordion — form on top, links below — so both paths work.
  */
-import { useState } from "react";
+import { useState, useRef, useEffect, useCallback } from "react";
 import emailjs from "@emailjs/browser";
 import { motion, useReducedMotion } from "motion/react";
 import { contactContent, personalInfo } from "../../content";
 
 const ease = [0.22, 1, 0.36, 1];
+
+/* Hold-to-confirm duration and the sequence of tickered labels shown
+   while the request is in flight. Per the taste-stack table:
+   "Send button has a hold-to-confirm interaction (clip-path inset
+   fills left-to-right over 400ms while pressed); transmit label
+   animates a mono ticker on submit." */
+const HOLD_DURATION_MS = 600;
+const TICKER_INTERVAL_MS = 220;
+const TICKER_STATES = ["TX", "RELAY", "ACK"];
 
 export default function V3ContactForm() {
   const reduce = useReducedMotion();
@@ -20,6 +29,54 @@ export default function V3ContactForm() {
   const [form, setForm] = useState({ name: "", email: "", message: "" });
   const [status, setStatus] = useState({ state: "idle", note: "" }); // idle | sending | sent | error
   const remaining = contactContent.msgLimit - form.message.length;
+
+  /* Hold-to-confirm state. `holdProgress` in [0, 1] drives the clip-path
+     fill on the Send button; when it hits 1 we `requestSubmit()` the form
+     which runs normal validation + the submit handler below. */
+  const [holdProgress, setHoldProgress] = useState(0);
+  const [tickerLabel, setTickerLabel] = useState(null);
+  const rafRef = useRef(null);
+  const formRef = useRef(null);
+
+  /* Ticker: while the request is in flight, mono-cycle through
+     TX ▸ RELAY ▸ ACK on the button label. Stops when status leaves
+     "sending". */
+  useEffect(() => {
+    if (status.state !== "sending") { setTickerLabel(null); return; }
+    let i = 0;
+    setTickerLabel(TICKER_STATES[0]);
+    const id = setInterval(() => {
+      i = (i + 1) % TICKER_STATES.length;
+      setTickerLabel(TICKER_STATES[i]);
+    }, TICKER_INTERVAL_MS);
+    return () => clearInterval(id);
+  }, [status.state]);
+
+  const cancelHold = useCallback(() => {
+    if (rafRef.current) { cancelAnimationFrame(rafRef.current); rafRef.current = null; }
+    setHoldProgress(0);
+  }, []);
+
+  const beginHold = useCallback(() => {
+    if (reduce || status.state === "sending" || status.state === "sent") return;
+    const start = performance.now();
+    const tick = (now) => {
+      const p = Math.min((now - start) / HOLD_DURATION_MS, 1);
+      setHoldProgress(p);
+      if (p < 1) {
+        rafRef.current = requestAnimationFrame(tick);
+      } else {
+        rafRef.current = null;
+        formRef.current?.requestSubmit();
+        /* Reset immediately — the submit handler owns the "sending"
+           visual state from here on. */
+        setHoldProgress(0);
+      }
+    };
+    rafRef.current = requestAnimationFrame(tick);
+  }, [reduce, status.state]);
+
+  useEffect(() => () => { if (rafRef.current) cancelAnimationFrame(rafRef.current); }, []);
 
   const setField = (key) => (e) => {
     const v = e.target.value;
@@ -96,6 +153,7 @@ export default function V3ContactForm() {
 
   return (
     <motion.form
+      ref={formRef}
       onSubmit={submit}
       aria-label="Contact form"
       initial={reduce ? false : { opacity: 0, y: 8 }}
@@ -164,20 +222,75 @@ export default function V3ContactForm() {
       )}
 
       <div style={{ display: "flex", alignItems: "center", gap: 14, justifyContent: "space-between", flexWrap: "wrap" }}>
-        <span style={{ font: "400 var(--v3-type-cap) var(--v3-font-mono)", letterSpacing: ".14em", textTransform: "uppercase", color: "var(--v3-fg-mute)" }}>{contactContent.responseTime}</span>
+        <span style={{ font: "400 var(--v3-type-cap) var(--v3-font-mono)", letterSpacing: ".14em", textTransform: "uppercase", color: "var(--v3-fg-mute)" }}>
+          {reduce ? contactContent.responseTime : `${contactContent.responseTime} · Hold to send`}
+        </span>
+        {/* Hold-to-confirm send button. Under reduced motion this
+            degrades to a normal `type="submit"` button — no hold
+            required. Otherwise `type="button"` and hold handlers
+            drive an accent clip-path fill that reveals the ACCENT
+            background left-to-right over HOLD_DURATION_MS; releasing
+            early snaps back over 200 ms via a CSS transition on the
+            overlay. Completion calls formRef.current.requestSubmit()
+            which triggers the same submit handler. */}
         <button
-          type="submit"
+          type={reduce ? "submit" : "button"}
           disabled={status.state === "sending" || isDone}
           className="v3-press"
+          onPointerDown={reduce ? undefined : beginHold}
+          onPointerUp={reduce ? undefined : cancelHold}
+          onPointerLeave={reduce ? undefined : cancelHold}
+          onPointerCancel={reduce ? undefined : cancelHold}
           style={{
+            position: "relative",
             font: "500 .9rem var(--v3-font-ui)", letterSpacing: ".01em",
-            color: "var(--v3-bg-void)", background: "var(--v3-accent)",
-            border: "1px solid transparent", borderRadius: 7,
-            padding: "12px 22px", cursor: isDone ? "default" : "pointer",
-            opacity: status.state === "sending" ? 0.7 : 1,
+            color: "var(--v3-accent)", background: "transparent",
+            border: "1px solid var(--v3-accent)", borderRadius: 7,
+            padding: "12px 22px",
+            cursor: isDone ? "default" : "pointer",
+            opacity: status.state === "sending" ? 0.85 : 1,
+            overflow: "hidden",
+            touchAction: "none",
+            userSelect: "none",
+            minWidth: "clamp(140px, 12vw, 180px)",
           }}
         >
-          {status.state === "sending" ? contactContent.sendingText : isDone ? contactContent.sentText : contactContent.sendButton}
+          {/* Accent fill overlay — clip-path revealed left→right by
+              holdProgress. When progress resets to 0, transition
+              smooths the retract over 200 ms. */}
+          <span
+            aria-hidden
+            style={{
+              position: "absolute", inset: 0,
+              background: "var(--v3-accent)",
+              clipPath: `inset(0 ${100 - holdProgress * 100}% 0 0)`,
+              transition: holdProgress === 0 ? "clip-path .2s var(--v3-ease-smooth)" : "none",
+              pointerEvents: "none",
+              boxShadow: holdProgress > 0.05 ? "0 0 18px color-mix(in oklab, var(--v3-accent) 45%, transparent)" : "none",
+            }}
+          />
+          {/* Label sits above the fill. When the fill is fully drawn
+              (progress > 0.65) the underlying text becomes the void
+              color so it reads against the accent bg. */}
+          <span style={{
+            position: "relative",
+            color: holdProgress > 0.65 || status.state === "sending" ? "var(--v3-bg-void)" : "var(--v3-accent)",
+            transition: "color .18s",
+            display: "inline-flex", alignItems: "center", gap: 8,
+            fontVariantNumeric: "tabular-nums",
+          }}>
+            {status.state === "sending"
+              ? (
+                <>
+                  <span aria-hidden style={{ fontFamily: "var(--v3-font-mono)", letterSpacing: ".2em" }}>{tickerLabel || "TX"}</span>
+                  <span aria-hidden style={{ opacity: 0.6 }}>▸</span>
+                  <span>{contactContent.sendingText}</span>
+                </>
+              )
+              : isDone
+                ? contactContent.sentText
+                : contactContent.sendButton}
+          </span>
         </button>
       </div>
     </motion.form>
