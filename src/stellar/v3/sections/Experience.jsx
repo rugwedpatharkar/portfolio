@@ -123,7 +123,7 @@ export default function ExperienceSection({ index, bootNonce }) {
             }}>
               <h2 style={{
                 fontFamily: "var(--v3-font-display)", fontWeight: 340,
-                fontSize: "clamp(1.7rem, 1.4vw + 1rem, 2.8rem)", fontOpticalSizing: "auto",
+                fontSize: "clamp(1.5rem, 1.1vw + 0.9rem, 2.3rem)", fontOpticalSizing: "auto",
                 lineHeight: 1, letterSpacing: "-.02em", color: "var(--v3-fg)",
                 margin: 0,
               }}>
@@ -219,7 +219,7 @@ export default function ExperienceSection({ index, bootNonce }) {
               </div>
               <div style={{
                 fontFamily: "var(--v3-font-display)", fontWeight: 340,
-                fontSize: "clamp(1.2rem, 1vw + 0.7rem, 2rem)", fontOpticalSizing: "auto",
+                fontSize: "clamp(1.05rem, 0.8vw + 0.6rem, 1.6rem)", fontOpticalSizing: "auto",
                 lineHeight: 1.05, letterSpacing: "-.015em", color: "var(--v3-fg)",
                 overflowWrap: "anywhere",
               }}>
@@ -246,43 +246,10 @@ export default function ExperienceSection({ index, bootNonce }) {
           </div>
         </V3Scan>
 
-        {/* Metrics row — 4 stats, hairline dividers. auto-fit minmax lets metrics
-            reflow to fewer columns under heavy zoom / narrower viewports instead
-            of squishing all 4 into one row where numbers would overlap labels. */}
-        {exp.metrics?.length > 0 && (
-          <V3Scan variant="horizontal" delay={0.24} key={`metrics-${active}`}>
-            <div style={{
-              display: "grid",
-              gridTemplateColumns: `repeat(auto-fit, minmax(clamp(110px, 12vw, 150px), 1fr))`,
-              gap: 0, borderTop: "1px solid var(--v3-line)", borderBottom: "1px solid var(--v3-line)",
-              padding: "clamp(6px, 0.6vw, 10px) 0",
-            }}>
-              {exp.metrics.map((m, i) => (
-                <div key={i} style={{
-                  paddingLeft: i > 0 ? "clamp(10px, 1vw, 18px)" : 0,
-                  paddingRight: "clamp(10px, 1vw, 18px)",
-                  borderLeft: i > 0 ? "1px solid var(--v3-line)" : "none",
-                  display: "flex", flexDirection: "column", gap: 6,
-                  minWidth: 0,
-                }}>
-                  <span style={{
-                    fontFamily: "var(--v3-font-display)", fontWeight: 340,
-                    fontSize: "clamp(1rem, 0.9vw + 0.5rem, 1.7rem)", lineHeight: 1,
-                    letterSpacing: "-.015em", color: "var(--v3-fg)", fontOpticalSizing: "auto",
-                    fontVariantNumeric: "tabular-nums",
-                    overflowWrap: "anywhere",
-                  }}>{m.value}</span>
-                  <span style={{
-                    fontFamily: "var(--v3-font-mono)", fontWeight: 400, fontSize: "clamp(8px, 0.3vw + 7px, 10px)",
-                    letterSpacing: ".16em", textTransform: "uppercase", color: "var(--v3-fg-mute)",
-                    lineHeight: 1.3,
-                    overflowWrap: "anywhere",
-                  }}>{m.label}</span>
-                </div>
-              ))}
-            </div>
-          </V3Scan>
-        )}
+        {/* Metrics row removed — those four numbers (31 services / 96% p95
+            cut / ~25% compute saved / 99.9% availability) already live in
+            the FunFacts (Mercury) stop. Keeping them here duplicated the
+            data AND ate ~80 px of vertical the categories block needed. */}
 
         {/* Categories — master-detail like Skills/Projects.
             LEFT (30%): clickable category index. Numeral + category name
