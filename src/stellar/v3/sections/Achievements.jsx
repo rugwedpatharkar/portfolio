@@ -1,15 +1,27 @@
 "use client";
 /*
- * Achievements (Mars) — master-detail milestone dossier.
+ * Achievements (Mars) — constellation timeline per the taste-stack table.
  *
- * Matches the Skills / Projects / Experience selector pattern: LEFT is a
- * clickable milestone index (numeral + year + title), RIGHT is the active
- * milestone's full detail — big icon, DM Serif title, complete description
- * with no line-clamp. Nothing is truncated; every milestone in the data
- * source is listed (no .slice(0, 8)). Keyboard nav (ArrowUp/Down + J/K)
- * mirrors the rest of the master-detail sections.
+ *   "Connecting line draws in as each node scrolls into view (pathLength
+ *    motion); years engraved on a vertical rule; big-metric nodes render
+ *    as circled numerals."
+ *
+ * Layout:
+ *   - Left rail: hairline vertical line (SVG). `pathLength` animates
+ *     0 → 1 across ~1.6 s on section reveal — the "constellation line
+ *     drawing in".
+ *   - Along the rail: one node per achievement. If the title starts with
+ *     a metric (`96%`, `5-Iteration`, `6+`, `3+`, `99.9%`), the node
+ *     renders as a filled/circled numeral — Fraunces display, centered
+ *     in an accent-outlined disc. Otherwise the node renders as a small
+ *     accent dot with a subtle glow.
+ *   - Left of each node: year "engraved" in mono, dim, tabular-nums.
+ *   - Right of each node: title (DM Serif Display) + description
+ *     (Satoshi) — no line clamp, prose is short per rule (a).
+ *   - Whole timeline fits without scroll: 8 rows are distributed
+ *     `space-between` inside a fixed-height column.
  */
-import { useState } from "react";
+import { motion, useReducedMotion } from "motion/react";
 import { achievements, sectionMeta } from "../../../content";
 import { V3Frame, V3Scan } from "../primitives";
 
@@ -18,10 +30,59 @@ const META = sectionMeta.achievements || {
   heading: "Signals from the Wire",
 };
 
+/* Extract a metric prefix from an achievement title. Matches things
+   like: "96%", "5", "6+", "3+", "99.9%", "31". Returns the extracted
+   metric string (or null if the title doesn't start with a number). */
+const METRIC_RE = /^(\d+(?:\.\d+)?%?\+?)/;
+const extractMetric = (title = "") => {
+  const m = String(title).match(METRIC_RE);
+  return m ? m[1] : null;
+};
+
+const CircledNumeral = ({ value, active = true, reduce, delay = 0 }) => (
+  <motion.div
+    initial={reduce ? false : { scale: 0.6, opacity: 0 }}
+    whileInView={{ scale: 1, opacity: 1 }}
+    viewport={{ once: true, amount: 0.3 }}
+    transition={{ duration: 0.4, ease: [0.22, 1, 0.36, 1], delay }}
+    style={{
+      width: "clamp(38px, 3.6vw, 54px)", height: "clamp(38px, 3.6vw, 54px)",
+      borderRadius: "50%",
+      border: "1.5px solid var(--v3-accent)",
+      background: active ? "color-mix(in oklab, var(--v3-accent) 16%, var(--v3-bg-void))" : "var(--v3-bg-void)",
+      display: "flex", alignItems: "center", justifyContent: "center",
+      boxShadow: "0 0 16px color-mix(in oklab, var(--v3-accent) 32%, transparent)",
+      flexShrink: 0,
+    }}
+  >
+    <span style={{
+      fontFamily: "var(--v3-font-display)", fontWeight: 340,
+      fontSize: "clamp(0.85rem, 0.6vw + 0.4rem, 1.15rem)",
+      lineHeight: 1, letterSpacing: "-.01em",
+      color: "var(--v3-fg)", fontOpticalSizing: "auto",
+      fontVariantNumeric: "tabular-nums",
+    }}>{value}</span>
+  </motion.div>
+);
+
+const Dot = ({ reduce, delay = 0 }) => (
+  <motion.span aria-hidden
+    initial={reduce ? false : { scale: 0.4, opacity: 0 }}
+    whileInView={{ scale: 1, opacity: 1 }}
+    viewport={{ once: true, amount: 0.3 }}
+    transition={{ duration: 0.35, ease: [0.22, 1, 0.36, 1], delay }}
+    style={{
+      width: 12, height: 12, borderRadius: "50%",
+      background: "var(--v3-accent)",
+      boxShadow: "0 0 10px var(--v3-accent)",
+      flexShrink: 0,
+    }}
+  />
+);
+
 export default function AchievementsSection({ index, bootNonce }) {
   const list = achievements || [];
-  const [active, setActive] = useState(0);
-  const item = list[active] || list[0];
+  const reduce = useReducedMotion();
 
   return (
     <V3Frame
@@ -34,7 +95,7 @@ export default function AchievementsSection({ index, bootNonce }) {
     >
       <div style={{
         gridArea: "left", display: "flex", flexDirection: "column",
-        gap: "clamp(12px, 1.2vw, 22px)",
+        gap: "clamp(10px, 1vw, 18px)",
         minWidth: 0, minHeight: 0, overflow: "hidden",
         maxWidth: "min(60vw, 1200px)",
         height: "100%",
@@ -42,7 +103,7 @@ export default function AchievementsSection({ index, bootNonce }) {
         {/* Header */}
         <V3Scan variant="horizontal" delay={0.05}>
           <div>
-            <div style={{ display: "flex", alignItems: "center", gap: 12, marginBottom: 10 }}>
+            <div style={{ display: "flex", alignItems: "center", gap: 12, marginBottom: 8 }}>
               <span style={{ width: 22, height: 1, background: "var(--v3-accent)" }} />
               <span style={{
                 fontFamily: "var(--v3-font-mono)", fontWeight: 400, fontSize: 10,
@@ -51,143 +112,102 @@ export default function AchievementsSection({ index, bootNonce }) {
             </div>
             <h2 style={{
               fontFamily: "var(--v3-font-display)", fontWeight: 340,
-              fontSize: "clamp(1.7rem, 2.8vw, 2.8rem)", fontOpticalSizing: "auto",
+              fontSize: "clamp(1.5rem, 1.1vw + 0.9rem, 2.3rem)", fontOpticalSizing: "auto",
               lineHeight: 1, letterSpacing: "-.02em", color: "var(--v3-fg)",
               margin: 0,
             }}>
               {META.heading}
             </h2>
-            {META.description && (
-              <p style={{
-                fontFamily: "var(--v3-font-ui)", fontWeight: 300,
-                fontSize: "clamp(.82rem, 0.7vw + 0.35rem, .88rem)", color: "var(--v3-fg-dim)",
-                lineHeight: 1.55, margin: "12px 0 0", maxWidth: "62ch",
-              }}>{META.description}</p>
-            )}
           </div>
         </V3Scan>
 
-        {/* Master-detail: index LEFT (30%), full detail RIGHT (70%). */}
-        {list.length > 0 && (
-          <V3Scan variant="circuit" delay={0.15} style={{ minWidth: 0, flex: 1 }}>
-            <div style={{
-              display: "grid",
-              gridTemplateColumns: "minmax(240px, 30%) 1fr",
-              gap: "clamp(16px, 1.6vw, 26px)",
-              border: "1px solid var(--v3-line)",
-              borderRadius: 6,
-              background: "color-mix(in oklab, var(--v3-bg-void) 50%, transparent)",
-              padding: "clamp(12px, 1.2vw, 20px) clamp(14px, 1.4vw, 22px)",
-              minWidth: 0, minHeight: 0, height: "100%",
-            }}>
-              {/* Master */}
-              <div
-                role="tablist"
-                aria-label="Milestones"
-                style={{ display: "flex", flexDirection: "column", gap: 2, minWidth: 0, overflow: "hidden" }}
-                onKeyDown={(e) => {
-                  if (e.key === "ArrowDown" || e.key === "j") { setActive(a => Math.min(list.length - 1, a + 1)); e.preventDefault(); }
-                  if (e.key === "ArrowUp"   || e.key === "k") { setActive(a => Math.max(0, a - 1)); e.preventDefault(); }
-                }}
-              >
-                {list.map((a, i) => {
-                  const isActive = i === active;
-                  return (
-                    <button
-                      key={i}
-                      role="tab"
-                      aria-selected={isActive}
-                      onClick={() => setActive(i)}
-                      style={{
-                        all: "unset", cursor: "pointer",
-                        display: "grid", gridTemplateColumns: "auto minmax(0, 1fr) auto",
-                        alignItems: "center", gap: 10,
-                        padding: "clamp(9px, 0.85vw, 13px) clamp(9px, 0.9vw, 12px)",
-                        borderLeft: isActive ? "2px solid var(--v3-accent)" : "2px solid transparent",
-                        background: isActive ? "color-mix(in oklab, var(--v3-accent) 8%, transparent)" : "transparent",
-                        borderRadius: "0 4px 4px 0",
-                        transition: "background .2s, border-color .2s",
-                        minWidth: 0,
-                      }}
-                    >
-                      <span aria-hidden style={{
-                        fontFamily: "var(--v3-font-mono)", fontWeight: 400,
-                        fontSize: "clamp(9px, 0.3vw + 6px, 11px)",
-                        color: isActive ? "var(--v3-accent)" : "var(--v3-fg-mute)",
-                        letterSpacing: ".14em",
-                        fontVariantNumeric: "tabular-nums",
-                      }}>{String(i + 1).padStart(2, "0")}</span>
-                      <div style={{ display: "flex", flexDirection: "column", gap: 3, minWidth: 0 }}>
-                        <span style={{
-                          fontFamily: "var(--v3-font-mono)", fontWeight: 400,
-                          fontSize: "clamp(8.5px, 0.3vw + 5px, 10px)",
-                          letterSpacing: ".22em", textTransform: "uppercase",
-                          color: isActive ? "var(--v3-accent)" : "var(--v3-fg-mute)",
-                        }}>{a.year ? `Logged ${a.year}` : "Milestone"}</span>
-                        <span style={{
-                          fontFamily: "var(--v3-font-display)", fontWeight: 340,
-                          fontSize: "clamp(0.88rem, 0.4vw + 0.55rem, 1.05rem)", lineHeight: 1.2,
-                          letterSpacing: "-.005em",
-                          color: isActive ? "var(--v3-fg)" : "var(--v3-fg-dim)",
-                          fontOpticalSizing: "auto",
-                          overflowWrap: "anywhere",
-                        }}>{a.title}</span>
-                      </div>
-                      <span aria-hidden style={{
-                        fontSize: "clamp(1rem, 0.5vw + 0.5rem, 1.3rem)",
-                        opacity: isActive ? 1 : 0.65, flexShrink: 0, lineHeight: 1,
-                      }}>{a.icon}</span>
-                    </button>
-                  );
-                })}
-              </div>
-
-              {/* Detail: full milestone view — no clamps */}
-              <div key={`ach-${active}`} style={{
-                display: "flex", flexDirection: "column",
-                gap: "clamp(12px, 1vw, 18px)",
-                minWidth: 0, overflow: "hidden",
-                position: "relative",
+        {/* Timeline */}
+        <V3Scan variant="circuit" delay={0.15} style={{ minWidth: 0, flex: 1, minHeight: 0, display: "flex" }}>
+          <div style={{
+            position: "relative",
+            width: "100%", height: "100%",
+            display: "grid",
+            gridTemplateColumns: "minmax(48px, auto) auto minmax(0, 1fr)",
+            columnGap: "clamp(14px, 1.5vw, 22px)",
+            alignContent: "space-between",
+            padding: "clamp(6px, 0.6vw, 10px) 0",
+            minWidth: 0, minHeight: 0,
+          }}>
+            {/* Constellation rule — SVG hairline that spans the full timeline
+                height. `pathLength` animates 0 → 1 so the line "draws in"
+                as the section arrives. Positioned absolutely inside the
+                grid; sits behind the nodes column, aligned to its center. */}
+            <svg aria-hidden viewBox="0 0 2 100" preserveAspectRatio="none"
+              style={{
+                position: "absolute",
+                top: 0, bottom: 0,
+                left: "calc(clamp(48px, 6vw, 68px) + clamp(14px, 1.5vw, 22px) / 2)",
+                width: 2, height: "100%",
+                pointerEvents: "none",
+                transform: "translateX(-1px)",
               }}>
-                {/* corner glow dot — circuit-junction cue */}
-                <span aria-hidden style={{
-                  position: "absolute", top: -4, left: -4, width: 6, height: 6,
-                  borderRadius: "50%", background: "var(--v3-accent)",
-                  boxShadow: "0 0 8px var(--v3-accent)",
-                }} />
+              <motion.line
+                x1="1" y1="0" x2="1" y2="100"
+                stroke="var(--v3-accent)" strokeWidth="0.8" opacity="0.6"
+                initial={reduce ? { pathLength: 1 } : { pathLength: 0 }}
+                whileInView={{ pathLength: 1 }}
+                viewport={{ once: true, amount: 0.2 }}
+                transition={{ duration: 1.6, ease: [0.22, 1, 0.36, 1], delay: 0.2 }}
+              />
+            </svg>
 
-                <div style={{
-                  fontFamily: "var(--v3-font-mono)", fontWeight: 400,
-                  fontSize: "clamp(9.5px, 0.35vw + 6px, 11.5px)",
-                  letterSpacing: ".22em", textTransform: "uppercase",
-                  color: "var(--v3-fg-mute)",
-                }}>{item?.year ? `Logged ${item.year}` : "Milestone"} · {String(active + 1).padStart(2, "0")} / {String(list.length).padStart(2, "0")}</div>
+            {list.map((a, i) => {
+              const metric = extractMetric(a.title);
+              /* Title without the leading metric — reads cleaner next to
+                 a circled numeral. E.g. "5-Iteration AI Agent" → "Iteration
+                 AI Agent"; "96% API Latency Reduction" → "API Latency
+                 Reduction". Keeps regular titles untouched. */
+              const cleanTitle = metric
+                ? a.title.replace(METRIC_RE, "").replace(/^[\s\-–—:·]+/, "").trim() || a.title
+                : a.title;
+              const nodeDelay = 0.35 + i * 0.08;
 
-                <div style={{ display: "flex", alignItems: "flex-start", gap: "clamp(12px, 1vw, 20px)", minWidth: 0 }}>
-                  <span aria-hidden style={{
-                    fontSize: "clamp(2rem, 1.6vw + 1rem, 3.2rem)",
-                    flexShrink: 0, lineHeight: 1,
-                  }}>{item?.icon}</span>
-                  <h3 style={{
-                    fontFamily: "var(--v3-font-display)", fontWeight: 340,
-                    fontSize: "clamp(1.4rem, 1vw + 0.7rem, 2.2rem)",
-                    lineHeight: 1.1, letterSpacing: "-.015em",
-                    color: "var(--v3-fg)", margin: 0, fontOpticalSizing: "auto",
-                    overflowWrap: "anywhere", minWidth: 0,
-                  }}>{item?.title}</h3>
+              return (
+                <div key={i} style={{ display: "contents" }}>
+                  {/* Year rail — engraved on the left */}
+                  <div style={{
+                    fontFamily: "var(--v3-font-mono)", fontWeight: 400,
+                    fontSize: "clamp(9.5px, 0.35vw + 6px, 11.5px)",
+                    letterSpacing: ".22em", color: "var(--v3-fg-mute)",
+                    fontVariantNumeric: "tabular-nums",
+                    display: "flex", alignItems: "center",
+                    justifyContent: "flex-end", textAlign: "right",
+                    minWidth: 0,
+                  }}>{a.year || ""}</div>
+                  {/* Node marker — circled numeral for metric titles, dot otherwise */}
+                  <div style={{ display: "flex", alignItems: "center", justifyContent: "center", zIndex: 1 }}>
+                    {metric
+                      ? <CircledNumeral value={metric} reduce={reduce} delay={nodeDelay} />
+                      : <Dot reduce={reduce} delay={nodeDelay} />}
+                  </div>
+                  {/* Body — title + description */}
+                  <div style={{ display: "flex", flexDirection: "column", gap: "clamp(2px, 0.25vw, 5px)", minWidth: 0, alignSelf: "center" }}>
+                    <span style={{
+                      fontFamily: "var(--v3-font-display)", fontWeight: 340,
+                      fontSize: "clamp(0.95rem, 0.45vw + 0.6rem, 1.2rem)",
+                      lineHeight: 1.2, letterSpacing: "-.005em",
+                      color: "var(--v3-fg)", fontOpticalSizing: "auto",
+                      overflowWrap: "anywhere",
+                    }}>{cleanTitle}</span>
+                    {a.description && (
+                      <span style={{
+                        fontFamily: "var(--v3-font-ui)", fontWeight: 300,
+                        fontSize: "clamp(0.76rem, 0.25vw + 0.55rem, 0.88rem)",
+                        color: "var(--v3-fg-dim)", lineHeight: 1.5,
+                        overflowWrap: "break-word",
+                      }}>{a.description}</span>
+                    )}
+                  </div>
                 </div>
-
-                <p style={{
-                  fontFamily: "var(--v3-font-ui)", fontWeight: 300,
-                  fontSize: "clamp(0.85rem, 0.35vw + 0.6rem, 1rem)",
-                  color: "var(--v3-fg-dim)", lineHeight: 1.6, margin: 0,
-                  maxWidth: "min(70ch, 100%)",
-                  overflowWrap: "break-word", hyphens: "auto",
-                }}>{item?.description}</p>
-              </div>
-            </div>
-          </V3Scan>
-        )}
+              );
+            })}
+          </div>
+        </V3Scan>
       </div>
     </V3Frame>
   );
