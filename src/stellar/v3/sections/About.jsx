@@ -28,14 +28,14 @@ const SUPPORT_A = heroContent?.stats?.[0] || { value: 31, suffix: "", label: "Se
 const SUPPORT_B = heroContent?.stats?.[1] || { value: 7, suffix: "+", label: "PMS / hardware vendors" };
 
 const Row = ({ label, children }) => (
-  <div style={{ padding: "8px 0", borderTop: "1px solid var(--v3-line)", display: "grid", gridTemplateColumns: "6rem 1fr", alignItems: "baseline", gap: 12 }}>
-    <span style={{ font: "400 10px var(--v3-font-mono)", letterSpacing: ".18em", textTransform: "uppercase", color: "var(--v3-fg-mute)" }}>{label}</span>
-    <span style={{ font: "340 .95rem var(--v3-font-display)", letterSpacing: "-.005em", color: "var(--v3-fg)", fontOpticalSizing: "auto" }}>{children}</span>
+  <div style={{ padding: "clamp(6px, 0.6vw, 10px) 0", borderTop: "1px solid var(--v3-line)", display: "grid", gridTemplateColumns: "minmax(4.5rem, 6rem) 1fr", alignItems: "baseline", gap: "clamp(8px, 1vw, 14px)", minWidth: 0 }}>
+    <span style={{ fontFamily: "var(--v3-font-mono)", fontWeight: 400, fontSize: "clamp(9px, 0.7vw + 0.15rem, 11px)", letterSpacing: ".18em", textTransform: "uppercase", color: "var(--v3-fg-mute)" }}>{label}</span>
+    <span style={{ fontFamily: "var(--v3-font-display)", fontWeight: 340, fontSize: "clamp(0.85rem, 0.75vw + 0.35rem, 1.05rem)", letterSpacing: "-.005em", color: "var(--v3-fg)", fontOpticalSizing: "auto", overflowWrap: "anywhere", minWidth: 0 }}>{children}</span>
   </div>
 );
 
 const Stat = ({ big, valueFontSize, value, suffix, label, sub, decimals }) => (
-  <div style={{ display: "flex", flexDirection: "column", gap: 10, alignItems: "flex-start" }}>
+  <div style={{ display: "flex", flexDirection: "column", gap: "clamp(6px, 0.7vw, 12px)", alignItems: "flex-start", minWidth: 0 }}>
     <div style={{
       fontFamily: "var(--v3-font-display)",
       fontWeight: 340,
@@ -44,26 +44,29 @@ const Stat = ({ big, valueFontSize, value, suffix, label, sub, decimals }) => (
       letterSpacing: "-.02em",
       color: "var(--v3-fg)",
       fontOpticalSizing: "auto",
+      overflowWrap: "anywhere",
     }}>
       <V3Ticker value={value} suffix={suffix || ""} decimals={decimals} />
     </div>
-    <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
+    <div style={{ display: "flex", flexDirection: "column", gap: 6, minWidth: 0 }}>
       <div style={{
         fontFamily: "var(--v3-font-mono)",
         fontWeight: 400,
-        fontSize: "clamp(11px, 0.95vw, 13px)",
+        fontSize: "clamp(10px, 0.55vw + 0.4rem, 13px)",
         letterSpacing: ".18em",
         textTransform: "uppercase",
         color: "var(--v3-fg-mute)",
+        overflowWrap: "anywhere",
       }}>{label}</div>
       {sub && (
         <div style={{
           fontFamily: "var(--v3-font-ui)",
           fontWeight: 300,
-          fontSize: "clamp(.88rem, 1.05vw, 1.02rem)",
+          fontSize: "clamp(.82rem, 0.55vw + 0.55rem, 1.02rem)",
           color: "var(--v3-fg-dim)",
           lineHeight: 1.5,
-          maxWidth: big ? "34ch" : "26ch",
+          maxWidth: big ? "min(34ch, 42vw)" : "min(26ch, 32vw)",
+          overflowWrap: "break-word",
         }}>{sub}</div>
       )}
     </div>
@@ -86,15 +89,17 @@ export default function AboutSection({ index, bootNonce }) {
       {/* LEFT — everything stacks here. maxWidth 50vw so the column ends BEFORE
           the sun's actual left edge (~54% x with V3_HALF_ANGLE=12° + frameShift
           0.42×1.0) — no horizontal overlap with the sphere. */}
-      <div style={{ gridArea: "left", display: "flex", flexDirection: "column", gap: 22, minWidth: 0, overflow: "hidden", maxWidth: "50vw" }}>
+      <div style={{ gridArea: "left", display: "flex", flexDirection: "column", gap: "clamp(16px, 1.6vw, 26px)", minWidth: 0, overflow: "hidden", maxWidth: "min(50vw, 780px)" }}>
         {/* Portrait + name */}
-        <V3DepthLayer depth={2} style={{ display: "flex", gap: 20, alignItems: "flex-end", minWidth: 0 }}>
+        <V3DepthLayer depth={2} style={{ display: "flex", gap: "clamp(14px, 1.4vw, 24px)", alignItems: "flex-end", minWidth: 0, flexWrap: "wrap" }}>
           <V3Scan variant="horizontal" delay={0.05}>
             <div
               role="img"
               aria-label={`Portrait of ${personalInfo.fullName}`}
               style={{
-                width: 200, height: 265, flexShrink: 0, borderRadius: 14,
+                width: "clamp(150px, 14vw, 220px)",
+                height: "clamp(200px, 18.5vw, 290px)",
+                flexShrink: 0, borderRadius: 14,
                 backgroundImage: `url(${heroPhoto})`,
                 backgroundSize: "180% auto",
                 backgroundPosition: "42% 8%",
@@ -105,22 +110,23 @@ export default function AboutSection({ index, bootNonce }) {
               }}
             />
           </V3Scan>
-          <div style={{ display: "flex", flexDirection: "column", justifyContent: "flex-end", minWidth: 0, height: 265, paddingBottom: 4 }}>
+          <div style={{ display: "flex", flexDirection: "column", justifyContent: "flex-end", minWidth: 0, flex: "1 1 240px", height: "clamp(200px, 18.5vw, 290px)", paddingBottom: 4 }}>
             <V3Scan variant="horizontal" delay={0.12}>
               <div style={{
                 fontFamily: "var(--v3-font-mono)",
                 fontWeight: 400,
-                fontSize: "clamp(13px, 1.1vw, 16px)",
+                fontSize: "clamp(11px, 0.7vw + 0.3rem, 16px)",
                 letterSpacing: ".24em",
                 textTransform: "uppercase",
                 color: "var(--v3-fg-dim)",
-                marginBottom: 14,
+                marginBottom: "clamp(8px, 1vw, 16px)",
+                overflowWrap: "anywhere",
               }}>
                 {personalInfo.role}
               </div>
             </V3Scan>
             <V3Scan variant="horizontal" delay={0.18}>
-              <h1 style={{ fontFamily: "var(--v3-font-display)", fontWeight: 340, fontSize: "clamp(2.6rem, 5vw, 4.6rem)", fontOpticalSizing: "auto", lineHeight: 0.92, letterSpacing: "-.03em", color: "var(--v3-fg)", margin: 0 }}>
+              <h1 style={{ fontFamily: "var(--v3-font-display)", fontWeight: 340, fontSize: "clamp(2rem, 1.5rem + 3.2vw, 4.6rem)", fontOpticalSizing: "auto", lineHeight: 0.92, letterSpacing: "-.03em", color: "var(--v3-fg)", margin: 0, overflowWrap: "break-word" }}>
                 {FIRST}
                 <span style={{ display: "block", fontStyle: "italic", fontWeight: 380, color: "var(--v3-accent)" }}>{LAST}</span>
               </h1>
@@ -130,12 +136,12 @@ export default function AboutSection({ index, bootNonce }) {
 
         {/* Overview lede */}
         <V3Scan variant="horizontal" delay={0.24}>
-          <div style={{ maxWidth: "70ch" }}>
-            <div style={{ display: "flex", alignItems: "center", gap: 12, marginBottom: 8 }}>
-              <span style={{ width: 22, height: 1, background: "var(--v3-accent)" }} />
-              <span style={{ font: "400 10px var(--v3-font-mono)", letterSpacing: ".28em", textTransform: "uppercase", color: "var(--v3-fg-mute)" }}>Overview</span>
+          <div style={{ maxWidth: "min(70ch, 48vw)", minWidth: 0 }}>
+            <div style={{ display: "flex", alignItems: "center", gap: "clamp(8px, 0.9vw, 14px)", marginBottom: 8, flexWrap: "wrap" }}>
+              <span style={{ width: "clamp(16px, 1.6vw, 26px)", height: 1, background: "var(--v3-accent)" }} />
+              <span style={{ fontFamily: "var(--v3-font-mono)", fontWeight: 400, fontSize: "clamp(9px, 0.6vw + 0.2rem, 11px)", letterSpacing: ".28em", textTransform: "uppercase", color: "var(--v3-fg-mute)" }}>Overview</span>
             </div>
-            <p style={{ font: "300 var(--v3-type-body) var(--v3-font-ui)", color: "var(--v3-fg-dim)", lineHeight: 1.6, margin: 0 }}>
+            <p style={{ fontFamily: "var(--v3-font-ui)", fontWeight: 300, fontSize: "var(--v3-type-body)", color: "var(--v3-fg-dim)", lineHeight: 1.6, margin: 0, overflowWrap: "break-word", hyphens: "auto" }}>
               {personalInfo.about}
             </p>
           </div>
@@ -143,30 +149,33 @@ export default function AboutSection({ index, bootNonce }) {
 
         {/* Availability + spec sheet, inline (side by side on desktop) */}
         <V3Scan variant="horizontal" delay={0.32}>
-          <div style={{ display: "grid", gridTemplateColumns: "auto 1fr", gap: "18px 32px", alignItems: "start", marginTop: 4 }}>
+          <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(min(200px, 100%), 1fr))", gap: "clamp(14px, 1.6vw, 24px) clamp(18px, 2.2vw, 36px)", alignItems: "start", marginTop: 4, minWidth: 0 }}>
             {/* Availability pill */}
-            <div>
-              <div style={{ font: "400 10px var(--v3-font-mono)", letterSpacing: ".22em", textTransform: "uppercase", color: "var(--v3-fg-mute)", marginBottom: 8 }}>
+            <div style={{ minWidth: 0 }}>
+              <div style={{ fontFamily: "var(--v3-font-mono)", fontWeight: 400, fontSize: "clamp(9px, 0.6vw + 0.2rem, 11px)", letterSpacing: ".22em", textTransform: "uppercase", color: "var(--v3-fg-mute)", marginBottom: 8 }}>
                 Availability
               </div>
               <div style={{
                 display: "inline-flex", alignItems: "center", gap: 10,
-                padding: "10px 16px",
+                padding: "clamp(8px, 0.8vw, 12px) clamp(12px, 1.4vw, 18px)",
                 border: "1px solid var(--v3-accent)",
                 borderRadius: 999,
                 background: "color-mix(in oklab, var(--v3-accent) 10%, transparent)",
-                font: "400 .82rem var(--v3-font-ui)",
+                fontFamily: "var(--v3-font-ui)",
+                fontWeight: 400,
+                fontSize: "clamp(.72rem, 0.5vw + 0.45rem, .88rem)",
                 letterSpacing: ".01em",
                 color: "var(--v3-fg)",
+                maxWidth: "100%",
               }}>
                 <span aria-hidden style={{
-                  width: 8, height: 8, borderRadius: "50%",
+                  width: 8, height: 8, borderRadius: "50%", flexShrink: 0,
                   background: "#7fe9cf",
                   boxShadow: "0 0 10px #7fe9cf, 0 0 0 3px color-mix(in oklab, #7fe9cf 24%, transparent)",
                 }} />
                 Open to roles
               </div>
-              <div style={{ font: "300 var(--v3-type-cap) var(--v3-font-ui)", color: "var(--v3-fg-mute)", marginTop: 8, lineHeight: 1.45, maxWidth: "24ch" }}>
+              <div style={{ fontFamily: "var(--v3-font-ui)", fontWeight: 300, fontSize: "var(--v3-type-cap)", color: "var(--v3-fg-mute)", marginTop: 8, lineHeight: 1.45, maxWidth: "min(24ch, 100%)", overflowWrap: "break-word" }}>
                 Responds within 24h · Remote or Pune
               </div>
             </div>
@@ -185,11 +194,11 @@ export default function AboutSection({ index, bootNonce }) {
       {/* BOTTOM — three stats in a single row (1 | 2 | 3), equal treatment,
           hairline separators between. Value size unified so they read as a
           spec sheet strip, not a hero + supporting. */}
-      <div style={{ gridArea: "bottom", display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: 0, alignItems: "stretch", minWidth: 0, paddingTop: 12, borderTop: "1px solid var(--v3-line)" }}>
+      <div style={{ gridArea: "bottom", display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(min(220px, 100%), 1fr))", gap: 0, alignItems: "stretch", minWidth: 0, paddingTop: "clamp(10px, 1.1vw, 16px)", borderTop: "1px solid var(--v3-line)" }}>
         <V3Scan variant="horizontal" delay={0.36}>
-          <div style={{ paddingRight: 24 }}>
+          <div style={{ paddingRight: "clamp(14px, 1.8vw, 28px)", minWidth: 0 }}>
             <Stat
-              valueFontSize="clamp(2.2rem, 4vw, 3rem)"
+              valueFontSize="clamp(1.8rem, 1.2rem + 2.4vw, 3rem)"
               value={HERO_STAT.value}
               suffix={HERO_STAT.suffix || "%"}
               label={HERO_STAT.label}
@@ -198,9 +207,9 @@ export default function AboutSection({ index, bootNonce }) {
           </div>
         </V3Scan>
         <V3Scan variant="horizontal" delay={0.4}>
-          <div style={{ borderLeft: "1px solid var(--v3-line)", paddingLeft: 24, paddingRight: 24 }}>
+          <div style={{ borderLeft: "1px solid var(--v3-line)", paddingLeft: "clamp(14px, 1.8vw, 28px)", paddingRight: "clamp(14px, 1.8vw, 28px)", minWidth: 0 }}>
             <Stat
-              valueFontSize="clamp(2.2rem, 4vw, 3rem)"
+              valueFontSize="clamp(1.8rem, 1.2rem + 2.4vw, 3rem)"
               value={SUPPORT_A.value}
               suffix={SUPPORT_A.suffix || ""}
               label={SUPPORT_A.label}
@@ -209,9 +218,9 @@ export default function AboutSection({ index, bootNonce }) {
           </div>
         </V3Scan>
         <V3Scan variant="horizontal" delay={0.44}>
-          <div style={{ borderLeft: "1px solid var(--v3-line)", paddingLeft: 24 }}>
+          <div style={{ borderLeft: "1px solid var(--v3-line)", paddingLeft: "clamp(14px, 1.8vw, 28px)", minWidth: 0 }}>
             <Stat
-              valueFontSize="clamp(2.2rem, 4vw, 3rem)"
+              valueFontSize="clamp(1.8rem, 1.2rem + 2.4vw, 3rem)"
               value={SUPPORT_B.value}
               suffix={SUPPORT_B.suffix || "+"}
               label={SUPPORT_B.label}
