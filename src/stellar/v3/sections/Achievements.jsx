@@ -6,20 +6,20 @@
  *    motion); years engraved on a vertical rule; big-metric nodes render
  *    as circled numerals."
  *
- * Layout:
- *   - Left rail: hairline vertical line (SVG). `pathLength` animates
- *     0 → 1 across ~1.6 s on section reveal — the "constellation line
- *     drawing in".
- *   - Along the rail: one node per achievement. If the title starts with
- *     a metric (`96%`, `5-Iteration`, `6+`, `3+`, `99.9%`), the node
- *     renders as a filled/circled numeral — Fraunces display, centered
- *     in an accent-outlined disc. Otherwise the node renders as a small
- *     accent dot with a subtle glow.
- *   - Left of each node: year "engraved" in mono, dim, tabular-nums.
- *   - Right of each node: title (DM Serif Display) + description
- *     (Satoshi) — no line clamp, prose is short per rule (a).
- *   - Whole timeline fits without scroll: 8 rows are distributed
- *     `space-between` inside a fixed-height column.
+ * Design principles (iteration 2 — after the "not looking good" note):
+ *   - EVERY node is a same-size circled numeral. Metric titles render
+ *     their metric (`96%`, `5`, `6+`, `3+`, `99.9%`); non-metric titles
+ *     render the row index (`01`, `04`, `06`, …). No small orphan dots
+ *     next to big circles.
+ *   - Metric circles: filled accent tint, brighter foreground.
+ *     Non-metric circles: outlined only. Subtle hierarchy without
+ *     jarring size mismatch.
+ *   - Rule: dim, thin — supports the constellation without dominating.
+ *   - Rows pack tightly on a real gap, not `space-between` — no dead
+ *     vertical voids. Timeline reads as a compact log, not a scattered
+ *     dot grid.
+ *   - Titles keep their original text (no metric stripping) so
+ *     "5-Iteration AI Agent" stays intact.
  */
 import { motion, useReducedMotion } from "motion/react";
 import { achievements, sectionMeta } from "../../../content";
@@ -39,45 +39,38 @@ const extractMetric = (title = "") => {
   return m ? m[1] : null;
 };
 
-const CircledNumeral = ({ value, active = true, reduce, delay = 0 }) => (
+const Marker = ({ value, isMetric, reduce, delay = 0 }) => (
   <motion.div
     initial={reduce ? false : { scale: 0.6, opacity: 0 }}
     whileInView={{ scale: 1, opacity: 1 }}
     viewport={{ once: true, amount: 0.3 }}
     transition={{ duration: 0.4, ease: [0.22, 1, 0.36, 1], delay }}
     style={{
-      width: "clamp(38px, 3.6vw, 54px)", height: "clamp(38px, 3.6vw, 54px)",
+      width: "clamp(34px, 3vw, 44px)", height: "clamp(34px, 3vw, 44px)",
       borderRadius: "50%",
-      border: "1.5px solid var(--v3-accent)",
-      background: active ? "color-mix(in oklab, var(--v3-accent) 16%, var(--v3-bg-void))" : "var(--v3-bg-void)",
+      border: `1.5px solid ${isMetric ? "var(--v3-accent)" : "var(--v3-line-strong)"}`,
+      background: isMetric
+        ? "color-mix(in oklab, var(--v3-accent) 18%, var(--v3-bg-void))"
+        : "var(--v3-bg-void)",
       display: "flex", alignItems: "center", justifyContent: "center",
-      boxShadow: "0 0 16px color-mix(in oklab, var(--v3-accent) 32%, transparent)",
+      boxShadow: isMetric
+        ? "0 0 14px color-mix(in oklab, var(--v3-accent) 28%, transparent)"
+        : "none",
       flexShrink: 0,
     }}
   >
     <span style={{
-      fontFamily: "var(--v3-font-display)", fontWeight: 340,
-      fontSize: "clamp(0.85rem, 0.6vw + 0.4rem, 1.15rem)",
-      lineHeight: 1, letterSpacing: "-.01em",
-      color: "var(--v3-fg)", fontOpticalSizing: "auto",
+      fontFamily: isMetric ? "var(--v3-font-display)" : "var(--v3-font-mono)",
+      fontWeight: isMetric ? 340 : 400,
+      fontSize: isMetric
+        ? "clamp(0.75rem, 0.5vw + 0.4rem, 1rem)"
+        : "clamp(0.62rem, 0.3vw + 0.4rem, 0.78rem)",
+      lineHeight: 1, letterSpacing: isMetric ? "-.01em" : ".14em",
+      color: isMetric ? "var(--v3-fg)" : "var(--v3-fg-mute)",
+      fontOpticalSizing: "auto",
       fontVariantNumeric: "tabular-nums",
     }}>{value}</span>
   </motion.div>
-);
-
-const Dot = ({ reduce, delay = 0 }) => (
-  <motion.span aria-hidden
-    initial={reduce ? false : { scale: 0.4, opacity: 0 }}
-    whileInView={{ scale: 1, opacity: 1 }}
-    viewport={{ once: true, amount: 0.3 }}
-    transition={{ duration: 0.35, ease: [0.22, 1, 0.36, 1], delay }}
-    style={{
-      width: 12, height: 12, borderRadius: "50%",
-      background: "var(--v3-accent)",
-      boxShadow: "0 0 10px var(--v3-accent)",
-      flexShrink: 0,
-    }}
-  />
 );
 
 export default function AchievementsSection({ index, bootNonce }) {
@@ -127,28 +120,35 @@ export default function AchievementsSection({ index, bootNonce }) {
             position: "relative",
             width: "100%", height: "100%",
             display: "grid",
-            gridTemplateColumns: "minmax(48px, auto) auto minmax(0, 1fr)",
+            gridTemplateColumns: "minmax(44px, auto) auto minmax(0, 1fr)",
             columnGap: "clamp(14px, 1.5vw, 22px)",
-            alignContent: "space-between",
-            padding: "clamp(6px, 0.6vw, 10px) 0",
+            rowGap: "clamp(10px, 1.1vw, 18px)",
+            alignContent: "start",
+            padding: "clamp(4px, 0.5vw, 8px) 0",
             minWidth: 0, minHeight: 0,
           }}>
-            {/* Constellation rule — SVG hairline that spans the full timeline
-                height. `pathLength` animates 0 → 1 so the line "draws in"
-                as the section arrives. Positioned absolutely inside the
-                grid; sits behind the nodes column, aligned to its center. */}
+            {/* Constellation rule — SVG hairline down the marker column's
+                center. `pathLength` animates 0 → 1 across ~1.6 s on view.
+                Only spans from the FIRST marker's center to the LAST
+                marker's center (not the whole grid height) so the rule
+                doesn't dangle past the top or bottom of the timeline.
+                Uses a fixed height % based on the row count — 100% at 0
+                items, `((N-1) / N) * 100%` for the actual span. */}
             <svg aria-hidden viewBox="0 0 2 100" preserveAspectRatio="none"
               style={{
                 position: "absolute",
-                top: 0, bottom: 0,
-                left: "calc(clamp(48px, 6vw, 68px) + clamp(14px, 1.5vw, 22px) / 2)",
-                width: 2, height: "100%",
+                /* Top and bottom offsets center the rule between the first
+                   and last marker rather than spanning the whole grid box. */
+                top: "clamp(17px, 1.5vw, 22px)",
+                bottom: "clamp(17px, 1.5vw, 22px)",
+                left: "calc(clamp(44px, 5.5vw, 60px) + clamp(14px, 1.5vw, 22px) / 2)",
+                width: 2,
                 pointerEvents: "none",
                 transform: "translateX(-1px)",
               }}>
               <motion.line
                 x1="1" y1="0" x2="1" y2="100"
-                stroke="var(--v3-accent)" strokeWidth="0.8" opacity="0.6"
+                stroke="var(--v3-line-strong)" strokeWidth="0.6"
                 initial={reduce ? { pathLength: 1 } : { pathLength: 0 }}
                 whileInView={{ pathLength: 1 }}
                 viewport={{ once: true, amount: 0.2 }}
@@ -158,47 +158,39 @@ export default function AchievementsSection({ index, bootNonce }) {
 
             {list.map((a, i) => {
               const metric = extractMetric(a.title);
-              /* Title without the leading metric — reads cleaner next to
-                 a circled numeral. E.g. "5-Iteration AI Agent" → "Iteration
-                 AI Agent"; "96% API Latency Reduction" → "API Latency
-                 Reduction". Keeps regular titles untouched. */
-              const cleanTitle = metric
-                ? a.title.replace(METRIC_RE, "").replace(/^[\s\-–—:·]+/, "").trim() || a.title
-                : a.title;
-              const nodeDelay = 0.35 + i * 0.08;
-
+              const nodeDelay = 0.35 + i * 0.07;
+              const displayValue = metric || String(i + 1).padStart(2, "0");
               return (
                 <div key={i} style={{ display: "contents" }}>
-                  {/* Year rail — engraved on the left */}
+                  {/* Year rail */}
                   <div style={{
                     fontFamily: "var(--v3-font-mono)", fontWeight: 400,
-                    fontSize: "clamp(9.5px, 0.35vw + 6px, 11.5px)",
+                    fontSize: "clamp(9px, 0.3vw + 6px, 11px)",
                     letterSpacing: ".22em", color: "var(--v3-fg-mute)",
                     fontVariantNumeric: "tabular-nums",
                     display: "flex", alignItems: "center",
                     justifyContent: "flex-end", textAlign: "right",
                     minWidth: 0,
                   }}>{a.year || ""}</div>
-                  {/* Node marker — circled numeral for metric titles, dot otherwise */}
+                  {/* Marker */}
                   <div style={{ display: "flex", alignItems: "center", justifyContent: "center", zIndex: 1 }}>
-                    {metric
-                      ? <CircledNumeral value={metric} reduce={reduce} delay={nodeDelay} />
-                      : <Dot reduce={reduce} delay={nodeDelay} />}
+                    <Marker value={displayValue} isMetric={!!metric} reduce={reduce} delay={nodeDelay} />
                   </div>
-                  {/* Body — title + description */}
-                  <div style={{ display: "flex", flexDirection: "column", gap: "clamp(2px, 0.25vw, 5px)", minWidth: 0, alignSelf: "center" }}>
+                  {/* Body */}
+                  <div style={{ display: "flex", flexDirection: "column", gap: 2, minWidth: 0, alignSelf: "center", paddingRight: "clamp(8px, 1vw, 20px)" }}>
                     <span style={{
                       fontFamily: "var(--v3-font-display)", fontWeight: 340,
-                      fontSize: "clamp(0.95rem, 0.45vw + 0.6rem, 1.2rem)",
+                      fontSize: "clamp(0.98rem, 0.5vw + 0.6rem, 1.25rem)",
                       lineHeight: 1.2, letterSpacing: "-.005em",
                       color: "var(--v3-fg)", fontOpticalSizing: "auto",
                       overflowWrap: "anywhere",
-                    }}>{cleanTitle}</span>
+                    }}>{a.title}</span>
                     {a.description && (
                       <span style={{
                         fontFamily: "var(--v3-font-ui)", fontWeight: 300,
-                        fontSize: "clamp(0.76rem, 0.25vw + 0.55rem, 0.88rem)",
+                        fontSize: "clamp(0.78rem, 0.3vw + 0.55rem, 0.9rem)",
                         color: "var(--v3-fg-dim)", lineHeight: 1.5,
+                        maxWidth: "min(58ch, 100%)",
                         overflowWrap: "break-word",
                       }}>{a.description}</span>
                     )}
