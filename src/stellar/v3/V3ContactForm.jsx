@@ -101,7 +101,15 @@ export default function V3ContactForm() {
       initial={reduce ? false : { opacity: 0, y: 8 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.5, ease }}
-      style={{ display: "flex", flexDirection: "column", gap: 18, marginTop: 22, marginBottom: 26, paddingBottom: 24, borderBottom: "1px solid var(--v3-line)" }}
+      style={{
+        display: "flex", flexDirection: "column", gap: 18,
+        marginTop: 22, marginBottom: 26, paddingBottom: 24,
+        borderBottom: "1px solid var(--v3-line)",
+        /* Fill the parent panel so the message textarea can grow to consume
+           the LEFT rail's remaining vertical space — otherwise the panel
+           has awkward dead space below the Send button. */
+        flex: 1, minHeight: 0,
+      }}
     >
       {/* Topic chips */}
       <div>
@@ -131,12 +139,24 @@ export default function V3ContactForm() {
         </div>
       </div>
 
-      <div>
+      {/* Message row grows to fill the form's remaining vertical space so the
+          panel doesn't have dead area below the Send button. */}
+      <div style={{ display: "flex", flexDirection: "column", flex: 1, minHeight: 0 }}>
         <div style={{ display: "flex", alignItems: "baseline", justifyContent: "space-between" }}>
           <label style={label} htmlFor="v3-cmsg">Message</label>
           <span style={{ font: "400 10px var(--v3-font-mono)", color: "var(--v3-fg-mute)" }}>{remaining}</span>
         </div>
-        <textarea id="v3-cmsg" style={{ ...inputStyle, minHeight: 100, resize: "vertical", lineHeight: 1.5 }} placeholder={contactContent.placeholders.message} value={form.message} onChange={setField("message")} required />
+        <textarea
+          id="v3-cmsg"
+          style={{
+            ...inputStyle,
+            flex: 1, minHeight: 100, resize: "vertical", lineHeight: 1.5,
+          }}
+          placeholder={contactContent.placeholders.message}
+          value={form.message}
+          onChange={setField("message")}
+          required
+        />
       </div>
 
       {status.note && (
