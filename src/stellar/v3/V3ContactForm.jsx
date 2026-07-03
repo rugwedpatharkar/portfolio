@@ -208,6 +208,12 @@ export default function V3ContactForm() {
           id="v3-cmsg"
           style={{
             ...inputStyle,
+            /* `all: unset` in inputStyle resets display to `inline` — on
+               an inline box, `height` is ignored, so the textarea
+               collapsed to its 2-row default and the button row below
+               visually overlapped its area. Explicit `display: block`
+               restores box-model sizing. */
+            display: "block",
             height: 120, resize: "vertical", lineHeight: 1.5,
           }}
           placeholder={contactContent.placeholders.message}
