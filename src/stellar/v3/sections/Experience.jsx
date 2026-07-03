@@ -20,7 +20,7 @@
  * not the dossier. This preserves the "one held page" cinematic principle from the
  * plan without cramming.
  */
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { experiences, sectionMeta } from "../../../content";
 import { V3Frame, V3Scan } from "../primitives";
 
@@ -28,7 +28,13 @@ const META = sectionMeta.experience;
 
 export default function ExperienceSection({ index, bootNonce }) {
   const [active, setActive] = useState(0);
+  const [activeCat, setActiveCat] = useState(0);
   const exp = experiences[active] || experiences[0];
+  const cats = exp.categories || [];
+  const cat = cats[activeCat] || cats[0];
+
+  // Reset category selection when switching roles
+  useEffect(() => { setActiveCat(0); }, [active]);
 
   return (
     <V3Frame
@@ -194,66 +200,116 @@ export default function ExperienceSection({ index, bootNonce }) {
           </V3Scan>
         )}
 
-        {/* Categories — mono heading + up to 2 bullets each. auto-fit grid so all
-            of Upswing's 5 tracks flow naturally: 3 cols on wide viewports, 2 on
-            medium, 1 on narrow / heavily-zoomed. Replaces the previous hard-coded
-            1/2/3 col ternary which snapped to 3 cols even at 1280 zoomed 125%
-            where each column was <180px. */}
-        <V3Scan variant="horizontal" delay={0.3} key={`cats-${active}`}>
-          <div style={{
-            display: "grid",
-            gridTemplateColumns: "repeat(auto-fit, minmax(clamp(200px, 18vw, 260px), 1fr))",
-            columnGap: "clamp(16px, 1.6vw, 28px)", rowGap: "clamp(14px, 1.2vw, 20px)",
-          }}>
-            {(exp.categories || []).map((c, i) => {
-              /* Show ALL bullets — user asked for no truncation. LEFT column
-                 overflow: auto catches anything that can't fit. */
-              const shown = c.points || [];
-              const extra = 0;
-              return (
-                <div key={i} style={{ minWidth: 0 }}>
-                  <div style={{
-                    display: "flex", alignItems: "center", gap: 8, marginBottom: 6,
-                    minWidth: 0,
-                  }}>
-                    <span aria-hidden style={{
-                      fontFamily: "var(--v3-font-mono)", fontWeight: 400, fontSize: 9,
-                      color: "var(--v3-accent)", flexShrink: 0,
-                    }}>{String(i + 1).padStart(2, "0")}</span>
-                    <span style={{
-                      fontFamily: "var(--v3-font-mono)", fontWeight: 400, fontSize: "clamp(9px, 0.3vw + 7px, 11px)",
-                      letterSpacing: ".18em", textTransform: "uppercase", color: "var(--v3-fg-mute)",
-                      minWidth: 0, overflowWrap: "anywhere",
-                    }}>{c.name}</span>
-                  </div>
-                  <ul style={{ listStyle: "none", padding: 0, margin: 0, display: "flex", flexDirection: "column", gap: 5, minWidth: 0 }}>
-                    {shown.map((p, k) => (
-                      <li key={k} style={{
-                        fontFamily: "var(--v3-font-ui)", fontWeight: 300,
-                        fontSize: "clamp(0.72rem, 0.35vw + 0.55rem, 0.9rem)",
-                        color: "var(--v3-fg-dim)", lineHeight: 1.4,
-                        paddingLeft: 12, position: "relative",
-                        minWidth: 0, overflowWrap: "anywhere",
-                      }}>
-                        <span aria-hidden style={{ position: "absolute", left: 0, top: "0.75em", width: 6, height: 1, background: "var(--v3-line-strong)" }} />
-                        {p}
-                      </li>
-                    ))}
-                    {extra > 0 && (
-                      <li style={{
-                        fontFamily: "var(--v3-font-mono)", fontWeight: 400, fontSize: 9,
-                        letterSpacing: ".18em", textTransform: "uppercase",
-                        color: "var(--v3-fg-mute)", paddingLeft: 12, marginTop: 2,
-                      }}>
-                        + {extra} more
-                      </li>
-                    )}
-                  </ul>
-                </div>
-              );
-            })}
-          </div>
-        </V3Scan>
+        {/* Categories — master-detail like Skills/Projects.
+            LEFT (30%): clickable category index. Numeral + category name
+              (DM Serif) + bullet count. Active row: 2px accent left-border
+              + soft accent tint.
+            RIGHT (70%): active category's ALL bullets — hairline-tick list,
+              no clamp, no "+N more".
+            Keyboard nav: ArrowUp/Down + J/K, same as Skills. */}
+        {cats.length > 0 && (
+          <V3Scan variant="horizontal" delay={0.3} key={`cats-${active}`} style={{ minWidth: 0 }}>
+            <div style={{
+              display: "grid",
+              gridTemplateColumns: "minmax(220px, 30%) 1fr",
+              gap: "clamp(16px, 1.6vw, 26px)",
+              border: "1px solid var(--v3-line)",
+              borderRadius: 6,
+              background: "color-mix(in oklab, var(--v3-bg-void) 50%, transparent)",
+              padding: "clamp(12px, 1.2vw, 20px) clamp(14px, 1.4vw, 22px)",
+              minWidth: 0,
+            }}>
+              {/* Master: category index */}
+              <div
+                role="tablist"
+                aria-label="Experience categories"
+                style={{ display: "flex", flexDirection: "column", gap: 2, minWidth: 0 }}
+                onKeyDown={(e) => {
+                  if (e.key === "ArrowDown" || e.key === "j") { setActiveCat(a => Math.min(cats.length - 1, a + 1)); e.preventDefault(); }
+                  if (e.key === "ArrowUp"   || e.key === "k") { setActiveCat(a => Math.max(0, a - 1)); e.preventDefault(); }
+                }}
+              >
+                {cats.map((c, i) => {
+                  const isActive = i === activeCat;
+                  const count = (c.points || []).length;
+                  return (
+                    <button
+                      key={c.name + i}
+                      role="tab"
+                      aria-selected={isActive}
+                      onClick={() => setActiveCat(i)}
+                      style={{
+                        all: "unset", cursor: "pointer",
+                        display: "grid", gridTemplateColumns: "auto minmax(0, 1fr) auto",
+                        alignItems: "center", gap: 10,
+                        padding: "clamp(8px, 0.8vw, 12px) clamp(8px, 0.9vw, 12px)",
+                        borderLeft: isActive ? "2px solid var(--v3-accent)" : "2px solid transparent",
+                        background: isActive ? "color-mix(in oklab, var(--v3-accent) 8%, transparent)" : "transparent",
+                        borderRadius: "0 4px 4px 0",
+                        transition: "background .2s, border-color .2s",
+                        minWidth: 0,
+                      }}
+                    >
+                      <span aria-hidden style={{
+                        fontFamily: "var(--v3-font-mono)", fontWeight: 400,
+                        fontSize: "clamp(9px, 0.3vw + 6px, 11px)",
+                        color: isActive ? "var(--v3-accent)" : "var(--v3-fg-mute)",
+                        letterSpacing: ".14em",
+                        fontVariantNumeric: "tabular-nums",
+                      }}>{String(i + 1).padStart(2, "0")}</span>
+                      <span style={{
+                        fontFamily: "var(--v3-font-display)", fontWeight: 340,
+                        fontSize: "clamp(0.88rem, 0.4vw + 0.55rem, 1.05rem)", lineHeight: 1.2,
+                        letterSpacing: "-.005em",
+                        color: isActive ? "var(--v3-fg)" : "var(--v3-fg-dim)",
+                        fontOpticalSizing: "auto",
+                        overflowWrap: "anywhere",
+                      }}>{c.name}</span>
+                      <span style={{
+                        fontFamily: "var(--v3-font-mono)", fontWeight: 400, fontSize: 10,
+                        letterSpacing: ".18em",
+                        color: isActive ? "var(--v3-accent)" : "var(--v3-fg-mute)",
+                        fontVariantNumeric: "tabular-nums", flexShrink: 0,
+                      }}>{String(count).padStart(2, "0")}</span>
+                    </button>
+                  );
+                })}
+              </div>
+
+              {/* Detail: active category's bullets — no truncation */}
+              <div key={`cat-${active}-${activeCat}`} style={{ display: "flex", flexDirection: "column", gap: "clamp(10px, 1vw, 16px)", minWidth: 0 }}>
+                <div style={{
+                  fontFamily: "var(--v3-font-mono)", fontWeight: 400, fontSize: "clamp(9px, 0.3vw + 6px, 11px)",
+                  letterSpacing: ".22em", textTransform: "uppercase", color: "var(--v3-fg-mute)",
+                }}>Track · {String(activeCat + 1).padStart(2, "0")}</div>
+                <h3 style={{
+                  fontFamily: "var(--v3-font-display)", fontWeight: 340,
+                  fontSize: "clamp(1.1rem, 0.7vw + 0.6rem, 1.6rem)",
+                  lineHeight: 1.15, letterSpacing: "-.005em",
+                  color: "var(--v3-fg)", margin: 0, fontOpticalSizing: "auto",
+                  overflowWrap: "anywhere",
+                }}>{cat?.name}</h3>
+                <ul style={{ listStyle: "none", padding: 0, margin: 0, display: "flex", flexDirection: "column", gap: "clamp(6px, 0.6vw, 10px)", minWidth: 0 }}>
+                  {(cat?.points || []).map((p, k) => (
+                    <li key={k} style={{
+                      fontFamily: "var(--v3-font-ui)", fontWeight: 300,
+                      fontSize: "clamp(0.78rem, 0.3vw + 0.55rem, 0.92rem)",
+                      color: "var(--v3-fg-dim)", lineHeight: 1.5,
+                      paddingLeft: 16, position: "relative",
+                      overflowWrap: "anywhere",
+                    }}>
+                      <span aria-hidden style={{
+                        position: "absolute", left: 0, top: "0.65em",
+                        width: 8, height: 1, background: "var(--v3-line-strong)",
+                      }} />
+                      {p}
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            </div>
+          </V3Scan>
+        )}
 
         {/* Tech chip rail — moved inside LEFT since we retired the BOTTOM row.
             Sits below categories inside the scrollable LEFT column. */}
