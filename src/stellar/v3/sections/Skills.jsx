@@ -14,57 +14,82 @@
  * Category-cycle keyboard support: ArrowUp/Down or J/K move between rows.
  */
 import { useState } from "react";
+import { motion, useReducedMotion } from "motion/react";
 import { skills, sectionMeta } from "../../../content";
 import { V3Frame, V3Scan } from "../primitives";
 
 const META = sectionMeta.skills || { sub: "What I Bring", heading: "Technical Skills" };
 
-const SkillBar = ({ name, level, delay }) => (
-  <V3Scan variant="orbit" delay={delay}>
-    <div style={{
-      display: "grid", gridTemplateColumns: "1fr auto",
-      gap: "clamp(8px, 0.8vw, 14px)", alignItems: "center",
-      padding: "clamp(6px, 0.7vh, 10px) 0",
-    }}>
-      <div style={{ minWidth: 0, display: "flex", flexDirection: "column", gap: "clamp(5px, 0.5vh, 8px)" }}>
-        <span style={{
-          fontFamily: "var(--v3-font-mono)", fontWeight: 400,
-          /* Scales with both viewport width (vw) AND root em (zoom-aware).
-             Floor .9rem keeps mono legible at 75% zoom / 1280px. */
-          fontSize: "clamp(0.9rem, 0.6vw + 0.5rem, 1.2rem)",
-          color: "var(--v3-fg)", letterSpacing: ".02em",
-          overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap",
-        }}>{name}</span>
-        <div style={{
-          position: "relative",
-          /* Bar height scales gently with viewport height so it reads on both
-             tall (1440p, zoomed-out) and short (zoomed-in, small laptop) viewports. */
-          height: "clamp(3px, 0.3vh, 5px)",
-          background: "var(--v3-line)", borderRadius: 999, overflow: "hidden",
-        }}>
-          <div style={{
-            position: "absolute", inset: 0,
-            width: `${level}%`, background: "var(--v3-accent)",
-            boxShadow: "0 0 10px color-mix(in oklab, var(--v3-accent) 60%, transparent)",
-            /* Smooth width transition on category swap so bars re-fill fluidly. */
-            transition: "width .6s ease",
-          }} />
-        </div>
-      </div>
+/*
+ * SkillBar — signature moment for the Skills section.
+ *
+ * Per the taste-stack table: "Progress bars fill on category switch
+ * with a staggered wave (each bar delays 30 ms from the last);
+ * numerical proficiency in tabular-nums."
+ *
+ * The fill uses scaleX (transform-only, GPU-cheap) with
+ * `transform-origin: left`. Container remounts on category switch
+ * (key={activeName}) so the initial scaleX: 0 fires fresh each time
+ * and the whole cascade re-plays.
+ *
+ * Proficiency % renders with a micro-tick glyph (▸) prefix in accent
+ * color, then the numeric value in tabular-nums.
+ */
+const SkillBar = ({ name, level, delay, reduce }) => (
+  <div style={{
+    display: "grid", gridTemplateColumns: "1fr auto",
+    gap: "clamp(8px, 0.8vw, 14px)", alignItems: "center",
+    padding: "clamp(6px, 0.7vh, 10px) 0",
+  }}>
+    <div style={{ minWidth: 0, display: "flex", flexDirection: "column", gap: "clamp(5px, 0.5vh, 8px)" }}>
       <span style={{
         fontFamily: "var(--v3-font-mono)", fontWeight: 400,
-        fontSize: "clamp(11px, 0.35vw + 0.5rem, 15px)", letterSpacing: ".08em",
-        fontVariantNumeric: "tabular-nums",
-        color: "var(--v3-fg-mute)",
-      }}>{level}%</span>
+        fontSize: "clamp(0.9rem, 0.6vw + 0.5rem, 1.2rem)",
+        color: "var(--v3-fg)", letterSpacing: ".02em",
+        overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap",
+      }}>{name}</span>
+      <div style={{
+        position: "relative",
+        height: "clamp(3px, 0.3vh, 5px)",
+        background: "var(--v3-line)", borderRadius: 999, overflow: "hidden",
+      }}>
+        <motion.div
+          initial={reduce ? { scaleX: level / 100 } : { scaleX: 0 }}
+          animate={{ scaleX: level / 100 }}
+          transition={{
+            duration: 0.55,
+            ease: [0.22, 1, 0.36, 1],
+            delay: reduce ? 0 : delay,
+          }}
+          style={{
+            position: "absolute", inset: 0,
+            width: "100%",
+            transformOrigin: "left center",
+            background: "var(--v3-accent)",
+            boxShadow: "0 0 10px color-mix(in oklab, var(--v3-accent) 60%, transparent)",
+            willChange: "transform",
+          }}
+        />
+      </div>
     </div>
-  </V3Scan>
+    <span style={{
+      display: "inline-flex", alignItems: "baseline", gap: 4,
+      fontFamily: "var(--v3-font-mono)", fontWeight: 400,
+      fontSize: "clamp(11px, 0.35vw + 0.5rem, 15px)", letterSpacing: ".08em",
+      fontVariantNumeric: "tabular-nums",
+      color: "var(--v3-fg-mute)",
+    }}>
+      <span aria-hidden style={{ color: "var(--v3-accent)", fontSize: "0.85em" }}>▸</span>
+      {level}%
+    </span>
+  </div>
 );
 
 export default function SkillsSection({ index, bootNonce }) {
   const cats = Object.entries(skills);
   const [active, setActive] = useState(0);
   const [activeName, activeList] = cats[active] || cats[0];
+  const reduce = useReducedMotion();
 
   return (
     <V3Frame
@@ -198,7 +223,14 @@ export default function SkillsSection({ index, bootNonce }) {
               }}>{activeName} · {activeList.length}</span>
             </div>
             {activeList.map((s, k) => (
-              <SkillBar key={`${activeName}-${s.name}`} name={s.name} level={s.level} delay={0.05 + k * 0.03} />
+              <SkillBar
+                key={`${activeName}-${s.name}`}
+                name={s.name}
+                level={s.level}
+                /* 30 ms cascade top → bottom per the taste-stack table. */
+                delay={k * 0.03}
+                reduce={reduce}
+              />
             ))}
           </div>
         </div>
