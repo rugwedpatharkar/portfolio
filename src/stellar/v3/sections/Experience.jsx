@@ -259,7 +259,13 @@ export default function ExperienceSection({ index, bootNonce }) {
               no clamp, no "+N more".
             Keyboard nav: ArrowUp/Down + J/K, same as Skills. */}
         {cats.length > 0 && (
-          <V3Scan variant="horizontal" delay={0.3} key={`cats-${active}`} style={{ minWidth: 0 }}>
+          <V3Scan variant="horizontal" delay={0.3} key={`cats-${active}`} style={{ minWidth: 0, flex: 1, minHeight: 0, display: "flex" }}>
+            {/* Fixed-height card — flex:1 on the V3Scan wrapper lets this
+                consume the remaining vertical of the LEFT column, so the
+                card height stays constant regardless of which category is
+                active. Content aligns to the top; extra vertical shows as
+                empty space below. Prevents the card from breathing 2→4→2
+                bullets and shifting the Stack rail up/down. */}
             <div style={{
               display: "grid",
               gridTemplateColumns: "minmax(220px, 30%) 1fr",
@@ -269,6 +275,8 @@ export default function ExperienceSection({ index, bootNonce }) {
               background: "color-mix(in oklab, var(--v3-bg-void) 50%, transparent)",
               padding: "clamp(8px, 0.8vw, 14px) clamp(12px, 1.2vw, 18px)",
               minWidth: 0,
+              width: "100%", height: "100%",
+              alignContent: "start",
             }}>
               {/* Master: category index */}
               <div
