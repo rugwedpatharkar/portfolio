@@ -30,7 +30,7 @@ const SUPPORT_B = heroContent?.stats?.[1] || { value: 7, suffix: "+", label: "PM
 const Row = ({ label, children }) => (
   <div style={{ padding: "clamp(6px, 0.6vw, 10px) 0", borderTop: "1px solid var(--v3-line)", display: "grid", gridTemplateColumns: "minmax(4.5rem, 6rem) 1fr", alignItems: "baseline", gap: "clamp(8px, 1vw, 14px)", minWidth: 0 }}>
     <span style={{ fontFamily: "var(--v3-font-mono)", fontWeight: 400, fontSize: "clamp(9px, 0.7vw + 0.15rem, 11px)", letterSpacing: ".18em", textTransform: "uppercase", color: "var(--v3-fg-mute)" }}>{label}</span>
-    <span style={{ fontFamily: "var(--v3-font-display)", fontWeight: 340, fontSize: "clamp(0.85rem, 0.75vw + 0.35rem, 1.05rem)", letterSpacing: "-.005em", color: "var(--v3-fg)", fontOpticalSizing: "auto", overflowWrap: "anywhere", minWidth: 0 }}>{children}</span>
+    <span style={{ fontFamily: "var(--v3-font-display)", fontWeight: 340, fontSize: "clamp(0.85rem, 0.75vw + 0.35rem, .92rem)", letterSpacing: "-.005em", color: "var(--v3-fg)", fontOpticalSizing: "auto", overflowWrap: "anywhere", minWidth: 0 }}>{children}</span>
   </div>
 );
 
@@ -62,7 +62,7 @@ const Stat = ({ big, valueFontSize, value, suffix, label, sub, decimals }) => (
         <div style={{
           fontFamily: "var(--v3-font-ui)",
           fontWeight: 300,
-          fontSize: "clamp(.82rem, 0.55vw + 0.55rem, 1.02rem)",
+          fontSize: "clamp(.82rem, 0.55vw + 0.55rem, .9rem)",
           color: "var(--v3-fg-dim)",
           lineHeight: 1.5,
           maxWidth: big ? "min(34ch, 42vw)" : "min(26ch, 32vw)",
@@ -89,16 +89,16 @@ export default function AboutSection({ index, bootNonce }) {
       {/* LEFT — everything stacks here. maxWidth 50vw so the column ends BEFORE
           the sun's actual left edge (~54% x with V3_HALF_ANGLE=12° + frameShift
           0.42×1.0) — no horizontal overlap with the sphere. */}
-      <div style={{ gridArea: "left", display: "flex", flexDirection: "column", gap: "clamp(16px, 1.6vw, 26px)", minWidth: 0, overflow: "auto", maxWidth: "min(50vw, 780px)" }}>
+      <div style={{ gridArea: "left", display: "flex", flexDirection: "column", gap: "clamp(10px, 0.9vw, 16px)", minWidth: 0, overflow: "auto", maxWidth: "min(50vw, 780px)" }}>
         {/* Portrait + name */}
-        <V3DepthLayer depth={2} style={{ display: "flex", gap: "clamp(14px, 1.4vw, 24px)", alignItems: "flex-end", minWidth: 0, flexWrap: "wrap" }}>
+        <V3DepthLayer depth={2} style={{ display: "flex", gap: "clamp(12px, 1.1vw, 18px)", alignItems: "flex-end", minWidth: 0, flexWrap: "wrap" }}>
           <V3Scan variant="horizontal" delay={0.05}>
             <div
               role="img"
               aria-label={`Portrait of ${personalInfo.fullName}`}
               style={{
-                width: "clamp(150px, 14vw, 220px)",
-                height: "clamp(200px, 18.5vw, 290px)",
+                width: "clamp(110px, 9vw, 160px)",
+                height: "clamp(146px, 12vw, 212px)",
                 flexShrink: 0, borderRadius: 14,
                 backgroundImage: `url(${heroPhoto})`,
                 backgroundSize: "180% auto",
@@ -110,23 +110,23 @@ export default function AboutSection({ index, bootNonce }) {
               }}
             />
           </V3Scan>
-          <div style={{ display: "flex", flexDirection: "column", justifyContent: "flex-end", minWidth: 0, flex: "1 1 240px", height: "clamp(200px, 18.5vw, 290px)", paddingBottom: 4 }}>
+          <div style={{ display: "flex", flexDirection: "column", justifyContent: "flex-end", minWidth: 0, flex: "1 1 220px", height: "clamp(146px, 12vw, 212px)", paddingBottom: 2 }}>
             <V3Scan variant="horizontal" delay={0.12}>
               <div style={{
                 fontFamily: "var(--v3-font-mono)",
                 fontWeight: 400,
-                fontSize: "clamp(11px, 0.7vw + 0.3rem, 16px)",
+                fontSize: "clamp(10px, 0.5vw + 0.35rem, 13px)",
                 letterSpacing: ".24em",
                 textTransform: "uppercase",
                 color: "var(--v3-fg-dim)",
-                marginBottom: "clamp(8px, 1vw, 16px)",
+                marginBottom: "clamp(4px, 0.5vw, 8px)",
                 overflowWrap: "anywhere",
               }}>
                 {personalInfo.role}
               </div>
             </V3Scan>
             <V3Scan variant="horizontal" delay={0.18}>
-              <h1 style={{ fontFamily: "var(--v3-font-display)", fontWeight: 340, fontSize: "clamp(2rem, 1.5rem + 3.2vw, 4.6rem)", fontOpticalSizing: "auto", lineHeight: 0.92, letterSpacing: "-.03em", color: "var(--v3-fg)", margin: 0, overflowWrap: "break-word" }}>
+              <h1 style={{ fontFamily: "var(--v3-font-display)", fontWeight: 340, fontSize: "clamp(1.7rem, 1.2rem + 2vw, 3.2rem)", fontOpticalSizing: "auto", lineHeight: 0.95, letterSpacing: "-.03em", color: "var(--v3-fg)", margin: 0, overflowWrap: "break-word" }}>
                 {FIRST}
                 <span style={{ display: "block", fontStyle: "italic", fontWeight: 380, color: "var(--v3-accent)" }}>{LAST}</span>
               </h1>
@@ -141,7 +141,14 @@ export default function AboutSection({ index, bootNonce }) {
               <span style={{ width: "clamp(16px, 1.6vw, 26px)", height: 1, background: "var(--v3-accent)" }} />
               <span style={{ fontFamily: "var(--v3-font-mono)", fontWeight: 400, fontSize: "clamp(9px, 0.6vw + 0.2rem, 11px)", letterSpacing: ".28em", textTransform: "uppercase", color: "var(--v3-fg-mute)" }}>Overview</span>
             </div>
-            <p style={{ fontFamily: "var(--v3-font-ui)", fontWeight: 300, fontSize: "var(--v3-type-body)", color: "var(--v3-fg-dim)", lineHeight: 1.6, margin: 0, overflowWrap: "break-word", hyphens: "auto" }}>
+            <p style={{
+              fontFamily: "var(--v3-font-ui)", fontWeight: 300,
+              fontSize: "clamp(.85rem, 0.5vw + 0.5rem, .88rem)",
+              color: "var(--v3-fg-dim)", lineHeight: 1.55, margin: 0,
+              overflowWrap: "break-word", hyphens: "auto",
+              display: "-webkit-box", WebkitLineClamp: 4, WebkitBoxOrient: "vertical",
+              overflow: "hidden",
+            }}>
               {personalInfo.about}
             </p>
           </div>
@@ -163,7 +170,7 @@ export default function AboutSection({ index, bootNonce }) {
                 background: "color-mix(in oklab, var(--v3-accent) 10%, transparent)",
                 fontFamily: "var(--v3-font-ui)",
                 fontWeight: 400,
-                fontSize: "clamp(.72rem, 0.5vw + 0.45rem, .88rem)",
+                fontSize: "clamp(.72rem, 0.5vw + 0.45rem, .78rem)",
                 letterSpacing: ".01em",
                 color: "var(--v3-fg)",
                 maxWidth: "100%",

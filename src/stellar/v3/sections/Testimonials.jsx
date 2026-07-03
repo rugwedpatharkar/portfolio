@@ -68,7 +68,7 @@ const QuoteRow = ({ i, t, delay }) => (
           fontFamily: "var(--v3-font-ui)", fontWeight: 300,
           /* Rem-anchored floor keeps quote legible at 75% zoom; vw scales
              at 1x; ceiling holds proportion at 2560. */
-          fontSize: "clamp(0.85rem, 0.6vw + 0.45rem, 1.15rem)",
+          fontSize: "clamp(0.85rem, 0.6vw + 0.45rem, .98rem)",
           color: "var(--v3-fg)", lineHeight: 1.5, margin: 0,
           display: "-webkit-box", WebkitLineClamp: 4, WebkitBoxOrient: "vertical",
           overflow: "hidden",

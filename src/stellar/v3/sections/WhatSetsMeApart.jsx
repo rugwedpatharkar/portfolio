@@ -61,7 +61,7 @@ const PillarRow = ({ i, p, delay }) => (
       gridTemplateColumns: "auto 1fr",
       gap: "clamp(12px, 1.2vw, 22px)",
       alignItems: "flex-start",
-      padding: "clamp(10px, 1.2vw, 18px) 4px",
+      padding: "clamp(6px, 0.7vw, 10px) 4px",
       borderTop: i > 0 ? "1px solid var(--v3-line)" : "none",
       minWidth: 0,
     }}>
@@ -79,7 +79,7 @@ const PillarRow = ({ i, p, delay }) => (
       <div style={{ display: "flex", flexDirection: "column", gap: "clamp(4px, 0.4vw, 8px)", minWidth: 0 }}>
         <h3 style={{
           fontFamily: "var(--v3-font-display)", fontWeight: 340,
-          fontSize: "clamp(1rem, 0.85vw + 0.5rem, 1.5rem)",
+          fontSize: "clamp(0.98rem, 0.5vw + 0.55rem, 1.2rem)",
           fontOpticalSizing: "auto",
           lineHeight: 1.15, letterSpacing: "-.005em",
           color: "var(--v3-fg)", margin: 0,
@@ -87,7 +87,7 @@ const PillarRow = ({ i, p, delay }) => (
         }}>{p.title}</h3>
         <p style={{
           fontFamily: "var(--v3-font-ui)", fontWeight: 300,
-          fontSize: "clamp(0.78rem, 0.55vw + 0.4rem, 1.05rem)",
+          fontSize: "clamp(0.78rem, 0.55vw + 0.4rem, .92rem)",
           color: "var(--v3-fg-dim)", lineHeight: 1.5, margin: 0,
           overflowWrap: "anywhere",
         }}>{p.body}</p>

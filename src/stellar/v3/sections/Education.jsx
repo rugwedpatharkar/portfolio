@@ -82,7 +82,7 @@ const Row = ({ i, edu, delay }) => (
       gridTemplateColumns: "auto minmax(0, 1fr)",
       gap: "clamp(12px, 1.2vw, 22px)",
       alignItems: "flex-start",
-      padding: "clamp(10px, 1.2vw, 18px) 4px",
+      padding: "clamp(6px, 0.8vw, 12px) 4px",
       borderTop: i > 0 ? "1px solid var(--v3-line)" : "none",
       minWidth: 0,
     }}>
@@ -106,7 +106,7 @@ const Row = ({ i, edu, delay }) => (
         </h3>
         <div style={{
           fontFamily: "var(--v3-font-ui)", fontWeight: 300,
-          fontSize: "clamp(0.8rem, 0.5vw + 0.4rem, 1rem)",
+          fontSize: "clamp(0.8rem, 0.5vw + 0.4rem, .88rem)",
           color: "var(--v3-fg-dim)", lineHeight: 1.4,
           overflowWrap: "anywhere",
         }}>{edu.name}</div>

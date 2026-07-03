@@ -83,7 +83,7 @@ const Tile = ({ h, row, col, delay }) => (
             fontFamily: "var(--v3-font-display)", fontWeight: 340,
             /* Stat value: 0.95rem floor, 1.35rem ceiling — tabular-nums keeps
                numeric alignment tidy across all sizes. */
-            fontSize: "clamp(0.95rem, 0.7vw + 0.4rem, 1.35rem)", lineHeight: 1,
+            fontSize: "clamp(0.95rem, 0.7vw + 0.4rem, 1.15rem)", lineHeight: 1,
             letterSpacing: "-.005em", color: "var(--v3-fg)", fontOpticalSizing: "auto",
             fontVariantNumeric: "tabular-nums",
           }}>{h.stat.value}</span>

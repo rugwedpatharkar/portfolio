@@ -27,7 +27,7 @@ const Stat = ({ icon, value, suffix, label, detail, delay = 0.2, decimals }) => 
           fontFamily: "var(--v3-font-display)", fontWeight: 340,
           /* Wider slope so the big number scales smoothly from 1280 → 2560 without
              looking tiny on narrow or oversized on ultra-wide. */
-          fontSize: "clamp(1.8rem, 1.1vw + 1.3rem, 3rem)", lineHeight: 1,
+          fontSize: "clamp(1.4rem, 0.6vw + 0.9rem, 2.2rem)", lineHeight: 1,
           letterSpacing: "-.02em", color: "var(--v3-fg)", fontOpticalSizing: "auto",
           overflowWrap: "anywhere",
         }}>
@@ -43,7 +43,7 @@ const Stat = ({ icon, value, suffix, label, detail, delay = 0.2, decimals }) => 
       }}>{label}</div>
       <p style={{
         fontFamily: "var(--v3-font-ui)", fontWeight: 300,
-        fontSize: "clamp(.8rem, 0.35vw + 0.7rem, 1.02rem)",
+        fontSize: "clamp(.8rem, 0.35vw + 0.7rem, .9rem)",
         color: "var(--v3-fg-dim)", lineHeight: 1.5, margin: 0,
         maxWidth: "min(34ch, 100%)",
         overflowWrap: "anywhere",
@@ -97,7 +97,7 @@ export default function FunFactsSection({ index, bootNonce }) {
             </h2>
             <p style={{
               fontFamily: "var(--v3-font-ui)", fontWeight: 300,
-              fontSize: "clamp(.85rem, 0.35vw + 0.75rem, 1.08rem)", color: "var(--v3-fg-dim)",
+              fontSize: "clamp(.85rem, 0.35vw + 0.75rem, .95rem)", color: "var(--v3-fg-dim)",
               lineHeight: 1.55, margin: 0,
               maxWidth: "min(62ch, 100%)",
               overflowWrap: "anywhere",

@@ -85,7 +85,7 @@ const NoteRow = ({ i, post, delay }) => (
         }}>{post.title}</h3>
         <p style={{
           fontFamily: "var(--v3-font-ui)", fontWeight: 300,
-          fontSize: "clamp(0.78rem, 0.5vw + 0.4rem, 1rem)",
+          fontSize: "clamp(0.78rem, 0.5vw + 0.4rem, .88rem)",
           color: "var(--v3-fg-dim)", lineHeight: 1.55, margin: 0,
           display: "-webkit-box", WebkitLineClamp: 4, WebkitBoxOrient: "vertical",
           overflow: "hidden",
@@ -138,7 +138,7 @@ export default function NotesSection({ index, bootNonce }) {
             {META.description && (
               <p style={{
                 fontFamily: "var(--v3-font-ui)", fontWeight: 300,
-                fontSize: "clamp(0.82rem, 0.5vw + 0.4rem, 1rem)", color: "var(--v3-fg-dim)",
+                fontSize: "clamp(0.82rem, 0.5vw + 0.4rem, .88rem)", color: "var(--v3-fg-dim)",
                 lineHeight: 1.55, margin: "12px 0 0", maxWidth: "58ch",
                 overflowWrap: "anywhere",
               }}>{META.description}</p>

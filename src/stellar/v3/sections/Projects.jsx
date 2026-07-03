@@ -34,7 +34,7 @@ const ProjectCard = ({ p, delay }) => {
         borderRadius: 6,
         background: "color-mix(in oklab, var(--v3-bg-void) 55%, transparent)",
         minWidth: 0, height: "100%",
-        minHeight: "clamp(240px, 26vh, 320px)",
+        minHeight: "clamp(200px, 20vh, 260px)",
       }}>
         {/* accent corner tick */}
         <span aria-hidden style={{ position: "absolute", top: -1, left: -1, width: 12, height: 1, background: "var(--v3-accent)" }} />
@@ -53,7 +53,7 @@ const ProjectCard = ({ p, delay }) => {
         {/* name */}
         <div style={{
           fontFamily: "var(--v3-font-display)", fontWeight: 340,
-          fontSize: "clamp(1rem, 0.85vw + 0.55rem, 1.35rem)", lineHeight: 1.15,
+          fontSize: "clamp(1rem, 0.85vw + 0.55rem, 1.15rem)", lineHeight: 1.15,
           letterSpacing: "-.005em", color: "var(--v3-fg)", fontOpticalSizing: "auto",
           overflowWrap: "anywhere",
         }}>{p.name}</div>
@@ -106,7 +106,7 @@ const ProjectCard = ({ p, delay }) => {
               <div style={{ display: "flex", flexDirection: "column", alignItems: "flex-end", gap: 2 }}>
                 <span style={{
                   fontFamily: "var(--v3-font-display)", fontWeight: 340,
-                  fontSize: "clamp(0.9rem, 0.7vw + 0.5rem, 1.15rem)", lineHeight: 1,
+                  fontSize: "clamp(0.9rem, 0.7vw + 0.5rem, .98rem)", lineHeight: 1,
                   color: "var(--v3-fg)", fontOpticalSizing: "auto",
                 }}>{stat.value}</span>
                 <span style={{

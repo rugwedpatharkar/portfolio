@@ -32,7 +32,7 @@ const Node = ({ a, delay, row, col }) => (
       display: "flex", flexDirection: "column", gap: "clamp(4px, 0.35vw, 8px)",
       /* Fluid padding — tightens on 1280, breathes on 2560 without gulping cell
          real-estate away from the 3-line description. */
-      padding: "clamp(8px, 0.8vw, 16px) clamp(10px, 1vw, 18px)",
+      padding: "clamp(6px, 0.55vw, 12px) clamp(8px, 0.75vw, 14px)",
       /* Dividers reference row/col from the 2-col baseline. Auto-fit rewrite
          at very narrow widths still lands on 1-col so cells reflow cleanly;
          the top-borders on wrapped rows are harmless (all cells become col 0). */
@@ -71,7 +71,7 @@ const Node = ({ a, delay, row, col }) => (
         /* Description: 0.78rem floor keeps it readable at 75% zoom, 1rem ceiling
            at 2560. overflow-wrap: anywhere prevents a long token from busting
            the cell width and forcing horizontal scroll on the section. */
-        fontSize: "clamp(0.78rem, 0.55vw + 0.4rem, 1rem)",
+        fontSize: "clamp(0.78rem, 0.55vw + 0.4rem, .88rem)",
         color: "var(--v3-fg-dim)", lineHeight: 1.5, margin: 0,
         display: "-webkit-box", WebkitLineClamp: 3, WebkitBoxOrient: "vertical",
         overflow: "hidden", overflowWrap: "anywhere",
@@ -126,7 +126,7 @@ export default function AchievementsSection({ index, bootNonce }) {
             {META.description && (
               <p style={{
                 fontFamily: "var(--v3-font-ui)", fontWeight: 300,
-                fontSize: "clamp(.82rem, 0.7vw + 0.35rem, 1rem)", color: "var(--v3-fg-dim)",
+                fontSize: "clamp(.82rem, 0.7vw + 0.35rem, .88rem)", color: "var(--v3-fg-dim)",
                 lineHeight: 1.55, margin: "12px 0 0", maxWidth: "62ch",
               }}>{META.description}</p>
             )}
