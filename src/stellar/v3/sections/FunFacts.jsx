@@ -69,7 +69,7 @@ export default function FunFactsSection({ index, bootNonce }) {
         gridArea: "left",
         display: "flex", flexDirection: "column",
         gap: "clamp(18px, 1.8vw, 32px)",
-        minWidth: 0, overflow: "hidden",
+        minWidth: 0, overflow: "auto",
         maxWidth: "min(50vw, 780px)",
       }}>
         {/* Header: kicker + heading + lede — same voice as About */}

@@ -112,7 +112,7 @@ export default function HobbiesSection({ index, bootNonce }) {
       <div style={{
         gridArea: "left", display: "flex", flexDirection: "column",
         gap: "clamp(12px, 1.1vw, 20px)",
-        minWidth: 0, overflow: "hidden",
+        minWidth: 0, overflow: "auto",
         /* min() cap: 50vw preserves the narrow-first architecture and keeps
            clearance from the corner card at 78%→96% x; 820px ceiling prevents
            runaway width on 2560+ displays where 50vw would push into 1280px

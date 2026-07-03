@@ -33,7 +33,7 @@ export default function ContactSection({ index, bootNonce }) {
       <div style={{
         gridArea: "left", display: "flex", flexDirection: "column",
         gap: "clamp(12px, 1.4vh, 22px)",
-        minWidth: 0, overflow: "hidden",
+        minWidth: 0, overflow: "auto",
         maxWidth: "min(65vw, 1100px)", height: "100%",
       }}>
         {/* Header */}

@@ -47,7 +47,7 @@ export default function ExperienceSection({ index, bootNonce }) {
           the sphere + top-right telemetry card. maxWidth uses min(65vw, 1100px)
           so ultra-wide (2560+) viewports cap gracefully instead of ballooning
           the reading measure, while sub-1280 zoomed viewports still flex down. */}
-      <div style={{ gridArea: "left", display: "flex", flexDirection: "column", gap: "clamp(12px, 1.2vw, 18px)", minWidth: 0, overflow: "hidden", maxWidth: "min(65vw, 1100px)" }}>
+      <div style={{ gridArea: "left", display: "flex", flexDirection: "column", gap: "clamp(12px, 1.2vw, 18px)", minWidth: 0, overflow: "auto", maxWidth: "min(65vw, 1100px)" }}>
         {/* Section header — same voice as About + FunFacts */}
         <V3Scan variant="horizontal" delay={0.05}>
           <div>

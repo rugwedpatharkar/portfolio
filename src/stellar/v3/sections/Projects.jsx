@@ -158,7 +158,7 @@ export default function ProjectsSection({ index, bootNonce }) {
       <div style={{
         gridArea: "left", display: "flex", flexDirection: "column",
         gap: "clamp(12px, 1.2vw, 20px)",
-        minWidth: 0, overflow: "hidden",
+        minWidth: 0, overflow: "auto",
         maxWidth: "min(60vw, 1200px)",
         height: "100%",
       }}>

@@ -132,7 +132,7 @@ export default function TestimonialsSection({ index, bootNonce }) {
       <div style={{
         gridArea: "left", display: "flex", flexDirection: "column",
         gap: "clamp(12px, 1.2vw, 18px)",
-        minWidth: 0, overflow: "hidden",
+        minWidth: 0, overflow: "auto",
         maxWidth: "min(50vw, 820px)", height: "100%",
       }}>
         {/* Header */}

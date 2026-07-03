@@ -89,7 +89,7 @@ export default function AboutSection({ index, bootNonce }) {
       {/* LEFT — everything stacks here. maxWidth 50vw so the column ends BEFORE
           the sun's actual left edge (~54% x with V3_HALF_ANGLE=12° + frameShift
           0.42×1.0) — no horizontal overlap with the sphere. */}
-      <div style={{ gridArea: "left", display: "flex", flexDirection: "column", gap: "clamp(16px, 1.6vw, 26px)", minWidth: 0, overflow: "hidden", maxWidth: "min(50vw, 780px)" }}>
+      <div style={{ gridArea: "left", display: "flex", flexDirection: "column", gap: "clamp(16px, 1.6vw, 26px)", minWidth: 0, overflow: "auto", maxWidth: "min(50vw, 780px)" }}>
         {/* Portrait + name */}
         <V3DepthLayer depth={2} style={{ display: "flex", gap: "clamp(14px, 1.4vw, 24px)", alignItems: "flex-end", minWidth: 0, flexWrap: "wrap" }}>
           <V3Scan variant="horizontal" delay={0.05}>

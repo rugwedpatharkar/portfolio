@@ -151,7 +151,7 @@ export default function EducationSection({ index, bootNonce }) {
       <div style={{
         gridArea: "left", display: "flex", flexDirection: "column",
         gap: "clamp(10px, 1.2vw, 20px)",
-        minWidth: 0, overflow: "hidden",
+        minWidth: 0, overflow: "auto",
         maxWidth: "min(50vw, 780px)", height: "100%",
       }}>
         {/* Header */}
