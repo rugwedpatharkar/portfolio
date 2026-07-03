@@ -30,10 +30,14 @@ const PANEL_VARIANTS = {
   center: { opacity: 1, x: 0, transition: { duration: 0.4, ease: [0.22, 1, 0.36, 1] } },
   exit:  (dir) => ({ opacity: 0, x: dir > 0 ? -60 : 60, transition: { duration: 0.25, ease: [0.22, 1, 0.36, 1] } }),
 };
-/* Shutter reveal on the project name — clip-path mask sweeps L→R. */
+/* Shutter reveal on the project name — clip-path mask sweeps L→R.
+   Vertical inset is negative so the reveal region extends beyond the box
+   at top and bottom — descenders (`g`, `j`, `p`, `y`) and cap ascenders
+   never get shaved by the clip. The horizontal inset does all the
+   masking work. */
 const SHUTTER_VARIANTS = {
-  hidden: { clipPath: "inset(0 100% 0 0)" },
-  show:   { clipPath: "inset(0 0 0 0)", transition: { duration: 0.5, ease: [0.22, 1, 0.36, 1], delay: 0.1 } },
+  hidden: { clipPath: "inset(-0.2em 100% -0.3em 0)" },
+  show:   { clipPath: "inset(-0.2em 0 -0.3em 0)", transition: { duration: 0.5, ease: [0.22, 1, 0.36, 1], delay: 0.1 } },
 };
 
 export default function ProjectsSection({ index, bootNonce }) {
@@ -228,7 +232,7 @@ export default function ProjectsSection({ index, bootNonce }) {
                 exit="exit"
                 style={{
                   display: "flex", flexDirection: "column",
-                  gap: "clamp(8px, 0.8vw, 14px)",
+                  gap: "clamp(14px, 1.4vw, 22px)",
                   minWidth: 0, minHeight: 0, flex: 1,
                   paddingRight: "clamp(80px, 8vw, 130px)",
                 }}
@@ -241,42 +245,47 @@ export default function ProjectsSection({ index, bootNonce }) {
                   {[p?.status, p?.year, p?.team].filter(Boolean).join(" · ")}
                 </div>
 
-                {/* name — shutter reveal via clip-path mask */}
+                {/* name — shutter reveal via clip-path mask. Line-height
+                    bumped from 1.1 → 1.25 so descenders sit inside the
+                    box; the negative clip-path inset also gives cover for
+                    the edges. Bigger size + heavier presence — this is
+                    the panel's editorial anchor. */}
                 <motion.h3
                   variants={reduce ? undefined : SHUTTER_VARIANTS}
                   initial={reduce ? false : "hidden"}
                   animate="show"
                   style={{
                     fontFamily: "var(--v3-font-display)", fontWeight: 340,
-                    fontSize: "clamp(1.5rem, 1.2vw + 0.8rem, 2.4rem)",
-                    lineHeight: 1.1, letterSpacing: "-.015em",
+                    fontSize: "clamp(1.8rem, 1.5vw + 1rem, 3rem)",
+                    lineHeight: 1.25, letterSpacing: "-.015em",
                     color: "var(--v3-fg)", margin: 0, fontOpticalSizing: "auto",
                     overflowWrap: "anywhere",
+                    paddingBottom: "0.05em",
                   }}>{p?.name}</motion.h3>
 
                 {p?.description && (
                   <p style={{
                     fontFamily: "var(--v3-font-ui)", fontWeight: 300,
-                    fontSize: "clamp(0.82rem, 0.35vw + 0.6rem, 0.98rem)",
-                    color: "var(--v3-fg-dim)", lineHeight: 1.55, margin: 0,
-                    maxWidth: "min(70ch, 100%)",
+                    fontSize: "clamp(0.92rem, 0.4vw + 0.65rem, 1.1rem)",
+                    color: "var(--v3-fg-dim)", lineHeight: 1.65, margin: 0,
+                    maxWidth: "min(72ch, 100%)",
                     overflowWrap: "break-word", hyphens: "auto",
                   }}>{p.description}</p>
                 )}
 
                 {p?.features?.length > 0 && (
-                  <ul style={{ listStyle: "none", padding: 0, margin: 0, display: "flex", flexDirection: "column", gap: "clamp(4px, 0.4vw, 8px)" }}>
+                  <ul style={{ listStyle: "none", padding: 0, margin: 0, display: "flex", flexDirection: "column", gap: "clamp(6px, 0.55vw, 10px)" }}>
                     {p.features.map((f, k) => (
                       <li key={k} style={{
                         fontFamily: "var(--v3-font-ui)", fontWeight: 300,
-                        fontSize: "clamp(0.78rem, 0.3vw + 0.55rem, 0.92rem)",
-                        color: "var(--v3-fg-dim)", lineHeight: 1.45,
-                        paddingLeft: 16, position: "relative",
+                        fontSize: "clamp(0.85rem, 0.35vw + 0.6rem, 1rem)",
+                        color: "var(--v3-fg-dim)", lineHeight: 1.55,
+                        paddingLeft: 18, position: "relative",
                         overflowWrap: "anywhere",
                       }}>
                         <span aria-hidden style={{
-                          position: "absolute", left: 0, top: "0.6em",
-                          width: 8, height: 1, background: "var(--v3-line-strong)",
+                          position: "absolute", left: 0, top: "0.7em",
+                          width: 10, height: 1, background: "var(--v3-line-strong)",
                         }} />
                         {f}
                       </li>
