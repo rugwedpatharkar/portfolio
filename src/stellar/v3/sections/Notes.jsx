@@ -112,7 +112,7 @@ export default function NotesSection({ index, bootNonce }) {
       {/* maxWidth: min(50vw, 780px) — proportional at narrow, absolute cap on
           2560 so rows never grow past a comfortable reading measure and never
           sneak under the corner Body Telemetry card (78-96% x). */}
-      <div style={{ gridArea: "left", display: "flex", flexDirection: "column", gap: "clamp(12px, 1.2vw, 18px)", minWidth: 0, overflow: "hidden", maxWidth: "min(50vw, 780px)", height: "100%" }}>
+      <div style={{ gridArea: "left", display: "flex", flexDirection: "column", gap: "clamp(12px, 1.2vw, 18px)", minWidth: 0, overflow: "hidden", maxWidth: "min(60vw, 1200px)", height: "100%" }}>
         {/* Header */}
         <V3Scan variant="horizontal" delay={0.05}>
           <div style={{ minWidth: 0 }}>

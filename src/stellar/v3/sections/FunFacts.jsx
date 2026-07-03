@@ -212,7 +212,7 @@ export default function FunFactsSection({ index, bootNonce }) {
         display: "flex", flexDirection: "column",
         gap: "clamp(14px, 1.4vw, 22px)",
         minWidth: 0, minHeight: 0, overflow: "hidden",
-        maxWidth: "min(72vw, 1200px)", height: "100%",
+        maxWidth: "min(60vw, 1200px)", height: "100%",
       }}>
         {/* Header */}
         <V3Scan variant="horizontal" delay={0.05}>

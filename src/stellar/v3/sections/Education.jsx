@@ -72,7 +72,7 @@ export default function EducationSection({ index, bootNonce }) {
         gridArea: "left", display: "flex", flexDirection: "column",
         gap: "clamp(12px, 1.2vw, 22px)",
         minWidth: 0, minHeight: 0, overflow: "hidden",
-        maxWidth: "min(70vw, 1200px)", height: "100%",
+        maxWidth: "min(60vw, 1200px)", height: "100%",
       }}>
         {/* Header */}
         <V3Scan variant="horizontal" delay={0.05}>

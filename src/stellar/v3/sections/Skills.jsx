@@ -81,7 +81,7 @@ export default function SkillsSection({ index, bootNonce }) {
       {/* Cap absolute width at 850px so the master-detail doesn't get too wide on
           2560+ screens (bars would run under the corner card). min(52vw, 850px)
           keeps proportion on small viewports and locks a ceiling on large ones. */}
-      <div style={{ gridArea: "left", display: "flex", flexDirection: "column", gap: "clamp(12px, 1.2vh, 20px)", minWidth: 0, overflow: "hidden", maxWidth: "min(52vw, 850px)", height: "100%" }}>
+      <div style={{ gridArea: "left", display: "flex", flexDirection: "column", gap: "clamp(12px, 1.2vh, 20px)", minWidth: 0, overflow: "hidden", maxWidth: "min(60vw, 1200px)", height: "100%" }}>
         {/* Header */}
         <V3Scan variant="horizontal" delay={0.05}>
           <div>

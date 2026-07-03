@@ -117,7 +117,7 @@ export default function HobbiesSection({ index, bootNonce }) {
            clearance from the corner card at 78%→96% x; 820px ceiling prevents
            runaway width on 2560+ displays where 50vw would push into 1280px
            and make cells feel stretched horizontally. */
-        maxWidth: "min(50vw, 820px)",
+        maxWidth: "min(60vw, 1200px)",
         height: "100%",
       }}>
         {/* Header */}

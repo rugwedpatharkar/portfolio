@@ -133,7 +133,7 @@ export default function TestimonialsSection({ index, bootNonce }) {
         gridArea: "left", display: "flex", flexDirection: "column",
         gap: "clamp(12px, 1.2vw, 18px)",
         minWidth: 0, overflow: "hidden",
-        maxWidth: "min(50vw, 820px)", height: "100%",
+        maxWidth: "min(60vw, 1200px)", height: "100%",
       }}>
         {/* Header */}
         <V3Scan variant="horizontal" delay={0.05}>

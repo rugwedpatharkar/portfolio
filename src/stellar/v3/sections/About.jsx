@@ -80,9 +80,10 @@ export default function AboutSection({ index, bootNonce }) {
       index={index}
       scanDir="horizontal"
       scanKey={bootNonce}
-      /* LEFT lives in col 1 only. Cols 2+3 belong to the Sun's 3D render +
-         Body Telemetry corner card — nothing in the DOM competes with them. */
-      gridAreas={`"top top top" "left . ." "left . ." "left . ."`}
+      /* Content lives in the standard 60% LEFT band (cols 1+2, the 40+20%
+         grid halves merged into one content area). Col 3 (40%) is reserved
+         for the Sun's 3D render + Body Telemetry corner card. */
+      gridAreas={`"top top top" "left left ." "left left ." "left left ."`}
     >
       <div ref={sectionRef} style={{
         gridArea: "left",
@@ -90,7 +91,7 @@ export default function AboutSection({ index, bootNonce }) {
         gap: "clamp(14px, 1.2vw, 24px)",
         minWidth: 0, minHeight: 0, overflow: "hidden",
         paddingRight: "clamp(4px, 0.5vw, 8px)",
-        maxWidth: "min(50vw, 820px)", height: "100%",
+        maxWidth: "min(60vw, 1200px)", height: "100%",
       }}>
         {/* Portrait + name */}
         <V3DepthLayer depth={2} style={{ display: "flex", gap: "clamp(12px, 1.1vw, 18px)", alignItems: "flex-end", minWidth: 0, flexWrap: "wrap" }}>

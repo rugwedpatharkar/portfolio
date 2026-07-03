@@ -133,7 +133,7 @@ export default function WhatSetsMeApartSection({ index, bootNonce }) {
         display: "flex", flexDirection: "column",
         gap: "clamp(12px, 1.2vw, 18px)",
         minWidth: 0, overflow: "hidden",
-        maxWidth: "min(50vw, 820px)",
+        maxWidth: "min(60vw, 1200px)",
         height: "100%",
       }}>
         {/* Header */}

@@ -43,7 +43,12 @@ export default function V3Frame({
   const defaultAreas = isCompact
     ? `"top" "left" "right-top" "right-bottom" "bottom"`
     : `"top top top" "left right-top right-top" "left right-bottom right-bottom" "bottom bottom bottom"`;
-  const gridCols = isCompact ? "1fr" : "minmax(0, 1.4fr) minmax(0, 1fr) minmax(0, 0.6fr)";
+  /* Grid ratio locked to 40/20/40 (col1/col2/col3) so a section using the
+     standard `"top top top" "left left ."` grid area picks up exactly 60 %
+     of the frame width for content and leaves 40 % for the planet + Body
+     Telemetry corner card. Rule change vs. earlier 47/33/20 ratio: content
+     panels are now a consistent 60% of the screen at every viewport. */
+  const gridCols = isCompact ? "1fr" : "minmax(0, 1.2fr) minmax(0, 0.6fr) minmax(0, 1.2fr)";
   const gridRows = isCompact ? "auto" : "auto 1fr auto auto";
 
   return (
