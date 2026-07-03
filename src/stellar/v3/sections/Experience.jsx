@@ -117,90 +117,75 @@ export default function ExperienceSection({ index, bootNonce }) {
                 letterSpacing: ".28em", textTransform: "uppercase", color: "var(--v3-fg-mute)",
               }}>{META.sub}</span>
             </div>
-            <h2 style={{
-              fontFamily: "var(--v3-font-display)", fontWeight: 340,
-              fontSize: "clamp(1.7rem, 1.4vw + 1rem, 2.8rem)", fontOpticalSizing: "auto",
-              lineHeight: 1, letterSpacing: "-.02em", color: "var(--v3-fg)",
-              margin: 0,
+            <div style={{
+              display: "flex", alignItems: "baseline", justifyContent: "space-between",
+              gap: "clamp(14px, 1.5vw, 26px)", flexWrap: "wrap", minWidth: 0,
             }}>
-              {META.heading}
-            </h2>
-          </div>
-        </V3Scan>
-
-        {/* Role wire — hairline horizontal rule with a dot per role.
-            Per the taste-stack table: "Role dots along a horizontal wire;
-            clicking one triggers a View Transition where the current spread
-            dissolves and the new one composes in." Wire runs 8%→92% of
-            the section width; dots evenly spaced via a grid. The accent
-            "filled" portion of the wire tracks the active role — animated
-            width transition so hovering left/right feels like the current
-            reading head is moving along a timeline. */}
-        <V3Scan variant="horizontal" delay={0.12}>
-          <div style={{ position: "relative", padding: "clamp(20px, 2vw, 32px) 0", minWidth: 0 }}>
-            {/* Base wire — dim */}
-            <div aria-hidden style={{
-              position: "absolute", top: "50%", left: "8%", right: "8%",
-              height: 1, background: "var(--v3-line-strong)",
-              transform: "translateY(-0.5px)",
-            }} />
-            {/* Accent-filled portion — 0 at first role, 100% at last */}
-            {experiences.length > 1 && (
-              <div aria-hidden style={{
-                position: "absolute", top: "50%", left: "8%",
-                height: 1, background: "var(--v3-accent)",
-                width: `calc(84% * ${active} / ${experiences.length - 1})`,
-                transform: "translateY(-0.5px)",
-                transition: "width .4s var(--v3-ease-smooth)",
-                boxShadow: "0 0 6px color-mix(in oklab, var(--v3-accent) 40%, transparent)",
-              }} />
-            )}
-            {/* Dots layer — evenly spaced via grid */}
-            <div role="tablist" aria-label="Experience roles" style={{
-              display: "grid",
-              gridTemplateColumns: `repeat(${experiences.length}, 1fr)`,
-              alignItems: "center", minWidth: 0, position: "relative",
-            }}>
-              {experiences.map((e, i) => {
-                const isActive = i === active;
-                return (
-                  <button
-                    key={i}
-                    role="tab"
-                    aria-selected={isActive}
-                    onClick={() => switchRole(i)}
-                    style={{
-                      all: "unset", cursor: "pointer",
-                      display: "flex", flexDirection: "column",
-                      alignItems: "center", gap: "clamp(6px, 0.7vw, 10px)",
-                      minWidth: 0, textAlign: "center",
-                    }}
-                  >
-                    <span style={{
-                      fontFamily: "var(--v3-font-mono)", fontWeight: 400, fontSize: 9,
-                      letterSpacing: ".2em", textTransform: "uppercase",
-                      color: isActive ? "var(--v3-accent)" : "var(--v3-fg-mute)",
-                      transition: "color .2s",
-                    }}>{e.date}</span>
-                    <span aria-hidden style={{
-                      width: isActive ? 14 : 10, height: isActive ? 14 : 10,
-                      borderRadius: "50%",
-                      background: isActive ? "var(--v3-accent)" : "var(--v3-bg-void)",
-                      border: `1.5px solid ${isActive ? "var(--v3-accent)" : "var(--v3-line-strong)"}`,
-                      boxShadow: isActive ? "0 0 12px color-mix(in oklab, var(--v3-accent) 50%, transparent)" : "none",
-                      transition: "background .2s, border-color .2s, box-shadow .2s, width .2s, height .2s",
-                    }} />
-                    <span style={{
-                      fontFamily: "var(--v3-font-display)", fontWeight: 340,
-                      fontSize: "clamp(0.95rem, 0.6vw + 0.6rem, 1.3rem)",
-                      color: isActive ? "var(--v3-fg)" : "var(--v3-fg-dim)",
-                      letterSpacing: "-.005em", lineHeight: 1.15,
-                      fontOpticalSizing: "auto",
-                      transition: "color .2s",
-                    }}>{e.companyName.split(" ")[0]}</span>
-                  </button>
-                );
-              })}
+              <h2 style={{
+                fontFamily: "var(--v3-font-display)", fontWeight: 340,
+                fontSize: "clamp(1.7rem, 1.4vw + 1rem, 2.8rem)", fontOpticalSizing: "auto",
+                lineHeight: 1, letterSpacing: "-.02em", color: "var(--v3-fg)",
+                margin: 0,
+              }}>
+                {META.heading}
+              </h2>
+              {/* Compact role switcher — replaces the vertical wire block that
+                  ate ~200 px. Sits inline with the h2 on the same row; on
+                  narrow viewports it wraps below. Segmented-pill row: one
+                  chip per role, active gets accent border + tint. Same
+                  View-Transition + broadsheet-stagger interaction under the
+                  hood. */}
+              <div role="tablist" aria-label="Experience roles" style={{
+                display: "inline-flex", gap: 6, flexWrap: "wrap",
+                padding: 4,
+                border: "1px solid var(--v3-line)",
+                borderRadius: 999,
+                background: "color-mix(in oklab, var(--v3-bg-void) 50%, transparent)",
+              }}>
+                {experiences.map((e, i) => {
+                  const isActive = i === active;
+                  return (
+                    <button
+                      key={i}
+                      role="tab"
+                      aria-selected={isActive}
+                      onClick={() => switchRole(i)}
+                      style={{
+                        all: "unset", cursor: "pointer",
+                        display: "inline-flex", alignItems: "center", gap: 8,
+                        padding: "clamp(5px, 0.55vw, 8px) clamp(10px, 1vw, 14px)",
+                        borderRadius: 999,
+                        border: `1px solid ${isActive ? "var(--v3-accent)" : "transparent"}`,
+                        background: isActive ? "color-mix(in oklab, var(--v3-accent) 12%, transparent)" : "transparent",
+                        transition: "background .2s, border-color .2s",
+                      }}
+                    >
+                      <span aria-hidden style={{
+                        width: 6, height: 6, borderRadius: "50%",
+                        background: isActive ? "var(--v3-accent)" : "var(--v3-fg-mute)",
+                        boxShadow: isActive ? "0 0 6px var(--v3-accent)" : "none",
+                        transition: "background .2s, box-shadow .2s",
+                        flexShrink: 0,
+                      }} />
+                      <span style={{
+                        fontFamily: "var(--v3-font-mono)", fontWeight: 400,
+                        fontSize: "clamp(9px, 0.35vw + 6px, 11px)",
+                        letterSpacing: ".18em", textTransform: "uppercase",
+                        color: isActive ? "var(--v3-accent)" : "var(--v3-fg-mute)",
+                        transition: "color .2s",
+                      }}>{String(i + 1).padStart(2, "0")}</span>
+                      <span style={{
+                        fontFamily: "var(--v3-font-display)", fontWeight: 340,
+                        fontSize: "clamp(0.85rem, 0.45vw + 0.55rem, 1rem)",
+                        color: isActive ? "var(--v3-fg)" : "var(--v3-fg-dim)",
+                        letterSpacing: "-.005em", lineHeight: 1.15,
+                        fontOpticalSizing: "auto",
+                        transition: "color .2s",
+                      }}>{e.companyName.split(" ")[0]}</span>
+                    </button>
+                  );
+                })}
+              </div>
             </div>
           </div>
         </V3Scan>
