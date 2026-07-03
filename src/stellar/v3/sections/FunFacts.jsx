@@ -58,7 +58,13 @@ const pointOnArc = (t) => {
 };
 
 const GaugeArc = ({ fillLevel = 1, showRail = false, showPin = false, delay = 0, reduce }) => {
-  const pin = pointOnArc(fillLevel);
+  /* Needle-overshoot physics — the fill arc + pin sweep 3% past their rest
+     value, then settle. Matches the taste-stack table's "needle overshoots
+     by 3% then settles (spring)" call-out. Overshoot capped at 1.0 so a
+     99.9% arc doesn't try to draw past the semicircle endpoint. */
+  const overshoot = Math.min(fillLevel * 1.03, 1);
+  const restPin = pointOnArc(fillLevel);
+  const overshootPin = pointOnArc(overshoot);
   return (
     <svg aria-hidden viewBox="0 0 200 110" preserveAspectRatio="xMidYMax meet"
       style={{
@@ -79,27 +85,29 @@ const GaugeArc = ({ fillLevel = 1, showRail = false, showPin = false, delay = 0,
           transition={{ duration: 0.4, ease: [0.22, 1, 0.36, 1], delay }}
         />
       )}
-      {/* Fill arc — accent-colored, animates 0 → fillLevel. For non-%
-          gauges fillLevel = 1 so it draws the full ∩. */}
+      {/* Fill arc — accent, sweeps 0 → overshoot → fillLevel. Keyframes with
+          `times` weight land 75% of the duration on the overshoot phase,
+          25% on the settle-back. Reads as a needle physical response. */}
       <motion.path
         d={GAUGE_PATH}
         fill="none" stroke="var(--v3-accent)" strokeWidth="0.75"
         strokeLinecap="round" opacity="0.7"
         initial={reduce ? { pathLength: fillLevel } : { pathLength: 0 }}
-        whileInView={{ pathLength: fillLevel }}
+        whileInView={reduce ? { pathLength: fillLevel } : { pathLength: [0, overshoot, fillLevel] }}
         viewport={{ once: true, amount: 0.4 }}
-        transition={{ duration: 0.6, ease: [0.22, 1, 0.36, 1], delay: delay + (showRail ? 0.15 : 0) }}
+        transition={{ duration: 0.75, ease: [0.22, 1, 0.36, 1], times: [0, 0.75, 1], delay: delay + (showRail ? 0.15 : 0) }}
       />
-      {/* Fill endpoint pin — only for percentage gauges. Reads as a needle
-          indicator resting on the current value. */}
+      {/* Fill endpoint pin — travels along the arc to the overshoot point
+          then settles back to fillLevel. Position animates cx/cy in the
+          same keyframe rhythm as the fill arc. */}
       {showPin && (
         <motion.circle
-          cx={pin.x} cy={pin.y} r={1.8}
+          r={1.8}
           fill="var(--v3-accent)"
-          initial={reduce ? { opacity: 1, scale: 1 } : { opacity: 0, scale: 0.4 }}
-          whileInView={{ opacity: 1, scale: 1 }}
+          initial={reduce ? { cx: restPin.x, cy: restPin.y, opacity: 1, scale: 1 } : { cx: pointOnArc(0).x, cy: pointOnArc(0).y, opacity: 0, scale: 0.4 }}
+          whileInView={reduce ? { cx: restPin.x, cy: restPin.y, opacity: 1, scale: 1 } : { cx: [pointOnArc(0).x, overshootPin.x, restPin.x], cy: [pointOnArc(0).y, overshootPin.y, restPin.y], opacity: 1, scale: 1 }}
           viewport={{ once: true, amount: 0.4 }}
-          transition={{ duration: 0.28, ease: [0.22, 1, 0.36, 1], delay: delay + 0.75 }}
+          transition={{ duration: 0.75, ease: [0.22, 1, 0.36, 1], times: [0, 0.75, 1], delay: delay + (showRail ? 0.15 : 0) }}
         />
       )}
       {/* Tick marks — hairlines radiating outward every 15°. */}
