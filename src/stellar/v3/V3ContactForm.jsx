@@ -160,13 +160,10 @@ export default function V3ContactForm() {
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.5, ease }}
       style={{
-        display: "flex", flexDirection: "column", gap: 18,
-        marginTop: 22, marginBottom: 26, paddingBottom: 24,
+        display: "flex", flexDirection: "column", gap: 14,
+        marginTop: 18, marginBottom: 22, paddingBottom: 22,
         borderBottom: "1px solid var(--v3-line)",
-        /* Fill the parent panel so the message textarea can grow to consume
-           the LEFT rail's remaining vertical space — otherwise the panel
-           has awkward dead space below the Send button. */
-        flex: 1, minHeight: 0,
+        minHeight: 0,
       }}
     >
       {/* Topic chips */}
@@ -197,9 +194,12 @@ export default function V3ContactForm() {
         </div>
       </div>
 
-      {/* Message row grows to fill the form's remaining vertical space so the
-          panel doesn't have dead area below the Send button. */}
-      <div style={{ display: "flex", flexDirection: "column", flex: 1, minHeight: 0 }}>
+      {/* Message row — content-sized. Textarea sits at a fixed comfortable
+          height with vertical resize handle so users can enlarge if needed.
+          Previously used `flex: 1` on both the row and the textarea to grow
+          into remaining panel space, but that made the textarea + button
+          row collide when the panel was tight. */}
+      <div style={{ display: "flex", flexDirection: "column", minHeight: 0 }}>
         <div style={{ display: "flex", alignItems: "baseline", justifyContent: "space-between" }}>
           <label style={label} htmlFor="v3-cmsg">Message</label>
           <span style={{ font: "400 10px var(--v3-font-mono)", color: "var(--v3-fg-mute)" }}>{remaining}</span>
@@ -208,7 +208,7 @@ export default function V3ContactForm() {
           id="v3-cmsg"
           style={{
             ...inputStyle,
-            flex: 1, minHeight: 100, resize: "vertical", lineHeight: 1.5,
+            height: 120, resize: "vertical", lineHeight: 1.5,
           }}
           placeholder={contactContent.placeholders.message}
           value={form.message}
