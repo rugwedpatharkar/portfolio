@@ -199,7 +199,7 @@ export default function ExperienceSection({ index, bootNonce }) {
         <div style={{
           display: "flex", flexDirection: "column",
           gap: "clamp(8px, 0.8vw, 14px)",
-          minWidth: 0,
+          minWidth: 0, minHeight: 0, flex: 1,
           viewTransitionName: "experience-spread",
           contain: "layout",
         }}>
