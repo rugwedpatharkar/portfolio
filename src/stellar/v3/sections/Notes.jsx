@@ -1,28 +1,26 @@
 "use client";
 /*
- * Notes (Jupiter) — working-notes journal.
+ * Notes (Jupiter) — editorial magazine (no scroll).
  *
- * Narrow-first per the v3 section rule: LEFT area spans col 1 only (~50vw),
- * fills vertical. 3 editorial notes stacked vertically — each one gets a wide
- * reading column instead of being squeezed into a 3-col grid where the long
- * paragraph descriptions would wrap into 20+ line towers.
+ * The taste-stack table originally called for a sticky-scroll magazine
+ * where chapter titles pin as the body scrolls, but the "no scrolling
+ * in content sections" rule wins across the whole tour. Adapting to a
+ * click-driven master-detail:
+ *   - LEFT (~30%): 3 chapter buttons, each with numeral + short year
+ *     kicker + Fraunces title. Active chip gets accent border + tinted
+ *     background.
+ *   - RIGHT (~70%): the active chapter as an editorial spread —
+ *     kicker (LOGGED YEAR · N tags) + big shutter-revealed Fraunces
+ *     title + prose paragraph with a drop-cap on the first letter +
+ *     tag chip rail. Zero scrollbar anywhere.
  *
- * Row structure:
- *   - Left rail (~140px): accent numeral (01/02/03) + mono year + hairline
- *     tag list.
- *   - Right column: DM Serif Display title + Manrope description.
- *   - Hairline divider between rows so the stack reads as a spec-panel of
- *     production journal entries.
- * Scan direction: horizontal (rows wipe in from left).
- *
- * Responsive strategy:
- *   - maxWidth: min(50vw, 780px) — proportional at narrow, capped at wide (2560).
- *   - Type: clamp() with rem floors so browser zoom scales legibly at 75/125%.
- *   - Left rail: minmax(min(120px, 25%), 18%) — shrinks below 120px on tight
- *     viewports instead of overflowing the row.
- *   - Chips: flex-wrap + min-width 0 so tag clouds relayout under compression.
- *   - overflow-wrap: anywhere on title/description defeats long-token overflow.
+ * Signature moment: on chapter switch, the title runs its clip-path
+ * shutter reveal (same technique as Projects + Achievements). The prose
+ * paragraph fades in with a subtle y-slide underneath. Drop-cap on the
+ * paragraph reads as editorial voice.
  */
+import { useState, useCallback } from "react";
+import { motion, AnimatePresence, useReducedMotion } from "motion/react";
 import { blogPosts, sectionMeta } from "../../../content";
 import { V3Frame, V3Scan } from "../primitives";
 
@@ -31,72 +29,28 @@ const META = sectionMeta.notes || {
   heading: "Journal from Production",
 };
 
-const NoteRow = ({ i, post, delay }) => (
-  <V3Scan variant="horizontal" delay={delay}>
-    <div style={{
-      display: "grid",
-      /* Rail shrinks proportionally on narrow viewports (min(120px, 25%))
-         but never grows past 18% of the row on wide/zoomed-out layouts. */
-      gridTemplateColumns: "minmax(min(120px, 25%), 18%) 1fr",
-      gap: "clamp(12px, 1.2vw, 22px)",
-      padding: "clamp(14px, 1.4vw, 22px) 4px",
-      borderTop: i > 0 ? "1px solid var(--v3-line)" : "none",
-      minWidth: 0,
-    }}>
-      {/* Left rail: numeral, date, tags */}
-      <div style={{ display: "flex", flexDirection: "column", gap: "clamp(6px, 0.7vw, 10px)", minWidth: 0 }}>
-        <div style={{ display: "flex", alignItems: "baseline", gap: "clamp(6px, 0.6vw, 8px)", flexWrap: "wrap" }}>
-          <span aria-hidden style={{
-            fontFamily: "var(--v3-font-mono)", fontWeight: 400,
-            fontSize: "clamp(10px, 0.4vw + 6px, 12px)",
-            color: "var(--v3-accent)", letterSpacing: ".14em",
-            fontVariantNumeric: "tabular-nums",
-          }}>{String(i + 1).padStart(2, "0")}</span>
-          <span style={{
-            fontFamily: "var(--v3-font-mono)", fontWeight: 400,
-            fontSize: "clamp(9px, 0.4vw + 6px, 11px)",
-            letterSpacing: ".22em", textTransform: "uppercase", color: "var(--v3-fg-mute)",
-          }}>{post.date}</span>
-        </div>
-        <div style={{ display: "flex", flexWrap: "wrap", gap: "clamp(3px, 0.3vw, 5px)", minWidth: 0 }}>
-          {(post.tags || []).map((t, k) => (
-            <span key={k} style={{
-              fontFamily: "var(--v3-font-mono)", fontWeight: 400,
-              fontSize: "clamp(8px, 0.3vw + 5px, 10px)",
-              letterSpacing: ".08em", textTransform: "uppercase", color: "var(--v3-fg-dim)",
-              border: "1px solid var(--v3-line-strong)", borderRadius: 999,
-              padding: "clamp(1px, 0.15vw, 2px) clamp(5px, 0.5vw, 8px)",
-              whiteSpace: "nowrap",
-            }}>{t}</span>
-          ))}
-        </div>
-      </div>
+const SHUTTER_VARIANTS = {
+  hidden: { clipPath: "inset(-0.2em 100% -0.3em 0)" },
+  show:   { clipPath: "inset(-0.2em 0 -0.3em 0)", transition: { duration: 0.5, ease: [0.22, 1, 0.36, 1], delay: 0.1 } },
+};
 
-      {/* Right column: title + description */}
-      <div style={{ display: "flex", flexDirection: "column", gap: "clamp(6px, 0.6vw, 10px)", minWidth: 0 }}>
-        <h3 style={{
-          fontFamily: "var(--v3-font-display)", fontWeight: 340,
-          /* Rem-anchored floor keeps title legible at 75% zoom; vw scales at 1x;
-             ceiling holds proportion at 2560. */
-          fontSize: "clamp(1rem, 0.8vw + 0.4rem, 1.6rem)", fontOpticalSizing: "auto",
-          lineHeight: 1.15, letterSpacing: "-.005em",
-          color: "var(--v3-fg)", margin: 0,
-          overflowWrap: "anywhere",
-        }}>{post.title}</h3>
-        <p style={{
-          fontFamily: "var(--v3-font-ui)", fontWeight: 300,
-          fontSize: "clamp(0.78rem, 0.5vw + 0.4rem, .88rem)",
-          color: "var(--v3-fg-dim)", lineHeight: 1.55, margin: 0,
-          display: "-webkit-box", WebkitLineClamp: 4, WebkitBoxOrient: "vertical",
-          overflow: "hidden",
-          overflowWrap: "anywhere",
-        }}>{post.description}</p>
-      </div>
-    </div>
-  </V3Scan>
-);
+const BODY_VARIANTS = {
+  hidden: { opacity: 0, y: 8 },
+  show:   { opacity: 1, y: 0, transition: { duration: 0.35, ease: [0.22, 1, 0.36, 1], delay: 0.2 } },
+  exit:   { opacity: 0, transition: { duration: 0.12 } },
+};
 
 export default function NotesSection({ index, bootNonce }) {
+  const list = blogPosts || [];
+  const [active, setActive] = useState(0);
+  const reduce = useReducedMotion();
+  const post = list[active] || list[0];
+
+  const goto = useCallback((i) => {
+    if (i < 0 || i >= list.length || i === active) return;
+    setActive(i);
+  }, [active, list.length]);
+
   return (
     <V3Frame
       section="Notes"
@@ -104,64 +58,240 @@ export default function NotesSection({ index, bootNonce }) {
       index={index}
       scanDir="horizontal"
       scanKey={bootNonce}
-      /* Narrow default per v3 rule: 'left' spans col 1 only. Notes are 3 rich
-         paragraphs — wider column would waste vertical, narrower would clamp
-         too many words per line. */
-      gridAreas={`"top top top" "left . ." "left . ." "bottom bottom bottom"`}
+      gridAreas={`"top top top" "left left ." "left left ." "left left ."`}
     >
-      {/* maxWidth: min(50vw, 780px) — proportional at narrow, absolute cap on
-          2560 so rows never grow past a comfortable reading measure and never
-          sneak under the corner Body Telemetry card (78-96% x). */}
-      <div style={{ gridArea: "left", display: "flex", flexDirection: "column", gap: "clamp(12px, 1.2vw, 18px)", minWidth: 0, overflow: "hidden", maxWidth: "min(60vw, 1200px)", height: "100%" }}>
+      <div style={{
+        gridArea: "left", display: "flex", flexDirection: "column",
+        gap: "clamp(12px, 1.2vw, 20px)",
+        minWidth: 0, minHeight: 0, overflow: "hidden",
+        maxWidth: "min(60vw, 1200px)", height: "100%",
+      }}>
         {/* Header */}
         <V3Scan variant="horizontal" delay={0.05}>
           <div style={{ minWidth: 0 }}>
-            <div style={{ display: "flex", alignItems: "center", gap: 12, marginBottom: 10 }}>
+            <div style={{ display: "flex", alignItems: "center", gap: 12, marginBottom: 8 }}>
               <span style={{ width: 22, height: 1, background: "var(--v3-accent)" }} />
               <span style={{
                 fontFamily: "var(--v3-font-mono)", fontWeight: 400,
-                fontSize: "clamp(9px, 0.4vw + 6px, 11px)",
+                fontSize: "clamp(9px, 0.3vw + 7px, 11px)",
                 letterSpacing: ".28em", textTransform: "uppercase", color: "var(--v3-fg-mute)",
               }}>{META.sub}</span>
             </div>
             <h2 style={{
               fontFamily: "var(--v3-font-display)", fontWeight: 340,
-              /* Zoom-aware: rem floor keeps heading legible at high zoom,
-                 vw scale keeps proportional to viewport at 1x. */
-              fontSize: "clamp(1.6rem, 1.8vw + 0.6rem, 2.6rem)", fontOpticalSizing: "auto",
+              fontSize: "clamp(1.5rem, 1.1vw + 0.9rem, 2.3rem)", fontOpticalSizing: "auto",
               lineHeight: 1, letterSpacing: "-.02em", color: "var(--v3-fg)",
               margin: 0,
-              overflowWrap: "anywhere",
             }}>
               {META.heading}
             </h2>
-            {META.description && (
-              <p style={{
-                fontFamily: "var(--v3-font-ui)", fontWeight: 300,
-                fontSize: "clamp(0.82rem, 0.5vw + 0.4rem, .88rem)", color: "var(--v3-fg-dim)",
-                lineHeight: 1.55, margin: "12px 0 0", maxWidth: "58ch",
-                overflowWrap: "anywhere",
-              }}>{META.description}</p>
-            )}
           </div>
         </V3Scan>
 
-        {/* Notes stack — fills remaining vertical space via flex: 1 +
-            justifyContent: space-between so the 3 notes spread evenly to
-            consume empty space below rather than clustering at the top. */}
-        <div style={{
-          display: "flex", flexDirection: "column",
-          justifyContent: "space-between",
-          border: "1px solid var(--v3-line)",
-          borderRadius: 6,
-          background: "color-mix(in oklab, var(--v3-bg-void) 50%, transparent)",
-          padding: "4px clamp(12px, 1.2vw, 22px)",
-          flex: 1, minHeight: 0, overflow: "visible", minWidth: 0,
-        }}>
-          {(blogPosts || []).map((post, i) => (
-            <NoteRow key={i} i={i} post={post} delay={0.15 + i * 0.08} />
-          ))}
-        </div>
+        {/* Master-detail card */}
+        <V3Scan variant="horizontal" delay={0.15} style={{ minWidth: 0, flex: 1, minHeight: 0, display: "flex" }}>
+          <div
+            role="tablist"
+            aria-label="Working notes"
+            onKeyDown={(e) => {
+              if (e.key === "ArrowDown" || e.key === "j") { goto((active + 1) % list.length); e.preventDefault(); }
+              if (e.key === "ArrowUp"   || e.key === "k") { goto((active - 1 + list.length) % list.length); e.preventDefault(); }
+            }}
+            style={{
+              width: "100%", height: "100%",
+              display: "grid",
+              gridTemplateColumns: "minmax(240px, 32%) 1fr",
+              gridTemplateRows: "1fr",
+              gap: "clamp(14px, 1.5vw, 26px)",
+              border: "1px solid var(--v3-line)",
+              borderRadius: 6,
+              background: "color-mix(in oklab, var(--v3-bg-void) 50%, transparent)",
+              padding: "clamp(12px, 1.2vw, 20px) clamp(14px, 1.4vw, 22px)",
+              minWidth: 0, minHeight: 0, alignItems: "stretch",
+            }}
+          >
+            {/* Master — 3 chapter buttons */}
+            <div style={{
+              display: "flex", flexDirection: "column",
+              justifyContent: "space-between", gap: "clamp(6px, 0.7vw, 12px)",
+              minWidth: 0, alignSelf: "stretch", height: "100%",
+            }}>
+              {list.map((p, i) => {
+                const isActive = i === active;
+                return (
+                  <button
+                    key={i}
+                    role="tab"
+                    aria-selected={isActive}
+                    onClick={() => goto(i)}
+                    style={{
+                      all: "unset", cursor: "pointer",
+                      display: "flex", flexDirection: "column",
+                      gap: "clamp(4px, 0.4vw, 8px)",
+                      padding: "clamp(10px, 1vw, 16px) clamp(10px, 1vw, 14px)",
+                      border: `1px solid ${isActive ? "var(--v3-accent)" : "var(--v3-line)"}`,
+                      borderLeftWidth: 3,
+                      borderLeftColor: isActive ? "var(--v3-accent)" : "var(--v3-line)",
+                      borderRadius: 4,
+                      background: isActive ? "color-mix(in oklab, var(--v3-accent) 10%, transparent)" : "transparent",
+                      transition: "background .2s, border-color .2s",
+                      minWidth: 0,
+                    }}
+                  >
+                    <div style={{ display: "flex", alignItems: "baseline", justifyContent: "space-between", gap: 8 }}>
+                      <span aria-hidden style={{
+                        fontFamily: "var(--v3-font-mono)", fontWeight: 400,
+                        fontSize: "clamp(9px, 0.3vw + 6px, 11px)",
+                        color: isActive ? "var(--v3-accent)" : "var(--v3-fg-mute)",
+                        letterSpacing: ".18em",
+                        fontVariantNumeric: "tabular-nums",
+                      }}>Chapter {String(i + 1).padStart(2, "0")}</span>
+                      {p.date && (
+                        <span style={{
+                          fontFamily: "var(--v3-font-mono)", fontWeight: 400,
+                          fontSize: "clamp(8.5px, 0.25vw + 6px, 10px)",
+                          letterSpacing: ".22em",
+                          color: isActive ? "var(--v3-accent)" : "var(--v3-fg-mute)",
+                          fontVariantNumeric: "tabular-nums",
+                          whiteSpace: "nowrap",
+                        }}>{p.date}</span>
+                      )}
+                    </div>
+                    <span style={{
+                      fontFamily: "var(--v3-font-display)", fontWeight: 340,
+                      fontSize: "clamp(0.92rem, 0.4vw + 0.55rem, 1.1rem)",
+                      lineHeight: 1.2, letterSpacing: "-.005em",
+                      color: isActive ? "var(--v3-fg)" : "var(--v3-fg-dim)",
+                      fontOpticalSizing: "auto",
+                      overflowWrap: "anywhere",
+                      display: "-webkit-box", WebkitLineClamp: 2, WebkitBoxOrient: "vertical",
+                      overflow: "hidden",
+                    }}>{p.title}</span>
+                  </button>
+                );
+              })}
+            </div>
+
+            {/* Detail — editorial spread */}
+            <div style={{
+              display: "flex", flexDirection: "column",
+              gap: "clamp(10px, 1vw, 18px)",
+              minWidth: 0, minHeight: 0, overflow: "hidden",
+              position: "relative",
+            }}>
+              {/* Static kicker: LOGGED YEAR · TAGS */}
+              <div style={{ display: "flex", alignItems: "center", gap: 10, flexWrap: "wrap", minWidth: 0 }}>
+                <span style={{ width: 14, height: 1, background: "var(--v3-accent)", alignSelf: "center" }} />
+                {post?.date && (
+                  <span style={{
+                    fontFamily: "var(--v3-font-mono)", fontWeight: 400,
+                    fontSize: "clamp(9px, 0.3vw + 6px, 11px)",
+                    letterSpacing: ".24em", textTransform: "uppercase", color: "var(--v3-fg-mute)",
+                    fontVariantNumeric: "tabular-nums",
+                  }}>Logged {post.date}</span>
+                )}
+                <span aria-hidden style={{ color: "var(--v3-fg-mute)", opacity: 0.4 }}>·</span>
+                <span style={{
+                  fontFamily: "var(--v3-font-mono)", fontWeight: 400,
+                  fontSize: "clamp(9px, 0.3vw + 6px, 11px)",
+                  letterSpacing: ".24em", textTransform: "uppercase", color: "var(--v3-fg-mute)",
+                  fontVariantNumeric: "tabular-nums",
+                }}>{String((post?.tags || []).length).padStart(2, "0")} tags</span>
+              </div>
+
+              {/* Swappable body — title + prose + tags + CTA */}
+              <AnimatePresence mode="wait" initial={false}>
+                <motion.div
+                  key={`body-${active}`}
+                  variants={BODY_VARIANTS}
+                  initial={reduce ? false : "hidden"}
+                  animate="show"
+                  exit="exit"
+                  style={{
+                    display: "flex", flexDirection: "column",
+                    gap: "clamp(10px, 1vw, 18px)",
+                    minWidth: 0, minHeight: 0, flex: 1,
+                  }}
+                >
+                  {/* Shutter-revealed title */}
+                  <motion.h3
+                    variants={reduce ? undefined : SHUTTER_VARIANTS}
+                    style={{
+                      fontFamily: "var(--v3-font-display)", fontWeight: 340,
+                      fontSize: "clamp(1.4rem, 1.1vw + 0.7rem, 2.2rem)",
+                      lineHeight: 1.2, letterSpacing: "-.015em",
+                      color: "var(--v3-fg)", margin: 0, fontOpticalSizing: "auto",
+                      overflowWrap: "anywhere",
+                      paddingBottom: "0.05em",
+                    }}>{post?.title}</motion.h3>
+
+                  {/* Prose paragraph with drop-cap on the first letter.
+                      Scoped via `.v3-notes-lede` so no other paragraph
+                      inherits it. */}
+                  {post?.description && (
+                    <p className="v3-notes-lede" style={{
+                      fontFamily: "var(--v3-font-ui)", fontWeight: 300,
+                      fontSize: "clamp(0.88rem, 0.35vw + 0.6rem, 1rem)",
+                      color: "var(--v3-fg-dim)", lineHeight: 1.7, margin: 0,
+                      maxWidth: "min(66ch, 100%)",
+                      overflowWrap: "break-word", hyphens: "auto",
+                    }}>
+                      {post.description}
+                    </p>
+                  )}
+                  <style>{`
+                    .v3-notes-lede::first-letter {
+                      font-family: var(--v3-font-display);
+                      font-weight: 340;
+                      font-size: 3.2em;
+                      line-height: 0.85;
+                      float: left;
+                      padding: 0.06em 0.14em 0 0;
+                      margin-right: 0.02em;
+                      color: var(--v3-fg);
+                      font-optical-sizing: auto;
+                      letter-spacing: -0.02em;
+                    }
+                  `}</style>
+
+                  {/* Tags + CTA footer */}
+                  <div style={{
+                    display: "flex", justifyContent: "space-between", alignItems: "flex-end",
+                    gap: 12, flexWrap: "wrap",
+                    marginTop: "auto", paddingTop: "clamp(8px, 0.8vw, 12px)",
+                    borderTop: "1px solid var(--v3-line)",
+                    minWidth: 0,
+                  }}>
+                    {(post?.tags || []).length > 0 && (
+                      <div style={{ display: "flex", flexWrap: "wrap", gap: 4, minWidth: 0 }}>
+                        {(post.tags || []).map((t, k) => (
+                          <span key={k} style={{
+                            fontFamily: "var(--v3-font-mono)", fontWeight: 400,
+                            fontSize: "clamp(8.5px, 0.3vw + 6px, 10.5px)",
+                            letterSpacing: ".08em", textTransform: "uppercase", color: "var(--v3-fg-dim)",
+                            border: "1px solid var(--v3-line-strong)", borderRadius: 999,
+                            padding: "clamp(1px, 0.15vw, 2px) clamp(6px, 0.6vw, 10px)",
+                            whiteSpace: "nowrap",
+                          }}>{t}</span>
+                        ))}
+                      </div>
+                    )}
+                    {post?.link && (
+                      <a href={post.link} target={post.link.startsWith("http") ? "_blank" : undefined} rel="noreferrer" style={{
+                        fontFamily: "var(--v3-font-mono)", fontWeight: 400,
+                        fontSize: "clamp(9px, 0.4vw + 6px, 11px)",
+                        letterSpacing: ".14em", textTransform: "uppercase",
+                        color: "var(--v3-accent)", textDecoration: "none",
+                        pointerEvents: "auto", cursor: "pointer",
+                        whiteSpace: "nowrap",
+                      }}>Read note →</a>
+                    )}
+                  </div>
+                </motion.div>
+              </AnimatePresence>
+            </div>
+          </div>
+        </V3Scan>
       </div>
     </V3Frame>
   );
