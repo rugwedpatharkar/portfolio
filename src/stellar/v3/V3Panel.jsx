@@ -11,7 +11,6 @@ import { useState, useEffect, useRef } from "react";
 import { motion, useReducedMotion } from "motion/react";
 import { PLANET_FACTS } from "../data/planetFacts";
 import { summaryFor } from "../data/holoSummary";
-import { COSMIC_BY_ID } from "./cosmicStops";
 import V3ContactForm from "./V3ContactForm";
 import useViewport from "../useViewport";
 import heroPhoto from "../../assets/hero-photo-1024.webp";
@@ -27,6 +26,7 @@ import EducationSection from "./sections/Education";
 import HobbiesSection from "./sections/Hobbies";
 import TestimonialsSection from "./sections/Testimonials";
 import ContactSection from "./sections/Contact";
+import WhatSetsMeApartSection from "./sections/WhatSetsMeApart";
 
 /* Planetary Dossier — one bespoke composition per résumé stop. See
    plans/changes-we-want-to-crispy-pebble.md for the design system.
@@ -42,6 +42,7 @@ const SECTION_COMPONENT = {
   education: EducationSection,
   hobbies: HobbiesSection,
   testimonials: TestimonialsSection,
+  whatsetsmeapart: WhatSetsMeApartSection,
   contact: ContactSection,
 };
 const useAccordionFallback = () => {
@@ -52,7 +53,8 @@ const useAccordionFallback = () => {
 const SECTION_TITLE = {
   about: "About", funfacts: "Fun facts", experience: "Experience", projects: "Projects",
   achievements: "Achievements", skills: "Skills", notes: "Writing", education: "Education",
-  hobbies: "Hobbies", testimonials: "Testimonials", contact: "Contact",
+  hobbies: "Hobbies", testimonials: "Testimonials",
+  whatsetsmeapart: "What Sets Me Apart", contact: "Contact",
 };
 
 const FACT_ROWS = [["DIST", "distance"], ["DAY", "day"], ["YEAR", "year"], ["TEMP", "temp"]];
@@ -202,34 +204,10 @@ export default function V3Panel({ destination, section, items, bootNonce }) {
   const rise = { hidden: { opacity: 0, y: reduce ? 0 : 14 }, show: { opacity: 1, y: 0, transition: { duration: 0.5, ease } } };
   const wrap = { pointerEvents: "auto", maxWidth: isCompact ? "100%" : "min(66ch, 54vw)", maxHeight: isCompact ? "60vh" : "84vh", overflowY: "auto", overflowX: "hidden" };
 
-  /* ---- cosmic epilogue stop (no résumé items — the phenomenon's facts + wow) ---- */
-  const cosmic = destination && COSMIC_BY_ID[destination.id];
-  if (cosmic) {
-    return (
-      <div style={wrap} className="stellar-content-left">
-        <motion.div key={cosmic.id} variants={stagger} initial="hidden" animate="show">
-          <motion.div variants={rise} style={{ font: `400 var(--v3-type-cap) var(--v3-font-mono)`, letterSpacing: ".28em", textTransform: "uppercase", color: "var(--v3-fg-mute)", display: "flex", alignItems: "center", gap: 12 }}>
-            <span style={{ width: 30, height: 1, background: "var(--v3-accent)" }} />{cosmic.kicker}
-          </motion.div>
-          <motion.h2 variants={rise} style={{ font: `400 var(--v3-type-s4) var(--v3-font-serif)`, color: "var(--v3-fg)", lineHeight: 1.02, letterSpacing: "-.02em", margin: ".12em 0 .2em" }}>{cosmic.title}</motion.h2>
-          <motion.p variants={rise} style={{ font: `300 var(--v3-type-body) var(--v3-font-ui)`, color: "var(--v3-fg-dim)", lineHeight: 1.55, margin: 0, maxWidth: "42ch" }}>{cosmic.summary}</motion.p>
-          {cosmic.facts?.length > 0 && (
-            <motion.div variants={rise} style={{ marginTop: 26, borderTop: "1px solid var(--v3-line)", paddingTop: 16, display: "grid", gridTemplateColumns: "1fr 1fr", gap: "12px 24px" }}>
-              {cosmic.facts.map(([label, value]) => (
-                <div key={label} style={{ minWidth: 0 }}>
-                  <div style={{ font: `400 10px var(--v3-font-mono)`, letterSpacing: ".1em", color: "var(--v3-fg-mute)" }}>{label}</div>
-                  <div style={{ font: `400 var(--v3-type-cap) var(--v3-font-mono)`, color: "var(--v3-fg-dim)", marginTop: 2 }}>{value}</div>
-                </div>
-              ))}
-            </motion.div>
-          )}
-          {cosmic.wow && (
-            <motion.div variants={rise} style={{ font: `300 var(--v3-type-cap) var(--v3-font-ui)`, color: "var(--v3-fg-dim)", lineHeight: 1.55, marginTop: 18, paddingLeft: 14, borderLeft: "2px solid var(--v3-accent)" }}>{cosmic.wow}</motion.div>
-          )}
-        </motion.div>
-      </div>
-    );
-  }
+  /* Cosmic-epilogue inline branch retired — the sole cosmic stop (blackhole)
+     now carries the Contact section, which renders via the normal
+     SECTION_COMPONENT dispatch below. COSMIC_BY_ID is kept for scene rendering
+     (accent, position, radius) but no longer intercepts content. */
 
   /* ---- Planetary Dossier route — bespoke per-section composition ----
      Any résumé stop with a registered section component renders through the
