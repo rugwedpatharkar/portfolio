@@ -2,31 +2,30 @@
 /*
  * About (Sun) — the recruiter landing dossier.
  *
- * ALL content lives in the LEFT column (~55vw). The RIGHT half of the frame is
- * reserved for the smaller 3D planet + its hover-to-reveal telemetry card. Nothing
- * in the DOM overlaps the sphere's render area.
+ * The Sun is ~109× Earth's radius at true scale, so its 3D render eats a
+ * huge chunk of the right side of the frame. All About content lives in
+ * grid column 1 only (LEFT-LEFT-. → LEFT-.-.). The Sun + Body Telemetry
+ * corner card own columns 2+3 uncontested. Previous "3-stat rail"
+ * duplicated FunFacts numbers AND collided with the Sun's corona; deleted.
  *
  * LEFT column (top to bottom):
  *   - Portrait + Fraunces name-block (flush baseline)
- *   - "OVERVIEW" mono kicker + accent rule + editorial lede
- *   - Availability pill (Open to roles) + short sub
- *   - Compact spec sheet (Role / Based / Languages / Tenure) with hairline dividers
+ *   - "OVERVIEW" mono kicker + accent rule + editorial lede with drop-cap
+ *   - Availability pill (Open to roles) + spec sheet (Role/Based/…)
  *
- * BOTTOM strip (full width):
- *   - Hero stat 96% p95 cut + descriptor
- *   - Two supporting stats (31 services, 7+ vendors) stacked to the right
+ * Signature moment: Fraunces drop-cap on the overview + scroll-linked
+ * portrait parallax + hairline registration ticks at each portrait corner.
  */
 import { useRef } from "react";
 import { motion, useScroll, useTransform, useSpring, useReducedMotion } from "motion/react";
-import { personalInfo, heroContent } from "../../../content";
-import { V3Frame, V3Scan, V3Ticker, V3DepthLayer } from "../primitives";
+import { personalInfo } from "../../../content";
+import { V3Frame, V3Scan, V3DepthLayer } from "../primitives";
 import heroPhoto from "../../../assets/hero-photo-1024.webp";
 
 /*
  * Corner registration ticks — hairline SVG arms in each corner of a
- * container. Reads as photographic-plate registration marks. Purely
- * decorative; positioned absolutely so consumers just wrap them in a
- * `position: relative` parent.
+ * container. Reads as photographic-plate registration marks. Positioned
+ * absolutely so the parent just needs `position: relative`.
  */
 const RegistrationTicks = ({ arm = 10, inset = -1, color = "var(--v3-line-strong)" }) => (
   <>
@@ -47,10 +46,6 @@ const RegistrationTicks = ({ arm = 10, inset = -1, color = "var(--v3-line-strong
 const [FIRST, ...REST] = (personalInfo.fullName || "").split(" ");
 const LAST = REST.join(" ");
 
-const HERO_STAT = heroContent?.stats?.find((s) => String(s.value).includes("96")) || heroContent?.stats?.[2] || { value: 96, suffix: "%", label: "p95 latency cut" };
-const SUPPORT_A = heroContent?.stats?.[0] || { value: 31, suffix: "", label: "Services architected" };
-const SUPPORT_B = heroContent?.stats?.[1] || { value: 7, suffix: "+", label: "PMS / hardware vendors" };
-
 const Row = ({ label, children }) => (
   <div style={{ padding: "clamp(6px, 0.6vw, 10px) 0", borderTop: "1px solid var(--v3-line)", display: "grid", gridTemplateColumns: "minmax(4.5rem, 6rem) 1fr", alignItems: "baseline", gap: "clamp(8px, 1vw, 14px)", minWidth: 0 }}>
     <span style={{ fontFamily: "var(--v3-font-mono)", fontWeight: 400, fontSize: "clamp(9px, 0.7vw + 0.15rem, 11px)", letterSpacing: ".18em", textTransform: "uppercase", color: "var(--v3-fg-mute)" }}>{label}</span>
@@ -58,58 +53,18 @@ const Row = ({ label, children }) => (
   </div>
 );
 
-const Stat = ({ big, valueFontSize, value, suffix, label, sub, decimals }) => (
-  <div style={{ display: "flex", flexDirection: "column", gap: "clamp(6px, 0.7vw, 12px)", alignItems: "flex-start", minWidth: 0 }}>
-    <div style={{
-      fontFamily: "var(--v3-font-display)",
-      fontWeight: 340,
-      fontSize: valueFontSize,
-      lineHeight: 1,
-      letterSpacing: "-.02em",
-      color: "var(--v3-fg)",
-      fontOpticalSizing: "auto",
-      overflowWrap: "anywhere",
-    }}>
-      <V3Ticker value={value} suffix={suffix || ""} decimals={decimals} />
-    </div>
-    <div style={{ display: "flex", flexDirection: "column", gap: 6, minWidth: 0 }}>
-      <div style={{
-        fontFamily: "var(--v3-font-mono)",
-        fontWeight: 400,
-        fontSize: "clamp(10px, 0.55vw + 0.4rem, 13px)",
-        letterSpacing: ".18em",
-        textTransform: "uppercase",
-        color: "var(--v3-fg-mute)",
-        overflowWrap: "anywhere",
-      }}>{label}</div>
-      {sub && (
-        <div style={{
-          fontFamily: "var(--v3-font-ui)",
-          fontWeight: 300,
-          fontSize: "clamp(.82rem, 0.55vw + 0.55rem, .9rem)",
-          color: "var(--v3-fg-dim)",
-          lineHeight: 1.5,
-          maxWidth: big ? "min(34ch, 42vw)" : "min(26ch, 32vw)",
-          overflowWrap: "break-word",
-        }}>{sub}</div>
-      )}
-    </div>
-  </div>
-);
-
 export default function AboutSection({ index, bootNonce }) {
   /*
    * Signature moment — scroll-linked portrait parallax.
    *
-   * useScroll targets the About section's outer DOM node with an
-   * "start end" → "end start" offset. In a GSAP-pinned setup the target
-   * remains near-stationary while the user scrolls through the pin range,
-   * so scrollYProgress advances gradually across the stop. useSpring
-   * smooths the raw progress into a physical camera glide. Reduced-motion
-   * users get a static portrait — the spring output is bypassed.
+   * useScroll targets the About section's outer DOM node with "start end"
+   * → "end start" offset. In the GSAP-pinned tour the target remains
+   * near-stationary while the user scrolls through the pin range, so
+   * scrollYProgress advances gradually across the stop. useSpring smooths
+   * the raw progress into a physical camera glide. Reduced-motion users
+   * get a static portrait.
    */
   const sectionRef = useRef(null);
-  const portraitRef = useRef(null);
   const reduce = useReducedMotion();
   const { scrollYProgress } = useScroll({
     target: sectionRef,
@@ -125,35 +80,26 @@ export default function AboutSection({ index, bootNonce }) {
       index={index}
       scanDir="horizontal"
       scanKey={bootNonce}
-      /* User asked for a redesign that gives the About info the whole vertical
-         and shows the 3 stats *beside* it (not below) as a stack rail.
-         Removed the BOTTOM row; LEFT now spans grid cols 1+2 and holds a
-         2-col internal grid: main-info + stat-rail. */
-      gridAreas={`"top top top" "left left ." "left left ." "left left ."`}
+      /* LEFT lives in col 1 only. Cols 2+3 belong to the Sun's 3D render +
+         Body Telemetry corner card — nothing in the DOM competes with them. */
+      gridAreas={`"top top top" "left . ." "left . ." "left . ."`}
     >
-      {/* LEFT — full-height wrapper for the redesigned two-column layout:
-          about-info on the left, 3 stats stacked on the right. Uses grid so
-          both columns fill viewport height together. */}
       <div ref={sectionRef} style={{
         gridArea: "left",
-        display: "grid",
-        gridTemplateColumns: "minmax(0, 2fr) minmax(240px, 1fr)",
-        gap: "clamp(18px, 2vw, 32px)",
-        minWidth: 0, minHeight: 0, overflow: "hidden",
-        maxWidth: "min(65vw, 1200px)", height: "100%",
+        display: "flex", flexDirection: "column",
+        gap: "clamp(14px, 1.2vw, 24px)",
+        minWidth: 0, minHeight: 0, overflow: "auto",
+        paddingRight: "clamp(4px, 0.5vw, 8px)",
+        maxWidth: "min(50vw, 820px)", height: "100%",
       }}>
-        {/* Column 1 — about info (portrait+name, unclamped overview, availability + spec) */}
-        <div style={{ display: "flex", flexDirection: "column", gap: "clamp(12px, 1vw, 20px)", minWidth: 0, overflow: "auto", paddingRight: "clamp(4px, 0.5vw, 8px)" }}>
         {/* Portrait + name */}
         <V3DepthLayer depth={2} style={{ display: "flex", gap: "clamp(12px, 1.1vw, 18px)", alignItems: "flex-end", minWidth: 0, flexWrap: "wrap" }}>
           <V3Scan variant="horizontal" delay={0.05}>
-            {/* Portrait plate — wrapped in a relative container so the
-                registration ticks sit exactly at each corner. The plate
-                itself is a motion.div driven by scrollYProgress (spring-
-                smoothed) so the whole photograph translates as the user
-                scrolls through the About stop — cinematic camera glide. */}
+            {/* Portrait plate — position:relative so registration ticks anchor
+                to each corner. The plate itself is a motion.div driven by a
+                scroll-linked, spring-smoothed y so the whole photograph
+                translates as the user scrolls through the About stop. */}
             <div
-              ref={portraitRef}
               style={{
                 position: "relative",
                 width: "clamp(110px, 9vw, 160px)",
@@ -205,22 +151,21 @@ export default function AboutSection({ index, bootNonce }) {
           </div>
         </V3DepthLayer>
 
-        {/* Overview lede — DM Serif Display drop-cap on the opening
-            paragraph. Editorial cue that this is the primary voice, not
-            marketing copy. `::first-letter` targets grapheme 1 in every
-            supported browser; falls back to the base body style
-            gracefully. Scoped via `.v3-about-lede` so no other paragraph
-            picks up the drop-cap. */}
+        {/* Overview lede — Fraunces drop-cap on the opening paragraph.
+            Editorial cue that this is the primary voice, not marketing copy.
+            `::first-letter` targets grapheme 1 in every supported browser;
+            falls back gracefully. Scoped via `.v3-about-lede` so no other
+            paragraph inherits the drop-cap. */}
         <V3Scan variant="horizontal" delay={0.24}>
-          <div style={{ maxWidth: "min(70ch, 48vw)", minWidth: 0 }}>
+          <div style={{ minWidth: 0 }}>
             <div style={{ display: "flex", alignItems: "center", gap: "clamp(8px, 0.9vw, 14px)", marginBottom: 8, flexWrap: "wrap" }}>
               <span style={{ width: "clamp(16px, 1.6vw, 26px)", height: 1, background: "var(--v3-accent)" }} />
               <span style={{ fontFamily: "var(--v3-font-mono)", fontWeight: 400, fontSize: "clamp(9px, 0.6vw + 0.2rem, 11px)", letterSpacing: ".28em", textTransform: "uppercase", color: "var(--v3-fg-mute)" }}>Overview</span>
             </div>
             <p className="v3-about-lede" style={{
               fontFamily: "var(--v3-font-ui)", fontWeight: 300,
-              fontSize: "clamp(.85rem, 0.5vw + 0.5rem, .95rem)",
-              color: "var(--v3-fg-dim)", lineHeight: 1.55, margin: 0,
+              fontSize: "clamp(.9rem, 0.5vw + 0.55rem, 1rem)",
+              color: "var(--v3-fg-dim)", lineHeight: 1.6, margin: 0,
               overflowWrap: "break-word", hyphens: "auto",
             }}>
               {personalInfo.about}
@@ -245,7 +190,6 @@ export default function AboutSection({ index, bootNonce }) {
         {/* Availability + spec sheet, inline (side by side on desktop) */}
         <V3Scan variant="horizontal" delay={0.32}>
           <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(min(200px, 100%), 1fr))", gap: "clamp(14px, 1.6vw, 24px) clamp(18px, 2.2vw, 36px)", alignItems: "start", marginTop: 4, minWidth: 0 }}>
-            {/* Availability pill */}
             <div style={{ minWidth: 0 }}>
               <div style={{ fontFamily: "var(--v3-font-mono)", fontWeight: 400, fontSize: "clamp(9px, 0.6vw + 0.2rem, 11px)", letterSpacing: ".22em", textTransform: "uppercase", color: "var(--v3-fg-mute)", marginBottom: 8 }}>
                 Availability
@@ -275,7 +219,6 @@ export default function AboutSection({ index, bootNonce }) {
               </div>
             </div>
 
-            {/* Spec sheet */}
             <div style={{ borderBottom: "1px solid var(--v3-line)", minWidth: 0 }}>
               <Row label="Role">{personalInfo.role}</Row>
               <Row label="Based">{personalInfo.location}</Row>
@@ -284,56 +227,6 @@ export default function AboutSection({ index, bootNonce }) {
             </div>
           </div>
         </V3Scan>
-        </div>
-
-        {/* Column 2 — 3 stats stacked vertically, distributed with
-            justify-content: space-between so they fill the same vertical as
-            the info column. Hairline dividers between rows (was columns). */}
-        <div style={{
-          display: "flex", flexDirection: "column",
-          justifyContent: "space-between",
-          gap: "clamp(14px, 1.4vw, 22px)",
-          minWidth: 0, minHeight: 0, overflow: "auto",
-          paddingLeft: "clamp(12px, 1.4vw, 22px)",
-          borderLeft: "1px solid var(--v3-line)",
-        }}>
-          <V3Scan variant="horizontal" delay={0.36}>
-            <div style={{ minWidth: 0 }}>
-              <Stat
-                valueFontSize="clamp(1.6rem, 1.1rem + 2vw, 2.6rem)"
-                value={HERO_STAT.value}
-                suffix={HERO_STAT.suffix || "%"}
-                label={HERO_STAT.label}
-                sub="p95 API latency: 5s → 200ms via Redis caching, connection pooling, query optimisation."
-                big
-              />
-            </div>
-          </V3Scan>
-          <V3Scan variant="horizontal" delay={0.4}>
-            <div style={{ borderTop: "1px solid var(--v3-line)", paddingTop: "clamp(14px, 1.4vw, 22px)", minWidth: 0 }}>
-              <Stat
-                valueFontSize="clamp(1.6rem, 1.1rem + 2vw, 2.6rem)"
-                value={SUPPORT_A.value}
-                suffix={SUPPORT_A.suffix || ""}
-                label={SUPPORT_A.label}
-                sub="Multi-tenant Python/FastAPI/gRPC platform on GKE."
-                big
-              />
-            </div>
-          </V3Scan>
-          <V3Scan variant="horizontal" delay={0.44}>
-            <div style={{ borderTop: "1px solid var(--v3-line)", paddingTop: "clamp(14px, 1.4vw, 22px)", minWidth: 0 }}>
-              <Stat
-                valueFontSize="clamp(1.6rem, 1.1rem + 2vw, 2.6rem)"
-                value={SUPPORT_B.value}
-                suffix={SUPPORT_B.suffix || "+"}
-                label={SUPPORT_B.label}
-                sub="Apaleo · Opera · Cloudbeds · RMS · Clock · Maxxton · ASSA ABLOY."
-                big
-              />
-            </div>
-          </V3Scan>
-        </div>
       </div>
     </V3Frame>
   );
