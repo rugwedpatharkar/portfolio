@@ -35,7 +35,7 @@ export default function AchievementsSection({ index, bootNonce }) {
       <div style={{
         gridArea: "left", display: "flex", flexDirection: "column",
         gap: "clamp(12px, 1.2vw, 22px)",
-        minWidth: 0, minHeight: 0, overflow: "auto",
+        minWidth: 0, minHeight: 0, overflow: "hidden",
         maxWidth: "min(70vw, 1200px)",
         height: "100%",
       }}>
@@ -84,7 +84,7 @@ export default function AchievementsSection({ index, bootNonce }) {
               <div
                 role="tablist"
                 aria-label="Milestones"
-                style={{ display: "flex", flexDirection: "column", gap: 2, minWidth: 0, overflow: "auto" }}
+                style={{ display: "flex", flexDirection: "column", gap: 2, minWidth: 0, overflow: "hidden" }}
                 onKeyDown={(e) => {
                   if (e.key === "ArrowDown" || e.key === "j") { setActive(a => Math.min(list.length - 1, a + 1)); e.preventDefault(); }
                   if (e.key === "ArrowUp"   || e.key === "k") { setActive(a => Math.max(0, a - 1)); e.preventDefault(); }
@@ -146,7 +146,7 @@ export default function AchievementsSection({ index, bootNonce }) {
               <div key={`ach-${active}`} style={{
                 display: "flex", flexDirection: "column",
                 gap: "clamp(12px, 1vw, 18px)",
-                minWidth: 0, overflow: "auto",
+                minWidth: 0, overflow: "hidden",
                 position: "relative",
               }}>
                 {/* corner glow dot — circuit-junction cue */}

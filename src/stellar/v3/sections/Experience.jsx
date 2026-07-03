@@ -54,7 +54,7 @@ export default function ExperienceSection({ index, bootNonce }) {
         gridArea: "left",
         display: "flex", flexDirection: "column",
         gap: "clamp(12px, 1.2vw, 18px)",
-        minWidth: 0, minHeight: 0, overflow: "auto",
+        minWidth: 0, minHeight: 0, overflow: "hidden",
         maxWidth: "min(70vw, 1200px)", height: "100%",
       }}>
         {/* Section header — same voice as About + FunFacts */}

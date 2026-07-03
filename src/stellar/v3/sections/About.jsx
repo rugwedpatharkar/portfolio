@@ -88,7 +88,7 @@ export default function AboutSection({ index, bootNonce }) {
         gridArea: "left",
         display: "flex", flexDirection: "column",
         gap: "clamp(14px, 1.2vw, 24px)",
-        minWidth: 0, minHeight: 0, overflow: "auto",
+        minWidth: 0, minHeight: 0, overflow: "hidden",
         paddingRight: "clamp(4px, 0.5vw, 8px)",
         maxWidth: "min(50vw, 820px)", height: "100%",
       }}>

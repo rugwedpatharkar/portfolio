@@ -132,7 +132,7 @@ export default function WhatSetsMeApartSection({ index, bootNonce }) {
         gridArea: "left",
         display: "flex", flexDirection: "column",
         gap: "clamp(12px, 1.2vw, 18px)",
-        minWidth: 0, overflow: "auto",
+        minWidth: 0, overflow: "hidden",
         maxWidth: "min(50vw, 820px)",
         height: "100%",
       }}>

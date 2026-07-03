@@ -33,7 +33,7 @@ export default function ContactSection({ index, bootNonce }) {
       <div style={{
         gridArea: "left", display: "flex", flexDirection: "column",
         gap: "clamp(12px, 1.4vh, 22px)",
-        minWidth: 0, overflow: "auto",
+        minWidth: 0, overflow: "hidden",
         maxWidth: "min(65vw, 1100px)", height: "100%",
       }}>
         {/* Header */}
@@ -101,7 +101,7 @@ export default function ContactSection({ index, bootNonce }) {
             background: "color-mix(in oklab, var(--v3-bg-void) 50%, transparent)",
             padding: "clamp(10px, 1vw, 16px)",
             gap: "clamp(6px, 0.6vw, 10px)",
-            minHeight: 0, minWidth: 0, overflow: "auto",
+            minHeight: 0, minWidth: 0, overflow: "hidden",
           }}>
             <div style={{
               display: "flex", alignItems: "baseline",
