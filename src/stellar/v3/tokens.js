@@ -50,15 +50,22 @@ export const accentFor = (key) =>
 
 /* ---- type ----------------------------------------------------------------- */
 export const FONT = {
-  /* Font stack — Option B: cinematic magazine-cover feel.
-     DM Serif Display: high-contrast, dramatic serif for headlines + big stat values.
-     Instrument Serif: italic-forward serif for section heads (kept as accent).
-     Manrope: warmer geometric sans for UI/body — better readability at small sizes.
-     Geist Mono: Vercel's modern monospace for data channels + kicker labels. */
-  display: "'DM Serif Display', Georgia, serif",
+  /* Font stack — Option 2 (Rauno/Kenta editorial-technical).
+     Fraunces: variable serif for display + values. Uses `opsz`+`SOFT`+`wght`
+       axes for optical-size correctness + softened contrast at large sizes.
+     Instrument Serif: italic-forward accent serif (kept — its italic is
+       iconic and pairs with Fraunces).
+     Satoshi: Fontshare geometric sans for UI/body — more character than
+       Inter, more restraint than Manrope's warmth. Feels premium without
+       generic.
+     JetBrains Mono: the tool builders' monospace — signals "software engineer"
+       more explicitly than Geist Mono, still modern.
+     Fallbacks preserve the legacy AppErrorBoundary + StellarApp read-mode
+     stack in case Fraunces / Satoshi / JetBrains Mono fail to load. */
+  display: "'Fraunces', 'DM Serif Display', Georgia, serif",
   serif: "'Instrument Serif', Georgia, serif",
-  ui: "'Manrope', system-ui, sans-serif",
-  mono: "'Geist Mono', ui-monospace, monospace",
+  ui: "'Satoshi', 'Manrope', system-ui, sans-serif",
+  mono: "'JetBrains Mono', 'Geist Mono', ui-monospace, monospace",
 };
 
 /* Utopia fluid clamp() steps (type). Hero name (step6) bumped per sign-off. */

@@ -72,7 +72,7 @@ export default function V3ContactForm() {
 
   const inputStyle = {
     all: "unset", width: "100%", boxSizing: "border-box",
-    font: "400 .95rem 'Manrope', system-ui, sans-serif",
+    font: "400 .95rem var(--v3-font-ui)",
     color: "var(--v3-fg)", padding: "10px 2px 8px",
     borderBottom: "1px solid var(--v3-line)",
     transition: "border-color .2s",
@@ -170,7 +170,7 @@ export default function V3ContactForm() {
           disabled={status.state === "sending" || isDone}
           className="v3-press"
           style={{
-            font: "500 .9rem 'Manrope', system-ui, sans-serif", letterSpacing: ".01em",
+            font: "500 .9rem var(--v3-font-ui)", letterSpacing: ".01em",
             color: "var(--v3-bg-void)", background: "var(--v3-accent)",
             border: "1px solid transparent", borderRadius: 7,
             padding: "12px 22px", cursor: isDone ? "default" : "pointer",
