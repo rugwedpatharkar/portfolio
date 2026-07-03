@@ -19,29 +19,34 @@ const META = sectionMeta.funFacts;
 
 const Stat = ({ icon, value, suffix, label, detail, delay = 0.2, decimals }) => (
   <V3Scan variant="radial" delay={delay}>
-    <div style={{ display: "flex", flexDirection: "column", gap: 10, minWidth: 0 }}>
+    <div style={{ display: "flex", flexDirection: "column", gap: "clamp(8px, 0.7vw, 12px)", minWidth: 0 }}>
       {/* number + icon inline; icon small enough not to steal focus from the numeric */}
-      <div style={{ display: "flex", alignItems: "baseline", gap: 10 }}>
-        <span aria-hidden style={{ fontSize: "1rem", opacity: 0.75, flexShrink: 0 }}>{icon}</span>
+      <div style={{ display: "flex", alignItems: "baseline", gap: "clamp(8px, 0.7vw, 12px)", flexWrap: "wrap" }}>
+        <span aria-hidden style={{ fontSize: "clamp(.9rem, 0.75vw + 0.4rem, 1.1rem)", opacity: 0.75, flexShrink: 0 }}>{icon}</span>
         <span style={{
           fontFamily: "var(--v3-font-display)", fontWeight: 340,
-          fontSize: "clamp(2rem, 3.4vw, 2.6rem)", lineHeight: 1,
+          /* Wider slope so the big number scales smoothly from 1280 → 2560 without
+             looking tiny on narrow or oversized on ultra-wide. */
+          fontSize: "clamp(1.8rem, 1.1vw + 1.3rem, 3rem)", lineHeight: 1,
           letterSpacing: "-.02em", color: "var(--v3-fg)", fontOpticalSizing: "auto",
+          overflowWrap: "anywhere",
         }}>
           <V3Ticker value={value} suffix={suffix || ""} decimals={decimals} />
         </span>
       </div>
       <div style={{
         fontFamily: "var(--v3-font-mono)", fontWeight: 400,
-        fontSize: "clamp(10px, 0.85vw, 12px)",
+        fontSize: "clamp(9.5px, 0.35vw + 8px, 13px)",
         letterSpacing: ".18em", textTransform: "uppercase",
         color: "var(--v3-fg-mute)",
+        overflowWrap: "anywhere",
       }}>{label}</div>
       <p style={{
         fontFamily: "var(--v3-font-ui)", fontWeight: 300,
-        fontSize: "clamp(.82rem, 0.95vw, .95rem)",
+        fontSize: "clamp(.8rem, 0.35vw + 0.7rem, 1.02rem)",
         color: "var(--v3-fg-dim)", lineHeight: 1.5, margin: 0,
-        maxWidth: "34ch",
+        maxWidth: "min(34ch, 100%)",
+        overflowWrap: "anywhere",
       }}>{detail}</p>
     </div>
   </V3Scan>
@@ -57,30 +62,45 @@ export default function FunFactsSection({ index, bootNonce }) {
       scanKey={bootNonce}
       gridAreas={`"top top top" "left . ." "left . ." "bottom bottom bottom"`}
     >
-      {/* LEFT — all content. maxWidth 50vw keeps clear of Mercury on the right. */}
-      <div style={{ gridArea: "left", display: "flex", flexDirection: "column", gap: 24, minWidth: 0, overflow: "hidden", maxWidth: "50vw" }}>
+      {/* LEFT — all content. maxWidth uses min() so ultra-wide screens cap at
+          a comfortable reading width instead of stretching, while narrow
+          viewports still get the same 50vw ceiling clear of Mercury. */}
+      <div style={{
+        gridArea: "left",
+        display: "flex", flexDirection: "column",
+        gap: "clamp(18px, 1.8vw, 32px)",
+        minWidth: 0, overflow: "hidden",
+        maxWidth: "min(50vw, 780px)",
+      }}>
         {/* Header: kicker + heading + lede — same voice as About */}
         <V3Scan variant="horizontal" delay={0.05}>
           <div>
-            <div style={{ display: "flex", alignItems: "center", gap: 12, marginBottom: 10 }}>
-              <span style={{ width: 22, height: 1, background: "var(--v3-accent)" }} />
+            <div style={{ display: "flex", alignItems: "center", gap: 12, marginBottom: 10, flexWrap: "wrap", minWidth: 0 }}>
+              <span style={{ width: 22, height: 1, background: "var(--v3-accent)", flexShrink: 0 }} />
               <span style={{
-                fontFamily: "var(--v3-font-mono)", fontWeight: 400, fontSize: 10,
+                fontFamily: "var(--v3-font-mono)", fontWeight: 400,
+                fontSize: "clamp(9.5px, 0.2vw + 8px, 11px)",
                 letterSpacing: ".28em", textTransform: "uppercase", color: "var(--v3-fg-mute)",
+                overflowWrap: "anywhere",
               }}>{META.sub}</span>
             </div>
             <h2 style={{
               fontFamily: "var(--v3-font-display)", fontWeight: 340,
-              fontSize: "clamp(2rem, 3.6vw, 3.2rem)", fontOpticalSizing: "auto",
+              /* Widen slope + higher cap so the section head keeps presence at
+                 2560 without dominating at 1280 / 125% zoom. */
+              fontSize: "clamp(1.9rem, 1.4vw + 1.2rem, 3.6rem)", fontOpticalSizing: "auto",
               lineHeight: 1, letterSpacing: "-.02em", color: "var(--v3-fg)",
               margin: "0 0 12px",
+              overflowWrap: "anywhere",
             }}>
               {META.heading}
             </h2>
             <p style={{
               fontFamily: "var(--v3-font-ui)", fontWeight: 300,
-              fontSize: "clamp(.9rem, 1vw, 1.02rem)", color: "var(--v3-fg-dim)",
-              lineHeight: 1.55, margin: 0, maxWidth: "62ch",
+              fontSize: "clamp(.85rem, 0.35vw + 0.75rem, 1.08rem)", color: "var(--v3-fg-dim)",
+              lineHeight: 1.55, margin: 0,
+              maxWidth: "min(62ch, 100%)",
+              overflowWrap: "anywhere",
             }}>
               {META.description}
             </p>
@@ -88,14 +108,17 @@ export default function FunFactsSection({ index, bootNonce }) {
         </V3Scan>
 
         {/* 2×4 stats grid — hairline dividers between rows AND columns.
-            Each stat gets a scan delay that ripples outward for the radial feel. */}
+            Column count intentionally stays at 2 (auto-fit would break the row/col
+            divider math). Row/column gaps + padding all clamp so the grid
+            breathes at 1280 and doesn't feel airless at 2560. */}
         <div style={{
           display: "grid",
-          gridTemplateColumns: "1fr 1fr",
+          gridTemplateColumns: "minmax(0, 1fr) minmax(0, 1fr)",
           gridAutoRows: "min-content",
-          columnGap: 28, rowGap: 24,
+          columnGap: "clamp(18px, 1.8vw, 36px)",
+          rowGap: "clamp(16px, 1.6vw, 30px)",
           borderTop: "1px solid var(--v3-line)",
-          paddingTop: 22,
+          paddingTop: "clamp(16px, 1.4vw + 8px, 28px)",
         }}>
           {funFacts.map((f, i) => {
             const row = Math.floor(i / 2);
@@ -103,8 +126,8 @@ export default function FunFactsSection({ index, bootNonce }) {
             const isFloat = !Number.isInteger(f.value);
             return (
               <div key={i} style={{
-                paddingTop: row > 0 ? 22 : 0,
-                paddingLeft: col > 0 ? 24 : 0,
+                paddingTop: row > 0 ? "clamp(16px, 1.4vw + 8px, 28px)" : 0,
+                paddingLeft: col > 0 ? "clamp(14px, 1.4vw, 28px)" : 0,
                 borderTop: row > 0 ? "1px solid var(--v3-line)" : "none",
                 borderLeft: col > 0 ? "1px solid var(--v3-line)" : "none",
                 minWidth: 0,
