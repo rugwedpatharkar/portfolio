@@ -129,24 +129,24 @@ export default function V3ContactForm() {
 
   const inputStyle = {
     all: "unset", width: "100%", boxSizing: "border-box",
-    font: "400 .95rem var(--v3-font-ui)",
-    color: "var(--v3-fg)", padding: "10px 2px 8px",
+    font: "400 .85rem var(--v3-font-ui)",
+    color: "var(--v3-fg)", padding: "7px 2px 6px",
     borderBottom: "1px solid var(--v3-line)",
     transition: "border-color .2s",
   };
   const label = {
-    font: "400 var(--v3-type-cap) var(--v3-font-mono)",
-    letterSpacing: ".14em", textTransform: "uppercase", color: "var(--v3-fg-mute)",
-    marginBottom: 4, display: "block",
+    font: "400 9.5px var(--v3-font-mono)",
+    letterSpacing: ".16em", textTransform: "uppercase", color: "var(--v3-fg-mute)",
+    marginBottom: 3, display: "block",
   };
   const chip = (on) => ({
     all: "unset", cursor: "pointer",
-    font: "400 var(--v3-type-cap) var(--v3-font-mono)",
+    font: "400 9.5px var(--v3-font-mono)",
     letterSpacing: ".1em", textTransform: "uppercase",
     color: on ? "var(--v3-bg-void)" : "var(--v3-fg-dim)",
     background: on ? "var(--v3-accent)" : "transparent",
     border: `1px solid ${on ? "transparent" : "var(--v3-line-strong)"}`,
-    borderRadius: 999, padding: "5px 11px",
+    borderRadius: 999, padding: "4px 9px",
     transition: "all .18s",
   });
   const isDone = status.state === "sent";
@@ -160,9 +160,8 @@ export default function V3ContactForm() {
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.5, ease }}
       style={{
-        display: "flex", flexDirection: "column", gap: 14,
-        marginTop: 18, marginBottom: 22, paddingBottom: 22,
-        borderBottom: "1px solid var(--v3-line)",
+        display: "flex", flexDirection: "column", gap: 8,
+        marginTop: 4, marginBottom: 4, paddingBottom: 4,
         minHeight: 0,
       }}
     >
@@ -183,7 +182,7 @@ export default function V3ContactForm() {
         </div>
       </div>
 
-      <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 18 }}>
+      <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 14 }}>
         <div>
           <label style={label} htmlFor="v3-cname">Name</label>
           <input id="v3-cname" style={inputStyle} type="text" placeholder={contactContent.placeholders.name} value={form.name} onChange={setField("name")} required autoComplete="name" />
@@ -233,15 +232,15 @@ export default function V3ContactForm() {
                row collapses to 0 px height. Pinning `flex-shrink: 0`
                makes 120 px a floor. */
             flexShrink: 0,
-            height: 120,
+            height: 64,
             resize: "vertical",
             fontFamily: "var(--v3-font-ui)",
-            fontSize: ".95rem",
+            fontSize: ".82rem",
             fontWeight: 400,
-            lineHeight: 1.5,
+            lineHeight: 1.4,
             color: "var(--v3-fg)",
             background: "transparent",
-            padding: "10px 2px 8px",
+            padding: "7px 2px 6px",
             border: "none",
             borderBottom: "1px solid var(--v3-line)",
             outline: "none",
@@ -280,16 +279,16 @@ export default function V3ContactForm() {
           onPointerCancel={reduce ? undefined : cancelHold}
           style={{
             position: "relative",
-            font: "500 .9rem var(--v3-font-ui)", letterSpacing: ".01em",
+            font: "500 .82rem var(--v3-font-ui)", letterSpacing: ".01em",
             color: "var(--v3-accent)", background: "transparent",
-            border: "1px solid var(--v3-accent)", borderRadius: 7,
-            padding: "12px 22px",
+            border: "1px solid var(--v3-accent)", borderRadius: 6,
+            padding: "8px 16px",
             cursor: isDone ? "default" : "pointer",
             opacity: status.state === "sending" ? 0.85 : 1,
             overflow: "hidden",
             touchAction: "none",
             userSelect: "none",
-            minWidth: "clamp(140px, 12vw, 180px)",
+            minWidth: "clamp(120px, 10vw, 150px)",
           }}
         >
           {/* Accent fill overlay — clip-path revealed left→right by

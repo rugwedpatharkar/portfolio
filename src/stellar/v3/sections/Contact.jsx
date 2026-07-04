@@ -74,10 +74,10 @@ export default function ContactSection({ index, bootNonce }) {
             border: "1px solid var(--v3-line)",
             borderRadius: 6,
             background: "color-mix(in oklab, var(--v3-bg-void) 50%, transparent)",
-            padding: "clamp(14px, 1.4vw, 22px) clamp(16px, 1.6vw, 26px)",
+            padding: "clamp(10px, 1vw, 16px) clamp(12px, 1.2vw, 20px)",
             minHeight: 0, minWidth: 0,
           }}>
-            <div style={{ display: "flex", alignItems: "baseline", gap: "clamp(8px, 0.8vw, 14px)", marginBottom: "clamp(10px, 1vh, 16px)" }}>
+            <div style={{ display: "flex", alignItems: "baseline", gap: "clamp(8px, 0.8vw, 14px)", marginBottom: "clamp(6px, 0.6vh, 10px)" }}>
               <span aria-hidden style={{ width: "clamp(10px, 1vw, 16px)", height: 1, background: "var(--v3-accent)" }} />
               <span style={{
                 fontFamily: "var(--v3-font-mono)", fontWeight: 400,
@@ -99,8 +99,8 @@ export default function ContactSection({ index, bootNonce }) {
             border: "1px solid var(--v3-line)",
             borderRadius: 6,
             background: "color-mix(in oklab, var(--v3-bg-void) 50%, transparent)",
-            padding: "clamp(10px, 1vw, 16px)",
-            gap: "clamp(6px, 0.6vw, 10px)",
+            padding: "clamp(8px, 0.8vw, 12px)",
+            gap: "clamp(4px, 0.4vw, 7px)",
             minHeight: 0, minWidth: 0, overflow: "hidden",
           }}>
             <div style={{
@@ -130,8 +130,8 @@ export default function ContactSection({ index, bootNonce }) {
                   display: "grid",
                   gridTemplateColumns: "auto minmax(0, 1fr) auto",
                   alignItems: "center",
-                  gap: "clamp(10px, 1vw, 16px)",
-                  padding: "clamp(9px, 0.85vw, 14px) clamp(10px, 0.9vw, 14px)",
+                  gap: "clamp(8px, 0.8vw, 14px)",
+                  padding: "clamp(6px, 0.55vw, 10px) clamp(9px, 0.8vw, 12px)",
                   border: "1px solid var(--v3-line)",
                   borderLeftWidth: 3, borderLeftColor: "var(--v3-line)",
                   borderRadius: 6,
@@ -151,16 +151,16 @@ export default function ContactSection({ index, bootNonce }) {
                 }}>{String(i + 1).padStart(2, "0")}</span>
 
                 {/* Label + value */}
-                <div style={{ display: "flex", flexDirection: "column", gap: 2, minWidth: 0 }}>
+                <div style={{ display: "flex", flexDirection: "column", gap: 1, minWidth: 0 }}>
                   <span style={{
                     fontFamily: "var(--v3-font-mono)", fontWeight: 400,
-                    fontSize: "clamp(8.5px, 0.4vw + 5px, 10.5px)",
-                    letterSpacing: ".22em", textTransform: "uppercase", color: "var(--v3-fg-mute)",
+                    fontSize: "clamp(8px, 0.3vw + 5px, 9.5px)",
+                    letterSpacing: ".2em", textTransform: "uppercase", color: "var(--v3-fg-mute)",
                   }}>{c.label}</span>
                   <span style={{
                     fontFamily: "var(--v3-font-display)", fontWeight: 340,
-                    fontSize: "clamp(0.9rem, 0.6vw + 0.45rem, 1.15rem)", fontOpticalSizing: "auto",
-                    lineHeight: 1.2, letterSpacing: "-.005em", color: "inherit",
+                    fontSize: "clamp(0.82rem, 0.5vw + 0.4rem, 1rem)", fontOpticalSizing: "auto",
+                    lineHeight: 1.15, letterSpacing: "-.005em", color: "inherit",
                     overflowWrap: "anywhere", wordBreak: "break-word", minWidth: 0,
                   }}>{c.value}</span>
                 </div>
