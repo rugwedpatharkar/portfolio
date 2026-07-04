@@ -64,9 +64,15 @@ export default function ContactSection({ index, bootNonce }) {
             grid collapses gracefully to a single vertical stack. */}
         <div style={{
           display: "grid",
-          gridTemplateColumns: "repeat(auto-fit, minmax(min(400px, 100%), 1fr))",
-          gap: "clamp(16px, 1.5vw, 28px)",
+          /* Two columns, always. Was `repeat(auto-fit, minmax(min(400px,
+             100%), 1fr))` which collapsed to a single column when LEFT
+             was below ~800 px — that made the Send button overlap the
+             first Direct Channel item. Fixed 1fr 1fr means the two
+             panels always sit side-by-side regardless of viewport. */
+          gridTemplateColumns: "1fr 1fr",
+          gap: "clamp(14px, 1.3vw, 24px)",
           flex: 1, minHeight: 0, overflow: "visible",
+          minWidth: 0,
         }}>
           {/* Form panel */}
           <V3Scan variant="horizontal" delay={0.15} style={{
