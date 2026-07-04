@@ -105,8 +105,11 @@ export default function ContactSection({ index, bootNonce }) {
             border: "1px solid var(--v3-line)",
             borderRadius: 6,
             background: "color-mix(in oklab, var(--v3-bg-void) 50%, transparent)",
-            padding: "clamp(8px, 0.8vw, 12px)",
-            gap: "clamp(4px, 0.4vw, 7px)",
+            padding: "clamp(10px, 1vw, 16px)",
+            /* Header stays at top; link items grow to fill remaining
+               vertical evenly so this panel matches the form panel's
+               height without dead space at the bottom. */
+            gap: "clamp(6px, 0.6vw, 10px)",
             minHeight: 0, minWidth: 0, overflow: "hidden",
           }}>
             <div style={{
@@ -133,11 +136,15 @@ export default function ContactSection({ index, bootNonce }) {
                 download={c.download || undefined}
                 className="v3-contact-link"
                 style={{
+                  /* `flex: 1` so all N link chips share the remaining
+                     panel vertical evenly — no more empty space at the
+                     bottom of the Direct Channels card. */
+                  flex: 1, minHeight: 0,
                   display: "grid",
                   gridTemplateColumns: "auto minmax(0, 1fr) auto",
                   alignItems: "center",
                   gap: "clamp(8px, 0.8vw, 14px)",
-                  padding: "clamp(6px, 0.55vw, 10px) clamp(9px, 0.8vw, 12px)",
+                  padding: "clamp(8px, 0.75vw, 14px) clamp(10px, 0.9vw, 14px)",
                   border: "1px solid var(--v3-line)",
                   borderLeftWidth: 3, borderLeftColor: "var(--v3-line)",
                   borderRadius: 6,
@@ -157,16 +164,16 @@ export default function ContactSection({ index, bootNonce }) {
                 }}>{String(i + 1).padStart(2, "0")}</span>
 
                 {/* Label + value */}
-                <div style={{ display: "flex", flexDirection: "column", gap: 1, minWidth: 0 }}>
+                <div style={{ display: "flex", flexDirection: "column", gap: 2, minWidth: 0 }}>
                   <span style={{
                     fontFamily: "var(--v3-font-mono)", fontWeight: 400,
-                    fontSize: "clamp(8px, 0.3vw + 5px, 9.5px)",
-                    letterSpacing: ".2em", textTransform: "uppercase", color: "var(--v3-fg-mute)",
+                    fontSize: "clamp(9px, 0.35vw + 6px, 11px)",
+                    letterSpacing: ".22em", textTransform: "uppercase", color: "var(--v3-fg-mute)",
                   }}>{c.label}</span>
                   <span style={{
                     fontFamily: "var(--v3-font-display)", fontWeight: 340,
-                    fontSize: "clamp(0.82rem, 0.5vw + 0.4rem, 1rem)", fontOpticalSizing: "auto",
-                    lineHeight: 1.15, letterSpacing: "-.005em", color: "inherit",
+                    fontSize: "clamp(0.92rem, 0.55vw + 0.45rem, 1.15rem)", fontOpticalSizing: "auto",
+                    lineHeight: 1.2, letterSpacing: "-.005em", color: "inherit",
                     overflowWrap: "anywhere", wordBreak: "break-word", minWidth: 0,
                   }}>{c.value}</span>
                 </div>

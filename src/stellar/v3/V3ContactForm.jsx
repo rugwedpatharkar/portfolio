@@ -129,24 +129,24 @@ export default function V3ContactForm() {
 
   const inputStyle = {
     all: "unset", width: "100%", boxSizing: "border-box",
-    font: "400 .85rem var(--v3-font-ui)",
-    color: "var(--v3-fg)", padding: "7px 2px 6px",
+    font: "400 .95rem var(--v3-font-ui)",
+    color: "var(--v3-fg)", padding: "10px 2px 8px",
     borderBottom: "1px solid var(--v3-line)",
     transition: "border-color .2s",
   };
   const label = {
-    font: "400 9.5px var(--v3-font-mono)",
-    letterSpacing: ".16em", textTransform: "uppercase", color: "var(--v3-fg-mute)",
-    marginBottom: 3, display: "block",
+    font: "400 11px var(--v3-font-mono)",
+    letterSpacing: ".18em", textTransform: "uppercase", color: "var(--v3-fg-mute)",
+    marginBottom: 5, display: "block",
   };
   const chip = (on) => ({
     all: "unset", cursor: "pointer",
-    font: "400 9.5px var(--v3-font-mono)",
+    font: "400 11px var(--v3-font-mono)",
     letterSpacing: ".1em", textTransform: "uppercase",
     color: on ? "var(--v3-bg-void)" : "var(--v3-fg-dim)",
     background: on ? "var(--v3-accent)" : "transparent",
     border: `1px solid ${on ? "transparent" : "var(--v3-line-strong)"}`,
-    borderRadius: 999, padding: "4px 9px",
+    borderRadius: 999, padding: "6px 12px",
     transition: "all .18s",
   });
   const isDone = status.state === "sent";
@@ -160,9 +160,12 @@ export default function V3ContactForm() {
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.5, ease }}
       style={{
-        display: "flex", flexDirection: "column", gap: 8,
-        marginTop: 4, marginBottom: 4, paddingBottom: 4,
-        minHeight: 0,
+        display: "flex", flexDirection: "column", gap: 12,
+        marginTop: 6, marginBottom: 6,
+        /* Fill the parent panel now that the side-by-side layout means
+           there's real vertical space to consume — the message row
+           grows to fill remaining vertical below chips + fields + button. */
+        flex: 1, minHeight: 0,
       }}
     >
       {/* Topic chips */}
@@ -193,14 +196,10 @@ export default function V3ContactForm() {
         </div>
       </div>
 
-      {/* Message row — content-sized. Textarea sits at a fixed comfortable
-          height with vertical resize handle so users can enlarge if needed.
-          `flexShrink: 0` on the row (matching the textarea inside) so the
-          row isn't crushed by outer flex constraints when the panel is
-          tight — otherwise the row measures 0 px tall and the button row
-          below overlaps the textarea visually. Dropped `min-height: 0`
-          since we're intentionally NOT letting this row shrink. */}
-      <div style={{ display: "flex", flexDirection: "column", flexShrink: 0 }}>
+      {/* Message row — grows to fill remaining vertical of the form panel
+          (side-by-side layout guarantees there's real space to consume).
+          `flex: 1, minHeight: 0` chains from the form's own `flex: 1`. */}
+      <div style={{ display: "flex", flexDirection: "column", flex: 1, minHeight: 0 }}>
         <div style={{ display: "flex", alignItems: "baseline", justifyContent: "space-between" }}>
           <label style={label} htmlFor="v3-cmsg">Message</label>
           <span style={{ font: "400 10px var(--v3-font-mono)", color: "var(--v3-fg-mute)" }}>{remaining}</span>
@@ -231,16 +230,20 @@ export default function V3ContactForm() {
                line) whenever vertical space is tight, and the parent
                row collapses to 0 px height. Pinning `flex-shrink: 0`
                makes 120 px a floor. */
-            flexShrink: 0,
-            height: 64,
+            /* Grows to fill the message-row's flex-column space; the
+               minHeight is the floor. Removed `flex-shrink: 0` — now that
+               the outer chain has real vertical to distribute, growing
+               the textarea to `flex: 1` is what we want. */
+            flex: 1,
+            minHeight: 100,
             resize: "vertical",
             fontFamily: "var(--v3-font-ui)",
-            fontSize: ".82rem",
+            fontSize: ".95rem",
             fontWeight: 400,
-            lineHeight: 1.4,
+            lineHeight: 1.5,
             color: "var(--v3-fg)",
             background: "transparent",
-            padding: "7px 2px 6px",
+            padding: "10px 2px 8px",
             border: "none",
             borderBottom: "1px solid var(--v3-line)",
             outline: "none",
@@ -279,16 +282,16 @@ export default function V3ContactForm() {
           onPointerCancel={reduce ? undefined : cancelHold}
           style={{
             position: "relative",
-            font: "500 .82rem var(--v3-font-ui)", letterSpacing: ".01em",
+            font: "500 .9rem var(--v3-font-ui)", letterSpacing: ".01em",
             color: "var(--v3-accent)", background: "transparent",
-            border: "1px solid var(--v3-accent)", borderRadius: 6,
-            padding: "8px 16px",
+            border: "1px solid var(--v3-accent)", borderRadius: 7,
+            padding: "11px 22px",
             cursor: isDone ? "default" : "pointer",
             opacity: status.state === "sending" ? 0.85 : 1,
             overflow: "hidden",
             touchAction: "none",
             userSelect: "none",
-            minWidth: "clamp(120px, 10vw, 150px)",
+            minWidth: "clamp(140px, 12vw, 180px)",
           }}
         >
           {/* Accent fill overlay — clip-path revealed left→right by
