@@ -196,10 +196,12 @@ export default function V3ContactForm() {
 
       {/* Message row — content-sized. Textarea sits at a fixed comfortable
           height with vertical resize handle so users can enlarge if needed.
-          Previously used `flex: 1` on both the row and the textarea to grow
-          into remaining panel space, but that made the textarea + button
-          row collide when the panel was tight. */}
-      <div style={{ display: "flex", flexDirection: "column", minHeight: 0 }}>
+          `flexShrink: 0` on the row (matching the textarea inside) so the
+          row isn't crushed by outer flex constraints when the panel is
+          tight — otherwise the row measures 0 px tall and the button row
+          below overlaps the textarea visually. Dropped `min-height: 0`
+          since we're intentionally NOT letting this row shrink. */}
+      <div style={{ display: "flex", flexDirection: "column", flexShrink: 0 }}>
         <div style={{ display: "flex", alignItems: "baseline", justifyContent: "space-between" }}>
           <label style={label} htmlFor="v3-cmsg">Message</label>
           <span style={{ font: "400 10px var(--v3-font-mono)", color: "var(--v3-fg-mute)" }}>{remaining}</span>
@@ -219,6 +221,18 @@ export default function V3ContactForm() {
             display: "block",
             width: "100%",
             boxSizing: "border-box",
+            /* `flex-shrink: 0` is the real fix. The parent chain
+               (form → message row → …) uses `min-height: 0`
+               everywhere, allowing every flex box to shrink below its
+               content size to fit inside a constrained viewport. In
+               that mode, a flex child's explicit `height: 120px` is
+               NOT a floor — it's a suggestion that flex-shrink can
+               override. Without `flex-shrink: 0`, the browser reduces
+               the textarea to its `min-content` height (19 px = one
+               line) whenever vertical space is tight, and the parent
+               row collapses to 0 px height. Pinning `flex-shrink: 0`
+               makes 120 px a floor. */
+            flexShrink: 0,
             height: 120,
             resize: "vertical",
             fontFamily: "var(--v3-font-ui)",
