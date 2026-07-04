@@ -58,7 +58,10 @@ export default function V3Hero() {
      gives the italic overhang (final "r") + the negative letter-spacing (first
      "R") room inside the clip box, and the matching negative margin cancels it so
      the visual left edge is unmoved. paddingBottom clears descenders (g, p). */
-  const maskLine = { display: "block", width: "max-content", maxWidth: "none", overflow: "hidden", padding: "0.02em 0.18em 0.12em", margin: "0 -0.18em" };
+  /* Top padding matches bottom so Fraunces ascenders (which extend
+     above the em-box, especially at display sizes) don't get shaved by
+     the `overflow: hidden` mask. Was `0.02em` top, now `0.16em`. */
+  const maskLine = { display: "block", width: "max-content", maxWidth: "none", overflow: "hidden", padding: "0.16em 0.18em 0.12em", margin: "-0.14em -0.18em 0" };
   const lineRise = {
     hidden: { y: reduce ? 0 : "108%" },
     show: { y: 0, transition: { duration: 0.85, ease } },

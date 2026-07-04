@@ -39,11 +39,47 @@ const V3Style = ({ accentKey }) => {
         -webkit-font-smoothing:antialiased;
         text-rendering:optimizeLegibility;
       }
+      /* Cancel the legacy \`* { font-family: Saira }\` reset inside v3 so children
+         inherit their parent's typography instead of falling back to Saira.
+         Without this, any span/div that doesn't inline its own font-family (e.g.
+         V3Ticker's inner span nested inside a DM Serif Display parent) gets Saira. */
+      .stellar-v3 *{font-family:inherit;}
       .stellar-v3 ::selection{background:color-mix(in oklab,var(--v3-accent) 40%,transparent);color:var(--v3-fg);}
       /* Chromeless reading column — kill the (global purple) scrollbar entirely;
          the edge fade + single-open accordion carry the "there's more" signal. */
       .stellar-v3 .stellar-content-left{scrollbar-width:none;-ms-overflow-style:none;}
       .stellar-v3 .stellar-content-left::-webkit-scrollbar{width:0;height:0;display:none;}
+      /* Override the global purple #915eff scrollbar for anything inside .stellar-v3.
+         Elegant version: hairline track, low-opacity accent thumb, tighter width.
+         Firefox uses scrollbar-width/color; WebKit gets a full ::-webkit-scrollbar
+         override at higher specificity than the global rule. */
+      .stellar-v3, .stellar-v3 *{
+        scrollbar-width:thin;
+        scrollbar-color: color-mix(in oklab, var(--v3-fg) 22%, transparent) transparent;
+      }
+      .stellar-v3 ::-webkit-scrollbar{width:6px;height:6px;}
+      /* Rail is faintly visible even at rest — a subtle 'you can scroll here' hint. */
+      .stellar-v3 ::-webkit-scrollbar-track{
+        background: color-mix(in oklab, var(--v3-fg) 6%, transparent);
+        border-radius: 999px;
+      }
+      .stellar-v3 ::-webkit-scrollbar-thumb{
+        background: color-mix(in oklab, var(--v3-fg) 30%, transparent);
+        border-radius: 999px;
+        border: 1px solid transparent;
+        background-clip: padding-box;
+      }
+      .stellar-v3 ::-webkit-scrollbar-thumb:hover{
+        background: color-mix(in oklab, var(--v3-accent) 65%, transparent);
+        background-clip: padding-box;
+      }
+      .stellar-v3 ::-webkit-scrollbar-corner{background:transparent;}
+      /* Dossier pointer routing: dossier wrapper + V3Frame are pointer-events:none
+         so pointer-move passes through to the 3D canvas (needed for MouseParallax
+         → sun sways with cursor). Section content columns opt back in via the
+         inline grid-area attribute so text/buttons stay interactive. */
+      .stellar-dossier-frame [style*="grid-area:"],
+      .stellar-dossier-frame [style*="gridArea:"]{pointer-events:auto;}
       @media (prefers-reduced-motion: reduce){
         .stellar-v3 *{animation-duration:.001ms !important;animation-iteration-count:1 !important;}
       }

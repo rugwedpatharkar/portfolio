@@ -310,7 +310,10 @@ export const DESTINATIONS = [
     moonScale: 0.5,
     /* Charon — grey, nearly half Pluto's size (the system's true double dwarf). */
     moonSet: [{ color: "#9a948a", scale: 0.5 }],
-    section: "contact",
+    /* Swap per user: 2nd-to-last stop (Pluto) now carries 'What sets me apart'
+       (the personal-differentiators pitch), Contact is bumped to the final
+       cosmic stop (blackhole) — see cosmicStops.js. Space object order intact. */
+    section: "whatsetsmeapart",
     /* Tight framing for the small dwarf (offset preserved through the AU remap). */
     cameraTarget: { position: [44.08, 0.97, 1.52], lookAt: [44, 0.9, 1.4], fov: 46 },
   },

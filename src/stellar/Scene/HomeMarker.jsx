@@ -71,11 +71,6 @@ export const HomePin = ({ radius = 0.75, animate = true }) => {
         <ringGeometry args={[s * 0.05, s * 0.075, 32]} />
         <meshBasicMaterial color={GOLD} transparent opacity={0.5} side={THREE.DoubleSide} toneMapped={false} depthWrite={false} />
       </mesh>
-      {/* "you are here" light beam rising from the pin */}
-      <mesh position={[0, s * 0.55, 0]}>
-        <cylinderGeometry args={[s * 0.012, s * 0.026, s * 0.85, 12, 1, true]} />
-        <meshBasicMaterial color={GOLD} transparent opacity={0.2} side={THREE.DoubleSide} toneMapped={false} depthWrite={false} blending={THREE.AdditiveBlending} />
-      </mesh>
     </group>
   );
 };
