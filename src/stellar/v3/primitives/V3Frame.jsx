@@ -75,18 +75,10 @@ export default function V3Frame({
           padding: isCompact ? "6px 2px" : "10px 22px 12px 6px",
         }}
       >
-        {/* hairline rule under the top strip (instrument's labelled top rule) — desktop only */}
-        {!isCompact && (
-          <div aria-hidden style={{ gridArea: "top", position: "relative", display: "flex", flexDirection: "column", justifyContent: "flex-end", paddingBottom: 6 }}>
-            <div style={{ font: "400 10px var(--v3-font-mono)", letterSpacing: ".28em", textTransform: "uppercase", color: "var(--v3-fg-mute)", display: "flex", alignItems: "center", gap: 12, marginBottom: 6 }}>
-              <span style={{ width: 22, height: 1, background: "var(--v3-accent)" }} />
-              {planet} · {section} · {index}
-            </div>
-            <div style={{ height: 1, background: "var(--v3-line)", position: "relative" }}>
-              <Corner pos="tl" /><Corner pos="tr" />
-            </div>
-          </div>
-        )}
+        {/* Top label strip ("PLANET · SECTION · INDEX" + hairline + corner ticks)
+            removed per the decluttered layout — each section's own kicker +
+            heading now rise to the top of the frame, and the planet name lives
+            in the Planet Information card. The "top" grid row simply collapses. */}
         {children}
       </div>
     </V3ScanContext.Provider>

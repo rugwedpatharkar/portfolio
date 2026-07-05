@@ -14,7 +14,6 @@ import { summaryFor } from "../data/holoSummary";
 import V3ContactForm from "./V3ContactForm";
 import useViewport from "../useViewport";
 import heroPhoto from "../../assets/hero-photo-1024.webp";
-import { V3PlanetCard } from "./primitives";
 import AboutSection from "./sections/About";
 import FunFactsSection from "./sections/FunFacts";
 import ExperienceSection from "./sections/Experience";
@@ -230,14 +229,15 @@ export default function V3Panel({ destination, section, items, bootNonce }) {
             through to the 3D canvas below — MouseParallax reads canvas pointer,
             without this the sun never sways. Section content opts back in with
             pointerEvents:auto on its own child columns. */}
-        <div style={{ pointerEvents: "none", position: "fixed", inset: 0, padding: "clamp(70px, 8vh, 110px) clamp(24px, 4vw, 60px) clamp(60px, 8vh, 90px)", zIndex: 40, display: "flex", overflow: "hidden" }} className="stellar-dossier-frame">
+        {/* Top padding trimmed (was clamp(70,8vh,110)) now that the frame's top
+            label strip is gone — the section kicker + heading rise toward the top. */}
+        <div style={{ pointerEvents: "none", position: "fixed", inset: 0, padding: "clamp(42px, 5vh, 66px) clamp(24px, 4vw, 60px) clamp(48px, 6vh, 74px)", zIndex: 40, display: "flex", overflow: "hidden" }} className="stellar-dossier-frame">
           <Section index={idxOfStop} bootNonce={bootNonce} />
         </div>
-        {/* Planet-hover telemetry card — replaces the persistent docked telemetry.
-            The frame stays clean; hovering the 3D planet reveals a floating specimen
-            card with a tick pointing at the sphere. Touch devices skip this entirely
-            (mobile sections inline compact facts per plan). */}
-        {!isCompact && facts && <V3PlanetCard facts={facts} />}
+        {/* Body-telemetry facts are now merged into the single Planet Information
+            card (V3Editorial, docked bottom-right, mounted from StellarApp). The
+            separate V3PlanetCard is retired on desktop. Mobile sections still
+            inline their own compact facts. */}
       </>
     );
   }

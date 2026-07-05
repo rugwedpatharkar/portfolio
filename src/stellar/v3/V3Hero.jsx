@@ -9,7 +9,7 @@
  */
 import { useRef, useEffect } from "react";
 import { motion, useReducedMotion } from "motion/react";
-import { personalInfo, heroContent, contactLinks } from "../../content";
+import { personalInfo, contactLinks } from "../../content";
 import { DESTINATIONS } from "../config/destinations";
 import { magnetic } from "./motion";
 import useViewport from "../useViewport";
@@ -58,10 +58,11 @@ export default function V3Hero() {
      gives the italic overhang (final "r") + the negative letter-spacing (first
      "R") room inside the clip box, and the matching negative margin cancels it so
      the visual left edge is unmoved. paddingBottom clears descenders (g, p). */
-  /* Top padding matches bottom so Fraunces ascenders (which extend
-     above the em-box, especially at display sizes) don't get shaved by
-     the `overflow: hidden` mask. Was `0.02em` top, now `0.16em`. */
-  const maskLine = { display: "block", width: "max-content", maxWidth: "none", overflow: "hidden", padding: "0.16em 0.18em 0.12em", margin: "-0.14em -0.18em 0" };
+  /* Top padding must clear the full Fraunces ascender at display opsz
+     (cap-height overshoots the em-box at line-height 0.9). Anything under
+     ~0.3em still shaved the R at ≥10rem. Negative margin cancels the pad
+     so surrounding baselines don't move. */
+  const maskLine = { display: "block", width: "max-content", maxWidth: "none", overflow: "hidden", padding: "0.36em 0.18em 0.18em", margin: "-0.32em -0.18em -0.06em" };
   const lineRise = {
     hidden: { y: reduce ? 0 : "108%" },
     show: { y: 0, transition: { duration: 0.85, ease } },
@@ -72,35 +73,30 @@ export default function V3Hero() {
       variants={container}
       initial="hidden"
       animate="show"
-      style={{ pointerEvents: "auto", maxWidth: isCompact ? "100%" : "min(52ch, 46vw)", display: "flex", flexDirection: "column" }}
+      /* Top-aligned + lifted so the (now bigger) name sits high in the frame,
+         instead of being vertically centred by HoloBridge's alignItems:center. */
+      style={{ pointerEvents: "auto", alignSelf: "flex-start", marginTop: "clamp(46px, 7vh, 104px)", maxWidth: isCompact ? "100%" : "min(58ch, 52vw)", display: "flex", flexDirection: "column" }}
     >
-      {/* kicker */}
-      <motion.div
-        variants={rise}
-        style={{ font: `400 var(--v3-type-cap) var(--v3-font-mono)`, letterSpacing: ".28em", textTransform: "uppercase", color: "var(--v3-fg-mute)", display: "flex", alignItems: "center", gap: 14 }}
-      >
-        <span style={{ width: 36, height: 1, background: "var(--v3-line-strong)" }} />
-        {personalInfo.role} · {personalInfo.location}
-      </motion.div>
-
-      {/* name — masked line reveal, italic accent surname */}
-      <h1 style={{ fontFamily: "var(--v3-font-display)", fontWeight: 340, fontSize: isCompact ? "clamp(2.6rem, 13vw, 4.4rem)" : "var(--v3-type-s6)", fontOpticalSizing: "auto", lineHeight: 0.9, letterSpacing: "-.025em", color: "var(--v3-fg)", margin: ".16em 0 .1em" }}>
+      {/* name — masked line reveal, italic accent surname. Bigger + lifted to the
+          top; the role line now sits BELOW it (was a mono kicker above). */}
+      <h1 style={{ fontFamily: "var(--v3-font-display)", fontWeight: 340, fontSize: isCompact ? "clamp(3rem, 14.5vw, 5rem)" : "clamp(6rem, 3.4rem + 11.5vw, 13rem)", fontOpticalSizing: "auto", lineHeight: 0.88, letterSpacing: "-.025em", color: "var(--v3-fg)", margin: "0 0 .06em" }}>
         <span style={maskLine}><motion.span style={{ display: "block" }} variants={lineRise}>{first}</motion.span></span>
         <span style={maskLine}><motion.span style={{ display: "block" }} variants={lineRise}><em style={{ fontStyle: "italic", fontWeight: 380, color: "var(--v3-accent)" }}>{last}</em></motion.span></span>
       </h1>
 
-      <motion.p variants={rise} style={{ font: `300 var(--v3-type-body) var(--v3-font-ui)`, color: "var(--v3-fg-dim)", lineHeight: 1.5, margin: 0, maxWidth: "42ch" }}>
-        {heroContent.tagline}
-      </motion.p>
-
-      <motion.div variants={rise} style={{ marginTop: 26, display: "flex", gap: 28, flexWrap: "wrap", font: `400 var(--v3-type-cap) var(--v3-font-mono)`, color: "var(--v3-fg-mute)" }}>
-        <span><b style={{ color: "var(--v3-fg-dim)", fontWeight: 400 }}>STATUS</b> <span style={{ color: "#7fe9cf" }}>Open to roles</span></span>
-        {personalInfo.yearsExperience && (
-          <span><b style={{ color: "var(--v3-fg-dim)", fontWeight: 400 }}>EXP</b> {personalInfo.yearsExperience} yrs in production</span>
-        )}
+      {/* role · location — premium serif line BELOW the name. Fraunces bold for the
+          role, italic accent-gold for the location. Replaces the old mono kicker. */}
+      <motion.div variants={rise} style={{ marginTop: ".18em", display: "flex", alignItems: "baseline", gap: "0.5ch", flexWrap: "wrap" }}>
+        <span style={{ fontFamily: "var(--v3-font-display)", fontWeight: 600, fontSize: "clamp(1.4rem, 0.85rem + 1.9vw, 2.4rem)", letterSpacing: "-.01em", color: "var(--v3-fg)", fontOpticalSizing: "auto" }}>
+          {personalInfo.role}
+        </span>
+        <span aria-hidden="true" style={{ fontFamily: "var(--v3-font-display)", fontWeight: 400, fontSize: "clamp(1.2rem, 0.8rem + 1.5vw, 2rem)", color: "var(--v3-accent)", opacity: 0.7 }}>·</span>
+        <span style={{ fontFamily: "var(--v3-font-display)", fontStyle: "italic", fontWeight: 420, fontSize: "clamp(1.25rem, 0.8rem + 1.6vw, 2.1rem)", letterSpacing: "-.005em", color: "var(--v3-accent)", fontOpticalSizing: "auto" }}>
+          {personalInfo.location}
+        </span>
       </motion.div>
 
-      <motion.div ref={linksRef} variants={rise} style={{ marginTop: 40, display: "flex", gap: 14, alignItems: "center", flexWrap: "wrap" }}>
+      <motion.div ref={linksRef} variants={rise} style={{ marginTop: "clamp(30px, 4.5vh, 52px)", display: "flex", gap: 14, alignItems: "center", flexWrap: "wrap" }}>
         <button
           ref={ctaRef}
           onClick={beginTour}

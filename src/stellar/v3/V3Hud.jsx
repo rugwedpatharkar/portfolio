@@ -20,11 +20,9 @@ const Corner = ({ pos }) => {
   return <i style={{ ...base, ...map[pos] }} />;
 };
 
-export default function V3Hud({ stops = [], activeIdx = 0, label = "", section = "", onJump }) {
+export default function V3Hud({ stops = [], activeIdx = 0, section = "", onJump }) {
   const { isCompact } = useViewport();
   const reduce = useReducedMotion();
-  const total = stops.length;
-  const num = (n) => String(n + 1).padStart(2, "0");
 
   return (
     <div style={{ position: "fixed", inset: 0, zIndex: 44, pointerEvents: "none", fontFamily: "var(--v3-font-mono)" }}>
@@ -49,18 +47,9 @@ export default function V3Hud({ stops = [], activeIdx = 0, label = "", section =
         @media (prefers-reduced-motion: reduce){.v3-rail-tick{transition:none}.v3-rail-tick:active{transform:none}}
       `}</style>
 
-      {/* top-left wordmark (hidden on compact — the counter carries context) */}
-      {!isCompact && (
-        <div style={{ position: "absolute", top: 34, left: 40, fontSize: ".72rem", letterSpacing: ".24em", textTransform: "uppercase", color: "var(--v3-fg-mute)", display: "flex", alignItems: "center", gap: 10 }}>
-          <span style={{ width: 6, height: 6, borderRadius: "50%", background: "var(--v3-accent)", boxShadow: "0 0 8px var(--v3-accent)" }} />
-          Stellar · System Tour
-        </div>
-      )}
-
-      {/* top-right live stop counter */}
-      <div style={{ position: "absolute", top: 34, right: 40, fontSize: ".72rem", letterSpacing: ".18em", textTransform: "uppercase", color: "var(--v3-fg-mute)", textAlign: "right" }}>
-        <span style={{ color: "var(--v3-accent)" }}>{num(activeIdx)}</span> / {num(total - 1)} · {label}
-      </div>
+      {/* Top-left wordmark + top-right stop counter removed per the decluttered
+          layout — the right-edge system rail still conveys position, and the
+          per-body Planet Information card carries the planet name. */}
 
       {/* right-edge system rail — one tick per stop, clickable (desktop/tablet only;
           on compact the touch-scroll + counter cover navigation) */}

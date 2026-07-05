@@ -171,13 +171,20 @@ const backDistFor = (extent, halfAngle = BACKLIT_HALF_ANGLE, floor = BACK_FLOOR)
    right of centre, info left). We frame by the body radius (× oblateness so the squashed
    giants don't crop vertically), IGNORING rings — so Saturn's disc matches Jupiter's and
    the rings simply extend off-frame (cinematic), instead of the rings shrinking the body. */
-const V3_HALF_ANGLE = 12 * DEG; // → ~10° body half-angle (smaller specimen — the planet
+const V3_HALF_ANGLE = 11.5 * DEG; // → the body fills the empty right column (right of the
+//                                  content card, above the bottom-right Planet Information
+//                                  card) rather than sitting small in a sea of empty space.
+//                                  (smaller specimen — the planet
 //                                is a discoverable interaction, not the dominant hero;
 //                                content wraps around it, telemetry appears on hover)
 /* Tiny dwarfs (Pluto r≈0.034, Ceres r≈0.06) would clamp to BACK_FLOOR and look small,
    so v3 uses a much lower floor — just clear of the ~0.1 near-clip (+ the body radius) —
    letting even Pluto frame near the same size as the giants. */
 const V3_BACK_FLOOR = 0.14;
+/* v3 vertical framing: seat the focused body in the UPPER-right (above the bottom-
+   right Planet Information card). Companion to the horizontal frameShift. Small so
+   ringed giants (Saturn) keep their ring tops in frame. */
+const V3_VSHIFT = 0.14;
 const v3ExtentFor = (dest) => dest.radius * (1 + (dest.oblateness || 0));
 
 const CameraRig = ({
@@ -464,6 +471,12 @@ const CameraRig = ({
                screen) — so decoupled: a higher multiplier here frames the planet
                right for the content column without pushing the overview Sun off. */
             _lookTarget.addScaledVector(_right, -halfW * frameShift * 1.0);
+            /* Vertical companion to frameShift: aim a fraction of the view's half-
+               HEIGHT below the body so it seats in the UPPER-right, clearing the
+               bottom-right Planet Information card (the layout's cleanest gap).
+               Kept small (0.26) so ringed giants don't crop at the top. */
+            const halfH = Math.tan(THREE.MathUtils.degToRad((focus.fov || 42) * 0.5)) * dd;
+            _lookTarget.addScaledVector(_upp, -halfH * V3_VSHIFT);
           }
         }
       } else {
