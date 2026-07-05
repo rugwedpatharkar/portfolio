@@ -389,16 +389,20 @@ const Planet = ({
       )}
 
       {/* Faint dusty/narrow rings — Jupiter, Uranus, Neptune. Inherit the
-          planet's axial tilt, so Uranus's ride near-vertical (its ~98° roll). */}
+          planet's axial tilt, so Uranus's ride near-vertical (its ~98° roll).
+          Opacity boosted from the "physically-accurate-invisible" range
+          (0.06–0.10) — at real values a bright Orion/Carina backdrop shows
+          straight through them. These are still "faint" per real physics but
+          now visibly occlude the sky behind. */}
       {faintRings && (
         <group rotation={[Math.PI / 2.05, 0, 0]}>
           <mesh>
             <ringGeometry args={[radius * 1.5, radius * 1.92, 96]} />
-            <meshBasicMaterial color={rColor} transparent opacity={0.1} side={THREE.DoubleSide} depthWrite={false} toneMapped={false} />
+            <meshBasicMaterial color={rColor} transparent opacity={0.34} side={THREE.DoubleSide} depthWrite={false} toneMapped={false} />
           </mesh>
           <mesh>
             <ringGeometry args={[radius * 1.98, radius * 2.12, 96]} />
-            <meshBasicMaterial color={rColor} transparent opacity={0.06} side={THREE.DoubleSide} depthWrite={false} toneMapped={false} />
+            <meshBasicMaterial color={rColor} transparent opacity={0.22} side={THREE.DoubleSide} depthWrite={false} toneMapped={false} />
           </mesh>
         </group>
       )}
