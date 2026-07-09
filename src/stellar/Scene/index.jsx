@@ -108,31 +108,25 @@ const Scene = ({ scrollT, activeIdx, onJump, onReady, wideRef, wideOrbitRef, foc
      countdown cover, so the whole suite no longer mounts in one frame-freezing
      commit). Tier 1 = structural extras + belts; tier 2 = anomalies/comets;
      tier 3 = easter-egg models (heaviest, last). */
-  /* v3 = NATURAL OBJECTS ONLY — no spacecraft/probes/megastructures/pop-culture.
-     `showEggs` (the whole fiction/cameo tier) is force-off, and the human-made
-     objects that live in other tiers (probes, ISS, rovers, Voyager) are gated by
-     `naturalOnly` at their mount sites. */
-  const naturalOnly = v3;
+  /* The full real solar system renders on the tour — belts, dust, comets,
+     interstellar visitors, real spacecraft, and the deep-field astrophysics.
+     Gating is by the progressive-mount tiers (extrasPhase 0→3) and the device /
+     motion budget (isMobile / reducedMotion) ONLY — no route suppression. Tier 1 =
+     structural extras + belts; tier 2 = deep-field anomalies/comets; tier 3 = the
+     heaviest models last. The removed fiction tier now holds only the real
+     MarsRovers + GoldenRecord missions. `naturalOnly` stays as a named no-op so
+     the human-made-object mount sites keep reading cleanly. */
+  const naturalOnly = false;
   const showExtras = extrasPhase >= 1;
   const showMid = extrasPhase >= 2;
-  const showEggs = extrasPhase >= 3 && !naturalOnly;
-  /* v3 keeps the deep field MINIMAL — the noisy Tier-2 extras (kilonova, hypergiant,
-     Eta Carinae, Einstein ring, globular cluster, grav-wave chirp, red dots, cosmic-web
-     markers, spare comets, danger field) crowd the clean planet frames. The tour-worthy
-     landmarks (black hole, pulsar, comet, wormhole, nebulae, Milky Way) stay. */
-  const deepMid = showMid && !v3;
-  /* v3 = NO BELT DUST anywhere EXCEPT the overview (stop 0). On any other v3 stop the
-     asteroid + Kuiper belt dust, floating dust particles, Trojan asteroids and zodiacal
-     light render as "white dots around the Sun" — visually noisy. On the overview the
-     real belt IS the point (true-scale corner shot), so those come back for stop 0 only.
-     v2 keeps the full set. */
-  const noDust = v3 && activeIdx !== 0;
-  /* Additive point clouds around the Sun (BeltDust, DustParticles, OortCloud,
-     ZodiacalLight, and even the discrete AsteroidBelt / Kuiper rocks at the
-     wide-overview distance) read as a bright white halo around the Sun. In v3
-     we suppress ALL of them everywhere — the tour still shows Sun, planets,
-     Trojan swarms at Jupiter's L4/L5, Heliosphere, Milky Way and skybox stars. */
-  const noPointDust = v3;
+  const showEggs = extrasPhase >= 3;
+  const deepMid = showMid;
+  /* Belt dust + additive point clouds are shown, behind the tiers/device budget.
+     (They were suppressed on the old minimal build because at the wide overview
+     distance the additive sprites read as a white halo around the Sun — watch for
+     that when framing stop 0 and dial back intensity/size if it recurs.) */
+  const noDust = false;
+  const noPointDust = false;
   /* Camera offsets — kept in refs so React state doesn't re-render
      the whole tree on every frame. Mouse parallax and free-roam each
      own their own offset; CameraRig sums them. */
@@ -248,7 +242,7 @@ const Scene = ({ scrollT, activeIdx, onJump, onReady, wideRef, wideOrbitRef, foc
         {showExtras && !noDust && !noPointDust && <ZodiacalLight />}
         {/* Named constellations (Orion, Big Dipper, Cassiopeia) that fade in
             when the camera holds still — built but previously unmounted. */}
-        {showExtras && !isMobile && !v3 && <Constellations scrollTRef={scrollT} />}
+        {showExtras && !isMobile && <Constellations scrollTRef={scrollT} />}
         {/* The edge anomaly — Gargantua, out in front of the camera (behind the
             Sun, −X) so it's a visible deep-space landmark throughout the tour
             rather than hidden off to the +X side behind the viewer. */}
@@ -436,7 +430,7 @@ const Scene = ({ scrollT, activeIdx, onJump, onReady, wideRef, wideOrbitRef, foc
 
         {/* Lens flare OFF in v3 — the sun-driven ghost circles/artifacts clutter the
             clean planet frames. */}
-        {!isMobile && !v3 && <LensFlare position={[0, 0, 0]} />}
+        {!isMobile && <LensFlare position={[0, 0, 0]} />}
         {/* Orrery rings — the real orbital structure. Shown in overview mode AND on
             the v3 system-overview hero (stop 0). */}
         {showExtras && <OrbitRings wideRef={wideRef} show={v3 && activeIdx === 0} />}
