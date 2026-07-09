@@ -29,7 +29,6 @@ import EinsteinRing from "./EinsteinRing";
 import Wormhole from "./Wormhole";
 import LensFlare from "./LensFlare";
 import OrbitRings from "./OrbitRings";
-import Beacon from "./Beacon";
 // LaneObjects retired — the Holo-Bridge dossier cluster replaces the forced-←→ convoy.
 import SolarEclipse from "./SolarEclipse";
 import EclipseLights from "./EclipseLights";
@@ -48,7 +47,6 @@ import Constellations from "./Constellations";
 import ShootingStars from "./ShootingStars";
 import RocketLaunch from "./RocketLaunch";
 import DangerField from "./DangerField";
-import DataFragments from "./DataFragments";
 import DustParticles from "./DustParticles";
 import AdaptiveQuality from "./AdaptiveQuality";
 import Sonification from "./Sonification";
@@ -66,33 +64,12 @@ import EclipseShadow from "./EclipseShadow";
 import AutoExposure from "./AutoExposure";
 import KeyLight from "./KeyLight";
 import MouseParallax from "./MouseParallax";
-import FreeRoam from "./FreeRoam";
 import CameraShake from "./CameraShake";
 import Voyager from "./Voyager";
 import RobotFleet from "./RobotFleet";
 import CommitComets from "./CommitComets";
-import DeathStar from "./easter/DeathStar";
-import Tardis from "./easter/Tardis";
-import HalEye from "./easter/HalEye";
-import WallE from "./easter/WallE";
-import CooperStation from "./easter/CooperStation";
-import WatneyPotato from "./easter/WatneyPotato";
-import Endurance from "./easter/Endurance";
-import StarDestroyer from "./easter/StarDestroyer";
-import Enterprise from "./easter/Enterprise";
-import Monolith from "./easter/Monolith";
-import HaloRing from "./easter/HaloRing";
-import DysonSwarm from "./easter/DysonSwarm";
-import SolGate from "./easter/SolGate";
-import Citadel from "./easter/Citadel";
-import GenerationShip from "./easter/GenerationShip";
-import Heighliner from "./easter/Heighliner";
+/* Real NASA missions kept from the (removed) easter-egg tier. */
 import GoldenRecord from "./easter/GoldenRecord";
-import Sandworm from "./easter/Sandworm";
-import Rocinante from "./easter/Rocinante";
-import Normandy from "./easter/Normandy";
-import DiscoveryOne from "./easter/DiscoveryOne";
-import Nostromo from "./easter/Nostromo";
 import MarsRovers from "./easter/MarsRovers";
 import useViewport from "../useViewport";
 import { DESTINATIONS, remapPosition, frontOfSun, BACKGROUND_BELTS } from "../config/destinations";
@@ -124,7 +101,7 @@ const ICY_WEIGHTS = [0.45, 0.3, 0.25];
  * tune that based on viewport bucket.
  */
 
-const Scene = ({ scrollT, activeIdx, itemIdx = 0, onJump, onReady, freeRoamEnabled, speedRef, thrustRef, wideRef, wideOrbitRef, focusRef, warpVelRef, cameraRef, eclipseRef, clock, extrasPhase = 3, launchPhase = null, onLaunchComplete, v3 = false }) => {
+const Scene = ({ scrollT, activeIdx, onJump, onReady, wideRef, wideOrbitRef, focusRef, warpVelRef, cameraRef, eclipseRef, clock, extrasPhase = 3, launchPhase = null, onLaunchComplete, v3 = false }) => {
   const readyRef = useRef(false);
   const { isMobile, isCompact, reducedMotion } = useViewport();
   /* Progressive-mount tiers (StellarApp ramps extrasPhase 0→3 behind the
@@ -278,8 +255,6 @@ const Scene = ({ scrollT, activeIdx, itemIdx = 0, onJump, onReady, freeRoamEnabl
         {showMid && <BlackHole position={remapPosition(frontOfSun([49, -6, -15]))} radius={32} animate={!reducedMotion} onPointerOver={handleHoverIn} onPointerOut={handleHoverOut} />}
         {/* Spaghettification dread near Gargantua — writes clock.danger. */}
         {deepMid && <DangerField animate={!reducedMotion} />}
-        {/* Flyable résumé collectibles — collected while piloting. */}
-        {showEggs && <DataFragments active={freeRoamEnabled} animate={!reducedMotion} />}
         {/* Anomaly suite — the discoverable spectacle (tier 2). Motion-heavy ones
             respect reduced-motion + device. */}
         {showMid && !reducedMotion && <Comet />}
@@ -448,34 +423,12 @@ const Scene = ({ scrollT, activeIdx, itemIdx = 0, onJump, onReady, freeRoamEnabl
               </OrbitGroup>
             );
           }
-          if (d.kind === "beacon") {
-            return (
-              <Beacon
-                key={d.id}
-                position={d.position}
-                radius={d.radius}
-                color={d.color}
-                animate={!reducedMotion}
-                onClick={handleClick}
-                onPointerOver={handleHoverIn}
-                onPointerOut={handleHoverOut}
-              />
-            );
-          }
           if (d.kind === "cosmic") {
             /* v3 deep-space epilogue stops — real cosmic objects placed along the
                outward tour path, framed big-on-the-right by the v3 rig (radius). */
             const p = d.position;
             if (d.render === "blackhole")
               return <BlackHole key={d.id} position={p} radius={d.radius} animate={!reducedMotion} onPointerOver={handleHoverIn} onPointerOut={handleHoverOut} />;
-            if (d.render === "wormhole")
-              return <Wormhole key={d.id} position={p} radius={d.radius} />;
-            if (d.render === "pulsar")
-              return <Pulsar key={d.id} position={p} radius={d.radius} />;
-            if (d.render === "nebula")
-              return <group key={d.id} position={p} scale={d.radius / 3}><EtaCarinae animate={!reducedMotion} /></group>;
-            if (d.render === "milkyway")
-              return <group key={d.id} position={p} scale={d.radius / 60}><MilkyWay animate={!reducedMotion} /></group>;
             return null;
           }
           return null;
@@ -547,43 +500,18 @@ const Scene = ({ scrollT, activeIdx, itemIdx = 0, onJump, onReady, freeRoamEnabl
             Juno, Lucy, New Horizons). Removed in v3 (natural only). */}
         {showExtras && !naturalOnly && <RobotFleet />}
         {showEggs && !isMobile && <CommitComets />}
-        {/* Easter-egg models (tier 3) — the heaviest, least-essential mounts, so
-            they come LAST in the progressive mount (kept out of the intro). */}
-        {showEggs && <DeathStar />}
-        {showEggs && <Tardis />}
-        {showEggs && <HalEye />}
-        {showEggs && <WallE />}
-        {showEggs && <CooperStation />}
-        {showEggs && <WatneyPotato />}
-        {/* Phase 6 homages — Endurance (Interstellar), a deep-field Star
-            Destroyer (Star Wars), the Enterprise (Star Trek). */}
-        {showEggs && <Endurance />}
-        {showEggs && !isMobile && <StarDestroyer />}
-        {showEggs && <Enterprise />}
-        {/* Wave 3 — diegetic megastructure cameos (deep field). */}
-        {showEggs && <Monolith animate={!reducedMotion} />}
-        {showEggs && <HaloRing animate={!reducedMotion} />}
-        {showEggs && <DysonSwarm animate={!reducedMotion} />}
-        {showEggs && <SolGate animate={!reducedMotion} />}
-        {showEggs && !isMobile && <Citadel animate={!reducedMotion} />}
-        {/* Wave 3 remainder — beside-planet cameos + deep-field structures. */}
-        {showEggs && <Sandworm />}
+        {/* Real NASA missions — the only survivors of the removed fiction tier
+            (Mars rovers at Mars, Voyager's Golden Record in the deep field).
+            Phase 4 promotes these onto the v3 route. */}
         {showEggs && <MarsRovers />}
-        {showEggs && <Rocinante />}
-        {showEggs && <Normandy />}
-        {showEggs && <DiscoveryOne />}
-        {showEggs && <Nostromo />}
         {showEggs && <GoldenRecord />}
-        {showEggs && !isMobile && <GenerationShip animate={!reducedMotion} />}
-        {showEggs && !isMobile && <Heighliner animate={!reducedMotion} />}
         {!isMobile && !reducedMotion && <MouseParallax offsetRef={parallaxOffsetRef} />}
-        <FreeRoam enabled={freeRoamEnabled} offsetRef={freeRoamOffsetRef} speedRef={speedRef} thrustRef={thrustRef} />
         <CameraShake parallaxOffsetRef={parallaxOffsetRef} />
         <CameraRig
           scrollT={scrollT}
           parallaxOffsetRef={parallaxOffsetRef}
           freeRoamOffsetRef={freeRoamOffsetRef}
-          freeRoamEnabled={freeRoamEnabled}
+          freeRoamEnabled={false}
           wideRef={wideRef}
           wideOrbitRef={wideOrbitRef}
           focusRef={focusRef}

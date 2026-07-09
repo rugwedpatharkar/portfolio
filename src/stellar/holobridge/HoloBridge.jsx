@@ -1,29 +1,24 @@
 /*
- * HoloBridge — the dual-hologram info surface. The CENTERED planet shows through
- * the canvas behind; its facts project LEFT (cyan) and the résumé section RIGHT
- * (amber). Replaces the old ContentPanel / forced-←→ ItemDossier mount.
- *
- * Container is pointer-transparent so the planet stays interactive; only the two
- * panels capture pointer events. Mouse-parallax tilts the panels (desktop). On
- * compact/mobile the panels stack at the bottom, static. Fades during flight via
- * panelHidden (reuses the stellar:flight reveal-on-arrival machinery).
+ * HoloBridge — the v3 info surface overlaid on the live 3D scene. On the hero
+ * stop it renders the V3Hero landing column; on every other stop the V3Panel
+ * (résumé + body telemetry). Container is pointer-transparent so the planet
+ * behind stays interactive; the panel captures pointer events. Mouse-parallax
+ * tilts it (desktop); on compact/mobile it stacks at the bottom. Fades during
+ * flight via panelHidden (the stellar:flight reveal-on-arrival machinery).
  */
 import useViewport from "../useViewport";
 import useHoloParallax from "./useHoloParallax";
 import useBootReveal from "./useBootReveal";
-import FactsHologram from "./FactsHologram";
-import DossierHologram from "./DossierHologram";
-import HeroHologram from "./HeroHologram";
 import V3Hero from "../v3/V3Hero";
 import V3Panel from "../v3/V3Panel";
 
-export default function HoloBridge({ destination, section, items, bootNonce, panelHidden, v3 = false }) {
+export default function HoloBridge({ destination, section, items, bootNonce, panelHidden }) {
   const { isCompact, isMobile } = useViewport();
   const ref = useHoloParallax();
-  const { booting } = useBootReveal(bootNonce);
+  useBootReveal(bootNonce);
   const stack = isCompact || isMobile;
-  /* Hero = the system-overview stop only. (v3 moved the Sun to the "about" stop,
-     so id==="sol" is NO LONGER the hero — key on the section.) */
+  /* Hero = the system-overview stop only (keyed on the section, since v3 moved
+     the Sun to the "about" stop so id==="sol" is no longer the hero). */
   const isHero = section === "hero";
 
   return (
@@ -43,36 +38,20 @@ export default function HoloBridge({ destination, section, items, bootNonce, pan
         display: "flex",
         flexDirection: stack ? "column" : "row",
         alignItems: stack ? "stretch" : "center",
-        justifyContent: stack ? "flex-end" : isHero || v3 ? "flex-start" : "space-between",
+        justifyContent: stack ? "flex-end" : "flex-start",
         gap: stack ? 10 : 16,
         padding: stack
           ? "0 12px calc(92px + env(safe-area-inset-bottom, 0px))"
-          : v3 ? "0 clamp(28px, 6vw, 120px)" : "0 clamp(18px, 3vw, 46px)",
+          : "0 clamp(28px, 6vw, 120px)",
       }}
     >
       {isHero ? (
-        v3 ? (
-          /* v3 — far-left info column over the real 3D system (Sun framed upper-right,
-             orbits + belts sweeping in), per the live scene. */
-          <V3Hero />
-        ) : (
-          /* v2 Sol — the recruiter landing: one prominent hero card. */
-          <div style={{ pointerEvents: "auto", width: stack ? "100%" : "clamp(320px, 38vw, 500px)", maxHeight: "88vh", overflowY: "auto" }}>
-            <HeroHologram booting={booting} />
-          </div>
-        )
-      ) : v3 ? (
-        /* v3 — premium single content column on the LEFT (résumé + body telemetry). */
-        <V3Panel destination={destination} section={section} items={items} bootNonce={bootNonce} />
+        /* Far-left info column over the real 3D system (Sun framed upper-right,
+           orbits + belts sweeping in). */
+        <V3Hero />
       ) : (
-        <>
-          <div style={{ pointerEvents: "auto", width: stack ? "100%" : "clamp(220px, 22vw, 300px)", maxHeight: "82vh", overflowY: "auto" }}>
-            <FactsHologram destination={destination} booting={booting} />
-          </div>
-          <div style={{ pointerEvents: "auto", width: stack ? "100%" : "clamp(240px, 24vw, 340px)", maxHeight: "82vh", overflowY: "auto" }}>
-            <DossierHologram destination={destination} section={section} items={items} booting={booting} sectionLabel={destination?.label} />
-          </div>
-        </>
+        /* Premium single content column on the LEFT (résumé + body telemetry). */
+        <V3Panel destination={destination} section={section} items={items} bootNonce={bootNonce} />
       )}
     </div>
   );
