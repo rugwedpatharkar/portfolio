@@ -29,7 +29,6 @@ class AppErrorBoundary extends React.Component {
   render() {
     if (!this.state.hasError) return this.props.children;
     const onReload = () => window.location.reload();
-    const onLegacy = () => { window.location.hash = "#legacy"; window.location.reload(); };
     const btn = { font: "500 .82rem 'Manrope', system-ui, sans-serif", letterSpacing: ".01em", borderRadius: 7, padding: "12px 22px", cursor: "pointer", border: "1px solid #2a2d38", background: "transparent", color: "#f5f7fc", transition: "border-color .2s, background .2s" };
     const primary = { ...btn, background: "#e9c675", color: "#050609", border: "1px solid transparent" };
     return (
@@ -42,11 +41,11 @@ class AppErrorBoundary extends React.Component {
             Something went <em style={{ fontStyle: "italic", color: "#e9c675" }}>sideways</em>.
           </h1>
           <p style={{ font: "300 1rem 'Manrope', system-ui, sans-serif", color: "#c4c8d6", lineHeight: 1.55, margin: "0 0 26px" }}>
-            The 3D tour hit an error. You can reload — or take the classic scroll site, which doesn't need WebGL.
+            The 3D tour hit an error. Reload to try again — or grab my résumé.
           </p>
           <div style={{ display: "flex", gap: 12, justifyContent: "center", flexWrap: "wrap" }}>
             <button style={primary} onClick={onReload}>Reload</button>
-            <button style={btn} onClick={onLegacy}>Try the classic site →</button>
+            <a style={{ ...btn, textDecoration: "none", display: "inline-flex", alignItems: "center" }} href="/Rugwed-Patharkar-Resume.pdf">Résumé (PDF)</a>
           </div>
         </div>
       </div>

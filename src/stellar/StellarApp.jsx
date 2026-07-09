@@ -3,7 +3,6 @@ import { MotionConfig } from "motion/react";
 import Scene from "./Scene";
 import Navigator from "./Navigator";
 import HoloBridge from "./holobridge/HoloBridge";
-import { easterEggs } from "../content";
 import { DESTINATIONS } from "./config/destinations";
 import useViewport from "./useViewport";
 import StellarGlare from "./StellarGlare";
@@ -83,16 +82,6 @@ const StellarApp = () => {
      read across the canvas boundary by CameraRig / KeyLight / the reticle. */
   const sceneClockRef = useRef(null);
   if (!sceneClockRef.current) sceneClockRef.current = { t: 0, scale: 1, danger: 0 };
-  const consoleLoggedRef = useRef(false);
-
-  /* Console easter egg for devs who open DevTools — once per session. */
-  useEffect(() => {
-    if (consoleLoggedRef.current) return;
-    consoleLoggedRef.current = true;
-    console.log("%c\n" + easterEggs.ascii + "\n", "color: #ffb86b; font-size: 10px; font-family: monospace;");
-    console.log(`%c${easterEggs.greeting}`, "color: #2fe0b0; font-size: 16px; font-weight: bold;");
-    console.log(`%c${easterEggs.repoLink}`, "color: #aaa6c3; font-size: 12px;");
-  }, []);
 
   /* Stream the heavy extras suite in tiers over the first ~2s so the core scene
      (sun + planets + stars) shows first. Reduced-motion / mobile mount at once. */
