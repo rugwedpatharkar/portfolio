@@ -15,7 +15,7 @@
 // Bump this on every deploy. With no auto-versioning we keep a manual counter;
 // users who arrive after a deploy will re-fetch index.html on first nav and
 // the new SW will swap in via skipWaiting.
-const CACHE_VERSION = 'v4';
+const CACHE_VERSION = 'v5';
 const SHELL_CACHE = `portfolio-shell-${CACHE_VERSION}`;
 const ASSET_CACHE = `portfolio-assets-${CACHE_VERSION}`;
 const IMAGE_CACHE = `portfolio-images-${CACHE_VERSION}`;
