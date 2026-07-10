@@ -10,8 +10,7 @@ import { useState, useRef, useEffect, useCallback } from "react";
 import emailjs from "@emailjs/browser";
 import { motion, useReducedMotion } from "motion/react";
 import { contactContent, personalInfo } from "../../content";
-
-const ease = [0.22, 1, 0.36, 1];
+import { EASE as ease } from "./anim";
 
 /* Hold-to-confirm duration and the sequence of tickered labels shown
    while the request is in flight. Per the taste-stack table:

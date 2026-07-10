@@ -86,7 +86,7 @@ export default function V3Editorial({ destinationId, activeIdx, hidden = false }
     >
       <style>{`
         @keyframes v3EditorialIn { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: translateY(0); } }
-        .v3-editorial-fadein { animation: v3EditorialIn 0.55s cubic-bezier(0.22, 1, 0.36, 1) 0.2s both; }
+        .v3-editorial-fadein { animation: v3EditorialIn 0.55s var(--v3-ease-smooth) 0.2s both; }
         /* Flight hide — important-author opacity beats the entry animation fill. */
         .v3-editorial-hidden { opacity: 0 !important; }
         @media (prefers-reduced-motion: reduce) {

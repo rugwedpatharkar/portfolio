@@ -97,5 +97,4 @@ export const MOONS = [
   },
 ];
 
-export const MOON_FACTS = Object.fromEntries(MOONS.map((m) => [m.id, m.facts]));
 export const MOON_BY_ID = Object.fromEntries(MOONS.map((m) => [m.id, m]));

@@ -1,5 +1,5 @@
 /* eslint-disable react/no-unknown-property */
-import { Suspense, useEffect, useRef, cloneElement } from "react";
+import { Suspense, useRef, cloneElement } from "react";
 import { Canvas, invalidate } from "@react-three/fiber";
 import * as THREE from "three";
 import { EffectComposer, Bloom } from "@react-three/postprocessing";
@@ -100,8 +100,7 @@ const ICY_WEIGHTS = [0.45, 0.3, 0.25];
  * tune that based on viewport bucket.
  */
 
-const Scene = ({ scrollT, activeIdx, onJump, onReady, wideRef, wideOrbitRef, focusRef, warpVelRef, cameraRef, eclipseRef, clock, extrasPhase = 3, launchPhase = null, onLaunchComplete, v3 = false }) => {
-  const readyRef = useRef(false);
+const Scene = ({ scrollT, activeIdx, onJump, wideRef, wideOrbitRef, focusRef, warpVelRef, cameraRef, eclipseRef, clock, extrasPhase = 3, launchPhase = null, onLaunchComplete, v3 = false }) => {
   const { isMobile, reducedMotion } = useViewport();
   /* Progressive-mount tiers — StellarApp ramps extrasPhase 0→3 so the heavy suite
      doesn't build in one frame-freezing commit. Tier 1 = structural extras + belts;
@@ -130,13 +129,6 @@ const Scene = ({ scrollT, activeIdx, onJump, onReady, wideRef, wideOrbitRef, foc
   };
   const handleHoverIn = () => setCursor("pointer");
   const handleHoverOut = () => setCursor("");
-
-  useEffect(() => {
-    if (!readyRef.current && onReady) {
-      readyRef.current = true;
-      requestAnimationFrame(() => onReady());
-    }
-  }, [onReady]);
 
   /* Render at the display's native pixel ratio (up to 2× on retina/4K) for
      crisp HD. We removed Depth-of-Field, so nothing is intentionally blurred

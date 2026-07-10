@@ -400,17 +400,6 @@ const PROJECT_OBJECTS = PROJECT_LIST.map((p, i) => {
   };
 });
 
-/* Project "facts" for the scan card (year/team/status + headline stats). */
-export const PROJECT_FACTS = Object.fromEntries(
-  PROJECT_LIST.map((p, i) => {
-    const f = {};
-    if (p.year) f.Year = p.year;
-    if (p.team) f.Team = p.team;
-    if (p.status) f.Status = p.status;
-    (p.stats || []).forEach((s) => { if (s.label && s.value) f[s.label] = s.value; });
-    return [`project-${i}`, f];
-  })
-);
 /* Render positions for the probe markers (kept in sync with the registry). */
 export const PROJECT_POSITIONS = PROJECT_OBJECTS.map((o) => ({ id: o.id, position: o.position, color: o.color }));
 

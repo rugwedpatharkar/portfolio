@@ -24,25 +24,6 @@ export const shouldAnimate = ({ essential = false } = {}) => {
 };
 
 /*
- * Drive Lenis from GSAP's ticker (one rAF for the whole app) and push
- * ScrollTrigger.update on every Lenis scroll. Pass the ScrollTrigger instance
- * so this module has no hard dependency on it (kept optional for Phase 0/1).
- * Returns a cleanup fn. Caller must have created Lenis with `autoRaf:false`.
- */
-export const bindLenisToGsap = (lenis, ScrollTrigger) => {
-  if (!lenis) return () => {};
-  const onScroll = () => ScrollTrigger?.update();
-  lenis.on("scroll", onScroll);
-  const tick = (time) => lenis.raf(time * 1000); // gsap ticker time is in seconds
-  gsap.ticker.add(tick);
-  gsap.ticker.lagSmoothing(0);
-  return () => {
-    lenis.off("scroll", onScroll);
-    gsap.ticker.remove(tick);
-  };
-};
-
-/*
  * Magnetic hover: the element eases toward the pointer offset from its centre
  * and springs back on leave. `strength` 0..1 (fraction of the offset applied).
  * Inner layers can be passed a smaller strength for parallax depth. No-op under

@@ -11,9 +11,9 @@ import { personalInfo, contactLinks } from "../../content";
 import { DESTINATIONS } from "../config/destinations";
 import { magnetic } from "./motion";
 import useViewport from "../useViewport";
+import { EASE as ease } from "./anim";
 
 const SECONDARY = ["Resume", "GitHub", "LinkedIn"];
-const ease = [0.22, 1, 0.36, 1];
 
 const beginTour = () => {
   const max =
