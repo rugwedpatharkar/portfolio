@@ -555,14 +555,14 @@ const Scene = ({ scrollT, finaleT, finale = false, activeIdx, onJump, wideRef, w
           mipmapBlur
           radius={0.6}
         />
-        {/* Grade: VIBRANT / high-WOW direction (per user) — saturation + contrast
-            pushed for a rich, eye-popping cinematic palette (was tuned
-            desaturated-realistic before). Bloom carries the radiance. */}
+        {/* Grade: rich but restrained — the earlier 0.28 saturation over-pushed
+            the palette (per user); pulled back to a more natural, filmic level
+            while Bloom still carries the radiance. */}
         <CinematicGrade
           ref={gradeRef}
           brightness={0.03}
           contrast={0.13}
-          saturation={0.28}
+          saturation={0.15}
           vigOffset={0.36}
           vigDarkness={0.34}
           vigBreathe={reducedMotion ? 0 : 0.05}

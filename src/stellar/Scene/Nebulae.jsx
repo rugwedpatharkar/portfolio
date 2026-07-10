@@ -128,7 +128,7 @@ const NebulaPlane = ({ url, position, scale, opacity, haloTint, coreTint }) => {
       uEdgeInner: { value: 0.3 },
       uTint: { value: new THREE.Color(...coreTint) },
       uTintAmt: { value: 0.18 },
-      uSat: { value: 0.92 },
+      uSat: { value: 0.74 },
     };
   }, [tex, opacity, coreTint]);
 
@@ -144,7 +144,7 @@ const NebulaPlane = ({ url, position, scale, opacity, haloTint, coreTint }) => {
       uEdgeInner: { value: 0.16 },
       uTint: { value: new THREE.Color(...haloTint) },
       uTintAmt: { value: 0.6 },
-      uSat: { value: 0.68 },
+      uSat: { value: 0.54 },
     };
   }, [tex, opacity, haloTint]);
 

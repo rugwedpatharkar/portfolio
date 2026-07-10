@@ -60,12 +60,13 @@ export function bvToColor(bv, out) {
   if (k >= 66) b = 255;
   else if (k <= 19) b = 0;
   else b = 138.52 * Math.log(k - 10) - 305.04;
-  // Vibrant direction: keep MORE of each star's real B–V colour (blue/gold) so
-  // the field reads rich and jewel-like, not washed grey-white (was 0.22).
+  // Keep each star's real B–V colour (blue/gold) so the field reads rich, not
+  // washed grey-white — but eased back from the 0.08 over-push toward a more
+  // natural tint (higher mix = whiter; original desaturated look was 0.22).
   const cr = THREE.MathUtils.clamp(r / 255, 0, 1);
   const cg = THREE.MathUtils.clamp(g / 255, 0, 1);
   const cb = THREE.MathUtils.clamp(b / 255, 0, 1);
-  const mix = 0.08;
+  const mix = 0.15;
   out.setRGB(cr * (1 - mix) + mix, cg * (1 - mix) + mix, cb * (1 - mix) + mix);
 }
 
