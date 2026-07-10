@@ -5,6 +5,7 @@ import * as THREE from "three";
 import PlanetMaterial from "./PlanetMaterial";
 import AtmosphereGlow from "./AtmosphereGlow";
 import RingSystem from "./RingSystem";
+import { useSceneClock } from "./SceneClock";
 
 /* Atmosphere preset per planet type. With bloom on, the rim will glow
    secondarily on its own — keep intensities moderate so atmospheres
@@ -90,6 +91,7 @@ const Planet = ({
   const planetRef = useRef();
   const cloudRef = useRef();
   const moonsRef = useRef([]);
+  const sceneClock = useSceneClock();
 
   /* Load textures via Suspense — Scene wraps in <Suspense> already.
      Normal + specular + bump maps must NOT be sRGB — they're data,
@@ -179,11 +181,14 @@ const Planet = ({
   useFrame((_, delta) => {
     /* Clamp dt: VisibilityController pauses the loop while the tab is hidden, so
        the first delta on refocus ≈ the whole hidden span — unclamped, the planets
-       + moons would snap-spin a full frame. Matches SceneClock's own 1/20 clamp. */
-    const dt = Math.min(delta, 1 / 20);
-    /* Natural axial rotation (frozen on reduced-motion). */
-    if (planetRef.current && animate) planetRef.current.rotation.y += dt * rotationSpeed;
-    if (cloudRef.current && animate) cloudRef.current.rotation.y += dt * rotationSpeed * 1.35;
+       + moons would snap-spin a full frame. Matches SceneClock's own 1/20 clamp.
+       Scaled by clock.scale so ONE master control speeds spin + moons together
+       with the orbits + Sun churn (they read the same clock). */
+    const dt = Math.min(delta, 1 / 20) * sceneClock.scale;
+    /* Axial rotation + moons — frozen on reduced-motion (animate=false). */
+    if (!animate) return;
+    if (planetRef.current) planetRef.current.rotation.y += dt * rotationSpeed;
+    if (cloudRef.current) cloudRef.current.rotation.y += dt * rotationSpeed * 1.35;
     moonsRef.current.forEach((m, i) => {
       if (m) {
         const t = m.userData.t + dt * (0.25 + (i % 3) * 0.05);

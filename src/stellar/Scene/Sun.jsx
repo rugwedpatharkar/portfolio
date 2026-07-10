@@ -144,22 +144,26 @@ const Sun = ({
     () => ({
       uTime: { value: 0 },
       uCameraPos: { value: new THREE.Vector3() },
-      /* Reddish SOHO/EIT-304 look (per the reference photo): a hot orange-red
-         photosphere. Bright convection peaks = orange-gold, mid = orange, cool
-         intergranular lanes = deep red; active regions are only soft channels. */
-      uHot: { value: new THREE.Color("#ff9a3c") },
-      uMid: { value: new THREE.Color("#e8531a") },
-      uCool: { value: new THREE.Color("#6e1a06") },
+      /* ACCURATE visible-light G2V photosphere (per user — real colours). The Sun
+         is yellow-white, not the EUV orange-red of a SOHO/EIT-304 image: bright
+         convection granules = warm white, mid = pale gold, the cool
+         intergranular lanes = soft orange. Over-bright so Bloom makes it glow. */
+      uHot: { value: new THREE.Color("#fff6e8") },
+      uMid: { value: new THREE.Color("#ffdca2") },
+      uCool: { value: new THREE.Color("#e0954c") },
     }),
     []
   );
 
   useFrame(({ camera }) => {
-    /* Reduced-motion: freeze the churn + spin (t pinned to 0 → static star). */
+    /* Reduced-motion: freeze the churn + spin (t pinned to 0 → static star).
+       CHURN accelerates the convection so the photosphere visibly boils (the
+       real granules turn over in minutes — too slow at 1:1), and the disc
+       slowly rotates. */
     const t = animate ? sceneClock.t : 0;
-    if (meshRef.current && animate) meshRef.current.rotation.y += 0.0006;
+    if (meshRef.current && animate) meshRef.current.rotation.y += 0.0011 * sceneClock.scale;
     if (matRef.current) {
-      matRef.current.uniforms.uTime.value = t;
+      matRef.current.uniforms.uTime.value = t * 2.6;
       matRef.current.uniforms.uCameraPos.value.copy(camera.position);
     }
   });

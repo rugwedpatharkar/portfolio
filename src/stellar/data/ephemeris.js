@@ -11,8 +11,9 @@
  * Source: J2000 mean elements (NASA / Standish 1992 simplified).
  */
 
-/* Orbital period in Julian years */
-const PERIOD = {
+/* Orbital period in Julian years (real, NASA/Standish). Keyed by section-id =
+   destination id, so orbits.js can drive ACCURATE relative orbital speeds. */
+export const PERIOD = {
   about: 0.2408,      // Mercury
   funfacts: 0.6152,   // Venus
   experience: 1.0,    // Earth
