@@ -111,6 +111,10 @@ const Scene = ({ scrollT, activeIdx, onJump, onReady, wideRef, wideOrbitRef, foc
   const showExtras = extrasPhase >= 1;
   const showMid = extrasPhase >= 2;
   const showEggs = extrasPhase >= 3;
+  /* Tier 4 — the heaviest point build (belt dust ~68k points) mounts LAST and
+     ALONE, so it never shares a React commit / GPU upload with the deep-field or
+     anomalies (that collision was the boot black-frame). */
+  const showDust = extrasPhase >= 4;
   /* Camera offsets — kept in refs so React state doesn't re-render
      the whole tree on every frame. Mouse parallax and free-roam each
      own their own offset; CameraRig sums them. */
@@ -151,8 +155,9 @@ const Scene = ({ scrollT, activeIdx, onJump, onReady, wideRef, wideOrbitRef, foc
         antialias: !isMobile,
         alpha: false,
         powerPreference: "high-performance",
-        /* Photo Mode (Phase 3C) reads the canvas via toDataURL — needs the buffer
-           kept after compositing. Modest cost; fine for a portfolio. */
+        /* Keep the drawing buffer so the canvas stays capturable (headless
+           screenshots, and any future "share this frame" image) — without it a
+           programmatic capture reads a cleared/black buffer. Negligible cost. */
         preserveDrawingBuffer: true,
         /* ACES Filmic tone mapping on the renderer side — single
            pipeline, no post-processing ToneMapping pass (that one
@@ -427,12 +432,12 @@ const Scene = ({ scrollT, activeIdx, onJump, onReady, wideRef, wideOrbitRef, foc
         {showExtras && !isMobile && (
           <AsteroidBelt count={6500} innerRadius={BACKGROUND_BELTS.kuiper.inner} outerRadius={BACKGROUND_BELTS.kuiper.outer} size={0.55} thickness={BACKGROUND_BELTS.kuiper.thickness} families={ICY_FAMILIES} weights={ICY_WEIGHTS} cliff animate={!reducedMotion} />
         )}
-        {/* Dust haze — tier 2 (the heaviest point build, deferred one tier). */}
-        {showMid && (
-          <BeltDust count={isMobile ? 34000 : 80000} innerRadius={BACKGROUND_BELTS.asteroid.inner} outerRadius={BACKGROUND_BELTS.asteroid.outer} thickness={BACKGROUND_BELTS.asteroid.thickness} color={BACKGROUND_BELTS.asteroid.color} size={2.6} opacity={0.3} gaps={KIRKWOOD_GAPS} animate={!reducedMotion} />
+        {/* Dust haze — tier 4 (the heaviest point build, mounts last + alone). */}
+        {showDust && (
+          <BeltDust count={isMobile ? 18000 : 40000} innerRadius={BACKGROUND_BELTS.asteroid.inner} outerRadius={BACKGROUND_BELTS.asteroid.outer} thickness={BACKGROUND_BELTS.asteroid.thickness} color={BACKGROUND_BELTS.asteroid.color} size={2.6} opacity={0.3} gaps={KIRKWOOD_GAPS} animate={!reducedMotion} />
         )}
-        {showMid && !isMobile && (
-          <BeltDust count={55000} innerRadius={BACKGROUND_BELTS.kuiper.inner} outerRadius={BACKGROUND_BELTS.kuiper.outer} thickness={BACKGROUND_BELTS.kuiper.thickness} color={BACKGROUND_BELTS.kuiper.color} size={2.3} opacity={0.26} cliff animate={!reducedMotion} />
+        {showDust && !isMobile && (
+          <BeltDust count={28000} innerRadius={BACKGROUND_BELTS.kuiper.inner} outerRadius={BACKGROUND_BELTS.kuiper.outer} thickness={BACKGROUND_BELTS.kuiper.thickness} color={BACKGROUND_BELTS.kuiper.color} size={2.3} opacity={0.26} cliff animate={!reducedMotion} />
         )}
         {/* Tenuous gas/dust clouds — tier 3 (big, faint, soft; distance-faded by
             the same shader so they never bloom into a bar). Desktop only. */}

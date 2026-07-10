@@ -1,30 +1,17 @@
 /* eslint-disable react/no-unknown-property */
-import { useEffect, useMemo, useState } from "react";
+import { useMemo } from "react";
 import { useLoader, useThree } from "@react-three/fiber";
 import * as THREE from "three";
-import useViewport from "../useViewport";
 
 /*
- * Real Milky Way skybox — NASA Tycho catalog all-sky panorama.
+ * Real Milky Way skybox — NASA Tycho catalog all-sky panorama (4K, ~2 MB),
+ * loaded via Suspense and shown immediately. Dimmed to a deep-space backdrop
+ * (deep-navy floor baked into the image; the material colour dims it further).
  *
- * Progressive load, done DECLARATIVELY: the 4K (~4 MB) loads first via
- * Suspense and is shown immediately. On desktop the 8K (~8 MB) then
- * streams in the background; once decoded it goes into React state and
- * the material's `map` switches to it on the next render.
- *
- * IMPORTANT: we do NOT imperatively mutate material.map or dispose the
- * 4K. An earlier version did both — but the JSX prop still bound the 4K,
- * so any re-render (resize / HMR) reset map back to the disposed 4K and
- * the whole sky rendered WHITE. Keeping it declarative (map = hiRes ||
- * tex4k, both kept alive) avoids that entirely.
+ * The 8K tier was dropped: at this dimness (~0.27) it read visually identical
+ * to the 4K but cost a 5.2 MB download + decode hitch + ~134 MB of GPU memory.
  */
-
-/* Leveled skybox: dimmed to a backdrop with a deep-NAVY floor baked in so
-   the void reads as deep space, not dead pure-black ("background too dark"
-   fix). Level baked into the image → meshBasicMaterial colour stays white,
-   GPU-pipeline-independent. */
 const FOURK = "/textures/space/milkyway-space.jpg";
-const EIGHTK = "/textures/space/milkyway-8k-space.jpg";
 
 const configure = (tex, gl) => {
   if (!tex) return tex;
@@ -38,53 +25,24 @@ const configure = (tex, gl) => {
 };
 
 const Skybox = () => {
-  const { isMobile } = useViewport();
-  const { gl, invalidate } = useThree();
-  const tex4k = useLoader(THREE.TextureLoader, FOURK);
-  const [hiRes, setHiRes] = useState(null);
+  const { gl } = useThree();
+  const tex = useLoader(THREE.TextureLoader, FOURK);
 
-  /* Configure the 4K synchronously during render so its colorSpace is
-     correct on the very first frame (no wrong-colorspace flash). */
-  useMemo(() => configure(tex4k, gl), [tex4k, gl]);
-
-  /* Desktop: stream the 8K, then flip it in via state (declarative). */
-  useEffect(() => {
-    if (isMobile) return undefined;
-    let cancelled = false;
-    new THREE.TextureLoader().load(EIGHTK, (t) => {
-      if (cancelled) {
-        t.dispose();
-        return;
-      }
-      configure(t, gl);
-      setHiRes(t);
-      invalidate();
-    });
-    return () => { cancelled = true; };
-  }, [isMobile, gl, invalidate]);
-
-  /* Both textures stay alive; React owns which one is bound. */
-  const map = hiRes || tex4k;
+  /* Configure synchronously during render so colorSpace is correct on the very
+     first frame (no wrong-colorspace flash). */
+  useMemo(() => configure(tex, gl), [tex, gl]);
 
   return (
     /* Rotated so the bright galactic-core bulge swings away from the
        inner-planet sightlines (which look back toward the sun on −x). */
     <mesh rotation={[0.3, 2.4, 0]}>
       <sphereGeometry args={[7000, 64, 32]} />
-      {/* Dimmed hard so the dense Tycho star field recedes into a
-          backdrop instead of fighting the planets.
-
-          toneMapped={false}: render the texture as-authored. With ACES
-          tone-mapping ON, the result was GPU-dependent — on some drivers
-          the sky washed out to near-WHITE. Disabling tone-mapping here +
-          a directly-dimmed colour makes the backdrop deterministic
-          everywhere. The color grade still applies as a post pass. */}
-      {/* IN-BETWEEN brightness: the leveled texture keeps its baked navy
-          floor (never pure-black), but this colour dims it back partway —
-          between the old dead-black skybox and the full-bright leveled one.
-          Tune this single value to taste: 1.0 = brightest, ~0.3 = dim. */}
+      {/* Dimmed hard so the dense Tycho star field recedes into a backdrop.
+          toneMapped={false} + a directly-dimmed colour makes the backdrop
+          deterministic across GPUs (ACES tone-mapping washed it near-white on
+          some drivers); the colour grade still applies as a post pass. */}
       <meshBasicMaterial
-        map={map}
+        map={tex}
         side={THREE.BackSide}
         color="#44474f"
         toneMapped={false}

@@ -3,35 +3,26 @@
  * Contact) is a self-contained component that reads from src/content; this picks
  * the one for the active body's section and mounts it in the fixed dossier frame.
  * The frame is pointer-transparent so the 3D body behind stays interactive;
- * sections opt back in on their own columns. (The legacy inline-accordion
- * fallback was removed — every stop has a section component.)
+ * sections opt back in on their own columns.
+ *
+ * Sections are React.lazy so the ~12 section chunks (and their content) are
+ * deferred off the hero's first paint — only the active body's section loads.
  */
-import AboutSection from "./sections/About";
-import FunFactsSection from "./sections/FunFacts";
-import ExperienceSection from "./sections/Experience";
-import SkillsSection from "./sections/Skills";
-import ProjectsSection from "./sections/Projects";
-import NotesSection from "./sections/Notes";
-import AchievementsSection from "./sections/Achievements";
-import EducationSection from "./sections/Education";
-import HobbiesSection from "./sections/Hobbies";
-import TestimonialsSection from "./sections/Testimonials";
-import ContactSection from "./sections/Contact";
-import WhatSetsMeApartSection from "./sections/WhatSetsMeApart";
+import { lazy, Suspense } from "react";
 
 const SECTION_COMPONENT = {
-  about: AboutSection,
-  funfacts: FunFactsSection,
-  experience: ExperienceSection,
-  skills: SkillsSection,
-  projects: ProjectsSection,
-  notes: NotesSection,
-  achievements: AchievementsSection,
-  education: EducationSection,
-  hobbies: HobbiesSection,
-  testimonials: TestimonialsSection,
-  whatsetsmeapart: WhatSetsMeApartSection,
-  contact: ContactSection,
+  about: lazy(() => import("./sections/About")),
+  funfacts: lazy(() => import("./sections/FunFacts")),
+  experience: lazy(() => import("./sections/Experience")),
+  skills: lazy(() => import("./sections/Skills")),
+  projects: lazy(() => import("./sections/Projects")),
+  notes: lazy(() => import("./sections/Notes")),
+  achievements: lazy(() => import("./sections/Achievements")),
+  education: lazy(() => import("./sections/Education")),
+  hobbies: lazy(() => import("./sections/Hobbies")),
+  testimonials: lazy(() => import("./sections/Testimonials")),
+  whatsetsmeapart: lazy(() => import("./sections/WhatSetsMeApart")),
+  contact: lazy(() => import("./sections/Contact")),
 };
 
 export default function V3Panel({ section, bootNonce }) {
@@ -50,7 +41,9 @@ export default function V3Panel({ section, bootNonce }) {
         overflow: "hidden",
       }}
     >
-      <Section bootNonce={bootNonce} />
+      <Suspense fallback={null}>
+        <Section bootNonce={bootNonce} />
+      </Suspense>
     </div>
   );
 }

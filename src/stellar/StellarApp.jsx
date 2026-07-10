@@ -63,7 +63,7 @@ const StellarApp = () => {
     window.addEventListener("stellar:flight", onFlight);
     return () => window.removeEventListener("stellar:flight", onFlight);
   }, []);
-  const { reducedMotion, isMobile } = useViewport();
+  const { reducedMotion } = useViewport();
 
   /* Camera framing refs — kept out of React state so per-frame reads never
      re-render the tree. CameraRig reads these each frame. */
@@ -81,15 +81,21 @@ const StellarApp = () => {
   const sceneClockRef = useRef(null);
   if (!sceneClockRef.current) sceneClockRef.current = { t: 0, scale: 1, danger: 0 };
 
-  /* Stream the heavy extras suite in tiers over the first ~2s so the core scene
-     (sun + planets + stars) shows first. Reduced-motion / mobile mount at once. */
+  /* Stream the heavy extras suite in tiers over the first ~1.7s so the core scene
+     (sun + planets + stars) shows first and no single commit builds the whole
+     suite (belts, deep-field, and the ~68k belt-dust are spread across 4 tiers).
+     Mobile stages too — the one-commit build was the worst hitch on weak GPUs;
+     reduced-motion mounts at once (there's no reveal animation to preserve). */
   useEffect(() => {
-    if (reducedMotion || isMobile) { setExtrasPhase(3); return undefined; }
-    const t1 = setTimeout(() => setExtrasPhase(1), 200);
-    const t2 = setTimeout(() => setExtrasPhase(2), 1000);
-    const t3 = setTimeout(() => setExtrasPhase(3), 2000);
-    return () => { clearTimeout(t1); clearTimeout(t2); clearTimeout(t3); };
-  }, [isMobile, reducedMotion]);
+    if (reducedMotion) { setExtrasPhase(4); return undefined; }
+    const timers = [
+      setTimeout(() => setExtrasPhase(1), 150),
+      setTimeout(() => setExtrasPhase(2), 500),
+      setTimeout(() => setExtrasPhase(3), 1000),
+      setTimeout(() => setExtrasPhase(4), 1700),
+    ];
+    return () => timers.forEach(clearTimeout);
+  }, [reducedMotion]);
 
   const handleDestinationChange = useCallback((dest) => {
     const idx = DESTINATIONS.findIndex((d) => d.id === dest.id);
