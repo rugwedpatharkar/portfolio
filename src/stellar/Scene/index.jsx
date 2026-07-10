@@ -34,6 +34,7 @@ import SolarEclipse from "./SolarEclipse";
 import EclipseLights from "./EclipseLights";
 import DwarfPlanets from "./DwarfPlanets";
 import BeltDust from "./BeltDust";
+import LocalNeighborhood from "./LocalNeighborhood";
 import TrojanAsteroids from "./TrojanAsteroids";
 import OortCloud from "./OortCloud";
 import Heliosphere from "./Heliosphere";
@@ -102,18 +103,23 @@ const ICY_WEIGHTS = [0.45, 0.3, 0.25];
 
 const Scene = ({ scrollT, activeIdx, onJump, wideRef, wideOrbitRef, focusRef, warpVelRef, cameraRef, eclipseRef, clock, extrasPhase = 3, launchPhase = null, onLaunchComplete, v3 = false }) => {
   const { isMobile, reducedMotion } = useViewport();
+  /* Pull-back finale preview — `?finale=1` hides the AU-scale solar system and
+     shows the LOCAL stellar neighbourhood at true depth (LocalNeighborhood) with
+     the Milky-Way band wrapping around, camera parked pulled-back. Debug trigger
+     for now; the scroll-driven cinematic transition wires to the same flag next. */
+  const finale = typeof window !== "undefined" && (window.location.search.includes("finale") || window.location.hash.includes("finale"));
   /* Progressive-mount tiers — StellarApp ramps extrasPhase 0→3 so the heavy suite
      doesn't build in one frame-freezing commit. Tier 1 = structural extras + belts;
      tier 2 = deep-field anomalies/comets; tier 3 = the heaviest models last. Every
      object is real (belts, dust, comets, visitors, spacecraft, deep-field); gating
-     is by the tiers + device/motion budget (isMobile / reducedMotion) only. */
-  const showExtras = extrasPhase >= 1;
-  const showMid = extrasPhase >= 2;
-  const showEggs = extrasPhase >= 3;
+     is by the tiers + device/motion budget + the finale flag. */
+  const showExtras = extrasPhase >= 1 && !finale;
+  const showMid = extrasPhase >= 2 && !finale;
+  const showEggs = extrasPhase >= 3 && !finale;
   /* Tier 4 — the heaviest point build (belt dust ~68k points) mounts LAST and
      ALONE, so it never shares a React commit / GPU upload with the deep-field or
      anomalies (that collision was the boot black-frame). */
-  const showDust = extrasPhase >= 4;
+  const showDust = extrasPhase >= 4 && !finale;
   /* Camera offsets — kept in refs so React state doesn't re-render
      the whole tree on every frame. Mouse parallax and free-roam each
      own their own offset; CameraRig sums them. */
@@ -212,10 +218,13 @@ const Scene = ({ scrollT, activeIdx, onJump, wideRef, wideOrbitRef, focusRef, wa
 
       <Suspense fallback={null}>
         <Skybox />
-        <Stars />
-        <Nebulae />
-        {/* Grand faint galactic band — far backdrop for depth. */}
+        {!finale && <Stars />}
+        {!finale && <Nebulae />}
+        {/* Grand faint galactic band — far backdrop for depth; in the finale it's
+            the galaxy wrapping around our local neighbourhood. */}
         <MilkyWay />
+        {/* Pull-back finale (?finale=1) — the local stellar neighbourhood at true depth. */}
+        {finale && <LocalNeighborhood active />}
         {/* Zodiacal light — faint sunlight scattered by ecliptic-plane dust.
             8,500 additive points arrayed from the Sun outward: at the wide
             overview shot they cluster into a bright halo — suppressed in v3
@@ -267,7 +276,7 @@ const Scene = ({ scrollT, activeIdx, onJump, wideRef, wideOrbitRef, focusRef, wa
         {/* Wormhole "Beam aboard" portal at the Contact edge — the booking CTA. */}
         {showMid && <Wormhole />}
 
-        {DESTINATIONS.map((d, idx) => {
+        {!finale && DESTINATIONS.map((d, idx) => {
           const handleClick = (e) => {
             e.stopPropagation();
             onJump?.(idx);
@@ -484,6 +493,7 @@ const Scene = ({ scrollT, activeIdx, onJump, wideRef, wideOrbitRef, focusRef, wa
           reducedMotion={reducedMotion}
           isMobile={isMobile}
           v3={v3}
+          finale={finale}
           /* v3 desktop = cinematic split: each planet framed LARGE on the RIGHT so
              the left info column has room. (v2 kept it centred; compact/mobile stack.) */
           frameShift={v3 && !isMobile ? 0.42 : 0}

@@ -203,6 +203,7 @@ const CameraRig = ({
   reducedMotion = false,
   isMobile = false,
   v3 = false,
+  finale = false,
 }) => {
   const { camera } = useThree();
   const sceneClock = useSceneClock();
@@ -287,6 +288,20 @@ const CameraRig = ({
     /* Reduced-motion + mobile → SNAP: no first-person fly-through, no streaks,
        info stays visible. The normal lerp still glides gently to the pose. */
     const snap = reducedMotion || isMobile;
+
+    /* ── Pull-back finale (?finale=1) — park the camera pulled back, looking at
+       the Sun among its local-neighbourhood stars. Debug pose for now; the real
+       scroll-driven cinematic transition wires here next. */
+    if (finale) {
+      _camTarget.set(0, 1600, 5200);
+      _lookTarget.set(0, 0, 0);
+      const a = snap ? 1 : 1 - Math.pow(0.0001, d);
+      camera.position.lerp(_camTarget, a);
+      lookAtTarget.current.lerp(_lookTarget, a);
+      camera.lookAt(lookAtTarget.current);
+      if (Math.abs(camera.fov - 60) > 0.05) { camera.fov += (60 - camera.fov) * a; camera.updateProjectionMatrix(); }
+      return;
+    }
 
     /* ── Cinematic launch override (intro) ──
        establish: pull back from Sol to reveal the tilted system (ease-out);
