@@ -95,6 +95,56 @@ export const MOONS = [
     info: "Charon — Pluto's giant moon, half Pluto's size. The two are tidally locked face-to-face and orbit a point in empty space between them — a true double world.",
     facts: { diameter: "1,212 km", day: "6.4 d (locked)", wow: "So big it and Pluto orbit a point in the space between them." },
   },
+  {
+    id: "moon-rhea", parent: "notes", label: "Rhea", color: "#cdd2d0", offset: [-2.6, 0.5, 0.9],
+    info: "Rhea — Saturn's second-largest moon, a heavily cratered ball of ice and rock with a wisp of an oxygen–CO₂ exosphere and hints of its own faint ring.",
+    facts: { diameter: "1,527 km", day: "4.5 d", wow: "May be the only moon with a ring system of its own." },
+  },
+  {
+    id: "moon-iapetus", parent: "notes", label: "Iapetus", color: "#8a7f70", offset: [3.2, -0.6, -1.0],
+    info: "Iapetus — the two-faced moon: one hemisphere is pitch-black, the other bright ice, and a bizarre 1,300 km ridge girdles its equator like the seam of a walnut.",
+    facts: { diameter: "1,469 km", day: "79.3 d", wow: "One side is ~10× darker than the other — a cosmic yin-yang." },
+  },
+  {
+    id: "moon-dione", parent: "notes", label: "Dione", color: "#d4dad8", offset: [2.2, 0.7, 1.1],
+    info: "Dione — an icy moon laced with bright 'wispy' cliffs of fractured ice, wrapped in a tenuous oxygen exosphere.",
+    facts: { diameter: "1,123 km", day: "2.7 d", wow: "Its ghostly wisps are ice cliffs hundreds of metres tall." },
+  },
+  {
+    id: "moon-tethys", parent: "notes", label: "Tethys", color: "#dfe6e3", offset: [-2.4, -0.4, -1.2],
+    info: "Tethys — a bright, low-density ice moon marked by the giant Odysseus impact crater and the vast Ithaca Chasma canyon.",
+    facts: { diameter: "1,062 km", day: "1.9 d", wow: "Its Ithaca Chasma canyon runs ~2,000 km — three-quarters of the way around it." },
+  },
+  {
+    id: "moon-umbriel", parent: "education", label: "Umbriel", color: "#9aa4a4", offset: [-1.6, -0.5, 0.5],
+    info: "Umbriel — the darkest of Uranus's major moons, an ancient cratered world with one mysterious bright ring, 'Wunda', sitting on its equator.",
+    facts: { diameter: "1,169 km", day: "4.1 d", wow: "Reflects only ~1 in 6 photons — the moody one of Uranus's moons." },
+  },
+  {
+    id: "moon-nereid", parent: "hobbies", label: "Nereid", color: "#c8c0b4", offset: [-2.2, 0.6, -0.7],
+    info: "Nereid — one of the most eccentric orbits of any moon: it swings from ~1.4 to ~9.7 million km from Neptune, likely flung outward when Triton was captured.",
+    facts: { diameter: "~340 km", day: "360 d orbit", wow: "Its distance from Neptune varies sevenfold over one lopsided orbit." },
+  },
+  {
+    id: "moon-nix", parent: "testimonials", label: "Nix", color: "#cfc8bf", offset: [-1.3, 0.6, -0.5],
+    info: "Nix — a small elongated moon of Pluto that tumbles CHAOTICALLY, its poles wandering unpredictably as Pluto and Charon tug on it.",
+    facts: { diameter: "~50 km", day: "chaotic spin", wow: "You could never predict its sunrise — its rotation is genuinely chaotic." },
+  },
+  {
+    id: "moon-hydra", parent: "testimonials", label: "Hydra", color: "#c4c0b8", offset: [1.4, -0.5, 0.6],
+    info: "Hydra — Pluto's outermost moon, another chaotically tumbling chunk of water ice, discovered in 2005.",
+    facts: { diameter: "~51 km", day: "chaotic spin", wow: "Found two years before New Horizons even launched toward it." },
+  },
+  {
+    id: "moon-kerberos", parent: "testimonials", label: "Kerberos", color: "#a8a49c", offset: [-1.1, -0.6, 0.7],
+    info: "Kerberos — a tiny, dark, double-lobed moon of Pluto, surprisingly dim, found in 2011.",
+    facts: { diameter: "~19 km", day: "chaotic spin", wow: "Darker than its siblings — a soot-grey oddball." },
+  },
+  {
+    id: "moon-styx", parent: "testimonials", label: "Styx", color: "#b0aca4", offset: [1.0, 0.5, -0.6],
+    info: "Styx — the smallest and faintest of Pluto's five moons, a ~16 km sliver of ice found in 2012.",
+    facts: { diameter: "~16 km", day: "chaotic spin", wow: "The last of Pluto's moons discovered — and the tiniest." },
+  },
 ];
 
 export const MOON_BY_ID = Object.fromEntries(MOONS.map((m) => [m.id, m]));

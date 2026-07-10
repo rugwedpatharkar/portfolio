@@ -223,13 +223,17 @@ export const DESTINATIONS = [
     rings: true,
     ringTexture: "/textures/planets/saturnringcolor.jpg",
     ringColor: "#f8c555",
-    moons: 2,
+    moons: 6,
     moonScale: 0.05,
     /* Titan — bigger than Mercury, thick orange hydrocarbon haze; Enceladus —
-       tiny, brilliant water-ice. */
+       tiny, brilliant water-ice; + Rhea/Iapetus/Dione/Tethys (next-biggest). */
     moonSet: [
       { color: "#d99a4a", scale: 0.052 }, // Titan — orange haze
       { color: "#eef3f1", scale: 0.022 }, // Enceladus — bright icy
+      { color: "#cdd2d0", scale: 0.016 }, // Rhea — cratered ice
+      { color: "#8a7f70", scale: 0.015 }, // Iapetus — two-tone
+      { color: "#d4dad8", scale: 0.012 }, // Dione — wispy ice cliffs
+      { color: "#dfe6e3", scale: 0.011 }, // Tethys — Ithaca Chasma
     ],
   },
   {
@@ -255,7 +259,7 @@ export const DESTINATIONS = [
     oblateness: 0.023, // real flattening
     faintRings: true, // Uranus's narrow rings ride near-vertical with its tilt
 
-    moons: 4,
+    moons: 5,
     moonColor: "#d0ccea",
     moonScale: 0.06,
     /* Uranus's major moons — pale grey-cyan icy worlds. */
@@ -264,6 +268,7 @@ export const DESTINATIONS = [
       { color: "#b2bebe", scale: 0.046 }, // Oberon
       { color: "#c8d4d4", scale: 0.036 }, // Miranda — small, fractured
       { color: "#aab6b6", scale: 0.05 },  // Ariel
+      { color: "#9aa4a4", scale: 0.044 }, // Umbriel — darkest of the five
     ],
   },
   {
@@ -286,11 +291,14 @@ export const DESTINATIONS = [
     axialTilt: 28.3 * DEG, // Neptune's obliquity, close to Earth's
     oblateness: 0.017, // real flattening
     faintRings: true, // Neptune's faint rings + arcs (real)
-    moons: 1, // Triton, the one large moon
+    moons: 2, // Triton (large) + Nereid (small, highly eccentric)
     moonColor: "#b8d4ee",
     moonScale: 0.07,
-    /* Triton — pinkish-tan nitrogen-ice; the only big moon on a retrograde orbit. */
-    moonSet: [{ color: "#d8cabd", scale: 0.052 }],
+    /* Triton — pinkish-tan nitrogen-ice, retrograde; Nereid — small + very eccentric. */
+    moonSet: [
+      { color: "#d8cabd", scale: 0.052 }, // Triton
+      { color: "#c8c0b4", scale: 0.008 }, // Nereid — small
+    ],
   },
 
   // Pluto — the dwarf planet IN the Kuiper belt (Testimonials). Keeps id +
