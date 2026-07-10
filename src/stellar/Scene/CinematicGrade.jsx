@@ -35,6 +35,7 @@ uniform float vigOffset;
 uniform float vigDarkness;
 uniform float uTime;
 uniform float vigBreathe;
+uniform float uGrain;
 
 void mainImage(const in vec4 inputColor, const in vec2 uv, out vec4 outputColor) {
   vec3 color = inputColor.rgb;
@@ -59,12 +60,21 @@ void mainImage(const in vec4 inputColor, const in vec2 uv, out vec4 outputColor)
   float d = distance(uv, vec2(0.5));
   color *= smoothstep(0.8, vigOffset * 0.799, d * (vigD + vigOffset));
 
+  /* --- Film grain (subtle animated luminance noise, folded into this one pass so
+     no second mainImage). Zero-mean so it doesn't shift exposure; scaled down in
+     shadows where real grain is finer. uGrain = 0 under reduced motion. --- */
+  if (uGrain > 0.0) {
+    float n = fract(sin(dot(uv + fract(uTime * 0.5), vec2(12.9898, 78.233))) * 43758.5453) - 0.5;
+    float luma = dot(color, vec3(0.299, 0.587, 0.114));
+    color += n * uGrain * (0.6 + 0.4 * luma);
+  }
+
   outputColor = vec4(color, inputColor.a);
 }
 `;
 
 class CinematicGradeEffect extends Effect {
-  constructor({ brightness, contrast, saturation, vigOffset, vigDarkness, vigBreathe }) {
+  constructor({ brightness, contrast, saturation, vigOffset, vigDarkness, vigBreathe, grain }) {
     super("CinematicGrade", fragmentShader, {
       uniforms: new Map([
         ["brightness", new Uniform(brightness)],
@@ -74,13 +84,15 @@ class CinematicGradeEffect extends Effect {
         ["vigDarkness", new Uniform(vigDarkness)],
         ["uTime", new Uniform(0)],
         ["vigBreathe", new Uniform(vigBreathe)],
+        ["uGrain", new Uniform(grain)],
       ]),
     });
   }
 
-  /* Advance the breathing clock each frame (postprocessing calls this per render). */
+  /* Advance the clock each frame (postprocessing calls this per render) whenever
+     the vignette breathes OR film grain is active. */
   update(renderer, inputBuffer, deltaTime) {
-    if (this.uniforms.get("vigBreathe").value > 0) {
+    if (this.uniforms.get("vigBreathe").value > 0 || this.uniforms.get("uGrain").value > 0) {
       this.uniforms.get("uTime").value += deltaTime;
     }
   }
@@ -95,12 +107,13 @@ const CinematicGrade = forwardRef(
       vigOffset = 0.3,
       vigDarkness = 0.82,
       vigBreathe = 0,
+      grain = 0,
     },
     ref
   ) => {
     const effect = useMemo(
-      () => new CinematicGradeEffect({ brightness, contrast, saturation, vigOffset, vigDarkness, vigBreathe }),
-      [brightness, contrast, saturation, vigOffset, vigDarkness, vigBreathe]
+      () => new CinematicGradeEffect({ brightness, contrast, saturation, vigOffset, vigDarkness, vigBreathe, grain }),
+      [brightness, contrast, saturation, vigOffset, vigDarkness, vigBreathe, grain]
     );
     return <primitive ref={ref} object={effect} dispose={null} />;
   }

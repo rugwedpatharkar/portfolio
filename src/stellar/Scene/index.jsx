@@ -532,6 +532,7 @@ const Scene = ({ scrollT, activeIdx, onJump, wideRef, wideOrbitRef, focusRef, wa
           vigOffset={0.36}
           vigDarkness={0.38}
           vigBreathe={reducedMotion ? 0 : 0.05}
+          grain={reducedMotion ? 0 : 0.035}
         />
       </EffectComposer>
       </SceneClock>
