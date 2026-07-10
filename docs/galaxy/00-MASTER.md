@@ -30,7 +30,7 @@ inside the existing `far=14000`; exactly **one** custom postprocessing `mainImag
 | `astronomy-solar-system.md` | accuracy lock + gap closure | sourced |
 | `technical-scale-regimes.md` | staged scale strategy | sourced |
 | `technical-interstellar-shots.md` | premium-shot feasibility | sourced |
-| `data-schemas.md` | docs → data contract | todo |
+| `data-schemas.md` | docs → data contract | sourced |
 | `config/galaxy.js` | galactic-structure data | todo |
 | `config/scaleRegimes.js` | solar → local handoff | todo |
 | `data/brightStars.js` (stride-5) | star distances | todo |
