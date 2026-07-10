@@ -99,7 +99,7 @@ const DISK_FRAG = /* glsl */ `
 
     float a = clamp(bright * doppler, 0.0, 1.0);
     if (a < 0.01) discard;
-    gl_FragColor = vec4(col * a * 2.0, a);
+    gl_FragColor = vec4(col * a * 2.2, a);
   }
 `;
 
@@ -121,13 +121,13 @@ const BlackHole = ({
   const sceneClock = useSceneClock();
 
   const diskUniforms = useMemo(
-    () => ({ uTime: { value: 0 }, uInner: { value: radius * 1.3 }, uOuter: { value: radius * 5.0 }, uBeam: { value: beam } }),
+    () => ({ uTime: { value: 0 }, uInner: { value: radius * 1.3 }, uOuter: { value: radius * 5.5 }, uBeam: { value: beam } }),
     [radius, beam]
   );
   /* Lensed-halo uniforms — the bright wrap that arcs over/under the horizon
      (the gravitationally lensed image of the far side of the disk). */
   const haloUniforms = useMemo(
-    () => ({ uTime: { value: 0 }, uInner: { value: radius * 1.16 }, uOuter: { value: radius * 2.9 }, uBeam: { value: beam * 0.6 } }),
+    () => ({ uTime: { value: 0 }, uInner: { value: radius * 1.16 }, uOuter: { value: radius * 3.2 }, uBeam: { value: beam * 0.6 } }),
     [radius, beam]
   );
 
@@ -161,7 +161,7 @@ const BlackHole = ({
           up and over the horizon so the glow rings the black sphere from any
           angle. Camera-facing, runs the disk shader at reduced beaming. */}
       <mesh ref={haloRef}>
-        <ringGeometry args={[radius * 1.16, radius * 2.9, 128, 3]} />
+        <ringGeometry args={[radius * 1.16, radius * 3.2, 128, 3]} />
         <shaderMaterial
           ref={haloMat}
           vertexShader={DISK_VERT}
@@ -185,7 +185,7 @@ const BlackHole = ({
       {/* Accretion disk — tilted, swirling, Doppler-beamed. */}
       <group ref={diskGroup} rotation={[tilt, 0, 0]}>
         <mesh>
-          <ringGeometry args={[radius * 1.3, radius * 5.0, 160, 6]} />
+          <ringGeometry args={[radius * 1.3, radius * 5.5, 160, 6]} />
           <shaderMaterial
             ref={diskMat}
             vertexShader={DISK_VERT}
