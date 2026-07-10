@@ -155,19 +155,19 @@ const LensFlare = ({ position = [0, 0, 0] }) => {
 
     if (glareRef.current) {
       glareRef.current.position.copy(sunPos);
-      glareRef.current.material.opacity = vis * 0.9;
+      glareRef.current.material.opacity = vis * 1.0;
       glareRef.current.visible = on;
     }
     if (raysRef.current) {
       raysRef.current.position.copy(sunPos);
-      raysRef.current.material.opacity = vis * 0.82;
+      raysRef.current.material.opacity = vis * 0.94;
       /* No auto-spin: real diffraction spikes are fixed to the lens, not slowly
          rotating on their own (that read as a 'magic glow'). */
       raysRef.current.visible = on;
     }
     if (streakRef.current) {
       streakRef.current.position.copy(sunPos);
-      streakRef.current.material.opacity = vis * 0.5;
+      streakRef.current.material.opacity = vis * 0.64;
       streakRef.current.visible = on;
     }
     /* Chain-link bokeh ghosts strung along the sun→screen-centre axis, cast
@@ -187,7 +187,7 @@ const LensFlare = ({ position = [0, 0, 0] }) => {
   return (
     <group>
       {/* Blue glare core at the sun */}
-      <sprite ref={glareRef} scale={[4.4, 4.4, 1]}>
+      <sprite ref={glareRef} scale={[5.6, 5.6, 1]}>
         <spriteMaterial
           map={GLARE_TEXTURE}
           transparent
@@ -198,7 +198,7 @@ const LensFlare = ({ position = [0, 0, 0] }) => {
         />
       </sprite>
       {/* Radial starburst rays */}
-      <sprite ref={raysRef} scale={[8.5, 8.5, 1]}>
+      <sprite ref={raysRef} scale={[10.5, 10.5, 1]}>
         <spriteMaterial
           map={RAYS_TEXTURE}
           transparent
@@ -209,7 +209,7 @@ const LensFlare = ({ position = [0, 0, 0] }) => {
         />
       </sprite>
       {/* Wide anamorphic blue streak */}
-      <sprite ref={streakRef} scale={[18, 0.24, 1]}>
+      <sprite ref={streakRef} scale={[24, 0.3, 1]}>
         <spriteMaterial
           map={STREAK_TEXTURE}
           transparent
