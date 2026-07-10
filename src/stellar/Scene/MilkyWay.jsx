@@ -18,7 +18,7 @@ import { GALAXY } from "../config/galaxy";
  * docs/galaxy/technical-scale-regimes.md §3.
  */
 
-const POINT_COUNT = 8200;
+const POINT_COUNT = 11000;
 const RADIUS = 6800;
 const OBLIQUITY = 23.44 * (Math.PI / 180);
 const HgToRad = Math.PI / 12; // hours → radians
@@ -75,9 +75,9 @@ const MilkyWay = () => {
     const sizes = new Float32Array(POINT_COUNT);
     const dir = new THREE.Vector3();
 
-    const core = new THREE.Color("#f2ead6"); // warm-white star clouds toward the bulge
-    const mid = new THREE.Color("#aab6cf"); // cool blue-white disk
-    const edge = new THREE.Color("#5b6580"); // dim steel toward the anticenter
+    const core = new THREE.Color("#fff2d6"); // warm-gold star clouds toward the bulge
+    const mid = new THREE.Color("#9db8ec"); // rich blue-white disk
+    const edge = new THREE.Color("#586394"); // deep steel-blue toward the anticenter
     const tint = new THREE.Color();
 
     for (let i = 0; i < POINT_COUNT; i++) {
@@ -108,12 +108,12 @@ const MilkyWay = () => {
       // Colour: warm star-cloud core → cool disk → dim edge, by |spread| + longitude.
       const e = Math.min(1, Math.abs(spread));
       tint.copy(core).lerp(mid, e * 0.7).lerp(edge, (1 - towardCore) * 0.8);
-      const bright = (0.32 + 0.68 * towardCore) * rift * (1 - e * 0.35);
+      const bright = (0.42 + 0.95 * towardCore) * rift * (1 - e * 0.32);
       colors[i * 3] = tint.r * bright;
       colors[i * 3 + 1] = tint.g * bright;
       colors[i * 3 + 2] = tint.b * bright;
 
-      sizes[i] = 1.5 + Math.random() * 3.2 + towardCore * 1.8;
+      sizes[i] = 1.6 + Math.random() * 3.4 + towardCore * 2.6;
     }
     return { positions, colors, sizes };
   }, []);
@@ -130,7 +130,7 @@ const MilkyWay = () => {
         sizeAttenuation
         vertexColors
         transparent
-        opacity={0.15}
+        opacity={0.24}
         depthWrite={false}
         map={DUST_TEXTURE}
         alphaTest={0.01}
