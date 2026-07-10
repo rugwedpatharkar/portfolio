@@ -1,4 +1,3 @@
-"use client";
 /*
  * sectionKit — shared v3 section primitives extracted from the 12 dossier
  * sections (they were written independently and repeated these three structures

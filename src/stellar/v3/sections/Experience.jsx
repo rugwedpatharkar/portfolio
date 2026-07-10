@@ -1,4 +1,3 @@
-"use client";
 /*
  * Experience (Earth) — role dossier, editorial voice.
  *

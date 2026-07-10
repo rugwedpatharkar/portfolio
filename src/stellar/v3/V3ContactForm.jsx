@@ -1,4 +1,3 @@
-/* eslint-disable jsx-a11y/no-autofocus */
 /*
  * V3ContactForm — the send-a-message form for the v3 Contact stop. Matches v3's
  * hairline/mono/serif aesthetic: no borders except accent underlines, JetBrains
@@ -131,7 +130,7 @@ export default function V3ContactForm() {
       );
   };
 
-  const useTemplate = (t) => {
+  const applyTemplate = (t) => {
     setTopic(t);
     if (!form.message.trim()) setForm((f) => ({ ...f, message: contactContent.msgTemplates?.[t] || "" }));
   };
@@ -185,7 +184,7 @@ export default function V3ContactForm() {
             <button
               key={t.label}
               type="button"
-              onClick={() => useTemplate(t.label)}
+              onClick={() => applyTemplate(t.label)}
               style={chip(topic === t.label)}
             >
               {t.icon} {t.label}

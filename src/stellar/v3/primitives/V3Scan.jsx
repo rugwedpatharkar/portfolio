@@ -1,4 +1,3 @@
-"use client";
 /*
  * V3Scan — the arrival scan-reveal wrapper. Reads scan direction from V3Frame's
  * context (horizontal | radial | drill | orbit | plot | circuit) and reveals

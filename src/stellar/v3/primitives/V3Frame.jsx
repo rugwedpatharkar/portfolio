@@ -1,4 +1,3 @@
-"use client";
 /*
  * V3Frame — the section chrome for every résumé stop in the Planetary Dossier.
  *

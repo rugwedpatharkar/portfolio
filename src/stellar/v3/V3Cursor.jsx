@@ -1,4 +1,3 @@
-"use client";
 /*
  * V3Cursor — a premium two-part cursor: a crisp dot that tracks the pointer 1:1, and
  * a larger ring that lags behind on a spring (the classic "expensive" feel). The ring

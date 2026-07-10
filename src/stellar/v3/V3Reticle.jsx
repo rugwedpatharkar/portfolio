@@ -1,4 +1,3 @@
-"use client";
 /*
  * V3Reticle — a hairline FUI targeting reticle + mono label on the ACTIVE planet.
  * Projects the body's LIVE orbital position (the same orbitalPosition the camera

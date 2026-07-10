@@ -1,4 +1,3 @@
-"use client";
 /*
  * Notes (Jupiter) — editorial magazine (no scroll).
  *

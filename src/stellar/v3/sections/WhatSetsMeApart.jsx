@@ -1,4 +1,3 @@
-"use client";
 /*
  * What Sets Me Apart (Pluto) — massive-numeral master-detail.
  *

@@ -1,4 +1,3 @@
-"use client";
 /*
  * V3Ticker — count-up number on scroll-into-view (IntersectionObserver, first-view
  * only). Used inside V3Channel for numerics. Reduced-motion → jumps to final.

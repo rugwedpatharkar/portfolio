@@ -1,4 +1,3 @@
-"use client";
 /*
  * Achievements (Mars) — Hero + rundown, interactive.
  *
@@ -55,7 +54,7 @@ const HERO_BODY_VARIANTS = {
 };
 
 export default function AchievementsSection({ index, bootNonce }) {
-  const list = achievements || [];
+  const list = useMemo(() => achievements || [], []);
   const reduce = useReducedMotion();
 
   const initialIdx = useMemo(() => pickFlagship(list), [list]);

@@ -1,4 +1,3 @@
-"use client";
 /*
  * Fun facts (Mercury) — the numbers dossier.
  *

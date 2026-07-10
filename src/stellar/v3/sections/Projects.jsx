@@ -1,4 +1,3 @@
-"use client";
 /*
  * Projects (Earth) — cinematic carousel per the taste-stack table.
  *

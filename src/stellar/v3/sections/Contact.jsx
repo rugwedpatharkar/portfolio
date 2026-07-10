@@ -1,4 +1,3 @@
-"use client";
 /*
  * Contact (Blackhole finale) — HUD send channel.
  *

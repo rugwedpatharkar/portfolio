@@ -1,4 +1,3 @@
-"use client";
 /*
  * About (Sun) — the recruiter landing dossier.
  *

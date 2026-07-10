@@ -1,4 +1,3 @@
-"use client";
 /*
  * Testimonials (Neptune) — editorial triptych.
  *

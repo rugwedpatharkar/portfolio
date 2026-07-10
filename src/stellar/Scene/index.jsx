@@ -102,7 +102,7 @@ const ICY_WEIGHTS = [0.45, 0.3, 0.25];
 
 const Scene = ({ scrollT, activeIdx, onJump, onReady, wideRef, wideOrbitRef, focusRef, warpVelRef, cameraRef, eclipseRef, clock, extrasPhase = 3, launchPhase = null, onLaunchComplete, v3 = false }) => {
   const readyRef = useRef(false);
-  const { isMobile, isCompact, reducedMotion } = useViewport();
+  const { isMobile, reducedMotion } = useViewport();
   /* Progressive-mount tiers — StellarApp ramps extrasPhase 0→3 so the heavy suite
      doesn't build in one frame-freezing commit. Tier 1 = structural extras + belts;
      tier 2 = deep-field anomalies/comets; tier 3 = the heaviest models last. Every

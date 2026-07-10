@@ -1,4 +1,3 @@
-"use client";
 /*
  * V3Editorial — the single "Planet Information" card. Docked FAR BOTTOM-RIGHT,
  * this merges what used to be two separate cards (the top-right Body Telemetry

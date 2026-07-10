@@ -1,4 +1,3 @@
-"use client";
 /*
  * Education (Saturn) — concentric orbital rings per the taste-stack table.
  *
@@ -47,7 +46,7 @@ const DOT_R = 6;
 const strokeForPct = (pct) => 1.5 + (Math.max(0, Math.min(100, pct)) / 100) * 3.5;
 
 export default function EducationSection({ index, bootNonce }) {
-  const list = educations || [];
+  const list = useMemo(() => educations || [], []);
   const [active, setActive] = useState(0);
   const reduce = useReducedMotion();
   const item = list[active] || list[0];

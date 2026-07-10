@@ -1,4 +1,3 @@
-"use client";
 /*
  * Hobbies (Uranus) — cursor-tracked tilt bento per the taste-stack table.
  *

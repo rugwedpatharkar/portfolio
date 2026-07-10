@@ -1,5 +1,3 @@
-"use client";
-/* eslint-disable jsx-a11y/anchor-has-content */
 /*
  * V3Hero — the v3 recruiter landing (stop 00). Far-left info column against the
  * whole-system view. Radical-minimal: a huge Fraunces name with one italic accent,

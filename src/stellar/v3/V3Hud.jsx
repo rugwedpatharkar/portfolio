@@ -1,4 +1,3 @@
-"use client";
 /*
  * V3Hud — the minimal FUI chrome for the v3 tour (sci-fi restraint: hairlines, mono
  * data, one accent, no fuigetry). A thin inset frame with corner ticks, a wordmark +
