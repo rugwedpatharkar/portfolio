@@ -215,7 +215,7 @@ const Scene = ({ scrollT, activeIdx, onJump, wideRef, wideOrbitRef, focusRef, wa
         <Stars />
         <Nebulae />
         {/* Grand faint galactic band — far backdrop for depth. */}
-        <MilkyWay animate={!reducedMotion} />
+        <MilkyWay />
         {/* Zodiacal light — faint sunlight scattered by ecliptic-plane dust.
             8,500 additive points arrayed from the Sun outward: at the wide
             overview shot they cluster into a bright halo — suppressed in v3
