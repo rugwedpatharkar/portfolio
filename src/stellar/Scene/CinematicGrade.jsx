@@ -36,6 +36,7 @@ uniform float vigDarkness;
 uniform float uTime;
 uniform float vigBreathe;
 uniform float uGrain;
+uniform float uFade;   // 1 = normal; dips toward 0 to fade the frame through black
 
 void mainImage(const in vec4 inputColor, const in vec2 uv, out vec4 outputColor) {
   vec3 color = inputColor.rgb;
@@ -69,6 +70,10 @@ void mainImage(const in vec4 inputColor, const in vec2 uv, out vec4 outputColor)
     color += n * uGrain * (0.6 + 0.4 * luma);
   }
 
+  /* Cinematic fade — the finale reveal dips the whole frame through black at its
+     mid-point so the solar-system → local-neighbourhood content swap is unseen. */
+  color *= uFade;
+
   outputColor = vec4(color, inputColor.a);
 }
 `;
@@ -85,6 +90,9 @@ class CinematicGradeEffect extends Effect {
         ["uTime", new Uniform(0)],
         ["vigBreathe", new Uniform(vigBreathe)],
         ["uGrain", new Uniform(grain)],
+        // Set imperatively per-frame (via the effect ref) by the finale scrub;
+        // a prop would recreate the effect each frame. 1 = normal.
+        ["uFade", new Uniform(1)],
       ]),
     });
   }

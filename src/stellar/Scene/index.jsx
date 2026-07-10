@@ -1,6 +1,6 @@
 /* eslint-disable react/no-unknown-property */
 import { Suspense, useRef, cloneElement } from "react";
-import { Canvas, invalidate } from "@react-three/fiber";
+import { Canvas, invalidate, useFrame } from "@react-three/fiber";
 import * as THREE from "three";
 import { EffectComposer, Bloom } from "@react-three/postprocessing";
 import CinematicGrade from "./CinematicGrade";
@@ -101,13 +101,30 @@ const ICY_WEIGHTS = [0.45, 0.3, 0.25];
  * tune that based on viewport bucket.
  */
 
-const Scene = ({ scrollT, activeIdx, onJump, wideRef, wideOrbitRef, focusRef, warpVelRef, cameraRef, eclipseRef, clock, extrasPhase = 3, launchPhase = null, onLaunchComplete, v3 = false }) => {
+/* Drives the finale's cinematic through-black dip from the continuous scrub
+   (finaleT). uFade is a V: 1 at the tour end (t=0) and full finale (t=1),
+   dipping near black at t=0.5 where the solar↔neighbourhood content swap fires
+   — so the cut is unseen. Runs every frame (cheap); no-op at t=0/1. */
+function FinaleGradeDip({ gradeRef, finaleT }) {
+  useFrame(() => {
+    const g = gradeRef.current;
+    if (!g) return;
+    const t = finaleT?.current ?? 0;
+    const m = Math.abs(2 * t - 1); // 1 at ends, 0 at mid
+    const s = m * m * (3 - 2 * m); // smoothstep
+    g.uniforms.get("uFade").value = 0.05 + 0.95 * s;
+  });
+  return null;
+}
+
+const Scene = ({ scrollT, finaleT, finale = false, activeIdx, onJump, wideRef, wideOrbitRef, focusRef, warpVelRef, cameraRef, eclipseRef, clock, extrasPhase = 3, launchPhase = null, onLaunchComplete, v3 = false }) => {
   const { isMobile, reducedMotion } = useViewport();
-  /* Pull-back finale preview — `?finale=1` hides the AU-scale solar system and
-     shows the LOCAL stellar neighbourhood at true depth (LocalNeighborhood) with
-     the Milky-Way band wrapping around, camera parked pulled-back. Debug trigger
-     for now; the scroll-driven cinematic transition wires to the same flag next. */
-  const finale = typeof window !== "undefined" && (window.location.search.includes("finale") || window.location.hash.includes("finale"));
+  /* Pull-back finale — when active the AU-scale solar system is hidden and the
+     LOCAL stellar neighbourhood (LocalNeighborhood) + the boosted Milky-Way arch
+     take over, camera pulled back to the Sun among its neighbours. `finale` is
+     the discrete content swap (StellarApp, fired by scroll at the reveal's black
+     dip, or forced by `?finale=1`); `finaleT` is the continuous 0→1 scrub the
+     camera + grade read each frame. */
   /* Progressive-mount tiers — StellarApp ramps extrasPhase 0→3 so the heavy suite
      doesn't build in one frame-freezing commit. Tier 1 = structural extras + belts;
      tier 2 = deep-field anomalies/comets; tier 3 = the heaviest models last. Every
@@ -127,6 +144,8 @@ const Scene = ({ scrollT, activeIdx, onJump, wideRef, wideOrbitRef, focusRef, wa
   const freeRoamOffsetRef = useRef(new THREE.Vector3());
   /* Bloom effect handle (static intensity; warp pulse removed in v3). */
   const bloomRef = useRef();
+  /* Grade effect handle — the finale scrub sets its uFade uniform each frame. */
+  const gradeRef = useRef();
   /* Earth's Moon world position, published by its Planet, read by SolarEclipse. */
   const moonWorldRef = useRef(new THREE.Vector3());
 
@@ -495,11 +514,15 @@ const Scene = ({ scrollT, activeIdx, onJump, wideRef, wideOrbitRef, focusRef, wa
           isMobile={isMobile}
           v3={v3}
           finale={finale}
+          finaleT={finaleT}
           /* v3 desktop = cinematic split: each planet framed LARGE on the RIGHT so
              the left info column has room. (v2 kept it centred; compact/mobile stack.) */
           frameShift={v3 && !isMobile ? 0.42 : 0}
         />
       </Suspense>
+
+      {/* Drives the finale's through-black dip from the scroll scrub. */}
+      <FinaleGradeDip gradeRef={gradeRef} finaleT={finaleT} />
 
       {/* Cinematic post-processing — the biggest visual upgrade.
           Bloom makes the sun + nebulae glow properly, ACES tone-maps
@@ -536,6 +559,7 @@ const Scene = ({ scrollT, activeIdx, onJump, wideRef, wideOrbitRef, focusRef, wa
             pushed for a rich, eye-popping cinematic palette (was tuned
             desaturated-realistic before). Bloom carries the radiance. */}
         <CinematicGrade
+          ref={gradeRef}
           brightness={0.03}
           contrast={0.13}
           saturation={0.28}

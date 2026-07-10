@@ -51,6 +51,16 @@ const V3Scrim = () => {
  */
 const StellarApp = () => {
   const scrollTRef = useRef(0);
+  /* Pull-back finale: `finaleTRef` (0→1) is the continuous scrub the camera +
+     grade read each frame; `scrollFinale` is the discrete solar↔neighbourhood
+     content swap Navigator fires at the mid-point (in the grade's black dip).
+     `?finale=1` forces the finale for standalone preview. */
+  const urlFinale =
+    typeof window !== "undefined" &&
+    (window.location.search.includes("finale") || window.location.hash.includes("finale"));
+  const finaleTRef = useRef(urlFinale ? 1 : 0);
+  const [scrollFinale, setScrollFinale] = useState(false);
+  const showFinaleContent = scrollFinale || urlFinale;
   /* Progressive-mount tier (0→3) for the heavy extras suite — ramped BEHIND the
      first paint so the whole suite doesn't build in one frame-freezing commit. */
   const [extrasPhase, setExtrasPhase] = useState(0);
@@ -260,6 +270,8 @@ const StellarApp = () => {
       `}</style>
       <Scene
         scrollT={scrollTRef}
+        finaleT={finaleTRef}
+        finale={showFinaleContent}
         activeIdx={activeIdx}
         onJump={handleJump}
         eclipseRef={eclipseRef}
@@ -272,7 +284,12 @@ const StellarApp = () => {
         extrasPhase={extrasPhase}
         v3
       />
-      <Navigator scrollTRef={scrollTRef} onDestinationChange={handleDestinationChange} />
+      <Navigator
+        scrollTRef={scrollTRef}
+        finaleTRef={finaleTRef}
+        onDestinationChange={handleDestinationChange}
+        onFinaleContent={setScrollFinale}
+      />
       <V3Cursor />
       {/* Sky darkens toward totality during an eclipse (scene only; HUD stays lit). */}
       <EclipseDimmer eclipseRef={eclipseRef} />

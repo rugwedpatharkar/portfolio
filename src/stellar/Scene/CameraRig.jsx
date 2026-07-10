@@ -227,10 +227,16 @@ const CameraRig = ({
   isMobile = false,
   v3 = false,
   finale = false,
+  finaleT,
 }) => {
   const { camera } = useThree();
   const sceneClock = useSceneClock();
   const lookAtTarget = useRef(new THREE.Vector3(0, 0, 0));
+  /* Finale scrub — captures the handoff pose (last-destination camera) the first
+     frame the reveal engages, so the pull-back to FINALE_CAM is a consistent
+     function of finaleT (scrub back and forth lands identically). */
+  const finaleActive = useRef(false);
+  const finaleFrom = useRef({ pos: new THREE.Vector3(), look: new THREE.Vector3() });
   const rollCurrent = useRef(0);
   const lastPos = useRef(0); // continuous destination position, for banking
   const bankCurrent = useRef(0);
@@ -315,17 +321,31 @@ const CameraRig = ({
     /* ── Pull-back finale (?finale=1) — park the camera pulled back, looking at
        the Sun among its local-neighbourhood stars. Debug pose for now; the real
        scroll-driven cinematic transition wires here next. */
-    if (finale) {
-      /* Keep OUR vantage: a modest pull-back (FINALE_CAM, ~1370u) that frames
-         the Sun among its nearest real neighbours (α Cen ≈26u, Sirius ≈52u,
-         Vega ≈150u at LY_UNIT=6), oriented along the galactic plane so the band
-         arches edge-on with the Sagittarius core behind the Sun — not a ring. */
-      camera.position.copy(FINALE_CAM);
-      lookAtTarget.current.set(0, 0, 0);
+    /* ── Pull-back finale scrub ──
+       finaleT (0→1) eases the camera from the last-destination handoff pose to
+       FINALE_CAM (~1370u): OUR vantage, framing the Sun among its nearest real
+       neighbours (α Cen ≈26u, Sirius ≈52u at LY_UNIT=6), oriented along the
+       galactic plane so the band arches edge-on with the Sagittarius core behind
+       the Sun. `finale` (content-swapped, incl. ?finale=1) forces full arrival. */
+    const fT = finaleT ? THREE.MathUtils.clamp(finaleT.current ?? 0, 0, 1) : (finale ? 1 : 0);
+    if (fT > 0) {
+      if (!finaleActive.current) {
+        finaleActive.current = true;
+        finaleFrom.current.pos.copy(camera.position);
+        finaleFrom.current.look.copy(lookAtTarget.current);
+      }
+      /* Hold at the handoff (last-destination) pose while the solar system fades
+         to black in the first half, then travel to FINALE_CAM during the reveal
+         — so the camera never flies visibly through the fading system. */
+      const e = THREE.MathUtils.smoothstep(fT, 0.5, 1.0);
+      camera.position.lerpVectors(finaleFrom.current.pos, FINALE_CAM, e);
+      _lookTarget.set(0, 0, 0);
+      lookAtTarget.current.lerpVectors(finaleFrom.current.look, _lookTarget, e);
       camera.lookAt(lookAtTarget.current);
-      if (camera.fov !== 60) { camera.fov = 60; camera.updateProjectionMatrix(); }
+      if (Math.abs(camera.fov - 60) > 0.05) { camera.fov += (60 - camera.fov) * (0.5 * e + 0.05); camera.updateProjectionMatrix(); }
       return;
     }
+    finaleActive.current = false; // scrubbed back into the tour → release handoff
 
     /* ── Cinematic launch override (intro) ──
        establish: pull back from Sol to reveal the tilted system (ease-out);

@@ -2,7 +2,7 @@
 import { useEffect, useRef } from "react";
 import Lenis from "lenis";
 import { invalidate } from "@react-three/fiber";
-import { DESTINATIONS, SCROLL_LENGTH_PER_DESTINATION } from "./config/destinations";
+import { DESTINATIONS, SCROLL_LENGTH_PER_DESTINATION, FINALE_SCROLL_VH, TOUR_END_FRACTION } from "./config/destinations";
 
 /*
  * Scroll → camera tour coordinator.
@@ -15,7 +15,7 @@ import { DESTINATIONS, SCROLL_LENGTH_PER_DESTINATION } from "./config/destinatio
  * the browser has real scroll content to drive Lenis.
  */
 
-const Navigator = ({ scrollTRef, onDestinationChange }) => {
+const Navigator = ({ scrollTRef, finaleTRef, onDestinationChange, onFinaleContent }) => {
   const lenisRef = useRef(null);
 
   useEffect(() => {
@@ -53,9 +53,17 @@ const Navigator = ({ scrollTRef, onDestinationChange }) => {
        backwards → no skip, no inward camera flip. Programmatic jumps
        (window.__stellarJumping: deep-link / rail / palette / map / keys) bypass the
        direction check and land exactly on their target. */
+    /* Split the runway: [0, TOUR_END] is the destination tour, (TOUR_END, 1] is
+       the pull-back finale. scrollTRef stays "tour progress 0→1" (pinned at 1
+       through the finale) so every existing tour consumer is unchanged; the
+       finale rides its own finaleTRef 0→1. */
+    const TOUR_END = TOUR_END_FRACTION;
+    const toTourT = (raw) => (TOUR_END > 0 ? Math.min(1, raw / TOUR_END) : raw);
+
     let committed = -1;
-    let lastRaw = lenis.progress * (N - 1);
+    let lastRaw = toTourT(lenis.progress) * (N - 1);
     let dir = 0; // +1 forward, -1 backward, 0 unknown
+    let finaleContentOn = false; // has the solar↔finale content swap fired?
     let snapTimer = null;
     let idleTimer = null;
 
@@ -69,25 +77,42 @@ const Navigator = ({ scrollTRef, onDestinationChange }) => {
        parked between two bodies. Debounced — the snap's own scroll keeps resetting
        the timer, converging in one move. */
     const trySnap = () => {
-      const p = lenis.progress;
-      const nearest = Math.max(0, Math.min(N - 1, Math.round(p * (N - 1))));
+      const raw = lenis.progress;
+      /* In the finale zone the reveal scrubs freely — no magnetic snap (it would
+         yank you back to the last planet). */
+      if (raw > TOUR_END + 0.006) return;
+      const tourT = toTourT(raw);
+      const nearest = Math.max(0, Math.min(N - 1, Math.round(tourT * (N - 1))));
       commitTo(nearest);
-      const targetP = nearest / (N - 1);
-      if (Math.abs(p - targetP) > 0.004) {
+      // The destination's position in RAW runway progress (tour occupies [0, TOUR_END]).
+      const targetRaw = (nearest / (N - 1)) * TOUR_END;
+      if (Math.abs(raw - targetRaw) > 0.004) {
         const max =
           (document.scrollingElement || document.documentElement).scrollHeight -
           window.innerHeight;
-        lenis.scrollTo(targetP * max, { duration: 0.85, easing: (t) => 1 - Math.pow(1 - t, 3) });
+        lenis.scrollTo(targetRaw * max, { duration: 0.85, easing: (t) => 1 - Math.pow(1 - t, 3) });
       }
     };
 
     const onScroll = () => {
       // Lenis v1.x: progress is a getter on the instance
-      const progress = lenis.progress;
-      scrollTRef.current = progress;
+      const rawProgress = lenis.progress;
+      /* Tour progress saturates at 1 once you cross into the finale, so the
+         camera + all tour consumers hold at the last destination while the
+         finale reveal takes over on its own axis. */
+      scrollTRef.current = toTourT(rawProgress);
+      const finaleT = TOUR_END < 1 ? Math.max(0, Math.min(1, (rawProgress - TOUR_END) / (1 - TOUR_END))) : 0;
+      if (finaleTRef) finaleTRef.current = finaleT;
+      /* Swap the scene content (solar system ↔ local neighbourhood) once, at the
+         mid-point of the reveal where the grade dips to black — hides the cut. */
+      const wantFinale = finaleT > 0.5;
+      if (wantFinale !== finaleContentOn) {
+        finaleContentOn = wantFinale;
+        onFinaleContent?.(wantFinale);
+      }
       invalidate(); // request a Three.js render
 
-      const raw = progress * (N - 1);
+      const raw = scrollTRef.current * (N - 1);
       const delta = raw - lastRaw;
       /* Track the gesture direction from the first sustained move; hysteresis avoids
          flipping on sub-pixel jitter. */
@@ -121,9 +146,9 @@ const Navigator = ({ scrollTRef, onDestinationChange }) => {
       lenis.destroy();
       lenisRef.current = null;
     };
-  }, [scrollTRef, onDestinationChange]);
+  }, [scrollTRef, finaleTRef, onDestinationChange, onFinaleContent]);
 
-  const totalVh = DESTINATIONS.length * SCROLL_LENGTH_PER_DESTINATION;
+  const totalVh = DESTINATIONS.length * SCROLL_LENGTH_PER_DESTINATION + FINALE_SCROLL_VH;
 
   // The sentinel must live in normal document flow (not absolute) so the
   // <body>'s scrollHeight extends and Lenis has real scrollable runway.
