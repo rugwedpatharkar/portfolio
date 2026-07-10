@@ -8,14 +8,12 @@
  */
 import useViewport from "../useViewport";
 import useHoloParallax from "./useHoloParallax";
-import useBootReveal from "./useBootReveal";
 import V3Hero from "../v3/V3Hero";
 import V3Panel from "../v3/V3Panel";
 
-export default function HoloBridge({ destination, section, items, bootNonce, panelHidden }) {
+export default function HoloBridge({ section, bootNonce, panelHidden }) {
   const { isCompact, isMobile } = useViewport();
   const ref = useHoloParallax();
-  useBootReveal(bootNonce);
   const stack = isCompact || isMobile;
   /* Hero = the system-overview stop only (keyed on the section, since v3 moved
      the Sun to the "about" stop so id==="sol" is no longer the hero). */
@@ -51,7 +49,7 @@ export default function HoloBridge({ destination, section, items, bootNonce, pan
         <V3Hero />
       ) : (
         /* Premium single content column on the LEFT (résumé + body telemetry). */
-        <V3Panel destination={destination} section={section} items={items} bootNonce={bootNonce} />
+        <V3Panel section={section} bootNonce={bootNonce} />
       )}
     </div>
   );

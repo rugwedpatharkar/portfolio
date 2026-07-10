@@ -6,9 +6,7 @@ import HoloBridge from "./holobridge/HoloBridge";
 import { DESTINATIONS } from "./config/destinations";
 import useViewport from "./useViewport";
 import StellarGlare from "./StellarGlare";
-import { itemsForSection } from "./data/sectionItems";
 import EclipseDimmer from "./EclipseDimmer";
-import { markVisited } from "./data/explorer";
 import V3Style from "./v3/V3Style";
 import V3Cursor from "./v3/V3Cursor";
 import V3Hud from "./v3/V3Hud";
@@ -103,8 +101,6 @@ const StellarApp = () => {
     if (window.location.hash !== next) window.history.replaceState(null, "", next);
     /* Arrival beep (SoundManager listens). */
     window.dispatchEvent(new CustomEvent("stellar:destination", { detail: { id: dest.id, index: idx } }));
-    /* Persist visited stops (powers the return greeting). */
-    markVisited(dest.id);
     /* Keep the tab title + a11y context in sync with the active section. */
     const sec = DOC_SECTION[dest.section];
     document.title = sec ? `${sec} · Rugwed Patharkar` : DOC_DEFAULT_TITLE;
@@ -218,9 +214,6 @@ const StellarApp = () => {
     return () => window.removeEventListener("hashchange", onHash);
   }, [handleJump]);
 
-  /* Lane items for the active world — feeds the Holo-Bridge dossier. */
-  const laneItems = itemsForSection(DESTINATIONS[activeIdx]?.section);
-
   return (
     <MotionConfig reducedMotion="user">
       {/* Skip-to-content — first focusable element, bypasses the 3D canvas. */}
@@ -276,9 +269,7 @@ const StellarApp = () => {
       {/* Holo-Bridge — the info surface (V3Hero on the hero stop, V3Panel elsewhere).
           Hides during fly-through, reveals on arrival (panelHidden ← stellar:flight). */}
       <HoloBridge
-        destination={DESTINATIONS[activeIdx]}
         section={DESTINATIONS[activeIdx]?.section}
-        items={laneItems}
         bootNonce={activeIdx}
         panelHidden={panelHidden}
       />

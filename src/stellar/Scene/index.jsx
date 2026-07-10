@@ -39,7 +39,6 @@ import OortCloud from "./OortCloud";
 import Heliosphere from "./Heliosphere";
 import InterstellarVisitor from "./InterstellarVisitor";
 import EarthStation from "./EarthStation";
-import { HomePin, HomeCallout } from "./HomeMarker";
 import IsroProbe from "./IsroProbe";
 import MilkyWay from "./MilkyWay";
 import ZodiacalLight from "./ZodiacalLight";
@@ -104,29 +103,14 @@ const ICY_WEIGHTS = [0.45, 0.3, 0.25];
 const Scene = ({ scrollT, activeIdx, onJump, onReady, wideRef, wideOrbitRef, focusRef, warpVelRef, cameraRef, eclipseRef, clock, extrasPhase = 3, launchPhase = null, onLaunchComplete, v3 = false }) => {
   const readyRef = useRef(false);
   const { isMobile, isCompact, reducedMotion } = useViewport();
-  /* Progressive-mount tiers (StellarApp ramps extrasPhase 0→3 behind the
-     countdown cover, so the whole suite no longer mounts in one frame-freezing
-     commit). Tier 1 = structural extras + belts; tier 2 = anomalies/comets;
-     tier 3 = easter-egg models (heaviest, last). */
-  /* The full real solar system renders on the tour — belts, dust, comets,
-     interstellar visitors, real spacecraft, and the deep-field astrophysics.
-     Gating is by the progressive-mount tiers (extrasPhase 0→3) and the device /
-     motion budget (isMobile / reducedMotion) ONLY — no route suppression. Tier 1 =
-     structural extras + belts; tier 2 = deep-field anomalies/comets; tier 3 = the
-     heaviest models last. The removed fiction tier now holds only the real
-     MarsRovers + GoldenRecord missions. `naturalOnly` stays as a named no-op so
-     the human-made-object mount sites keep reading cleanly. */
-  const naturalOnly = false;
+  /* Progressive-mount tiers — StellarApp ramps extrasPhase 0→3 so the heavy suite
+     doesn't build in one frame-freezing commit. Tier 1 = structural extras + belts;
+     tier 2 = deep-field anomalies/comets; tier 3 = the heaviest models last. Every
+     object is real (belts, dust, comets, visitors, spacecraft, deep-field); gating
+     is by the tiers + device/motion budget (isMobile / reducedMotion) only. */
   const showExtras = extrasPhase >= 1;
   const showMid = extrasPhase >= 2;
   const showEggs = extrasPhase >= 3;
-  const deepMid = showMid;
-  /* Belt dust + additive point clouds are shown, behind the tiers/device budget.
-     (They were suppressed on the old minimal build because at the wide overview
-     distance the additive sprites read as a white halo around the Sun — watch for
-     that when framing stop 0 and dial back intensity/size if it recurs.) */
-  const noDust = false;
-  const noPointDust = false;
   /* Camera offsets — kept in refs so React state doesn't re-render
      the whole tree on every frame. Mouse parallax and free-roam each
      own their own offset; CameraRig sums them. */
@@ -239,7 +223,7 @@ const Scene = ({ scrollT, activeIdx, onJump, onReady, wideRef, wideOrbitRef, foc
             8,500 additive points arrayed from the Sun outward: at the wide
             overview shot they cluster into a bright halo — suppressed in v3
             with the rest of the point clouds. */}
-        {showExtras && !noDust && !noPointDust && <ZodiacalLight />}
+        {showExtras && <ZodiacalLight />}
         {/* Named constellations (Orion, Big Dipper, Cassiopeia) that fade in
             when the camera holds still — built but previously unmounted. */}
         {showExtras && !isMobile && <Constellations scrollTRef={scrollT} />}
@@ -248,45 +232,45 @@ const Scene = ({ scrollT, activeIdx, onJump, onReady, wideRef, wideOrbitRef, foc
             rather than hidden off to the +X side behind the viewer. */}
         {showMid && <BlackHole position={remapPosition(frontOfSun([49, -6, -15]))} radius={32} animate={!reducedMotion} onPointerOver={handleHoverIn} onPointerOut={handleHoverOut} />}
         {/* Spaghettification dread near Gargantua — writes clock.danger. */}
-        {deepMid && <DangerField animate={!reducedMotion} />}
+        {showMid && <DangerField animate={!reducedMotion} />}
         {/* Anomaly suite — the discoverable spectacle (tier 2). Motion-heavy ones
             respect reduced-motion + device. */}
         {showMid && !reducedMotion && <Comet />}
         {/* 'Oumuamua — the interstellar visitor cutting through on a hyperbolic
             path, tumbling end over end. */}
-        {deepMid && !reducedMotion && <InterstellarVisitor animate={!reducedMotion} />}
+        {showMid && !reducedMotion && <InterstellarVisitor animate={!reducedMotion} />}
         {/* The interstellar comets: 3I/ATLAS (green coma + sunward anti-tail) and
             2I/Borisov (reddish coma) — completing the trio with 'Oumuamua. */}
-        {deepMid && !reducedMotion && <AtlasComet />}
-        {deepMid && !reducedMotion && (
+        {showMid && !reducedMotion && <AtlasComet />}
+        {showMid && !reducedMotion && (
           <AtlasComet start={[-620, -150, 240]} vel={[168, 4, -64]} coma="#e0a890" ion="#cdbfa0" dust="#e8d8b8" antiTail={false} comaR={1.2} respawn={780} />
         )}
         {/* Sungrazer C/2026 A1 — a steep dive through ~the Sun (true-scale path). */}
-        {deepMid && !reducedMotion && (
+        {showMid && !reducedMotion && (
           <AtlasComet start={[560, 130, -380]} vel={[-150, -35, 102]} coma="#cfe8ff" ion="#bfe0ff" dust="#eae6ff" antiTail={false} comaR={1.1} respawn={720} />
         )}
         {/* Clickable wishing meteors. */}
-        {deepMid && !reducedMotion && <ShootingStars animate={!reducedMotion} />}
+        {showMid && !reducedMotion && <ShootingStars animate={!reducedMotion} />}
         {showMid && !isMobile && !reducedMotion && <Meteors />}
         {showMid && !isMobile && !reducedMotion && <Pulsar />}
         {/* New deep-field exotics: Sgr A*, magnetar, brown dwarf, rogue planet. */}
-        {deepMid && <ExoticObjects animate={!reducedMotion} />}
+        {showMid && <ExoticObjects animate={!reducedMotion} />}
         {/* Human-made probes + speculative "mysteries" — removed in v3 (natural only). */}
-        {showMid && !naturalOnly && <ProjectProbes animate={!reducedMotion} />}
-        {showMid && !naturalOnly && <DeepFieldMysteries animate={!reducedMotion} />}
+        {showMid && <ProjectProbes animate={!reducedMotion} />}
+        {showMid && <DeepFieldMysteries animate={!reducedMotion} />}
         {/* PHASE 4 (Wave 1) — deep-sky wonders: a kilonova event + a red supergiant. */}
-        {deepMid && <Kilonova animate={!reducedMotion} />}
-        {deepMid && <Hypergiant animate={!reducedMotion} />}
+        {showMid && <Kilonova animate={!reducedMotion} />}
+        {showMid && <Hypergiant animate={!reducedMotion} />}
         {/* Eta Carinae's bipolar Homunculus + an Einstein-ring lens galaxy. */}
-        {deepMid && <EtaCarinae animate={!reducedMotion} />}
-        {deepMid && <EinsteinRing animate={!reducedMotion} />}
+        {showMid && <EtaCarinae animate={!reducedMotion} />}
+        {showMid && <EinsteinRing animate={!reducedMotion} />}
         {/* Wave 2 — scale & mystery: globular cluster, GW chirp, little red dots, cosmic web. */}
-        {deepMid && <GlobularCluster animate={!reducedMotion} />}
-        {deepMid && <GravWaveChirp animate={!reducedMotion} />}
-        {deepMid && <RedDots animate={!reducedMotion} />}
-        {deepMid && <CosmicMarker raw={[-44, 38, 28]} kind="void" count={520} radius={11} glow="#8aa0d8" animate={!reducedMotion} />}
-        {deepMid && <CosmicMarker raw={[60, 20, -40]} kind="attractor" count={680} radius={10} glow="#ffd0a0" animate={!reducedMotion} />}
-        {deepMid && <CosmicMarker raw={[-64, -10, -48]} kind="wall" count={760} radius={13} glow="#a0b6ff" animate={!reducedMotion} />}
+        {showMid && <GlobularCluster animate={!reducedMotion} />}
+        {showMid && <GravWaveChirp animate={!reducedMotion} />}
+        {showMid && <RedDots animate={!reducedMotion} />}
+        {showMid && <CosmicMarker raw={[-44, 38, 28]} kind="void" count={520} radius={11} glow="#8aa0d8" animate={!reducedMotion} />}
+        {showMid && <CosmicMarker raw={[60, 20, -40]} kind="attractor" count={680} radius={10} glow="#ffd0a0" animate={!reducedMotion} />}
+        {showMid && <CosmicMarker raw={[-64, -10, -48]} kind="wall" count={760} radius={13} glow="#a0b6ff" animate={!reducedMotion} />}
         {/* Wormhole "Beam aboard" portal at the Contact edge — the booking CTA. */}
         {showMid && <Wormhole />}
 
@@ -358,29 +342,19 @@ const Scene = ({ scrollT, activeIdx, onJump, onReady, wideRef, wideOrbitRef, foc
             if (d.type === "earth") {
               return (
                 <OrbitGroup key={d.id} dest={d} animate={!reducedMotion}>
-                  {/* Moon publishes its world position for the eclipse system.
-                      HomePin (Pune 'I'm here' marker) is v2-only — v3 uses the
-                      top-right Body Telemetry card as the who/where readout;
-                      the pin visually competed with the corner card + section
-                      dossier and was distracting on planet approach. */}
-                  {v3
-                    ? cloneElement(planetEl, { satelliteRef: moonWorldRef })
-                    : cloneElement(planetEl, { satelliteRef: moonWorldRef }, <HomePin radius={d.radius} animate={!reducedMotion} />)}
+                  {/* Moon publishes its world position for the eclipse system. */}
+                  {cloneElement(planetEl, { satelliteRef: moonWorldRef })}
                   {/* ISS on low Earth orbit — inherits Earth's live solar
                       position from the OrbitGroup, runs its own fast LEO. */}
-                  {showExtras && !isMobile && !naturalOnly && (
+                  {showExtras && !isMobile && (
                     <EarthStation planetRadius={d.radius} animate={!reducedMotion} />
                   )}
-                  {showExtras && !isMobile && !naturalOnly && (
+                  {showExtras && !isMobile && (
                     <RocketLaunch earthRadius={d.radius} animate={!reducedMotion} />
                   )}
-                  {/* HomeCallout is a v2 feature — in v3 the top-right Body
-                      Telemetry card is the equivalent 'who/where' readout, and
-                      the callout would visually compete + underlap dossier cards. */}
-                  {showExtras && !v3 && <HomeCallout earthRadius={d.radius} />}
                   {/* 2026 eclipses — the Moon's umbra drifting across Earth's day side. */}
                   {showExtras && <EclipseShadow earthRadius={d.radius} animate={!reducedMotion} />}
-                  {showExtras && !naturalOnly && (
+                  {showExtras && (
                     <IsroProbe
                       orbitRadius={d.radius * 2.2} speed={0.22} tilt={0.4} phase={1.2} scale={d.radius * 0.18}
                       event="stellar:chandrayaan" animate={!reducedMotion}
@@ -407,7 +381,7 @@ const Scene = ({ scrollT, activeIdx, onJump, onReady, wideRef, wideOrbitRef, foc
                 {d.id === "notes" && <TitanLakes offset={[4.4, 1.2, 0.9]} radius={0.18} animate={!reducedMotion} />}
                 {d.id === "hobbies" && <MoonGeysers offset={[2.0, 0.8, 0.6]} radius={0.12} color="#d8cabd" plumeColor="#e6c6d6" jets={4} dir={[0.2, -1, 0.2]} animate={!reducedMotion} />}
                 {/* Mangalyaan (Mars Orbiter Mission) rides Mars's group. */}
-                {d.id === "projects" && showExtras && !naturalOnly && (
+                {d.id === "projects" && showExtras && (
                   <IsroProbe
                     orbitRadius={d.radius * 2.4} speed={0.26} tilt={0.5} phase={0.4} scale={d.radius * 0.15}
                     event="stellar:mangalyaan" animate={!reducedMotion}
@@ -447,52 +421,51 @@ const Scene = ({ scrollT, activeIdx, onJump, onReady, wideRef, wideOrbitRef, foc
             rock renders as a bright anti-aliased pixel and 12k of them read as
             a white halo around the Sun. Suppressed alongside the additive dust
             in v3. */}
-        {showExtras && !noDust && !noPointDust && (
+        {showExtras && (
           <AsteroidBelt count={isMobile ? 5000 : 12000} innerRadius={BACKGROUND_BELTS.asteroid.inner} outerRadius={BACKGROUND_BELTS.asteroid.outer} size={0.18} thickness={BACKGROUND_BELTS.asteroid.thickness} gaps={KIRKWOOD_GAPS} animate={!reducedMotion} />
         )}
-        {showExtras && !isMobile && !noDust && !noPointDust && (
+        {showExtras && !isMobile && (
           <AsteroidBelt count={6500} innerRadius={BACKGROUND_BELTS.kuiper.inner} outerRadius={BACKGROUND_BELTS.kuiper.outer} size={0.55} thickness={BACKGROUND_BELTS.kuiper.thickness} families={ICY_FAMILIES} weights={ICY_WEIGHTS} cliff animate={!reducedMotion} />
         )}
-        {/* Dust haze — tier 2 (the heaviest point build, deferred one tier).
-            v3 suppresses the additive point clouds at ALL stops (noPointDust). */}
-        {showMid && !noDust && !noPointDust && (
+        {/* Dust haze — tier 2 (the heaviest point build, deferred one tier). */}
+        {showMid && (
           <BeltDust count={isMobile ? 34000 : 80000} innerRadius={BACKGROUND_BELTS.asteroid.inner} outerRadius={BACKGROUND_BELTS.asteroid.outer} thickness={BACKGROUND_BELTS.asteroid.thickness} color={BACKGROUND_BELTS.asteroid.color} size={2.6} opacity={0.3} gaps={KIRKWOOD_GAPS} animate={!reducedMotion} />
         )}
-        {showMid && !isMobile && !noDust && !noPointDust && (
+        {showMid && !isMobile && (
           <BeltDust count={55000} innerRadius={BACKGROUND_BELTS.kuiper.inner} outerRadius={BACKGROUND_BELTS.kuiper.outer} thickness={BACKGROUND_BELTS.kuiper.thickness} color={BACKGROUND_BELTS.kuiper.color} size={2.3} opacity={0.26} cliff animate={!reducedMotion} />
         )}
         {/* Tenuous gas/dust clouds — tier 3 (big, faint, soft; distance-faded by
             the same shader so they never bloom into a bar). Desktop only. */}
-        {showEggs && !isMobile && !noPointDust && (
+        {showEggs && !isMobile && (
           <BeltDust count={3200} innerRadius={BACKGROUND_BELTS.asteroid.inner} outerRadius={BACKGROUND_BELTS.asteroid.outer} thickness={BACKGROUND_BELTS.asteroid.thickness * 1.4} color="#8a7a64" size={16} opacity={0.09} drift={0.008} gaps={KIRKWOOD_GAPS} animate={!reducedMotion} />
         )}
-        {showEggs && !isMobile && !noPointDust && (
+        {showEggs && !isMobile && (
           <BeltDust count={2600} innerRadius={BACKGROUND_BELTS.kuiper.inner} outerRadius={BACKGROUND_BELTS.kuiper.outer} thickness={BACKGROUND_BELTS.kuiper.thickness * 1.3} color="#6a7e9e" size={20} opacity={0.08} drift={0.006} cliff animate={!reducedMotion} />
         )}
         {/* Jupiter's Trojan asteroids — two swarms 60° ahead/behind Jupiter at
             the L4/L5 Lagrange points (true orbital radius). */}
-        {showExtras && !noDust && <TrojanAsteroids count={isMobile ? 70 : 160} />}
+        {showExtras && <TrojanAsteroids count={isMobile ? 70 : 160} />}
         {/* The Oort cloud wrapping the whole system + the heliosphere boundary
             bubble out at the edge (where Voyager crossed). Oort points are
             additive sprites and the wide-overview camera sits INSIDE the shell,
             so they read as a bright hazy halo — suppressed in v3. */}
-        {showExtras && !noPointDust && <OortCloud count={isMobile ? 700 : 1400} />}
+        {showExtras && <OortCloud count={isMobile ? 700 : 1400} />}
         {showExtras && !isMobile && <Heliosphere />}
         {/* Real solar eclipses — Earth's actual Moon + any planet you fly
             behind occlude the Sun (corona + chromosphere + diamond-ring). */}
         {showExtras && <SolarEclipse satelliteRef={moonWorldRef} eclipseRef={eclipseRef} reducedMotion={reducedMotion} />}
         {/* Fade the scene lights toward dark at totality (planet → silhouette). */}
         {showExtras && <EclipseLights eclipseRef={eclipseRef} />}
-        {!isMobile && !reducedMotion && !noDust && !noPointDust && <DustParticles />}
+        {!isMobile && !reducedMotion && <DustParticles />}
         {/* PHASE 3D — proximity sonification (silent until un-muted). */}
         {!reducedMotion && <Sonification />}
         {/* Non-essential extras defer-mount until the intro completes —
             keeps the warp/countdown window + LCP light, and trims the
             initial scene-graph build. */}
-        {showExtras && !naturalOnly && <Voyager />}
+        {showExtras && <Voyager />}
         {/* Humanity's robot fleet at their real locations (JWST@L2, Parker,
             Juno, Lucy, New Horizons). Removed in v3 (natural only). */}
-        {showExtras && !naturalOnly && <RobotFleet />}
+        {showExtras && <RobotFleet />}
         {showEggs && !isMobile && <CommitComets />}
         {/* Real NASA missions — the only survivors of the removed fiction tier
             (Mars rovers at Mars, Voyager's Golden Record in the deep field).
