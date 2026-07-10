@@ -555,18 +555,19 @@ const Scene = ({ scrollT, finaleT, finale = false, activeIdx, onJump, wideRef, w
           mipmapBlur
           radius={0.6}
         />
-        {/* Grade: restrained/filmic — saturation pulled well back from the WOW
-            pass (0.28 → 0.15 → 0.08 per user) and Bloom eased, for a calm,
-            natural palette rather than a vivid one. */}
+        {/* Grade: near-neutral — accurate colours (per user). Saturation ≈ 0 so
+            planets/stars keep their true tints, contrast pulled right down so the
+            frame no longer crushes to black, vignette lightened, brightness lifted
+            a touch. The grade now mostly just tone-maps; the real colours show. */}
         <CinematicGrade
           ref={gradeRef}
           brightness={0.03}
-          contrast={0.12}
-          saturation={0.08}
-          vigOffset={0.36}
-          vigDarkness={0.34}
-          vigBreathe={reducedMotion ? 0 : 0.05}
-          grain={reducedMotion ? 0 : 0.035}
+          contrast={0.08}
+          saturation={0.0}
+          vigOffset={0.4}
+          vigDarkness={0.28}
+          vigBreathe={reducedMotion ? 0 : 0.03}
+          grain={reducedMotion ? 0 : 0.02}
         />
       </EffectComposer>
       </SceneClock>

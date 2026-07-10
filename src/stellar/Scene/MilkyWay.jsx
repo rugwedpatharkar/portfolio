@@ -75,9 +75,12 @@ const MilkyWay = ({ finale = false }) => {
     const sizes = new Float32Array(POINT_COUNT);
     const dir = new THREE.Vector3();
 
-    const core = new THREE.Color("#fff2d6"); // warm-gold star clouds toward the bulge
-    const mid = new THREE.Color("#9db8ec"); // rich blue-white disk
-    const edge = new THREE.Color("#586394"); // deep steel-blue toward the anticenter
+    // Accurate naked-eye/long-exposure Milky Way: a pale cream-white band, very
+    // slightly warm toward the star-cloud bulge, cooling to a faint pale blue —
+    // NOT the vivid blue/gold of the earlier stylised pass.
+    const core = new THREE.Color("#f6ecd8"); // warm cream star clouds toward the bulge
+    const mid = new THREE.Color("#d3d9e2"); // pale blue-white disk
+    const edge = new THREE.Color("#9199a6"); // muted grey-blue toward the anticenter
     const tint = new THREE.Color();
 
     for (let i = 0; i < POINT_COUNT; i++) {
