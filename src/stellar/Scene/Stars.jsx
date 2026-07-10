@@ -49,7 +49,7 @@ const SPRITE_TEXTURE = (() => {
    B–V; a blackbody approximation (Tanner Helland) turns that into the star's
    real tint — hot blue-white (B–V<0) through the Sun's yellow-white (~0.65) to
    cool orange-red (B–V>1.4). */
-function bvToColor(bv, out) {
+export function bvToColor(bv, out) {
   const t = 4600 * (1 / (0.92 * bv + 1.7) + 1 / (0.92 * bv + 0.62));
   const k = t / 100;
   let r, g, b;
