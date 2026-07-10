@@ -23,9 +23,14 @@ import { PERIOD } from "../data/ephemeris";
 const SPEED_BASE = 0.6; // legacy R^-1.5 fallback for planets with no PERIOD entry
 const DEG = Math.PI / 180;
 const TWO_PI = Math.PI * 2;
-/* At clock.scale = 1, Earth (period 1.0 yr) completes an orbit in ~45 s; every
-   other planet follows from its real period. ω = 2π · yr-per-second / period. */
-const EARTH_ORBIT_SEC = 45;
+/* At clock.scale = 1, Earth (period 1.0 yr) completes an orbit in ~EARTH_ORBIT_SEC;
+   every other planet follows from its real period. ω = 2π · yr-per-second / period.
+   NOTE: this must stay SLOW enough that a planet doesn't out-run the eased tracking
+   camera and drift out of frame while you read its panel — at 45 s the inner planets
+   (Mercury ~11 s!) lapped the Sun and vanished off-screen. 600 s ≈ the old
+   proven-framable pace (Mercury ~144 s); the "alive" motion is carried by the Sun's
+   churn + axial spin + orbiting moons, not by planets racing around their orbits. */
+const EARTH_ORBIT_SEC = 600;
 const YEARS_PER_SECOND = 1 / EARTH_ORBIT_SEC;
 
 const _cache = new Map();
