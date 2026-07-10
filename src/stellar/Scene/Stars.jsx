@@ -1,7 +1,7 @@
 /* eslint-disable react/no-unknown-property */
 import { useMemo } from "react";
 import * as THREE from "three";
-import { STARS, STAR_COUNT } from "../data/brightStars";
+import { STARS, STAR_COUNT, STAR_STRIDE } from "../data/brightStars";
 
 /*
  * The REAL night sky — 8,920 naked-eye stars (HYG catalogue, derived from
@@ -98,10 +98,12 @@ const Stars = () => {
     const cosE = Math.cos(OBLIQUITY);
     const sinE = Math.sin(OBLIQUITY);
     for (let i = 0; i < STAR_COUNT; i++) {
-      const ra = STARS[i * 4];
-      const dec = STARS[i * 4 + 1];
-      const mag = STARS[i * 4 + 2];
-      const bv = STARS[i * 4 + 3];
+      const b = i * STAR_STRIDE; // stride-5: [raRad, decRad, mag, ci, distLy]
+      const ra = STARS[b];
+      const dec = STARS[b + 1];
+      const mag = STARS[b + 2];
+      const bv = STARS[b + 3];
+      // distLy = STARS[b + 4] — ignored in the solar regime (fixed-sphere sky)
       // equatorial unit vector (z = north celestial pole)
       const cd = Math.cos(dec);
       const xe = cd * Math.cos(ra);

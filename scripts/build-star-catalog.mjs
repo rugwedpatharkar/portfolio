@@ -1,0 +1,124 @@
+#!/usr/bin/env node
+/*
+ * build-star-catalog.mjs — regenerate src/stellar/data/brightStars.js with a
+ * DISTANCE axis (stride 4 -> 5), by cross-matching the existing 8,920 naked-eye
+ * stars against the HYG database (which carries a per-star distance).
+ *
+ *   Usage:  node scripts/build-star-catalog.mjs /path/to/hygdata_v41.csv
+ *   Source: github.com/astronexus/HYG-Database  (hyg/CURRENT/hygdata_v41.csv)
+ *
+ * NOT an app dependency — a one-off build tool. The existing 4 values per star
+ * (raRad, decRad, mag, ci) are preserved float-exact; only `distLy` is appended,
+ * so the SOLAR-regime render stays pixel-stable (distLy is ignored there). Stars
+ * whose parallax is unknown get distLy = 0 (keep on the background sphere).
+ * Idempotent: re-running on stride-5 data recomputes distLy.
+ */
+import { readFileSync, writeFileSync } from "node:fs";
+import { fileURLToPath } from "node:url";
+import { dirname, resolve } from "node:path";
+import { STARS, STAR_COUNT } from "../src/stellar/data/brightStars.js";
+
+const here = dirname(fileURLToPath(import.meta.url));
+const OUT = resolve(here, "../src/stellar/data/brightStars.js");
+const PC_TO_LY = 3.26156;
+const hygPath = process.argv[2];
+if (!hygPath) {
+  console.error("usage: node scripts/build-star-catalog.mjs <hygdata_v41.csv>");
+  process.exit(1);
+}
+
+const inStride = Math.round(STARS.length / STAR_COUNT); // 4 first run, 5 on rerun
+
+/* quote-aware CSV line parser (HYG has quoted text fields with commas) */
+function parseCsvLine(line) {
+  const out = [];
+  let cur = "", q = false;
+  for (let i = 0; i < line.length; i++) {
+    const c = line[i];
+    if (q) {
+      if (c === '"') { if (line[i + 1] === '"') { cur += '"'; i++; } else q = false; }
+      else cur += c;
+    } else if (c === '"') q = true;
+    else if (c === ",") { out.push(cur); cur = ""; }
+    else cur += c;
+  }
+  out.push(cur);
+  return out;
+}
+
+/* parse HYG into a spatial grid keyed by (rarad,decrad) cells for fast lookup */
+const csv = readFileSync(hygPath, "utf8").split("\n");
+const H = parseCsvLine(csv[0]);
+const cRarad = H.indexOf("rarad"), cDecrad = H.indexOf("decrad"), cDist = H.indexOf("dist");
+const cRa = H.indexOf("ra"), cDec = H.indexOf("dec");
+if (cDist < 0) { console.error("HYG: no 'dist' column"); process.exit(1); }
+
+const CELL = 0.02;
+const cellKey = (ra, dec) => Math.round(ra / CELL) + "," + Math.round(dec / CELL);
+const grid = new Map();
+let hygN = 0;
+for (let i = 1; i < csv.length; i++) {
+  if (!csv[i]) continue;
+  const f = parseCsvLine(csv[i]);
+  let ra = parseFloat(f[cRarad]), dec = parseFloat(f[cDecrad]);
+  if (!Number.isFinite(ra) || !Number.isFinite(dec)) {
+    ra = parseFloat(f[cRa]) * Math.PI / 12;
+    dec = parseFloat(f[cDec]) * Math.PI / 180;
+  }
+  const dist = parseFloat(f[cDist]);
+  if (!Number.isFinite(ra) || !Number.isFinite(dec)) continue;
+  const k = cellKey(ra, dec);
+  let arr = grid.get(k);
+  if (!arr) grid.set(k, (arr = []));
+  arr.push(ra, dec, dist);
+  hygN++;
+}
+
+/* cross-match each existing star -> nearest HYG star -> distLy */
+const TOL2 = 1e-3 * 1e-3; // ~3.4 arcmin; existing stars are HYG-derived + rounded to 4dp
+let matched = 0, sentinel = 0;
+const rows = [];
+for (let i = 0; i < STAR_COUNT; i++) {
+  const b = i * inStride;
+  const ra = STARS[b], dec = STARS[b + 1], mag = STARS[b + 2], ci = STARS[b + 3];
+  const cx = Math.round(ra / CELL), cy = Math.round(dec / CELL);
+  let bestD2 = Infinity, bestDist = NaN;
+  for (let dx = -1; dx <= 1; dx++) for (let dy = -1; dy <= 1; dy++) {
+    const arr = grid.get((cx + dx) + "," + (cy + dy));
+    if (!arr) continue;
+    for (let j = 0; j < arr.length; j += 3) {
+      const dra = ra - arr[j], dde = dec - arr[j + 1];
+      const d2 = dra * dra + dde * dde;
+      if (d2 < bestD2) { bestD2 = d2; bestDist = arr[j + 2]; }
+    }
+  }
+  let distLy = 0;
+  if (bestD2 < TOL2 && Number.isFinite(bestDist) && bestDist > 0 && bestDist < 100000) {
+    distLy = Math.round(bestDist * PC_TO_LY * 100) / 100;
+    matched++;
+  } else sentinel++;
+  // String() preserves each original float exactly (round-trip) -> pixel-stable
+  rows.push(String(ra) + "," + String(dec) + "," + String(mag) + "," + String(ci) + "," + String(distLy));
+}
+
+const out = `/*
+ * Real naked-eye star catalog (HYG database, derived from Hipparcos/Yale BSC,
+ * public domain). Every star at its TRUE position + brightness + colour — the
+ * real night sky, not random points. Flat packed array, 5 values per star:
+ *   [ raRad, decRad, mag (visual magnitude), ci (B-V colour index), distLy ]
+ * raRad/decRad are equatorial (ICRS) in radians; mag ~ -1.5 (Sirius) .. 6.5
+ * (naked-eye limit); ci ~ -0.3 (hot blue) .. +2.0 (cool red). distLy = distance
+ * in light-years (0 = unknown parallax -> stays on the background sphere). The
+ * solar regime IGNORES distLy (fixed R sphere); the local-neighborhood regime
+ * places stars at distLy * LY_UNIT for true depth. Sorted brightest first.
+ * Regenerated by scripts/build-star-catalog.mjs from hygdata_v41.
+ */
+export const STAR_COUNT = ${STAR_COUNT};
+export const STAR_STRIDE = 5;
+export const STARS = [${rows.join(",")}];
+`;
+writeFileSync(OUT, out);
+console.error(
+  `stars=${STAR_COUNT} inStride=${inStride} hyg=${hygN} ` +
+  `matched=${matched} sentinel=${sentinel} (${(100 * matched / STAR_COUNT).toFixed(1)}% matched)`
+);
