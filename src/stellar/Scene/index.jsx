@@ -515,22 +515,21 @@ const Scene = ({ scrollT, activeIdx, onJump, wideRef, wideOrbitRef, focusRef, wa
       <EffectComposer multisampling={0} disableNormalPass>
         <Bloom
           ref={bloomRef}
-          intensity={isMobile ? 0.6 : 0.8}
-          luminanceThreshold={0.9}
-          luminanceSmoothing={0.5}
+          intensity={isMobile ? 0.95 : 1.3}
+          luminanceThreshold={0.72}
+          luminanceSmoothing={0.45}
           mipmapBlur
-          radius={0.45}
+          radius={0.6}
         />
-        {/* Grade: bright base, saturation pulled slightly NEGATIVE so colours
-            stay natural/realistic (real space sits ~0.3 sat, not cartoonish).
-            Mild contrast, soft vignette. NO saturation/vibrance push — original
-            realistic colours. */}
+        {/* Grade: VIBRANT / high-WOW direction (per user) — saturation + contrast
+            pushed for a rich, eye-popping cinematic palette (was tuned
+            desaturated-realistic before). Bloom carries the radiance. */}
         <CinematicGrade
-          brightness={0.025}
-          contrast={0.04}
-          saturation={-0.02}
+          brightness={0.03}
+          contrast={0.13}
+          saturation={0.28}
           vigOffset={0.36}
-          vigDarkness={0.38}
+          vigDarkness={0.34}
           vigBreathe={reducedMotion ? 0 : 0.05}
           grain={reducedMotion ? 0 : 0.035}
         />
