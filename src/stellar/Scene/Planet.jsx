@@ -177,12 +177,16 @@ const Planet = ({
   }, [grade]);
 
   useFrame((_, delta) => {
+    /* Clamp dt: VisibilityController pauses the loop while the tab is hidden, so
+       the first delta on refocus ≈ the whole hidden span — unclamped, the planets
+       + moons would snap-spin a full frame. Matches SceneClock's own 1/20 clamp. */
+    const dt = Math.min(delta, 1 / 20);
     /* Natural axial rotation (frozen on reduced-motion). */
-    if (planetRef.current && animate) planetRef.current.rotation.y += delta * rotationSpeed;
-    if (cloudRef.current && animate) cloudRef.current.rotation.y += delta * rotationSpeed * 1.35;
+    if (planetRef.current && animate) planetRef.current.rotation.y += dt * rotationSpeed;
+    if (cloudRef.current && animate) cloudRef.current.rotation.y += dt * rotationSpeed * 1.35;
     moonsRef.current.forEach((m, i) => {
       if (m) {
-        const t = m.userData.t + delta * (0.25 + (i % 3) * 0.05);
+        const t = m.userData.t + dt * (0.25 + (i % 3) * 0.05);
         m.userData.t = t;
         const orbitR = m.userData.orbit;
         m.position.set(

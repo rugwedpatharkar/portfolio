@@ -153,15 +153,16 @@ export const PLANET_EDITORIAL = {
     ],
   },
 
-  contact: {
-    quote: "We have literally entered a new realm of space.",
-    quoteBy: "Ed Stone, Voyager project scientist · 12 September 2013",
-    etymology: "Heliopause — from Greek Ἥλιος (Sun) + Latin pausa (cessation): where the solar wind can no longer push back the interstellar medium.",
-    discovered: "Crossed by Voyager 1, 25 August 2012 — humanity's first spacecraft in interstellar space.",
+  /* The Edge — the black hole (id: "blackhole") that carries the Contact finale. */
+  blackhole: {
+    quote: "Black holes are where God divided by zero.",
+    quoteBy: "attributed to Steven Wright",
+    etymology: "Black hole — named by John Wheeler (1967): a region where gravity is so strong that nothing, not even light, escapes.",
+    discovered: "First imaged by the Event Horizon Telescope in 2019 (M87*) — radio dishes across the planet linked into one Earth-sized telescope.",
     facts: [
-      "Voyager 1 crossed the heliopause 122 AU from the Sun — 18 hours of light-travel time away.",
-      "Its 22.4 W transmitter reaches Earth via a 70 m dish. Signal power on arrival: about 10⁻²³ watts.",
-      "The Golden Record on board is expected to remain readable for a billion years.",
+      "Time near a black hole runs slower — the closer you fall, the further ahead the rest of the universe races.",
+      "Sgr A*, the black hole at the Milky Way's centre, is 4 million times the Sun's mass — and was imaged in 2022.",
+      "You've reached the end of the tour. Beam a message aboard — let's build something.",
     ],
   },
 };

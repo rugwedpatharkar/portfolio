@@ -234,7 +234,10 @@ export default function ProjectsSection({ index, bootNonce }) {
                   display: "flex", flexDirection: "column",
                   gap: "clamp(14px, 1.4vw, 22px)",
                   minWidth: 0, minHeight: 0, flex: 1,
-                  paddingRight: "clamp(80px, 8vw, 130px)",
+                  /* Long projects were silently clipped — scroll instead (the v3
+                     scrollbar is styled). Reserve less right gutter for the arrows. */
+                  overflowY: "auto", overflowX: "hidden",
+                  paddingRight: "clamp(52px, 5vw, 92px)",
                 }}
               >
                 {/* kicker: status · year · team */}

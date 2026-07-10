@@ -18,16 +18,18 @@ const DOC_SECTION = {
   hero: "", about: "About", funfacts: "Impact", experience: "Experience",
   projects: "Projects", achievements: "Achievements", skills: "Skills",
   notes: "Writing", education: "Education", hobbies: "Hobbies",
-  testimonials: "Testimonials", contact: "Contact", "cosmic-blackhole": "The Edge",
+  testimonials: "Testimonials", contact: "Contact",
 };
 const DOC_DEFAULT_TITLE = "Rugwed Patharkar — Backend & Agentic AI Engineer";
 
-/* Hash → destination index (deep-link + browser back/forward). Accepts both the
-   canonical `#v3/<id>` and a bare `#<id>`. */
+/* Hash → destination index (deep-link + browser back/forward). The hash is always
+   written as the destination `id` (handleDestinationChange), so match id ONLY —
+   matching section too made `#v3/skills` resolve to Ceres (section:"skills")
+   before Jupiter (id:"skills"), since id and section share a namespace offset by one. */
 const findDestinationIndexByHash = (hash) => {
   const id = hash?.replace(/^#v3\/?/, "").replace(/^#\/?/, "");
   if (!id) return -1;
-  return DESTINATIONS.findIndex((d) => d.id === id || d.section === id);
+  return DESTINATIONS.findIndex((d) => d.id === id);
 };
 
 /* v3 readability scrim — a soft dark gradient behind the content column so text
@@ -199,6 +201,10 @@ const StellarApp = () => {
       const N = DESTINATIONS.length;
       const typing = e.target && (e.target.tagName === "INPUT" || e.target.tagName === "TEXTAREA");
       if (typing) return;
+      /* When focus is inside a section's content, let the SECTION own its keys
+         (carousel / category nav). Otherwise ↑/↓ here double-fired with the
+         section's own handler — advancing the category AND hopping the planet. */
+      if (e.target?.closest?.(".stellar-dossier-frame")) return;
       if (k === "arrowdown" || k === "pagedown" || k === "s") { e.preventDefault(); navPlanet(1); }
       else if (k === "arrowup" || k === "pageup" || k === "w") { e.preventDefault(); navPlanet(-1); }
       else if (k === "arrowleft" || k === "a") { e.preventDefault(); stepItem(-1); }

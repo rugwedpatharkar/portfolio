@@ -161,18 +161,21 @@ export const PLANET_FACTS = {
     missions: "New Horizons (2015 flyby)",
     wow: "Its moon Charon is half Pluto's size — the pair orbit a point in empty space between them, a true double dwarf-planet. Pluto's orbit is so tilted (17°) + eccentric it sometimes comes closer to the Sun than Neptune.",
   },
-  contact: {
-    body: "Edge Beacon — heliopause boundary",
-    distance: "~49 AU · 6.8 light-hours",
-    diameter: "ø — concept marker",
-    mass: "—",
+  /* The tour's cosmic finale — the black hole "The Edge" (id: "blackhole") that
+     carries the Contact section. Keyed by id so V3Editorial's Planet Information
+     card resolves it (was keyed "contact", which no body has → showed nothing). */
+  blackhole: {
+    body: "The Edge — a black hole",
+    distance: "Past the last orbit · the outward horizon",
+    diameter: "Event horizon — the point of no return",
+    mass: "Millions of Suns, collapsed to a point",
     year: "—",
-    day: "—",
-    gravity: "—",
-    temp: "~ −230 °C · interstellar medium",
-    atmosphere: "Interstellar medium begins here",
+    day: "Spins near light-speed, dragging spacetime with it",
+    gravity: "Escape velocity exceeds c — not even light gets out",
+    temp: "Hawking radiation — a whisper above absolute zero",
+    atmosphere: "Accretion disk — infalling matter heated to millions of °C",
     moons: "—",
-    missions: "Voyager 1 & 2 — crossed the heliopause",
-    wow: "Voyager 1 crossed the heliopause in 2012 at 121 AU and entered interstellar space — the first human-made object to leave the solar system.",
+    missions: "Event Horizon Telescope imaged M87* (2019) & Sgr A* (2022)",
+    wow: "Near the horizon time itself dilates — an hour here can be years for everyone else. This is where the tour ends and the conversation begins.",
   },
 };

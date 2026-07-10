@@ -361,7 +361,7 @@ export const AU_UNIT = 95; // scene units per AU — large so the true-size Sun 
 const AU = {
   about: 0.387, funfacts: 0.723, experience: 1.0, projects: 1.524,
   achievements: 2.77, skills: 5.203, notes: 9.537, education: 19.191, // achievements = Ceres @ 2.77 AU
-  hobbies: 30.05, testimonials: 39.48, contact: 50, // testimonials = Pluto @ 39.48 AU (Neptune 30.05 per NASA)
+  hobbies: 30.05, testimonials: 39.48, // testimonials = Pluto @ 39.48 AU (Neptune 30.05 per NASA)
 };
 
 /* The asteroid + Kuiper belts are no longer tour stops — they render as

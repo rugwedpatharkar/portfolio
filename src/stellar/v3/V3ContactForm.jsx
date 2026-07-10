@@ -52,6 +52,15 @@ export default function V3ContactForm() {
     return () => clearInterval(id);
   }, [status.state]);
 
+  /* After a successful send, drop back to idle so the send button re-enables and
+     the visitor can send another message (the form is already cleared on success).
+     Without this, isDone stayed true forever and the form was one-shot. */
+  useEffect(() => {
+    if (status.state !== "sent") return undefined;
+    const t = setTimeout(() => setStatus({ state: "idle", note: "" }), 5000);
+    return () => clearTimeout(t);
+  }, [status.state]);
+
   const cancelHold = useCallback(() => {
     if (rafRef.current) { cancelAnimationFrame(rafRef.current); rafRef.current = null; }
     setHoldProgress(0);
