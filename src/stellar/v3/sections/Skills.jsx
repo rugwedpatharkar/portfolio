@@ -24,7 +24,8 @@
 import { useMemo, useState } from "react";
 import { motion, useReducedMotion } from "motion/react";
 import { skills, sectionMeta } from "../../../content";
-import { V3Frame, V3Scan } from "../primitives";
+import { V3Frame, V3Scan, V3SectionHeader, masterCardStyle } from "../primitives";
+import { EASE } from "../anim";
 
 const META = sectionMeta.skills || { sub: "What I Bring", heading: "Technical Skills" };
 
@@ -111,40 +112,11 @@ export default function SkillsSection({ index, bootNonce }) {
         maxWidth: "min(60vw, 1200px)", height: "100%",
       }}>
         {/* Header */}
-        <V3Scan variant="horizontal" delay={0.05}>
-          <div>
-            <div style={{ display: "flex", alignItems: "center", gap: 12, marginBottom: 8 }}>
-              <span style={{ width: 22, height: 1, background: "var(--v3-accent)" }} />
-              <span style={{
-                fontFamily: "var(--v3-font-mono)", fontWeight: 400, fontSize: 10,
-                letterSpacing: ".28em", textTransform: "uppercase", color: "var(--v3-fg-mute)",
-              }}>{META.sub}</span>
-            </div>
-            <h2 style={{
-              fontFamily: "var(--v3-font-display)", fontWeight: 340,
-              fontSize: "clamp(1.5rem, 1.1vw + 0.9rem, 2.3rem)", fontOpticalSizing: "auto",
-              lineHeight: 1, letterSpacing: "-.02em", color: "var(--v3-fg)",
-              margin: 0,
-            }}>
-              {META.heading}
-            </h2>
-          </div>
-        </V3Scan>
+        <V3SectionHeader sub={META.sub} heading={META.heading} />
 
         {/* Master-detail: index LEFT (~30%), radar chart RIGHT (~70%). */}
         <V3Scan variant="orbit" delay={0.15} style={{ minWidth: 0, flex: 1, minHeight: 0, display: "flex" }}>
-          <div style={{
-            width: "100%", height: "100%",
-            display: "grid",
-            gridTemplateColumns: "minmax(220px, 30%) 1fr",
-            gridTemplateRows: "1fr",
-            gap: "clamp(14px, 1.5vw, 24px)",
-            border: "1px solid var(--v3-line)",
-            borderRadius: 6,
-            background: "color-mix(in oklab, var(--v3-bg-void) 50%, transparent)",
-            padding: "clamp(10px, 1vw, 18px) clamp(12px, 1.3vw, 22px)",
-            minWidth: 0, minHeight: 0, alignItems: "stretch",
-          }}>
+          <div style={masterCardStyle()}>
             {/* Master column */}
             <div
               role="tablist"
@@ -306,7 +278,7 @@ export default function SkillsSection({ index, bootNonce }) {
                       strokeLinejoin="round"
                       initial={reduce ? false : { opacity: 0, scale: 0.85, transformOrigin: `${CX}px ${CY}px` }}
                       animate={{ opacity: 1, scale: 1 }}
-                      transition={{ duration: 0.5, ease: [0.22, 1, 0.36, 1] }}
+                      transition={{ duration: 0.5, ease: EASE }}
                       style={{ transformOrigin: `${CX}px ${CY}px` }}
                     />
                   )}
@@ -317,7 +289,7 @@ export default function SkillsSection({ index, bootNonce }) {
                       key={`v-${activeName}-${i}`}
                       initial={reduce ? false : { opacity: 0 }}
                       animate={{ opacity: 1 }}
-                      transition={{ duration: 0.3, ease: [0.22, 1, 0.36, 1], delay: 0.15 + i * 0.03 }}
+                      transition={{ duration: 0.3, ease: EASE, delay: 0.15 + i * 0.03 }}
                     >
                       {/* Vertex dot */}
                       <circle

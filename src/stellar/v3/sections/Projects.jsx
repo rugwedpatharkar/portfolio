@@ -19,7 +19,8 @@
 import { useMemo, useState, useEffect, useCallback } from "react";
 import { motion, AnimatePresence, useReducedMotion } from "motion/react";
 import { projects, sectionMeta } from "../../../content";
-import { V3Frame, V3Scan } from "../primitives";
+import { V3Frame, V3Scan, V3Chip } from "../primitives";
+import { EASE, shutterVariants } from "../anim";
 
 const META = sectionMeta.projects;
 
@@ -27,18 +28,15 @@ const META = sectionMeta.projects;
    rapid nav feels like flipping through a physical dossier. */
 const PANEL_VARIANTS = {
   enter: (dir) => ({ opacity: 0, x: dir > 0 ? 60 : -60 }),
-  center: { opacity: 1, x: 0, transition: { duration: 0.4, ease: [0.22, 1, 0.36, 1] } },
-  exit:  (dir) => ({ opacity: 0, x: dir > 0 ? -60 : 60, transition: { duration: 0.25, ease: [0.22, 1, 0.36, 1] } }),
+  center: { opacity: 1, x: 0, transition: { duration: 0.4, ease: EASE } },
+  exit:  (dir) => ({ opacity: 0, x: dir > 0 ? -60 : 60, transition: { duration: 0.25, ease: EASE } }),
 };
 /* Shutter reveal on the project name — clip-path mask sweeps L→R.
    Vertical inset is negative so the reveal region extends beyond the box
    at top and bottom — descenders (`g`, `j`, `p`, `y`) and cap ascenders
    never get shaved by the clip. The horizontal inset does all the
    masking work. */
-const SHUTTER_VARIANTS = {
-  hidden: { clipPath: "inset(-0.2em 100% -0.3em 0)" },
-  show:   { clipPath: "inset(-0.2em 0 -0.3em 0)", transition: { duration: 0.5, ease: [0.22, 1, 0.36, 1], delay: 0.1 } },
-};
+const SHUTTER_VARIANTS = shutterVariants();
 
 export default function ProjectsSection({ index, bootNonce }) {
   const [tab, setTab] = useState("professional");
@@ -299,14 +297,7 @@ export default function ProjectsSection({ index, bootNonce }) {
                 {tags.length > 0 && (
                   <div style={{ display: "flex", flexWrap: "wrap", gap: 4, marginTop: "clamp(4px, 0.4vw, 8px)" }}>
                     {tags.map((t, k) => (
-                      <span key={k} style={{
-                        fontFamily: "var(--v3-font-mono)", fontWeight: 400,
-                        fontSize: "clamp(8.5px, 0.3vw + 6px, 10.5px)",
-                        letterSpacing: ".08em", textTransform: "uppercase", color: "var(--v3-fg-dim)",
-                        border: "1px solid var(--v3-line-strong)", borderRadius: 999,
-                        padding: "clamp(1px, 0.15vw, 2px) clamp(6px, 0.6vw, 10px)",
-                        whiteSpace: "nowrap",
-                      }}>{t}</span>
+                      <V3Chip key={k}>{t}</V3Chip>
                     ))}
                   </div>
                 )}

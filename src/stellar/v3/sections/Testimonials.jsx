@@ -21,7 +21,8 @@
  */
 import { motion, useReducedMotion } from "motion/react";
 import { testimonials, sectionMeta } from "../../../content";
-import { V3Frame, V3Scan } from "../primitives";
+import { V3Frame, V3Scan, V3SectionHeader, V3Chip } from "../primitives";
+import { EASE } from "../anim";
 
 const META = sectionMeta.testimonials || {
   sub: "What Others Say",
@@ -35,7 +36,7 @@ const TestimonialCard = ({ t, index, reduce }) => {
       initial={reduce ? false : { opacity: 0, y: 16 }}
       whileInView={{ opacity: 1, y: 0 }}
       viewport={{ once: true, amount: 0.2 }}
-      transition={{ duration: 0.5, ease: [0.22, 1, 0.36, 1], delay }}
+      transition={{ duration: 0.5, ease: EASE, delay }}
       style={{
         position: "relative",
         display: "flex", flexDirection: "column",
@@ -130,15 +131,7 @@ const TestimonialCard = ({ t, index, reduce }) => {
         {(t.endorsements || []).length > 0 && (
           <div style={{ display: "flex", flexWrap: "wrap", gap: 4 }}>
             {(t.endorsements || []).map((e, k) => (
-              <span key={k} style={{
-                fontFamily: "var(--v3-font-mono)", fontWeight: 400,
-                fontSize: "clamp(8.5px, 0.25vw + 6px, 10px)",
-                letterSpacing: ".08em", textTransform: "uppercase",
-                color: "var(--v3-fg-dim)",
-                border: "1px solid var(--v3-line-strong)", borderRadius: 999,
-                padding: "1px clamp(6px, 0.55vw, 10px)",
-                whiteSpace: "nowrap",
-              }}>{e}</span>
+              <V3Chip key={k} size="clamp(8.5px, 0.25vw + 6px, 10px)" pad="1px clamp(6px, 0.55vw, 10px)">{e}</V3Chip>
             ))}
           </div>
         )}
@@ -167,25 +160,7 @@ export default function TestimonialsSection({ index, bootNonce }) {
         maxWidth: "min(60vw, 1200px)", height: "100%",
       }}>
         {/* Header */}
-        <V3Scan variant="horizontal" delay={0.05}>
-          <div>
-            <div style={{ display: "flex", alignItems: "center", gap: 12, marginBottom: 8 }}>
-              <span style={{ width: 22, height: 1, background: "var(--v3-accent)" }} />
-              <span style={{
-                fontFamily: "var(--v3-font-mono)", fontWeight: 400, fontSize: 10,
-                letterSpacing: ".28em", textTransform: "uppercase", color: "var(--v3-fg-mute)",
-              }}>{META.sub}</span>
-            </div>
-            <h2 style={{
-              fontFamily: "var(--v3-font-display)", fontWeight: 340,
-              fontSize: "clamp(1.5rem, 1.1vw + 0.9rem, 2.3rem)", fontOpticalSizing: "auto",
-              lineHeight: 1, letterSpacing: "-.02em", color: "var(--v3-fg)",
-              margin: 0,
-            }}>
-              {META.heading}
-            </h2>
-          </div>
-        </V3Scan>
+        <V3SectionHeader sub={META.sub} heading={META.heading} />
 
         {/* Triptych — 3 cards in a static row, each taking the full remaining
             vertical. Uses grid rather than flex so all cards land at

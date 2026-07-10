@@ -18,18 +18,6 @@ import useViewport from "../../useViewport";
 export const V3ScanContext = createContext({ dir: "horizontal", key: 0 });
 export const useV3Scan = () => useContext(V3ScanContext);
 
-const Corner = ({ pos }) => {
-  const s = 12;
-  const base = { position: "absolute", width: s, height: s, borderColor: "var(--v3-accent)", borderStyle: "solid", borderWidth: 0, opacity: 0.55 };
-  const map = {
-    tl: { top: 0, left: 0, borderTopWidth: 1, borderLeftWidth: 1 },
-    tr: { top: 0, right: 0, borderTopWidth: 1, borderRightWidth: 1 },
-    bl: { bottom: 0, left: 0, borderBottomWidth: 1, borderLeftWidth: 1 },
-    br: { bottom: 0, right: 0, borderBottomWidth: 1, borderRightWidth: 1 },
-  };
-  return <i aria-hidden style={{ ...base, ...map[pos] }} />;
-};
-
 export default function V3Frame({
   section,
   planet,           // "MERCURY" etc.

@@ -23,7 +23,8 @@
  */
 import { useState, useCallback } from "react";
 import { motion, AnimatePresence, useReducedMotion } from "motion/react";
-import { V3Frame, V3Scan } from "../primitives";
+import { V3Frame, V3Scan, V3SectionHeader, V3Chip, masterCardStyle } from "../primitives";
+import { EASE } from "../anim";
 
 const META = {
   sub: "What Sets Me Apart",
@@ -60,12 +61,12 @@ const PILLARS = [
 
 const NUMERAL_VARIANTS = {
   hidden: { opacity: 0, y: 24 },
-  show:   { opacity: 1, y: 0, transition: { duration: 0.4, ease: [0.22, 1, 0.36, 1] } },
+  show:   { opacity: 1, y: 0, transition: { duration: 0.4, ease: EASE } },
   exit:   { opacity: 0, y: -18, transition: { duration: 0.2 } },
 };
 const BODY_VARIANTS = {
   hidden: { opacity: 0, y: 10 },
-  show:   { opacity: 1, y: 0, transition: { duration: 0.35, ease: [0.22, 1, 0.36, 1], delay: 0.12 } },
+  show:   { opacity: 1, y: 0, transition: { duration: 0.35, ease: EASE, delay: 0.12 } },
   exit:   { opacity: 0, transition: { duration: 0.12 } },
 };
 
@@ -101,43 +102,14 @@ export default function WhatSetsMeApartSection({ index, bootNonce }) {
         }}
       >
         {/* Header */}
-        <V3Scan variant="horizontal" delay={0.05}>
-          <div>
-            <div style={{ display: "flex", alignItems: "center", gap: 12, marginBottom: 8 }}>
-              <span style={{ width: 22, height: 1, background: "var(--v3-accent)" }} />
-              <span style={{
-                fontFamily: "var(--v3-font-mono)", fontWeight: 400, fontSize: 10,
-                letterSpacing: ".28em", textTransform: "uppercase", color: "var(--v3-fg-mute)",
-              }}>{META.sub}</span>
-            </div>
-            <h2 style={{
-              fontFamily: "var(--v3-font-display)", fontWeight: 340,
-              fontSize: "clamp(1.5rem, 1.1vw + 0.9rem, 2.3rem)", fontOpticalSizing: "auto",
-              lineHeight: 1, letterSpacing: "-.02em", color: "var(--v3-fg)",
-              margin: 0,
-            }}>
-              {META.heading}
-            </h2>
-          </div>
-        </V3Scan>
+        <V3SectionHeader sub={META.sub} heading={META.heading} />
 
         {/* Master-detail card */}
         <V3Scan variant="drill" delay={0.15} style={{ minWidth: 0, flex: 1, minHeight: 0, display: "flex" }}>
           <div
             role="tablist"
             aria-label="Differentiators"
-            style={{
-              width: "100%", height: "100%",
-              display: "grid",
-              gridTemplateColumns: "minmax(240px, 32%) 1fr",
-              gridTemplateRows: "1fr",
-              gap: "clamp(18px, 1.8vw, 32px)",
-              border: "1px solid var(--v3-line)",
-              borderRadius: 6,
-              background: "color-mix(in oklab, var(--v3-bg-void) 50%, transparent)",
-              padding: "clamp(14px, 1.3vw, 22px) clamp(16px, 1.5vw, 26px)",
-              minWidth: 0, minHeight: 0, alignItems: "stretch",
-            }}
+            style={masterCardStyle({ cols: "minmax(240px, 32%) 1fr", gap: "clamp(18px, 1.8vw, 32px)", padding: "clamp(14px, 1.3vw, 22px) clamp(16px, 1.5vw, 26px)" })}
           >
             {/* Master */}
             <div style={{
@@ -299,15 +271,7 @@ export default function WhatSetsMeApartSection({ index, bootNonce }) {
                         }}>Receipts</span>
                         <div style={{ display: "flex", flexWrap: "wrap", gap: 4, minWidth: 0 }}>
                           {(p.proof || []).map((pr, k) => (
-                            <span key={k} style={{
-                              fontFamily: "var(--v3-font-mono)", fontWeight: 400,
-                              fontSize: "clamp(8.5px, 0.3vw + 6px, 10.5px)",
-                              letterSpacing: ".08em", textTransform: "uppercase",
-                              color: "var(--v3-fg-dim)",
-                              border: "1px solid var(--v3-line-strong)", borderRadius: 999,
-                              padding: "clamp(1px, 0.15vw, 2px) clamp(6px, 0.6vw, 10px)",
-                              whiteSpace: "nowrap",
-                            }}>{pr}</span>
+                            <V3Chip key={k}>{pr}</V3Chip>
                           ))}
                         </div>
                       </div>

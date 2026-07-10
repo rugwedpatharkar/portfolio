@@ -9,8 +9,7 @@
  */
 import { motion, useReducedMotion } from "motion/react";
 import { useV3Scan } from "./V3Frame";
-
-const ease = [0.22, 1, 0.36, 1];
+import { EASE as ease } from "../anim";
 
 const DIR = {
   horizontal: {

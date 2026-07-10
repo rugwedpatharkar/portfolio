@@ -19,7 +19,7 @@
 import { useRef } from "react";
 import { motion, useScroll, useTransform, useSpring, useReducedMotion } from "motion/react";
 import { personalInfo } from "../../../content";
-import { V3Frame, V3Scan, V3DepthLayer } from "../primitives";
+import { V3Frame, V3Scan } from "../primitives";
 import heroPhoto from "../../../assets/hero-photo-1024.webp";
 
 /*
@@ -96,7 +96,7 @@ export default function AboutSection({ index, bootNonce }) {
         maxWidth: "min(60vw, 1200px)", height: "100%",
       }}>
         {/* Portrait + name */}
-        <V3DepthLayer depth={2} style={{ display: "flex", gap: "clamp(12px, 1.1vw, 18px)", alignItems: "flex-end", minWidth: 0, flexWrap: "wrap" }}>
+        <div style={{ display: "flex", gap: "clamp(12px, 1.1vw, 18px)", alignItems: "flex-end", minWidth: 0, flexWrap: "wrap" }}>
           <V3Scan variant="horizontal" delay={0.05}>
             {/* Portrait plate — position:relative so registration ticks anchor
                 to each corner. The plate itself is a motion.div driven by a
@@ -152,7 +152,7 @@ export default function AboutSection({ index, bootNonce }) {
               </h1>
             </V3Scan>
           </div>
-        </V3DepthLayer>
+        </div>
 
         {/* Overview lede — Fraunces drop-cap on the opening paragraph.
             Editorial cue that this is the primary voice, not marketing copy.
