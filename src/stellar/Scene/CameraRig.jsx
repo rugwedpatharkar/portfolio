@@ -4,7 +4,30 @@ import { useFrame, useThree } from "@react-three/fiber";
 import * as THREE from "three";
 import { DESTINATIONS } from "../config/destinations";
 import { getOrbit, orbitalPosition, laneObjectPosition } from "../config/orbits";
+import { GALAXY } from "../config/galaxy";
 import { useSceneClock } from "./SceneClock";
+
+/* ── Finale camera pose, derived from the real galactic geometry ──
+   Same equatorial→scene transform as MilkyWay.jsx so the pose agrees with the
+   band. C = galactic-centre (Sagittarius) direction; P = galactic pole (band
+   normal). We pull back OPPOSITE the core and slightly ABOVE the plane, then
+   look at the Sun: the band is seen edge-on (arching across, not a face-on
+   ring) with the bright core glowing behind the Sun — our place in the galaxy. */
+const _OBLIQ = 23.44 * (Math.PI / 180);
+function galacticSceneVec(raHours, decDeg) {
+  const ra = raHours * (Math.PI / 12);
+  const dec = decDeg * (Math.PI / 180);
+  const cd = Math.cos(dec);
+  const xe = cd * Math.cos(ra);
+  const ye = cd * Math.sin(ra);
+  const ze = Math.sin(dec);
+  const cosE = Math.cos(_OBLIQ);
+  const sinE = Math.sin(_OBLIQ);
+  return new THREE.Vector3(xe, -ye * sinE + ze * cosE, ye * cosE + ze * sinE).normalize();
+}
+const _GAL_C = galacticSceneVec(GALAXY.orientation.galacticCenter.raHours, GALAXY.orientation.galacticCenter.decDeg);
+const _GAL_P = galacticSceneVec(GALAXY.orientation.galacticNorthPole.raHours, GALAXY.orientation.galacticNorthPole.decDeg);
+const FINALE_CAM = _GAL_C.clone().multiplyScalar(-1300).addScaledVector(_GAL_P, 430);
 
 /*
  * Camera controller — SNAP + live-orbit tracking.
@@ -293,13 +316,14 @@ const CameraRig = ({
        the Sun among its local-neighbourhood stars. Debug pose for now; the real
        scroll-driven cinematic transition wires here next. */
     if (finale) {
-      _camTarget.set(0, 1600, 5200);
-      _lookTarget.set(0, 0, 0);
-      const a = snap ? 1 : 1 - Math.pow(0.0001, d);
-      camera.position.lerp(_camTarget, a);
-      lookAtTarget.current.lerp(_lookTarget, a);
+      /* Keep OUR vantage: a modest pull-back (FINALE_CAM, ~1370u) that frames
+         the Sun among its nearest real neighbours (α Cen ≈26u, Sirius ≈52u,
+         Vega ≈150u at LY_UNIT=6), oriented along the galactic plane so the band
+         arches edge-on with the Sagittarius core behind the Sun — not a ring. */
+      camera.position.copy(FINALE_CAM);
+      lookAtTarget.current.set(0, 0, 0);
       camera.lookAt(lookAtTarget.current);
-      if (Math.abs(camera.fov - 60) > 0.05) { camera.fov += (60 - camera.fov) * a; camera.updateProjectionMatrix(); }
+      if (camera.fov !== 60) { camera.fov = 60; camera.updateProjectionMatrix(); }
       return;
     }
 

@@ -68,9 +68,12 @@ const LocalNeighborhood = ({ active = false }) => {
       sceneVec(STARS[b], STARS[b + 1], dir).multiplyScalar(distLy * LY_UNIT);
       positions.push(dir.x, dir.y, dir.z);
       bvToColor(STARS[b + 3], col);
-      // brightness from apparent magnitude; jewel colours from B–V (reused helper)
+      // brightness from apparent magnitude; jewel colours from B–V (reused helper).
+      // Kept modest so the field reads as DISCRETE points with depth — bright
+      // stars still pop, but the dense mid-distance shell doesn't bloom-merge
+      // into a glowing annulus around the sparse Sun-ward clearing.
       const mag = STARS[b + 2];
-      const bright = THREE.MathUtils.clamp(1.3 - mag * 0.12, 0.45, 1.7);
+      const bright = THREE.MathUtils.clamp(0.95 - mag * 0.1, 0.32, 1.15);
       colors.push(col.r * bright, col.g * bright, col.b * bright);
     }
     return {
@@ -84,9 +87,12 @@ const LocalNeighborhood = ({ active = false }) => {
 
   return (
     <group>
-      {/* The Sun — our star, at the origin: a warm bright point among its neighbours. */}
-      <sprite scale={[18, 18, 1]}>
-        <spriteMaterial map={SPRITE} color="#fff0cc" transparent opacity={0.95} depthWrite={false} blending={THREE.AdditiveBlending} toneMapped={false} />
+      {/* The Sun — our star, at the origin: the finale's focal point ("that warm
+          dot is us — the whole tour, one star among its neighbours"). A single
+          warm additive sprite, unmistakably brighter than the neighbour points,
+          yet still a point, not a disk. */}
+      <sprite scale={[60, 60, 1]}>
+        <spriteMaterial map={SPRITE} color="#ffe6b0" transparent opacity={0.95} depthWrite={false} blending={THREE.AdditiveBlending} toneMapped={false} />
       </sprite>
       {/* Nearest real stars at true depth. */}
       <points frustumCulled={false}>
@@ -95,8 +101,7 @@ const LocalNeighborhood = ({ active = false }) => {
           <bufferAttribute attach="attributes-color" count={built.count} array={built.colors} itemSize={3} />
         </bufferGeometry>
         <pointsMaterial
-          size={26}
-          sizeAttenuation
+          size={7}
           vertexColors
           transparent
           map={SPRITE}

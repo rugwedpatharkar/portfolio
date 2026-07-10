@@ -406,7 +406,7 @@ const Scene = ({ scrollT, activeIdx, onJump, wideRef, wideOrbitRef, focusRef, wa
 
         {/* Lens flare OFF in v3 — the sun-driven ghost circles/artifacts clutter the
             clean planet frames. */}
-        {!isMobile && <LensFlare position={[0, 0, 0]} />}
+        {!isMobile && !finale && <LensFlare position={[0, 0, 0]} />}
         {/* Orrery rings — the real orbital structure. Shown in overview mode AND on
             the v3 system-overview hero (stop 0). */}
         {showExtras && <OrbitRings wideRef={wideRef} show={v3 && activeIdx === 0} />}
