@@ -17,8 +17,9 @@ import { LY_UNIT, LOCAL_CAP_LY } from "../config/scaleRegimes";
  * parallax (distLy = 0) or beyond LOCAL_CAP_LY stay on the fixed background
  * sphere (Stars.jsx) + the galactic band (MilkyWay.jsx), which remain as the
  * far backdrop. Uses the SAME equatorial→scene transform as Stars.jsx so the
- * neighbourhood agrees with the fixed sky + the band. sizeAttenuation ON (unlike
- * the fixed-size infinity sky) so nearer stars read bigger → real depth.
+ * neighbourhood agrees with the fixed sky + the band. A shader sizes each star
+ * by magnitude with a CLAMPED distance attenuation, so nearer neighbours grow
+ * into jewels (real depth) without any star ballooning into a bloom blob.
  *
  * See docs/galaxy/technical-scale-regimes.md §4.
  */
@@ -55,12 +56,37 @@ const SPRITE = (() => {
   return t;
 })();
 
+const VERT = /* glsl */ `
+  attribute float aSize;
+  attribute vec3 aColor;
+  varying vec3 vColor;
+  void main() {
+    vColor = aColor;
+    vec4 mv = modelViewMatrix * vec4(position, 1.0);
+    // Base size (by magnitude) with a MILD distance attenuation for depth, then
+    // clamped — near neighbours grow into jewels, far ones stay points, but no
+    // single star ever balloons into a bloom-merged blob.
+    gl_PointSize = clamp(aSize * (950.0 / -mv.z), 1.5, 26.0);
+    gl_Position = projectionMatrix * mv;
+  }
+`;
+const FRAG = /* glsl */ `
+  uniform sampler2D uMap;
+  varying vec3 vColor;
+  void main() {
+    float a = texture2D(uMap, gl_PointCoord).a;
+    if (a < 0.02) discard;
+    gl_FragColor = vec4(vColor, a);
+  }
+`;
+
 const LocalNeighborhood = ({ active = false }) => {
-  const built = useMemo(() => {
+  const { geometry, material } = useMemo(() => {
     const dir = new THREE.Vector3();
     const col = new THREE.Color();
     const positions = [];
     const colors = [];
+    const sizes = [];
     for (let k = 0; k < STAR_COUNT; k++) {
       const b = k * STAR_STRIDE;
       const distLy = STARS[b + 4];
@@ -68,19 +94,28 @@ const LocalNeighborhood = ({ active = false }) => {
       sceneVec(STARS[b], STARS[b + 1], dir).multiplyScalar(distLy * LY_UNIT);
       positions.push(dir.x, dir.y, dir.z);
       bvToColor(STARS[b + 3], col);
-      // brightness from apparent magnitude; jewel colours from B–V (reused helper).
-      // Kept modest so the field reads as DISCRETE points with depth — bright
-      // stars still pop, but the dense mid-distance shell doesn't bloom-merge
-      // into a glowing annulus around the sparse Sun-ward clearing.
+      // Jewel colours from B–V (reused helper); brightness + size from apparent
+      // magnitude so the real bright neighbours (Sirius, Vega, Arcturus,
+      // Betelgeuse…) read as gems and the faint field recedes into depth.
       const mag = STARS[b + 2];
-      const bright = THREE.MathUtils.clamp(0.95 - mag * 0.1, 0.32, 1.15);
+      const bright = THREE.MathUtils.clamp(1.05 + (2.5 - mag) * 0.16, 0.4, 1.6);
       colors.push(col.r * bright, col.g * bright, col.b * bright);
+      sizes.push(THREE.MathUtils.clamp(2.6 + (5.0 - mag) * 1.7, 1.6, 13));
     }
-    return {
-      positions: new Float32Array(positions),
-      colors: new Float32Array(colors),
-      count: positions.length / 3,
-    };
+    const geometry = new THREE.BufferGeometry();
+    geometry.setAttribute("position", new THREE.BufferAttribute(new Float32Array(positions), 3));
+    geometry.setAttribute("aColor", new THREE.BufferAttribute(new Float32Array(colors), 3));
+    geometry.setAttribute("aSize", new THREE.BufferAttribute(new Float32Array(sizes), 1));
+    const material = new THREE.ShaderMaterial({
+      uniforms: { uMap: { value: SPRITE } },
+      vertexShader: VERT,
+      fragmentShader: FRAG,
+      transparent: true,
+      depthWrite: false,
+      blending: THREE.AdditiveBlending,
+      toneMapped: false,
+    });
+    return { geometry, material };
   }, []);
 
   if (!active) return null;
@@ -91,26 +126,11 @@ const LocalNeighborhood = ({ active = false }) => {
           dot is us — the whole tour, one star among its neighbours"). A single
           warm additive sprite, unmistakably brighter than the neighbour points,
           yet still a point, not a disk. */}
-      <sprite scale={[60, 60, 1]}>
-        <spriteMaterial map={SPRITE} color="#ffe6b0" transparent opacity={0.95} depthWrite={false} blending={THREE.AdditiveBlending} toneMapped={false} />
+      <sprite scale={[70, 70, 1]}>
+        <spriteMaterial map={SPRITE} color="#ffe8b8" transparent opacity={1} depthWrite={false} blending={THREE.AdditiveBlending} toneMapped={false} />
       </sprite>
-      {/* Nearest real stars at true depth. */}
-      <points frustumCulled={false}>
-        <bufferGeometry>
-          <bufferAttribute attach="attributes-position" count={built.count} array={built.positions} itemSize={3} />
-          <bufferAttribute attach="attributes-color" count={built.count} array={built.colors} itemSize={3} />
-        </bufferGeometry>
-        <pointsMaterial
-          size={7}
-          vertexColors
-          transparent
-          map={SPRITE}
-          alphaTest={0.01}
-          depthWrite={false}
-          blending={THREE.AdditiveBlending}
-          toneMapped={false}
-        />
-      </points>
+      {/* Nearest real stars at true depth — gem sizes/brightness by magnitude. */}
+      <points geometry={geometry} material={material} frustumCulled={false} />
     </group>
   );
 };
