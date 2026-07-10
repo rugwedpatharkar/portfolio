@@ -34,7 +34,7 @@ inside the existing `far=14000`; exactly **one** custom postprocessing `mainImag
 | `config/galaxy.js` | galactic-structure data | **built** (assert-verified) |
 | `config/scaleRegimes.js` | solar → local handoff | **built** (assert-verified) |
 | `data/brightStars.js` (stride-5) | star distances | todo — needs HYG v41 catalog |
-| solar-system gap-fills | moons · comets · counts | todo — scene edits |
+| solar-system gap-fills | moons · comets · counts | **built** (moons + counts + fake-comet retired) |
 
 Legend: **todo → drafting → sourced** (every number cited) **→ verified**
 (spot-checked against a second source).

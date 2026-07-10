@@ -67,8 +67,11 @@ moon" goal.)
 
 ## 3. Comet dossiers (→ `config/objects.js` `ANOMALY_RAW`)
 
-Add real comets; retire the invented `c2026a1` sungrazer. `H` = historical (not a
-live flyby — render as a marker/note, not an active pass).
+The invented `c2026a1` sungrazer is **retired** (fabricated data). The table below
+is the KNOWLEDGE roster; the app renders only **current/representative** comets live
+— Halley (on its real orbit) + the interstellar trio 'Oumuamua/2I-Borisov/3I-ATLAS.
+The historical comets (`H`) aren't "here now", so they stay in this reference layer
+(adding them as live scene objects would be *less* accurate). `H` = historical.
 
 | Comet | Type / period | Orbit | Signature |
 |---|---|---|---|
