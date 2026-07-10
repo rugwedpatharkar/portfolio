@@ -20,7 +20,6 @@ import AtlasComet from "./AtlasComet";
 import Meteors from "./Meteors";
 import Pulsar from "./Pulsar";
 import ExoticObjects from "./ExoticObjects";
-import ProjectProbes from "./ProjectProbes";
 import DeepFieldMysteries from "./DeepFieldMysteries";
 import Kilonova from "./Kilonova";
 import Hypergiant from "./Hypergiant";
@@ -39,13 +38,9 @@ import TrojanAsteroids from "./TrojanAsteroids";
 import OortCloud from "./OortCloud";
 import Heliosphere from "./Heliosphere";
 import InterstellarVisitor from "./InterstellarVisitor";
-import EarthStation from "./EarthStation";
-import IsroProbe from "./IsroProbe";
 import MilkyWay from "./MilkyWay";
-import ZodiacalLight from "./ZodiacalLight";
 import Constellations from "./Constellations";
 import ShootingStars from "./ShootingStars";
-import RocketLaunch from "./RocketLaunch";
 import DangerField from "./DangerField";
 import DustParticles from "./DustParticles";
 import AdaptiveQuality from "./AdaptiveQuality";
@@ -65,12 +60,6 @@ import AutoExposure from "./AutoExposure";
 import KeyLight from "./KeyLight";
 import MouseParallax from "./MouseParallax";
 import CameraShake from "./CameraShake";
-import Voyager from "./Voyager";
-import RobotFleet from "./RobotFleet";
-import CommitComets from "./CommitComets";
-/* Real NASA missions kept from the (removed) easter-egg tier. */
-import GoldenRecord from "./easter/GoldenRecord";
-import MarsRovers from "./easter/MarsRovers";
 import useViewport from "../useViewport";
 import { DESTINATIONS, remapPosition, frontOfSun, BACKGROUND_BELTS } from "../config/destinations";
 import { rotationSpeedFor } from "../config/planetData";
@@ -245,11 +234,9 @@ const Scene = ({ scrollT, finaleT, finale = false, activeIdx, onJump, wideRef, w
         <MilkyWay finale={finale} />
         {/* Pull-back finale (?finale=1) — the local stellar neighbourhood at true depth. */}
         {finale && <LocalNeighborhood active />}
-        {/* Zodiacal light — faint sunlight scattered by ecliptic-plane dust.
-            8,500 additive points arrayed from the Sun outward: at the wide
-            overview shot they cluster into a bright halo — suppressed in v3
-            with the rest of the point clouds. */}
-        {showExtras && <ZodiacalLight />}
+        {/* Zodiacal light removed — its 8,500 additive points bloomed into an
+            inaccurate white bar flanking the Sun (per user). The real zodiacal
+            glow is far too faint to read at this scale. */}
         {/* Named constellations (Orion, Big Dipper, Cassiopeia) that fade in
             when the camera holds still — built but previously unmounted. */}
         {showExtras && !isMobile && <Constellations scrollTRef={scrollT} />}
@@ -277,8 +264,9 @@ const Scene = ({ scrollT, finaleT, finale = false, activeIdx, onJump, wideRef, w
         {showMid && !isMobile && !reducedMotion && <Pulsar />}
         {/* New deep-field exotics: Sgr A*, magnetar, brown dwarf, rogue planet. */}
         {showMid && <ExoticObjects animate={!reducedMotion} />}
-        {/* Human-made probes + speculative "mysteries" — removed in v3 (natural only). */}
-        {showMid && <ProjectProbes animate={!reducedMotion} />}
+        {/* Project-probe metaphor removed (man-made, per user). DeepFieldMysteries
+            stays — Planet Nine, Tabby's Star, Wow! signal, an FRB are all real
+            astrophysical phenomena, not artificial. */}
         {showMid && <DeepFieldMysteries animate={!reducedMotion} />}
         {/* PHASE 4 (Wave 1) — deep-sky wonders: a kilonova event + a red supergiant. */}
         {showMid && <Kilonova animate={!reducedMotion} />}
@@ -366,23 +354,10 @@ const Scene = ({ scrollT, finaleT, finale = false, activeIdx, onJump, wideRef, w
                 <OrbitGroup key={d.id} dest={d} animate={!reducedMotion}>
                   {/* Moon publishes its world position for the eclipse system. */}
                   {cloneElement(planetEl, { satelliteRef: moonWorldRef })}
-                  {/* ISS on low Earth orbit — inherits Earth's live solar
-                      position from the OrbitGroup, runs its own fast LEO. */}
-                  {showExtras && !isMobile && (
-                    <EarthStation planetRadius={d.radius} animate={!reducedMotion} />
-                  )}
-                  {showExtras && !isMobile && (
-                    <RocketLaunch earthRadius={d.radius} animate={!reducedMotion} />
-                  )}
-                  {/* 2026 eclipses — the Moon's umbra drifting across Earth's day side. */}
+                  {/* Man-made craft removed (ISS, Pune rocket launch, Chandrayaan).
+                      2026 eclipses stay — the Moon's umbra drifting across Earth's
+                      day side is a real natural event. */}
                   {showExtras && <EclipseShadow earthRadius={d.radius} animate={!reducedMotion} />}
-                  {showExtras && (
-                    <IsroProbe
-                      orbitRadius={d.radius * 2.2} speed={0.22} tilt={0.4} phase={1.2} scale={d.radius * 0.18}
-                      event="stellar:chandrayaan" animate={!reducedMotion}
-                      onPointerOver={handleHoverIn} onPointerOut={handleHoverOut}
-                    />
-                  )}
                 </OrbitGroup>
               );
             }
@@ -402,14 +377,7 @@ const Scene = ({ scrollT, finaleT, finale = false, activeIdx, onJump, wideRef, w
                 {d.id === "notes" && <MimasMoon offset={[4.6, 1.0, -2.1]} radius={0.13} animate={!reducedMotion} />}
                 {d.id === "notes" && <TitanLakes offset={[4.4, 1.2, 0.9]} radius={0.18} animate={!reducedMotion} />}
                 {d.id === "hobbies" && <MoonGeysers offset={[2.0, 0.8, 0.6]} radius={0.12} color="#d8cabd" plumeColor="#e6c6d6" jets={4} dir={[0.2, -1, 0.2]} animate={!reducedMotion} />}
-                {/* Mangalyaan (Mars Orbiter Mission) rides Mars's group. */}
-                {d.id === "projects" && showExtras && (
-                  <IsroProbe
-                    orbitRadius={d.radius * 2.4} speed={0.26} tilt={0.5} phase={0.4} scale={d.radius * 0.15}
-                    event="stellar:mangalyaan" animate={!reducedMotion}
-                    onPointerOver={handleHoverIn} onPointerOut={handleHoverOut}
-                  />
-                )}
+                {/* Mangalyaan (Mars Orbiter Mission) removed — man-made, per user. */}
               </OrbitGroup>
             );
           }
@@ -484,16 +452,9 @@ const Scene = ({ scrollT, finaleT, finale = false, activeIdx, onJump, wideRef, w
         {/* Non-essential extras defer-mount until the intro completes —
             keeps the warp/countdown window + LCP light, and trims the
             initial scene-graph build. */}
-        {showExtras && <Voyager />}
-        {/* Humanity's robot fleet at their real locations (JWST@L2, Parker,
-            Juno, Lucy, New Horizons). Removed in v3 (natural only). */}
-        {showExtras && <RobotFleet />}
-        {showEggs && !isMobile && <CommitComets />}
-        {/* Real NASA missions — the only survivors of the removed fiction tier
-            (Mars rovers at Mars, Voyager's Golden Record in the deep field).
-            Phase 4 promotes these onto the v3 route. */}
-        {showEggs && <MarsRovers />}
-        {showEggs && <GoldenRecord />}
+        {/* Man-made craft/probes (Voyager, robot fleet, Mars rovers, Golden
+            Record, commit-comets) removed — this is an accurate NATURAL solar
+            system only (per user). Résumé content lives in the side panels. */}
         {!isMobile && !reducedMotion && <MouseParallax offsetRef={parallaxOffsetRef} />}
         <CameraShake parallaxOffsetRef={parallaxOffsetRef} />
         <CameraRig
