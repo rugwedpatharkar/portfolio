@@ -28,8 +28,8 @@ inside the existing `far=14000`; exactly **one** custom postprocessing `mainImag
 | `00-MASTER.md` | index · sources · verification | sourced |
 | `astronomy-milky-way.md` | galactic structure, view-from-within | sourced |
 | `astronomy-solar-system.md` | accuracy lock + gap closure | sourced |
-| `technical-scale-regimes.md` | staged scale strategy | todo |
-| `technical-interstellar-shots.md` | premium-shot feasibility | todo |
+| `technical-scale-regimes.md` | staged scale strategy | sourced |
+| `technical-interstellar-shots.md` | premium-shot feasibility | sourced |
 | `data-schemas.md` | docs → data contract | todo |
 | `config/galaxy.js` | galactic-structure data | todo |
 | `config/scaleRegimes.js` | solar → local handoff | todo |
