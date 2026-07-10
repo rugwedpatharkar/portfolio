@@ -31,10 +31,10 @@ inside the existing `far=14000`; exactly **one** custom postprocessing `mainImag
 | `technical-scale-regimes.md` | staged scale strategy | sourced |
 | `technical-interstellar-shots.md` | premium-shot feasibility | sourced |
 | `data-schemas.md` | docs → data contract | sourced |
-| `config/galaxy.js` | galactic-structure data | todo |
-| `config/scaleRegimes.js` | solar → local handoff | todo |
-| `data/brightStars.js` (stride-5) | star distances | todo |
-| solar-system gap-fills | moons · comets · counts | todo |
+| `config/galaxy.js` | galactic-structure data | **built** (assert-verified) |
+| `config/scaleRegimes.js` | solar → local handoff | **built** (assert-verified) |
+| `data/brightStars.js` (stride-5) | star distances | todo — needs HYG v41 catalog |
+| solar-system gap-fills | moons · comets · counts | todo — scene edits |
 
 Legend: **todo → drafting → sourced** (every number cited) **→ verified**
 (spot-checked against a second source).
