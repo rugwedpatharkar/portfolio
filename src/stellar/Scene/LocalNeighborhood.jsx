@@ -126,8 +126,11 @@ const LocalNeighborhood = ({ active = false }) => {
           dot is us — the whole tour, one star among its neighbours"). A single
           warm additive sprite, unmistakably brighter than the neighbour points,
           yet still a point, not a disk. */}
-      <sprite scale={[70, 70, 1]}>
-        <spriteMaterial map={SPRITE} color="#ffe8b8" transparent opacity={1} depthWrite={false} blending={THREE.AdditiveBlending} toneMapped={false} />
+      <sprite scale={[190, 190, 1]}>
+        <spriteMaterial map={SPRITE} color="#ffcf85" transparent opacity={0.26} depthWrite={false} blending={THREE.AdditiveBlending} toneMapped={false} />
+      </sprite>
+      <sprite scale={[66, 66, 1]}>
+        <spriteMaterial map={SPRITE} color="#fff1d4" transparent opacity={1} depthWrite={false} blending={THREE.AdditiveBlending} toneMapped={false} />
       </sprite>
       {/* Nearest real stars at true depth — gem sizes/brightness by magnitude. */}
       <points geometry={geometry} material={material} frustumCulled={false} />

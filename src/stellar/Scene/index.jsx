@@ -221,8 +221,9 @@ const Scene = ({ scrollT, activeIdx, onJump, wideRef, wideOrbitRef, focusRef, wa
         {!finale && <Stars />}
         {!finale && <Nebulae />}
         {/* Grand faint galactic band — far backdrop for depth; in the finale it's
-            the galaxy wrapping around our local neighbourhood. */}
-        <MilkyWay />
+            the galaxy wrapping around our local neighbourhood (boosted to a
+            luminous arch). */}
+        <MilkyWay finale={finale} />
         {/* Pull-back finale (?finale=1) — the local stellar neighbourhood at true depth. */}
         {finale && <LocalNeighborhood active />}
         {/* Zodiacal light — faint sunlight scattered by ecliptic-plane dust.

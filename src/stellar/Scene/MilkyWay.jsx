@@ -58,7 +58,7 @@ const DUST_TEXTURE = (() => {
   return t;
 })();
 
-const MilkyWay = () => {
+const MilkyWay = ({ finale = false }) => {
   const { positions, colors, sizes } = useMemo(() => {
     const { galacticNorthPole: pole, galacticCenter: center } = GALAXY.orientation;
 
@@ -126,11 +126,11 @@ const MilkyWay = () => {
         <bufferAttribute attach="attributes-size" count={POINT_COUNT} array={sizes} itemSize={1} />
       </bufferGeometry>
       <pointsMaterial
-        size={38}
+        size={finale ? 58 : 38}
         sizeAttenuation
         vertexColors
         transparent
-        opacity={0.24}
+        opacity={finale ? 0.55 : 0.24}
         depthWrite={false}
         map={DUST_TEXTURE}
         alphaTest={0.01}
