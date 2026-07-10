@@ -549,20 +549,20 @@ const Scene = ({ scrollT, finaleT, finale = false, activeIdx, onJump, wideRef, w
       <EffectComposer multisampling={0} disableNormalPass>
         <Bloom
           ref={bloomRef}
-          intensity={isMobile ? 0.95 : 1.3}
-          luminanceThreshold={0.72}
+          intensity={isMobile ? 0.8 : 1.05}
+          luminanceThreshold={0.75}
           luminanceSmoothing={0.45}
           mipmapBlur
           radius={0.6}
         />
-        {/* Grade: rich but restrained — the earlier 0.28 saturation over-pushed
-            the palette (per user); pulled back to a more natural, filmic level
-            while Bloom still carries the radiance. */}
+        {/* Grade: restrained/filmic — saturation pulled well back from the WOW
+            pass (0.28 → 0.15 → 0.08 per user) and Bloom eased, for a calm,
+            natural palette rather than a vivid one. */}
         <CinematicGrade
           ref={gradeRef}
           brightness={0.03}
-          contrast={0.13}
-          saturation={0.15}
+          contrast={0.12}
+          saturation={0.08}
           vigOffset={0.36}
           vigDarkness={0.34}
           vigBreathe={reducedMotion ? 0 : 0.05}
