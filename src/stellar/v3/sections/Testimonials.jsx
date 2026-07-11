@@ -139,7 +139,7 @@ const TestimonialCard = ({ t, index, reduce }) => {
   );
 };
 
-export default function TestimonialsSection({ index, bootNonce }) {
+export default function TestimonialsSection({ bootNonce }) {
   const list = testimonials || [];
   const reduce = useReducedMotion();
 
@@ -147,7 +147,7 @@ export default function TestimonialsSection({ index, bootNonce }) {
     <V3Frame
       section="Testimonials"
       planet="NEPTUNE"
-      index={index}
+
       scanDir="horizontal"
       scanKey={bootNonce}
       gridAreas={`"top top top" "left left ." "left left ." "left left ."`}

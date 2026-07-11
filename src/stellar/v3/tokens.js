@@ -22,26 +22,13 @@ export const COLOR = {
 };
 
 /* Per-body accent — each stop's REAL color tints its HUD/labels/active states.
-   Keyed by destination id AND by common body name so callers can use either. */
+   Only stops NOT of kind:"planet" hit this map — planets pull their accent
+   directly from `dest.color` in V3Style (see the branch there). Everything
+   else — the Sun and the black-hole cosmic stop — resolves through accentFor
+   below. Add a new key here when a new non-planet stop is authored. */
 export const ACCENT = {
   sol: "#e9c675",
-  mercury: "#8a8079",
-  venus: "#e6c98a",
-  earth: "#3d7fd6",
-  mars: "#c1440e",
-  jupiter: "#d8a06a",
-  saturn: "#e3c07a",
-  uranus: "#a9dbe0",
-  neptune: "#3f66d6",
-  belt: "#9a8f80",
-  kuiper: "#8fb4c4",
-  comet: "#7fd3ff",
-  heliopause: "#6f86c9",
   blackhole: "#ffb14a",
-  wormhole: "#8ea2ff",
-  nebula: "#ff5a8a",
-  pulsar: "#bcd4ff",
-  milkyway: "#e8ddc4",
 };
 
 /* Resolve an accent from a destination id / section / body name (fallback = Sol). */

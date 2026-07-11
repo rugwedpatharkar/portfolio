@@ -63,7 +63,7 @@ const polar = (angle, radius) => ({
   y: CY - radius * Math.cos(angle),
 });
 
-export default function SkillsSection({ index, bootNonce }) {
+export default function SkillsSection({ bootNonce }) {
   const cats = Object.entries(skills);
   const [active, setActive] = useState(0);
   const [activeName, activeList] = cats[active] || cats[0];
@@ -99,7 +99,7 @@ export default function SkillsSection({ index, bootNonce }) {
     <V3Frame
       section="Skills"
       planet="CERES"
-      index={index}
+
       scanDir="orbit"
       scanKey={bootNonce}
       gridAreas={`"top top top" "left left ." "left left ." "left left ."`}

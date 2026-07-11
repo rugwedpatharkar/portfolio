@@ -69,7 +69,7 @@ const BODY_VARIANTS = {
   exit:   { opacity: 0, transition: { duration: 0.12 } },
 };
 
-export default function WhatSetsMeApartSection({ index, bootNonce }) {
+export default function WhatSetsMeApartSection({ bootNonce }) {
   const [active, setActive] = useState(0);
   const reduce = useReducedMotion();
   const p = PILLARS[active] || PILLARS[0];
@@ -83,7 +83,7 @@ export default function WhatSetsMeApartSection({ index, bootNonce }) {
     <V3Frame
       section="What Sets Me Apart"
       planet="PLUTO"
-      index={index}
+
       scanDir="drill"
       scanKey={bootNonce}
       gridAreas={`"top top top" "left left ." "left left ." "left left ."`}

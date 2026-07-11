@@ -72,13 +72,13 @@ const StatCard = ({ f, i, cols }) => {
   );
 };
 
-export default function FunFactsSection({ index, bootNonce }) {
+export default function FunFactsSection({ bootNonce }) {
   const cols = 4; // 4-col grid so 8 stats fit as 4×2
   return (
     <V3Frame
       section="Fun facts"
       planet="MERCURY"
-      index={index}
+
       scanDir="radial"
       scanKey={bootNonce}
       /* LEFT area spans grid cols 1+2 (full frame height) so the 4-col grid

@@ -52,7 +52,7 @@ const Row = ({ label, children }) => (
   </div>
 );
 
-export default function AboutSection({ index, bootNonce }) {
+export default function AboutSection({ bootNonce }) {
   /*
    * Signature moment — scroll-linked portrait parallax.
    *
@@ -76,7 +76,7 @@ export default function AboutSection({ index, bootNonce }) {
     <V3Frame
       section="About"
       planet="SOL"
-      index={index}
+
       scanDir="horizontal"
       scanKey={bootNonce}
       /* Content lives in the standard 60% LEFT band (cols 1+2, the 40+20%

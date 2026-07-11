@@ -20,12 +20,15 @@ export const useV3Scan = () => useContext(V3ScanContext);
 export default function V3Frame({
   section,
   planet,           // "MERCURY" etc.
-  index,            // "03/13"
   scanDir = "horizontal",
   scanKey = 0,      // change to re-fire the reveal (e.g. bootNonce)
   children,
   gridAreas,        // optional override; defaults to full L-wrap
 }) {
+  /* Note: `index` used to be part of the top label strip ("PLANET · SECTION ·
+     INDEX") that was removed with the decluttered layout — the section's own
+     kicker/heading now rise to the top of the frame. Sections should not pass
+     an `index` prop through anymore; it's a no-op. */
   const { isCompact } = useViewport();
   const defaultAreas = isCompact
     ? `"top" "left" "right-top" "right-bottom" "bottom"`

@@ -45,7 +45,7 @@ const DOT_R = 6;
 
 const strokeForPct = (pct) => 1.5 + (Math.max(0, Math.min(100, pct)) / 100) * 3.5;
 
-export default function EducationSection({ index, bootNonce }) {
+export default function EducationSection({ bootNonce }) {
   const list = useMemo(() => educations || [], []);
   const [active, setActive] = useState(0);
   const reduce = useReducedMotion();
@@ -77,7 +77,7 @@ export default function EducationSection({ index, bootNonce }) {
     <V3Frame
       section="Education"
       planet="SATURN"
-      index={index}
+
       scanDir="orbit"
       scanKey={bootNonce}
       gridAreas={`"top top top" "left left ." "left left ." "left left ."`}

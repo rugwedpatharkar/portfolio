@@ -37,7 +37,7 @@ const BODY_VARIANTS = {
   exit:   { opacity: 0, transition: { duration: 0.12 } },
 };
 
-export default function NotesSection({ index, bootNonce }) {
+export default function NotesSection({ bootNonce }) {
   const list = blogPosts || [];
   const [active, setActive] = useState(0);
   const reduce = useReducedMotion();
@@ -52,7 +52,7 @@ export default function NotesSection({ index, bootNonce }) {
     <V3Frame
       section="Notes"
       planet="JUPITER"
-      index={index}
+
       scanDir="horizontal"
       scanKey={bootNonce}
       gridAreas={`"top top top" "left left ." "left left ." "left left ."`}

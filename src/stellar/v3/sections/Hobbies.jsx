@@ -209,7 +209,7 @@ const TiltCell = ({ h, i, reduce }) => {
   );
 };
 
-export default function HobbiesSection({ index, bootNonce }) {
+export default function HobbiesSection({ bootNonce }) {
   const list = useMemo(() => hobbies || [], []);
   const reduce = useReducedMotion();
 
@@ -217,7 +217,7 @@ export default function HobbiesSection({ index, bootNonce }) {
     <V3Frame
       section="Hobbies"
       planet="URANUS"
-      index={index}
+
       scanDir="radial"
       scanKey={bootNonce}
       gridAreas={`"top top top" "left left ." "left left ." "left left ."`}

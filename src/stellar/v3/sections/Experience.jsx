@@ -60,7 +60,7 @@ const BULLET_VARIANTS = {
   exit:   { opacity: 0, x: -4, transition: { duration: 0.12 } },
 };
 
-export default function ExperienceSection({ index, bootNonce }) {
+export default function ExperienceSection({ bootNonce }) {
   const [active, setActive] = useState(0);
   const [activeCat, setActiveCat] = useState(0);
   const exp = experiences[active] || experiences[0];
@@ -90,7 +90,7 @@ export default function ExperienceSection({ index, bootNonce }) {
     <V3Frame
       section="Experience"
       planet="VENUS"
-      index={index}
+
       scanDir="drill"
       scanKey={bootNonce}
       /* User asked to never cut or clamp: retire BOTTOM row so LEFT gets full

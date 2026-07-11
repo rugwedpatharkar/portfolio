@@ -57,7 +57,6 @@ import EclipseShadow from "./EclipseShadow";
 import AutoExposure from "./AutoExposure";
 import KeyLight from "./KeyLight";
 import MouseParallax from "./MouseParallax";
-import CameraShake from "./CameraShake";
 import SafeLoad from "./SafeLoad";
 import useViewport from "../useViewport";
 import { DESTINATIONS, remapPosition, frontOfSun, BACKGROUND_BELTS } from "../config/destinations";
@@ -478,7 +477,6 @@ const Scene = ({ scrollT, finaleT, finale = false, activeIdx, onJump, focusRef, 
             Record, commit-comets) removed — this is an accurate NATURAL solar
             system only (per user). Résumé content lives in the side panels. */}
         {!isMobile && !reducedMotion && <MouseParallax offsetRef={parallaxOffsetRef} />}
-        <CameraShake parallaxOffsetRef={parallaxOffsetRef} />
         <CameraRig
           scrollT={scrollT}
           parallaxOffsetRef={parallaxOffsetRef}

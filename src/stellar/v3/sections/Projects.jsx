@@ -37,7 +37,7 @@ const PANEL_VARIANTS = {
    masking work. */
 const SHUTTER_VARIANTS = shutterVariants();
 
-export default function ProjectsSection({ index, bootNonce }) {
+export default function ProjectsSection({ bootNonce }) {
   const [tab, setTab] = useState("professional");
   const [active, setActive] = useState(0);
   const [dir, setDir] = useState(1);
@@ -69,7 +69,7 @@ export default function ProjectsSection({ index, bootNonce }) {
     <V3Frame
       section="Projects"
       planet="EARTH"
-      index={index}
+
       scanDir="plot"
       scanKey={bootNonce}
       gridAreas={`"top top top" "left left ." "left left ." "left left ."`}

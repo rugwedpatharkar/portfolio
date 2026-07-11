@@ -53,7 +53,7 @@ const HERO_BODY_VARIANTS = {
   exit:   { opacity: 0, transition: { duration: 0.15 } },
 };
 
-export default function AchievementsSection({ index, bootNonce }) {
+export default function AchievementsSection({ bootNonce }) {
   const list = useMemo(() => achievements || [], []);
   const reduce = useReducedMotion();
 
@@ -73,7 +73,7 @@ export default function AchievementsSection({ index, bootNonce }) {
     <V3Frame
       section="Achievements"
       planet="MARS"
-      index={index}
+
       scanDir="circuit"
       scanKey={bootNonce}
       gridAreas={`"top top top" "left left ." "left left ." "left left ."`}

@@ -1,35 +1,70 @@
-# Portfolio
+# Rugwed Patharkar — Portfolio
 
-Welcome to my portfolio project! This is a showcase of my skills, projects, and experiences as a software developer.
+A cinematic 3D portfolio built as a scientifically-accurate solar system.
+Every visitor lands in the same experience: a scroll-driven tour from the
+Sun outward through the planets, with the résumé progressively revealing
+as the camera reaches each stop. Past Pluto, a pull-back finale swaps the
+AU-scale solar system for the Sun among its real neighbours with the
+galactic band arching overhead.
 
-## Overview
+**Live:** [rugwedpatharkar.vercel.app](https://rugwedpatharkar.vercel.app)
 
-This portfolio website is designed to provide visitors with an interactive and informative experience. It features dynamic 3D animations and models, allowing users to explore and interact with various sections.
+## Stack
 
-## Features
+- React 18 + Vite 5
+- Three.js 0.163 via `@react-three/fiber` (v8), `@react-three/drei`, `@react-three/postprocessing`
+- Lenis for smooth scroll
+- `motion/react` (Motion One) for overlay animation
+- `@emailjs/browser` for the contact form
+- Vercel Analytics + Speed Insights
 
-- **Responsive Design:** The portfolio is fully responsive, ensuring optimal viewing experience across different devices and screen sizes.
-- **Interactive 3D Elements:** Utilizing Three.js and the Tilt library, the portfolio includes captivating 3D animations and models that respond to user interactions.
-- **Sections:**
-  - **About:** A brief introduction to myself and my background.
-  - **Experience:** Details about my work experience and projects.
-  - **Skills:** List of my skills and proficiencies.
-  - **Projects:** Showcase of my projects with links to GitHub repositories or live demos.
-  - **Contact:** Contact form for users to reach out to me directly.
+Deployed on Vercel.
 
-## Technologies Used
+## Structure
 
-- **HTML5:** Structuring the content of the website.
-- **CSS3:** Styling the layout and design elements.
-- **Tailwind CSS:** Utilized for rapid prototyping and custom styling.
-- **JavaScript:** Adding interactivity and dynamic behavior to the website.
-- **React.js:** Building reusable components and managing state efficiently.
-- **Redux:** State management for complex applications.
-- **Three.js:** Creating 3D animations and models for an immersive experience.
-- **Tilt Library:** Implementing parallax effects for enhanced visual appeal.
-- **Email.js:** Enabling direct messaging functionality for user communication.
+```
+src/
+├── App.jsx                     one-shot WebGL probe → lazy StellarApp, else a
+│                               lightweight static résumé fallback
+├── content/index.js            résumé single-source-of-truth
+└── stellar/                    the 3D experience
+    ├── StellarApp.jsx          root orchestrator (activeIdx, focusRef, keys)
+    ├── Navigator.jsx           Lenis → scrollTRef / finaleTRef
+    ├── Scene/                  one <Canvas>, one <Suspense>, one <EffectComposer>
+    │   ├── CameraRig.jsx       finale scrub → focus (backlit hero) → scroll
+    │   ├── SceneClock.jsx      shared virtual time (paused under reduced-motion)
+    │   ├── Planet.jsx          textured sphere + moons + rings
+    │   ├── Sun.jsx / MilkyWay.jsx / LocalNeighborhood.jsx / …
+    │   └── anomalies (BlackHole, Pulsar, Wormhole, EinsteinRing, …)
+    ├── config/                 destinations, orbits, planetData, scaleRegimes, galaxy
+    ├── data/                   planetFacts, brightStars, bodies, ephemeris
+    ├── v3/                     overlay UI (V3Panel, V3Hud, V3Reticle, V3Editorial, …)
+    │   └── sections/           per-stop résumé sections (About, Experience, …)
+    └── holobridge/             HoloBridge — the info surface over the 3D scene
+```
 
-## Project Links
+## Local dev
 
-- **GitHub Repository:** [https://github.com/rugwedpatharkar/portfolio](https://github.com/rugwedpatharkar/portfolio)
-- **Live Demo:** [https://rugwed-patharka-rportfolio.vercel.app/](https://rugwed-patharka-rportfolio.vercel.app/)
+```sh
+npm install
+npm run dev            # localhost:5174
+npm run lint
+npm run textures       # regenerate .webp textures from any new source JPG/PNG
+npm run test:visual    # Playwright visual smoke pass (see tests/)
+```
+
+## Hard rendering constraints
+
+- One `<Canvas>`, one `<Suspense>`, one `<EffectComposer multisampling={0}>`.
+- Only **one** custom postprocessing `mainImage` (`CinematicGrade`) + `Bloom`.
+  A second `mainImage` merges into the pass and renders the frame white.
+- Scientific-accuracy is the prime goal — radii, rotation, eccentricity,
+  inclination, and 1:1 orbital distances are real (NASA/JPL). See
+  `docs/galaxy/` for the cited astronomy foundation.
+- Reduced-motion + mobile → snap tour (no fly-through).
+
+## Contact
+
+- Email — `rugwedspatharkar@gmail.com`
+- LinkedIn — [rugwed-patharkar](https://www.linkedin.com/in/rugwed-patharkar)
+- GitHub — [@rugwedpatharkar](https://github.com/rugwedpatharkar)
