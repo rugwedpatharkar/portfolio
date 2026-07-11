@@ -23,11 +23,22 @@ export const COSMIC_STOPS = [
     section: "theedge",
     docTitle: "",
     accent: "#ffb14a",
-    /* Big radius so the framing camera stands off further and the black
-       hole visually SPREADS across the frame — user asked for wide-spread
-       finale, no card, no résumé. */
-    radius: 12,
+    /* Radius is what BlackHole.jsx uses to size the event horizon sphere,
+       accretion disk, photon ring, and lensing halo. Big so the visual
+       spreads across the entire frame — Interstellar-style Gargantua. */
+    radius: 80,
     position: [4300, 120, -420],
+    /* Custom cameraTarget — the default cosmic-stop math (`radius * 3.6`
+       standoff) would put the camera 288u away; at radius 80 that renders
+       a ~30° disc. To FILL THE FRAME the camera sits ~120u away with
+       fov 78° → the event horizon + accretion disk + lensed halo spread
+       from edge to edge. Positioned dead-on the black hole's axis so the
+       accretion disk shows face-on with the photon ring dominant. */
+    cameraTarget: {
+      position: [4300 - 120, 120 + 8, -420 + 4],
+      lookAt: [4300, 120, -420],
+      fov: 78,
+    },
   },
 ];
 

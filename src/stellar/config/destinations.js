@@ -59,12 +59,13 @@ export const DESTINATIONS = [
     radius: 0,
     section: "about",
     docTitle: "About",
-    /* v3 system overview — a CORNER SHOT of the whole true-scale system from a
-       far, high vantage. Sun sits on the far RIGHT of the frame, planets + real
-       orbits + asteroid belt + Kuiper haze fan out to screen-LEFT toward Neptune
-       (~2857u out on +X). This is the wide establishing pose the About Me
-       content overlays on. */
-    cameraTarget: { position: [1400, 900, 1600], lookAt: [700, -60, 100], fov: 60 },
+    /* v3 system overview — CLOSER corner shot so the Sun + inner orbit rings +
+       asteroid belt are all VISIBLE against the About Me content. Previous
+       vantage at (1400,900,1600) put the Sun at 2287u distance where it was a
+       ~1° dot; new vantage at ~950u so Sun reads as a proper bright disc with
+       orbit rings sweeping visibly across the right two-thirds of the frame.
+       LookAt scaled proportionally so the Sun still sits right-of-centre. */
+    cameraTarget: { position: [560, 380, 700], lookAt: [180, -20, 30], fov: 62 },
   },
   {
     id: "impact",
