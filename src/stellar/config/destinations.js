@@ -40,13 +40,12 @@ export const DESTINATIONS = [
     accent: "#ffd58a",
     section: "hero", // no résumé — pure intro
     docTitle: "",
-    /* Camera pose: floating in interstellar space near Sol (Sun hidden at
-       this stop). LookAt aligned with the galactic-centre direction (Sgr A*
-       at RA 17h45m40s, Dec −29°) with a small tilt toward the galactic
-       north pole so the Milky Way band ARCHES across the frame — brightest
-       toward Sagittarius (upper-right on our sky), thinning toward the
-       Perseus anticentre (lower-left). Wide fov=80 for cinematic breadth. */
-    cameraTarget: { position: [0, 0, 0], lookAt: [-604, 96, -1904], fov: 80 },
+    /* Camera pose: looking straight at the HomepageGalaxy — a tilted spinning
+       spiral positioned at (0, 0, -600). Camera centered on the disc so the
+       galaxy sits mid-frame with the sky wrapping around; hero copy sits ON
+       TOP of the galaxy on the left column. Wide fov=68 so the galaxy fills
+       the middle third, dust arms sweeping into the sky frame. */
+    cameraTarget: { position: [0, 220, 420], lookAt: [0, 0, -600], fov: 68 },
   },
   {
     /* v3 STOP 01 — Solar-System overview / arrival pose. Reached via the

@@ -30,6 +30,7 @@ import DwarfPlanets from "./DwarfPlanets";
 import Comet from "./Comet";
 import Hyperspace from "./Hyperspace";
 import SgrAStar from "./SgrAStar";
+import SpiralGalaxy from "./SpiralGalaxy";
 import Voyagers from "./Voyagers";
 /* BlackHole + SpiralGalaxy removed from the tour — nearest black hole is
    1,560 ly away (Gaia BH1), nothing sits "just past Pluto". Milky Way seen
@@ -97,6 +98,30 @@ const planetFallback = (d) => (
    (finaleT). uFade is a V: 1 at the tour end (t=0) and full finale (t=1),
    dipping near black at t=0.5 where the solar↔neighbourhood content swap fires
    — so the cut is unseen. Runs every frame (cheap); no-op at t=0/1. */
+/* Homepage Milky Way — tilted spinning spiral galaxy filling the frame,
+   floating in a JWST-deep-field-style backdrop of stars + distant galaxies +
+   nebulae. Rotation is a slow spin around the disc's normal so the arms
+   sweep visibly without becoming a merry-go-round. */
+function HomepageGalaxy({ reducedMotion }) {
+  const outerRef = useRef();
+  const innerRef = useRef();
+  useFrame((_, dt) => {
+    if (reducedMotion) return;
+    /* Slow galactic-plane spin — ~1 full rotation every 90s at 60fps. */
+    if (innerRef.current) innerRef.current.rotation.y += dt * 0.07;
+  });
+  return (
+    /* Outer group: 3/4 face-on tilt so we see the spiral arms + disc depth.
+       Inner group: rotates around Y (galactic-pole axis) — the disc-normal
+       AFTER the outer tilt, so spin looks like a real galactic rotation. */
+    <group ref={outerRef} position={[0, 0, -600]} rotation={[Math.PI / 4.2, 0, Math.PI / 8]}>
+      <group ref={innerRef} scale={3.2}>
+        <SpiralGalaxy animate={false} />
+      </group>
+    </group>
+  );
+}
+
 function FinaleGradeDip({ gradeRef, finaleT }) {
   useFrame(() => {
     const g = gradeRef.current;
@@ -297,6 +322,13 @@ const Scene = ({ scrollT, finaleT, finale = false, activeIdx, onJump, focusRef, 
             Only visible on the homepage — it's a sky marker, not an object
             in the Solar System. */}
         {isMilkyway && <SgrAStar />}
+        {/* Homepage Milky Way — the visitor's first frame. A tilted spinning
+            spiral galaxy dominates the middle of the screen with a JWST-style
+            deep-field sky around it (real HYG stars + M31/M33/LMC/SMC sprites
+            + nebulae + constellations, all still mounted). Scientific-purism
+            note: from Sol we can't SEE our own galaxy face-on — this is the
+            crowd-pleasing "you are looking at our home" reveal. */}
+        {isMilkyway && <HomepageGalaxy reducedMotion={reducedMotion} />}
         {/* Voyager 1 + 2 markers — humans' only interstellar spacecraft.
             Positioned along their real trajectories, compressed to 4200u so
             they're visible during outer-tour stops. Mounted anywhere except
