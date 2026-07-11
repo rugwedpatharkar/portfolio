@@ -6,6 +6,7 @@ import { useSceneClock } from "../SceneClock";
 import { placeInFrontOfSun } from "../../config/destinations";
 import { makeSoftDot } from "../shared/textures";
 import { nearCamera } from "../shared/hooks";
+import { PulseRing } from "../shared/primitives";
 
 /*
  * Real unsolved space mysteries, as faint deep-field discoverables (scannable +
@@ -55,7 +56,6 @@ const DeepFieldMysteries = ({ animate = true }) => {
 
   const p9 = useRef();
   const tabby = useRef();
-  const wowRing = useRef();
   const frb = useRef();
   const clock = useSceneClock();
 
@@ -70,13 +70,7 @@ const DeepFieldMysteries = ({ animate = true }) => {
       const dip = (T % 9) < 1.1 ? 0.78 : 1; // periodic dramatic dimming
       tabby.current.material.opacity = shimmer * dip;
     }
-    // Wow! signal: expanding radio ring that resets (~6 s)
-    if (wowRing.current) {
-      const ph = (T % 6) / 6;
-      const s = 4 + ph * 60;
-      wowRing.current.scale.set(s, s, s);
-      wowRing.current.material.opacity = 0.5 * (1 - ph);
-    }
+    /* Wow! signal ring now lives in <PulseRing> — see the JSX below. */
     // FRB: brief bright flash every ~7 s
     if (frb.current) {
       const ph = T % 7;
@@ -103,13 +97,24 @@ const DeepFieldMysteries = ({ animate = true }) => {
         <spriteMaterial map={dot} color="#fff2d8" transparent opacity={0.9} depthWrite={false} blending={THREE.AdditiveBlending} toneMapped={false} />
       </sprite>
 
-      {/* Wow! signal — marker + expanding radio-ring pulse toward Sagittarius */}
+      {/* Wow! signal — marker + expanding radio-ring pulse toward Sagittarius.
+          Ring: 6s cycle, active the whole cycle, flat ring 0.9→1.0 inner/outer,
+          expands 4 → 64× while fading from 50% opacity to 0. */}
       <group position={pos.wow.toArray()}>
         <sprite scale={[32, 32, 32]}><spriteMaterial map={dot} color="#7fe0ff" transparent opacity={0.8} depthWrite={false} blending={THREE.AdditiveBlending} toneMapped={false} /></sprite>
-        <mesh ref={wowRing} rotation={[Math.PI / 2.3, 0.4, 0]}>
-          <ringGeometry args={[0.9, 1.0, 48]} />
-          <meshBasicMaterial color="#7fe0ff" transparent opacity={0.4} side={THREE.DoubleSide} depthWrite={false} blending={THREE.AdditiveBlending} toneMapped={false} />
-        </mesh>
+        <PulseRing
+          color="#7fe0ff"
+          period={6}
+          flat
+          innerR={0.9}
+          outerR={1.0}
+          tubular={48}
+          startScale={4}
+          endScale={64}
+          maxOpacity={0.5}
+          rotation={[Math.PI / 2.3, 0.4, 0]}
+          animate={animate}
+        />
       </group>
 
       {/* Fast Radio Burst — a brief, intense flash from the deep field */}

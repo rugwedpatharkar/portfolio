@@ -6,6 +6,7 @@ import { useSceneClock } from "../SceneClock";
 import { placeInFrontOfSun } from "../../config/destinations";
 import { makeSoftDot } from "../shared/textures";
 import { nearCamera } from "../shared/hooks";
+import { PulseRing } from "../shared/primitives";
 
 /*
  * PHASE 4 (Wave 1) — a KILONOVA: two neutron stars merging. In a few seconds it
@@ -32,7 +33,6 @@ const burstTex = () =>
 
 export default function Kilonova({ animate = true }) {
   const core = useRef();
-  const ring = useRef();
   const clock = useSceneClock();
   const pos = useMemo(() => new THREE.Vector3(...placeInFrontOfSun(KILONOVA_RAW)), []);
   const tex = useMemo(burstTex, []);
@@ -49,12 +49,6 @@ export default function Kilonova({ animate = true }) {
       // blue-white at peak → gold as it decays (r-process)
       core.current.material.color.setRGB(1, 0.78 + 0.22 * flare, 0.5 + 0.5 * flare);
     }
-    if (ring.current) {
-      const r = ph / 0.32;
-      ring.current.visible = ph < 0.32;
-      ring.current.scale.setScalar(1 + r * 55);
-      ring.current.material.opacity = Math.max(0, 1 - r) * 0.55;
-    }
   });
 
   return (
@@ -62,10 +56,19 @@ export default function Kilonova({ animate = true }) {
       <sprite ref={core} scale={[6, 6, 1]}>
         <spriteMaterial map={tex} transparent opacity={0.15} blending={THREE.AdditiveBlending} depthWrite={false} depthTest={false} toneMapped={false} />
       </sprite>
-      <mesh ref={ring} rotation={[Math.PI / 2.3, 0.4, 0]} visible={false}>
-        <torusGeometry args={[1, 0.05, 8, 72]} />
-        <meshBasicMaterial color="#bfe0ff" transparent opacity={0} blending={THREE.AdditiveBlending} depthWrite={false} toneMapped={false} />
-      </mesh>
+      {/* Shockwave: 14s cycle, ring active for the first ~4.5s (32% of the cycle);
+          expands 1 → 56× while fading from 55% opacity to 0. */}
+      <PulseRing
+        color="#bfe0ff"
+        period={14}
+        activeFraction={0.32}
+        startScale={1}
+        endScale={56}
+        maxOpacity={0.55}
+        tubeR={0.05}
+        rotation={[Math.PI / 2.3, 0.4, 0]}
+        animate={animate}
+      />
     </group>
   );
 }
