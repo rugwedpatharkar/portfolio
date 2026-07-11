@@ -153,6 +153,19 @@ export const PLANET_EDITORIAL = {
     ],
   },
 
+  /* The Milky Way — the "you are here" step-out stop that shows the visitor
+     our galaxy from outside, with Sol pinned on the Orion Spur. */
+  milkyway: {
+    quote: "Look again at that dot. That's here. That's home. That's us.",
+    quoteBy: "Carl Sagan, Pale Blue Dot (extended)",
+    etymology: "Milky Way — a translation of the Latin via lactea (Ovid, ~8 CE) → itself from the Greek galaxías kýklos, \"circle of milk\".",
+    discovered: "Galileo pointed the first telescope at the Milky Way in 1610 and resolved it into individual stars — proof our galaxy is made of suns.",
+    facts: [
+      "Four main spiral arms: Perseus, Sagittarius, Scutum-Centaurus, Norma.",
+      "Sol sits on the Orion Spur — a minor arm segment between Sagittarius and Perseus.",
+      "The galaxy is on a collision course with Andromeda — impact in ~4.5 billion years.",
+    ],
+  },
   /* The Edge — the black hole (id: "blackhole") that carries the Contact finale. */
   blackhole: {
     quote: "Black holes are where God divided by zero.",

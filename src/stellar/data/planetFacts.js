@@ -171,6 +171,27 @@ export const PLANET_FACTS = {
     missions: "New Horizons (2015 flyby)",
     wow: "Its moon Charon is half Pluto's size — the pair orbit a point in empty space between them, a true double dwarf-planet. Pluto's orbit is so tilted (17°) + eccentric it sometimes comes closer to the Sun than Neptune.",
   },
+  /* The Milky Way — the "you are here" step-out from the solar system, seen
+     as a top-down 3/4 view of the four-arm spiral with Sol pinned on the
+     Orion Spur. */
+  milkyway: {
+    body: "The Milky Way — our home galaxy",
+    distance: "26,670 ly from the galactic centre",
+    diameter: "~100,000 light-years across",
+    mass: "~1.5 trillion Suns (dark matter + stars)",
+    year: "230 million years — one galactic rotation at Sol's radius",
+    day: "—",
+    gravity: "Sgr A* — 4-million-solar-mass black hole at the core",
+    temp: "—",
+    atmosphere: "Interstellar medium — hydrogen, dust, molecular clouds",
+    moons: "~50 satellite galaxies (LMC, SMC, Sagittarius Dwarf, …)",
+    missions: "Gaia (ESA) mapping 1.8 billion stars in 3D since 2013",
+    wow: "You are on the Orion Spur — a minor branch of the Sagittarius arm. Every star you can see at night is inside this single galaxy. There are ~200 billion more like it.",
+    sources: [
+      "Gaia Data Release 3 (2022) — DOI:10.1051/0004-6361/202243940",
+      "Reid et al. 2019 — Sgr A* distance 8.15 kpc, DOI:10.3847/1538-4357/ab4a11",
+    ],
+  },
   /* The tour's cosmic finale — the black hole "The Edge" (id: "blackhole") that
      carries the Contact section. Keyed by id so V3Editorial's Planet Information
      card resolves it (was keyed "contact", which no body has → showed nothing). */

@@ -32,6 +32,7 @@ import SolarEclipse from "./SolarEclipse";
 import EclipseLights from "./EclipseLights";
 import DwarfPlanets from "./DwarfPlanets";
 import Comet from "./Comet";
+import SpiralGalaxy from "./SpiralGalaxy";
 import BeltDust from "./BeltDust";
 import LocalNeighborhood from "./LocalNeighborhood";
 import TrojanAsteroids from "./TrojanAsteroids";
@@ -432,6 +433,19 @@ const Scene = ({ scrollT, finaleT, finale = false, activeIdx, onJump, focusRef, 
                  reference image the user posted. The decorative + Sgr A*
                  mounts stay on the clean Gargantua defaults. */
               return <BlackHole key={d.id} position={p} radius={d.radius} nebula jets animate={!reducedMotion} onPointerOver={handleHoverIn} onPointerOut={handleHoverOut} />;
+            if (d.render === "milkyway_galaxy")
+              /* The "you are here" moment — the visitor sees the whole Milky
+                 Way from outside, with Sol pinned on the Orion Spur.
+                 Rotation orients the disc so the camera (sunward of the
+                 galaxy on the +X-out tour path) sees a 3/4 face-on view of
+                 the spiral, not the edge. Z-axis rotate 90° flips the disc
+                 from horizontal (Y-normal) to vertical (X-normal, facing
+                 sunward); then a small X-tilt gives the 3/4 depth. */
+              return (
+                <group key={d.id} position={p} rotation={[Math.PI / 5, 0, Math.PI / 2]}>
+                  <SpiralGalaxy animate={!reducedMotion} />
+                </group>
+              );
             return null;
           }
           return null;
