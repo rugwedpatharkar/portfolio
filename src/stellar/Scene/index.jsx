@@ -10,7 +10,7 @@ import Sun from "./Sun";
 import SunRays from "./SunRays";
 import Planet from "./Planet";
 import CameraRig from "./CameraRig";
-import AsteroidBelt from "./AsteroidBelt";
+import AsteroidBelt, { KUIPER_FAMILIES, kuiperWeightsFor } from "./AsteroidBelt";
 import Nebulae from "./Nebulae";
 import VisibilityController from "./VisibilityController";
 import Skybox from "./Skybox";
@@ -49,20 +49,17 @@ import { DESTINATIONS, BACKGROUND_BELTS } from "../config/destinations";
 import { rotationSpeedFor } from "../config/planetData";
 import { SCENE_OBJECTS } from "./registry";
 
-/* Kirkwood gaps as fractions of the main belt (2.1–3.3 AU): the 3:1 (2.50 AU),
-   5:2 (2.82) and 2:1 (3.27) Jupiter resonances. Stable identity so the belt
-   isn't regenerated each render. */
-const KIRKWOOD_GAPS = [0.333, 0.6, 0.975];
+/* Kirkwood gaps as fractions of the main belt (2.1-3.3 AU) — all four major
+   Jupiter mean-motion resonances: 3:1 (2.50 AU, frac 0.333), 5:2 (2.82 AU,
+   frac 0.600), 7:3 (2.958 AU, frac 0.715), 2:1 (3.27 AU, frac 0.975). Stable
+   identity so the belt isn't regenerated each render. See belt-research.md. */
+const KIRKWOOD_GAPS = [0.333, 0.600, 0.715, 0.975];
 
-/* Kuiper-belt spectral mix — icy worlds: blue-grey ice, brighter white-ice, and
-   reddish tholin-coated bodies (the real KBO colour bimodality). */
-const ICY_FAMILIES = [
-  { color: "#8a96a8", metal: 0.05, rough: 0.85 }, // blue-grey ice
-  { color: "#aab6c6", metal: 0.04, rough: 0.9 },  // bright water ice
-  { color: "#9a7565", metal: 0.05, rough: 0.9 },  // reddish tholin
-];
-const ICY_WEIGHTS = [0.45, 0.3, 0.25];
-
+/* Kuiper resonance clumps — the mirror image of gaps: the belt PILES UP at
+   the mean-motion resonances with Neptune that Neptune's outward migration
+   captured planetesimals into. 3:2 Plutinos at 39.4 AU (frac 0.47),
+   2:1 Twotinos at 47.7 AU (frac 0.885). */
+const KUIPER_CLUMPS = [0.47, 0.885];
 /* Solid-colour stand-in for a planet whose texture fails to load — rendered by
    SafeLoad in place of <Planet>. Sits at the OrbitGroup origin so it still rides
    the body's live orbit; the accent `color` keeps it recognisable. */
@@ -436,10 +433,19 @@ const Scene = ({ scrollT, finaleT, finale = false, activeIdx, onJump, focusRef, 
             keep the dust haze thinner but present so the belt still reads
             as SOMETHING when the tour scrubs past it. */}
         {showExtras && (
+          /* Main belt — 5 spectral families with a radial weight profile:
+             E/Hungaria at the inner edge → S-type (reddish silicate) →
+             mixed S/M/C → C-type (dark carbonaceous) → D-type (dark red)
+             at the outer edge. Kirkwood gaps at all four major resonances
+             carve density notches. */
           <AsteroidBelt count={isMobile ? 1200 : 2600} innerRadius={BACKGROUND_BELTS.asteroid.inner} outerRadius={BACKGROUND_BELTS.asteroid.outer} size={0.18} thickness={BACKGROUND_BELTS.asteroid.thickness} gaps={KIRKWOOD_GAPS} animate={!reducedMotion} />
         )}
         {showExtras && !isMobile && (
-          <AsteroidBelt count={1600} innerRadius={BACKGROUND_BELTS.kuiper.inner} outerRadius={BACKGROUND_BELTS.kuiper.outer} size={0.55} thickness={BACKGROUND_BELTS.kuiper.thickness} families={ICY_FAMILIES} weights={ICY_WEIGHTS} cliff animate={!reducedMotion} />
+          /* Kuiper belt — bimodal RR/BB colour split with cold-classical zone
+             heavy on the rusty-red tholins. Resonance clumps overpopulate
+             the 3:2 Plutinos at ~39.4 AU and 2:1 Twotinos at ~47.7 AU; the
+             Kuiper Cliff drops density sharply near 48 AU. */
+          <AsteroidBelt count={1800} innerRadius={BACKGROUND_BELTS.kuiper.inner} outerRadius={BACKGROUND_BELTS.kuiper.outer} size={0.55} thickness={BACKGROUND_BELTS.kuiper.thickness} families={KUIPER_FAMILIES} weights={kuiperWeightsFor} clumps={KUIPER_CLUMPS} cliff animate={!reducedMotion} />
         )}
         {/* Dust haze — tier 4 (mounts last + alone). Still substantial so the
             band reads as haze rather than empty space. */}
