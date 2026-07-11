@@ -16,6 +16,7 @@ export const COSMIC_STOPS = [
     render: "blackhole",
     label: "The Edge",
     section: "contact",
+    docTitle: "Contact",
     accent: "#ffb14a",
     radius: 4.2,
     position: [4300, 120, -420],

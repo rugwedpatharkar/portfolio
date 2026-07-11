@@ -14,12 +14,8 @@ import V3Reticle from "./v3/V3Reticle";
 import V3Editorial from "./v3/V3Editorial";
 
 /* Section → document-title label (recruiter-facing tab title + a11y context). */
-const DOC_SECTION = {
-  hero: "", about: "About", funfacts: "Impact", experience: "Experience",
-  projects: "Projects", achievements: "Achievements", skills: "Skills",
-  notes: "Writing", education: "Education", hobbies: "Hobbies",
-  testimonials: "Testimonials", contact: "Contact",
-};
+/* §6.3: docTitle lives on each destination row now — see DESTINATIONS in
+   config/destinations.js. Blank/missing → the default site title. */
 const DOC_DEFAULT_TITLE = "Rugwed Patharkar — Backend & Agentic AI Engineer";
 
 /* Hash → destination index (deep-link + browser back/forward). The hash is always
@@ -116,8 +112,7 @@ const StellarApp = () => {
     /* Arrival beep (SoundManager listens). */
     window.dispatchEvent(new CustomEvent("stellar:destination", { detail: { id: dest.id, index: idx } }));
     /* Keep the tab title + a11y context in sync with the active section. */
-    const sec = DOC_SECTION[dest.section];
-    document.title = sec ? `${sec} · Rugwed Patharkar` : DOC_DEFAULT_TITLE;
+    document.title = dest.docTitle ? `${dest.docTitle} · Rugwed Patharkar` : DOC_DEFAULT_TITLE;
   }, []);
 
   /* Arm the bridge hum once (audible only after the first user gesture). */

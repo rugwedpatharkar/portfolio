@@ -33,6 +33,7 @@ export const DESTINATIONS = [
     position: [0, 0, 0],
     radius: 0,
     section: "hero",
+    docTitle: "",
     /* v3 system overview — a CORNER SHOT of the whole true-scale system from a far,
        high vantage. Sun sits on the far RIGHT of the frame, planets + real orbits +
        asteroid belt + Kuiper haze fan out to screen-LEFT toward Neptune (~2857 units
@@ -51,9 +52,13 @@ export const DESTINATIONS = [
        up (large AU_UNIT) so this colossal Sun clears the inner orbits. */
     radius: 19.8, // 695,700 km — 109× Earth (0.182)
     color: "#ff9a3c",
+    /* HUD accent (Sol gold) — distinct from the body color (fire-orange).
+       Non-planet stops carry `accent`; planets fall back to `color`. */
+    accent: "#e9c675",
     texture: "/textures/planets/sunmap.webp",
     /* v3 — everyone shifts forward one: the Sun now carries ABOUT (was Mercury). */
     section: "about",
+    docTitle: "About",
     /* About — fly IN from the overview to frame the Sun prominently, still kept
        right-of-centre so the left info column stays clear. */
     cameraTarget: { position: [6, 8, 82], lookAt: [-10, 1, 0], fov: 46 },
@@ -62,6 +67,7 @@ export const DESTINATIONS = [
   // Inner system
   {
     id: "about",
+    docTitle: "Impact",
     kind: "planet",
     type: "rocky",
     label: "Mercury",
@@ -77,6 +83,7 @@ export const DESTINATIONS = [
   },
   {
     id: "funfacts",
+    docTitle: "Experience",
     kind: "planet",
     type: "warm",
     label: "Venus",
@@ -96,6 +103,7 @@ export const DESTINATIONS = [
   },
   {
     id: "experience",
+    docTitle: "Projects",
     kind: "planet",
     type: "earth",
     label: "Earth",
@@ -128,6 +136,7 @@ export const DESTINATIONS = [
   },
   {
     id: "projects",
+    docTitle: "Achievements",
     kind: "planet",
     type: "rust",
     label: "Mars",
@@ -155,6 +164,7 @@ export const DESTINATIONS = [
   // section so all lookups / content / hash stay intact; only the body changes.
   {
     id: "achievements",
+    docTitle: "Skills",
     kind: "planet",
     type: "rocky",
     label: "Ceres",
@@ -177,6 +187,7 @@ export const DESTINATIONS = [
   // Outer system
   {
     id: "skills",
+    docTitle: "Writing",
     kind: "planet",
     type: "gas",
     label: "Jupiter",
@@ -205,6 +216,7 @@ export const DESTINATIONS = [
   },
   {
     id: "notes",
+    docTitle: "Education",
     kind: "planet",
     type: "golden",
     label: "Saturn",
@@ -237,6 +249,7 @@ export const DESTINATIONS = [
   },
   {
     id: "education",
+    docTitle: "Hobbies",
     kind: "planet",
     type: "ice",
     label: "Uranus",
@@ -272,6 +285,7 @@ export const DESTINATIONS = [
   },
   {
     id: "hobbies",
+    docTitle: "Testimonials",
     kind: "planet",
     type: "abyss",
     label: "Neptune",
@@ -304,6 +318,7 @@ export const DESTINATIONS = [
   // section so all lookups / content / hash stay intact; only the body changes.
   {
     id: "testimonials",
+    docTitle: "",
     kind: "planet",
     type: "rocky",
     label: "Pluto",
@@ -342,9 +357,11 @@ COSMIC_STOPS.forEach((c) => {
     render: c.render,
     label: c.label,
     section: c.section,
+    docTitle: c.docTitle ?? "",
     position: c.position,
     radius: c.radius,
     color: c.accent,
+    accent: c.accent,
     cameraTarget: {
       position: [x - (x / len) * d, y + d * 0.16, z - (z / len) * d],
       lookAt: [x, y, z],

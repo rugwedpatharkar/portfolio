@@ -12,11 +12,13 @@
 | `section`  | Which résumé section this stop shows | `"projects"`         |
 | `label`    | The body's real display name         | `"Earth"`            |
 
-Plus one supporting field:
+Plus these supporting fields (all §6.3 — all live on each destination row):
 
-| Field | Purpose | Example |
-|-------|---------|---------|
-| `color` | The body's real visual accent (used by V3Style for planets) | `"#3b6ea8"` |
+| Field      | Purpose | Example |
+|------------|---------|---------|
+| `color`    | The body's real visual accent — planets tint the HUD with this | `"#3b6ea8"` |
+| `accent`   | Non-planet HUD tint — Sol keeps its curated gold separate from the body's fire-orange color; cosmic stops set both to the same value | `"#e9c675"` (Sol) |
+| `docTitle` | The `document.title` prefix for this stop (`"" `→ site default) | `"Projects"` |
 
 ### Why they diverge
 
@@ -39,12 +41,12 @@ section is `"projects"`). The `label` is the body's real name.
 3. **Human-facing labels use `label`.** V3Reticle's tag, V3Hud rail's tooltip,
    the "Planet Information" card title — all read `label`. Never render `id`
    to a user.
-4. **The per-body accent comes from `color`, not `id`.** V3Style routes
-   `dest.kind === "planet"` → `dest.color` and everything else → `accentFor(id)`
-   (which reads `tokens.ACCENT`). A planet's `id` will never resolve through
-   ACCENT — the id is a section name and ACCENT is body-keyed. That's why
-   ACCENT only carries `sol` and `blackhole` (the two non-planet stops that
-   route through `accentFor`).
+4. **The per-body accent comes off the destination row.** V3Style resolves
+   `dest.accent || dest.color || COLOR.accent` — non-planets carry `accent`
+   (Sol's curated gold, the black-hole's warm amber), planets fall through to
+   `color` (their real body tint), and any no-dest / missing-value path lands
+   on Sol gold. There is no separate `ACCENT` lookup map or `accentFor` helper
+   — §6.3 collapsed both into the row itself.
 
 ## Consumers
 
@@ -52,10 +54,10 @@ Alphabetical, so you can grep and verify a change touches all of them.
 
 | Consumer | Reads | Notes |
 |----------|-------|-------|
-| `config/destinations.js`    | all four | source of truth |
+| `config/destinations.js`    | all fields | source of truth |
 | `data/planetFacts.js`       | `id`     | keyed by dest id → body-fact card |
 | `Scene/index.jsx` (Planet mount) | `id`, `section` | id → matches `d.type === "earth"` branches; section unused here |
-| `StellarApp.jsx` (`DOC_SECTION` map) | `section` | maps section → tab title |
+| `StellarApp.jsx` (tab title) | `docTitle` | reads the row's `docTitle`; empty → default site title |
 | `StellarApp.jsx` (deep-link, hash) | `id` | URL hash sync + `handleJump` |
 | `StellarApp.jsx` (arrival beep event detail) | `id`, index | passed to SoundManager |
 | `V3Editorial`               | `id`     | picks per-body editorial card |
@@ -63,28 +65,25 @@ Alphabetical, so you can grep and verify a change touches all of them.
 | `V3Hud.jsx`                 | `id`, `label`, `section` | rail tooltip + counter |
 | `V3Panel.jsx`               | `section` | picks lazy section component |
 | `V3Reticle.jsx`             | `label`  | on-screen tag |
-| `V3Style.jsx`               | `id`, `kind`, `color` | planets → `color`, others → `accentFor(id)` |
+| `V3Style.jsx`               | `accent`, `color` | `dest.accent || dest.color || COLOR.accent` |
 | `v3/data/planetEditorial.js`| `id`     | keyed by dest id → editorial quote |
-| `v3/tokens.js` (`ACCENT`)   | `id`     | only `sol` + `blackhole` — planets bypass via `dest.color` |
 
 ## Where new stops touch each layer
 
 If you add a new tour stop, expect to touch:
 
 1. **Data**
-   - `config/destinations.js` — new row with `{id, section, label, color, position, cameraTarget, kind}` (planets also get `radius`, `axialTilt`, `moons`, etc.)
+   - `config/destinations.js` — new row with `{id, section, label, color, position, cameraTarget, kind, docTitle}` (planets also get `radius`, `axialTilt`, `moons`, etc.; non-planets add `accent`)
    - `data/planetFacts.js` — new entry keyed by `id`
    - `v3/data/planetEditorial.js` — new entry keyed by `id`
 2. **UI**
    - `v3/V3Panel.jsx` — new lazy import in `SECTION_COMPONENT`, keyed by `section`
    - `v3/sections/<NewSection>.jsx` — the actual section component
-   - `StellarApp.jsx` `DOC_SECTION` — new `section` → tab-title label
-3. **Optional**
-   - `v3/tokens.js` `ACCENT` — only if the new stop is non-planet (`kind !== "planet"`)
 
-That's an 8-file touch for one new stop. Phase 3's **section registry**
-(§6.3) collapses this to one row in one file — every consumer above reads from
-the same object.
+That's a 5-file touch — down from 8 after §6.3 folded `DOC_SECTION`,
+`tokens.ACCENT`, and `accentFor` onto the destination row. The remaining
+`SECTION_COMPONENT` map stays in `V3Panel.jsx` because it wires React lazy
+imports and belongs with the panel, not the data config.
 
 ## The trap
 

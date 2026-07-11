@@ -21,19 +21,9 @@ export const COLOR = {
   accent: "#e9c675", // Sol default (warm-white gold)
 };
 
-/* Per-body accent — each stop's REAL color tints its HUD/labels/active states.
-   Only stops NOT of kind:"planet" hit this map — planets pull their accent
-   directly from `dest.color` in V3Style (see the branch there). Everything
-   else — the Sun and the black-hole cosmic stop — resolves through accentFor
-   below. Add a new key here when a new non-planet stop is authored. */
-export const ACCENT = {
-  sol: "#e9c675",
-  blackhole: "#ffb14a",
-};
-
-/* Resolve an accent from a destination id / section / body name (fallback = Sol). */
-export const accentFor = (key) =>
-  (key && ACCENT[String(key).toLowerCase()]) || COLOR.accent;
+/* §6.3: per-stop accent lives on each destination row now (`accent` for
+   non-planets, `color` for planets). See config/destinations.js. V3Style
+   resolves `dest.accent || dest.color || COLOR.accent`. */
 
 /* ---- type ----------------------------------------------------------------- */
 export const FONT = {
