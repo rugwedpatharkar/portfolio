@@ -23,7 +23,7 @@ import { useState, useEffect } from "react";
 import { flushSync } from "react-dom";
 import { motion, AnimatePresence, useReducedMotion } from "motion/react";
 import { experiences, sectionMeta } from "../../../content";
-import { V3Frame, V3Scan, V3SectionHeader, useMasterListKeys } from "../primitives";
+import { V3Frame, V3Scan, V3SectionHeader, masterCardStyle, useMasterListKeys } from "../primitives";
 import { EASE } from "../anim";
 
 const META = sectionMeta.experience;
@@ -247,19 +247,11 @@ export default function ExperienceSection({ bootNonce }) {
                 active category's bullet count. Content inside each cell
                 aligns to the top. Prevents the card from breathing
                 2→4→2 bullets and shifting the Stack rail up/down. */}
-            <div style={{
-              display: "grid",
-              gridTemplateColumns: "minmax(220px, 30%) 1fr",
-              gridTemplateRows: "1fr",
+            <div style={masterCardStyle({
               gap: "clamp(14px, 1.4vw, 22px)",
-              border: "1px solid var(--v3-line)",
-              borderRadius: 6,
-              background: "color-mix(in oklab, var(--v3-bg-void) 50%, transparent)",
               padding: "clamp(8px, 0.8vw, 14px) clamp(12px, 1.2vw, 18px)",
-              minWidth: 0,
-              width: "100%", height: "100%",
               alignItems: "start",
-            }}>
+            })}>
               {/* Master: category index — stretched to full card height and
                   `justify-content: space-between` so the N category rows
                   distribute evenly. First row hugs the top, last row hugs

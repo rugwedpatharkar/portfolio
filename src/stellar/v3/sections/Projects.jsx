@@ -18,7 +18,7 @@
 import { useMemo, useState, useEffect, useCallback } from "react";
 import { motion, AnimatePresence, useReducedMotion } from "motion/react";
 import { projects, sectionMeta } from "../../../content";
-import { V3Frame, V3Scan, V3Chip, useMasterListKeys } from "../primitives";
+import { V3Frame, V3Scan, V3Chip, V3SectionHeader, useMasterListKeys } from "../primitives";
 import { EASE, shutterVariants } from "../anim";
 
 const META = sectionMeta.projects;
@@ -82,26 +82,14 @@ export default function ProjectsSection({ bootNonce }) {
         minWidth: 0, minHeight: 0, overflow: "hidden",
         maxWidth: "min(60vw, 1200px)", height: "100%",
       }}>
-        {/* Header row — kicker + h2 on the left, filter pills + page indicator + carousel arrows on the right. */}
-        <V3Scan variant="horizontal" delay={0.05}>
-          <div style={{ display: "flex", alignItems: "flex-end", justifyContent: "space-between", gap: "clamp(12px, 1.4vw, 24px)", flexWrap: "wrap", minWidth: 0 }}>
-            <div style={{ minWidth: 0 }}>
-              <div style={{ display: "flex", alignItems: "center", gap: 12, marginBottom: 8 }}>
-                <span style={{ width: 22, height: 1, background: "var(--v3-accent)" }} />
-                <span style={{
-                  fontFamily: "var(--v3-font-mono)", fontWeight: 400, fontSize: "clamp(9px, 0.3vw + 7px, 11px)",
-                  letterSpacing: ".28em", textTransform: "uppercase", color: "var(--v3-fg-mute)",
-                }}>{META.sub}</span>
-              </div>
-              <h2 style={{
-                fontFamily: "var(--v3-font-display)", fontWeight: 340,
-                fontSize: "clamp(1.5rem, 1.1vw + 0.9rem, 2.3rem)", fontOpticalSizing: "auto",
-                lineHeight: 1, letterSpacing: "-.02em", color: "var(--v3-fg)",
-                margin: 0,
-              }}>
-                {META.heading}
-              </h2>
-            </div>
+        {/* Header row — V3SectionHeader owns the kicker + h2 on the left; we pass
+            the filter pills + page indicator + carousel arrows as the `right` slot. */}
+        <V3SectionHeader
+          sub={META.sub}
+          heading={META.heading}
+          kickerSize="clamp(9px, 0.3vw + 7px, 11px)"
+          wrapMinWidth
+          right={
             <div style={{ display: "flex", alignItems: "center", gap: "clamp(8px, 1vw, 14px)", flexWrap: "wrap" }}>
               {/* Filter pills */}
               <div role="tablist" style={{
@@ -147,8 +135,8 @@ export default function ProjectsSection({ bootNonce }) {
                 })}
               </div>
             </div>
-          </div>
-        </V3Scan>
+          }
+        />
 
         {/* Carousel body — full-panel horizontal swipe. Frame wraps a
             single active panel that AnimatePresence swaps in/out. */}
