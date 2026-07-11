@@ -58,6 +58,7 @@ import AutoExposure from "./AutoExposure";
 import KeyLight from "./KeyLight";
 import MouseParallax from "./MouseParallax";
 import CameraShake from "./CameraShake";
+import SafeLoad from "./SafeLoad";
 import useViewport from "../useViewport";
 import { DESTINATIONS, remapPosition, frontOfSun, BACKGROUND_BELTS } from "../config/destinations";
 import { rotationSpeedFor } from "../config/planetData";
@@ -75,6 +76,16 @@ const ICY_FAMILIES = [
   { color: "#9a7565", metal: 0.05, rough: 0.9 },  // reddish tholin
 ];
 const ICY_WEIGHTS = [0.45, 0.3, 0.25];
+
+/* Solid-colour stand-in for a planet whose texture fails to load — rendered by
+   SafeLoad in place of <Planet>. Sits at the OrbitGroup origin so it still rides
+   the body's live orbit; the accent `color` keeps it recognisable. */
+const planetFallback = (d) => (
+  <mesh>
+    <sphereGeometry args={[d.radius, 32, 32]} />
+    <meshStandardMaterial color={d.color || "#8a8a8a"} roughness={0.9} metalness={0} />
+  </mesh>
+);
 
 /*
  * Persistent Three.js scene. ONE canvas, single Suspense boundary.
@@ -223,9 +234,9 @@ const Scene = ({ scrollT, finaleT, finale = false, activeIdx, onJump, wideRef, w
       {/* lane convoy retired — Holo-Bridge dossier cluster replaces forced ←→ */}
 
       <Suspense fallback={null}>
-        <Skybox />
+        <SafeLoad><Skybox /></SafeLoad>
         {!finale && <Stars />}
-        {!finale && <Nebulae />}
+        {!finale && <SafeLoad><Nebulae /></SafeLoad>}
         {/* Grand faint galactic band — far backdrop for depth; in the finale it's
             the galaxy wrapping around our local neighbourhood (boosted to a
             luminous arch). */}
@@ -299,15 +310,22 @@ const Scene = ({ scrollT, finaleT, finale = false, activeIdx, onJump, wideRef, w
             };
             return (
               <group key={d.id}>
-                <Sun
-                  position={d.position}
-                  radius={d.radius}
-                  texture={d.texture}
-                  animate={!reducedMotion}
-                  onClick={handleSunClick}
-                  onPointerOver={handleHoverIn}
-                  onPointerOut={handleHoverOut}
-                />
+                <SafeLoad fallback={
+                  <mesh position={d.position}>
+                    <sphereGeometry args={[d.radius, 32, 32]} />
+                    <meshBasicMaterial color={d.color} toneMapped={false} />
+                  </mesh>
+                }>
+                  <Sun
+                    position={d.position}
+                    radius={d.radius}
+                    texture={d.texture}
+                    animate={!reducedMotion}
+                    onClick={handleSunClick}
+                    onPointerOver={handleHoverIn}
+                    onPointerOut={handleHoverOut}
+                  />
+                </SafeLoad>
               </group>
             );
           }
@@ -355,7 +373,9 @@ const Scene = ({ scrollT, finaleT, finale = false, activeIdx, onJump, wideRef, w
               return (
                 <OrbitGroup key={d.id} dest={d} animate={!reducedMotion}>
                   {/* Moon publishes its world position for the eclipse system. */}
-                  {cloneElement(planetEl, { satelliteRef: moonWorldRef })}
+                  <SafeLoad fallback={planetFallback(d)}>
+                    {cloneElement(planetEl, { satelliteRef: moonWorldRef })}
+                  </SafeLoad>
                   {/* Man-made craft removed (ISS, Pune rocket launch, Chandrayaan).
                       2026 eclipses stay — the Moon's umbra drifting across Earth's
                       day side is a real natural event. */}
@@ -365,7 +385,7 @@ const Scene = ({ scrollT, finaleT, finale = false, activeIdx, onJump, wideRef, w
             }
             return (
               <OrbitGroup key={d.id} dest={d} animate={!reducedMotion}>
-                {planetEl}
+                <SafeLoad fallback={planetFallback(d)}>{planetEl}</SafeLoad>
                 {/* PHASE 4 (Wave 1) — real planetary phenomena: Saturn's hexagon,
                     Io's plasma torus (Jupiter), Neptune's mid-latitude aurora. */}
                 {d.id === "notes" && <SaturnHexagon radius={d.radius} axialTilt={d.axialTilt || 0} animate={!reducedMotion} />}
