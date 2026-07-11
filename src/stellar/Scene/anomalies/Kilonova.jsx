@@ -5,6 +5,7 @@ import * as THREE from "three";
 import { useSceneClock } from "../SceneClock";
 import { placeInFrontOfSun } from "../../config/destinations";
 import { makeSoftDot } from "../shared/textures";
+import { nearCamera } from "../shared/hooks";
 
 /*
  * PHASE 4 (Wave 1) — a KILONOVA: two neutron stars merging. In a few seconds it
@@ -36,7 +37,8 @@ export default function Kilonova({ animate = true }) {
   const pos = useMemo(() => new THREE.Vector3(...placeInFrontOfSun(KILONOVA_RAW)), []);
   const tex = useMemo(burstTex, []);
 
-  useFrame((_, dt) => {
+  useFrame(({ camera }, dt) => {
+    if (!nearCamera(camera, pos, 500)) return;
     if (!animate) return;
     const ph = (clock.t % 14) / 14; // ~14 s cycle
     const flare = ph < 0.04 ? ph / 0.04 : Math.max(0, 1 - (ph - 0.04) / 0.26); // fast rise, ~3.6 s decay

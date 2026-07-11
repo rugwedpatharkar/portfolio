@@ -4,6 +4,7 @@ import { useFrame } from "@react-three/fiber";
 import * as THREE from "three";
 import { useSceneClock } from "../SceneClock";
 import { placeInFrontOfSun } from "../../config/destinations";
+import { nearCamera } from "../shared/hooks";
 
 /*
  * PHASE 4 (Wave 1) — ETA CARINAE's HOMUNCULUS. One of the most massive, luminous
@@ -24,7 +25,8 @@ export default function EtaCarinae({ animate = true }) {
   const clock = useSceneClock();
   const pos = useMemo(() => new THREE.Vector3(...placeInFrontOfSun(ETACARINAE_RAW)), []);
 
-  useFrame((_, dt) => {
+  useFrame(({ camera }, dt) => {
+    if (!nearCamera(camera, pos, 500)) return;
     if (!animate) return;
     const T = clock.t;
     if (core.current) core.current.scale.setScalar(1 + Math.sin(T * 0.5) * 0.05); // LBV flicker

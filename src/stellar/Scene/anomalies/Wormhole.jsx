@@ -6,6 +6,7 @@ import * as THREE from "three";
 import { contactLinks } from "../../../content";
 import { placeInFrontOfSun } from "../../config/destinations";
 import { useSceneClock } from "../SceneClock";
+import { nearCamera } from "../shared/hooks";
 
 /* The portal opens the same booking link as the Contact "Book a Call" CTA. */
 const BOOK_CALL = contactLinks.find((l) => l.label === "Book a Call")?.href;
@@ -55,8 +56,11 @@ const Wormhole = ({ position = placeInFrontOfSun([48.55, 0.58, 1.62]), radius = 
   /* §6.4: drei's <Billboard follow> handles the lookAt(camera.position) rotation
      of the outer transform. Our inner group still owns the hover-scale + breathe
      pulse (drei doesn't touch scale) and the pointer/click handlers. */
-  useFrame(() => {
+  useFrame(({ camera }) => {
+    /* Uniform sync stays UNGATED — shader clock must stay locked to SceneClock
+       so opening the gate on approach doesn't jump the vortex animation. */
     if (mat.current) mat.current.uniforms.uTime.value = sceneClock.t;
+    if (!nearCamera(camera, position, 500)) return;
     if (groupRef.current) {
       hover.current += (target.current - hover.current) * 0.15;
       const breathe = 1 + Math.sin(sceneClock.t * 1.4) * 0.04;

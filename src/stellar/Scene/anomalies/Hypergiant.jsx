@@ -3,6 +3,7 @@ import { useMemo, useRef } from "react";
 import { useFrame } from "@react-three/fiber";
 import * as THREE from "three";
 import { placeInFrontOfSun } from "../../config/destinations";
+import { nearCamera } from "../shared/hooks";
 
 /*
  * PHASE 4 (Wave 1) — BETELGEUSE, a red supergiant ~700× the Sun's width: drop it
@@ -22,7 +23,8 @@ export default function Hypergiant({ animate = true }) {
   const t = useRef(0);
   const pos = useMemo(() => new THREE.Vector3(...placeInFrontOfSun(BETELGEUSE_RAW)), []);
 
-  useFrame((_, dt) => {
+  useFrame(({ camera }, dt) => {
+    if (!nearCamera(camera, pos, 500)) return;
     if (!animate) return;
     t.current += dt;
     const T = t.current;

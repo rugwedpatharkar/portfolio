@@ -4,6 +4,7 @@ import { useFrame } from "@react-three/fiber";
 import * as THREE from "three";
 import { useSceneClock } from "../SceneClock";
 import { placeInFrontOfSun } from "../../config/destinations";
+import { nearCamera } from "../shared/hooks";
 
 /*
  * PHASE 4 (Wave 2) — a GRAVITATIONAL-WAVE CHIRP (LIGO O4, e.g. GW250114). Two
@@ -27,7 +28,8 @@ export default function GravWaveChirp({ animate = true }) {
 
   const pos = useMemo(() => new THREE.Vector3(...placeInFrontOfSun(LIGO_RAW)), []);
 
-  useFrame((_, dt) => {
+  useFrame(({ camera }, dt) => {
+    if (!nearCamera(camera, pos, 500)) return;
     if (!animate) return;
     const CY = 9; // seconds per inspiral-merge cycle
     const ph = (clock.t % CY) / CY; // 0..1

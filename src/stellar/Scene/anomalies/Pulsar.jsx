@@ -4,6 +4,7 @@ import { useFrame } from "@react-three/fiber";
 import * as THREE from "three";
 import { useSceneClock } from "../SceneClock";
 import { placeInFrontOfSun } from "../../config/destinations";
+import { nearCamera } from "../shared/hooks";
 
 /*
  * A pulsar — a rapidly spinning neutron star in the deep field. A tiny,
@@ -41,7 +42,8 @@ const Pulsar = ({ position = placeInFrontOfSun([-26, 16, -34]), radius = 4 }) =>
 
   const beamLen = 280;
 
-  useFrame(() => {
+  useFrame(({ camera }) => {
+    if (!nearCamera(camera, position, 500)) return;
     const t = sceneClock.t;
     if (spinRef.current) spinRef.current.rotation.y = t * 3.2; // fast spin → lighthouse
     /* Real pulsars flash as a SHARP spike when a beam crosses the line of sight,

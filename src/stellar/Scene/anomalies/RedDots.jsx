@@ -4,6 +4,7 @@ import { useFrame } from "@react-three/fiber";
 import * as THREE from "three";
 import { useSceneClock } from "../SceneClock";
 import { placeInFrontOfSun } from "../../config/destinations";
+import { nearCamera } from "../shared/hooks";
 
 /*
  * PHASE 4 (Wave 2) — "LITTLE RED DOTS". JWST's surprise population: tiny, intensely
@@ -25,7 +26,8 @@ export default function RedDots({ animate = true }) {
     ph: Math.random() * Math.PI * 2,
   })), []);
 
-  useFrame((_, dt) => {
+  useFrame(({ camera }, dt) => {
+    if (!nearCamera(camera, pos, 500)) return;
     if (!animate || !grp.current) return;
     grp.current.children.forEach((c, i) => {
       if (c.material) c.material.opacity = 0.5 + Math.sin(clock.t * 0.5 + dots[i].ph) * 0.18;

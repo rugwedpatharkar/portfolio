@@ -4,6 +4,7 @@ import { useFrame } from "@react-three/fiber";
 import * as THREE from "three";
 import { useSceneClock } from "../SceneClock";
 import { placeInFrontOfSun } from "../../config/destinations";
+import { nearCamera } from "../shared/hooks";
 
 /*
  * PHASE 4 (Wave 1) — an EINSTEIN RING. When a massive foreground galaxy sits
@@ -30,7 +31,8 @@ export default function EinsteinRing({ animate = true }) {
     return q;
   }, [pos]);
 
-  useFrame((_, dt) => {
+  useFrame(({ camera }, dt) => {
+    if (!nearCamera(camera, pos, 500)) return;
     if (!animate) return;
     if (ring.current) ring.current.material.opacity = 0.55 + Math.sin(clock.t * 0.6) * 0.12; // shimmer
   });

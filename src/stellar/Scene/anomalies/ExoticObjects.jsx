@@ -4,6 +4,7 @@ import { useFrame } from "@react-three/fiber";
 import * as THREE from "three";
 import { placeInFrontOfSun } from "../../config/destinations";
 import BlackHole from "./BlackHole";
+import { nearCamera } from "../shared/hooks";
 
 /*
  * New deep-field exotic objects, object-space + additive (no 2nd post pass —
@@ -43,7 +44,11 @@ const SgrA = ({ animate }) => (
 
 const Magnetar = ({ animate }) => {
   const g = useRef();
-  useFrame((_, dt) => { if (animate && g.current) g.current.rotation.y += dt * 0.6; });
+  const magPos = useMemo(() => pos(EXOTIC_RAW.magnetar), []);
+  useFrame(({ camera }, dt) => {
+    if (!nearCamera(camera, magPos, 500)) return;
+    if (animate && g.current) g.current.rotation.y += dt * 0.6;
+  });
   /* a few great-circle field-line loops at varied tilts */
   const loops = useMemo(() => [
     [0, 0, 0], [Math.PI / 3, 0, 0], [0, 0, Math.PI / 3], [Math.PI / 2, Math.PI / 4, 0],
@@ -75,7 +80,10 @@ const Magnetar = ({ animate }) => {
 
 const DimSphere = ({ position, radius, color, halo, haloColor, emissive }) => {
   const ref = useRef();
-  useFrame((_, dt) => { if (ref.current) ref.current.rotation.y += dt * 0.05; });
+  useFrame(({ camera }, dt) => {
+    if (!nearCamera(camera, position, 500)) return;
+    if (ref.current) ref.current.rotation.y += dt * 0.05;
+  });
   return (
     <group position={position}>
       <mesh ref={ref}>
@@ -98,7 +106,11 @@ const DimSphere = ({ position, radius, color, halo, haloColor, emissive }) => {
    central pulsar. */
 const CrabNebula = ({ animate }) => {
   const g = useRef();
-  useFrame((_, dt) => { if (animate && g.current) g.current.rotation.z += dt * 0.02; });
+  const crabPos = useMemo(() => pos(EXOTIC_RAW.crab), []);
+  useFrame(({ camera }, dt) => {
+    if (!nearCamera(camera, crabPos, 500)) return;
+    if (animate && g.current) g.current.rotation.z += dt * 0.02;
+  });
   /* Filament motes — red/teal H-alpha/O-III shell on the outside, blue
      synchrotron toward the core. */
   const filaments = useMemo(() => {
@@ -144,7 +156,11 @@ const CrabNebula = ({ animate }) => {
 /* TRAPPIST-1 — an ultracool red dwarf with 7 tight Earth-sized worlds. */
 const Trappist = ({ animate }) => {
   const g = useRef();
-  useFrame((_, dt) => { if (animate && g.current) g.current.rotation.y += dt * 0.15; });
+  const trapPos = useMemo(() => pos(EXOTIC_RAW.trappist), []);
+  useFrame(({ camera }, dt) => {
+    if (!nearCamera(camera, trapPos, 500)) return;
+    if (animate && g.current) g.current.rotation.y += dt * 0.15;
+  });
   const planets = useMemo(
     () => [5, 6.4, 8, 9.6, 11.4, 13.4, 15.6].map((r, i) => ({ r, a: i * 0.9, c: ["#c9a892", "#b89a82", "#a8b39a", "#9bb0a8", "#8aa8b4", "#8a98c0", "#9aa8c0"][i] })),
     []

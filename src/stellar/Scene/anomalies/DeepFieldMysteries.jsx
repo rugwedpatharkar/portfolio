@@ -5,6 +5,7 @@ import * as THREE from "three";
 import { useSceneClock } from "../SceneClock";
 import { placeInFrontOfSun } from "../../config/destinations";
 import { makeSoftDot } from "../shared/textures";
+import { nearCamera } from "../shared/hooks";
 
 /*
  * Real unsolved space mysteries, as faint deep-field discoverables (scannable +
@@ -43,6 +44,14 @@ const DeepFieldMysteries = ({ animate = true }) => {
     for (const k in MYSTERY_RAW) o[k] = new THREE.Vector3(...placeInFrontOfSun(MYSTERY_RAW[k]));
     return o;
   }, []);
+  /* Centroid of the four sub-features — the gate anchor. Threshold widened to
+     650 to safely cover the full ~250u scatter around this centre so a camera
+     approaching any one of the four features still exits the gate cleanly. */
+  const gatePos = useMemo(() => {
+    const c = new THREE.Vector3();
+    Object.values(pos).forEach((v) => c.add(v));
+    return c.multiplyScalar(1 / Object.keys(pos).length);
+  }, [pos]);
 
   const p9 = useRef();
   const tabby = useRef();
@@ -50,7 +59,8 @@ const DeepFieldMysteries = ({ animate = true }) => {
   const frb = useRef();
   const clock = useSceneClock();
 
-  useFrame((_, delta) => {
+  useFrame(({ camera }, delta) => {
+    if (!nearCamera(camera, gatePos, 650)) return;
     if (!animate) return;
     const T = clock.t;
     if (p9.current) p9.current.rotation.y += delta * 0.05;

@@ -30,5 +30,11 @@
  *     });
  */
 export function nearCamera(camera, position, threshold) {
-  return camera.position.distanceToSquared(position) < threshold * threshold;
+  const px = Array.isArray(position) ? position[0] : position.x;
+  const py = Array.isArray(position) ? position[1] : position.y;
+  const pz = Array.isArray(position) ? position[2] : position.z;
+  const dx = camera.position.x - px;
+  const dy = camera.position.y - py;
+  const dz = camera.position.z - pz;
+  return dx * dx + dy * dy + dz * dz < threshold * threshold;
 }
