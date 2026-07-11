@@ -41,7 +41,7 @@ const OrbitRings = ({ show = false }) => {
     if (!lines) return;
     lines.visible = show;
     if (!show) return;
-    lines.children.forEach((c) => { if (c.material) c.material.opacity = 0.14; });
+    lines.children.forEach((c) => { if (c.material) c.material.opacity = 0.28; });
   });
 
   return (
@@ -52,7 +52,7 @@ const OrbitRings = ({ show = false }) => {
             <bufferGeometry>
               <bufferAttribute attach="attributes-position" args={[o.pts, 3]} />
             </bufferGeometry>
-            <lineBasicMaterial color="#d4af85" transparent opacity={0.14} toneMapped={false} depthWrite={false} blending={THREE.AdditiveBlending} />
+            <lineBasicMaterial color="#d4af85" transparent opacity={0.28} toneMapped={false} depthWrite={false} blending={THREE.AdditiveBlending} />
           </line>
         ))}
       </group>

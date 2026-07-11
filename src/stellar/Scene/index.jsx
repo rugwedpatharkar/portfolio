@@ -25,6 +25,7 @@ import OrbitGroup from "./OrbitGroup";
    separate placement-only BlackHole from Scene/registry.js. */
 import BlackHole from "./anomalies/BlackHole";
 import OrbitRings from "./OrbitRings";
+import PlanetBeacons from "./PlanetBeacons";
 // LaneObjects retired — the Holo-Bridge dossier cluster replaces the forced-←→ convoy.
 import SolarEclipse from "./SolarEclipse";
 import EclipseLights from "./EclipseLights";
@@ -441,6 +442,11 @@ const Scene = ({ scrollT, finaleT, finale = false, activeIdx, onJump, focusRef, 
         {/* Orrery rings — the real orbital structure. Shown in overview mode AND on
             the v3 system-overview hero (stop 0). */}
         {showExtras && <OrbitRings show={v3 && activeIdx === 0} />}
+        {/* Colored beacon dots at each planet's live orbital position so the
+            overview framing (~2200u out) actually reads the planets — a real
+            0.07u Mercury is sub-pixel from there. Fixed-pixel-size sprites
+            that stay visible at any camera distance. */}
+        {showExtras && v3 && activeIdx === 0 && <PlanetBeacons />}
         {/* Dwarf planets + named belt bodies (Vesta, Eris, Makemake, Haumea). */}
         {showExtras && <DwarfPlanets animate={!reducedMotion} />}
         {/* The asteroid + Kuiper belts as BACKGROUND scenery (no longer tour
