@@ -51,7 +51,7 @@ export const DESTINATIONS = [
        up (large AU_UNIT) so this colossal Sun clears the inner orbits. */
     radius: 19.8, // 695,700 km — 109× Earth (0.182)
     color: "#ff9a3c",
-    texture: "/textures/planets/sunmap.jpg",
+    texture: "/textures/planets/sunmap.webp",
     /* v3 — everyone shifts forward one: the Sun now carries ABOUT (was Mercury). */
     section: "about",
     /* About — fly IN from the overview to frame the Sun prominently, still kept
@@ -69,8 +69,8 @@ export const DESTINATIONS = [
     radius: 0.07, // 2,439 km — smallest planet, ~0.38× Earth
     color: "#7a7d85",
     colorB: "#2f3138",
-    texture: "/textures/planets/mercurymap.jpg",
-    bumpTexture: "/textures/planets/moonbump1k.jpg",
+    texture: "/textures/planets/mercurymap.webp",
+    bumpTexture: "/textures/planets/moonbump1k.webp",
     section: "funfacts",
     /* Camera closes in to frame the now-tiny world (offset scaled to radius). */
     cameraTarget: { position: [5.65, 0.13, 0.52], lookAt: [5.5, 0.1, 0.3], fov: 44 },
@@ -84,8 +84,8 @@ export const DESTINATIONS = [
     radius: 0.173, // 6,052 km — Earth's near-twin
     color: "#f8c555",
     colorB: "#a0651a",
-    texture: "/textures/planets/venusmap.jpg",
-    bumpTexture: "/textures/planets/venusbump.jpg",
+    texture: "/textures/planets/venusmap.webp",
+    bumpTexture: "/textures/planets/venusbump.webp",
     /* Venus's map is near-white and blooms to a featureless disc.
        Knock it back so the cloud banding survives the bloom pass. */
     tint: "#c9b48a",
@@ -103,21 +103,21 @@ export const DESTINATIONS = [
     radius: 0.182, // 6,371 km — the reference world
     color: "#3b6ea8",
     colorB: "#1d3a5e",
-    texture: "/textures/planets/earth_atmos.jpg",
-    nightTexture: "/textures/planets/earth_lights.png",
-    cloudTexture: "/textures/planets/earthcloudmap.jpg",
-    normalTexture: "/textures/planets/earth_normal.jpg",
+    texture: "/textures/planets/earth_atmos.webp",
+    nightTexture: "/textures/planets/earth_lights.webp",
+    cloudTexture: "/textures/planets/earthcloudmap.webp",
+    normalTexture: "/textures/planets/earth_normal.webp",
     /* Inverted ocean mask used as a roughnessMap: oceans dark → low
        roughness → mirror-like → catch a sharp sun-glint; land bright →
        matte. (The raw spec map had oceans bright = the wrong way round.) */
-    specularTexture: "/textures/planets/earth_roughness.jpg",
+    specularTexture: "/textures/planets/earth_roughness.webp",
     /* The Moon — one prominent satellite at ~0.27 Earth radius (the real
        ratio, so it reads as THE Moon, not a pebble). Planet.jsx's moon loop
        orbits + textures it; it rides Earth's OrbitGroup, so it follows Earth
        around the sun while circling the planet. */
     moons: 1,
     moonColor: "#cfcdc9",
-    moonTexture: "/textures/planets/moonmap1k.jpg",
+    moonTexture: "/textures/planets/moonmap1k.webp",
     moonScale: 0.27,
     axialTilt: 23.4 * DEG, // Earth's real obliquity — tips the globe + Moon orbit
     section: "projects",
@@ -135,8 +135,8 @@ export const DESTINATIONS = [
     radius: 0.097, // 3,390 km — about half Earth
     color: "#b06a48", // real Mars: muted butterscotch-ochre (iron-oxide regolith), not fire-red
     colorB: "#6e3a26",
-    texture: "/textures/planets/marsmap1k.jpg",
-    bumpTexture: "/textures/planets/marsbump1k.jpg",
+    texture: "/textures/planets/marsmap1k.webp",
+    bumpTexture: "/textures/planets/marsbump1k.webp",
     axialTilt: 25.2 * DEG, // near-Earth obliquity — the polar caps sit off-vertical
     moons: 2, // Phobos + Deimos — tiny captured rocks
     moonColor: "#8a8276",
@@ -168,7 +168,7 @@ export const DESTINATIONS = [
     radius: 0.06,
     color: "#8a8378", // UI accent only — the surface uses the real NASA map
     colorB: "#5b574e",
-    texture: "/textures/planets/ceres.jpg", // NASA/JPL Dawn grayscale photomosaic
+    texture: "/textures/planets/ceres.webp", // NASA/JPL Dawn grayscale photomosaic
     section: "skills",
     /* Tight framing for the dwarf (offset preserved through the AU remap). */
     cameraTarget: { position: [19.54, 0.43, 0.65], lookAt: [19.5, 0.4, 0.6], fov: 44 },
@@ -184,8 +184,8 @@ export const DESTINATIONS = [
     radius: 2.0, // 69,911 km — the giant; ~11× Earth
     color: "#c9a06a", // real Jupiter: tan/cream/orange-brown bands (NASA)
     colorB: "#9a6a3c",
-    texture: "/textures/planets/jupitermap_hd.jpg",
-    bumpTexture: "/textures/planets/jupiter_bump.jpg",
+    texture: "/textures/planets/jupitermap_hd.webp",
+    bumpTexture: "/textures/planets/jupiter_bump.webp",
     section: "notes",
     /* Jupiter — wide + slight roll to sell the scale (offset scaled to radius) */
     cameraTarget: { position: [27.89, 1.39, 1.02], lookAt: [24.6, 0.1, -1.8], fov: 52, roll: -0.05 },
@@ -212,15 +212,15 @@ export const DESTINATIONS = [
     radius: 1.666, // 58,232 km — second-largest (excl. rings)
     color: "#e3c485",
     colorB: "#a07a3a",
-    texture: "/textures/planets/saturnmap_hd.jpg",
-    bumpTexture: "/textures/planets/saturn_bump.jpg",
+    texture: "/textures/planets/saturnmap_hd.webp",
+    bumpTexture: "/textures/planets/saturn_bump.webp",
     section: "education",
     /* Saturn — dutch tilt to throw the rings across the frame (offset scaled) */
     cameraTarget: { position: [33.68, 2.61, 4.69], lookAt: [30.2, 0, 1.5], fov: 50, roll: 0.11 },
     axialTilt: 26.7 * DEG, // Saturn's obliquity — tilts the ring plane across the frame
     oblateness: 0.098, // the most oblate planet — ~10% flattened, clearly squashed
     rings: true,
-    ringTexture: "/textures/planets/saturnringcolor.jpg",
+    ringTexture: "/textures/planets/saturnringcolor.webp",
     ringColor: "#f8c555",
     moons: 6,
     moonScale: 0.05,
@@ -244,8 +244,8 @@ export const DESTINATIONS = [
     radius: 0.726, // 25,362 km — ice giant
     color: "#aad4cf", // real Uranus: muted greenish-cyan (2024 true-color study)
     colorB: "#7ba8a0",
-    texture: "/textures/planets/uranusmap_hd.jpg",
-    bumpTexture: "/textures/planets/uranus_bump.jpg",
+    texture: "/textures/planets/uranusmap_hd.webp",
+    bumpTexture: "/textures/planets/uranus_bump.webp",
     /* The bundled map is the Voyager-era over-saturated cyan; grade it toward
        Uranus's real near-featureless PALE greenish-cyan (gentler than Neptune,
        since Uranus is paler/blander). */
@@ -279,8 +279,8 @@ export const DESTINATIONS = [
     radius: 0.704, // 24,622 km — Uranus's near-twin
     color: "#7fb0c4", // real Neptune: PALE greenish-blue, only slightly bluer than Uranus (2024 Oxford true-color study)
     colorB: "#5688a0",
-    texture: "/textures/planets/neptunemap_hd.jpg",
-    bumpTexture: "/textures/planets/neptune_bump.jpg",
+    texture: "/textures/planets/neptunemap_hd.webp",
+    bumpTexture: "/textures/planets/neptune_bump.webp",
     /* The bundled map is the over-saturated Voyager indigo; grade it to the 2024
        true colour — a PALE greenish-blue, near-Uranus but a touch bluer. */
     grade: { sat: 0.55, lift: 0.08, mix: 0.42, tint: "#9ec6d6" },
@@ -311,7 +311,7 @@ export const DESTINATIONS = [
     radius: 0.034, // 1,188 km — the famous Kuiper-belt dwarf planet
     color: "#c9b6a0", // UI accent only — the surface uses the real NASA map
     colorB: "#9a7b5e",
-    texture: "/textures/planets/pluto.jpg", // NASA/JHU-APL/SwRI New Horizons color mosaic
+    texture: "/textures/planets/pluto.webp", // NASA/JHU-APL/SwRI New Horizons color mosaic
     moons: 1, // Charon — ~half Pluto's diameter; the pair are a true double dwarf system
     moonColor: "#b9b1a6",
     moonScale: 0.5,

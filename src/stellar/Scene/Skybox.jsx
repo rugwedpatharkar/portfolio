@@ -11,7 +11,7 @@ import * as THREE from "three";
  * The 8K tier was dropped: at this dimness (~0.27) it read visually identical
  * to the 4K but cost a 5.2 MB download + decode hitch + ~134 MB of GPU memory.
  */
-const FOURK = "/textures/space/milkyway-space.jpg";
+const FOURK = "/textures/space/milkyway-space.webp";
 
 const configure = (tex, gl) => {
   if (!tex) return tex;

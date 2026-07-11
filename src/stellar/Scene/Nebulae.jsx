@@ -95,20 +95,20 @@ void main() {
 const NEBULAE = [
   // Carina (NGC 3372) — largest emission nebula (~460 ly): warm red/orange dust
   // lanes, blue glow around the hot O-stars. The big one, upper-right of the Sun.
-  { url: "/textures/nebulae/carina.jpg", position: [-5444, 1197, 2722], scale: 2400, opacity: 0.58, haloTint: [0.6, 0.6, 1.0], coreTint: [1.0, 0.66, 0.5] },
+  { url: "/textures/nebulae/carina.webp", position: [-5444, 1197, 2722], scale: 2400, opacity: 0.58, haloTint: [0.6, 0.6, 1.0], coreTint: [1.0, 0.66, 0.5] },
   // Eagle (M16, Pillars of Creation, ~70 ly): gold/teal pillars on a reddish field.
-  { url: "/textures/nebulae/eagle.jpg", position: [-5187, 1349, -2697], scale: 1600, opacity: 0.54, haloTint: [0.5, 0.86, 0.7], coreTint: [1.0, 0.85, 0.6] },
+  { url: "/textures/nebulae/eagle.webp", position: [-5187, 1349, -2697], scale: 1600, opacity: 0.54, haloTint: [0.5, 0.86, 0.7], coreTint: [1.0, 0.85, 0.6] },
   // Orion (M42, ~24 ly): magenta-pink Hα core + teal O-III + blue reflection wisps.
-  { url: "/textures/nebulae/orion.jpg", position: [-5287, -1057, 2854], scale: 1500, opacity: 0.54, haloTint: [0.55, 0.78, 1.0], coreTint: [1.0, 0.66, 0.84] },
+  { url: "/textures/nebulae/orion.webp", position: [-5287, -1057, 2854], scale: 1500, opacity: 0.54, haloTint: [0.55, 0.78, 1.0], coreTint: [1.0, 0.66, 0.84] },
   // Crab (M1, supernova remnant, ~11 ly): orange-red filaments + blue-white synchrotron core.
-  { url: "/textures/nebulae/crab.jpg", position: [-5200, -1247, -2495], scale: 1050, opacity: 0.5, haloTint: [0.55, 0.72, 1.0], coreTint: [1.0, 0.7, 0.55] },
+  { url: "/textures/nebulae/crab.webp", position: [-5200, -1247, -2495], scale: 1050, opacity: 0.5, haloTint: [0.55, 0.72, 1.0], coreTint: [1.0, 0.7, 0.55] },
   // Helix (NGC 7293, "Eye of God" planetary, ~2.5 ly, closest): teal eye, red-orange rim.
-  { url: "/textures/nebulae/helix.jpg", position: [-5268, 1791, 632], scale: 820, opacity: 0.48, haloTint: [1.0, 0.6, 0.5], coreTint: [0.6, 1.0, 0.92] },
+  { url: "/textures/nebulae/helix.webp", position: [-5268, 1791, 632], scale: 820, opacity: 0.48, haloTint: [1.0, 0.6, 0.5], coreTint: [0.6, 1.0, 0.92] },
   // HERO BACKDROP — the others sit off on the −X tour axis, leaving the front-on
   // Sol view's −Z void empty. These two fill the deep field BEHIND the Sun that
   // the hero camera looks into, giving the dark centre cosmic colour + depth.
-  { url: "/textures/nebulae/carina.jpg", position: [900, 1200, -5100], scale: 2900, opacity: 0.5, haloTint: [0.55, 0.6, 1.0], coreTint: [1.0, 0.68, 0.55] },
-  { url: "/textures/nebulae/orion.jpg", position: [-1900, -250, -4800], scale: 2200, opacity: 0.46, haloTint: [0.6, 0.8, 1.0], coreTint: [1.0, 0.62, 0.86] },
+  { url: "/textures/nebulae/carina.webp", position: [900, 1200, -5100], scale: 2900, opacity: 0.5, haloTint: [0.55, 0.6, 1.0], coreTint: [1.0, 0.68, 0.55] },
+  { url: "/textures/nebulae/orion.webp", position: [-1900, -250, -4800], scale: 2200, opacity: 0.46, haloTint: [0.6, 0.8, 1.0], coreTint: [1.0, 0.62, 0.86] },
 ];
 
 const NebulaPlane = ({ url, position, scale, opacity, haloTint, coreTint }) => {

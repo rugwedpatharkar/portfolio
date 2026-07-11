@@ -11,7 +11,8 @@
     "test:visual": "playwright test",
     "test:visual:update": "playwright test --update-snapshots",
     "test:visual:ui": "playwright test --ui",
-    "test:install": "playwright install --with-deps chromium"
+    "test:install": "playwright install --with-deps chromium",
+    "textures": "node scripts/convert-textures.mjs"
   },
   "dependencies": {
     "@emailjs/browser": "^4.3.3",
