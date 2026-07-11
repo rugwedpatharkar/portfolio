@@ -30,7 +30,9 @@ const STOPS = [
 
 export default function V3TimeScale({ clock }) {
   const { isMobile, reducedMotion } = useViewport();
-  const [active, setActive] = useState(1); // "1×"
+  /* Default to "1×" — that's STOPS[2] in the current order (pause / ½× / 1× /
+     2× / 4×). Off-by-one on this line means the scene ships at half speed. */
+  const [active, setActive] = useState(2);
 
   useEffect(() => {
     if (!clock) return;
