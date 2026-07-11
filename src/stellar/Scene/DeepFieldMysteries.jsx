@@ -2,7 +2,8 @@
 import { useMemo, useRef } from "react";
 import { useFrame } from "@react-three/fiber";
 import * as THREE from "three";
-import { remapPosition, placeInFrontOfSun } from "../config/destinations";
+import { useSceneClock } from "./SceneClock";
+import { placeInFrontOfSun } from "../config/destinations";
 import { makeSoftDot } from "./shared/textures";
 
 /*
@@ -47,12 +48,11 @@ const DeepFieldMysteries = ({ animate = true }) => {
   const tabby = useRef();
   const wowRing = useRef();
   const frb = useRef();
-  const t = useRef(0);
+  const clock = useSceneClock();
 
   useFrame((_, delta) => {
     if (!animate) return;
-    t.current += Math.min(delta, 1 / 20);
-    const T = t.current;
+    const T = clock.t;
     if (p9.current) p9.current.rotation.y += delta * 0.05;
     // Tabby's Star: shimmer + an occasional deep (up to ~22%) dip
     if (tabby.current) {

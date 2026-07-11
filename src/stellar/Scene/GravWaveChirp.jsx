@@ -2,6 +2,7 @@
 import { useMemo, useRef } from "react";
 import { useFrame } from "@react-three/fiber";
 import * as THREE from "three";
+import { useSceneClock } from "./SceneClock";
 import { placeInFrontOfSun } from "../config/destinations";
 
 /*
@@ -21,16 +22,15 @@ export default function GravWaveChirp({ animate = true }) {
   const flash = useRef();
   const r1 = useRef();
   const r2 = useRef();
-  const t = useRef(0);
+  const clock = useSceneClock();
   const spin = useRef(0);
 
   const pos = useMemo(() => new THREE.Vector3(...placeInFrontOfSun(LIGO_RAW)), []);
 
   useFrame((_, dt) => {
     if (!animate) return;
-    t.current += Math.min(dt, 1 / 20);
     const CY = 9; // seconds per inspiral-merge cycle
-    const ph = (t.current % CY) / CY; // 0..1
+    const ph = (clock.t % CY) / CY; // 0..1
     // separation shrinks (inspiral); angular speed rises as it tightens (accumulated)
     const sep = 4.2 * Math.pow(1 - ph, 0.6) + 0.25;
     spin.current += Math.min(dt, 1 / 20) * (1.0 + 3.6 / sep);

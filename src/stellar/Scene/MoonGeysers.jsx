@@ -3,6 +3,7 @@ import { useMemo, useRef } from "react";
 import { useFrame } from "@react-three/fiber";
 import * as THREE from "three";
 
+import { useSceneClock } from "./SceneClock";
 /*
  * PHASE 4 (Wave 1) — ICY-MOON GEYSERS. Enceladus (Saturn) and Europa (Jupiter)
  * both vent water from a subsurface ocean through cracks; Enceladus's south-pole
@@ -20,15 +21,14 @@ export default function MoonGeysers({
   jets = 6, dir = [0, -1, 0.3], animate = true,
 }) {
   const fan = useRef();
-  const t = useRef(0);
+  const clock = useSceneClock();
   const d = useMemo(() => new THREE.Vector3(...dir).normalize(), [dir]);
   const quat = useMemo(() => new THREE.Quaternion().setFromUnitVectors(Y, d), [d]);
   const list = useMemo(() => Array.from({ length: jets }, (_, i) => i), [jets]);
 
   useFrame((_, dt) => {
     if (!animate || !fan.current) return;
-    t.current += Math.min(dt, 1 / 20);
-    const T = t.current;
+    const T = clock.t;
     fan.current.children.forEach((c, i) => {
       const ph = (Math.sin(T * 0.9 + i * 1.4) + 1) * 0.5; // staggered 0..1 pulse
       c.scale.y = 0.6 + ph * 0.9;

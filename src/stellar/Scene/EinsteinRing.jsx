@@ -2,6 +2,7 @@
 import { useMemo, useRef } from "react";
 import { useFrame } from "@react-three/fiber";
 import * as THREE from "three";
+import { useSceneClock } from "./SceneClock";
 import { placeInFrontOfSun } from "../config/destinations";
 
 /*
@@ -19,7 +20,7 @@ export const EINSTEINRING_RAW = [-66, -26, 28];
 
 export default function EinsteinRing({ animate = true }) {
   const ring = useRef();
-  const t = useRef(0);
+  const clock = useSceneClock();
   const pos = useMemo(() => new THREE.Vector3(...placeInFrontOfSun(EINSTEINRING_RAW)), []);
   /* Face the ring toward the inner system (the Sun-ward tour camera) so it reads
      as a ring, not an edge-on line. */
@@ -31,8 +32,7 @@ export default function EinsteinRing({ animate = true }) {
 
   useFrame((_, dt) => {
     if (!animate) return;
-    t.current += Math.min(dt, 1 / 20);
-    if (ring.current) ring.current.material.opacity = 0.55 + Math.sin(t.current * 0.6) * 0.12; // shimmer
+    if (ring.current) ring.current.material.opacity = 0.55 + Math.sin(clock.t * 0.6) * 0.12; // shimmer
   });
 
   const R = 6;

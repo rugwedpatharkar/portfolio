@@ -2,6 +2,7 @@
 import { useMemo, useRef } from "react";
 import { useFrame } from "@react-three/fiber";
 import * as THREE from "three";
+import { useSceneClock } from "./SceneClock";
 import { placeInFrontOfSun } from "../config/destinations";
 
 /*
@@ -16,7 +17,7 @@ export const REDDOTS_RAW = [-50, -34, 30];
 
 export default function RedDots({ animate = true }) {
   const grp = useRef();
-  const t = useRef(0);
+  const clock = useSceneClock();
   const pos = useMemo(() => new THREE.Vector3(...placeInFrontOfSun(REDDOTS_RAW)), []);
   const dots = useMemo(() => Array.from({ length: 16 }, () => ({
     p: [(Math.random() - 0.5) * 9, (Math.random() - 0.5) * 7, (Math.random() - 0.5) * 9],
@@ -26,9 +27,8 @@ export default function RedDots({ animate = true }) {
 
   useFrame((_, dt) => {
     if (!animate || !grp.current) return;
-    t.current += Math.min(dt, 1 / 20);
     grp.current.children.forEach((c, i) => {
-      if (c.material) c.material.opacity = 0.5 + Math.sin(t.current * 0.5 + dots[i].ph) * 0.18;
+      if (c.material) c.material.opacity = 0.5 + Math.sin(clock.t * 0.5 + dots[i].ph) * 0.18;
     });
   });
 

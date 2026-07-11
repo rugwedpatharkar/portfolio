@@ -2,6 +2,7 @@
 import { useMemo, useRef } from "react";
 import { useFrame } from "@react-three/fiber";
 import * as THREE from "three";
+import { useSceneClock } from "./SceneClock";
 import { placeInFrontOfSun } from "../config/destinations";
 
 /*
@@ -20,13 +21,12 @@ export default function EtaCarinae({ animate = true }) {
   const core = useRef();
   const loA = useRef();
   const loB = useRef();
-  const t = useRef(0);
+  const clock = useSceneClock();
   const pos = useMemo(() => new THREE.Vector3(...placeInFrontOfSun(ETACARINAE_RAW)), []);
 
   useFrame((_, dt) => {
     if (!animate) return;
-    t.current += Math.min(dt, 1 / 20);
-    const T = t.current;
+    const T = clock.t;
     if (core.current) core.current.scale.setScalar(1 + Math.sin(T * 0.5) * 0.05); // LBV flicker
     const sh = 0.2 + Math.sin(T * 0.35) * 0.05; // lobe shimmer
     if (loA.current) loA.current.material.opacity = sh;

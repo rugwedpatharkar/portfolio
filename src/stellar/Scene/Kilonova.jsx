@@ -2,6 +2,7 @@
 import { useMemo, useRef } from "react";
 import { useFrame } from "@react-three/fiber";
 import * as THREE from "three";
+import { useSceneClock } from "./SceneClock";
 import { placeInFrontOfSun } from "../config/destinations";
 import { makeSoftDot } from "./shared/textures";
 
@@ -31,14 +32,13 @@ const burstTex = () =>
 export default function Kilonova({ animate = true }) {
   const core = useRef();
   const ring = useRef();
-  const t = useRef(0);
+  const clock = useSceneClock();
   const pos = useMemo(() => new THREE.Vector3(...placeInFrontOfSun(KILONOVA_RAW)), []);
   const tex = useMemo(burstTex, []);
 
   useFrame((_, dt) => {
     if (!animate) return;
-    t.current += Math.min(dt, 1 / 20);
-    const ph = (t.current % 14) / 14; // ~14 s cycle
+    const ph = (clock.t % 14) / 14; // ~14 s cycle
     const flare = ph < 0.04 ? ph / 0.04 : Math.max(0, 1 - (ph - 0.04) / 0.26); // fast rise, ~3.6 s decay
     if (core.current) {
       core.current.material.opacity = 0.15 + flare * 0.85;
