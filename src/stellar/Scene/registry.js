@@ -41,8 +41,7 @@ import AtlasComet from "./AtlasComet";
 import Comet from "./Comet";
 import DangerField from "./DangerField";
 import InterstellarVisitor from "./InterstellarVisitor";
-import Meteors from "./Meteors";
-import ShootingStars from "./ShootingStars";
+import MeteorShowers from "./MeteorShowers";
 import { placeInFrontOfSun } from "../config/destinations";
 
 export const SCENE_OBJECTS = [
@@ -52,8 +51,7 @@ export const SCENE_OBJECTS = [
   { id: "interstellar",    C: InterstellarVisitor, motion: true, animate: true },
   { id: "atlas-green",     C: AtlasComet,          motion: true },
   { id: "atlas-red",       C: AtlasComet,          motion: true, props: { start: [-620, -150, 240], vel: [168, 4, -64], coma: "#e0a890", ion: "#cdbfa0", dust: "#e8d8b8", antiTail: false, comaR: 1.2, respawn: 780 } },
-  { id: "shooting",        C: ShootingStars,       motion: true, animate: true },
-  { id: "meteors",         C: Meteors,             motion: true, desktop: true },
+  { id: "showers",         C: MeteorShowers,       motion: true, animate: true },
   { id: "pulsar",          C: Pulsar,              motion: true, desktop: true },
   { id: "exotic",          C: ExoticObjects,       animate: true },
   { id: "deepfield",       C: DeepFieldMysteries,  animate: true },
