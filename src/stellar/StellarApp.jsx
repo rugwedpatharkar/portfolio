@@ -84,10 +84,6 @@ const StellarApp = () => {
   const warpVelRef = useRef(0);            // hyperspace-tube intensity (CameraRig writes, StellarGlare reads)
   const prevTargetRef = useRef({ destId: DESTINATIONS[0].id, k: -1 });
   const eclipseRef = useRef(0);            // live eclipse totality (SolarEclipse → sky dimmer)
-  /* Wide-pullback + orrery-orbit refs — no toggle in the minimal UI, but CameraRig
-     still reads them every frame, so they stay as stable no-op defaults. */
-  const wideRef = useRef(false);
-  const wideOrbitRef = useRef({ az: 1.8, el: 0.6, radius: 120, panX: 0, panZ: 0 });
   /* Shared virtual-clock handle { t, scale, danger } — the scene writes t/danger,
      read across the canvas boundary by CameraRig / KeyLight / the reticle. */
   const sceneClockRef = useRef(null);
@@ -279,8 +275,6 @@ const StellarApp = () => {
         activeIdx={activeIdx}
         onJump={handleJump}
         eclipseRef={eclipseRef}
-        wideRef={wideRef}
-        wideOrbitRef={wideOrbitRef}
         focusRef={focusRef}
         warpVelRef={warpVelRef}
         cameraRef={cameraRef}

@@ -45,15 +45,15 @@ const FINALE_CAM = _GAL_C.clone().multiplyScalar(-1300).addScaledVector(_GAL_P, 
  * system" tracking shot). For the sun / belts / beacon (ω = 0) this
  * reduces to the original static framing.
  *
- * Layered on top: pointer parallax, camera shake, free-roam, the wide
- * pull-back (Z), per-destination FOV + dutch-tilt roll. All eases are
- * delta-time normalized so the feel matches on 30/60/144Hz.
+ * Layered on top: pointer parallax, camera shake, per-destination FOV +
+ * dutch-tilt roll. All eases are delta-time normalized so the feel matches
+ * on 30/60/144Hz.
  */
 
 const FOV_DEFAULT = 52;
 /* Lane-object focus (←→): track the object's live orbiting position + frame it
-   from a short distance, with a snappier lerp than the wide map for a quick
-   hyperloop-style shift between objects. */
+   from a short distance, with a snappier lerp for a quick hyperloop-style
+   shift between objects. */
 const DEST_BY_ID = Object.fromEntries(DESTINATIONS.map((d) => [d.id, d]));
 const FOCUS_DIST = 1.8;
 const LIVE_FOCUS_LERP_60 = 0.14;
@@ -66,24 +66,9 @@ const POS_LERP_60 = 0.2;
 const LOOK_LERP_60 = 0.26;
 const FOV_LERP_60 = 0.12;
 const ROLL_LERP_60 = 0.05;
-const WIDE_LERP_60 = 0.09;
-const FREEROAM_LERP_60 = 0.55;
-
-const WIDE_POSITION = new THREE.Vector3(0, 34, 86);
-const WIDE_LOOK = new THREE.Vector3(20, 0, 0);
-const WIDE_FOV = 34;
-
-/* Cinematic launch (intro): a far, oblique establishing shot of the whole
-   tilted system, then an accelerating warp-dive into Sol. */
-const ESTABLISH_POS = new THREE.Vector3(-110, 170, 390); // scaled for the true-scale system
-const ESTABLISH_LOOK = new THREE.Vector3(110, -10, -20);
-const ESTABLISH_FOV = 30;
-const ESTABLISH_DUR = 2.2; // seconds — pull back + reveal
-const WARP_DUR = 2.2; // seconds — hyperspeed fly-in from the system edge to Sol
-const SOL_CAM = DESTINATIONS[0].cameraTarget;
-const SOL_POS = new THREE.Vector3(...SOL_CAM.position);
-const SOL_LOOK = new THREE.Vector3(...SOL_CAM.lookAt);
-const SOL_FOV = SOL_CAM.fov ?? FOV_DEFAULT;
+/* Lerp for a focused, static-target (dead-set) pose — snappier than the free
+   scroll glide but not as tight as a live orbital lock. */
+const FOCUS_STATIC_LERP_60 = 0.09;
 
 const UP = new THREE.Vector3(0, 1, 0);
 const _p = new THREE.Vector3();
@@ -213,15 +198,9 @@ const v3ExtentFor = (dest) => dest.radius * (1 + (dest.oblateness || 0));
 const CameraRig = ({
   scrollT,
   parallaxOffsetRef,
-  freeRoamOffsetRef,
-  freeRoamEnabled,
-  wideRef,
-  wideOrbitRef,
   focusRef,
   cameraRef,
   warpVelRef,
-  onLaunchComplete,
-  launchPhase,
   frameShift = 0,
   reducedMotion = false,
   isMobile = false,
@@ -241,9 +220,6 @@ const CameraRig = ({
   const lastPos = useRef(0); // continuous destination position, for banking
   const bankCurrent = useRef(0);
   const dwellTime = useRef(0); // seconds settled on the current body (drives the push-in)
-  /* Launch state — captures the from-pose at each phase change so the
-     scripted establish/warp moves are deterministic and smooth. */
-  const launch = useRef({ phase: null, t0: 0, fromPos: new THREE.Vector3(), fromLook: new THREE.Vector3(), fromFov: FOV_DEFAULT });
   /* Warp-jump transition — each nav becomes a real travel (accel→decel over a
      distance-scaled time, the destination swelling as you cross the gap, with
      the hyperloop streaks peaking mid-jump). dt-accumulated so it runs even when
@@ -347,61 +323,6 @@ const CameraRig = ({
     }
     finaleActive.current = false; // scrubbed back into the tour → release handoff
 
-    /* ── Cinematic launch override (intro) ──
-       establish: pull back from Sol to reveal the tilted system (ease-out);
-       warp: accelerate back into Sol (ease-in), synced with the streak burst. */
-    if (launchPhase === "establish" || launchPhase === "warp") {
-      const L = launch.current;
-      if (L.phase !== launchPhase) {
-        L.phase = launchPhase;
-        L.t0 = t;
-        L.completed = false;
-        /* The warp always begins at the far establishing pose, so it reads
-           as a hyperspeed fly-in from the edge of the system into Sol (the
-           streaks come from WarpField). Establish (if used) starts wherever
-           the camera currently is. */
-        if (launchPhase === "warp") {
-          L.fromPos.copy(ESTABLISH_POS);
-          L.fromLook.copy(ESTABLISH_LOOK);
-          L.fromFov = ESTABLISH_FOV;
-        } else {
-          L.fromPos.copy(camera.position);
-          L.fromLook.copy(lookAtTarget.current);
-          L.fromFov = camera.fov;
-        }
-      }
-      let toPos, toLook, toFov, e, p = 0;
-      if (launchPhase === "establish") {
-        p = Math.min(1, (t - L.t0) / ESTABLISH_DUR);
-        e = 1 - Math.pow(1 - p, 3); // ease-out — decelerate into the reveal
-        toPos = ESTABLISH_POS; toLook = ESTABLISH_LOOK; toFov = ESTABLISH_FOV;
-      } else {
-        p = Math.min(1, (t - L.t0) / WARP_DUR);
-        e = p * p * (3 - 2 * p); // smoothstep — fast through the middle, eased arrival
-        toPos = SOL_POS; toLook = SOL_LOOK; toFov = SOL_FOV;
-        /* Drive the HyperLoop streak: tube fills then collapses to points as the
-           dive arrives (sin → 0 at p=1). Same ref the planet-jump uses. */
-        if (warpVelRef) warpVelRef.current = Math.sin(p * Math.PI);
-      }
-      _camTarget.copy(L.fromPos).lerp(toPos, e);
-      if (launchPhase === "establish") _camTarget.x += Math.sin(t * 0.25) * 1.4 * e; // slow drift
-      _lookTarget.copy(L.fromLook).lerp(toLook, e);
-      camera.position.copy(_camTarget);
-      lookAtTarget.current.copy(_lookTarget);
-      camera.lookAt(lookAtTarget.current);
-      const fv = L.fromFov + (toFov - L.fromFov) * e;
-      if (Math.abs(camera.fov - fv) > 0.01) { camera.fov = fv; camera.updateProjectionMatrix(); }
-      /* End the warp the moment the CAMERA actually arrives (clock-driven p≥1),
-         not on a wall-clock timer that desyncs from the scene clock on a slow
-         load → no mid-warp snap at the tour handoff (bug-sweep H2 / issue 4). */
-      if (launchPhase === "warp" && p >= 1 && !L.completed) {
-        L.completed = true;
-        onLaunchComplete?.();
-      }
-      return;
-    }
-    if (launch.current.phase) { launch.current.phase = null; if (warpVelRef) warpVelRef.current = 0; }
-
     /* ── HYBRID GLIDE — continuous position along the destination chain
        with an eased DWELL at each planet (settle there, read the panel),
        gliding through the middle of each segment. Far nav-jumps sweep
@@ -472,11 +393,9 @@ const CameraRig = ({
     const targetBank = THREE.MathUtils.clamp(-posVel * BANK_GAIN, -BANK_MAX, BANK_MAX);
     bankCurrent.current += (targetBank - bankCurrent.current) * fAlpha(0.1, d);
 
-    /* Precedence: focus (click-to-visit an object from the overview map) >
-       wide (system overview) > scroll framing. Focus + wide use absolute
-       world coords, so the planet frameShift/parallax are skipped. */
+    /* Precedence: focus (nav to a body) > scroll framing. Focus uses absolute
+       world coords, so the planet frameShift/parallax are skipped there. */
     const focus = focusRef?.current || null;
-    const wide = !focus && !!wideRef?.current;
     if (focus) {
       if (focus.live && focus.target) {
         /* Direction-aware third-person: sit BEHIND the body relative to the travel
@@ -542,37 +461,16 @@ const CameraRig = ({
         _camTarget.set(focus.position[0], focus.position[1], focus.position[2]);
         _lookTarget.set(focus.lookAt[0], focus.lookAt[1], focus.lookAt[2]);
       }
-    } else if (wide) {
-      /* Game-map view — pan (drag) + zoom (wheel) + orbit (right-drag) around an
-         adjustable centre, so you can scroll across the system and zoom in/out
-         like an in-game world map. panX/panZ shift the look centre; radius zooms;
-         az/el orbit. The existing lerp below smooths it (inertia-like). */
-      const o = wideOrbitRef?.current;
-      if (o) {
-        const ce = Math.cos(o.el);
-        const cx = WIDE_LOOK.x + (o.panX || 0);
-        const cz = WIDE_LOOK.z + (o.panZ || 0);
-        _camTarget.set(
-          cx + o.radius * ce * Math.cos(o.az),
-          o.radius * Math.sin(o.el),
-          cz + o.radius * ce * Math.sin(o.az)
-        );
-        _lookTarget.set(cx, WIDE_LOOK.y, cz);
-      } else {
-        _camTarget.copy(WIDE_POSITION);
-        _lookTarget.copy(WIDE_LOOK);
-      }
-    } else if (freeRoamEnabled && freeRoamOffsetRef?.current) {
-      _camTarget.add(freeRoamOffsetRef.current);
     }
 
-    /* Frame the planet to the RIGHT of centre so the left column has room
-       for the content overlay. We aim a fraction of the view's half-width to
-       the LEFT of the subject, which slides the subject right on screen
-       without moving the camera or changing the planet's size. Desktop only
-       (frameShift is 0 on compact/mobile, where the layout stacks); skipped
-       in wide + free-roam. */
-    if (!wide && !focus && !freeRoamEnabled && frameShift) {
+    /* Frame the (idx-0 overview) subject to the RIGHT of centre so the left column
+       has room for the content overlay. We aim a fraction of the view's half-width
+       to the LEFT of the subject, which slides the subject right on screen without
+       moving the camera or changing the subject's size. Desktop only (frameShift is
+       0 on compact/mobile, where the layout stacks). Skipped on focused stops
+       (planets) — the focus branch above handles their right-of-centre shift with a
+       higher multiplier tuned for the content column. */
+    if (!focus && frameShift) {
       /* (1) Dolly back along the planet→camera axis so the whole body fits
          on the right with margin. (2) Then aim a fraction of the view's
          half-width LEFT of the subject, sliding it right to clear the left
@@ -595,8 +493,8 @@ const CameraRig = ({
        of the framing distance, so the angular sway is identical on every body
        and it stays anchored while the background parallaxes. v2 applied it only
        off-focus (the hero); v3 applies it on FOCUSED planet stops too, so moving
-       the cursor sways every planet like the hero. (Still skipped in wide/free-roam.) */
-    if (!wide && (!focus || v3) && !freeRoamEnabled && parallaxOffsetRef?.current) {
+       the cursor sways every planet like the hero. */
+    if ((!focus || v3) && parallaxOffsetRef?.current) {
       _viewDir.copy(_lookTarget).sub(_camTarget);
       const fd = _viewDir.length() || 1;
       _viewDir.divideScalar(fd);
@@ -670,19 +568,19 @@ const CameraRig = ({
     }
     setFlying(false);
 
-    const posBase = focus?.live ? LIVE_FOCUS_LERP_60 : focus || wide ? WIDE_LERP_60 : freeRoamEnabled ? FREEROAM_LERP_60 : POS_LERP_60;
-    const lookBase = focus?.live ? LIVE_FOCUS_LERP_60 : focus || wide ? WIDE_LERP_60 : LOOK_LERP_60;
+    const posBase = focus?.live ? LIVE_FOCUS_LERP_60 : focus ? FOCUS_STATIC_LERP_60 : POS_LERP_60;
+    const lookBase = focus?.live ? LIVE_FOCUS_LERP_60 : focus ? FOCUS_STATIC_LERP_60 : LOOK_LERP_60;
     camera.position.lerp(_camTarget, fAlpha(posBase, d));
     lookAtTarget.current.lerp(_lookTarget, fAlpha(lookBase, d));
     camera.lookAt(lookAtTarget.current);
 
     /* Dutch-tilt roll + travel bank — after lookAt (resets up to world up). */
-    const targetRoll = freeRoamEnabled || wide || focus ? 0 : rollTarget + bankCurrent.current;
+    const targetRoll = focus ? 0 : rollTarget + bankCurrent.current;
     rollCurrent.current += (targetRoll - rollCurrent.current) * fAlpha(ROLL_LERP_60, d);
     if (Math.abs(rollCurrent.current) > 0.0005) camera.rotateZ(rollCurrent.current);
 
     /* FOV */
-    const targetFov = focus ? (focus.fov || 42) : wide ? WIDE_FOV : fovTarget;
+    const targetFov = focus ? (focus.fov || 42) : fovTarget;
     const fovDelta = targetFov - camera.fov;
     if (Math.abs(fovDelta) > 0.02) {
       camera.fov += fovDelta * fAlpha(FOV_LERP_60, d);

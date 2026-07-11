@@ -14,7 +14,7 @@ import { getOrbit, positionAtAngle } from "../config/orbits";
  * The real tour scene ALREADY renders the Sun + all planets at their true
  * positions on every frame; we just need to draw the trail lines here. No
  * synthetic proxies, no compressed radii. Shown on the v3 overview stop (via
- * `show`) and the v2 wide-orbit map (via `wideRef`).
+ * `show`) — the true orbital structure, gently rendered.
  */
 const SEG = 256;
 const PLANETS = DESTINATIONS.filter((d) => d.kind === "planet");
@@ -33,15 +33,14 @@ const ORBITS = PLANETS.map((d) => {
   return { id: d.id, R: getOrbit(d).R, pts };
 });
 
-const OrbitRings = ({ wideRef, show = false }) => {
+const OrbitRings = ({ show = false }) => {
   const linesRef = useRef();
 
   useFrame(() => {
     const lines = linesRef.current;
     if (!lines) return;
-    const on = !!wideRef?.current || show;
-    lines.visible = on;
-    if (!on) return;
+    lines.visible = show;
+    if (!show) return;
     lines.children.forEach((c) => { if (c.material) c.material.opacity = 0.14; });
   });
 

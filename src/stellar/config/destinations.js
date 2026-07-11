@@ -26,8 +26,7 @@ export const DESTINATIONS = [
        own (kind "overview" → the Scene map skips it); the Sun + planets already draw
        from their own stops. Its cameraTarget is the wide establishing pose — the whole
        system framed with the Sun on the FAR RIGHT and the left half dark for the info
-       column. MUST stay the array's first entry (CameraRig's SOL_CAM = DESTINATIONS[0]
-       .cameraTarget = the hero framing). */
+       column. MUST stay the array's first entry — the hero framing reference. */
     id: "overview",
     kind: "overview",
     label: "Solar System",

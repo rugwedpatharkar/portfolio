@@ -115,7 +115,7 @@ function FinaleGradeDip({ gradeRef, finaleT }) {
   return null;
 }
 
-const Scene = ({ scrollT, finaleT, finale = false, activeIdx, onJump, wideRef, wideOrbitRef, focusRef, warpVelRef, cameraRef, eclipseRef, clock, extrasPhase = 3, launchPhase = null, onLaunchComplete, v3 = false }) => {
+const Scene = ({ scrollT, finaleT, finale = false, activeIdx, onJump, focusRef, warpVelRef, cameraRef, eclipseRef, clock, extrasPhase = 3, v3 = false }) => {
   const { isMobile, reducedMotion } = useViewport();
   /* Pull-back finale — when active the AU-scale solar system is hidden and the
      LOCAL stellar neighbourhood (LocalNeighborhood) + the boosted Milky-Way arch
@@ -139,7 +139,6 @@ const Scene = ({ scrollT, finaleT, finale = false, activeIdx, onJump, wideRef, w
      the whole tree on every frame. Mouse parallax and free-roam each
      own their own offset; CameraRig sums them. */
   const parallaxOffsetRef = useRef(new THREE.Vector3());
-  const freeRoamOffsetRef = useRef(new THREE.Vector3());
   /* Bloom effect handle (static intensity; warp pulse removed in v3). */
   const bloomRef = useRef();
   /* Grade effect handle — the finale scrub sets its uFade uniform each frame. */
@@ -420,7 +419,7 @@ const Scene = ({ scrollT, finaleT, finale = false, activeIdx, onJump, wideRef, w
             mounted; now it's actually gone. The Sun's own Bloom glows it cleanly. */}
         {/* Orrery rings — the real orbital structure. Shown in overview mode AND on
             the v3 system-overview hero (stop 0). */}
-        {showExtras && <OrbitRings wideRef={wideRef} show={v3 && activeIdx === 0} />}
+        {showExtras && <OrbitRings show={v3 && activeIdx === 0} />}
         {/* Dwarf planets + named belt bodies (Vesta, Eris, Makemake, Haumea). */}
         {showExtras && <DwarfPlanets animate={!reducedMotion} />}
         {/* The asteroid + Kuiper belts as BACKGROUND scenery (no longer tour
@@ -483,15 +482,9 @@ const Scene = ({ scrollT, finaleT, finale = false, activeIdx, onJump, wideRef, w
         <CameraRig
           scrollT={scrollT}
           parallaxOffsetRef={parallaxOffsetRef}
-          freeRoamOffsetRef={freeRoamOffsetRef}
-          freeRoamEnabled={false}
-          wideRef={wideRef}
-          wideOrbitRef={wideOrbitRef}
           focusRef={focusRef}
           warpVelRef={warpVelRef}
           cameraRef={cameraRef}
-          launchPhase={launchPhase}
-          onLaunchComplete={onLaunchComplete}
           /* Reduced-motion + mobile → SNAP (no first-person fly-through; info
              stays visible). The rig reads these to gate the flight + flyingRef. */
           reducedMotion={reducedMotion}
