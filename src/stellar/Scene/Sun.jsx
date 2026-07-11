@@ -163,6 +163,15 @@ const Sun = ({
   const matRef = useRef();
   const sceneClock = useSceneClock();
 
+  /* §9.1 — the DEFAULT is real visible-light (5,778 K G2V blackbody = yellow-
+     white). Pass ?sun=304 in the URL for the SOHO/SDO 304-Å EUV look (orange-
+     red disc used in space imagery). Read once at mount so query-flag flips
+     require a reload — no per-frame branch on the URL. */
+  const euvMode = useMemo(() => {
+    if (typeof window === "undefined") return false;
+    return new URLSearchParams(window.location.search).get("sun") === "304";
+  }, []);
+
   const uniforms = useMemo(
     () => ({
       uTime: { value: 0 },
@@ -171,15 +180,15 @@ const Sun = ({
          (far). Skips superg + detail + faculae + drops fbm from 3→2 octaves.
          Set per frame in the useFrame below based on camera distance. */
       uDetail: { value: 1.0 },
-      /* ACCURATE visible-light G2V photosphere (per user — real colours). The Sun
-         is yellow-white, not the EUV orange-red of a SOHO/EIT-304 image: bright
-         convection granules = warm white, mid = pale gold, the cool
-         intergranular lanes = soft orange. Over-bright so Bloom makes it glow. */
-      uHot: { value: new THREE.Color("#fff6e8") },
-      uMid: { value: new THREE.Color("#ffdca2") },
-      uCool: { value: new THREE.Color("#e0954c") },
+      /* ACCURATE visible-light G2V photosphere is the default. ?sun=304 flips
+         to the SOHO/SDO 304 Å ionized-helium EUV palette (deep red core,
+         orange mid, warm-white hot spots) — the look most viewers know from
+         solar imagery even though it's not what your eye would see. */
+      uHot: { value: new THREE.Color(euvMode ? "#fff2c8" : "#fff6e8") },
+      uMid: { value: new THREE.Color(euvMode ? "#ff9a3c" : "#ffdca2") },
+      uCool: { value: new THREE.Color(euvMode ? "#a83a10" : "#e0954c") },
     }),
-    []
+    [euvMode]
   );
 
   /* Sun world-position vector — used for the LOD distance check below. Set
