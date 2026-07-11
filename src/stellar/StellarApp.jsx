@@ -171,11 +171,6 @@ const StellarApp = () => {
 
   const navPlanet = useCallback((dir) => navTo(activeIdxRef.current + dir), [navTo]);
 
-  /* ←/→ steps the on-screen section accordion (V3Panel listens for v3:accordion). */
-  const stepItem = useCallback((dir) => {
-    window.dispatchEvent(new CustomEvent("v3:accordion", { detail: { dir } }));
-  }, []);
-
   /* Keep the camera framed on the ACTIVE body for the nav paths that DON'T set
      focus synchronously — scroll (Lenis → handleDestinationChange) + URL hash.
      Idempotent with navTo's synchronous applyFocus (the `already` guard skips the
@@ -203,8 +198,11 @@ const StellarApp = () => {
   }, [handleJump]);
 
   /* Keyboard navigation — arrows / PageUp-Down / Home / End / WASD hop between
-     stops; ←→ steps the section accordion. No text inputs exist in the tour, so
-     capturing plain keys is safe (guarded against INPUT/TEXTAREA regardless). */
+     stops. ←→ / A / D navigate the tour the same as ↑↓ / W / S so every arrow
+     key does the sensible thing (the section-accordion dispatch that used to
+     own ←→ had no listener — that path was dead). Sections still own their own
+     keys when focused inside `.stellar-dossier-frame`. No text inputs live in
+     the tour so capturing plain keys is safe (guarded on INPUT/TEXTAREA regardless). */
   useEffect(() => {
     const onKey = (e) => {
       const k = e.key.toLowerCase();
@@ -215,16 +213,16 @@ const StellarApp = () => {
          (carousel / category nav). Otherwise ↑/↓ here double-fired with the
          section's own handler — advancing the category AND hopping the planet. */
       if (e.target?.closest?.(".stellar-dossier-frame")) return;
-      if (k === "arrowdown" || k === "pagedown" || k === "s") { e.preventDefault(); navPlanet(1); }
-      else if (k === "arrowup" || k === "pageup" || k === "w") { e.preventDefault(); navPlanet(-1); }
-      else if (k === "arrowleft" || k === "a") { e.preventDefault(); stepItem(-1); }
-      else if (k === "arrowright" || k === "d") { e.preventDefault(); stepItem(1); }
-      else if (k === "home") { e.preventDefault(); navTo(0); }
+      if (k === "arrowdown" || k === "pagedown" || k === "arrowright" || k === "s" || k === "d") {
+        e.preventDefault(); navPlanet(1);
+      } else if (k === "arrowup" || k === "pageup" || k === "arrowleft" || k === "w" || k === "a") {
+        e.preventDefault(); navPlanet(-1);
+      } else if (k === "home") { e.preventDefault(); navTo(0); }
       else if (k === "end") { e.preventDefault(); navTo(N - 1); }
     };
     window.addEventListener("keydown", onKey);
     return () => window.removeEventListener("keydown", onKey);
-  }, [navTo, navPlanet, stepItem]);
+  }, [navTo, navPlanet]);
 
   /* Browser back/forward should also navigate. */
   useEffect(() => {

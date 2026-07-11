@@ -41,7 +41,11 @@ const DESTINATION_OBJECTS = DESTINATIONS.map((d, index) => ({
 /* Anomalies / ships / easter-eggs — clicking one flies the free camera there. */
 const ANOMALY_RAW = [
   {
-    id: "blackhole", label: "Gargantua", category: "Black hole", color: "#ffb066", position: [49, -6, -15],
+    /* id "blackhole" → "gargantua" to end an id collision with the v3 cosmic
+       stop of the same id in cosmicStops.js. The v3 stop owns the URL hash +
+       DEST_BY_ID lookup; this OBJECTS entry (via bodies.js) is the scanner /
+       anomaly-registry target — semantically distinct. Label was already "Gargantua". */
+    id: "gargantua", label: "Gargantua", category: "Black hole", color: "#ffb066", position: [49, -6, -15],
     info: "A stellar-mass black hole in the deep field behind the Sun. Light bends around the event horizon — the accretion disk wraps up and over in a glowing Einstein ring.",
     visit: { kind: "focus", cameraTarget: frame([49, -6, -15], 250, 60, 46) },
   },
