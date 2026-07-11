@@ -1,5 +1,4 @@
 import { DESTINATIONS, DESTINATION_BY_ID, remapPosition, frontOfSun } from "./destinations";
-import { PLANET_FACTS } from "../data/planetFacts";
 import { DWARF_PLANETS } from "./dwarfPlanets";
 import { MOONS } from "./moons";
 import { projects } from "../../content";
@@ -34,7 +33,7 @@ const DESTINATION_OBJECTS = DESTINATIONS.map((d, index) => ({
   category: CATEGORY_BY_KIND[d.kind] || "Planet",
   color: d.color,
   position: d.position,
-  info: PLANET_FACTS[d.id]?.wow || PLANET_FACTS[d.id]?.body || "",
+  info: d.factCard?.wow || d.factCard?.body || "",
   visit: { kind: "stop", index },
 }));
 

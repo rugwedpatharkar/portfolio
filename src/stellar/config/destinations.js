@@ -17,6 +17,8 @@
  */
 
 import { COSMIC_STOPS } from "../v3/cosmicStops";
+import { PLANET_FACTS } from "../data/planetFacts";
+import { PLANET_EDITORIAL } from "../v3/data/planetEditorial";
 
 const DEG = Math.PI / 180;
 
@@ -471,6 +473,15 @@ export function initDestinations() {
   if (_destinationsInitialized) return;
   _destinationsInitialized = true;
   DESTINATIONS.forEach((d) => {
+    /* §6.3 (full): join per-id `factCard` + `editorial` onto each row so every
+       consumer that has a destination reference gets everything about that stop
+       in one lookup. Source-of-truth stays split between planetFacts.js and
+       planetEditorial.js (editing content is easier per-file than scrolling
+       inside a giant destinations.js), but downstream code no longer needs to
+       import those keyed maps — dest.factCard / dest.editorial work directly. */
+    d.factCard = PLANET_FACTS[d.id];
+    d.editorial = PLANET_EDITORIAL[d.id];
+
     const au = AU[d.id];
     if (!au) return; // the Sun stays at the origin
     const [x, y, z] = d.position;

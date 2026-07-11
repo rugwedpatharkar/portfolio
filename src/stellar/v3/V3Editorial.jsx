@@ -16,8 +16,7 @@
  */
 import { memo, useEffect, useMemo, useState } from "react";
 import useViewport from "../useViewport";
-import { PLANET_EDITORIAL } from "./data/planetEditorial";
-import { PLANET_FACTS } from "../data/planetFacts";
+import { DESTINATION_BY_ID } from "../config/destinations";
 
 const TELEMETRY_ROWS = [
   ["Diameter", "diameter"],
@@ -33,8 +32,10 @@ function V3Editorial({ destinationId, activeIdx, hidden = false }) {
   const { isCompact, isMobile } = useViewport();
   const [subIdx, setSubIdx] = useState(0);
 
-  const editorial = destinationId ? PLANET_EDITORIAL[destinationId] : null;
-  const facts = destinationId ? PLANET_FACTS[destinationId] : null;
+  /* §6.3: read facts + editorial from the joined destination row. */
+  const dest = destinationId ? DESTINATION_BY_ID[destinationId] : null;
+  const editorial = dest?.editorial || null;
+  const facts = dest?.factCard || null;
 
   /* Sub-line rotation: etymology → discovery → each notable fact. Reset to
      first slot on body change so arrival always leads with the etymology. */
