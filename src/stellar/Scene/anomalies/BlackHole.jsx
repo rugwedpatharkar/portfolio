@@ -3,6 +3,7 @@ import { useMemo, useRef } from "react";
 import { useFrame } from "@react-three/fiber";
 import * as THREE from "three";
 import { useSceneClock } from "../SceneClock";
+import { nearCamera } from "../shared/hooks";
 
 /*
  * A black hole — rendered the way Interstellar's Gargantua and the Event
@@ -120,6 +121,14 @@ const BlackHole = ({
   const haloRef = useRef();
   const sceneClock = useSceneClock();
 
+  /* §7 distance gate: skip the lookAt + disk rotation work when the camera is
+     far from this mount. The two BlackHole call sites live at very different
+     distances (the decorative one near the inner tour; the Contact destination
+     at ~4300u), so we key the gate off the actual world position each mount
+     was given rather than a constant. Vector3 memoized once — the gate check
+     itself allocates nothing. */
+  const posVec = useMemo(() => new THREE.Vector3(...position), [position]);
+
   const diskUniforms = useMemo(
     () => ({ uTime: { value: 0 }, uInner: { value: radius * 1.3 }, uOuter: { value: radius * 5.5 }, uBeam: { value: beam } }),
     [radius, beam]
@@ -133,8 +142,14 @@ const BlackHole = ({
 
   useFrame(({ camera }) => {
     const t = animate ? sceneClock.t : 0;
+    /* Uniform sync stays UNGATED — the shader clock must stay in step with
+       SceneClock so opening the gate on approach doesn't jump the animation
+       forward visibly. Uniform writes are cheap. */
     if (diskMat.current) diskMat.current.uniforms.uTime.value = t;
     if (haloMat.current) haloMat.current.uniforms.uTime.value = t * 0.6;
+    /* Everything below is the expensive per-frame work — skip when the camera
+       is far from this mount (its billboarding + rotation aren't visible). */
+    if (!nearCamera(camera, posVec, 320)) return;
     if (diskGroup.current && animate) diskGroup.current.rotation.z = t * 0.05;
     /* Photon ring + lensed halo billboard to the camera — the halo is the
        Interstellar "wrap": disk light bent up and over the hole so the glow

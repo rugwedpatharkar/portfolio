@@ -491,7 +491,11 @@ const Scene = ({ scrollT, finaleT, finale = false, activeIdx, onJump, focusRef, 
           luminanceThreshold={0.75}
           luminanceSmoothing={0.45}
           mipmapBlur
-          radius={0.6}
+          /* §7 Phase 6: mipmapBlur is the single most expensive post-pass, and
+             its cost scales with the render target size. Trim the radius on
+             mobile (thermally + fillrate bound) — the smaller radius is barely
+             noticeable at handheld sizes but drops the blur-chain cost meaningfully. */
+          radius={isMobile ? 0.45 : 0.6}
         />
         {/* Grade: near-neutral — accurate colours (per user). Saturation ≈ 0 so
             planets/stars keep their true tints, contrast pulled right down so the
