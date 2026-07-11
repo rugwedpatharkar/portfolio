@@ -14,7 +14,7 @@
  * mobile, and during the fly-through via the `hidden` prop → panelHidden).
  * Right-aligned, glass backing, fades out with the section panel during flight.
  */
-import { useEffect, useMemo, useState } from "react";
+import { memo, useEffect, useMemo, useState } from "react";
 import useViewport from "../useViewport";
 import { PLANET_EDITORIAL } from "./data/planetEditorial";
 import { PLANET_FACTS } from "../data/planetFacts";
@@ -25,7 +25,11 @@ const TELEMETRY_ROWS = [
   ["Gravity", "gravity"],
 ];
 
-export default function V3Editorial({ destinationId, activeIdx, hidden = false }) {
+/* memo: props are all primitives (destinationId, activeIdx, hidden). Shallow
+   compare skips the render when none of them change — cuts the extrasPhase/
+   scrollFinale-driven re-renders while still updating for panelHidden flights
+   and per-body content swaps. */
+function V3Editorial({ destinationId, activeIdx, hidden = false }) {
   const { isCompact, isMobile } = useViewport();
   const [subIdx, setSubIdx] = useState(0);
 
@@ -187,3 +191,5 @@ export default function V3Editorial({ destinationId, activeIdx, hidden = false }
     </aside>
   );
 }
+
+export default memo(V3Editorial);
