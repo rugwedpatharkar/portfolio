@@ -171,9 +171,9 @@ export const PLANET_FACTS = {
     missions: "New Horizons (2015 flyby)",
     wow: "Its moon Charon is half Pluto's size — the pair orbit a point in empty space between them, a true double dwarf-planet. Pluto's orbit is so tilted (17°) + eccentric it sometimes comes closer to the Sun than Neptune.",
   },
-  /* The Milky Way — the "you are here" step-out from the solar system, seen
-     as a top-down 3/4 view of the four-arm spiral with Sol pinned on the
-     Orion Spur. */
+  /* The Milky Way — the HOMEPAGE grand intro. View from INSIDE the galaxy
+     (arching band, Great Rift, Sagittarius core). Not a spiral from outside
+     (physically impossible from Sol). */
   milkyway: {
     body: "The Milky Way — our home galaxy",
     distance: "26,670 ly from the galactic centre",
@@ -181,37 +181,54 @@ export const PLANET_FACTS = {
     mass: "~1.5 trillion Suns (dark matter + stars)",
     year: "230 million years — one galactic rotation at Sol's radius",
     day: "—",
-    gravity: "Sgr A* — 4-million-solar-mass black hole at the core",
+    gravity: "Sgr A* — 4.15 million solar-mass black hole at the core",
     temp: "—",
     atmosphere: "Interstellar medium — hydrogen, dust, molecular clouds",
     moons: "~50 satellite galaxies (LMC, SMC, Sagittarius Dwarf, …)",
     missions: "Gaia (ESA) mapping 1.8 billion stars in 3D since 2013",
-    wow: "You are on the Orion Spur — a minor branch of the Sagittarius arm. Every star you can see at night is inside this single galaxy. There are ~200 billion more like it.",
+    wow: "You're on the Orion Spur — a minor branch between the Sagittarius and Perseus arms. Every star you can see at night is inside this single galaxy. There are ~200 billion more like it.",
     sources: [
       "Gaia Data Release 3 (2022) — DOI:10.1051/0004-6361/202243940",
       "Reid et al. 2019 — Sgr A* distance 8.15 kpc, DOI:10.3847/1538-4357/ab4a11",
+      "EHT Collaboration 2022 — Sgr A* imaged, DOI:10.3847/2041-8213/ac6674",
     ],
   },
-  /* The tour's cosmic finale — the black hole "The Edge" (id: "blackhole") that
-     carries the Contact section. Keyed by id so V3Editorial's Planet Information
-     card resolves it (was keyed "contact", which no body has → showed nothing). */
-  blackhole: {
-    body: "The Edge — a black hole",
-    distance: "Past the last orbit · the outward horizon",
-    diameter: "Event horizon — the point of no return",
-    mass: "Millions of Suns, collapsed to a point",
-    year: "—",
-    day: "Spins near light-speed, dragging spacetime with it",
-    gravity: "Escape velocity exceeds c — not even light gets out",
-    temp: "Hawking radiation — a whisper above absolute zero",
-    atmosphere: "Accretion disk — infalling matter heated to millions of °C",
-    moons: "—",
-    missions: "Event Horizon Telescope imaged M87* (2019) & Sgr A* (2022)",
-    wow: "Near the horizon time itself dilates — an hour here can be years for everyone else. This is where the tour ends and the conversation begins.",
+  /* Kuiper Belt — 30–50 AU. Decorative epilogue stop, no résumé section. */
+  kuiper: {
+    body: "Kuiper Belt — icy minor planets",
+    distance: "30–50 AU from the Sun (~4.5–7.5 billion km)",
+    diameter: "Belt width ~20 AU; ~50,000 objects > 100 km",
+    mass: "~0.1× Earth's mass, spread across thousands of icy worlds",
+    year: "Pluto: 248 Earth-years; Eris: 558",
+    day: "—",
+    gravity: "Dominated by Neptune's gravitational sculpting",
+    temp: "40–50 K (−230 to −220 °C)",
+    atmosphere: "None — surface ices only sublime near perihelion",
+    moons: "Charon (Pluto), Dysnomia (Eris), Hi'iaka + Namaka (Haumea)",
+    missions: "New Horizons flew past Pluto (2015) and Arrokoth (2019)",
+    wow: "Home of Pluto, Eris, Haumea, Makemake. Resonance clumps at 3:2 (Plutinos, 39.4 AU) and 2:1 (Twotinos, 47.7 AU) — the belt piles up where Neptune's migration parked it. Kuiper Cliff at ~48 AU: the disc simply ends.",
     sources: [
-      "Event Horizon Telescope Collaboration 2019 (M87*) — DOI:10.3847/2041-8213/ab0ec7",
-      "Event Horizon Telescope Collaboration 2022 (Sgr A*) — DOI:10.3847/2041-8213/ac6674",
-      "Interstellar visualisation reference — Thorne et al. 2015, DOI:10.1088/0264-9381/32/6/065001",
+      "New Horizons mission data (NASA/JHU-APL/SwRI, 2015+)",
+      "Jewitt & Luu 1993 — discovery of first Kuiper Belt object 1992 QB1",
+    ],
+  },
+  /* Oort Cloud — 2,000 to 100,000 AU. Final ambient beat of the tour. */
+  oort: {
+    body: "Oort Cloud — the outermost shell",
+    distance: "2,000 to 100,000 AU · outer edge nearly a light-year",
+    diameter: "Spherical shell — hundreds of billions of km thick",
+    mass: "~5× Earth's mass across ~10¹² icy comet nuclei",
+    year: "Long-period comets orbit for millions of years",
+    day: "—",
+    gravity: "Weak — nudged by passing stars + galactic tides",
+    temp: "~4 K (near absolute zero)",
+    atmosphere: "Ices only — water, methane, carbon monoxide",
+    moons: "—",
+    missions: "None. Voyager 1 (166 AU today) needs ~300 years to reach the inner edge.",
+    wow: "The Solar System's outermost boundary — a spherical shell that reaches nearly to Proxima Centauri (4.24 ly). Every long-period comet you've ever seen (Halley, Hale-Bopp, NEOWISE) began its fall from here.",
+    sources: [
+      "Oort 1950 — Bull. Astron. Inst. Netherlands, 11, 91",
+      "Voyager Interstellar Mission data (NASA JPL)",
     ],
   },
 };

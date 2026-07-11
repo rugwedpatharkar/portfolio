@@ -1,44 +1,50 @@
 /*
- * v3 finale — after Pluto the tour makes ONE last jump out to a black hole: the
- * dramatic closing stop.
+ * Deep-space epilogue stops appended after Pluto — the Kuiper Belt and the
+ * Oort Cloud, both scientifically real regions past the last planet. The
+ * previous "black hole at the edge" was removed: no black hole exists
+ * anywhere near the Solar System (nearest is Gaia BH1 at 1,560 ly, nearest
+ * supermassive is Sgr A* at 26,670 ly).
  *
- * Section role: per user swap, this final stop now renders the CONTACT section
- * (the outbound form + link rail). 'What sets me apart' moved back one stop to
- * Pluto — see destinations.js. Space object ordering is unchanged.
+ * Contact section moved to Pluto (its `id` stays `testimonials` for URL
+ * stability; only its `section` field changes) — see destinations.js.
  *
  * Position authored in SCENE UNITS (beyond the planets, no AU remap). radius
- * drives the v3 framing; accent tints the HUD.
+ * drives the v3 framing camera standoff; accent tints the HUD.
  */
 export const COSMIC_STOPS = [
   {
-    /* v3 STOP N-2 — "You are here". The tour steps OUT of the solar system
-       and looks back at the whole Milky Way from above/outside — a top-
-       down 3/4 view of the four-arm spiral with Sol pinned on the Orion
-       Spur. Rendered by SpiralGalaxy. Sits between Pluto and the black
-       hole so the flow is: last planet → step out and see our galaxy →
-       black hole at the edge → contact form. */
-    id: "milkyway",
+    /* Kuiper Belt — 30–50 AU. Camera pulled BACK from Pluto's frame to a
+       backlit angle showing the belt as a dusty golden disc. The belt
+       geometry already renders via AsteroidBelt + BeltDust background
+       scenery — this stop just parks the camera for the reveal. */
+    id: "kuiper",
     kind: "cosmic",
-    render: "milkyway_galaxy",
-    label: "The Galaxy",
-    section: "milkyway",
-    docTitle: "The Galaxy",
-    accent: "#ffd58a",
-    /* radius drives the framing camera standoff — a big number here so the
-       framing camera sits far enough back to fit the whole spiral disc. */
+    render: "kuiper_reveal",
+    label: "Kuiper Belt",
+    section: "hero", // no résumé section — decorative info card only
+    docTitle: "Kuiper Belt",
+    accent: "#c8d6a0",
     radius: 260,
-    position: [3900, 220, -180],
+    /* Beyond Pluto's 3,750u, on the outbound tour path, high above the
+       ecliptic for a backlit shot down onto the belt disc. */
+    position: [4200, 900, -200],
   },
   {
-    id: "blackhole",
+    /* Oort Cloud — 2,000 to 100,000 AU spherical shell. Camera pulls WAY
+       back so the Sun becomes a distant pinprick + the OortCloud shell
+       becomes a faint blue-white halo around it. Final ambient beat of
+       the tour. */
+    id: "oort",
     kind: "cosmic",
-    render: "blackhole",
-    label: "The Edge",
-    section: "contact",
-    docTitle: "Contact",
-    accent: "#ffb14a",
-    radius: 4.2,
-    position: [4300, 120, -420],
+    render: "oort_reveal",
+    label: "Oort Cloud",
+    section: "hero", // no résumé section — decorative info card only
+    docTitle: "Oort Cloud",
+    accent: "#a0c0e8",
+    radius: 4600,
+    /* Even further out. The camera pose is a big pull-back so the whole
+       Sun + planets + belt sit tiny in the Oort shell around them. */
+    position: [5800, 1400, 1800],
   },
 ];
 

@@ -25,7 +25,7 @@ const configure = (tex, gl) => {
   return tex;
 };
 
-const Skybox = () => {
+const Skybox = ({ homepage = false }) => {
   const { gl } = useThree();
   /* §9.3 KTX2 flag — ktx2Url() returns FOURK unchanged unless ?ktx2=1 is on,
      in which case the extension gets swapped to .ktx2. Wiring KTX2Loader
@@ -37,18 +37,23 @@ const Skybox = () => {
   useMemo(() => configure(tex, gl), [tex, gl]);
 
   return (
-    /* Rotated so the bright galactic-core bulge swings away from the
-       inner-planet sightlines (which look back toward the sun on −x). */
-    <mesh rotation={[0.3, 2.4, 0]}>
+    /* Rotation: on the tour the bulge swings away from inner-planet sightlines
+       (they look back at the Sun on -X, so the panorama's bright bulge is
+       tucked into +X where the camera never faces). On the Milky Way
+       homepage, we WANT the bulge front-and-centre — rotation aligns the
+       baked Sagittarius core with the milkyway destination's camera lookAt
+       direction so the visitor's first frame is dominated by galactic core. */
+    <mesh rotation={homepage ? [0.15, 3.6, 0] : [0.3, 2.4, 0]}>
       <sphereGeometry args={[7000, 64, 32]} />
-      {/* Dimmed hard so the dense Tycho star field recedes into a backdrop.
-          toneMapped={false} + a directly-dimmed colour makes the backdrop
-          deterministic across GPUs (ACES tone-mapping washed it near-white on
-          some drivers); the colour grade still applies as a post pass. */}
+      {/* On the tour, dim hard so the dense Tycho star field recedes into a
+          backdrop. On the homepage, bright it up so the panorama IS the
+          image, not a backdrop. toneMapped={false} keeps the colour
+          deterministic across GPUs (ACES tone-mapping washed it near-white
+          on some drivers). */}
       <meshBasicMaterial
         map={tex}
         side={THREE.BackSide}
-        color="#44474f"
+        color={homepage ? "#c8c8c8" : "#44474f"}
         toneMapped={false}
         depthWrite={false}
       />

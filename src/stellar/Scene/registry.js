@@ -24,7 +24,9 @@
  * they inherit the body's transform), and the edge mounts (DwarfPlanets,
  * OortCloud, TrojanAsteroids, SolarEclipse, etc. — different tier gates).
  */
-import BlackHole from "./anomalies/BlackHole";
+/* BlackHole import removed — no BlackHole placed anywhere in the Solar
+   System. Sgr A* if desired lives on the Milky Way homepage sky as a
+   distant marker, not a real object here. */
 import CosmicMarker from "./anomalies/CosmicMarker";
 import DeepFieldMysteries from "./anomalies/DeepFieldMysteries";
 import EinsteinRing from "./anomalies/EinsteinRing";
@@ -42,10 +44,12 @@ import Comet from "./Comet";
 import DangerField from "./DangerField";
 import InterstellarVisitor from "./InterstellarVisitor";
 import MeteorShowers from "./MeteorShowers";
-import { placeInFrontOfSun } from "../config/destinations";
+/* placeInFrontOfSun no longer used — was only for the removed BlackHole. */
 
 export const SCENE_OBJECTS = [
-  { id: "blackhole",       C: BlackHole,           animate: true, hoverable: true, props: { position: placeInFrontOfSun([49, -6, -15]), radius: 32 } },
+  /* Decorative BlackHole placement removed — Sgr A* is 26,670 ly away, not 49
+     scene units past Jupiter. If we want to reference the galactic-centre BH
+     it goes on the Milky Way homepage sky as a distant marker, not here. */
   { id: "danger",          C: DangerField,         animate: true },
   { id: "comet",           C: Comet,               motion: true },
   { id: "interstellar",    C: InterstellarVisitor, motion: true, animate: true },

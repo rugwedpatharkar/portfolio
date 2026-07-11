@@ -153,29 +153,40 @@ export const PLANET_EDITORIAL = {
     ],
   },
 
-  /* The Milky Way — the "you are here" step-out stop that shows the visitor
-     our galaxy from outside, with Sol pinned on the Orion Spur. */
+  /* The Milky Way — the HOMEPAGE grand intro, view from INSIDE. */
   milkyway: {
-    quote: "Look again at that dot. That's here. That's home. That's us.",
-    quoteBy: "Carl Sagan, Pale Blue Dot (extended)",
+    quote: "We are made of star-stuff. We are a way for the cosmos to know itself.",
+    quoteBy: "Carl Sagan · Cosmos, 1980",
     etymology: "Milky Way — a translation of the Latin via lactea (Ovid, ~8 CE) → itself from the Greek galaxías kýklos, \"circle of milk\".",
     discovered: "Galileo pointed the first telescope at the Milky Way in 1610 and resolved it into individual stars — proof our galaxy is made of suns.",
     facts: [
-      "Four main spiral arms: Perseus, Sagittarius, Scutum-Centaurus, Norma.",
-      "Sol sits on the Orion Spur — a minor arm segment between Sagittarius and Perseus.",
-      "The galaxy is on a collision course with Andromeda — impact in ~4.5 billion years.",
+      "Four main spiral arms: Perseus, Sagittarius, Scutum-Centaurus, Norma. Sol rides on the Orion Spur — a minor arm segment between Sagittarius and Perseus.",
+      "The bright band arching across your night sky IS the disc of the Milky Way seen edge-on. The Great Rift is a dark dust lane cutting along its spine.",
+      "The galaxy is on a collision course with Andromeda — impact in ~4.5 billion years. The merged galaxy will be called Milkomeda.",
     ],
   },
-  /* The Edge — the black hole (id: "blackhole") that carries the Contact finale. */
-  blackhole: {
-    quote: "Black holes are where God divided by zero.",
-    quoteBy: "attributed to Steven Wright",
-    etymology: "Black hole — named by John Wheeler (1967): a region where gravity is so strong that nothing, not even light, escapes.",
-    discovered: "First imaged by the Event Horizon Telescope in 2019 (M87*) — radio dishes across the planet linked into one Earth-sized telescope.",
+  /* Kuiper Belt — decorative epilogue after Pluto. */
+  kuiper: {
+    quote: "Beyond Neptune lies not emptiness, but a second disc of worlds.",
+    quoteBy: "Gerard Kuiper (paraphrased) · 1951",
+    etymology: "Named for Gerard Kuiper, who predicted a debris belt beyond Neptune in 1951. First object 1992 QB1 discovered by David Jewitt and Jane Luu.",
+    discovered: "1992 — Jewitt & Luu observed the first Kuiper Belt Object (KBO), 1992 QB1, at 41 AU. Over 3,000 KBOs are now catalogued.",
     facts: [
-      "Time near a black hole runs slower — the closer you fall, the further ahead the rest of the universe races.",
-      "Sgr A*, the black hole at the Milky Way's centre, is 4 million times the Sun's mass — and was imaged in 2022.",
-      "You've reached the end of the tour. Beam a message aboard — let's build something.",
+      "Pluto, Eris, Haumea, Makemake — all dwarf planets — orbit within the Kuiper Belt.",
+      "The 3:2 resonance with Neptune parks the Plutinos at 39.4 AU. The 2:1 resonance parks the Twotinos at 47.7 AU.",
+      "The Kuiper Cliff at ~48 AU: beyond it, objects abruptly become rare. No one knows why — a lost planet, or the disc's true edge?",
+    ],
+  },
+  /* Oort Cloud — final ambient beat. Where the Solar System actually ends. */
+  oort: {
+    quote: "The Sun's family reaches almost to the next star.",
+    quoteBy: "Jan Oort · 1950",
+    etymology: "Proposed by Dutch astronomer Jan Oort in 1950 to explain the origin of long-period comets — vast spherical shell of icy comet nuclei surrounding the Solar System.",
+    discovered: "1950 — Oort's paper Origin and Development of Comets inferred the cloud's existence from the orbital statistics of long-period comets.",
+    facts: [
+      "The Oort Cloud is spherical, not disc-shaped like the Kuiper Belt — comet orbits arrive from every direction.",
+      "The outer edge is ~1 light-year from the Sun — 63,000 AU. Beyond that lies interstellar space.",
+      "Voyager 1, our fastest spacecraft (17 km/s), is at 166 AU today. It needs 300 more years to reach the inner Oort Cloud, and 30,000 years to cross it.",
     ],
   },
 };

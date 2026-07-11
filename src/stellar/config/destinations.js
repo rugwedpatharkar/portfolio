@@ -24,18 +24,42 @@ const DEG = Math.PI / 180;
 
 export const DESTINATIONS = [
   {
-    /* v3 STOP 00 — the SYSTEM-OVERVIEW landing (name/photo). Renders NO body of its
-       own (kind "overview" → the Scene map skips it); the Sun + planets already draw
-       from their own stops. Its cameraTarget is the wide establishing pose — the whole
-       system framed with the Sun on the FAR RIGHT and the left half dark for the info
-       column. MUST stay the array's first entry — the hero framing reference. */
+    /* v3 STOP 00 — the MILKY WAY homepage. The visitor's first frame is a
+       cinematic view of the galaxy from inside — arching band across the sky,
+       Sagittarius core glow, Great Rift dust lanes, thousands of real stars.
+       No résumé section, no planet body — pure "welcome to the journey"
+       spectacle. Sun + inner planets are hidden at this stop (see Scene/
+       index.jsx gating on activeIdx === 0); the visible geometry is Skybox,
+       Stars, MilkyWay, Nebulae, Constellations, DistantGalaxies, StarLabels.
+       Scrolling triggers a hyperspace jump to the Solar-System overview. */
+    id: "milkyway",
+    kind: "milkyway",
+    label: "The Milky Way",
+    position: [0, 0, 0],
+    radius: 0,
+    accent: "#ffd58a",
+    section: "hero", // no résumé — pure intro
+    docTitle: "",
+    /* Camera pose: floating in interstellar space at a small offset from
+       Sol (Sun is hidden anyway). LookAt in the direction of the galactic
+       centre so the Sagittarius bulge dominates the frame. */
+    cameraTarget: { position: [-40, 30, 12], lookAt: [-1500, 220, 900], fov: 66 },
+  },
+  {
+    /* v3 STOP 01 — Solar-System overview / arrival pose. Reached via the
+       hyperspace jump from the Milky Way homepage. Carries the ABOUT ME
+       section (was Sun's About). No body of its own — Sun + planets already
+       draw from their own stops. */
     id: "overview",
     kind: "overview",
     label: "Solar System",
     position: [0, 0, 0],
     radius: 0,
-    section: "hero",
-    docTitle: "",
+    /* v3 tour restructure: the Milky Way is now the homepage (index 0);
+       Solar-System overview is the arrival pose after the hyperspace jump,
+       and it carries the About Me section (was Sun). */
+    section: "about",
+    docTitle: "About",
     /* v3 system overview — a CORNER SHOT of the whole true-scale system from a far,
        high vantage. Sun sits on the far RIGHT of the frame, planets + real orbits +
        asteroid belt + Kuiper haze fan out to screen-LEFT toward Neptune (~2857 units
@@ -58,9 +82,11 @@ export const DESTINATIONS = [
        Non-planet stops carry `accent`; planets fall back to `color`. */
     accent: "#e9c675",
     texture: "/textures/planets/sunmap.webp",
-    /* v3 — everyone shifts forward one: the Sun now carries ABOUT (was Mercury). */
-    section: "about",
-    docTitle: "About",
+    /* v3 tour restructure: Sun now carries IMPACT — About Me shifted up to
+       the Solar-System overview (arrival after hyperspace). Everything else
+       shifts down one body. */
+    section: "funfacts",
+    docTitle: "Impact",
     /* About — fly IN from the overview to frame the Sun prominently, still kept
        right-of-centre so the left info column stays clear. */
     cameraTarget: { position: [6, 8, 82], lookAt: [-10, 1, 0], fov: 46 },
@@ -69,7 +95,7 @@ export const DESTINATIONS = [
   // Inner system
   {
     id: "about",
-    docTitle: "Impact",
+    docTitle: "Experience",
     kind: "planet",
     type: "rocky",
     label: "Mercury",
@@ -79,13 +105,13 @@ export const DESTINATIONS = [
     colorB: "#2f3138",
     texture: "/textures/planets/mercurymap.webp",
     bumpTexture: "/textures/planets/moonbump1k.webp",
-    section: "funfacts",
+    section: "experience",
     /* Camera closes in to frame the now-tiny world (offset scaled to radius). */
     cameraTarget: { position: [5.65, 0.13, 0.52], lookAt: [5.5, 0.1, 0.3], fov: 44 },
   },
   {
     id: "funfacts",
-    docTitle: "Experience",
+    docTitle: "Projects",
     kind: "planet",
     type: "warm",
     label: "Venus",
@@ -99,13 +125,13 @@ export const DESTINATIONS = [
        Knock it back so the cloud banding survives the bloom pass. */
     tint: "#c9b48a",
     axialTilt: 177.4 * DEG, // Venus spins retrograde — effectively upside-down
-    section: "experience",
+    section: "projects",
     /* Venus — high 3/4 looking down through the haze (offset scaled to radius) */
     cameraTarget: { position: [8.57, 0.27, 1.46], lookAt: [8.2, -0.15, 1.0], fov: 46 },
   },
   {
     id: "experience",
-    docTitle: "Projects",
+    docTitle: "Achievements",
     kind: "planet",
     type: "earth",
     label: "Earth",
@@ -130,7 +156,7 @@ export const DESTINATIONS = [
     moonTexture: "/textures/planets/moonmap1k.webp",
     moonScale: 0.27,
     axialTilt: 23.4 * DEG, // Earth's real obliquity — tips the globe + Moon orbit
-    section: "projects",
+    section: "achievements",
     /* Earth — the standout hero shot. These exact values frame the
        day/night terminator without the sun flooding the lens; do not
        move the position or the sun glares the frame orange. */
@@ -138,7 +164,7 @@ export const DESTINATIONS = [
   },
   {
     id: "projects",
-    docTitle: "Achievements",
+    docTitle: "Skills",
     kind: "planet",
     type: "rust",
     label: "Mars",
@@ -157,7 +183,7 @@ export const DESTINATIONS = [
       { color: "#7d7165", scale: 0.05 },  // Phobos — closer, larger
       { color: "#8a7e70", scale: 0.038 }, // Deimos — smaller, smoother
     ],
-    section: "achievements",
+    section: "skills",
     /* Mars — slight low angle (offset scaled to radius) */
     cameraTarget: { position: [15.47, 0.22, 0.81], lookAt: [15.3, 0.2, 0.6], fov: 44 },
   },
@@ -166,7 +192,7 @@ export const DESTINATIONS = [
   // section so all lookups / content / hash stay intact; only the body changes.
   {
     id: "achievements",
-    docTitle: "Skills",
+    docTitle: "Writing",
     kind: "planet",
     type: "rocky",
     label: "Ceres",
@@ -181,7 +207,7 @@ export const DESTINATIONS = [
     color: "#8a8378", // UI accent only — the surface uses the real NASA map
     colorB: "#5b574e",
     texture: "/textures/planets/ceres.webp", // NASA/JPL Dawn grayscale photomosaic
-    section: "skills",
+    section: "notes",
     /* Tight framing for the dwarf (offset preserved through the AU remap). */
     cameraTarget: { position: [19.54, 0.43, 0.65], lookAt: [19.5, 0.4, 0.6], fov: 44 },
   },
@@ -189,7 +215,7 @@ export const DESTINATIONS = [
   // Outer system
   {
     id: "skills",
-    docTitle: "Writing",
+    docTitle: "Education",
     kind: "planet",
     type: "gas",
     label: "Jupiter",
@@ -199,7 +225,7 @@ export const DESTINATIONS = [
     colorB: "#9a6a3c",
     texture: "/textures/planets/jupitermap_hd.webp",
     bumpTexture: "/textures/planets/jupiter_bump.webp",
-    section: "notes",
+    section: "education",
     /* Jupiter — wide + slight roll to sell the scale (offset scaled to radius) */
     cameraTarget: { position: [27.89, 1.39, 1.02], lookAt: [24.6, 0.1, -1.8], fov: 52, roll: -0.05 },
     axialTilt: 3.1 * DEG, // Jupiter spins nearly upright
@@ -218,7 +244,7 @@ export const DESTINATIONS = [
   },
   {
     id: "notes",
-    docTitle: "Education",
+    docTitle: "Hobbies",
     kind: "planet",
     type: "golden",
     label: "Saturn",
@@ -228,7 +254,7 @@ export const DESTINATIONS = [
     colorB: "#a07a3a",
     texture: "/textures/planets/saturnmap_hd.webp",
     bumpTexture: "/textures/planets/saturn_bump.webp",
-    section: "education",
+    section: "hobbies",
     /* Saturn — dutch tilt to throw the rings across the frame (offset scaled) */
     cameraTarget: { position: [33.68, 2.61, 4.69], lookAt: [30.2, 0, 1.5], fov: 50, roll: 0.11 },
     axialTilt: 26.7 * DEG, // Saturn's obliquity — tilts the ring plane across the frame
@@ -251,7 +277,7 @@ export const DESTINATIONS = [
   },
   {
     id: "education",
-    docTitle: "Hobbies",
+    docTitle: "Testimonials",
     kind: "planet",
     type: "ice",
     label: "Uranus",
@@ -265,7 +291,7 @@ export const DESTINATIONS = [
        Uranus's real near-featureless PALE greenish-cyan (gentler than Neptune,
        since Uranus is paler/blander). */
     grade: { sat: 0.6, lift: 0.1, mix: 0.32, tint: "#b8d6d0" },
-    section: "hobbies",
+    section: "testimonials",
     /* Uranus — closer + tighter fov so the planet fills the negative space
        (Education read as empty), with the strong dutch tilt for its 98° axis. */
     cameraTarget: { position: [36.03, 0.87, 0.02], lookAt: [34.8, 0, -1.0], fov: 40, roll: 0.17 },
@@ -287,7 +313,7 @@ export const DESTINATIONS = [
   },
   {
     id: "hobbies",
-    docTitle: "Testimonials",
+    docTitle: "What Sets Me Apart",
     kind: "planet",
     type: "abyss",
     label: "Neptune",
@@ -300,7 +326,7 @@ export const DESTINATIONS = [
     /* The bundled map is the over-saturated Voyager indigo; grade it to the 2024
        true colour — a PALE greenish-blue, near-Uranus but a touch bluer. */
     grade: { sat: 0.55, lift: 0.08, mix: 0.42, tint: "#9ec6d6" },
-    section: "testimonials",
+    section: "whatsetsmeapart",
     /* Neptune — pulled back, lonely framing in the deep dark (offset scaled) */
     cameraTarget: { position: [40.54, 0.94, 2.34], lookAt: [39.0, 0, 0.8], fov: 44 },
     axialTilt: 28.3 * DEG, // Neptune's obliquity, close to Earth's
@@ -320,7 +346,7 @@ export const DESTINATIONS = [
   // section so all lookups / content / hash stay intact; only the body changes.
   {
     id: "testimonials",
-    docTitle: "",
+    docTitle: "Contact",
     kind: "planet",
     type: "rocky",
     label: "Pluto",
@@ -334,10 +360,10 @@ export const DESTINATIONS = [
     moonScale: 0.5,
     /* Charon — grey, nearly half Pluto's size (the system's true double dwarf). */
     moonSet: [{ color: "#9a948a", scale: 0.5 }],
-    /* Swap per user: 2nd-to-last stop (Pluto) now carries 'What sets me apart'
-       (the personal-differentiators pitch), Contact is bumped to the final
-       cosmic stop (blackhole) — see cosmicStops.js. Space object order intact. */
-    section: "whatsetsmeapart",
+    /* v3 tour restructure: Pluto now hosts CONTACT (was the removed nearby
+       black hole — scientifically wrong). What Sets Me Apart shifted back to
+       Neptune. Space-object order intact. */
+    section: "contact",
     /* Tight framing for the small dwarf (offset preserved through the AU remap). */
     cameraTarget: { position: [44.08, 0.97, 1.52], lookAt: [44, 0.9, 1.4], fov: 46 },
   },

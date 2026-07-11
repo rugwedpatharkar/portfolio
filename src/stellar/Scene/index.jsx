@@ -20,10 +20,6 @@ import Nebulae from "./Nebulae";
 import VisibilityController from "./VisibilityController";
 import Skybox from "./Skybox";
 import OrbitGroup from "./OrbitGroup";
-/* BlackHole is also imported for the cosmic-stop planet-loop branch below
-   (the destination-row-driven mount at Contact). The registry mounts a
-   separate placement-only BlackHole from Scene/registry.js. */
-import BlackHole from "./anomalies/BlackHole";
 import OrbitRings from "./OrbitRings";
 import PlanetBeacons from "./PlanetBeacons";
 import BeltRings from "./BeltRings";
@@ -32,7 +28,10 @@ import SolarEclipse from "./SolarEclipse";
 import EclipseLights from "./EclipseLights";
 import DwarfPlanets from "./DwarfPlanets";
 import Comet from "./Comet";
-import SpiralGalaxy from "./SpiralGalaxy";
+/* BlackHole + SpiralGalaxy removed from the tour — nearest black hole is
+   1,560 ly away (Gaia BH1), nothing sits "just past Pluto". Milky Way seen
+   from outside is impossible from Sol. Files kept for potential reuse
+   (Sgr A* homepage marker, distant Andromeda). */
 import BeltDust from "./BeltDust";
 import LocalNeighborhood from "./LocalNeighborhood";
 import TrojanAsteroids from "./TrojanAsteroids";
@@ -120,13 +119,19 @@ const Scene = ({ scrollT, finaleT, finale = false, activeIdx, onJump, focusRef, 
      tier 2 = deep-field anomalies/comets; tier 3 = the heaviest models last. Every
      object is real (belts, dust, comets, visitors, spacecraft, deep-field); gating
      is by the tiers + device/motion budget + the finale flag. */
-  const showExtras = extrasPhase >= 1 && !finale;
-  const showMid = extrasPhase >= 2 && !finale;
-  const showEggs = extrasPhase >= 3 && !finale;
+  /* Milky Way homepage (destination index 0): the Solar System is hidden —
+     visitor is floating in interstellar space, seeing only sky (Stars,
+     MilkyWay band, Nebulae, Constellations, DistantGalaxies, Skybox). Sun,
+     planets, belts, dwarf planets, comets — all off. Hyperspace jump on
+     scroll carries them into the tour. */
+  const isMilkyway = activeIdx === 0;
+  const showExtras = extrasPhase >= 1 && !finale && !isMilkyway;
+  const showMid = extrasPhase >= 2 && !finale && !isMilkyway;
+  const showEggs = extrasPhase >= 3 && !finale && !isMilkyway;
   /* Tier 4 — the heaviest point build (belt dust ~68k points) mounts LAST and
      ALONE, so it never shares a React commit / GPU upload with the deep-field or
      anomalies (that collision was the boot black-frame). */
-  const showDust = extrasPhase >= 4 && !finale;
+  const showDust = extrasPhase >= 4 && !finale && !isMilkyway;
   /* Camera offsets — kept in refs so React state doesn't re-render
      the whole tree on every frame. Mouse parallax and free-roam each
      own their own offset; CameraRig sums them. */
@@ -251,7 +256,7 @@ const Scene = ({ scrollT, finaleT, finale = false, activeIdx, onJump, focusRef, 
       {/* lane convoy retired — Holo-Bridge dossier cluster replaces forced ←→ */}
 
       <Suspense fallback={null}>
-        <SafeLoad><Skybox /></SafeLoad>
+        <SafeLoad><Skybox homepage={isMilkyway} /></SafeLoad>
         {!finale && <Stars />}
         {!finale && <SafeLoad><Nebulae /></SafeLoad>}
         {/* Constellation line overlays — 12 named patterns (Orion, Big Dipper,
@@ -272,10 +277,11 @@ const Scene = ({ scrollT, finaleT, finale = false, activeIdx, onJump, focusRef, 
         {/* Hover labels on the 16 brightest named stars — desktop-only,
             reveals name + distance + constellation on hover. */}
         {showEggs && !isMobile && !reducedMotion && !finale && <StarLabels />}
-        {/* Grand faint galactic band — far backdrop for depth; in the finale it's
-            the galaxy wrapping around our local neighbourhood (boosted to a
-            luminous arch). */}
-        <MilkyWay finale={finale} />
+        {/* Milky Way band — the from-inside view of our galaxy. Always on
+            (not gated by finale) — brightened significantly at the Milky Way
+            homepage (activeIdx===0) so the Sagittarius core glows, and
+            gently faded during the tour so the planets stay the hero. */}
+        <MilkyWay finale={isMilkyway} />
         {/* Pull-back finale (?finale=1) — the local stellar neighbourhood at true depth. */}
         {finale && <LocalNeighborhood active />}
         {/* Zodiacal light removed — its 8,500 additive points bloomed into an
@@ -309,7 +315,7 @@ const Scene = ({ scrollT, finaleT, finale = false, activeIdx, onJump, focusRef, 
         })}
 
 
-        {!finale && DESTINATIONS.map((d, idx) => {
+        {!finale && !isMilkyway && DESTINATIONS.map((d, idx) => {
           const handleClick = (e) => {
             e.stopPropagation();
             onJump?.(idx);
@@ -424,28 +430,11 @@ const Scene = ({ scrollT, finaleT, finale = false, activeIdx, onJump, focusRef, 
             );
           }
           if (d.kind === "cosmic") {
-            /* v3 deep-space epilogue stops — real cosmic objects placed along the
-               outward tour path, framed big-on-the-right by the v3 rig (radius). */
-            const p = d.position;
-            if (d.render === "blackhole")
-              /* Cinematic "black hole in a nebular envelope with polar jets"
-                 look for the tour's Contact destination — matches the
-                 reference image the user posted. The decorative + Sgr A*
-                 mounts stay on the clean Gargantua defaults. */
-              return <BlackHole key={d.id} position={p} radius={d.radius} nebula jets animate={!reducedMotion} onPointerOver={handleHoverIn} onPointerOut={handleHoverOut} />;
-            if (d.render === "milkyway_galaxy")
-              /* The "you are here" moment — the visitor sees the whole Milky
-                 Way from outside, with Sol pinned on the Orion Spur.
-                 Rotation orients the disc so the camera (sunward of the
-                 galaxy on the +X-out tour path) sees a 3/4 face-on view of
-                 the spiral, not the edge. Z-axis rotate 90° flips the disc
-                 from horizontal (Y-normal) to vertical (X-normal, facing
-                 sunward); then a small X-tilt gives the 3/4 depth. */
-              return (
-                <group key={d.id} position={p} rotation={[Math.PI / 5, 0, Math.PI / 2]}>
-                  <SpiralGalaxy animate={!reducedMotion} />
-                </group>
-              );
+            /* v3 deep-space epilogue stops — Kuiper Belt + Oort Cloud are
+               camera-framing-only. The geometry already renders via
+               AsteroidBelt + BeltDust (Kuiper background scenery) and
+               OortCloud (shell around origin). These stops just park the
+               camera at the authored cameraTarget. */
             return null;
           }
           return null;
