@@ -178,7 +178,19 @@ const Planet = ({
     };
   }, [grade]);
 
-  useFrame((_, delta) => {
+  /* §7 Planet LOD — three precomputed sphere geometries; the useFrame below swaps
+     `planetRef.current.geometry` between them based on camera distance so React
+     never re-renders and the material instance (with its texture uniforms) never
+     re-mounts. Only vertex-processing cost scales with distance. */
+  const bodyGeos = useMemo(() => ({
+    high: new THREE.SphereGeometry(radius, 48, 48),
+    mid: new THREE.SphereGeometry(radius, 24, 24),
+    low: new THREE.SphereGeometry(radius, 12, 12),
+  }), [radius]);
+  const lodTier = useRef("high");
+  const _lodProbe = useMemo(() => new THREE.Vector3(), []);
+
+  useFrame(({ camera }, delta) => {
     /* Clamp dt: VisibilityController pauses the loop while the tab is hidden, so
        the first delta on refocus ≈ the whole hidden span — unclamped, the planets
        + moons would snap-spin a full frame. Matches SceneClock's own 1/20 clamp.
@@ -187,7 +199,20 @@ const Planet = ({
     const dt = Math.min(delta, 1 / 20) * sceneClock.scale;
     /* Axial rotation + moons — frozen on reduced-motion (animate=false). */
     if (!animate) return;
-    if (planetRef.current) planetRef.current.rotation.y += dt * rotationSpeed;
+    if (planetRef.current) {
+      planetRef.current.rotation.y += dt * rotationSpeed;
+      /* §7 Planet LOD swap. Thresholds scaled by body radius so a Jupiter-sized
+         giant swaps later than a Ceres-sized dwarf (the giant fills more of the
+         frame at any given world distance). Snap boundaries — a smooth blend
+         would require running both meshes and blending, which drops the win. */
+      planetRef.current.getWorldPosition(_lodProbe);
+      const d = camera.position.distanceTo(_lodProbe);
+      const nextTier = d < radius * 40 ? "high" : d < radius * 200 ? "mid" : "low";
+      if (nextTier !== lodTier.current) {
+        lodTier.current = nextTier;
+        planetRef.current.geometry = bodyGeos[nextTier];
+      }
+    }
     if (cloudRef.current) cloudRef.current.rotation.y += dt * rotationSpeed * 1.35;
     moonsRef.current.forEach((m, i) => {
       if (m) {
