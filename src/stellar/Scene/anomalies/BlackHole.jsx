@@ -1,9 +1,91 @@
 /* eslint-disable react/no-unknown-property */
 import { useMemo, useRef } from "react";
-import { useFrame } from "@react-three/fiber";
+import { useFrame, useLoader } from "@react-three/fiber";
 import * as THREE from "three";
 import { useSceneClock } from "../SceneClock";
 import { nearCamera } from "../shared/hooks";
+
+/* Milky-Way skybox path — shared with Scene/Skybox.jsx. Loaded here as a
+   uniform so the lensing shader can sample the real starfield and bend it
+   around the event horizon per Schwarzschild. useLoader is content-addressed
+   by URL, so this doesn't re-fetch. */
+const SKYBOX_URL = "/textures/space/milkyway-space.webp";
+
+/* Object-space Schwarzschild lensing shader. For each fragment on a proxy
+   sphere around the hole, we compute:
+     - view direction (world-space, from camera to fragment)
+     - impact parameter b: perpendicular distance from the black-hole centre
+       to the incoming ray
+     - deflection angle α = 2·rs / max(b, rs) — the weak-field lensing formula,
+       clamped so the direction bend is smooth all the way to the horizon
+     - sample the equirectangular skybox with the deflected direction
+   Below the photon sphere (b < ~1.5·rs) light gets captured; we fade to black
+   inside that radius so the shadow reads solid.
+   Additive-blended on top of the black event-horizon sphere so it composits
+   with Bloom without needing a second post pass. */
+const LENS_VERT = /* glsl */ `
+  varying vec3 vWorldPos;
+  void main() {
+    vec4 wp = modelMatrix * vec4(position, 1.0);
+    vWorldPos = wp.xyz;
+    gl_Position = projectionMatrix * viewMatrix * wp;
+  }
+`;
+const LENS_FRAG = /* glsl */ `
+  uniform sampler2D uSkybox;
+  uniform vec3 uCentre;        // black-hole world position
+  uniform vec3 uCameraPos;     // camera world position
+  uniform float uRs;           // Schwarzschild-ish scale radius (~event horizon)
+  uniform float uIntensity;    // 0 disables the whole effect
+  varying vec3 vWorldPos;
+
+  /* Equirectangular sample: dir in world space → (u, v). Matches Skybox.jsx's
+     BackSide sphere UV convention closely enough for the deflected sample to
+     read as a continuous starfield. */
+  vec2 dirToUV(vec3 d) {
+    d = normalize(d);
+    return vec2(
+      0.5 + atan(d.z, d.x) / 6.28318530718,
+      0.5 - asin(d.y) / 3.14159265359
+    );
+  }
+
+  void main() {
+    if (uIntensity < 0.001) discard;
+    /* Undeflected view direction — camera through this fragment. */
+    vec3 rayDir = normalize(vWorldPos - uCameraPos);
+
+    /* Impact parameter: closest-approach distance of the ray to the BH centre.
+       t = (C - O) . d, closest point = O + t·d, b = |closest - C|. */
+    vec3 toCentre = uCentre - uCameraPos;
+    float t = dot(toCentre, rayDir);
+    vec3 closest = uCameraPos + rayDir * t;
+    float b = length(closest - uCentre);
+
+    /* Below the photon sphere (~1.5·rs) light is captured. Smooth-shadow it
+       to black there so the horizon looks solid, not a bright edge. */
+    float capture = smoothstep(uRs * 1.5, uRs * 1.7, b);
+    if (capture < 0.02) discard;
+
+    /* Weak-field deflection angle α ≈ 2·rs/b (in radians). Clamp b to avoid
+       explosive bends near the shadow — a real full-GR trace would ray-march
+       geodesics, but for the proxy-sphere approach this smooth approximation
+       reads as the classic "wrap" without visible artifacts. */
+    float bClamp = max(b, uRs * 1.55);
+    float alpha = 2.0 * uRs / bClamp;
+
+    /* Rotate rayDir toward uCentre by angle alpha in the plane containing
+       both. Rodrigues-style rotation around the perpendicular axis. */
+    vec3 towardBH = normalize(uCentre - closest);
+    vec3 deflected = normalize(rayDir * cos(alpha) + towardBH * sin(alpha));
+
+    vec3 col = texture2D(uSkybox, dirToUV(deflected)).rgb;
+    /* Brighten the bent starfield a touch near the shadow's edge where real
+       lensing concentrates flux (the Einstein ring bright limb). */
+    float rimBoost = 1.0 + smoothstep(uRs * 2.4, uRs * 1.6, b) * 0.9;
+    gl_FragColor = vec4(col * rimBoost * capture * uIntensity, capture * uIntensity);
+  }
+`;
 
 /*
  * A black hole — rendered the way Interstellar's Gargantua and the Event
@@ -119,7 +201,19 @@ const BlackHole = ({
   const diskGroup = useRef();
   const ringRef = useRef();
   const haloRef = useRef();
+  const lensMat = useRef();
   const sceneClock = useSceneClock();
+
+  /* Skybox texture for the lensing shader. Same URL as Scene/Skybox.jsx →
+     useLoader dedups. Configured lazily. */
+  const skyboxTex = useLoader(THREE.TextureLoader, SKYBOX_URL);
+  const lensUniforms = useMemo(() => ({
+    uSkybox: { value: skyboxTex },
+    uCentre: { value: new THREE.Vector3(...position) },
+    uCameraPos: { value: new THREE.Vector3() },
+    uRs: { value: radius * 1.02 },      // scale radius ≈ event horizon
+    uIntensity: { value: 0.9 },
+  }), [skyboxTex, position, radius]);
 
   /* §7 distance gate: skip the lookAt + disk rotation work when the camera is
      far from this mount. The two BlackHole call sites live at very different
@@ -161,6 +255,9 @@ const BlackHole = ({
       if (animate) ringRef.current.material.opacity = 0.82 + Math.sin(t * 3.1) * 0.1 + Math.sin(t * 7.7) * 0.05;
     }
     if (haloRef.current) haloRef.current.lookAt(camera.position);
+    /* Lensing shader needs the live camera position each frame to compute
+       impact parameters. Centre stays static (BlackHole is a fixed body). */
+    if (lensMat.current) lensMat.current.uniforms.uCameraPos.value.copy(camera.position);
   });
 
   return (
@@ -170,6 +267,27 @@ const BlackHole = ({
       <mesh>
         <sphereGeometry args={[radius * 1.02, 48, 48]} />
         <meshBasicMaterial color="#000000" toneMapped={false} />
+      </mesh>
+
+      {/* §14.3 Gargantua gravitational lensing — proxy sphere around the horizon
+          whose fragment shader samples the Milky-Way skybox with each ray
+          deflected by the weak-field Schwarzschild formula (α = 2·rs/b).
+          Additive so it composits with the halo + disk under the existing
+          Bloom pass — no second mainImage. renderOrder: -1 so it lays down
+          before the additive rings that sit inside it. */}
+      <mesh renderOrder={-1}>
+        <sphereGeometry args={[radius * 4.5, 96, 64]} />
+        <shaderMaterial
+          ref={lensMat}
+          vertexShader={LENS_VERT}
+          fragmentShader={LENS_FRAG}
+          uniforms={lensUniforms}
+          transparent
+          depthWrite={false}
+          side={THREE.BackSide}
+          blending={THREE.AdditiveBlending}
+          toneMapped={false}
+        />
       </mesh>
 
       {/* Lensed halo — the gravitational "wrap": the far side of the disk bent
