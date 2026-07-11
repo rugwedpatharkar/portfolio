@@ -7,6 +7,7 @@ import CinematicGrade from "./CinematicGrade";
 import SceneClock from "./SceneClock";
 import Stars from "./Stars";
 import Sun from "./Sun";
+import SunRays from "./SunRays";
 import Planet from "./Planet";
 import CameraRig from "./CameraRig";
 import AsteroidBelt from "./AsteroidBelt";
@@ -313,6 +314,14 @@ const Scene = ({ scrollT, finaleT, finale = false, activeIdx, onJump, focusRef, 
                     onPointerOut={handleHoverOut}
                   />
                 </SafeLoad>
+                {/* Anamorphic god-ray shafts. Radius scaled to the Sun's
+                    visual extent so the streaks reach out ~4× the disc — a
+                    cinematic lens-flare read without a second post pass. */}
+                <SunRays
+                  position={d.position}
+                  radius={d.radius * 6}
+                  intensity={reducedMotion ? 0 : 0.55}
+                />
               </group>
             );
           }
