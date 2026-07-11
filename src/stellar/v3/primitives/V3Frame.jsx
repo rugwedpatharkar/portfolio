@@ -12,6 +12,7 @@
  */
 import { createContext, useContext } from "react";
 import useViewport from "../../useViewport";
+import FocusHint from "./FocusHint";
 
 /* Passes the current scan direction to V3Scan / arrival-choreography children. */
 export const V3ScanContext = createContext({ dir: "horizontal", key: 0 });
@@ -71,6 +72,11 @@ export default function V3Frame({
             in the Planet Information card. The "top" grid row simply collapses. */}
         {children}
       </div>
+      {/* §3.7: subtle "Press ↑ ↓ to navigate" hint that appears when a tab
+          inside the dossier first receives focus, and self-dismisses on the
+          first arrow-key press (remembered per session). Fixed-positioned so
+          it doesn't disturb the grid layout. */}
+      <FocusHint />
     </V3ScanContext.Provider>
   );
 }
