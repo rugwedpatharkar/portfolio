@@ -47,7 +47,7 @@ export default function NotesSection({ bootNonce }) {
     if (i < 0 || i >= list.length || i === active) return;
     setActive(i);
   }, [active, list.length]);
-  const onKeys = useMasterListKeys(active, goto, list.length);
+  const { onKeyDown: onKeys, itemProps } = useMasterListKeys(active, goto, list.length);
 
   return (
     <V3Frame
@@ -89,6 +89,7 @@ export default function NotesSection({ bootNonce }) {
                     role="tab"
                     aria-selected={isActive}
                     onClick={() => goto(i)}
+                    {...itemProps(i)}
                     style={{
                       all: "unset", cursor: "pointer",
                       display: "flex", flexDirection: "column",

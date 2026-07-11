@@ -69,7 +69,7 @@ export default function SkillsSection({ bootNonce }) {
   const [activeName, activeList] = cats[active] || cats[0];
   const reduce = useReducedMotion();
   /* Skills historically clamped rather than wrapped — preserved for parity. */
-  const onKeys = useMasterListKeys(active, setActive, cats.length, { wrap: false });
+  const { onKeyDown: onKeys, itemProps } = useMasterListKeys(active, setActive, cats.length, { wrap: false });
 
   /* Precompute axis geometry per skill in the active category. */
   const geometry = useMemo(() => {
@@ -137,6 +137,7 @@ export default function SkillsSection({ bootNonce }) {
                     role="tab"
                     aria-selected={isActive}
                     onClick={() => setActive(i)}
+                    {...itemProps(i)}
                     className={isActive ? "v3-glass-accent" : "v3-glass"}
                     style={{
                       all: "unset", cursor: "pointer",

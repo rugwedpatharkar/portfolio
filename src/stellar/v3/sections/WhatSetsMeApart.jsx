@@ -51,7 +51,7 @@ export default function WhatSetsMeApartSection({ bootNonce }) {
     if (i < 0 || i >= PILLARS.length || i === active) return;
     setActive(i);
   }, [active]);
-  const onKeys = useMasterListKeys(active, goto, PILLARS.length);
+  const { onKeyDown: onKeys, itemProps } = useMasterListKeys(active, goto, PILLARS.length);
 
   return (
     <V3Frame
@@ -95,6 +95,7 @@ export default function WhatSetsMeApartSection({ bootNonce }) {
                     role="tab"
                     aria-selected={isActive}
                     onClick={() => goto(i)}
+                    {...itemProps(i)}
                     className={isActive ? "v3-glass-accent" : "v3-glass"}
                     style={{
                       all: "unset", cursor: "pointer",

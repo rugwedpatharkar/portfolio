@@ -1,4 +1,4 @@
-import { useCallback } from "react";
+import { useCallback, useRef } from "react";
 
 /*
  * Standardised keyboard navigation for master-list sections (§4.6 + §10.8).
@@ -9,13 +9,27 @@ import { useCallback } from "react";
  *   · Education / Notes / WhatSetsMeApart — ↑↓+jk, wrapping
  *   · Projects / Achievements — ←→+hl, wrapping
  *
- * This hook unifies the handler. The section chooses its axis + wrap policy;
- * everything else is consistent.
+ * §10.6 + §10.7: also owns the ARIA roving tabIndex pattern. Only the ACTIVE
+ * item has tabIndex=0; the others have -1. Arrow navigation moves focus to
+ * the newly-active item on the next frame (after React commits the tabIndex
+ * change). This is what makes a tablist keyboard-usable — without it, Tab
+ * lands on every item individually (10+ presses to leave the list) and
+ * `all: unset` on the buttons hides the browser's default focus outline.
+ *
+ * The v3-glass focus ring lives in V3Style — `:focus-visible` on the two
+ * card classes draws a 2px accent outline so keyboard users can see the
+ * active item without breaking mouse-only styling.
  *
  * Usage:
- *   const onKeyDown = useMasterListKeys(active, setActive, list.length);
+ *   const { onKeyDown, itemProps } = useMasterListKeys(active, setActive, list.length);
  *   // or with options:
- *   const onKeyDown = useMasterListKeys(active, setActive, list.length, { axis: "x", wrap: false });
+ *   const { onKeyDown, itemProps } = useMasterListKeys(active, setActive, list.length, { axis: "x", wrap: false });
+ *   ...
+ *   <div onKeyDown={onKeyDown}>
+ *     {list.map((item, i) => (
+ *       <button {...itemProps(i)} onClick={() => setActive(i)}>...</button>
+ *     ))}
+ *   </div>
  *
  * @param {number}   current   the currently-active index
  * @param {Function} setter    setter that accepts the new numeric index — works
@@ -24,11 +38,22 @@ import { useCallback } from "react";
  * @param {Object}   [opts]
  * @param {"y"|"x"}  [opts.axis="y"]   "y" = ↑↓+jk; "x" = ←→+hl
  * @param {boolean}  [opts.wrap=true]  wrap around at either end
- * @returns {(e: KeyboardEvent) => void}
+ * @returns {{ onKeyDown, itemProps }} onKeyDown handler + per-index prop spread
  */
 export function useMasterListKeys(current, setter, length, opts = {}) {
   const { axis = "y", wrap = true } = opts;
-  return useCallback(
+  const refs = useRef([]);
+
+  const setActive = useCallback((i) => {
+    setter(i);
+    /* Focus the newly-active item on the next frame — after React commits the
+       roving tabIndex change, so the button is tabIndex=0 by the time it
+       receives focus. rAF is the smallest reliable "post-commit" hook without
+       pulling in useLayoutEffect gymnastics. */
+    requestAnimationFrame(() => refs.current[i]?.focus?.());
+  }, [setter]);
+
+  const onKeyDown = useCallback(
     (e) => {
       const key = e.key.toLowerCase();
       const isNext = axis === "y"
@@ -44,8 +69,18 @@ export function useMasterListKeys(current, setter, length, opts = {}) {
       const next = wrap
         ? (((current + delta) % length) + length) % length
         : Math.max(0, Math.min(length - 1, current + delta));
-      setter(next);
+      setActive(next);
     },
-    [current, setter, length, axis, wrap]
+    [current, setActive, length, axis, wrap]
   );
+
+  const itemProps = useCallback(
+    (i) => ({
+      ref: (el) => { refs.current[i] = el; },
+      tabIndex: i === current ? 0 : -1,
+    }),
+    [current]
+  );
+
+  return { onKeyDown, itemProps };
 }

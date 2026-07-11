@@ -64,7 +64,9 @@ export default function ProjectsSection({ bootNonce }) {
 
   const next = useCallback(() => goto((active + 1) % list.length), [active, list.length, goto]);
   const prev = useCallback(() => goto((active - 1 + list.length) % list.length), [active, list.length, goto]);
-  const onKeys = useMasterListKeys(active, goto, list.length, { axis: "x" });
+  /* Projects is a carousel — one container gets tabIndex + arrow keys and swaps
+     the active project; there's no per-item button list, so no `itemProps`. */
+  const { onKeyDown: onKeys } = useMasterListKeys(active, goto, list.length, { axis: "x" });
 
   return (
     <V3Frame

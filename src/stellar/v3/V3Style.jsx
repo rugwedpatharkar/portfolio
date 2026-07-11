@@ -129,6 +129,19 @@ const V3Style = ({ accentKey }) => {
         backdrop-filter: blur(11px) saturate(135%);
         -webkit-backdrop-filter: blur(11px) saturate(135%);
       }
+      /* §10.7: visible keyboard focus ring on dossier tabs. Every glass card
+         is styled with \`all: unset\` on buttons, which clears the browser's
+         default focus outline — without this, keyboard users have no idea
+         where focus is. \`:focus-visible\` shows the ring only when the
+         browser thinks it's a keyboard interaction, so mouse-only users
+         don't see it. Uses the same accent token as the active tint so the
+         focused item feels continuous with the selected state. */
+      .stellar-dossier-frame [role="tab"]:focus-visible,
+      .stellar-dossier-frame .v3-glass:focus-visible,
+      .stellar-dossier-frame .v3-glass-accent:focus-visible{
+        outline: 2px solid var(--v3-accent);
+        outline-offset: 3px;
+      }
       /* Touch devices: gradient carries it; drop the blur (cheaper). */
       @media (hover: none) and (pointer: coarse){
         .v3-glass,

@@ -68,7 +68,7 @@ export default function AchievementsSection({ bootNonce }) {
     if (i < 0 || i >= list.length || i === active) return;
     setActive(i);
   }, [active, list.length]);
-  const onKeys = useMasterListKeys(active, goto, list.length, { axis: "x" });
+  const { onKeyDown: onKeys, itemProps } = useMasterListKeys(active, goto, list.length, { axis: "x" });
 
   return (
     <V3Frame
@@ -234,6 +234,7 @@ export default function AchievementsSection({ bootNonce }) {
                     role="tab"
                     aria-selected={isActive}
                     onClick={() => goto(i)}
+                    {...itemProps(i)}
                     initial={reduce ? false : { opacity: 0, y: 10 }}
                     whileInView={{ opacity: 1, y: 0 }}
                     viewport={{ once: true, amount: 0.2 }}

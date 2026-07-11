@@ -68,7 +68,7 @@ export default function ExperienceSection({ bootNonce }) {
   const cat = cats[activeCat] || cats[0];
   const reduce = useReducedMotion();
   /* Experience historically clamped rather than wrapped — preserved for parity. */
-  const onCatKeys = useMasterListKeys(activeCat, setActiveCat, cats.length, { wrap: false });
+  const { onKeyDown: onCatKeys, itemProps: catItemProps } = useMasterListKeys(activeCat, setActiveCat, cats.length, { wrap: false });
 
   // Reset category selection when switching roles
   useEffect(() => { setActiveCat(0); }, [active]);
@@ -273,6 +273,7 @@ export default function ExperienceSection({ bootNonce }) {
                       role="tab"
                       aria-selected={isActive}
                       onClick={() => setActiveCat(i)}
+                      {...catItemProps(i)}
                       className={isActive ? "v3-glass-accent" : "v3-glass"}
                       style={{
                         all: "unset", cursor: "pointer",

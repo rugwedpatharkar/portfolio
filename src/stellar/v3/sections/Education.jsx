@@ -72,7 +72,10 @@ export default function EducationSection({ bootNonce }) {
     if (i < 0 || i >= list.length || i === active) return;
     setActive(i);
   }, [active, list.length]);
-  const onKeys = useMasterListKeys(active, goto, list.length);
+  /* Education uses SVG <motion.circle> tabs — the roving-tabIndex + `.focus()`
+     model doesn't apply cleanly to SVG focus semantics, so this stop keeps the
+     container-level onKeyDown only. Per-item focus is a separate design pass. */
+  const { onKeyDown: onKeys } = useMasterListKeys(active, goto, list.length);
 
   return (
     <V3Frame

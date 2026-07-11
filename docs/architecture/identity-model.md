@@ -85,6 +85,23 @@ That's a 5-file touch — down from 8 after §6.3 folded `DOC_SECTION`,
 `SECTION_COMPONENT` map stays in `V3Panel.jsx` because it wires React lazy
 imports and belongs with the panel, not the data config.
 
+## Keyboard conventions (§10.8)
+
+All master-list sections use `useMasterListKeys` from `v3/primitives/`. The
+default axis is **↑↓ + jk** (vertical master list), with ←→ + hl reserved for
+horizontal carousels (Projects, Achievements). Every list is a **roving
+tablist**: the container gets `tabIndex={0}`, only the active item has
+`tabIndex={0}` among its siblings, and arrow keys move focus + change the
+selection in one atomic step. Focus is drawn with a 2px accent outline via
+`:focus-visible` in `V3Style` — see `stellar-dossier-frame [role="tab"]`.
+
+Exceptions:
+
+- **Projects** — carousel container, single tabIndex, prev/next buttons for mouse.
+- **Education** — SVG `<motion.circle>` tabs; roving works but the ref-based
+  `.focus()` model behaves inconsistently on SVG elements, so this stop
+  currently keeps container-level `onKeyDown` only.
+
 ## The trap
 
 The **most common bug** in this system is keying a data lookup by the wrong
