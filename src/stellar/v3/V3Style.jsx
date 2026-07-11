@@ -83,78 +83,63 @@ const V3Style = ({ accentKey }) => {
 
       /* GLASSMORPHIC section cards — every dossier card is inline-styled with
          \`border: 1px solid var(--v3-line)\` (the SUBTLE line; chips/pills use
-         \`--v3-line-strong\` + a round radius). This attribute selector catches
-         them all and applies frosted glass. Excludes pills (border-radius 999)
-         and the round nav buttons (border-radius 50%).
+         \`--v3-line-strong\` + a round radius). Two selection paths, applied
+         additively:
 
-         IMPORTANT — why the background is a SOLID gradient, not a bare
-         translucent tint relying on backdrop-filter:
-         Cards sit inside <V3Scan>, whose entry animation sets \`filter: blur()\`
-         and \`transform\` (and leaves \`filter: blur(0px)\` behind). Per CSS, any
-         ancestor with a non-none filter/transform becomes the backdrop root for
-         a descendant's \`backdrop-filter\`, so the blur samples an EMPTY buffer
-         and the card looks un-frosted — which is exactly the "transparent for a
-         few seconds then glass" + "not on all cards" behaviour. So we make the
-         glass a layered dark gradient + top highlight that reads as frosted
-         glass WITHOUT needing backdrop-filter to render, and keep the real blur
-         as a progressive enhancement (no !important → where an ancestor filter
-         suppresses it, the gradient still carries the look). Result: consistent
-         glass on every card, instantly, no flash. */
-      /* Selector notes (verified card-by-card against the live DOM across all
-         12 stops):
-           - Require the \`border: \` PREFIX (colon-space, no dash) so we match
-             full-border BOXES and NOT \`border-top: …\` hairline dividers.
-           - Two families of box border exist: the neutral \`var(--v3-line)\`
-             (also matches \`--v3-line-strong\`, since "line" is a substring, so
-             chips/pills/tabs are covered too) and the emphasis \`var(--v3-accent)\`
-             (featured milestones + active/selected states). We handle both.
-           - Scope is EVERY boxed element (per user: "everything boxed") — cards,
-             stat tiles, chips, filter pills, tabs, and round nav buttons all get
-             glass. So we DO NOT exclude by radius and we DO NOT force a radius:
-             each element keeps its own (pills stay round, cards stay 6px).
-           - Exclude ONLY photo tiles via :not([style*="background-image"]) — the
-             About portrait is an accent-bordered role="img" whose photo the glass
-             \`background\` would otherwise overwrite.
-         Gradients are intentionally OPAQUE (~0.66–0.84): backdrop-filter is
-         suppressed while an ancestor <V3Scan> holds a filter/transform during the
-         arrival scan, so a translucent box would read as a bare tint (the
-         "transparent then glass" flash). At this opacity the box is frosted glass
-         from the first frame; real backdrop blur layers on as enhancement.
-         Shadow kept modest (8/26 vs 14/44) so it reads right on small chips too. */
+           1. **Class-based, resilient path (preferred for new code):**
+              \`.v3-glass\`  → neutral card glass
+              \`.v3-glass-accent\` → accent-bordered emphasis glass
+              Formatter-safe: no reliance on inline-style string shape.
 
-      /* Neutral boxes — cool dark glass. NOTE the border token match STOPS at
-         \`var(--v3-line\` with NO closing paren: that prefix catches BOTH
-         \`var(--v3-line)\` (cards) and \`var(--v3-line-strong)\` (chips / pills /
-         tabs / round buttons) in one selector. Including the \`)\` would exclude
-         every line-strong chip (\`…line)\` ≠ \`…line-strong)\`). */
-      .stellar-dossier-frame [style*="border: 1px solid var(--v3-line"]:not([style*="background-image"]){
-        /* Base lightened from ~#0e1018 to ~#1e222e so the card reads as a
-           distinct frosted-glass PANEL even over dark space (where there's no
-           bright planet behind it to frost — the previous near-black gradient
-           vanished into the backdrop, e.g. the Projects card). Still opaque. */
+           2. **Inline-style attribute path (legacy, catches everything already
+              shipped):** matches the exact substring \`border: … var(--v3-line…\`
+              in the element's inline \`style\`. Both \`border: 1px …\` and
+              \`border:1px …\` (Prettier-compressed) are covered so a future
+              format pass on the JSX style objects can't silently un-glass any
+              card. Excludes photo tiles via :not([style*="background-image"]).
+
+         IMPORTANT — the background is a SOLID gradient, not a translucent tint
+         relying on backdrop-filter: Cards sit inside <V3Scan>, whose entry
+         animation sets \`filter: blur()\` and \`transform\` (and leaves
+         \`filter: blur(0px)\` behind). Per CSS, any ancestor with a non-none
+         filter/transform becomes the backdrop root for a descendant's
+         \`backdrop-filter\`, so the blur samples an EMPTY buffer and the card
+         looks un-frosted. The gradient reads as frosted glass WITHOUT needing
+         backdrop-filter; the real blur is a progressive enhancement.
+
+         NOTE on the border-token substring: match STOPS at \`var(--v3-line\`
+         with NO closing paren so we catch BOTH \`var(--v3-line)\` (cards) and
+         \`var(--v3-line-strong)\` (chips / pills / tabs / round buttons) in
+         one selector. Including the \`)\` would exclude every line-strong
+         chip. */
+
+      /* Neutral boxes — cool dark glass. */
+      .v3-glass,
+      .stellar-dossier-frame [style*="border: 1px solid var(--v3-line"]:not([style*="background-image"]),
+      .stellar-dossier-frame [style*="border:1px solid var(--v3-line"]:not([style*="background-image"]){
         background: linear-gradient(157deg, rgba(30, 34, 46, 0.72), rgba(15, 18, 27, 0.82)) !important;
         border-color: color-mix(in oklab, var(--v3-fg) 17%, transparent) !important;
         box-shadow: 0 8px 26px rgba(0, 0, 0, 0.40), inset 0 1px 0 rgba(255, 255, 255, 0.08) !important;
         backdrop-filter: blur(11px) saturate(135%);
         -webkit-backdrop-filter: blur(11px) saturate(135%);
       }
-      /* Emphasis boxes (accent border) — warm-tinted glass that KEEPS the accent
-         border + a soft accent glow, so "featured / active" still reads as
-         special while matching the frosted-glass system. (\`--v3-accent\` has no
-         \`-strong\` variant, so the open-prefix match is equivalent here.) */
-      .stellar-dossier-frame [style*="border: 1px solid var(--v3-accent"]:not([style*="background-image"]){
-        /* Warm glass, base lightened to match the neutral panel so accent cards
-           also read as glass over dark backdrops. */
+      /* Emphasis boxes (accent border) — warm-tinted glass with soft accent glow. */
+      .v3-glass-accent,
+      .stellar-dossier-frame [style*="border: 1px solid var(--v3-accent"]:not([style*="background-image"]),
+      .stellar-dossier-frame [style*="border:1px solid var(--v3-accent"]:not([style*="background-image"]){
         background: linear-gradient(157deg, color-mix(in oklab, var(--v3-accent) 13%, rgba(34, 27, 17, 0.76)), rgba(18, 14, 9, 0.85)) !important;
         box-shadow: 0 8px 26px rgba(0, 0, 0, 0.40), 0 0 20px color-mix(in oklab, var(--v3-accent) 16%, transparent), inset 0 1px 0 rgba(255, 255, 255, 0.08) !important;
         backdrop-filter: blur(11px) saturate(135%);
         -webkit-backdrop-filter: blur(11px) saturate(135%);
       }
-      /* Touch devices: gradient carries it; drop the blur (cheaper — matters more
-         now that "everything boxed" means many small blurred elements). */
+      /* Touch devices: gradient carries it; drop the blur (cheaper). */
       @media (hover: none) and (pointer: coarse){
+        .v3-glass,
+        .v3-glass-accent,
         .stellar-dossier-frame [style*="border: 1px solid var(--v3-line"]:not([style*="background-image"]),
-        .stellar-dossier-frame [style*="border: 1px solid var(--v3-accent"]:not([style*="background-image"]){
+        .stellar-dossier-frame [style*="border:1px solid var(--v3-line"]:not([style*="background-image"]),
+        .stellar-dossier-frame [style*="border: 1px solid var(--v3-accent"]:not([style*="background-image"]),
+        .stellar-dossier-frame [style*="border:1px solid var(--v3-accent"]:not([style*="background-image"]){
           backdrop-filter: none;
           -webkit-backdrop-filter: none;
         }
