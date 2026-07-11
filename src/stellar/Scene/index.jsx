@@ -128,6 +128,7 @@ const Scene = ({ scrollT, finaleT, finale = false, activeIdx, onJump, focusRef, 
      planets, belts, dwarf planets, comets — all off. Hyperspace jump on
      scroll carries them into the tour. */
   const isMilkyway = activeIdx === 0;
+  const isOverview = activeIdx === 1;
   const showExtras = extrasPhase >= 1 && !finale && !isMilkyway;
   const showMid = extrasPhase >= 2 && !finale && !isMilkyway;
   const showEggs = extrasPhase >= 3 && !finale && !isMilkyway;
@@ -465,11 +466,11 @@ const Scene = ({ scrollT, finaleT, finale = false, activeIdx, onJump, focusRef, 
             mounted; now it's actually gone. The Sun's own Bloom glows it cleanly. */}
         {/* Orrery rings — the real orbital structure. Shown in overview mode AND on
             the v3 system-overview hero (stop 0). */}
-        {showExtras && <OrbitRings show={v3 && activeIdx === 0} />}
+        {showExtras && <OrbitRings show={v3 && activeIdx === 1} />}
         {/* Overview-only belt band rings — make the asteroid + Kuiper belts
             read as belts from ~2200u out where the actual rock particles
             are sub-pixel. Invisible at any tour stop. */}
-        {showExtras && v3 && activeIdx === 0 && <BeltRings />}
+        {showExtras && v3 && activeIdx === 1 && <BeltRings />}
         {/* Dwarf planets + named belt bodies (Vesta, Eris, Makemake, Haumea). */}
         {showExtras && <DwarfPlanets animate={!reducedMotion} />}
         {/* Halley's Comet on its real 76-year elliptical orbit — a live

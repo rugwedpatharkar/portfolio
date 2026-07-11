@@ -176,12 +176,16 @@ const MilkyWay = ({ finale = false }) => {
         <bufferAttribute attach="attributes-color" count={POINT_COUNT} array={colors} itemSize={3} />
         <bufferAttribute attach="attributes-size" count={POINT_COUNT} array={sizes} itemSize={1} />
       </bufferGeometry>
+      {/* The `finale` prop is now the "make me the hero" prop — brightens
+          size+opacity so the arching band is unmistakably the galaxy.
+          Consumers: Milky Way homepage (isMilkyway=true), and the tour
+          finale (finale=true). Names kept for continuity. */}
       <pointsMaterial
-        size={finale ? 58 : 38}
+        size={finale ? 96 : 38}
         sizeAttenuation
         vertexColors
         transparent
-        opacity={finale ? 0.55 : 0.24}
+        opacity={finale ? 1.0 : 0.24}
         depthWrite={false}
         map={DUST_TEXTURE}
         alphaTest={0.01}

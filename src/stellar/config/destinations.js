@@ -40,10 +40,13 @@ export const DESTINATIONS = [
     accent: "#ffd58a",
     section: "hero", // no résumé — pure intro
     docTitle: "",
-    /* Camera pose: floating in interstellar space at a small offset from
-       Sol (Sun is hidden anyway). LookAt in the direction of the galactic
-       centre so the Sagittarius bulge dominates the frame. */
-    cameraTarget: { position: [-40, 30, 12], lookAt: [-1500, 220, 900], fov: 66 },
+    /* Camera pose: floating in interstellar space near Sol (Sun hidden at
+       this stop). LookAt aligned with the galactic-centre direction (Sgr A*
+       at RA 17h45m40s, Dec −29°) with a small tilt toward the galactic
+       north pole so the Milky Way band ARCHES across the frame — brightest
+       toward Sagittarius (upper-right on our sky), thinning toward the
+       Perseus anticentre (lower-left). Wide fov=80 for cinematic breadth. */
+    cameraTarget: { position: [0, 0, 0], lookAt: [-604, 96, -1904], fov: 80 },
   },
   {
     /* v3 STOP 01 — Solar-System overview / arrival pose. Reached via the
@@ -60,13 +63,11 @@ export const DESTINATIONS = [
        and it carries the About Me section (was Sun). */
     section: "about",
     docTitle: "About",
-    /* v3 system overview — a CORNER SHOT of the whole true-scale system from a far,
-       high vantage. Sun sits on the far RIGHT of the frame, planets + real orbits +
-       asteroid belt + Kuiper haze fan out to screen-LEFT toward Neptune (~2857 units
-       out along +X). Camera is offset in +X beyond the Sun and pulled BACK in +Z, high
-       up in +Y for a ~30° 3/4 angle, wide FOV to fit Neptune's orbit. The lookAt sits
-       ~700u along +X toward Uranus so the Sun renders to the right of centre. This is
-       the real tour system framed at scale — no artistic compression. */
+    /* v3 system overview — a CORNER SHOT of the whole true-scale system from a
+       far, high vantage. Sun sits on the far RIGHT of the frame, planets + real
+       orbits + asteroid belt + Kuiper haze fan out to screen-LEFT toward Neptune
+       (~2857u out on +X). This is the wide establishing pose the About Me
+       content overlays on. */
     cameraTarget: { position: [1400, 900, 1600], lookAt: [700, -60, 100], fov: 60 },
   },
   {
