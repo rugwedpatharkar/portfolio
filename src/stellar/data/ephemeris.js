@@ -15,12 +15,12 @@
  */
 
 export const PERIOD = {
-  about: 0.2408,      // Mercury
-  funfacts: 0.6152,   // Venus
-  experience: 1.0,    // Earth
-  projects: 1.8809,   // Mars
-  skills: 11.862,     // Jupiter
-  notes: 29.4571,     // Saturn
-  education: 84.0205, // Uranus
-  hobbies: 164.8,     // Neptune
+  experience: 0.2408,      // Mercury
+  projects: 0.6152,   // Venus
+  achievements: 1.0,    // Earth
+  skills: 1.8809,   // Mars
+  education: 11.862,     // Jupiter
+  hobbies: 29.4571,     // Saturn
+  testimonials: 84.0205, // Uranus
+  whatsetsmeapart: 164.8,     // Neptune
 };

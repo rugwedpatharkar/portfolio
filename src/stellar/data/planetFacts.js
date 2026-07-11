@@ -12,7 +12,7 @@
  */
 
 export const PLANET_FACTS = {
-  sol: {
+  impact: {
     body: "Sol — G2V yellow dwarf star",
     distance: "0 AU · 8 light-min from Earth",
     diameter: "1,391,400 km · ~109 Earths",
@@ -31,7 +31,7 @@ export const PLANET_FACTS = {
       "SDO/SOHO composite imagery — sohowww.nascom.nasa.gov",
     ],
   },
-  about: {
+  experience: {
     body: "Mercury — M-class terrestrial",
     distance: "0.39 AU · 3.2 light-min",
     diameter: "4,879 km · 0.38× Earth",
@@ -45,7 +45,7 @@ export const PLANET_FACTS = {
     missions: "Mariner 10 · MESSENGER · BepiColombo",
     wow: "Day-side hits 430 °C, night-side drops to −180 °C. Largest temperature swing of any solar system body.",
   },
-  funfacts: {
+  projects: {
     body: "Venus — M-class terrestrial",
     distance: "0.72 AU · 6.0 light-min",
     diameter: "12,104 km · 0.95× Earth",
@@ -59,7 +59,7 @@ export const PLANET_FACTS = {
     missions: "Venera landers · Magellan · Akatsuki",
     wow: "Spins backward (retrograde) — the sun rises in the west on Venus. Surface pressure equals 900 m underwater on Earth.",
   },
-  experience: {
+  achievements: {
     body: "Earth — M-class terrestrial · cradle",
     distance: "1.00 AU · 8.3 light-min",
     diameter: "12,742 km",
@@ -73,7 +73,7 @@ export const PLANET_FACTS = {
     missions: "Home — ISS + thousands of satellites",
     wow: "Only known body where water exists in all three states at the surface simultaneously. The night-side glow you see is real city lights, ~20% of which use renewable power.",
   },
-  projects: {
+  skills: {
     body: "Mars — M-class terrestrial",
     distance: "1.52 AU · 12.7 light-min",
     diameter: "6,779 km · 0.53× Earth",
@@ -87,7 +87,7 @@ export const PLANET_FACTS = {
     missions: "Viking · Curiosity · Perseverance · Mangalyaan",
     wow: "Hosts Olympus Mons, the largest known volcano: 22 km tall (2.5× Everest), base wider than the state of Arizona.",
   },
-  achievements: {
+  writing: {
     body: "Ceres — dwarf planet, in the asteroid belt",
     distance: "2.77 AU between Mars & Jupiter",
     diameter: "940 km Ø (~0.07× Earth)",
@@ -101,7 +101,7 @@ export const PLANET_FACTS = {
     missions: "Dawn (orbited 2015–2018)",
     wow: "The largest body in the asteroid belt and the only dwarf planet in the inner solar system — round under its own gravity, holding ~a third of the belt's entire mass. Its crust hides briny water.",
   },
-  skills: {
+  education: {
     body: "Jupiter — class I gas giant",
     distance: "5.20 AU · 43 light-min",
     diameter: "139,820 km · 11× Earth",
@@ -115,7 +115,7 @@ export const PLANET_FACTS = {
     missions: "Pioneer · Voyager · Galileo · Juno",
     wow: "The Great Red Spot is a storm wider than Earth that has raged 350+ years. That glowing ring is Io's plasma torus — volcanic sulfur trapped in a magnetic field 20,000× Earth's.",
   },
-  notes: {
+  hobbies: {
     body: "Saturn — class II gas giant · ringed",
     distance: "9.54 AU · 79 light-min",
     diameter: "116,460 km · 9.4× Earth",
@@ -129,7 +129,7 @@ export const PLANET_FACTS = {
     missions: "Pioneer 11 · Voyager · Cassini–Huygens",
     wow: "That hexagon turning over the north pole is real — a six-sided jet stream wider than two Earths, stable since Voyager spotted it in 1981. Saturn is also so low-density it would float in a big enough bath.",
   },
-  education: {
+  testimonials: {
     body: "Uranus — ice giant · tilted 97.8°",
     distance: "19.19 AU · 159 light-min",
     diameter: "50,724 km · 4× Earth",
@@ -143,7 +143,7 @@ export const PLANET_FACTS = {
     missions: "Voyager 2 (1986 flyby — only visit)",
     wow: "Rolls on its side — its axis tilt is 97.8°. Each pole sees 42 Earth years of continuous sunlight, then 42 years of darkness.",
   },
-  hobbies: {
+  whatsetsmeapart: {
     body: "Neptune — ice giant · methane blue",
     distance: "30.07 AU · 250 light-min",
     diameter: "49,244 km · 3.9× Earth",
@@ -157,7 +157,7 @@ export const PLANET_FACTS = {
     missions: "Voyager 2 (1989 flyby — only visit)",
     wow: "JWST finally caught Neptune's aurora in 2025 — glowing at MID-latitudes, not the poles, because its magnetic field is tilted ~47° and off-centre. It also has the solar system's fastest winds: supersonic, up to 2,100 km/h.",
   },
-  testimonials: {
+  contact: {
     body: "Pluto — dwarf planet, in the Kuiper belt",
     distance: "39.5 AU (eccentric: 30–49 AU)",
     diameter: "2,377 km Ø",
@@ -174,7 +174,7 @@ export const PLANET_FACTS = {
   /* The Milky Way — the HOMEPAGE grand intro. View from INSIDE the galaxy
      (arching band, Great Rift, Sagittarius core). Not a spiral from outside
      (physically impossible from Sol). */
-  milkyway: {
+  hero: {
     body: "The Milky Way — our home galaxy",
     distance: "26,670 ly from the galactic centre",
     diameter: "~100,000 light-years across",
@@ -196,25 +196,8 @@ export const PLANET_FACTS = {
   /* The Edge — the tour's cinematic closer, a black hole hosting the
      Contact section. Not scientifically nearby (nearest known BH is Gaia
      BH1 at 1,560 ly); this is the emotional endpoint of the journey. */
-  blackhole: {
-    body: "The Edge — a black hole",
-    distance: "Past the last orbit · the outward horizon",
-    diameter: "Event horizon — the point of no return",
-    mass: "Millions of Suns, collapsed to a point",
-    year: "—",
-    day: "Spins near light-speed, dragging spacetime with it",
-    gravity: "Escape velocity exceeds c — not even light gets out",
-    temp: "Hawking radiation — a whisper above absolute zero",
-    atmosphere: "Accretion disk — infalling matter heated to millions of °C",
-    moons: "—",
-    missions: "Event Horizon Telescope imaged M87* (2019) & Sgr A* (2022)",
-    wow: "Near the horizon, time itself dilates — an hour here can be years for everyone else. This is where the tour ends and the conversation begins. Beam a message aboard.",
-    sources: [
-      "Event Horizon Telescope Collaboration 2019 (M87*) — DOI:10.3847/2041-8213/ab0ec7",
-      "Event Horizon Telescope Collaboration 2022 (Sgr A*) — DOI:10.3847/2041-8213/ac6674",
-      "Interstellar visualisation reference — Thorne et al. 2015, DOI:10.1088/0264-9381/32/6/065001",
-    ],
-  },
+  /* The Edge intentionally has NO planetFacts entry — user wants the
+     black-hole finale to render WIDE without any info card overlay. */
   /* Kuiper Belt — retired as a tour stop; kept as data for the belt
      background scenery and any future re-mount. Not referenced by any
      active destination now. */

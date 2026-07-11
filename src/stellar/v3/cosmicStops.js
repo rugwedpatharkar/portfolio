@@ -12,14 +12,21 @@
  */
 export const COSMIC_STOPS = [
   {
-    id: "blackhole",
+    id: "theedge",
     kind: "cosmic",
     render: "blackhole",
     label: "The Edge",
-    section: "contact",
-    docTitle: "Contact",
+    /* No section — pure visual finale. V3Panel gets an unmapped key and
+       returns null; the Planet Information card is also suppressed
+       (planetFacts + planetEditorial have no `theedge` entry). Just the
+       black hole filling the frame. */
+    section: "theedge",
+    docTitle: "",
     accent: "#ffb14a",
-    radius: 4.2,
+    /* Big radius so the framing camera stands off further and the black
+       hole visually SPREADS across the frame — user asked for wide-spread
+       finale, no card, no résumé. */
+    radius: 12,
     position: [4300, 120, -420],
   },
 ];

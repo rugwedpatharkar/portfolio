@@ -32,8 +32,8 @@ export const DESTINATIONS = [
        index.jsx gating on activeIdx === 0); the visible geometry is Skybox,
        Stars, MilkyWay, Nebulae, Constellations, DistantGalaxies, StarLabels.
        Scrolling triggers a hyperspace jump to the Solar-System overview. */
-    id: "milkyway",
-    kind: "milkyway",
+    id: "hero",
+    kind: "overview",
     label: "The Milky Way",
     position: [0, 0, 0],
     radius: 0,
@@ -52,14 +52,11 @@ export const DESTINATIONS = [
        hyperspace jump from the Milky Way homepage. Carries the ABOUT ME
        section (was Sun's About). No body of its own — Sun + planets already
        draw from their own stops. */
-    id: "overview",
+    id: "about",
     kind: "overview",
     label: "Solar System",
     position: [0, 0, 0],
     radius: 0,
-    /* v3 tour restructure: the Milky Way is now the homepage (index 0);
-       Solar-System overview is the arrival pose after the hyperspace jump,
-       and it carries the About Me section (was Sun). */
     section: "about",
     docTitle: "About",
     /* v3 system overview — a CORNER SHOT of the whole true-scale system from a
@@ -70,7 +67,7 @@ export const DESTINATIONS = [
     cameraTarget: { position: [1400, 900, 1600], lookAt: [700, -60, 100], fov: 60 },
   },
   {
-    id: "sol",
+    id: "impact",
     kind: "star",
     label: "Sol",
     position: [0, 0, 0],
@@ -82,9 +79,6 @@ export const DESTINATIONS = [
        Non-planet stops carry `accent`; planets fall back to `color`. */
     accent: "#e9c675",
     texture: "/textures/planets/sunmap.webp",
-    /* v3 tour restructure: Sun now carries IMPACT — About Me shifted up to
-       the Solar-System overview (arrival after hyperspace). Everything else
-       shifts down one body. */
     section: "funfacts",
     docTitle: "Impact",
     /* About — fly IN from the overview to frame the Sun prominently, still kept
@@ -94,7 +88,7 @@ export const DESTINATIONS = [
 
   // Inner system
   {
-    id: "about",
+    id: "experience",
     docTitle: "Experience",
     kind: "planet",
     type: "rocky",
@@ -110,7 +104,7 @@ export const DESTINATIONS = [
     cameraTarget: { position: [5.65, 0.13, 0.52], lookAt: [5.5, 0.1, 0.3], fov: 44 },
   },
   {
-    id: "funfacts",
+    id: "projects",
     docTitle: "Projects",
     kind: "planet",
     type: "warm",
@@ -130,7 +124,7 @@ export const DESTINATIONS = [
     cameraTarget: { position: [8.57, 0.27, 1.46], lookAt: [8.2, -0.15, 1.0], fov: 46 },
   },
   {
-    id: "experience",
+    id: "achievements",
     docTitle: "Achievements",
     kind: "planet",
     type: "earth",
@@ -163,7 +157,7 @@ export const DESTINATIONS = [
     cameraTarget: { position: [11.76, 0.22, -1.08], lookAt: [11.4, 0, -1.4], fov: 42 },
   },
   {
-    id: "projects",
+    id: "skills",
     docTitle: "Skills",
     kind: "planet",
     type: "rust",
@@ -191,7 +185,7 @@ export const DESTINATIONS = [
   // Ceres — the dwarf planet IN the asteroid belt (Achievements). Keeps id +
   // section so all lookups / content / hash stay intact; only the body changes.
   {
-    id: "achievements",
+    id: "writing",
     docTitle: "Writing",
     kind: "planet",
     type: "rocky",
@@ -214,7 +208,7 @@ export const DESTINATIONS = [
 
   // Outer system
   {
-    id: "skills",
+    id: "education",
     docTitle: "Education",
     kind: "planet",
     type: "gas",
@@ -243,7 +237,7 @@ export const DESTINATIONS = [
     ],
   },
   {
-    id: "notes",
+    id: "hobbies",
     docTitle: "Hobbies",
     kind: "planet",
     type: "golden",
@@ -276,7 +270,7 @@ export const DESTINATIONS = [
     ],
   },
   {
-    id: "education",
+    id: "testimonials",
     docTitle: "Testimonials",
     kind: "planet",
     type: "ice",
@@ -312,8 +306,8 @@ export const DESTINATIONS = [
     ],
   },
   {
-    id: "hobbies",
-    docTitle: "Testimonials",
+    id: "whatsetsmeapart",
+    docTitle: "",
     kind: "planet",
     type: "abyss",
     label: "Neptune",
@@ -326,7 +320,7 @@ export const DESTINATIONS = [
     /* The bundled map is the over-saturated Voyager indigo; grade it to the 2024
        true colour — a PALE greenish-blue, near-Uranus but a touch bluer. */
     grade: { sat: 0.55, lift: 0.08, mix: 0.42, tint: "#9ec6d6" },
-    section: "testimonials",
+    section: "whatsetsmeapart",
     /* Neptune — pulled back, lonely framing in the deep dark (offset scaled) */
     cameraTarget: { position: [40.54, 0.94, 2.34], lookAt: [39.0, 0, 0.8], fov: 44 },
     axialTilt: 28.3 * DEG, // Neptune's obliquity, close to Earth's
@@ -345,8 +339,8 @@ export const DESTINATIONS = [
   // Pluto — the dwarf planet IN the Kuiper belt (Testimonials). Keeps id +
   // section so all lookups / content / hash stay intact; only the body changes.
   {
-    id: "testimonials",
-    docTitle: "",
+    id: "contact",
+    docTitle: "Contact",
     kind: "planet",
     type: "rocky",
     label: "Pluto",
@@ -362,7 +356,7 @@ export const DESTINATIONS = [
     moonSet: [{ color: "#9a948a", scale: 0.5 }],
     /* Pluto hosts WHAT SETS ME APART (personal-differentiators pitch); the
        Contact section lives on the closing black-hole "The Edge" stop. */
-    section: "whatsetsmeapart",
+    section: "contact",
     /* Tight framing for the small dwarf (offset preserved through the AU remap). */
     cameraTarget: { position: [44.08, 0.97, 1.52], lookAt: [44, 0.9, 1.4], fov: 46 },
   },
@@ -416,9 +410,9 @@ COSMIC_STOPS.forEach((c) => {
  * ──────────────────────────────────────────────────────────────────────── */
 export const AU_UNIT = 95; // scene units per AU — large so the true-size Sun clears Mercury's orbit
 const AU = {
-  about: 0.387, funfacts: 0.723, experience: 1.0, projects: 1.524,
-  achievements: 2.77, skills: 5.203, notes: 9.537, education: 19.191, // achievements = Ceres @ 2.77 AU
-  hobbies: 30.05, testimonials: 39.48, // testimonials = Pluto @ 39.48 AU (Neptune 30.05 per NASA)
+  experience: 0.387, projects: 0.723, achievements: 1.0, skills: 1.524,
+  writing: 2.77, education: 5.203, hobbies: 9.537, testimonials: 19.191, // writing = Ceres @ 2.77 AU
+  whatsetsmeapart: 30.05, contact: 39.48, // contact = Pluto @ 39.48 AU (Neptune 30.05 per NASA)
 };
 
 /* The asteroid + Kuiper belts are no longer tour stops — they render as
@@ -534,8 +528,8 @@ initDestinations();
 
 /* Identity map. NOTE the three-way naming — they are NOT interchangeable:
  *   • id      — the URL-hash + lookup anchor (a legacy section name, e.g. Earth's
- *               id is "experience"). Kept stable across the v3 "shift-forward-one".
- *   • section — the résumé section this stop DISPLAYS (e.g. Earth shows "projects").
+ *               id is "achievements"). Kept stable across the v3 "shift-forward-one".
+ *   • section — the résumé section this stop DISPLAYS (e.g. Earth shows "skills").
  *               V3Panel/HoloBridge are section-driven; this is the content key.
  *   • label   — the real body name ("Earth"); color — the real body color.
  * The per-body v3 accent reads `color` here (V3Style), NOT the id, because the id
