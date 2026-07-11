@@ -26,7 +26,6 @@ import Hypergiant from "./Hypergiant";
 import EtaCarinae from "./EtaCarinae";
 import EinsteinRing from "./EinsteinRing";
 import Wormhole from "./Wormhole";
-import LensFlare from "./LensFlare";
 import OrbitRings from "./OrbitRings";
 // LaneObjects retired — the Holo-Bridge dossier cluster replaces the forced-←→ convoy.
 import SolarEclipse from "./SolarEclipse";
@@ -392,9 +391,10 @@ const Scene = ({ scrollT, finaleT, finale = false, activeIdx, onJump, wideRef, w
           return null;
         })}
 
-        {/* Lens flare OFF in v3 — the sun-driven ghost circles/artifacts clutter the
-            clean planet frames. */}
-        {!isMobile && !finale && <LensFlare position={[0, 0, 0]} />}
+        {/* Lens flare removed — the sun-driven ghost circles/artifacts (a concentric
+            "portal" ring at the Sun's screen position) cluttered the overview + every
+            planet transition. The comment claimed it was off in v3 but it still
+            mounted; now it's actually gone. The Sun's own Bloom glows it cleanly. */}
         {/* Orrery rings — the real orbital structure. Shown in overview mode AND on
             the v3 system-overview hero (stop 0). */}
         {showExtras && <OrbitRings wideRef={wideRef} show={v3 && activeIdx === 0} />}
