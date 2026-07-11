@@ -2,6 +2,7 @@
 import { useMemo } from "react";
 import { useLoader, useThree } from "@react-three/fiber";
 import * as THREE from "three";
+import { ktx2Url } from "./shared/textureUrl";
 
 /*
  * Real Milky Way skybox — NASA Tycho catalog all-sky panorama (4K, ~2 MB),
@@ -26,7 +27,10 @@ const configure = (tex, gl) => {
 
 const Skybox = () => {
   const { gl } = useThree();
-  const tex = useLoader(THREE.TextureLoader, FOURK);
+  /* §9.3 KTX2 flag — ktx2Url() returns FOURK unchanged unless ?ktx2=1 is on,
+     in which case the extension gets swapped to .ktx2. Wiring KTX2Loader
+     itself is the remaining follow-up (see scripts/convert-textures.mjs). */
+  const tex = useLoader(THREE.TextureLoader, ktx2Url(FOURK));
 
   /* Configure synchronously during render so colorSpace is correct on the very
      first frame (no wrong-colorspace flash). */

@@ -4,6 +4,7 @@ import { useFrame, useLoader } from "@react-three/fiber";
 import * as THREE from "three";
 import { useSceneClock } from "../SceneClock";
 import { nearCamera } from "../shared/hooks";
+import { ktx2Url } from "../shared/textureUrl";
 
 /* Milky-Way skybox path — shared with Scene/Skybox.jsx. Loaded here as a
    uniform so the lensing shader can sample the real starfield and bend it
@@ -205,8 +206,10 @@ const BlackHole = ({
   const sceneClock = useSceneClock();
 
   /* Skybox texture for the lensing shader. Same URL as Scene/Skybox.jsx →
-     useLoader dedups. Configured lazily. */
-  const skyboxTex = useLoader(THREE.TextureLoader, SKYBOX_URL);
+     useLoader dedups. Routes through ktx2Url() so the KTX2 flag stays
+     consistent across both loaders — otherwise Skybox loads .ktx2 while
+     the lensing shader still loads .webp. */
+  const skyboxTex = useLoader(THREE.TextureLoader, ktx2Url(SKYBOX_URL));
   const lensUniforms = useMemo(() => ({
     uSkybox: { value: skyboxTex },
     uCentre: { value: new THREE.Vector3(...position) },

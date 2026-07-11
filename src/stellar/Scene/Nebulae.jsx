@@ -3,6 +3,7 @@ import { useMemo, useRef } from "react";
 import { useFrame, useLoader } from "@react-three/fiber";
 import * as THREE from "three";
 import { useSceneClock } from "./SceneClock";
+import { ktx2Url } from "./shared/textureUrl";
 
 /*
  * Real Hubble nebulae as billboarded sprite planes.
@@ -112,7 +113,7 @@ const NEBULAE = [
 ];
 
 const NebulaPlane = ({ url, position, scale, opacity, haloTint, coreTint }) => {
-  const tex = useLoader(THREE.TextureLoader, url);
+  const tex = useLoader(THREE.TextureLoader, ktx2Url(url));
   const sceneClock = useSceneClock();
   const billboardRef = useRef();
   const haloMatRef = useRef();

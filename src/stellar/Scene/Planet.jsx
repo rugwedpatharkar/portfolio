@@ -6,6 +6,7 @@ import PlanetMaterial from "./PlanetMaterial";
 import AtmosphereGlow from "./AtmosphereGlow";
 import RingSystem from "./RingSystem";
 import { useSceneClock } from "./SceneClock";
+import { ktx2Urls } from "./shared/textureUrl";
 
 /* Atmosphere preset per planet type. With bloom on, the rim will glow
    secondarily on its own — keep intensities moderate so atmospheres
@@ -104,8 +105,11 @@ const Planet = ({
     () => [normalTexture, specularTexture, bumpTexture].filter(Boolean),
     [normalTexture, specularTexture, bumpTexture]
   );
-  const loadedColor = useLoader(THREE.TextureLoader, colorUrls.length ? colorUrls : []);
-  const loadedData = useLoader(THREE.TextureLoader, dataUrls.length ? dataUrls : []);
+  /* §9.3 KTX2 flag — ktx2Urls() maps `.webp` → `.ktx2` on every URL only when
+     ?ktx2=1 is on. Behavior is IDENTICAL to the previous WebP path with the
+     flag off (default) because the URL passes through untouched. */
+  const loadedColor = useLoader(THREE.TextureLoader, colorUrls.length ? ktx2Urls(colorUrls) : []);
+  const loadedData = useLoader(THREE.TextureLoader, dataUrls.length ? ktx2Urls(dataUrls) : []);
 
   const textureMap = useMemo(() => {
     const out = {};
