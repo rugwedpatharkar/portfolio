@@ -8,7 +8,7 @@
  * Sections are React.lazy so the ~12 section chunks (and their content) are
  * deferred off the hero's first paint — only the active body's section loads.
  */
-import { lazy, Suspense } from "react";
+import { lazy, memo, Suspense } from "react";
 
 const SECTION_COMPONENT = {
   about: lazy(() => import("./sections/About")),
@@ -25,7 +25,12 @@ const SECTION_COMPONENT = {
   contact: lazy(() => import("./sections/Contact")),
 };
 
-export default function V3Panel({ section, bootNonce }) {
+/* memo: HoloBridge re-renders on every panelHidden toggle (twice per planet
+   hop: hide-on-depart + reveal-on-arrival). Without memo the 150-400 line
+   section tree reconciles each time even though only the wrapper's opacity
+   changed. Props are just (section, bootNonce) — both primitives, so shallow
+   compare skips reconcile on every non-section change. */
+function V3Panel({ section, bootNonce }) {
   const Section = SECTION_COMPONENT[section];
   if (!Section) return null;
   return (
@@ -47,3 +52,5 @@ export default function V3Panel({ section, bootNonce }) {
     </div>
   );
 }
+
+export default memo(V3Panel);
