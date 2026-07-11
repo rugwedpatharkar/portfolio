@@ -13,6 +13,7 @@ import V3Hud from "./v3/V3Hud";
 import V3Reticle from "./v3/V3Reticle";
 import V3Editorial from "./v3/V3Editorial";
 import V3FinaleOverlay from "./v3/V3FinaleOverlay";
+import V3TimeScale from "./v3/V3TimeScale";
 
 /* Section → document-title label (recruiter-facing tab title + a11y context). */
 /* §6.3: docTitle lives on each destination row now — see DESTINATIONS in
@@ -330,6 +331,11 @@ const StellarApp = () => {
           pull-back finale, pinned to the Sun (viewport centre — that's where
           the finale camera aims). */}
       <V3FinaleOverlay finaleT={finaleTRef} />
+      {/* §11 — time-scale HUD control (pause / ½× / 1× / 2× / 4×). Sets
+          clock.scale on the shared SceneClock ref; every animated body reads
+          from it, so one dial bends the whole system coherently. Hidden on
+          mobile + reduced-motion. */}
+      <V3TimeScale clock={sceneClockRef.current} />
     </MotionConfig>
     </ViewportProvider>
   );
