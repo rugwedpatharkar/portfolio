@@ -38,7 +38,6 @@ import OortCloud from "./OortCloud";
 import Heliosphere from "./Heliosphere";
 import InterstellarVisitor from "./InterstellarVisitor";
 import MilkyWay from "./MilkyWay";
-import Constellations from "./Constellations";
 import ShootingStars from "./ShootingStars";
 import DangerField from "./DangerField";
 import DustParticles from "./DustParticles";
@@ -238,7 +237,11 @@ const Scene = ({ scrollT, finaleT, finale = false, activeIdx, onJump, wideRef, w
             glow is far too faint to read at this scale. */}
         {/* Named constellations (Orion, Big Dipper, Cassiopeia) that fade in
             when the camera holds still — built but previously unmounted. */}
-        {showExtras && !isMobile && <Constellations scrollTRef={scrollT} />}
+        {/* Stylised constellations removed — they were drawn on a small radius-380
+            sphere, so from the wide overview (camera ~2200u out) they sat in the
+            FOREGROUND as glitchy blue zigzags across the Sun; and being "not
+            astronomically precise" they clashed with the accurate real star field
+            (Stars.jsx), which is the real sky. */}
         {/* The edge anomaly — Gargantua, out in front of the camera (behind the
             Sun, −X) so it's a visible deep-space landmark throughout the tour
             rather than hidden off to the +X side behind the viewer. */}
