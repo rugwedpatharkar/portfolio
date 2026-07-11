@@ -193,6 +193,12 @@ const BlackHole = ({
   tilt = Math.PI * 0.46,
   beam = 1.0,
   animate = true,
+  /* Cinematic add-ons — off by default so the decorative + Sgr A* mounts
+     keep their clean Gargantua look. The tour's Contact destination flips
+     both on for the "black hole in a nebular envelope with polar jets"
+     reference the user asked for. */
+  nebula = false,
+  jets = false,
   onClick,
   onPointerOver,
   onPointerOut,
@@ -318,7 +324,11 @@ const BlackHole = ({
         <meshBasicMaterial color="#fff3da" transparent opacity={1} side={THREE.DoubleSide} toneMapped={false} depthWrite={false} blending={THREE.AdditiveBlending} />
       </mesh>
 
-      {/* Accretion disk — tilted, swirling, Doppler-beamed. */}
+      {/* Accretion disk — tilted, swirling, Doppler-beamed. Jets (opt-in) live
+          in the same group so they align to the disk's spin axis: the polar
+          axis is the disk's local +y after the tilt rotation, so twin cones
+          along ±y read as bipolar relativistic jets shooting perpendicular
+          to the plasma disc. */}
       <group ref={diskGroup} rotation={[tilt, 0, 0]}>
         <mesh>
           <ringGeometry args={[radius * 1.3, radius * 5.5, 160, 6]} />
@@ -334,7 +344,78 @@ const BlackHole = ({
             toneMapped={false}
           />
         </mesh>
+
+        {/* Bipolar relativistic jets — the launched magnetohydrodynamic
+            outflow every accreting black hole worth its salt shows. Two
+            cones tapering outward from the horizon along the spin axis.
+            Additive so they composit with the disk + halo under Bloom. */}
+        {jets && [1, -1].map((s) => (
+          <mesh key={`jet${s}`} position={[0, s * radius * 8, 0]} rotation={[s < 0 ? Math.PI : 0, 0, 0]}>
+            <coneGeometry args={[radius * 0.9, radius * 16, 24, 1, true]} />
+            <meshBasicMaterial
+              color="#dfe6ff"
+              transparent
+              opacity={0.35}
+              side={THREE.DoubleSide}
+              blending={THREE.AdditiveBlending}
+              depthWrite={false}
+              toneMapped={false}
+            />
+          </mesh>
+        ))}
+        {jets && [1, -1].map((s) => (
+          /* Tighter, brighter inner core of each jet — hot beam at the base. */
+          <mesh key={`jet-core${s}`} position={[0, s * radius * 5, 0]} rotation={[s < 0 ? Math.PI : 0, 0, 0]}>
+            <coneGeometry args={[radius * 0.35, radius * 10, 20, 1, true]} />
+            <meshBasicMaterial
+              color="#ffffff"
+              transparent
+              opacity={0.55}
+              side={THREE.DoubleSide}
+              blending={THREE.AdditiveBlending}
+              depthWrite={false}
+              toneMapped={false}
+            />
+          </mesh>
+        ))}
       </group>
+
+      {/* Nebular envelope — a large diffuse blue-violet glow surrounding the
+          whole system, evoking the ionised gas cocoon around real accreting
+          systems (M87's radio lobes, Sgr A*'s ambient plasma). Additive
+          BackSide sphere so we see it wrapping the horizon from within any
+          orientation. Kept SUBTLE so it doesn't overwhelm the sharp disk
+          + horizon silhouette. Only rendered when the caller opts in — the
+          decorative + ExoticObjects mounts keep their clean look. */}
+      {nebula && (
+        <>
+          <mesh>
+            <sphereGeometry args={[radius * 12, 32, 32]} />
+            <meshBasicMaterial
+              color="#5a4a9a"
+              transparent
+              opacity={0.10}
+              side={THREE.BackSide}
+              blending={THREE.AdditiveBlending}
+              depthWrite={false}
+              toneMapped={false}
+            />
+          </mesh>
+          {/* Inner brighter halo for the concentrated core glow. */}
+          <mesh>
+            <sphereGeometry args={[radius * 7.5, 32, 32]} />
+            <meshBasicMaterial
+              color="#3e4a9a"
+              transparent
+              opacity={0.16}
+              side={THREE.BackSide}
+              blending={THREE.AdditiveBlending}
+              depthWrite={false}
+              toneMapped={false}
+            />
+          </mesh>
+        </>
+      )}
     </group>
   );
 };

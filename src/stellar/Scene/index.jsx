@@ -401,7 +401,11 @@ const Scene = ({ scrollT, finaleT, finale = false, activeIdx, onJump, focusRef, 
                outward tour path, framed big-on-the-right by the v3 rig (radius). */
             const p = d.position;
             if (d.render === "blackhole")
-              return <BlackHole key={d.id} position={p} radius={d.radius} animate={!reducedMotion} onPointerOver={handleHoverIn} onPointerOut={handleHoverOut} />;
+              /* Cinematic "black hole in a nebular envelope with polar jets"
+                 look for the tour's Contact destination — matches the
+                 reference image the user posted. The decorative + Sgr A*
+                 mounts stay on the clean Gargantua defaults. */
+              return <BlackHole key={d.id} position={p} radius={d.radius} nebula jets animate={!reducedMotion} onPointerOver={handleHoverIn} onPointerOut={handleHoverOut} />;
             return null;
           }
           return null;
