@@ -1,5 +1,5 @@
 /* eslint-disable react/no-unknown-property */
-import { useMemo, useRef } from "react";
+import { useEffect, useMemo, useRef } from "react";
 import { useFrame } from "@react-three/fiber";
 import * as THREE from "three";
 import { makeSoftDot } from "./shared/textures";
@@ -138,6 +138,15 @@ const BeltDust = ({
   useFrame((_, delta) => {
     if (animate && ref.current) ref.current.rotation.y += delta * drift;
   });
+
+  /* §9.6 disposal — BeltDust unmounts when the finale engages (Scene/index.jsx
+     gates `showDust && <BeltDust />`, and showDust = false in finale). The
+     BufferGeometry + ShaderMaterial are useMemo-allocated, so they need
+     explicit cleanup to release GPU memory on unmount. */
+  useEffect(() => () => {
+    geo.dispose();
+    material.dispose();
+  }, [geo, material]);
 
   return (
     <group ref={ref}>

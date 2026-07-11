@@ -1,5 +1,5 @@
 /* eslint-disable react/no-unknown-property */
-import { useMemo } from "react";
+import { useEffect, useMemo } from "react";
 import * as THREE from "three";
 import { STARS, STAR_COUNT, STAR_STRIDE } from "../data/brightStars";
 import { makeSoftDot } from "./shared/textures";
@@ -133,6 +133,15 @@ const Stars = () => {
     });
     return { geometry, material };
   }, []);
+
+  /* §9.6 disposal — Stars unmounts when the finale engages (Scene/index.jsx
+     gates `!finale && <Stars />`). Manually allocated BufferGeometry +
+     ShaderMaterial won't be auto-disposed on unmount because they came
+     from useMemo, not from JSX children. */
+  useEffect(() => () => {
+    geometry.dispose();
+    material.dispose();
+  }, [geometry, material]);
 
   return <points geometry={geometry} material={material} frustumCulled={false} />;
 };
