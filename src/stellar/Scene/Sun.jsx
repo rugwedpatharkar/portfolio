@@ -228,8 +228,47 @@ const Sun = ({
           toneMapped={false}
         />
       </mesh>
-      {/* Corona shells + prominence flare-loops removed — a clean photosphere. Bloom
-          on the over-bright surface gives it a natural glow on its own. */}
+      {/* Dramatic corona — three nested additive haloes so the Sun reads as
+          a proper stellar disc surrounded by a glowing atmosphere at the
+          overview framing. Real Sun corona is visible during solar eclipses
+          as a pearl-white halo extending millions of km outward. Kept
+          subtle-per-shell so Bloom doesn't wash it out. */}
+      <mesh>
+        <sphereGeometry args={[radius * 1.35, 32, 32]} />
+        <meshBasicMaterial
+          color="#ffe4b0"
+          transparent
+          opacity={0.24}
+          side={THREE.BackSide}
+          blending={THREE.AdditiveBlending}
+          depthWrite={false}
+          toneMapped={false}
+        />
+      </mesh>
+      <mesh>
+        <sphereGeometry args={[radius * 1.8, 32, 32]} />
+        <meshBasicMaterial
+          color="#ffbb70"
+          transparent
+          opacity={0.12}
+          side={THREE.BackSide}
+          blending={THREE.AdditiveBlending}
+          depthWrite={false}
+          toneMapped={false}
+        />
+      </mesh>
+      <mesh>
+        <sphereGeometry args={[radius * 2.6, 32, 32]} />
+        <meshBasicMaterial
+          color="#ff8a3a"
+          transparent
+          opacity={0.06}
+          side={THREE.BackSide}
+          blending={THREE.AdditiveBlending}
+          depthWrite={false}
+          toneMapped={false}
+        />
+      </mesh>
       <pointLight color="#ffb070" intensity={1.1} distance={600} decay={1.2} />
     </group>
   );

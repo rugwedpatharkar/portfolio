@@ -1,5 +1,6 @@
 /* eslint-disable react/no-unknown-property */
-import { useEffect, useMemo } from "react";
+import { useEffect, useMemo, useRef } from "react";
+import { useFrame } from "@react-three/fiber";
 import * as THREE from "three";
 import { STARS, STAR_COUNT, STAR_STRIDE } from "../data/brightStars";
 import { makeSoftDot } from "./shared/textures";
@@ -62,21 +63,33 @@ export function bvToColor(bv, out) {
   out.setRGB(cr * (1 - mix) + mix, cg * (1 - mix) + mix, cb * (1 - mix) + mix);
 }
 
+/* Twinkling — brightest stars gently pulse in size + brightness so the sky
+   feels alive. Each star's phase is a hash of its own position so the
+   twinkle is per-star (not synchronised) and the amplitude is proportional
+   to size (the brightest stars twinkle most, faint ones stay steady). */
 const VERT = /* glsl */ `
   attribute float aSize;
   attribute vec3 aColor;
+  uniform float uTime;
   varying vec3 vColor;
+  varying float vTwinkle;
   void main() {
-    vColor = aColor;
-    gl_PointSize = aSize;                 // constant screen size — sky is at infinity
+    /* Per-star hash — position dotted with a magic vector — gives every star
+       its own twinkle phase without needing a separate attribute. */
+    float phase = fract(sin(dot(position, vec3(12.9898, 78.233, 45.164))) * 43758.5453);
+    float twinkle = 1.0 + sin(uTime * 2.4 + phase * 6.2831) * 0.14 * smoothstep(2.0, 7.0, aSize);
+    vTwinkle = 0.75 + 0.25 * twinkle;
+    vColor = aColor * vTwinkle;
+    gl_PointSize = aSize * twinkle;      // slightly grow/shrink with brightness
     gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
   }
 `;
 const FRAG = /* glsl */ `
   uniform sampler2D uMap;
   varying vec3 vColor;
+  varying float vTwinkle;
   void main() {
-    float a = texture2D(uMap, gl_PointCoord).a;
+    float a = texture2D(uMap, gl_PointCoord).a * vTwinkle;
     if (a < 0.01) discard;
     gl_FragColor = vec4(vColor, a);
   }
@@ -123,7 +136,7 @@ const Stars = () => {
     geometry.setAttribute("aColor", new THREE.BufferAttribute(colors, 3));
     geometry.setAttribute("aSize", new THREE.BufferAttribute(sizes, 1));
     const material = new THREE.ShaderMaterial({
-      uniforms: { uMap: { value: SPRITE_TEXTURE } },
+      uniforms: { uMap: { value: SPRITE_TEXTURE }, uTime: { value: 0 } },
       vertexShader: VERT,
       fragmentShader: FRAG,
       transparent: true,
@@ -134,6 +147,18 @@ const Stars = () => {
     return { geometry, material };
   }, []);
 
+  const groupRef = useRef();
+
+  useFrame((_, dt) => {
+    /* Twinkle advances on real time (not sceneClock) so bright stars still
+       pulse even when the tour time-scale is at 0 (reduced-motion). */
+    material.uniforms.uTime.value += dt;
+    /* Sky-wide micro-rotation — 360° in ~24 hours of real time (the Earth's
+       sky rotates once per sidereal day). Gives the whole star field a
+       subtle sense of celestial motion so the sky never reads frozen. */
+    if (groupRef.current) groupRef.current.rotation.y += dt * 7.27e-5;
+  });
+
   /* §9.6 disposal — Stars unmounts when the finale engages (Scene/index.jsx
      gates `!finale && <Stars />`). Manually allocated BufferGeometry +
      ShaderMaterial won't be auto-disposed on unmount because they came
@@ -143,7 +168,11 @@ const Stars = () => {
     material.dispose();
   }, [geometry, material]);
 
-  return <points geometry={geometry} material={material} frustumCulled={false} />;
+  return (
+    <group ref={groupRef}>
+      <points geometry={geometry} material={material} frustumCulled={false} />
+    </group>
+  );
 };
 
 export default Stars;

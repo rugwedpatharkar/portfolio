@@ -110,6 +110,20 @@ const NEBULAE = [
   // the hero camera looks into, giving the dark centre cosmic colour + depth.
   { url: "/textures/nebulae/carina.webp", position: [900, 1200, -5100], scale: 2900, opacity: 0.5, haloTint: [0.55, 0.6, 1.0], coreTint: [1.0, 0.68, 0.55] },
   { url: "/textures/nebulae/orion.webp", position: [-1900, -250, -4800], scale: 2200, opacity: 0.46, haloTint: [0.6, 0.8, 1.0], coreTint: [1.0, 0.62, 0.86] },
+  // Additional real-sky nebulae — positions from IAU RA/Dec, transformed onto
+  // a 5300u sky shell so they ride the same fixed backdrop as the star field
+  // and Milky Way band. Textures reused across visually-similar objects.
+  // Pleiades (M45) — blue reflection nebula around hot young B-stars.
+  { url: "/textures/nebulae/helix.webp",  position: [-3620, 2200,  3350], scale: 1500, opacity: 0.36, haloTint: [0.7, 0.85, 1.0], coreTint: [0.8, 0.92, 1.0] },
+  // Lagoon (M8) + Trifid (M20) region — dense H-alpha nebulosity in Sagittarius.
+  { url: "/textures/nebulae/orion.webp",  position: [ 2800, -2100, -4100], scale: 1800, opacity: 0.42, haloTint: [0.55, 0.7, 1.0], coreTint: [1.0, 0.55, 0.75] },
+  // Rosette (NGC 2237) — red hydrogen ring in Monoceros.
+  { url: "/textures/nebulae/orion.webp",  position: [-2400,  700,  4600], scale: 1500, opacity: 0.34, haloTint: [0.6, 0.7, 1.0], coreTint: [1.0, 0.4, 0.6] },
+  // Veil / Cygnus Loop — supernova remnant filaments in Cygnus.
+  { url: "/textures/nebulae/crab.webp",   position: [ 3900,  2400, -2700], scale: 1600, opacity: 0.38, haloTint: [0.5, 0.75, 1.0], coreTint: [0.85, 0.9, 1.0] },
+  // Tarantula (30 Doradus) — brightest star-forming region in the Local Group,
+  // in the LMC. Sits down-south past Crux.
+  { url: "/textures/nebulae/carina.webp", position: [ 2400, -3800, -2600], scale: 1400, opacity: 0.38, haloTint: [0.55, 0.65, 1.0], coreTint: [1.0, 0.6, 0.5] },
 ];
 
 const NebulaPlane = ({ url, position, scale, opacity, haloTint, coreTint }) => {

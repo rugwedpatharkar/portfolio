@@ -6,6 +6,11 @@ import { EffectComposer, Bloom } from "@react-three/postprocessing";
 import CinematicGrade from "./CinematicGrade";
 import SceneClock from "./SceneClock";
 import Stars from "./Stars";
+import Constellations from "./Constellations";
+import DistantGalaxies from "./DistantGalaxies";
+import ZodiacalLight from "./ZodiacalLight";
+import HeroDust from "./HeroDust";
+import StarLabels from "./StarLabels";
 import Sun from "./Sun";
 import SunRays from "./SunRays";
 import Planet from "./Planet";
@@ -245,6 +250,24 @@ const Scene = ({ scrollT, finaleT, finale = false, activeIdx, onJump, focusRef, 
         <SafeLoad><Skybox /></SafeLoad>
         {!finale && <Stars />}
         {!finale && <SafeLoad><Nebulae /></SafeLoad>}
+        {/* Constellation line overlays — 12 named patterns (Orion, Big Dipper,
+            Cassiopeia, Cygnus, Scorpius, Crux, Leo, Perseus, Gemini, Lyra,
+            Aquila, Canis Major) drawn as hairline gold connectors. Ambient
+            "you are surrounded by named patterns" feeling. */}
+        {!finale && <Constellations />}
+        {/* Distant naked-eye galaxies — Andromeda (M31), Triangulum (M33),
+            LMC + SMC — fuzzy discs at real RA/Dec on the sky shell. */}
+        {!finale && <DistantGalaxies />}
+        {/* Zodiacal light — faint warm band along the ecliptic from
+            interplanetary-dust scatter of sunlight (real phenomenon). */}
+        {showExtras && !finale && <ZodiacalLight />}
+        {/* Deep-field parallax dust — foreground motes that ride the camera
+            so pans/drifts produce real parallax against the star backdrop.
+            Desktop-only, reduced-motion off. */}
+        {showExtras && !isMobile && !reducedMotion && !finale && <HeroDust />}
+        {/* Hover labels on the 16 brightest named stars — desktop-only,
+            reveals name + distance + constellation on hover. */}
+        {showEggs && !isMobile && !reducedMotion && !finale && <StarLabels />}
         {/* Grand faint galactic band — far backdrop for depth; in the finale it's
             the galaxy wrapping around our local neighbourhood (boosted to a
             luminous arch). */}

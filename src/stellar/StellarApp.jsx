@@ -13,6 +13,7 @@ import V3Hud from "./v3/V3Hud";
 import V3Reticle from "./v3/V3Reticle";
 import V3Editorial from "./v3/V3Editorial";
 import V3FinaleOverlay from "./v3/V3FinaleOverlay";
+import V3ScaleAnnotations from "./v3/V3ScaleAnnotations";
 
 /* Section → document-title label (recruiter-facing tab title + a11y context). */
 /* §6.3: docTitle lives on each destination row now — see DESTINATIONS in
@@ -330,6 +331,10 @@ const StellarApp = () => {
           pull-back finale, pinned to the Sun (viewport centre — that's where
           the finale camera aims). */}
       <V3FinaleOverlay finaleT={finaleTRef} />
+      {/* Hero-only ambient scale annotations — hairline text top-right telling
+          the viewer where they are in the physical hierarchy. Fades out on
+          every planet stop. */}
+      <V3ScaleAnnotations activeIdx={activeIdx} hidden={panelHidden} />
     </MotionConfig>
     </ViewportProvider>
   );
