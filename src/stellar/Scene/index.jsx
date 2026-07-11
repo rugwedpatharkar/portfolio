@@ -224,7 +224,7 @@ const Scene = ({ scrollT, finaleT, finale = false, activeIdx, onJump, focusRef, 
           the Sun-direction key still sculpts the lit limb. */}
       <ambientLight intensity={0.30} color="#a9bce0" />
       {/* Sun-direction key + shadow caster, follows the active planet. */}
-      <KeyLight scrollT={scrollT} castShadow={!isMobile} />
+      <KeyLight scrollT={scrollT} focusRef={focusRef} castShadow={!isMobile} />
       <directionalLight position={[-30, 10, -25]} intensity={0.5} color="#6f8cff" />
 
       {/* Lane objects — the active section's résumé items as a co-orbital convoy

@@ -130,14 +130,20 @@ const Navigator = ({ scrollTRef, finaleTRef, onDestinationChange, onFinaleConten
       const withDir = dir === 0 || Math.sign(nearest - (committed >= 0 ? committed : nearest)) === dir;
       if (inBand && (window.__stellarJumping || withDir)) {
         commitTo(Math.max(0, Math.min(N - 1, nearest)));
+        /* Clear the jump-bypass flag AS SOON AS it has committed the target once.
+           The old approach cleared it 260 ms after the last scroll event, which
+           re-armed on every subsequent wheel nudge — so a "jump + immediate scroll"
+           left the direction guard bypassed for extra frames it wasn't authored
+           for. Clearing on the very commit the flag was meant to enable removes
+           the race entirely. */
+        if (window.__stellarJumping) window.__stellarJumping = false;
       }
 
       if (snapTimer) clearTimeout(snapTimer);
       snapTimer = setTimeout(trySnap, 200);
-      /* End the gesture (and clear the jump flag) after the scroll has been idle a
-         beat so the next flick can pick a fresh direction. */
+      /* Reset the gesture direction after idle so the next flick picks a fresh one. */
       if (idleTimer) clearTimeout(idleTimer);
-      idleTimer = setTimeout(() => { dir = 0; window.__stellarJumping = false; }, 260);
+      idleTimer = setTimeout(() => { dir = 0; }, 260);
     };
     lenis.on("scroll", onScroll);
 

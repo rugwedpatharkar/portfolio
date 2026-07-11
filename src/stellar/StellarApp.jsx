@@ -188,13 +188,37 @@ const StellarApp = () => {
     }
   }, [activeIdx, applyFocus]);
 
-  /* Deep-link: jump to the destination named in the URL hash on load. */
+  /* Deep-link: jump to the destination named in the URL hash on load.
+     Waits for the scroll runway to actually exist before calling handleJump —
+     otherwise `max = scrollHeight - innerHeight` reads 0 and the jump lands at
+     y=0 (hero) regardless of the hash. Two signals both need to be true:
+       · Navigator's Lenis instance is mounted (window.__lenis exists — it's
+         the scroll driver handleJump ends up calling).
+       · The sentinel div has laid out — scrollHeight materially exceeds
+         innerHeight, i.e. there's real runway.
+     Poll each rAF up to a safety cap (~1 s at 60 fps) so a slow first paint
+     doesn't strand the deep-link. Previous 350 ms setTimeout usually worked
+     but was a guess; on a slow device / cold cache it could fire early. */
   useEffect(() => {
     const idx = findDestinationIndexByHash(window.location.hash);
-    if (idx > 0) {
-      const t = setTimeout(() => handleJump(idx), 350);
-      return () => clearTimeout(t);
-    }
+    if (idx <= 0) return undefined;
+    let raf;
+    let attempts = 0;
+    const MAX_ATTEMPTS = 60; // ≈1 s at 60 fps
+    const check = () => {
+      attempts++;
+      const el = document.scrollingElement || document.documentElement;
+      const runway = (el?.scrollHeight || 0) - window.innerHeight;
+      if ((window.__lenis && runway > window.innerHeight) || attempts >= MAX_ATTEMPTS) {
+        handleJump(idx);
+        return;
+      }
+      raf = requestAnimationFrame(check);
+    };
+    raf = requestAnimationFrame(check);
+    return () => {
+      if (raf) cancelAnimationFrame(raf);
+    };
   }, [handleJump]);
 
   /* Keyboard navigation — arrows / PageUp-Down / Home / End / WASD hop between
