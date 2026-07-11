@@ -4,6 +4,11 @@
  * non-obvious fact a recruiter could share at a party. mass / temp /
  * missions are real (mass vs Earth, mean or range surface/cloud-top
  * temperature, and the real spacecraft that have visited).
+ *
+ * §13 / Phase 12: entries may include an optional `sources: [...]` array —
+ * the audit trail for the numbers on the card. Not surfaced in the UI;
+ * V3Editorial ignores unknown keys. See docs/architecture/knowledge-foundation.md
+ * for the pattern + priority list of entries to backfill.
  */
 
 export const PLANET_FACTS = {
@@ -20,6 +25,11 @@ export const PLANET_FACTS = {
     moons: "0 (we are one of 8 planets)",
     missions: "Parker Solar Probe · SOHO · SDO",
     wow: "Loses ~4.3 million tonnes of mass per second to fusion + solar wind. Still has 5 billion years left.",
+    sources: [
+      "NASA/JPL Sun fact sheet — nssdc.gsfc.nasa.gov/planetary/factsheet/sunfact.html",
+      "GRAVITY 2019 (Sun R0, Sgr A* mass) — DOI:10.1051/0004-6361/201935656",
+      "SDO/SOHO composite imagery — sohowww.nascom.nasa.gov",
+    ],
   },
   about: {
     body: "Mercury — M-class terrestrial",
@@ -177,5 +187,10 @@ export const PLANET_FACTS = {
     moons: "—",
     missions: "Event Horizon Telescope imaged M87* (2019) & Sgr A* (2022)",
     wow: "Near the horizon time itself dilates — an hour here can be years for everyone else. This is where the tour ends and the conversation begins.",
+    sources: [
+      "Event Horizon Telescope Collaboration 2019 (M87*) — DOI:10.3847/2041-8213/ab0ec7",
+      "Event Horizon Telescope Collaboration 2022 (Sgr A*) — DOI:10.3847/2041-8213/ac6674",
+      "Interstellar visualisation reference — Thorne et al. 2015, DOI:10.1088/0264-9381/32/6/065001",
+    ],
   },
 };
