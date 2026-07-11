@@ -15,9 +15,14 @@ import { useFrame } from "@react-three/fiber";
 import * as THREE from "three";
 import { makeSoftDot } from "./shared/textures";
 
-const COUNT = 240;
-const SHELL_R = 45;      // scene units in front of the camera
-const SHELL_JITTER = 20; // depth variation so parallax reads
+/* Kept SUBTLE — this is meant to be near-invisible ambient depth cue, not
+   visible snowfall. Previous tuning at 240 motes × 1.4u size × 0.42 opacity
+   read as blob-storm across the hero. New tuning: fewer particles, much
+   smaller sprites, and low opacity so the effect only registers on close
+   inspection as gentle motion between the viewer and the star backdrop. */
+const COUNT = 60;
+const SHELL_R = 90;      // scene units in front of the camera
+const SHELL_JITTER = 40; // depth variation so parallax reads
 
 const DOT = makeSoftDot({
   size: 32,
@@ -89,10 +94,10 @@ const HeroDust = () => {
       <pointsMaterial
         ref={materialRef}
         map={DOT}
-        size={1.4}
+        size={0.35}
         sizeAttenuation
         transparent
-        opacity={0.42}
+        opacity={0.12}
         depthWrite={false}
         blending={THREE.AdditiveBlending}
         toneMapped={false}

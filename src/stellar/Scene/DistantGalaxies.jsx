@@ -54,35 +54,39 @@ const GALAXY_SPRITE = makeSoftDot({
   mipmaps: true,
 });
 
+/* Scales bumped dramatically — previous values were true-to-sky at 3°, but
+   at the tour's overview framing that reads as a sub-pixel smear against
+   the bright nebula backdrop. Boosted so galaxies are CLEARLY visible as
+   fuzzy elongated smears from the hero framing. */
 const GALAXIES = [
   {
     name: "M31 · Andromeda",
     raHours: 0.7117, decDeg: 41.269,
-    /* Andromeda spans ~3° on the sky — the biggest naked-eye galaxy. Its
-       apparent inclination is ~77° so it reads highly elongated. */
-    scale: [230, 60, 60],
-    tint: "#f0e5d0",
-    rotation: 2.1, // major-axis tilt on the sky (radians)
+    /* Andromeda is the visual star of this layer. Big elongated disc,
+       high aspect ratio. */
+    scale: [720, 180, 180],
+    tint: "#fff2d0",
+    rotation: 2.1,
   },
   {
     name: "M33 · Triangulum",
     raHours: 1.5642, decDeg: 30.660,
-    scale: [110, 65, 65],
-    tint: "#e6ded0",
+    scale: [400, 220, 220],
+    tint: "#f2e8d0",
     rotation: 1.7,
   },
   {
     name: "LMC · Large Magellanic Cloud",
     raHours: 5.3936, decDeg: -69.756,
-    scale: [180, 140, 140],
-    tint: "#eaddc0",
+    scale: [520, 400, 400],
+    tint: "#f8e8c8",
     rotation: 0.6,
   },
   {
     name: "SMC · Small Magellanic Cloud",
     raHours: 0.8778, decDeg: -72.828,
-    scale: [110, 60, 60],
-    tint: "#ddd4bb",
+    scale: [320, 200, 200],
+    tint: "#ecdcbc",
     rotation: 1.1,
   },
 ];
@@ -110,7 +114,7 @@ const DistantGalaxies = () => {
             map={GALAXY_SPRITE}
             color={g.tint}
             transparent
-            opacity={0.55}
+            opacity={0.95}
             depthWrite={false}
             blending={THREE.AdditiveBlending}
             toneMapped={false}
