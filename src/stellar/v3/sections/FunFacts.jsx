@@ -32,8 +32,8 @@ const StatCard = ({ f, i, cols }) => {
         display: "flex", flexDirection: "column",
         gap: "clamp(6px, 0.55vw, 10px)",
         padding: "clamp(12px, 1.1vw, 18px) clamp(12px, 1.15vw, 20px)",
-        borderTop: row > 0 ? "1px solid var(--v3-line)" : "none",
-        borderLeft: col > 0 ? "1px solid var(--v3-line)" : "none",
+        border: "1px solid var(--v3-line)",
+        borderRadius: 6,
         minWidth: 0, height: "100%", minHeight: 0,
       }}>
         {/* emoji + big number inline */}
@@ -123,9 +123,7 @@ export default function FunFactsSection({ bootNonce }) {
           display: "grid",
           gridTemplateColumns: `repeat(${cols}, minmax(0, 1fr))`,
           gridAutoRows: "1fr",
-          border: "1px solid var(--v3-line)",
-          borderRadius: 6,
-          background: "color-mix(in oklab, var(--v3-bg-void) 50%, transparent)",
+          gap: "clamp(8px, 0.7vw, 12px)",
           flex: 1, minHeight: 0,
         }}>
           {funFacts.map((f, i) => (

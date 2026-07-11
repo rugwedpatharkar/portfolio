@@ -273,13 +273,13 @@ export default function ExperienceSection({ bootNonce }) {
                       role="tab"
                       aria-selected={isActive}
                       onClick={() => setActiveCat(i)}
+                      className={isActive ? "v3-glass-accent" : "v3-glass"}
                       style={{
                         all: "unset", cursor: "pointer",
                         display: "grid", gridTemplateColumns: "auto minmax(0, 1fr) auto",
                         alignItems: "center", gap: 10,
                         padding: "clamp(5px, 0.5vw, 8px) clamp(8px, 0.9vw, 12px)",
                         borderLeft: isActive ? "2px solid var(--v3-accent)" : "2px solid transparent",
-                        background: isActive ? "color-mix(in oklab, var(--v3-accent) 8%, transparent)" : "transparent",
                         borderRadius: "0 4px 4px 0",
                         transition: "background .2s, border-color .2s",
                         minWidth: 0,

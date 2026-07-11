@@ -95,13 +95,13 @@ export default function WhatSetsMeApartSection({ bootNonce }) {
                     role="tab"
                     aria-selected={isActive}
                     onClick={() => goto(i)}
+                    className={isActive ? "v3-glass-accent" : "v3-glass"}
                     style={{
                       all: "unset", cursor: "pointer",
                       display: "grid", gridTemplateColumns: "auto minmax(0, 1fr)",
                       alignItems: "baseline", gap: 10,
                       padding: "clamp(8px, 0.8vw, 12px) clamp(10px, 1vw, 14px)",
                       borderLeft: isActive ? "2px solid var(--v3-accent)" : "2px solid transparent",
-                      background: isActive ? "color-mix(in oklab, var(--v3-accent) 10%, transparent)" : "transparent",
                       borderRadius: "0 4px 4px 0",
                       transition: "background .2s, border-color .2s",
                       minWidth: 0,
