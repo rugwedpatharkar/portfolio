@@ -1,33 +1,23 @@
- 
+
 import { useRef, useEffect } from "react";
 import { useFrame, useThree } from "@react-three/fiber";
 import * as THREE from "three";
 import { DESTINATIONS } from "../config/destinations";
 import { getOrbit, orbitalPosition, laneObjectPosition } from "../config/orbits";
-import { GALAXY } from "../config/galaxy";
 import { useSceneClock } from "./SceneClock";
-
-/* ── Finale camera pose, derived from the real galactic geometry ──
-   Same equatorial→scene transform as MilkyWay.jsx so the pose agrees with the
-   band. C = galactic-centre (Sagittarius) direction; P = galactic pole (band
-   normal). We pull back OPPOSITE the core and slightly ABOVE the plane, then
-   look at the Sun: the band is seen edge-on (arching across, not a face-on
-   ring) with the bright core glowing behind the Sun — our place in the galaxy. */
-const _OBLIQ = 23.44 * (Math.PI / 180);
-function galacticSceneVec(raHours, decDeg) {
-  const ra = raHours * (Math.PI / 12);
-  const dec = decDeg * (Math.PI / 180);
-  const cd = Math.cos(dec);
-  const xe = cd * Math.cos(ra);
-  const ye = cd * Math.sin(ra);
-  const ze = Math.sin(dec);
-  const cosE = Math.cos(_OBLIQ);
-  const sinE = Math.sin(_OBLIQ);
-  return new THREE.Vector3(xe, -ye * sinE + ze * cosE, ye * cosE + ze * sinE).normalize();
-}
-const _GAL_C = galacticSceneVec(GALAXY.orientation.galacticCenter.raHours, GALAXY.orientation.galacticCenter.decDeg);
-const _GAL_P = galacticSceneVec(GALAXY.orientation.galacticNorthPole.raHours, GALAXY.orientation.galacticNorthPole.decDeg);
-const FINALE_CAM = _GAL_C.clone().multiplyScalar(-1300).addScaledVector(_GAL_P, 430);
+import {
+  FOV_DEFAULT, FOCUS_DIST,
+  LIVE_FOCUS_LERP_60, POS_LERP_60, LOOK_LERP_60, FOV_LERP_60, ROLL_LERP_60, FOCUS_STATIC_LERP_60, fAlpha,
+  UP,
+  dwellEase,
+  BANK_GAIN, BANK_MAX,
+  FRAME_DOLLY, PUSH_DUR, PUSH_AMOUNT,
+  BACKLIT_HALF_ANGLE, BACKLIT_TILT, BACKLIT_MARGIN, BACKLIT_FOV, PARALLAX_FRAC,
+  BACK_FLOOR, FIRST_FRAC, UP_FRAC, LOOK_FRAC, FOV_FLY, hump,
+  visualExtentFor, backDistFor,
+  V3_HALF_ANGLE, V3_BACK_FLOOR, V3_VSHIFT, v3ExtentFor,
+  FINALE_CAM,
+} from "./camera/util";
 
 /*
  * Camera controller — SNAP + live-orbit tracking.
@@ -48,29 +38,18 @@ const FINALE_CAM = _GAL_C.clone().multiplyScalar(-1300).addScaledVector(_GAL_P, 
  * Layered on top: pointer parallax, camera shake, per-destination FOV +
  * dutch-tilt roll. All eases are delta-time normalized so the feel matches
  * on 30/60/144Hz.
+ *
+ * §6.1: pure constants + math helpers live in ./camera/util.js. The four
+ * per-frame strategies (finale / focus / jump / scroll) still ride together
+ * inside the single useFrame here because they share deep state — extracting
+ * them into their own files without a 13-stop visual regression pass is
+ * riskier than the code smell warrants; see plan §6.1 for the deferred split.
  */
 
-const FOV_DEFAULT = 52;
-/* Lane-object focus (←→): track the object's live orbiting position + frame it
-   from a short distance, with a snappier lerp for a quick hyperloop-style
-   shift between objects. */
 const DEST_BY_ID = Object.fromEntries(DESTINATIONS.map((d) => [d.id, d]));
-const FOCUS_DIST = 1.8;
-const LIVE_FOCUS_LERP_60 = 0.14;
 
-/* Lerp alphas expressed @60fps; fAlpha rescales for real delta. Look
-   tracks a hair tighter than position so the orbiting planet stays
-   centred (tracking a moving target with a proportional lerp lags a
-   little; a tighter aim keeps that lag invisible). */
-const POS_LERP_60 = 0.2;
-const LOOK_LERP_60 = 0.26;
-const FOV_LERP_60 = 0.12;
-const ROLL_LERP_60 = 0.05;
-/* Lerp for a focused, static-target (dead-set) pose — snappier than the free
-   scroll glide but not as tight as a live orbital lock. */
-const FOCUS_STATIC_LERP_60 = 0.09;
-
-const UP = new THREE.Vector3(0, 1, 0);
+/* Scratch vectors — kept module-local so we don't allocate per frame. Shared
+   by the finale / scroll / focus / jump branches of the useFrame below. */
 const _p = new THREE.Vector3();
 const _po = new THREE.Vector3();
 const _lo = new THREE.Vector3();
@@ -86,114 +65,6 @@ const _radial = new THREE.Vector3();
 const _dir = new THREE.Vector3();
 const _upp = new THREE.Vector3();
 const _up2 = new THREE.Vector3();
-
-const fAlpha = (base, dt) => 1 - Math.pow(1 - base, dt * 60);
-
-/* Dwell-ease: hold (plateau) near each planet so you settle there and can
-   read, glide (smoothstep) through the middle of a segment. Keeps the
-   "always framed on a planet" property while making the tour continuous.
-   DWELL raised 0.24 → 0.34: the camera reaches each planet's framing sooner
-   and lingers there, so a scroll spends ~68% settled and only ~32% gliding —
-   snappier, and far less time parked in the cluttered space between bodies. */
-/* ASYMMETRIC dwell — almost no hold at the START of a segment (the camera leaves
-   immediately the moment you scroll / press a nav key, killing the old "press,
-   then wait ~seconds before it moves" lag) but still settles + holds on ARRIVAL
-   so you land composed on each planet. */
-const DWELL_IN = 0.05;
-const DWELL_OUT = 0.30;
-const dwellEase = (f) => {
-  if (f <= DWELL_IN) return 0;
-  if (f >= 1 - DWELL_OUT) return 1;
-  const x = (f - DWELL_IN) / (1 - DWELL_IN - DWELL_OUT);
-  return x * x * (3 - 2 * x);
-};
-const BANK_GAIN = 0.04; // roll per (destination-unit / second) of travel
-const BANK_MAX = 0.085;
-/* When framing the planet to the right, pull the camera back this much so the
-   WHOLE planet fits with margin instead of being cropped (cropping a
-   frame-filling planet reads as flying "inside" it). */
-const FRAME_DOLLY = 1.34;
-
-/* Slow cinematic push-in: once the tour settles on a body, the camera eases
-   PUSH_AMOUNT closer over PUSH_DUR seconds, then holds — a gentle "lean in" on
-   arrival. Resets while gliding to the next body. */
-const PUSH_DUR = 5.0;
-const PUSH_AMOUNT = 0.13;
-
-/* Backlit hero framing (planets): the camera sits BEHIND the planet (anti-sun,
-   radially outward), tilted up so the Sun crests the planet's top limb — a
-   cinematic "sunrise over the edge" shot, the default for every planet. The
-   Sun's angular offset from the planet ≈ the tilt angle, so a tilt just past the
-   planet's apparent radius makes the Sun crest the edge for point-Sun outer
-   planets, and wraps the limb dramatically for the huge-Sun inner ones. Distance
-   is derived from the planet's radius, so every planet is framed to ~the same
-   on-screen size ("one default angle" for all). Orbiting toward dead-centre
-   alignment (free-roam) deepens the geometric eclipse (SolarEclipse.jsx). */
-const DEG = Math.PI / 180;
-const BACKLIT_HALF_ANGLE = 15 * DEG; // larger → planet fills ~half the frame (prominent hero)
-const BACKLIT_TILT = 12 * DEG;       // Sun crests just past the limb
-const BACKLIT_MARGIN = 1.12;         // breathing room around the body
-/* Every planet uses the SAME fov + zero static roll, so the framing is identical
-   from body to body (the authored per-planet fov 40–52 + dutch tilts made each
-   stop feel different). Distance is derived from radius (above), so uniform fov
-   ⇒ uniform on-screen size. */
-const BACKLIT_FOV = 47;
-/* Pointer parallax as a FRACTION of the framing distance → identical angular
-   sway on every planet (a fixed world offset was violent on small bodies and
-   invisible on big ones). */
-const PARALLAX_FRAC = 0.08;
-
-/* ── Direction-aware third-person model ──
-   The camera sits BEHIND the active body relative to the DIRECTION OF TRAVEL and
-   looks AHEAD along it: an INWARD hop frames Camera → body → Sun, an OUTWARD hop
-   frames Camera → body → deep space, and a ←→ lane hop looks along the lane. The
-   travel direction comes from the from→target hop (persisted at idle), so the
-   orientation flips with how you arrived rather than which input you used.
-   During a hop the standoff dips toward the flight path (FIRST_FRAC) for a
-   first-person fly-through, then settles back to third-person — a felt
-   3rd → 1st → 3rd journey. Distances are radius-derived (uniform on-screen size). */
-const BACK_FLOOR = 0.55;   // min 3rd-person standoff (guards the tiniest bodies)
-const FIRST_FRAC = 0.32;   // 1st-person pass distance = FIRST_FRAC × 3rd-person standoff
-const UP_FRAC = 0.2;       // 3rd-person up-lift, as a fraction of the standoff
-const LOOK_FRAC = 1.15;    // look-ahead distance, as a fraction of the standoff
-const FOV_FLY = 64;        // FOV widens to this mid-flight (speed); settled = BACKLIT_FOV
-/* hump(g): 0 at the segment ends, 1 mid — drives the first-person dip + warp
-   streak + FOV widen so the journey peaks in the middle and eases at both ends. */
-const hump = (g) => Math.sin(Math.PI * THREE.MathUtils.clamp(g, 0, 1));
-/* Settled 3rd-person standoff that frames a body's FULL visual extent — not just
-   its radius — so ringed giants (Saturn's rings reach 2.3×, the faint rings 2.12×)
-   and oblate worlds fit fully and centred, in both inward + outward views. */
-const visualExtentFor = (dest) => {
-  const r = dest.radius;
-  let ext = r;
-  if (dest.rings) ext = Math.max(ext, r * 2.3);          // Saturn's prominent rings — fit fully
-  /* Faint rings (Jupiter/Uranus/Neptune) are barely visible, so don't pull all the
-     way back to their outer edge (that shrinks the body) — frame the body
-     prominently and let the faint outer edge sit near the frame margin. */
-  if (dest.faintRings) ext = Math.max(ext, r * 1.4);
-  if (dest.oblateness) ext = Math.max(ext, r * (1 + dest.oblateness));
-  return ext;
-};
-const backDistFor = (extent, halfAngle = BACKLIT_HALF_ANGLE, floor = BACK_FLOOR) => Math.max(floor, (extent / Math.tan(halfAngle)) * BACKLIT_MARGIN);
-/* v3 cinematic split: every planet's BODY is framed to the SAME on-screen size (big,
-   right of centre, info left). We frame by the body radius (× oblateness so the squashed
-   giants don't crop vertically), IGNORING rings — so Saturn's disc matches Jupiter's and
-   the rings simply extend off-frame (cinematic), instead of the rings shrinking the body. */
-const V3_HALF_ANGLE = 11.5 * DEG; // → the body fills the empty right column (right of the
-//                                  content card, above the bottom-right Planet Information
-//                                  card) rather than sitting small in a sea of empty space.
-//                                  (smaller specimen — the planet
-//                                is a discoverable interaction, not the dominant hero;
-//                                content wraps around it, telemetry appears on hover)
-/* Tiny dwarfs (Pluto r≈0.034, Ceres r≈0.06) would clamp to BACK_FLOOR and look small,
-   so v3 uses a much lower floor — just clear of the ~0.1 near-clip (+ the body radius) —
-   letting even Pluto frame near the same size as the giants. */
-const V3_BACK_FLOOR = 0.14;
-/* v3 vertical framing: seat the focused body in the UPPER-right (above the bottom-
-   right Planet Information card). Companion to the horizontal frameShift. Small so
-   ringed giants (Saturn) keep their ring tops in frame. */
-const V3_VSHIFT = 0.14;
-const v3ExtentFor = (dest) => dest.radius * (1 + (dest.oblateness || 0));
 
 const CameraRig = ({
   scrollT,
