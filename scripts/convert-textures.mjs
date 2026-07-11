@@ -19,6 +19,29 @@
  * the originals once we've verified WebP loads across the scene.
  *
  * Run: `node scripts/convert-textures.mjs`  (or `--force` to overwrite).
+ *
+ * §9.3 — KTX2 follow-up. WebP saves ~70% on download but the browser still
+ * DECODES to uncompressed RGBA and uploads full-size to GPU VRAM. KTX2/basis
+ * gives 4-8× VRAM reduction because the GPU keeps the compressed format
+ * throughout. To add it here:
+ *
+ *   1. `npm install @gltf-transform/functions @gltf-transform/core sharp-ktx2`
+ *      (or `npm install -g basisu` if using the CLI directly).
+ *   2. After the WebP write below, spawn a KTX2 encoder pass:
+ *        await basisEncode(source, ktx2Path, {
+ *          uastc: !isColorMap,   // ETC1S for color, UASTC for normal/spec
+ *          quality: 200,
+ *          compressionLevel: 2,
+ *        });
+ *   3. Register KTX2Loader at every useLoader callsite in the runtime
+ *      (Planet.jsx, Nebulae.jsx, Skybox.jsx) — three's KTX2Loader from
+ *      three/examples/jsm/loaders/KTX2Loader + renderer.detectSupport()
+ *      handles the GPU format probe.
+ *   4. Flip the runtime flag on: ?ktx2=1 (see src/stellar/Scene/shared/textureUrl.js).
+ *
+ * Step 1 needs a bigger install (~20MB of transcoders) so the runtime flag
+ * currently 404s if flipped on without the KTX2 files. Keep OFF until the
+ * pipeline lands.
  */
 
 import { promises as fs } from "node:fs";
