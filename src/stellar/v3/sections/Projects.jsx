@@ -18,7 +18,7 @@
 import { useMemo, useState, useEffect, useCallback } from "react";
 import { motion, AnimatePresence, useReducedMotion } from "motion/react";
 import { projects, sectionMeta } from "../../../content";
-import { V3Frame, V3Scan, V3Chip } from "../primitives";
+import { V3Frame, V3Scan, V3Chip, useMasterListKeys } from "../primitives";
 import { EASE, shutterVariants } from "../anim";
 
 const META = sectionMeta.projects;
@@ -64,6 +64,7 @@ export default function ProjectsSection({ bootNonce }) {
 
   const next = useCallback(() => goto((active + 1) % list.length), [active, list.length, goto]);
   const prev = useCallback(() => goto((active - 1 + list.length) % list.length), [active, list.length, goto]);
+  const onKeys = useMasterListKeys(active, goto, list.length, { axis: "x" });
 
   return (
     <V3Frame
@@ -157,10 +158,7 @@ export default function ProjectsSection({ bootNonce }) {
             aria-roledescription="carousel"
             aria-label={`${META.heading} ${active + 1} of ${list.length}`}
             tabIndex={0}
-            onKeyDown={(e) => {
-              if (e.key === "ArrowRight" || e.key === "l") { next(); e.preventDefault(); }
-              if (e.key === "ArrowLeft"  || e.key === "h") { prev(); e.preventDefault(); }
-            }}
+            onKeyDown={onKeys}
             style={{
               position: "relative",
               width: "100%", height: "100%",

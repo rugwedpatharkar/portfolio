@@ -15,7 +15,7 @@
 import { useMemo, useState, useCallback } from "react";
 import { motion, AnimatePresence, useReducedMotion } from "motion/react";
 import { achievements, sectionMeta } from "../../../content";
-import { V3Frame, V3Scan, V3Ticker, V3SectionHeader } from "../primitives";
+import { V3Frame, V3Scan, V3Ticker, V3SectionHeader, useMasterListKeys } from "../primitives";
 import { EASE, shutterVariants } from "../anim";
 
 const META = sectionMeta.achievements || {
@@ -68,6 +68,7 @@ export default function AchievementsSection({ bootNonce }) {
     if (i < 0 || i >= list.length || i === active) return;
     setActive(i);
   }, [active, list.length]);
+  const onKeys = useMasterListKeys(active, goto, list.length, { axis: "x" });
 
   return (
     <V3Frame
@@ -212,10 +213,7 @@ export default function AchievementsSection({ bootNonce }) {
             <div
               role="tablist"
               aria-label="Milestones"
-              onKeyDown={(e) => {
-                if (e.key === "ArrowRight" || e.key === "l") { goto((active + 1) % list.length); e.preventDefault(); }
-                if (e.key === "ArrowLeft"  || e.key === "h") { goto((active - 1 + list.length) % list.length); e.preventDefault(); }
-              }}
+              onKeyDown={onKeys}
               style={{
                 width: "100%", height: "100%",
                 display: "grid",

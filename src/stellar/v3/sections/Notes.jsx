@@ -21,7 +21,7 @@
 import { useState, useCallback } from "react";
 import { motion, AnimatePresence, useReducedMotion } from "motion/react";
 import { blogPosts, sectionMeta } from "../../../content";
-import { V3Frame, V3Scan, V3SectionHeader, V3Chip, masterCardStyle } from "../primitives";
+import { V3Frame, V3Scan, V3SectionHeader, V3Chip, masterCardStyle, useMasterListKeys } from "../primitives";
 import { EASE, shutterVariants } from "../anim";
 
 const META = sectionMeta.notes || {
@@ -47,6 +47,7 @@ export default function NotesSection({ bootNonce }) {
     if (i < 0 || i >= list.length || i === active) return;
     setActive(i);
   }, [active, list.length]);
+  const onKeys = useMasterListKeys(active, goto, list.length);
 
   return (
     <V3Frame
@@ -71,10 +72,7 @@ export default function NotesSection({ bootNonce }) {
           <div
             role="tablist"
             aria-label="Working notes"
-            onKeyDown={(e) => {
-              if (e.key === "ArrowDown" || e.key === "j") { goto((active + 1) % list.length); e.preventDefault(); }
-              if (e.key === "ArrowUp"   || e.key === "k") { goto((active - 1 + list.length) % list.length); e.preventDefault(); }
-            }}
+            onKeyDown={onKeys}
             style={masterCardStyle({ cols: "minmax(240px, 32%) 1fr", gap: "clamp(14px, 1.5vw, 26px)", padding: "clamp(12px, 1.2vw, 20px) clamp(14px, 1.4vw, 22px)" })}
           >
             {/* Master — 3 chapter buttons */}

@@ -23,7 +23,7 @@
 import { useMemo, useState } from "react";
 import { motion, useReducedMotion } from "motion/react";
 import { skills, sectionMeta } from "../../../content";
-import { V3Frame, V3Scan, V3SectionHeader, masterCardStyle } from "../primitives";
+import { V3Frame, V3Scan, V3SectionHeader, masterCardStyle, useMasterListKeys } from "../primitives";
 import { EASE } from "../anim";
 
 const META = sectionMeta.skills || { sub: "What I Bring", heading: "Technical Skills" };
@@ -68,6 +68,8 @@ export default function SkillsSection({ bootNonce }) {
   const [active, setActive] = useState(0);
   const [activeName, activeList] = cats[active] || cats[0];
   const reduce = useReducedMotion();
+  /* Skills historically clamped rather than wrapped — preserved for parity. */
+  const onKeys = useMasterListKeys(active, setActive, cats.length, { wrap: false });
 
   /* Precompute axis geometry per skill in the active category. */
   const geometry = useMemo(() => {
@@ -125,10 +127,7 @@ export default function SkillsSection({ bootNonce }) {
                 justifyContent: "space-between", gap: 2,
                 minWidth: 0, alignSelf: "stretch", height: "100%",
               }}
-              onKeyDown={(e) => {
-                if (e.key === "ArrowDown" || e.key === "j") { setActive(a => Math.min(cats.length - 1, a + 1)); e.preventDefault(); }
-                if (e.key === "ArrowUp"   || e.key === "k") { setActive(a => Math.max(0, a - 1)); e.preventDefault(); }
-              }}
+              onKeyDown={onKeys}
             >
               {cats.map(([cat, list], i) => {
                 const isActive = i === active;

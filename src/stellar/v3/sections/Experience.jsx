@@ -23,7 +23,7 @@ import { useState, useEffect } from "react";
 import { flushSync } from "react-dom";
 import { motion, AnimatePresence, useReducedMotion } from "motion/react";
 import { experiences, sectionMeta } from "../../../content";
-import { V3Frame, V3Scan, V3SectionHeader } from "../primitives";
+import { V3Frame, V3Scan, V3SectionHeader, useMasterListKeys } from "../primitives";
 import { EASE } from "../anim";
 
 const META = sectionMeta.experience;
@@ -67,6 +67,8 @@ export default function ExperienceSection({ bootNonce }) {
   const cats = exp.categories || [];
   const cat = cats[activeCat] || cats[0];
   const reduce = useReducedMotion();
+  /* Experience historically clamped rather than wrapped — preserved for parity. */
+  const onCatKeys = useMasterListKeys(activeCat, setActiveCat, cats.length, { wrap: false });
 
   // Reset category selection when switching roles
   useEffect(() => { setActiveCat(0); }, [active]);
@@ -268,10 +270,7 @@ export default function ExperienceSection({ bootNonce }) {
                 role="tablist"
                 aria-label="Experience categories"
                 style={{ display: "flex", flexDirection: "column", justifyContent: "space-between", gap: 2, minWidth: 0, alignSelf: "stretch", height: "100%" }}
-                onKeyDown={(e) => {
-                  if (e.key === "ArrowDown" || e.key === "j") { setActiveCat(a => Math.min(cats.length - 1, a + 1)); e.preventDefault(); }
-                  if (e.key === "ArrowUp"   || e.key === "k") { setActiveCat(a => Math.max(0, a - 1)); e.preventDefault(); }
-                }}
+                onKeyDown={onCatKeys}
               >
                 {cats.map((c, i) => {
                   const isActive = i === activeCat;

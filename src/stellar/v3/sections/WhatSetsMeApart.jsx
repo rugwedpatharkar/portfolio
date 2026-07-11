@@ -22,7 +22,7 @@
  */
 import { useState, useCallback } from "react";
 import { motion, AnimatePresence, useReducedMotion } from "motion/react";
-import { V3Frame, V3Scan, V3SectionHeader, V3Chip, masterCardStyle } from "../primitives";
+import { V3Frame, V3Scan, V3SectionHeader, V3Chip, masterCardStyle, useMasterListKeys } from "../primitives";
 import { EASE } from "../anim";
 import { pillars as PILLARS } from "../../../content";
 
@@ -51,6 +51,7 @@ export default function WhatSetsMeApartSection({ bootNonce }) {
     if (i < 0 || i >= PILLARS.length || i === active) return;
     setActive(i);
   }, [active]);
+  const onKeys = useMasterListKeys(active, goto, PILLARS.length);
 
   return (
     <V3Frame
@@ -68,10 +69,7 @@ export default function WhatSetsMeApartSection({ bootNonce }) {
           minWidth: 0, minHeight: 0, overflow: "hidden",
           maxWidth: "min(60vw, 1200px)", height: "100%",
         }}
-        onKeyDown={(e) => {
-          if (e.key === "ArrowDown" || e.key === "j") { goto((active + 1) % PILLARS.length); e.preventDefault(); }
-          if (e.key === "ArrowUp"   || e.key === "k") { goto((active - 1 + PILLARS.length) % PILLARS.length); e.preventDefault(); }
-        }}
+        onKeyDown={onKeys}
       >
         {/* Header */}
         <V3SectionHeader sub={META.sub} heading={META.heading} />

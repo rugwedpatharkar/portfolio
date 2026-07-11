@@ -27,7 +27,7 @@
 import { useMemo, useState, useCallback } from "react";
 import { motion, AnimatePresence, useReducedMotion } from "motion/react";
 import { educations, sectionMeta } from "../../../content";
-import { V3Frame, V3Scan, V3SectionHeader, V3Chip, masterCardStyle } from "../primitives";
+import { V3Frame, V3Scan, V3SectionHeader, V3Chip, masterCardStyle, useMasterListKeys } from "../primitives";
 import { EASE } from "../anim";
 
 const META = sectionMeta.education || {
@@ -72,6 +72,7 @@ export default function EducationSection({ bootNonce }) {
     if (i < 0 || i >= list.length || i === active) return;
     setActive(i);
   }, [active, list.length]);
+  const onKeys = useMasterListKeys(active, goto, list.length);
 
   return (
     <V3Frame
@@ -89,10 +90,7 @@ export default function EducationSection({ bootNonce }) {
           minWidth: 0, minHeight: 0, overflow: "hidden",
           maxWidth: "min(60vw, 1200px)", height: "100%",
         }}
-        onKeyDown={(e) => {
-          if (e.key === "ArrowDown" || e.key === "j") { goto((active + 1) % list.length); e.preventDefault(); }
-          if (e.key === "ArrowUp"   || e.key === "k") { goto((active - 1 + list.length) % list.length); e.preventDefault(); }
-        }}
+        onKeyDown={onKeys}
       >
         {/* Header */}
         <V3SectionHeader sub={META.sub} heading={META.heading} />
