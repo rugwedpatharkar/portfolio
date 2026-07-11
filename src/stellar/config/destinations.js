@@ -431,6 +431,15 @@ export const frontOfSun = ([x, y, z], minDeg = 13, maxDeg = 28) => {
   return [ax * f, ny * f, nz * f];
 };
 
+/* Shortcut for the most common off-line placement chain: authored RAW tuple →
+   forced into the in-front-of-Sun view cone → radially remapped to the true
+   AU-scale distance. Used by ~15 anomaly / deep-field / probe components; the
+   inline `remapPosition(frontOfSun(raw))` composition had been copy-pasted
+   verbatim at each site. Pass through the same `minDeg` / `maxDeg` overrides
+   frontOfSun accepts so a caller can widen the cone (e.g. bulk positioning). */
+export const placeInFrontOfSun = (raw, minDeg, maxDeg) =>
+  remapPosition(frontOfSun(raw, minDeg, maxDeg));
+
 DESTINATIONS.forEach((d) => {
   const au = AU[d.id];
   if (!au) return; // the Sun stays at the origin

@@ -2,13 +2,13 @@
 import { useMemo, useRef } from "react";
 import { useFrame } from "@react-three/fiber";
 import * as THREE from "three";
-import { remapPosition, frontOfSun } from "../config/destinations";
+import { placeInFrontOfSun } from "../config/destinations";
 import BlackHole from "./BlackHole";
 
 /*
  * New deep-field exotic objects, object-space + additive (no 2nd post pass —
  * the existing Bloom haloes them). Each id/position MATCHES its registry entry
- * in config/objects.js (same remapPosition(frontOfSun(raw))), so the scan map
+ * in config/objects.js (same placeInFrontOfSun(raw)), so the scan map
  * flies you to exactly what you see.
  *
  *  - Sagittarius A*  : the Milky Way's central supermassive black hole — dark
@@ -28,7 +28,7 @@ export const EXOTIC_RAW = {
   crab: [82, 28, -44],
   trappist: [-52, -22, -40],
 };
-const pos = (raw) => remapPosition(frontOfSun(raw));
+const pos = (raw) => placeInFrontOfSun(raw);
 
 /* Sagittarius A* — the real supermassive black hole. Rendered with the shared
    BlackHole component in a near-FACE-ON orientation with gentle beaming, to

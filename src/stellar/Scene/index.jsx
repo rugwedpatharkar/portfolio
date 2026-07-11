@@ -59,7 +59,7 @@ import KeyLight from "./KeyLight";
 import MouseParallax from "./MouseParallax";
 import SafeLoad from "./SafeLoad";
 import useViewport from "../useViewport";
-import { DESTINATIONS, remapPosition, frontOfSun, BACKGROUND_BELTS } from "../config/destinations";
+import { DESTINATIONS, BACKGROUND_BELTS, placeInFrontOfSun } from "../config/destinations";
 import { rotationSpeedFor } from "../config/planetData";
 
 /* Kirkwood gaps as fractions of the main belt (2.1–3.3 AU): the 3:1 (2.50 AU),
@@ -254,7 +254,7 @@ const Scene = ({ scrollT, finaleT, finale = false, activeIdx, onJump, focusRef, 
         {/* The edge anomaly — Gargantua, out in front of the camera (behind the
             Sun, −X) so it's a visible deep-space landmark throughout the tour
             rather than hidden off to the +X side behind the viewer. */}
-        {showMid && <BlackHole position={remapPosition(frontOfSun([49, -6, -15]))} radius={32} animate={!reducedMotion} onPointerOver={handleHoverIn} onPointerOut={handleHoverOut} />}
+        {showMid && <BlackHole position={placeInFrontOfSun([49, -6, -15])} radius={32} animate={!reducedMotion} onPointerOver={handleHoverIn} onPointerOut={handleHoverOut} />}
         {/* Spaghettification dread near Gargantua — writes clock.danger. */}
         {showMid && <DangerField animate={!reducedMotion} />}
         {/* Anomaly suite — the discoverable spectacle (tier 2). Motion-heavy ones

@@ -2,7 +2,7 @@
 import { useMemo, useRef } from "react";
 import { useFrame } from "@react-three/fiber";
 import * as THREE from "three";
-import { remapPosition, frontOfSun } from "../config/destinations";
+import { remapPosition, placeInFrontOfSun } from "../config/destinations";
 import { makeSoftDot } from "./shared/textures";
 
 /*
@@ -39,7 +39,7 @@ const dot = makeSoftDot({
 const DeepFieldMysteries = ({ animate = true }) => {
   const pos = useMemo(() => {
     const o = {};
-    for (const k in MYSTERY_RAW) o[k] = new THREE.Vector3(...remapPosition(frontOfSun(MYSTERY_RAW[k])));
+    for (const k in MYSTERY_RAW) o[k] = new THREE.Vector3(...placeInFrontOfSun(MYSTERY_RAW[k]));
     return o;
   }, []);
 

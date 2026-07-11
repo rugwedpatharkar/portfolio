@@ -2,7 +2,7 @@
 import { useMemo, useRef } from "react";
 import { useFrame } from "@react-three/fiber";
 import * as THREE from "three";
-import { remapPosition, frontOfSun } from "../config/destinations";
+import { placeInFrontOfSun } from "../config/destinations";
 
 /*
  * PHASE 4 (Wave 2) — COSMIC-WEB STRUCTURES as faint galaxy fields:
@@ -50,7 +50,7 @@ const buildField = (kind, n, R) => {
 
 export default function CosmicMarker({ raw = [0, 0, 0], kind = "wall", count = 700, radius = 10, glow = "#9fb6ff", animate = true }) {
   const grp = useRef();
-  const pos = useMemo(() => new THREE.Vector3(...remapPosition(frontOfSun(raw))), [raw]);
+  const pos = useMemo(() => new THREE.Vector3(...placeInFrontOfSun(raw)), [raw]);
   const geo = useMemo(() => buildField(kind, count, radius), [kind, count, radius]);
 
   useFrame((_, dt) => {

@@ -2,7 +2,7 @@
 import { useMemo, useRef } from "react";
 import { useFrame } from "@react-three/fiber";
 import * as THREE from "three";
-import { remapPosition, frontOfSun } from "../config/destinations";
+import { placeInFrontOfSun } from "../config/destinations";
 import { makeSoftDot } from "./shared/textures";
 
 /*
@@ -32,7 +32,7 @@ export default function Kilonova({ animate = true }) {
   const core = useRef();
   const ring = useRef();
   const t = useRef(0);
-  const pos = useMemo(() => new THREE.Vector3(...remapPosition(frontOfSun(KILONOVA_RAW))), []);
+  const pos = useMemo(() => new THREE.Vector3(...placeInFrontOfSun(KILONOVA_RAW)), []);
   const tex = useMemo(burstTex, []);
 
   useFrame((_, dt) => {

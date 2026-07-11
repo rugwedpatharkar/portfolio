@@ -2,7 +2,7 @@
 import { useMemo, useRef } from "react";
 import { useFrame } from "@react-three/fiber";
 import * as THREE from "three";
-import { remapPosition, frontOfSun } from "../config/destinations";
+import { placeInFrontOfSun } from "../config/destinations";
 
 /*
  * PHASE 4 (Wave 2) — OMEGA CENTAURI. The largest, brightest globular cluster
@@ -42,7 +42,7 @@ const buildCluster = (n, R) => {
 
 export default function GlobularCluster({ animate = true }) {
   const grp = useRef();
-  const pos = useMemo(() => new THREE.Vector3(...remapPosition(frontOfSun(OMEGACEN_RAW))), []);
+  const pos = useMemo(() => new THREE.Vector3(...placeInFrontOfSun(OMEGACEN_RAW)), []);
   const geo = useMemo(() => buildCluster(2600, 7), []);
 
   useFrame((_, dt) => {

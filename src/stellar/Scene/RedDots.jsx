@@ -2,7 +2,7 @@
 import { useMemo, useRef } from "react";
 import { useFrame } from "@react-three/fiber";
 import * as THREE from "three";
-import { remapPosition, frontOfSun } from "../config/destinations";
+import { placeInFrontOfSun } from "../config/destinations";
 
 /*
  * PHASE 4 (Wave 2) — "LITTLE RED DOTS". JWST's surprise population: tiny, intensely
@@ -17,7 +17,7 @@ export const REDDOTS_RAW = [-50, -34, 30];
 export default function RedDots({ animate = true }) {
   const grp = useRef();
   const t = useRef(0);
-  const pos = useMemo(() => new THREE.Vector3(...remapPosition(frontOfSun(REDDOTS_RAW))), []);
+  const pos = useMemo(() => new THREE.Vector3(...placeInFrontOfSun(REDDOTS_RAW)), []);
   const dots = useMemo(() => Array.from({ length: 16 }, () => ({
     p: [(Math.random() - 0.5) * 9, (Math.random() - 0.5) * 7, (Math.random() - 0.5) * 9],
     s: 0.18 + Math.random() * 0.4,

@@ -2,7 +2,7 @@
 import { useMemo, useRef } from "react";
 import { useFrame } from "@react-three/fiber";
 import * as THREE from "three";
-import { remapPosition, frontOfSun } from "../config/destinations";
+import { placeInFrontOfSun } from "../config/destinations";
 
 /*
  * PHASE 4 (Wave 2) — a GRAVITATIONAL-WAVE CHIRP (LIGO O4, e.g. GW250114). Two
@@ -24,7 +24,7 @@ export default function GravWaveChirp({ animate = true }) {
   const t = useRef(0);
   const spin = useRef(0);
 
-  const pos = useMemo(() => new THREE.Vector3(...remapPosition(frontOfSun(LIGO_RAW))), []);
+  const pos = useMemo(() => new THREE.Vector3(...placeInFrontOfSun(LIGO_RAW)), []);
 
   useFrame((_, dt) => {
     if (!animate) return;

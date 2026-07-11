@@ -2,7 +2,7 @@
 import { useMemo, useRef } from "react";
 import { useFrame } from "@react-three/fiber";
 import * as THREE from "three";
-import { remapPosition, frontOfSun } from "../config/destinations";
+import { placeInFrontOfSun } from "../config/destinations";
 
 /*
  * PHASE 4 (Wave 1) — an EINSTEIN RING. When a massive foreground galaxy sits
@@ -20,7 +20,7 @@ export const EINSTEINRING_RAW = [-66, -26, 28];
 export default function EinsteinRing({ animate = true }) {
   const ring = useRef();
   const t = useRef(0);
-  const pos = useMemo(() => new THREE.Vector3(...remapPosition(frontOfSun(EINSTEINRING_RAW))), []);
+  const pos = useMemo(() => new THREE.Vector3(...placeInFrontOfSun(EINSTEINRING_RAW)), []);
   /* Face the ring toward the inner system (the Sun-ward tour camera) so it reads
      as a ring, not an edge-on line. */
   const quat = useMemo(() => {

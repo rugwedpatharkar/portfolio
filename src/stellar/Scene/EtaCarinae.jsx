@@ -2,7 +2,7 @@
 import { useMemo, useRef } from "react";
 import { useFrame } from "@react-three/fiber";
 import * as THREE from "three";
-import { remapPosition, frontOfSun } from "../config/destinations";
+import { placeInFrontOfSun } from "../config/destinations";
 
 /*
  * PHASE 4 (Wave 1) — ETA CARINAE's HOMUNCULUS. One of the most massive, luminous
@@ -21,7 +21,7 @@ export default function EtaCarinae({ animate = true }) {
   const loA = useRef();
   const loB = useRef();
   const t = useRef(0);
-  const pos = useMemo(() => new THREE.Vector3(...remapPosition(frontOfSun(ETACARINAE_RAW))), []);
+  const pos = useMemo(() => new THREE.Vector3(...placeInFrontOfSun(ETACARINAE_RAW)), []);
 
   useFrame((_, dt) => {
     if (!animate) return;
