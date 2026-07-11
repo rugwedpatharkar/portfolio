@@ -54,6 +54,22 @@ const GALAXY_SPRITE = makeSoftDot({
   mipmaps: true,
 });
 
+/* Bright compact "nucleus" — the yellow-white central bulge every real
+   galaxy has. Tighter falloff than the body sprite so it reads as a hot
+   pinprick riding on top of the diffuse disc — the visual signature that
+   makes M31/M33 photograph as clearly-identifiable galaxies rather than
+   fuzzy smudges. */
+const NUCLEUS_SPRITE = makeSoftDot({
+  size: 128,
+  stops: [
+    [0, "rgba(255,255,255,1)"],
+    [0.18, "rgba(255,248,220,0.95)"],
+    [0.45, "rgba(255,220,170,0.35)"],
+    [1, "rgba(255,200,140,0)"],
+  ],
+  mipmaps: true,
+});
+
 /* Scales bumped dramatically — previous values were true-to-sky at 3°, but
    at the tour's overview framing that reads as a sub-pixel smear against
    the bright nebula backdrop. Boosted so galaxies are CLEARLY visible as
@@ -64,29 +80,37 @@ const GALAXIES = [
     raHours: 0.7117, decDeg: 41.269,
     /* Andromeda is the visual star of this layer. Big elongated disc,
        high aspect ratio. */
-    scale: [720, 180, 180],
+    scale: [900, 230, 230],
+    nucleusScale: 90,
     tint: "#fff2d0",
+    nucleusTint: "#ffe4b0",
     rotation: 2.1,
   },
   {
     name: "M33 · Triangulum",
     raHours: 1.5642, decDeg: 30.660,
-    scale: [400, 220, 220],
+    scale: [520, 280, 280],
+    nucleusScale: 60,
     tint: "#f2e8d0",
+    nucleusTint: "#ffd8a0",
     rotation: 1.7,
   },
   {
     name: "LMC · Large Magellanic Cloud",
     raHours: 5.3936, decDeg: -69.756,
-    scale: [520, 400, 400],
+    scale: [640, 480, 480],
+    nucleusScale: 130,
     tint: "#f8e8c8",
+    nucleusTint: "#ffe0a8",
     rotation: 0.6,
   },
   {
     name: "SMC · Small Magellanic Cloud",
     raHours: 0.8778, decDeg: -72.828,
-    scale: [320, 200, 200],
+    scale: [400, 260, 260],
+    nucleusScale: 70,
     tint: "#ecdcbc",
+    nucleusTint: "#ffd8a0",
     rotation: 1.1,
   },
 ];
@@ -99,7 +123,9 @@ const DistantGalaxies = () => {
       return {
         pos: scratch.clone().multiplyScalar(R).toArray(),
         scale: g.scale,
+        nucleusScale: g.nucleusScale,
         tint: g.tint,
+        nucleusTint: g.nucleusTint,
         rotation: g.rotation,
         name: g.name,
       };
@@ -109,17 +135,35 @@ const DistantGalaxies = () => {
   return (
     <group frustumCulled={false}>
       {items.map((g, i) => (
-        <sprite key={i} position={g.pos} scale={g.scale} material-rotation={g.rotation}>
-          <spriteMaterial
-            map={GALAXY_SPRITE}
-            color={g.tint}
-            transparent
-            opacity={0.95}
-            depthWrite={false}
-            blending={THREE.AdditiveBlending}
-            toneMapped={false}
-          />
-        </sprite>
+        <group key={i}>
+          {/* Diffuse galactic disc — the elongated smear of stars */}
+          <sprite position={g.pos} scale={g.scale} material-rotation={g.rotation}>
+            <spriteMaterial
+              map={GALAXY_SPRITE}
+              color={g.tint}
+              transparent
+              opacity={1.0}
+              depthWrite={false}
+              blending={THREE.AdditiveBlending}
+              toneMapped={false}
+            />
+          </sprite>
+          {/* Hot compact nucleus / bulge — the visual signature that turns
+              a fuzzy smudge into an identifiable galaxy. Rides on top of
+              the disc at same position; smaller + brighter core makes it
+              punch through the nebula backdrop. */}
+          <sprite position={g.pos} scale={[g.nucleusScale, g.nucleusScale, g.nucleusScale]}>
+            <spriteMaterial
+              map={NUCLEUS_SPRITE}
+              color={g.nucleusTint}
+              transparent
+              opacity={1.0}
+              depthWrite={false}
+              blending={THREE.AdditiveBlending}
+              toneMapped={false}
+            />
+          </sprite>
+        </group>
       ))}
     </group>
   );
