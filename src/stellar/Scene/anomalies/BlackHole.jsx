@@ -2,7 +2,7 @@
 import { useMemo, useRef } from "react";
 import { useFrame } from "@react-three/fiber";
 import * as THREE from "three";
-import { useSceneClock } from "./SceneClock";
+import { useSceneClock } from "../SceneClock";
 
 /*
  * A black hole — rendered the way Interstellar's Gargantua and the Event

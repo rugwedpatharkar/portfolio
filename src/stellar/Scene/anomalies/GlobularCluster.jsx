@@ -2,7 +2,7 @@
 import { useMemo, useRef } from "react";
 import { useFrame } from "@react-three/fiber";
 import * as THREE from "three";
-import { placeInFrontOfSun } from "../config/destinations";
+import { placeInFrontOfSun } from "../../config/destinations";
 
 /*
  * PHASE 4 (Wave 2) — OMEGA CENTAURI. The largest, brightest globular cluster

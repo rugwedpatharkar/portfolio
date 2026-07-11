@@ -2,9 +2,9 @@
 import { useMemo, useRef } from "react";
 import { useFrame } from "@react-three/fiber";
 import * as THREE from "three";
-import { useSceneClock } from "./SceneClock";
-import { placeInFrontOfSun } from "../config/destinations";
-import { makeSoftDot } from "./shared/textures";
+import { useSceneClock } from "../SceneClock";
+import { placeInFrontOfSun } from "../../config/destinations";
+import { makeSoftDot } from "../shared/textures";
 
 /*
  * PHASE 4 (Wave 1) — a KILONOVA: two neutron stars merging. In a few seconds it

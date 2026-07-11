@@ -2,8 +2,8 @@
 import { useMemo, useRef } from "react";
 import { useFrame } from "@react-three/fiber";
 import * as THREE from "three";
-import { useSceneClock } from "./SceneClock";
-import { placeInFrontOfSun } from "../config/destinations";
+import { useSceneClock } from "../SceneClock";
+import { placeInFrontOfSun } from "../../config/destinations";
 
 /*
  * PHASE 4 (Wave 1) — ETA CARINAE's HOMUNCULUS. One of the most massive, luminous

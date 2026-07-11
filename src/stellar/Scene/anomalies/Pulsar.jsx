@@ -2,8 +2,8 @@
 import { useMemo, useRef } from "react";
 import { useFrame } from "@react-three/fiber";
 import * as THREE from "three";
-import { useSceneClock } from "./SceneClock";
-import { placeInFrontOfSun } from "../config/destinations";
+import { useSceneClock } from "../SceneClock";
+import { placeInFrontOfSun } from "../../config/destinations";
 
 /*
  * A pulsar — a rapidly spinning neutron star in the deep field. A tiny,

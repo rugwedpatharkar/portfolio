@@ -2,9 +2,9 @@
 import { useMemo, useRef } from "react";
 import { useFrame } from "@react-three/fiber";
 import * as THREE from "three";
-import { contactLinks } from "../../content";
-import { placeInFrontOfSun } from "../config/destinations";
-import { useSceneClock } from "./SceneClock";
+import { contactLinks } from "../../../content";
+import { placeInFrontOfSun } from "../../config/destinations";
+import { useSceneClock } from "../SceneClock";
 
 /* The portal opens the same booking link as the Contact "Book a Call" CTA. */
 const BOOK_CALL = contactLinks.find((l) => l.label === "Book a Call")?.href;

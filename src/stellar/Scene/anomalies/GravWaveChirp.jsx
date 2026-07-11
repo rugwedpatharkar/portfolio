@@ -2,8 +2,8 @@
 import { useMemo, useRef } from "react";
 import { useFrame } from "@react-three/fiber";
 import * as THREE from "three";
-import { useSceneClock } from "./SceneClock";
-import { placeInFrontOfSun } from "../config/destinations";
+import { useSceneClock } from "../SceneClock";
+import { placeInFrontOfSun } from "../../config/destinations";
 
 /*
  * PHASE 4 (Wave 2) — a GRAVITATIONAL-WAVE CHIRP (LIGO O4, e.g. GW250114). Two
