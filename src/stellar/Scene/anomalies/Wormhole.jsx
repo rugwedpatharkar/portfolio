@@ -1,6 +1,7 @@
 /* eslint-disable react/no-unknown-property */
 import { useMemo, useRef } from "react";
 import { useFrame } from "@react-three/fiber";
+import { Billboard } from "@react-three/drei";
 import * as THREE from "three";
 import { contactLinks } from "../../../content";
 import { placeInFrontOfSun } from "../../config/destinations";
@@ -51,10 +52,12 @@ const Wormhole = ({ position = placeInFrontOfSun([48.55, 0.58, 1.62]), radius = 
 
   const uniforms = useMemo(() => ({ uTime: { value: 0 } }), []);
 
-  useFrame(({ camera }) => {
+  /* §6.4: drei's <Billboard follow> handles the lookAt(camera.position) rotation
+     of the outer transform. Our inner group still owns the hover-scale + breathe
+     pulse (drei doesn't touch scale) and the pointer/click handlers. */
+  useFrame(() => {
     if (mat.current) mat.current.uniforms.uTime.value = sceneClock.t;
     if (groupRef.current) {
-      groupRef.current.lookAt(camera.position); // billboard
       hover.current += (target.current - hover.current) * 0.15;
       const breathe = 1 + Math.sin(sceneClock.t * 1.4) * 0.04;
       groupRef.current.scale.setScalar(hover.current * breathe);
@@ -62,9 +65,9 @@ const Wormhole = ({ position = placeInFrontOfSun([48.55, 0.58, 1.62]), radius = 
   });
 
   return (
+    <Billboard position={position} follow>
     <group
       ref={groupRef}
-      position={position}
       onClick={(e) => {
         e.stopPropagation();
         window.dispatchEvent(new CustomEvent("stellar:beam-aboard"));
@@ -102,6 +105,7 @@ const Wormhole = ({ position = placeInFrontOfSun([48.55, 0.58, 1.62]), radius = 
         <meshBasicMaterial color="#6fb0ff" transparent opacity={0.1} side={THREE.DoubleSide} blending={THREE.AdditiveBlending} depthWrite={false} toneMapped={false} />
       </mesh>
     </group>
+    </Billboard>
   );
 };
 

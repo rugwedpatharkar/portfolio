@@ -2,6 +2,7 @@
 import { useMemo } from "react";
 import * as THREE from "three";
 import { DESTINATION_BY_ID } from "../config/destinations";
+import { lumpyRock } from "./shared/geometry";
 
 /*
  * Jupiter's Trojan asteroids — two REAL swarms locked 60° ahead of (L4) and
@@ -12,22 +13,6 @@ import { DESTINATION_BY_ID } from "../config/destinations";
  */
 
 const L = Math.PI / 3; // 60° — the L4 / L5 lead/lag along the orbit
-
-/* Lumpy icosahedron (deterministic hash displacement) so each rock reads as a
-   cratered body, not a faceted ball — same trick as the main belt. */
-function lumpyRock(seed) {
-  const geo = new THREE.IcosahedronGeometry(1, 1);
-  const p = geo.attributes.position;
-  const v = new THREE.Vector3();
-  for (let i = 0; i < p.count; i++) {
-    v.fromBufferAttribute(p, i);
-    const s = Math.sin(v.x * 12.9898 + v.y * 78.233 + v.z * 37.719 + seed) * 43758.5453;
-    v.multiplyScalar(1 + (s - Math.floor(s) - 0.5) * 0.62);
-    p.setXYZ(i, v.x, v.y, v.z);
-  }
-  geo.computeVertexNormals();
-  return geo;
-}
 
 const Swarm = ({ angle, radius, y, count, geometry }) => {
   const fill = (mesh) => {
@@ -60,7 +45,7 @@ const TrojanAsteroids = ({ count = 160 }) => {
   const jup = DESTINATION_BY_ID.skills.position; // Jupiter, already at true scale
   const radius = Math.hypot(jup[0], jup[2]);
   const angle = Math.atan2(jup[2], jup[0]);
-  const geometry = useMemo(() => lumpyRock(21.7), []);
+  const geometry = useMemo(() => lumpyRock({ seed: 21.7, amp: 0.62 }), []);
   return (
     <>
       <Swarm angle={angle + L} radius={radius} y={jup[1]} count={count} geometry={geometry} />

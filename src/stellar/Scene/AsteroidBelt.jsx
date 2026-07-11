@@ -2,6 +2,7 @@
 import { useMemo, useRef } from "react";
 import { useFrame } from "@react-three/fiber";
 import * as THREE from "three";
+import { lumpyRock } from "./shared/geometry";
 
 /*
  * Instanced asteroid belt — three spectral families, one draw call each, with
@@ -30,24 +31,6 @@ const MAIN_FAMILIES = [
 const MAIN_WEIGHTS = [0.75, 0.17, 0.08]; // C dominates (~75%), then S, then M
 
 const FAMILY_DRIFT = [0.01, 0.014, 0.018]; // slight differential orbit shear
-
-/* Icosahedron with vertices displaced by a deterministic position hash →
-   a watertight lumpy rock. Shared vertices hash identically, so faces stay
-   joined; flatShading then reads the displacement as craggy facets. */
-function lumpyRock(detail, seed, amp) {
-  const geo = new THREE.IcosahedronGeometry(1, detail);
-  const pos = geo.attributes.position;
-  const v = new THREE.Vector3();
-  for (let i = 0; i < pos.count; i++) {
-    v.fromBufferAttribute(pos, i);
-    const s = Math.sin(v.x * 12.9898 + v.y * 78.233 + v.z * 37.719 + seed) * 43758.5453;
-    const n = s - Math.floor(s); // 0..1
-    v.multiplyScalar(1 + (n - 0.5) * amp);
-    pos.setXYZ(i, v.x, v.y, v.z);
-  }
-  geo.computeVertexNormals();
-  return geo;
-}
 
 const Family = ({ instances, family, geometry, mat, animate = true }) => {
   const groupRef = useRef();
@@ -122,7 +105,11 @@ const AsteroidBelt = ({
   /* One lumpy base shape per family (different seed → different silhouette);
      instances reuse it, so this is three geometries total, not one per rock. */
   const geometries = useMemo(
-    () => [lumpyRock(1, 11.3, 0.62), lumpyRock(1, 47.9, 0.7), lumpyRock(1, 88.1, 0.55)],
+    () => [
+      lumpyRock({ detail: 1, seed: 11.3, amp: 0.62 }),
+      lumpyRock({ detail: 1, seed: 47.9, amp: 0.7 }),
+      lumpyRock({ detail: 1, seed: 88.1, amp: 0.55 }),
+    ],
     []
   );
 
