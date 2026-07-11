@@ -1,13 +1,20 @@
 /* eslint-disable react/no-unknown-property */
 /*
- * §14/§11-cinematic — god-ray shafts from the Sun.
+ * §14/§11-cinematic — god-ray shafts + lens-flare ghosts from the Sun.
  *
- * Two crossed additive quads pinned to the Sun via drei's <Billboard follow>,
- * with a fragment shader that draws four soft anamorphic streaks (horizontal
- * + vertical + two 45° diagonals) plus a bright inner core. Because it's
- * object-space and additive, it composits with the existing Bloom pass and
- * DOES NOT need a second mainImage (which would white-out the frame — see
- * CinematicGrade.jsx).
+ * A billboarded additive quad pinned to the Sun via drei's <Billboard follow>,
+ * with a fragment shader that draws:
+ *   - four soft anamorphic streaks (H + V + two 45° diagonals) — the classic
+ *     four-pointed "star burst" that reads as a lens flare from a bright light.
+ *   - a small chain of hex-tinted ghost circles along the Sun-to-frame-centre
+ *     axis (milestone §14 #4 — extended lens flare). Ghosts scale + shift out
+ *     with distance so distant framings sit larger than close ones, keeping
+ *     the "lens" character consistent as the tour scrubs past.
+ *   - a bright inner core so the Sun's disc reads as the light source.
+ *
+ * Because everything is object-space and additive, it composits with the
+ * existing Bloom pass and DOES NOT need a second mainImage (which would
+ * white-out the frame — see CinematicGrade.jsx for the reason).
  *
  * The streaks fade toward the frame edge and pulse subtly with SceneClock
  * time. Intensity dials down to 0 under reduced-motion via the `intensity`
@@ -57,13 +64,36 @@ const RAYS_FRAG = /* glsl */ `
     float sDG = streak(p, ang + 0.7854, 0.014, 0.42) * 0.55
              + streak(p, ang + 2.3562,  0.014, 0.42) * 0.55;
 
+    /* Lens-flare ghost chain: 4 small tinted discs along the axis from the
+       centre toward the (0, -0.5) direction — reads as the anamorphic ghosts
+       classic lenses produce when a bright light sits off-centre. Each ghost
+       gets its own subtle chromatic tint. */
+    vec2 axis = normalize(vec2(0.04, -1.0)); // slight rightward drift for cinematography
+    vec4 ghost = vec4(0.0);
+    for (int i = 0; i < 4; i++) {
+      float t = float(i + 1) / 5.0; // 0.2, 0.4, 0.6, 0.8
+      vec2 gp = p - axis * (0.16 + t * 0.28);
+      float gd = length(gp);
+      float gr = 0.02 + t * 0.03;
+      float m = smoothstep(gr, 0.0, gd);
+      vec3 tint = vec3(
+        0.8 + 0.2 * cos(float(i) * 1.4),
+        0.9 + 0.1 * cos(float(i) * 1.9 + 1.2),
+        1.0 - 0.15 * cos(float(i) * 1.1 + 2.4)
+      );
+      ghost.rgb += tint * m * 0.35;
+      ghost.a += m * 0.35;
+    }
+
     /* Gentle sine-modulated pulse so it feels alive (subtle — not disco). */
     float pulse = 0.9 + 0.1 * sin(uTime * 0.9);
 
     float brightness = (core + sHV + sDG) * uIntensity * pulse;
+    vec3 rgb = uColor * brightness + ghost.rgb * uIntensity * pulse;
+    float alpha = brightness + ghost.a * uIntensity * pulse;
     /* Clip near-zero to avoid a full-quad additive tint. */
-    if (brightness < 0.005) discard;
-    gl_FragColor = vec4(uColor * brightness, brightness);
+    if (alpha < 0.005) discard;
+    gl_FragColor = vec4(rgb, alpha);
   }
 `;
 
