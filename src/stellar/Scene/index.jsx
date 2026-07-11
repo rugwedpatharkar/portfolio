@@ -1,5 +1,5 @@
 /* eslint-disable react/no-unknown-property */
-import { Suspense, useRef, cloneElement } from "react";
+import { Suspense, useMemo, useRef, cloneElement } from "react";
 import { Canvas, invalidate, useFrame } from "@react-three/fiber";
 import * as THREE from "three";
 import { EffectComposer, Bloom } from "@react-three/postprocessing";
@@ -143,9 +143,25 @@ const Scene = ({ scrollT, finaleT, finale = false, activeIdx, onJump, focusRef, 
      floors DPR only on a genuinely struggling GPU. */
   const dprCap = isMobile ? 1.5 : 2;
 
+  /* §7.4 — feature-flagged experiment with frameloop="demand". Off by default:
+     the tour has continuous animation everywhere (planet orbits, Sun churn,
+     anomaly pulses, camera scrub, bloom), and demand mode only renders on
+     explicit invalidate() calls — useFrame subscribers stop firing between
+     invalidates. Under reduced-motion the scene IS effectively static (
+     SceneClock.scale=0 freezes orbits + shaders), so demand mode is safe.
+     Under normal play it will visibly freeze the Sun; kept as an opt-in
+     query flag (?frameloop=demand) for measurement / experimentation. */
+  const frameloopMode = useMemo(() => {
+    if (typeof window === "undefined") return "always";
+    const q = new URLSearchParams(window.location.search).get("frameloop");
+    if (q === "demand" || (q === "auto" && reducedMotion)) return "demand";
+    if (reducedMotion && q === "auto") return "demand";
+    return "always";
+  }, [reducedMotion]);
+
   return (
     <Canvas
-      frameloop="always"
+      frameloop={frameloopMode}
       dpr={[1, dprCap]}
       /* Soft shadows on desktop only — the key light (KeyLight) follows
          the active planet so the map stays sharp + cheap. */
