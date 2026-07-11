@@ -37,11 +37,12 @@ const Navigator = ({ scrollTRef, finaleTRef, onDestinationChange, onFinaleConten
     // Expose for debugging — usable in DevTools as `window.__lenis.scrollTo(targetY)`
     if (typeof window !== "undefined") window.__lenis = lenis;
 
+    let rafId;
     const raf = (time) => {
       lenis.raf(time);
-      requestAnimationFrame(raf);
+      rafId = requestAnimationFrame(raf);
     };
-    requestAnimationFrame(raf);
+    rafId = requestAnimationFrame(raf);
 
     const N = DESTINATIONS.length;
     /* Natural Lenis scroll — no gesture base-hold, no ±1 cap. What actually caused
@@ -141,6 +142,7 @@ const Navigator = ({ scrollTRef, finaleTRef, onDestinationChange, onFinaleConten
     lenis.on("scroll", onScroll);
 
     return () => {
+      if (rafId) cancelAnimationFrame(rafId);
       if (snapTimer) clearTimeout(snapTimer);
       if (idleTimer) clearTimeout(idleTimer);
       lenis.destroy();
