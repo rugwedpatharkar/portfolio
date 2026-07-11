@@ -3,6 +3,7 @@ import { useMemo, useRef } from "react";
 import { useFrame } from "@react-three/fiber";
 import * as THREE from "three";
 import { remapPosition, frontOfSun } from "../config/destinations";
+import { makeSoftDot } from "./shared/textures";
 
 /*
  * PHASE 4 (Wave 1) — a KILONOVA: two neutron stars merging. In a few seconds it
@@ -16,20 +17,16 @@ import { remapPosition, frontOfSun } from "../config/destinations";
 
 export const KILONOVA_RAW = [-45, -12, -20];
 
-const burstTex = () => {
-  if (typeof document === "undefined") return null;
-  const c = document.createElement("canvas");
-  c.width = c.height = 128;
-  const g = c.getContext("2d");
-  const grd = g.createRadialGradient(64, 64, 0, 64, 64, 64);
-  grd.addColorStop(0, "rgba(255,255,255,1)");
-  grd.addColorStop(0.25, "rgba(255,245,220,0.85)");
-  grd.addColorStop(0.6, "rgba(255,210,150,0.25)");
-  grd.addColorStop(1, "rgba(255,200,140,0)");
-  g.fillStyle = grd;
-  g.fillRect(0, 0, 128, 128);
-  return new THREE.CanvasTexture(c);
-};
+const burstTex = () =>
+  makeSoftDot({
+    size: 128,
+    stops: [
+      [0, "rgba(255,255,255,1)"],
+      [0.25, "rgba(255,245,220,0.85)"],
+      [0.6, "rgba(255,210,150,0.25)"],
+      [1, "rgba(255,200,140,0)"],
+    ],
+  });
 
 export default function Kilonova({ animate = true }) {
   const core = useRef();

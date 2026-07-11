@@ -2,6 +2,7 @@
 import { useMemo } from "react";
 import * as THREE from "three";
 import { GALAXY } from "../config/galaxy";
+import { makeSoftDot } from "./shared/textures";
 
 /*
  * The galactic band — the Milky Way as it TRULY appears from our solar system:
@@ -39,24 +40,15 @@ function sceneVec(raRad, decRad, out) {
   return out.set(xe, zEcl, yEcl);
 }
 
-const DUST_TEXTURE = (() => {
-  if (typeof document === "undefined") return null;
-  const s = 64;
-  const c = document.createElement("canvas");
-  c.width = c.height = s;
-  const ctx = c.getContext("2d");
-  const g = ctx.createRadialGradient(s / 2, s / 2, 0, s / 2, s / 2, s / 2);
-  g.addColorStop(0, "rgba(255,255,255,1)");
-  g.addColorStop(0.4, "rgba(255,255,255,0.35)");
-  g.addColorStop(1, "rgba(255,255,255,0)");
-  ctx.fillStyle = g;
-  ctx.fillRect(0, 0, s, s);
-  const t = new THREE.CanvasTexture(c);
-  t.minFilter = THREE.LinearMipmapLinearFilter;
-  t.magFilter = THREE.LinearFilter;
-  t.needsUpdate = true;
-  return t;
-})();
+const DUST_TEXTURE = makeSoftDot({
+  size: 64,
+  stops: [
+    [0, "rgba(255,255,255,1)"],
+    [0.4, "rgba(255,255,255,0.35)"],
+    [1, "rgba(255,255,255,0)"],
+  ],
+  mipmaps: true,
+});
 
 const MilkyWay = ({ finale = false }) => {
   const { positions, colors, sizes } = useMemo(() => {

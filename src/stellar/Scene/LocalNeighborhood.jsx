@@ -4,6 +4,7 @@ import * as THREE from "three";
 import { STARS, STAR_COUNT, STAR_STRIDE } from "../data/brightStars";
 import { bvToColor } from "./Stars";
 import { LY_UNIT, LOCAL_CAP_LY } from "../config/scaleRegimes";
+import { makeSoftDot } from "./shared/textures";
 
 /*
  * The LOCAL STELLAR NEIGHBORHOOD — the nearest real stars placed at TRUE 3D
@@ -38,23 +39,15 @@ function sceneVec(ra, dec, out) {
   return out.set(xe, -ye * sinE + ze * cosE, ye * cosE + ze * sinE);
 }
 
-const SPRITE = (() => {
-  if (typeof document === "undefined") return null;
-  const s = 64;
-  const c = document.createElement("canvas");
-  c.width = c.height = s;
-  const ctx = c.getContext("2d");
-  const g = ctx.createRadialGradient(s / 2, s / 2, 0, s / 2, s / 2, s / 2);
-  g.addColorStop(0, "rgba(255,255,255,1)");
-  g.addColorStop(0.25, "rgba(255,255,255,0.75)");
-  g.addColorStop(0.55, "rgba(255,255,255,0.12)");
-  g.addColorStop(1, "rgba(255,255,255,0)");
-  ctx.fillStyle = g;
-  ctx.fillRect(0, 0, s, s);
-  const t = new THREE.CanvasTexture(c);
-  t.needsUpdate = true;
-  return t;
-})();
+const SPRITE = makeSoftDot({
+  size: 64,
+  stops: [
+    [0, "rgba(255,255,255,1)"],
+    [0.25, "rgba(255,255,255,0.75)"],
+    [0.55, "rgba(255,255,255,0.12)"],
+    [1, "rgba(255,255,255,0)"],
+  ],
+});
 
 const VERT = /* glsl */ `
   attribute float aSize;

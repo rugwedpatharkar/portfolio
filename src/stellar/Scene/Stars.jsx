@@ -2,6 +2,7 @@
 import { useMemo } from "react";
 import * as THREE from "three";
 import { STARS, STAR_COUNT, STAR_STRIDE } from "../data/brightStars";
+import { makeSoftDot } from "./shared/textures";
 
 /*
  * The REAL night sky — 8,920 naked-eye stars (HYG catalogue, derived from
@@ -23,27 +24,18 @@ const R = 6800; // celestial-sphere radius (just inside the Tycho skybox at 7000
 const OBLIQUITY = 23.44 * (Math.PI / 180);
 
 /* Soft round sprite — crisp bright core, fast falloff; bloom adds the glow. */
-const SPRITE_TEXTURE = (() => {
-  if (typeof document === "undefined") return null;
-  const s = 64;
-  const c = document.createElement("canvas");
-  c.width = c.height = s;
-  const ctx = c.getContext("2d");
-  const g = ctx.createRadialGradient(s / 2, s / 2, 0, s / 2, s / 2, s / 2);
-  g.addColorStop(0, "rgba(255,255,255,1)");
-  g.addColorStop(0.18, "rgba(255,255,255,0.9)");
-  g.addColorStop(0.4, "rgba(255,255,255,0.28)");
-  g.addColorStop(0.8, "rgba(255,255,255,0.03)");
-  g.addColorStop(1, "rgba(255,255,255,0)");
-  ctx.fillStyle = g;
-  ctx.fillRect(0, 0, s, s);
-  const t = new THREE.CanvasTexture(c);
-  t.minFilter = THREE.LinearMipmapLinearFilter;
-  t.magFilter = THREE.LinearFilter;
-  t.anisotropy = 8;
-  t.needsUpdate = true;
-  return t;
-})();
+const SPRITE_TEXTURE = makeSoftDot({
+  size: 64,
+  stops: [
+    [0, "rgba(255,255,255,1)"],
+    [0.18, "rgba(255,255,255,0.9)"],
+    [0.4, "rgba(255,255,255,0.28)"],
+    [0.8, "rgba(255,255,255,0.03)"],
+    [1, "rgba(255,255,255,0)"],
+  ],
+  mipmaps: true,
+  anisotropy: 8,
+});
 
 /* B–V colour index → RGB. Ballesteros' formula gives effective temperature from
    B–V; a blackbody approximation (Tanner Helland) turns that into the star's

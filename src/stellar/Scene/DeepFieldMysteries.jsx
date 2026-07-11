@@ -3,6 +3,7 @@ import { useMemo, useRef } from "react";
 import { useFrame } from "@react-three/fiber";
 import * as THREE from "three";
 import { remapPosition, frontOfSun } from "../config/destinations";
+import { makeSoftDot } from "./shared/textures";
 
 /*
  * Real unsolved space mysteries, as faint deep-field discoverables (scannable +
@@ -26,15 +27,14 @@ export const MYSTERY_RAW = {
   frb: [-30, -16, 42],
 };
 
-const dot = (() => {
-  if (typeof document === "undefined") return null;
-  const c = document.createElement("canvas"); c.width = c.height = 64;
-  const g = c.getContext("2d");
-  const grd = g.createRadialGradient(32, 32, 0, 32, 32, 32);
-  grd.addColorStop(0, "rgba(255,255,255,1)"); grd.addColorStop(0.4, "rgba(255,255,255,0.5)"); grd.addColorStop(1, "rgba(255,255,255,0)");
-  g.fillStyle = grd; g.fillRect(0, 0, 64, 64);
-  return new THREE.CanvasTexture(c);
-})();
+const dot = makeSoftDot({
+  size: 64,
+  stops: [
+    [0, "rgba(255,255,255,1)"],
+    [0.4, "rgba(255,255,255,0.5)"],
+    [1, "rgba(255,255,255,0)"],
+  ],
+});
 
 const DeepFieldMysteries = ({ animate = true }) => {
   const pos = useMemo(() => {
