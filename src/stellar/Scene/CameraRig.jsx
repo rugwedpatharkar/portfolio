@@ -551,6 +551,24 @@ const CameraRig = ({
       const e = THREE.MathUtils.clamp(J.elapsed / J.dur, 0, 1);
       const ee = e * e * (3 - 2 * e); // accelerate then decelerate along the path
       const h = hump(e);              // 0 at ends, 1 mid → the first-person dip
+      /* Re-fetch BOTH endpoints from the LIVE orbital position each frame.
+         The prior J.toBody/J.fromBody snapshot at jump-start went stale for
+         Mercury: at v_tang ≈ 1.6 su/s, Mercury moves ~1.6 su during the ~1 s
+         hop — 23 Mercury radii — so the arc landed the camera on empty space
+         and settle-tracking then framed Mercury off-screen (~95% X instead of
+         the intended 71%). Slower planets (Jupiter 0.02, Neptune 0.001 su/s)
+         showed no visible drift, which is why it looked Mercury-specific.
+         Refetching keeps the arc endpoints locked to the LIVE bodies. */
+      const jT = focus?.target ? DEST_BY_ID[focus.target.destId] : null;
+      if (jT) {
+        if (focus.target.k >= 0) laneObjectPosition(jT, focus.target.k, t, J.toBody);
+        else orbitalPosition(jT, t, J.toBody);
+      }
+      const jF = focus?.from ? DEST_BY_ID[focus.from.destId] : null;
+      if (jF) {
+        if (focus.from.k >= 0) laneObjectPosition(jF, focus.from.k, t, J.fromBody);
+        else orbitalPosition(jF, t, J.fromBody);
+      }
       /* ride point glides FROM→TARGET; standoff dips to FIRST_FRAC mid-flight. */
       _p.copy(J.fromBody).lerp(J.toBody, ee);
       const back = J.back * (1 - h * (1 - FIRST_FRAC));
@@ -569,7 +587,18 @@ const CameraRig = ({
     setFlying(false);
 
     const posBase = focus?.live ? LIVE_FOCUS_LERP_60 : focus ? FOCUS_STATIC_LERP_60 : POS_LERP_60;
-    const lookBase = focus?.live ? LIVE_FOCUS_LERP_60 : focus ? FOCUS_STATIC_LERP_60 : LOOK_LERP_60;
+    /* Look lerp: while a body is being ORBIT-tracked (focus.live), snap lookAt to
+       the live target every frame. If lookAt shares the position lerp's chase-lag
+       for a moving target, camera position AND lookAt lag by the SAME vector — the
+       camera's OPTICAL AXIS then no longer points at the current body, and the
+       shift-computed framing (which assumes the axis is on the body) misprojects.
+       For Mercury (v_tang ≈ 1.6 su/s) the lag hits ~0.19 su, tilting the axis 42°
+       off and pushing Mercury to ~101% X. Slower planets (Jupiter 0.02 su/s) get a
+       microscopic lag and read fine — which is why the bug looked Mercury-only.
+       Snapping only lookAt (not position) keeps camera MOVEMENT smooth while the
+       AIM stays exact — the tighter-aim intent the existing comment above already
+       states for the non-live cases. */
+    const lookBase = focus?.live ? 1 : focus ? FOCUS_STATIC_LERP_60 : LOOK_LERP_60;
     camera.position.lerp(_camTarget, fAlpha(posBase, d));
     lookAtTarget.current.lerp(_lookTarget, fAlpha(lookBase, d));
     camera.lookAt(lookAtTarget.current);
