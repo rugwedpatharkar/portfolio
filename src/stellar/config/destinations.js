@@ -440,23 +440,38 @@ export const frontOfSun = ([x, y, z], minDeg = 13, maxDeg = 28) => {
 export const placeInFrontOfSun = (raw, minDeg, maxDeg) =>
   remapPosition(frontOfSun(raw, minDeg, maxDeg));
 
-DESTINATIONS.forEach((d) => {
-  const au = AU[d.id];
-  if (!au) return; // the Sun stays at the origin
-  const [x, y, z] = d.position;
-  const r = Math.hypot(x, z) || 1;
-  const f = (au * AU_UNIT) / r;
-  const nx = x * f, nz = z * f;
-  const cam = d.cameraTarget;
-  /* Planet size is unchanged, so the framing offset is preserved — the body
-     just sits at its true distance. */
-  d.position = [nx, y, nz];
-  d.cameraTarget = {
-    ...cam,
-    position: [nx + (cam.position[0] - x), y + (cam.position[1] - y), nz + (cam.position[2] - z)],
-    lookAt: [nx + (cam.lookAt[0] - x), y + (cam.lookAt[1] - y), nz + (cam.lookAt[2] - z)],
-  };
-});
+/* §4.12 — remap DESTINATIONS[].position + cameraTarget to their true AU-scaled
+   coordinates. Extracted from a bare module-load forEach so the ordering hazard
+   is now a named + idempotent function with a clear entry point. Guard prevents
+   a double-remap if this is called more than once (module-load + StellarApp
+   boot, or in tests).
+   Still called at module load below because objects.js snapshots MARS_POS +
+   parent-relative moon positions at ITS module load (config/objects.js:390) —
+   a full deferral to StellarApp boot is naturally addressed by §6.3's section
+   registry work, which moves those snapshots off the module top-level. */
+let _destinationsInitialized = false;
+export function initDestinations() {
+  if (_destinationsInitialized) return;
+  _destinationsInitialized = true;
+  DESTINATIONS.forEach((d) => {
+    const au = AU[d.id];
+    if (!au) return; // the Sun stays at the origin
+    const [x, y, z] = d.position;
+    const r = Math.hypot(x, z) || 1;
+    const f = (au * AU_UNIT) / r;
+    const nx = x * f, nz = z * f;
+    const cam = d.cameraTarget;
+    /* Planet size is unchanged, so the framing offset is preserved — the body
+       just sits at its true distance. */
+    d.position = [nx, y, nz];
+    d.cameraTarget = {
+      ...cam,
+      position: [nx + (cam.position[0] - x), y + (cam.position[1] - y), nz + (cam.position[2] - z)],
+      lookAt: [nx + (cam.lookAt[0] - x), y + (cam.lookAt[1] - y), nz + (cam.lookAt[2] - z)],
+    };
+  });
+}
+initDestinations();
 
 /* Identity map. NOTE the three-way naming — they are NOT interchangeable:
  *   • id      — the URL-hash + lookup anchor (a legacy section name, e.g. Earth's
