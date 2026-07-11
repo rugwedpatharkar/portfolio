@@ -4,7 +4,7 @@ import Scene from "./Scene";
 import Navigator from "./Navigator";
 import HoloBridge from "./holobridge/HoloBridge";
 import { DESTINATIONS, TOUR_END_FRACTION } from "./config/destinations";
-import useViewport from "./useViewport";
+import useViewport, { ViewportProvider } from "./useViewport";
 import StellarGlare from "./StellarGlare";
 import EclipseDimmer from "./EclipseDimmer";
 import V3Style from "./v3/V3Style";
@@ -237,6 +237,7 @@ const StellarApp = () => {
   }, [handleJump]);
 
   return (
+    <ViewportProvider>
     <MotionConfig reducedMotion="user">
       {/* Skip-to-content — first focusable element, bypasses the 3D canvas. */}
       <a className="stellar-skip" href="#main-content">Skip to content</a>
@@ -308,6 +309,7 @@ const StellarApp = () => {
           Bottom-right; hidden on hero stop, mobile, or bodies without data. */}
       <V3Editorial destinationId={DESTINATIONS[activeIdx]?.id} activeIdx={activeIdx} hidden={panelHidden} />
     </MotionConfig>
+    </ViewportProvider>
   );
 };
 
