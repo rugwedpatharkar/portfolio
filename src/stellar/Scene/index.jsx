@@ -26,6 +26,7 @@ import OrbitGroup from "./OrbitGroup";
 import BlackHole from "./anomalies/BlackHole";
 import OrbitRings from "./OrbitRings";
 import PlanetBeacons from "./PlanetBeacons";
+import BeltRings from "./BeltRings";
 // LaneObjects retired — the Holo-Bridge dossier cluster replaces the forced-←→ convoy.
 import SolarEclipse from "./SolarEclipse";
 import EclipseLights from "./EclipseLights";
@@ -447,6 +448,10 @@ const Scene = ({ scrollT, finaleT, finale = false, activeIdx, onJump, focusRef, 
             0.07u Mercury is sub-pixel from there. Fixed-pixel-size sprites
             that stay visible at any camera distance. */}
         {showExtras && v3 && activeIdx === 0 && <PlanetBeacons />}
+        {/* Overview-only belt band rings — make the asteroid + Kuiper belts
+            read as belts from ~2200u out where the actual rock particles
+            are sub-pixel. Invisible at any tour stop. */}
+        {showExtras && v3 && activeIdx === 0 && <BeltRings />}
         {/* Dwarf planets + named belt bodies (Vesta, Eris, Makemake, Haumea). */}
         {showExtras && <DwarfPlanets animate={!reducedMotion} />}
         {/* The asteroid + Kuiper belts as BACKGROUND scenery (no longer tour
