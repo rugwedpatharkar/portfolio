@@ -122,6 +122,18 @@ const StellarApp = () => {
     window.dispatchEvent(new CustomEvent("stellar:sound:hum"));
   }, []);
 
+  /* Boost the shared virtual clock at the overview stop so planetary orbital
+     motion is VISIBLE while the visitor lingers on the hero. At scale=1 Earth
+     takes ~10 min per orbit (tuned so a tracked tour planet doesn't out-run
+     the framing camera). At overview no camera locks to a planet, so a 10×
+     boost is safe — Earth's year now takes ~60s, inner planets visibly sweep
+     the Sun, the system reads as alive. Scale snaps back at every other
+     stop. */
+  useEffect(() => {
+    if (!sceneClockRef.current) return;
+    sceneClockRef.current.scale = activeIdx === 0 ? 10 : 1;
+  }, [activeIdx]);
+
   const handleJump = useCallback((idx) => {
     /* Map destination index → exact scroll position. The destination tour only
        occupies [0, TOUR_END_FRACTION] of the runway (the pull-back finale owns the

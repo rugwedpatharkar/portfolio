@@ -31,6 +31,7 @@ import BeltRings from "./BeltRings";
 import SolarEclipse from "./SolarEclipse";
 import EclipseLights from "./EclipseLights";
 import DwarfPlanets from "./DwarfPlanets";
+import Comet from "./Comet";
 import BeltDust from "./BeltDust";
 import LocalNeighborhood from "./LocalNeighborhood";
 import TrojanAsteroids from "./TrojanAsteroids";
@@ -443,17 +444,16 @@ const Scene = ({ scrollT, finaleT, finale = false, activeIdx, onJump, focusRef, 
         {/* Orrery rings — the real orbital structure. Shown in overview mode AND on
             the v3 system-overview hero (stop 0). */}
         {showExtras && <OrbitRings show={v3 && activeIdx === 0} />}
-        {/* Colored beacon dots at each planet's live orbital position so the
-            overview framing (~2200u out) actually reads the planets — a real
-            0.07u Mercury is sub-pixel from there. Fixed-pixel-size sprites
-            that stay visible at any camera distance. */}
-        {showExtras && v3 && activeIdx === 0 && <PlanetBeacons />}
         {/* Overview-only belt band rings — make the asteroid + Kuiper belts
             read as belts from ~2200u out where the actual rock particles
             are sub-pixel. Invisible at any tour stop. */}
         {showExtras && v3 && activeIdx === 0 && <BeltRings />}
         {/* Dwarf planets + named belt bodies (Vesta, Eris, Makemake, Haumea). */}
         {showExtras && <DwarfPlanets animate={!reducedMotion} />}
+        {/* Halley's Comet on its real 76-year elliptical orbit — a live
+            moving body that visibly streaks through the overview + tour.
+            Never mounts under reduced motion or in the finale. */}
+        {showExtras && !reducedMotion && <Comet />}
         {/* The asteroid + Kuiper belts as BACKGROUND scenery (no longer tour
             stops — Ceres + Pluto host those sections). Faint debris rings. */}
         {/* EXTREME-density belts, mount SPREAD across the progressive tiers so no
