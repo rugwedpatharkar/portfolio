@@ -29,6 +29,7 @@ import EclipseLights from "./EclipseLights";
 import DwarfPlanets from "./DwarfPlanets";
 import Comet from "./Comet";
 import Hyperspace from "./Hyperspace";
+import SgrAStar from "./SgrAStar";
 /* BlackHole + SpiralGalaxy removed from the tour — nearest black hole is
    1,560 ly away (Gaia BH1), nothing sits "just past Pluto". Milky Way seen
    from outside is impossible from Sol. Files kept for potential reuse
@@ -288,6 +289,12 @@ const Scene = ({ scrollT, finaleT, finale = false, activeIdx, onJump, focusRef, 
             System overview (index 1). Reads warpVelRef; invisible when
             velocity is 0 (i.e. everywhere except that one transition). */}
         {!reducedMotion && !isMobile && <Hyperspace warpVelRef={warpVelRef} />}
+        {/* Sagittarius A* marker — the Milky Way's central supermassive
+            black hole (4.15M M☉, 26,670 ly). Placed at its real J2000 sky
+            position so it sits on the Sagittarius core glow on the band.
+            Only visible on the homepage — it's a sky marker, not an object
+            in the Solar System. */}
+        {isMilkyway && <SgrAStar />}
         {/* Pull-back finale (?finale=1) — the local stellar neighbourhood at true depth. */}
         {finale && <LocalNeighborhood active />}
         {/* Zodiacal light removed — its 8,500 additive points bloomed into an

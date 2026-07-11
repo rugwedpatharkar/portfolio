@@ -379,6 +379,16 @@ COSMIC_STOPS.forEach((c) => {
   const [x, y, z] = c.position;
   const len = Math.hypot(x, y, z) || 1;
   const d = Math.max(10, c.radius * 3.6); // standoff toward the Sun
+  /* A cosmic stop may author its own cameraTarget for framings the default
+     "drop between Sun and object" math can't produce (e.g. the Oort Cloud's
+     wrap-around shell view where camera sits at intermediate distance from
+     Sun and looks AT the Sun, not at the destination point). Fall back to
+     the computed pose when no override is provided. */
+  const cameraTarget = c.cameraTarget || {
+    position: [x - (x / len) * d, y + d * 0.16, z - (z / len) * d],
+    lookAt: [x, y, z],
+    fov: 44,
+  };
   DESTINATIONS.push({
     id: c.id,
     kind: c.kind, // "cosmic" — Scene renders the matching object; CameraRig frames by radius
@@ -390,11 +400,7 @@ COSMIC_STOPS.forEach((c) => {
     radius: c.radius,
     color: c.accent,
     accent: c.accent,
-    cameraTarget: {
-      position: [x - (x / len) * d, y + d * 0.16, z - (z / len) * d],
-      lookAt: [x, y, z],
-      fov: 44,
-    },
+    cameraTarget,
   });
 });
 

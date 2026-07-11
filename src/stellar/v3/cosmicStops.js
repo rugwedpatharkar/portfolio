@@ -21,7 +21,10 @@ export const COSMIC_STOPS = [
     kind: "cosmic",
     render: "kuiper_reveal",
     label: "Kuiper Belt",
-    section: "hero", // no résumé section — decorative info card only
+    /* Not "hero" — that would mount the V3Hero landing (name copy, tour CTA)
+       which belongs on the Milky Way homepage, not here. Using an unmapped
+       key so V3Panel returns null → clean sky + Planet Information card. */
+    section: "kuiper",
     docTitle: "Kuiper Belt",
     accent: "#c8d6a0",
     radius: 260,
@@ -31,20 +34,28 @@ export const COSMIC_STOPS = [
   },
   {
     /* Oort Cloud — 2,000 to 100,000 AU spherical shell. Camera pulls WAY
-       back so the Sun becomes a distant pinprick + the OortCloud shell
-       becomes a faint blue-white halo around it. Final ambient beat of
-       the tour. */
+       back so the Sun becomes a distant pinprick with the OortCloud shell
+       (radius ~5,200 scene units, mounted as background scenery) wrapping
+       around it. Final ambient beat of the tour. */
     id: "oort",
     kind: "cosmic",
     render: "oort_reveal",
     label: "Oort Cloud",
-    section: "hero", // no résumé section — decorative info card only
+    /* Unmapped section → V3Panel returns null → clean ambient shot with
+       only the Planet Information card visible. */
+    section: "oort",
     docTitle: "Oort Cloud",
     accent: "#a0c0e8",
     radius: 4600,
-    /* Even further out. The camera pose is a big pull-back so the whole
-       Sun + planets + belt sit tiny in the Oort shell around them. */
     position: [5800, 1400, 1800],
+    /* Camera pulled back to 3,600u from Sun, looking AT the Sun (not at
+       the destination point). Sits INSIDE the OortCloud shell so its
+       icy points wrap the frame; Sun visible as a tiny distant orb. */
+    cameraTarget: {
+      position: [3200, 900, 1000],
+      lookAt: [0, 0, 0],
+      fov: 58,
+    },
   },
 ];
 
