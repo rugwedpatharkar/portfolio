@@ -1,5 +1,5 @@
 /* eslint-disable react/no-unknown-property */
-import { useMemo } from "react";
+import { useEffect, useMemo } from "react";
 import * as THREE from "three";
 import { STARS, STAR_COUNT, STAR_STRIDE } from "../data/brightStars";
 import { bvToColor } from "./Stars";
@@ -110,6 +110,15 @@ const LocalNeighborhood = ({ active = false }) => {
     });
     return { geometry, material };
   }, []);
+
+  /* §9.6 disposal — LocalNeighborhood mounts/unmounts on the finale swap. The
+     BufferGeometry (variable-length per LOCAL_CAP_LY threshold) + ShaderMaterial
+     came from useMemo, so they need explicit .dispose() on unmount to release
+     GPU memory. */
+  useEffect(() => () => {
+    geometry.dispose();
+    material.dispose();
+  }, [geometry, material]);
 
   if (!active) return null;
 

@@ -50,6 +50,28 @@ const DUST_TEXTURE = makeSoftDot({
   mipmaps: true,
 });
 
+/* §12.1 — arm-density peaks approximated as gaussians in galactic longitude λ.
+   Rather than integrate each log-spiral along the sightline (r(θ) = refR·
+   exp(tan(pitch)·(θ - refAz)) intersecting the Sun's radial line), we use the
+   documented on-sky longitudes where the major arms visibly concentrate. Real
+   naked-eye + long-exposure imagery of the Milky Way peaks at Sagittarius/
+   Scutum toward the core, Cygnus at ~80°, Vela/Carina at ~-80°, and Perseus at
+   the anticenter. Widths approximate each arm's spanDeg / 2. */
+const ARM_PEAKS = [
+  { name: "Scutum-Centaurus toward the core", lambdaDeg: -20, sigmaDeg: 22, weight: 0.55 },
+  { name: "Cygnus (Orion-Spur outbound)",     lambdaDeg:  75, sigmaDeg: 26, weight: 0.42 },
+  { name: "Vela/Carina",                       lambdaDeg: -95, sigmaDeg: 30, weight: 0.36 },
+  { name: "Perseus (anticenter)",              lambdaDeg: 155, sigmaDeg: 40, weight: 0.24 },
+  { name: "Sagittarius-Carina foreground",     lambdaDeg:  45, sigmaDeg: 18, weight: 0.30 },
+];
+
+/* Coalsack Nebula — a prominent dark nebula near Crux (RA 12h50m, Dec -63°).
+   From the Sun's frame, Crux is at galactic longitude ~-58° (l ≈ 302°). Adds
+   a small, sharp darkening on the band toward the southern arm. */
+const COALSACK_LAMBDA_DEG = -58;
+const COALSACK_SIGMA_DEG = 5;
+const COALSACK_DEPTH = 0.55;
+
 const MilkyWay = ({ finale = false }) => {
   const { positions, colors, sizes } = useMemo(() => {
     const { galacticNorthPole: pole, galacticCenter: center } = GALAXY.orientation;
@@ -66,6 +88,24 @@ const MilkyWay = ({ finale = false }) => {
     const colors = new Float32Array(POINT_COUNT * 3);
     const sizes = new Float32Array(POINT_COUNT);
     const dir = new THREE.Vector3();
+
+    /* Pre-convert arm peak angles to radians for the density sum below. */
+    const armPeaks = ARM_PEAKS.map((a) => ({
+      lambda: a.lambdaDeg * DegToRad,
+      sigma: a.sigmaDeg * DegToRad,
+      weight: a.weight,
+    }));
+    const coalsackLambda = COALSACK_LAMBDA_DEG * DegToRad;
+    const coalsackSigma = COALSACK_SIGMA_DEG * DegToRad;
+
+    /* Wrap two angles into [-π, π] and return the wrapped delta. Prevents
+       gaussians near λ=±π from missing points on the far side. */
+    const angDist = (a, b) => {
+      let d = a - b;
+      while (d > Math.PI) d -= 2 * Math.PI;
+      while (d < -Math.PI) d += 2 * Math.PI;
+      return d;
+    };
 
     // Accurate naked-eye/long-exposure Milky Way: a pale cream-white band, very
     // slightly warm toward the star-cloud bulge, cooling to a faint pale blue —
@@ -100,10 +140,26 @@ const MilkyWay = ({ finale = false }) => {
       // Great Rift: a dark dust lane along the spine, strongest toward the core.
       const rift = 1 - 0.7 * towardCore * Math.exp(-(off * off) / (0.05 * 0.05));
 
+      /* §12.1 arm-density boost: gaussians summed across the 5 documented arm
+         longitudes. Multiplies onto the base brightness so arm-crossings light
+         up (Cygnus, Vela/Carina, Perseus, Sagittarius); non-arm gaps darken
+         gently. */
+      let armBoost = 1.0;
+      for (let a = 0; a < armPeaks.length; a++) {
+        const p = armPeaks[a];
+        const d = angDist(lambda, p.lambda);
+        armBoost += p.weight * Math.exp(-(d * d) / (2 * p.sigma * p.sigma));
+      }
+
+      /* Coalsack — a hard darkening toward Crux, only on the band spine
+         (|off| small) so it doesn't punch a hole out of the diffuse haze. */
+      const cd = angDist(lambda, coalsackLambda);
+      const coalsack = 1 - COALSACK_DEPTH * Math.exp(-(cd * cd) / (2 * coalsackSigma * coalsackSigma)) * Math.exp(-(off * off) / (0.04 * 0.04));
+
       // Colour: warm star-cloud core → cool disk → dim edge, by |spread| + longitude.
       const e = Math.min(1, Math.abs(spread));
       tint.copy(core).lerp(mid, e * 0.7).lerp(edge, (1 - towardCore) * 0.8);
-      const bright = (0.42 + 0.95 * towardCore) * rift * (1 - e * 0.32);
+      const bright = (0.42 + 0.95 * towardCore) * rift * coalsack * (0.6 + 0.4 * armBoost) * (1 - e * 0.32);
       colors[i * 3] = tint.r * bright;
       colors[i * 3 + 1] = tint.g * bright;
       colors[i * 3 + 2] = tint.b * bright;

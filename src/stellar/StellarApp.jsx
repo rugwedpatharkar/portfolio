@@ -12,6 +12,7 @@ import V3Cursor from "./v3/V3Cursor";
 import V3Hud from "./v3/V3Hud";
 import V3Reticle from "./v3/V3Reticle";
 import V3Editorial from "./v3/V3Editorial";
+import V3FinaleOverlay from "./v3/V3FinaleOverlay";
 
 /* Section → document-title label (recruiter-facing tab title + a11y context). */
 /* §6.3: docTitle lives on each destination row now — see DESTINATIONS in
@@ -325,6 +326,10 @@ const StellarApp = () => {
       {/* Per-body editorial card — historical quote + rotating etymology / fact.
           Bottom-right; hidden on hero stop, mobile, or bodies without data. */}
       <V3Editorial destinationId={DESTINATIONS[activeIdx]?.id} activeIdx={activeIdx} hidden={panelHidden} />
+      {/* §12.4 — "You are here / Orion Spur" callout that fades in during the
+          pull-back finale, pinned to the Sun (viewport centre — that's where
+          the finale camera aims). */}
+      <V3FinaleOverlay finaleT={finaleTRef} />
     </MotionConfig>
     </ViewportProvider>
   );
