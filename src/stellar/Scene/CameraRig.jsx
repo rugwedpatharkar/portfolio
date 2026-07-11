@@ -447,8 +447,12 @@ const CameraRig = ({
             /* Focused planet stops slide the body further right than the overview
                (the overview uses the full prop below, which must keep the Sun on
                screen) — so decoupled: a higher multiplier here frames the planet
-               right for the content column without pushing the overview Sun off. */
-            _lookTarget.addScaledVector(_right, -halfW * frameShift * 1.0);
+               right for the content column without pushing the overview Sun off.
+               0.75 (not 1.0): at 1.0, planets landed with their right edge just past
+               the frame (~104% X) — small dwarfs (Mercury/Mars/Pluto/Ceres) read as
+               cropped-off-frame. 0.75 pulls every planet's right edge back to ~96% X
+               (comfortably in-frame) without shrinking the body. */
+            _lookTarget.addScaledVector(_right, -halfW * frameShift * 0.75);
             /* Vertical companion to frameShift: aim a fraction of the view's half-
                HEIGHT below the body so it seats in the UPPER-right, clearing the
                bottom-right Planet Information card (the layout's cleanest gap).
