@@ -3,6 +3,12 @@ import { useEffect, useRef } from "react";
 import Lenis from "lenis";
 import { invalidate } from "@react-three/fiber";
 import { DESTINATIONS, SCROLL_LENGTH_PER_DESTINATION, FINALE_SCROLL_VH, TOUR_END_FRACTION } from "./config/destinations";
+import {
+  LENIS_LERP, WHEEL_MULT, TOUCH_MULT,
+  COMMIT_DEADBAND, DIR_HYSTERESIS,
+  SNAP_DEBOUNCE_MS, SNAP_MIN_DELTA, SNAP_DURATION_S, SNAP_FINALE_MARGIN,
+  GESTURE_IDLE_MS,
+} from "./config/tuning";
 
 /*
  * Scroll → camera tour coordinator.
@@ -19,14 +25,13 @@ const Navigator = ({ scrollTRef, finaleTRef, onDestinationChange, onFinaleConten
   const lenisRef = useRef(null);
 
   useEffect(() => {
-    /* Lerp 0.13 — responsive scroll so the camera starts moving the instant you
-       scroll (0.085 felt laggy/floaty). The magnetic snap still lands you exactly
-       on each planet, and the warp streaks ramp from the resulting travel speed. */
+    /* All tuning knobs (lerp, multipliers, deadband, timers) live in
+       config/tuning.js with rationale — see that file to adjust the "feel." */
     const lenis = new Lenis({
       smoothWheel: true,
-      lerp: 0.13,
-      wheelMultiplier: 1.0,
-      touchMultiplier: 1.5,
+      lerp: LENIS_LERP,
+      wheelMultiplier: WHEEL_MULT,
+      touchMultiplier: TOUCH_MULT,
       /* Let the left info column (overflow-y:auto) scroll natively under the
          wheel/touch, and CHAIN back to camera-navigation at its top/bottom
          edge. Without this Lenis swallows every wheel event for the camera,
@@ -81,17 +86,17 @@ const Navigator = ({ scrollTRef, finaleTRef, onDestinationChange, onFinaleConten
       const raw = lenis.progress;
       /* In the finale zone the reveal scrubs freely — no magnetic snap (it would
          yank you back to the last planet). */
-      if (raw > TOUR_END + 0.006) return;
+      if (raw > TOUR_END + SNAP_FINALE_MARGIN) return;
       const tourT = toTourT(raw);
       const nearest = Math.max(0, Math.min(N - 1, Math.round(tourT * (N - 1))));
       commitTo(nearest);
       // The destination's position in RAW runway progress (tour occupies [0, TOUR_END]).
       const targetRaw = (nearest / (N - 1)) * TOUR_END;
-      if (Math.abs(raw - targetRaw) > 0.004) {
+      if (Math.abs(raw - targetRaw) > SNAP_MIN_DELTA) {
         const max =
           (document.scrollingElement || document.documentElement).scrollHeight -
           window.innerHeight;
-        lenis.scrollTo(targetRaw * max, { duration: 0.85, easing: (t) => 1 - Math.pow(1 - t, 3) });
+        lenis.scrollTo(targetRaw * max, { duration: SNAP_DURATION_S, easing: (t) => 1 - Math.pow(1 - t, 3) });
       }
     };
 
@@ -117,7 +122,7 @@ const Navigator = ({ scrollTRef, finaleTRef, onDestinationChange, onFinaleConten
       const delta = raw - lastRaw;
       /* Track the gesture direction from the first sustained move; hysteresis avoids
          flipping on sub-pixel jitter. */
-      if (Math.abs(delta) > 0.001) {
+      if (Math.abs(delta) > DIR_HYSTERESIS) {
         if (dir === 0 || Math.sign(delta) !== dir) dir = Math.sign(delta) || dir;
       }
       lastRaw = raw;
@@ -126,7 +131,7 @@ const Navigator = ({ scrollTRef, finaleTRef, onDestinationChange, onFinaleConten
          snap's back-glide from committing the previous stop while gliding backwards.
          Programmatic jumps bypass so they land exactly. */
       const nearest = Math.round(raw);
-      const inBand = Math.abs(raw - nearest) < 0.35;
+      const inBand = Math.abs(raw - nearest) < COMMIT_DEADBAND;
       const withDir = dir === 0 || Math.sign(nearest - (committed >= 0 ? committed : nearest)) === dir;
       if (inBand && (window.__stellarJumping || withDir)) {
         commitTo(Math.max(0, Math.min(N - 1, nearest)));
@@ -140,10 +145,10 @@ const Navigator = ({ scrollTRef, finaleTRef, onDestinationChange, onFinaleConten
       }
 
       if (snapTimer) clearTimeout(snapTimer);
-      snapTimer = setTimeout(trySnap, 200);
+      snapTimer = setTimeout(trySnap, SNAP_DEBOUNCE_MS);
       /* Reset the gesture direction after idle so the next flick picks a fresh one. */
       if (idleTimer) clearTimeout(idleTimer);
-      idleTimer = setTimeout(() => { dir = 0; }, 260);
+      idleTimer = setTimeout(() => { dir = 0; }, GESTURE_IDLE_MS);
     };
     lenis.on("scroll", onScroll);
 
