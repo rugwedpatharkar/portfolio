@@ -14,18 +14,10 @@ import Nebulae from "./Nebulae";
 import VisibilityController from "./VisibilityController";
 import Skybox from "./Skybox";
 import OrbitGroup from "./OrbitGroup";
+/* BlackHole is also imported for the cosmic-stop planet-loop branch below
+   (the destination-row-driven mount at Contact). The registry mounts a
+   separate placement-only BlackHole from Scene/registry.js. */
 import BlackHole from "./anomalies/BlackHole";
-import Comet from "./Comet";
-import AtlasComet from "./AtlasComet";
-import Meteors from "./Meteors";
-import Pulsar from "./anomalies/Pulsar";
-import ExoticObjects from "./anomalies/ExoticObjects";
-import DeepFieldMysteries from "./anomalies/DeepFieldMysteries";
-import Kilonova from "./anomalies/Kilonova";
-import Hypergiant from "./anomalies/Hypergiant";
-import EtaCarinae from "./anomalies/EtaCarinae";
-import EinsteinRing from "./anomalies/EinsteinRing";
-import Wormhole from "./anomalies/Wormhole";
 import OrbitRings from "./OrbitRings";
 // LaneObjects retired — the Holo-Bridge dossier cluster replaces the forced-←→ convoy.
 import SolarEclipse from "./SolarEclipse";
@@ -36,10 +28,7 @@ import LocalNeighborhood from "./LocalNeighborhood";
 import TrojanAsteroids from "./TrojanAsteroids";
 import OortCloud from "./OortCloud";
 import Heliosphere from "./Heliosphere";
-import InterstellarVisitor from "./InterstellarVisitor";
 import MilkyWay from "./MilkyWay";
-import ShootingStars from "./ShootingStars";
-import DangerField from "./DangerField";
 import DustParticles from "./DustParticles";
 import AdaptiveQuality from "./AdaptiveQuality";
 import Sonification from "./Sonification";
@@ -47,10 +36,6 @@ import SaturnHexagon from "./SaturnHexagon";
 import IoTorus from "./IoTorus";
 import NeptuneAurora from "./NeptuneAurora";
 import MoonGeysers from "./MoonGeysers";
-import GlobularCluster from "./anomalies/GlobularCluster";
-import GravWaveChirp from "./anomalies/GravWaveChirp";
-import CosmicMarker from "./anomalies/CosmicMarker";
-import RedDots from "./anomalies/RedDots";
 import MimasMoon from "./MimasMoon";
 import TitanLakes from "./TitanLakes";
 import EclipseShadow from "./EclipseShadow";
@@ -59,8 +44,9 @@ import KeyLight from "./KeyLight";
 import MouseParallax from "./MouseParallax";
 import SafeLoad from "./SafeLoad";
 import useViewport from "../useViewport";
-import { DESTINATIONS, BACKGROUND_BELTS, placeInFrontOfSun } from "../config/destinations";
+import { DESTINATIONS, BACKGROUND_BELTS } from "../config/destinations";
 import { rotationSpeedFor } from "../config/planetData";
+import { SCENE_OBJECTS } from "./registry";
 
 /* Kirkwood gaps as fractions of the main belt (2.1–3.3 AU): the 3:1 (2.50 AU),
    5:2 (2.82) and 2:1 (3.27) Jupiter resonances. Stable identity so the belt
@@ -254,46 +240,23 @@ const Scene = ({ scrollT, finaleT, finale = false, activeIdx, onJump, focusRef, 
         {/* The edge anomaly — Gargantua, out in front of the camera (behind the
             Sun, −X) so it's a visible deep-space landmark throughout the tour
             rather than hidden off to the +X side behind the viewer. */}
-        {showMid && <BlackHole position={placeInFrontOfSun([49, -6, -15])} radius={32} animate={!reducedMotion} onPointerOver={handleHoverIn} onPointerOut={handleHoverOut} />}
-        {/* Spaghettification dread near Gargantua — writes clock.danger. */}
-        {showMid && <DangerField animate={!reducedMotion} />}
-        {/* Anomaly suite — the discoverable spectacle (tier 2). Motion-heavy ones
-            respect reduced-motion + device. */}
-        {showMid && !reducedMotion && <Comet />}
-        {/* 'Oumuamua — the interstellar visitor cutting through on a hyperbolic
-            path, tumbling end over end. */}
-        {showMid && !reducedMotion && <InterstellarVisitor animate={!reducedMotion} />}
-        {/* The interstellar comets: 3I/ATLAS (green coma + sunward anti-tail) and
-            2I/Borisov (reddish coma) — completing the trio with 'Oumuamua. */}
-        {showMid && !reducedMotion && <AtlasComet />}
-        {showMid && !reducedMotion && (
-          <AtlasComet start={[-620, -150, 240]} vel={[168, 4, -64]} coma="#e0a890" ion="#cdbfa0" dust="#e8d8b8" antiTail={false} comaR={1.2} respawn={780} />
-        )}
-        {/* Clickable wishing meteors. */}
-        {showMid && !reducedMotion && <ShootingStars animate={!reducedMotion} />}
-        {showMid && !isMobile && !reducedMotion && <Meteors />}
-        {showMid && !isMobile && !reducedMotion && <Pulsar />}
-        {/* New deep-field exotics: Sgr A*, magnetar, brown dwarf, rogue planet. */}
-        {showMid && <ExoticObjects animate={!reducedMotion} />}
-        {/* Project-probe metaphor removed (man-made, per user). DeepFieldMysteries
-            stays — Planet Nine, Tabby's Star, Wow! signal, an FRB are all real
-            astrophysical phenomena, not artificial. */}
-        {showMid && <DeepFieldMysteries animate={!reducedMotion} />}
-        {/* PHASE 4 (Wave 1) — deep-sky wonders: a kilonova event + a red supergiant. */}
-        {showMid && <Kilonova animate={!reducedMotion} />}
-        {showMid && <Hypergiant animate={!reducedMotion} />}
-        {/* Eta Carinae's bipolar Homunculus + an Einstein-ring lens galaxy. */}
-        {showMid && <EtaCarinae animate={!reducedMotion} />}
-        {showMid && <EinsteinRing animate={!reducedMotion} />}
-        {/* Wave 2 — scale & mystery: globular cluster, GW chirp, little red dots, cosmic web. */}
-        {showMid && <GlobularCluster animate={!reducedMotion} />}
-        {showMid && <GravWaveChirp animate={!reducedMotion} />}
-        {showMid && <RedDots animate={!reducedMotion} />}
-        {showMid && <CosmicMarker raw={[-44, 38, 28]} kind="void" count={520} radius={11} glow="#8aa0d8" animate={!reducedMotion} />}
-        {showMid && <CosmicMarker raw={[60, 20, -40]} kind="attractor" count={680} radius={10} glow="#ffd0a0" animate={!reducedMotion} />}
-        {showMid && <CosmicMarker raw={[-64, -10, -48]} kind="wall" count={760} radius={13} glow="#a0b6ff" animate={!reducedMotion} />}
-        {/* Wormhole "Beam aboard" portal at the Contact edge — the booking CTA. */}
-        {showMid && <Wormhole />}
+        {/* Tier-2 mounts (anomaly suite + transient objects) — declared once in
+            Scene/registry.js. Individual gates (motion/desktop), animate prop,
+            hover handlers, and static prop bags all live on the row. */}
+        {showMid && SCENE_OBJECTS.map((o) => {
+          if (o.motion && reducedMotion) return null;
+          if (o.desktop && isMobile) return null;
+          const C = o.C;
+          return (
+            <C
+              key={o.id}
+              {...(o.animate ? { animate: !reducedMotion } : {})}
+              {...(o.hoverable ? { onPointerOver: handleHoverIn, onPointerOut: handleHoverOut } : {})}
+              {...(o.props || {})}
+            />
+          );
+        })}
+
 
         {!finale && DESTINATIONS.map((d, idx) => {
           const handleClick = (e) => {
