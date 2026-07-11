@@ -24,39 +24,12 @@ import { useState, useCallback } from "react";
 import { motion, AnimatePresence, useReducedMotion } from "motion/react";
 import { V3Frame, V3Scan, V3SectionHeader, V3Chip, masterCardStyle } from "../primitives";
 import { EASE } from "../anim";
+import { pillars as PILLARS } from "../../../content";
 
 const META = {
   sub: "What Sets Me Apart",
   heading: "Signals a Résumé Can't Show",
 };
-
-const PILLARS = [
-  {
-    title: "Systems thinking, production-tested",
-    body: "I own the 31-service Python/gRPC platform end-to-end — from p95 latency budgets and distributed race conditions in inventory-hold to on-call incident response.",
-    proof: ["31 services", "96% p95 cut", "99.9% availability"],
-  },
-  {
-    title: "Backend + Agentic AI, without a seam",
-    body: "I architect the whole stack: FastAPI/gRPC on GKE below, a LangGraph multi-agent supervisor with MCP tool-calling and hybrid RAG on top. One head shipping both, not a hand-off.",
-    proof: ["LangGraph · MCP", "4 LLM providers", "Qdrant hybrid RAG"],
-  },
-  {
-    title: "Integration pragmatism at scale",
-    body: "7+ PMS providers, door-lock vendors, GRMS platforms — unified under one polymorphic base-class contract with idempotent webhooks. Zero-downtime provider switching, 60% less duplicated code.",
-    proof: ["7+ vendors", "Idempotent by design", "60% code reduction"],
-  },
-  {
-    title: "Impact the P&L can see",
-    body: "The latency work paid back in the cloud bill: compute cost dropped ~25% off the back of the p95 cut. Faster vendor onboarding, 50% less time-to-first-integration.",
-    proof: ["~25% compute saved", "50% faster onboarding", "Star Performer of the Quarter"],
-  },
-  {
-    title: "Ownership + legibility as a habit",
-    body: "What I ship is legible: versioned prompts, 500+ line Makefiles for deploy/logs/pods, published production notes, ~65% test coverage on core paths. Handovers are boring in the best way.",
-    proof: ["Versioned prompts", "500+ line Makefiles", "~65% core coverage"],
-  },
-];
 
 const NUMERAL_VARIANTS = {
   hidden: { opacity: 0, y: 24 },

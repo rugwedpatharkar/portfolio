@@ -1,3 +1,17 @@
+/*
+ * UPSWING headline numbers — the four flagship stats from the Upswing tenure.
+ * Extracted so `funFacts` and `experiences[0].metrics` reference the SAME
+ * numbers instead of duplicating them (they used to; audit §4.10). Each
+ * consumer keeps its own display formatting (chip vs count-up), but the raw
+ * values live here once.
+ */
+const UPSWING = {
+  servicesOwned: 31,
+  p95LatencyCutPct: 96,
+  computeCostSavedPct: 25,
+  availabilityPct: 99.9,
+};
+
 export const skills = {
   "Languages": [
     { name: "Python", level: 92 },
@@ -119,10 +133,10 @@ export const experiences = [
       "RabbitMQ", "Pub/Sub", "BigQuery", "Airflow", "Terraform", "Helm", "Pants",
     ],
     metrics: [
-      { value: "31", label: "Services Owned" },
-      { value: "96%", label: "p95 Latency Cut" },
-      { value: "~25%", label: "Compute Cost Saved" },
-      { value: "99.9%", label: "Availability" },
+      { value: `${UPSWING.servicesOwned}`, label: "Services Owned" },
+      { value: `${UPSWING.p95LatencyCutPct}%`, label: "p95 Latency Cut" },
+      { value: `~${UPSWING.computeCostSavedPct}%`, label: "Compute Cost Saved" },
+      { value: `${UPSWING.availabilityPct}%`, label: "Availability" },
     ],
     achievement: "Awarded Star Performer of the Quarter",
     categories: [
@@ -622,15 +636,51 @@ export const testimonials = [
 
 // "Numbers I've moved" — every value below is grounded in a specific Upswing
 // initiative documented in the experience entry above. Recruiter-scannable.
+/* First 4 flagship numbers share their raw values with experiences[0].metrics
+   via the UPSWING constant (see top of file). If one of those four values
+   changes, edit UPSWING once; both displays follow. */
 export const funFacts = [
-  { label: "Services Architected", value: 31, suffix: "", icon: "🛰️", detail: "Multi-tenant Python/FastAPI/gRPC platform on GKE with multi-region production deployments and an API Gateway translating REST to internal gRPC." },
-  { label: "p95 Latency Cut", value: 96, suffix: "%", icon: "⚡", detail: "From 5s to 200ms on availability and pricing endpoints via Redis caching, connection pooling, query optimization, and efficient serialization." },
-  { label: "Compute Cost Saved", value: 25, suffix: "%", icon: "💰", detail: "Direct outcome of the latency work — fewer wasted cycles per request, paid back in cloud bill." },
+  { label: "Services Architected", value: UPSWING.servicesOwned, suffix: "", icon: "🛰️", detail: "Multi-tenant Python/FastAPI/gRPC platform on GKE with multi-region production deployments and an API Gateway translating REST to internal gRPC." },
+  { label: "p95 Latency Cut", value: UPSWING.p95LatencyCutPct, suffix: "%", icon: "⚡", detail: "From 5s to 200ms on availability and pricing endpoints via Redis caching, connection pooling, query optimization, and efficient serialization." },
+  { label: "Compute Cost Saved", value: UPSWING.computeCostSavedPct, suffix: "%", icon: "💰", detail: "Direct outcome of the latency work — fewer wasted cycles per request, paid back in cloud bill." },
   { label: "PMS / Hardware Vendors", value: 7, suffix: "+", icon: "🔌", detail: "Apaleo, Opera/OHIP, Cloudbeds, RMS, Clock, Maxxton — plus ASSA ABLOY and Messerschmitt for door-locks and GRMS." },
-  { label: "Production Availability", value: 99.9, suffix: "%", icon: "🟢", detail: "Backed by Prometheus/Grafana observability, on-call rotation, and incident response on the platform I own." },
+  { label: "Production Availability", value: UPSWING.availabilityPct, suffix: "%", icon: "🟢", detail: "Backed by Prometheus/Grafana observability, on-call rotation, and incident response on the platform I own." },
   { label: "Vendor Onboarding Speed", value: 50, suffix: "%", icon: "🚀", detail: "Faster, via a template-driven architecture of abstract base classes and provider-specific implementations." },
   { label: "Code Redundancy Cut", value: 60, suffix: "%", icon: "🧹", detail: "Polymorphic base-class design across the PMS integration layer — one contract, many providers." },
   { label: "Test Coverage on Core", value: 65, suffix: "%", icon: "🧪", detail: "pytest integration & smoke suites behind CI quality gates on the services that matter most." },
+];
+
+/*
+ * Pillars for the "What Sets Me Apart" section (§4.9 — was hard-coded inside
+ * WhatSetsMeApart.jsx). Every planet stop reads its résumé section from this
+ * file; this closes the last content-in-code leak.
+ */
+export const pillars = [
+  {
+    title: "Systems thinking, production-tested",
+    body: "I own the 31-service Python/gRPC platform end-to-end — from p95 latency budgets and distributed race conditions in inventory-hold to on-call incident response.",
+    proof: ["31 services", "96% p95 cut", "99.9% availability"],
+  },
+  {
+    title: "Backend + Agentic AI, without a seam",
+    body: "I architect the whole stack: FastAPI/gRPC on GKE below, a LangGraph multi-agent supervisor with MCP tool-calling and hybrid RAG on top. One head shipping both, not a hand-off.",
+    proof: ["LangGraph · MCP", "4 LLM providers", "Qdrant hybrid RAG"],
+  },
+  {
+    title: "Integration pragmatism at scale",
+    body: "7+ PMS providers, door-lock vendors, GRMS platforms — unified under one polymorphic base-class contract with idempotent webhooks. Zero-downtime provider switching, 60% less duplicated code.",
+    proof: ["7+ vendors", "Idempotent by design", "60% code reduction"],
+  },
+  {
+    title: "Impact the P&L can see",
+    body: "The latency work paid back in the cloud bill: compute cost dropped ~25% off the back of the p95 cut. Faster vendor onboarding, 50% less time-to-first-integration.",
+    proof: ["~25% compute saved", "50% faster onboarding", "Star Performer of the Quarter"],
+  },
+  {
+    title: "Ownership + legibility as a habit",
+    body: "What I ship is legible: versioned prompts, 500+ line Makefiles for deploy/logs/pods, published production notes, ~65% test coverage on core paths. Handovers are boring in the best way.",
+    proof: ["Versioned prompts", "500+ line Makefiles", "~65% core coverage"],
+  },
 ];
 
 export const hobbies = [
