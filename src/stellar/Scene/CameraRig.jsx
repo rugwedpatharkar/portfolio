@@ -148,6 +148,22 @@ const CameraRig = ({
     /* 1) Finale takes precedence when finaleT > 0. Returns true if it handled. */
     if (runFinaleStrategy(ctx)) return;
 
+    /* 1b) Hyperspace — modulates warpVelRef during the first scroll segment
+          (milkyway → overview), driving the Hyperspace.jsx streak effect.
+          Independent of jumpStrategy's warp pulse; both may briefly overlap
+          on a rail-click jump, which reads as a smooth boost. */
+    const N = DESTINATIONS.length;
+    if (N > 1) {
+      const pos = rawT * (N - 1);
+      if (pos > 0 && pos < 1.05 && !reducedMotion && !isMobile) {
+        /* Fatter peak than a pure sine — the transition SPENDS time at full
+           warp so streaks read as motion, not a flicker. */
+        const s = Math.max(0, Math.min(1, pos));
+        const v = Math.pow(Math.sin(Math.PI * s), 0.55);
+        if (warpVelRef) warpVelRef.current = Math.max(warpVelRef.current || 0, v);
+      }
+    }
+
     /* 2) Scroll — writes scratch._camTarget + _lookTarget from the destination
           chain; returns fov/roll targets and travel speed. */
     const { fovTarget, rollTarget, posVel } = runScrollStrategy(ctx);
