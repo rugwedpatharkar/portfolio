@@ -21,11 +21,12 @@ import sharp from "sharp";
 
 const ROOT = path.resolve(new URL(".", import.meta.url).pathname, "..");
 
+/* Only source PNGs land here. The one hero image the app currently uses is
+   already shipped as `src/assets/hero-photo-1024.webp` (a pre-optimized WebP);
+   no PNG source exists. When a new hero PNG is added, list it here with the
+   widths its consumers request. */
 const TARGETS = [
-  { src: "public/herobg.png", widths: [960, 1600, 2400], bg: true },
-  { src: "public/photo.png", widths: [640, 1024, 1600] },
-  { src: "src/assets/hero-photo.png", widths: [640, 1024, 1600] },
-  { src: "src/assets/photo.png", widths: [480, 800, 1200] },
+  // { src: "src/assets/hero-photo.png", widths: [640, 1024, 1600] },
 ];
 
 const AVIF = { quality: 70, effort: 6 };
@@ -40,6 +41,11 @@ const stem = (p) => {
 };
 
 async function run() {
+  if (TARGETS.length === 0) {
+    console.log("no PNG sources listed — nothing to convert.");
+    console.log("add entries to TARGETS in this file when new hero PNGs land in src/assets or public.");
+    return;
+  }
   for (const target of TARGETS) {
     const fullSrc = path.join(ROOT, target.src);
     let srcStat;
