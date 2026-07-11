@@ -5,7 +5,7 @@
  * Cinematic entrance: masked line-reveal on the name, staggered fade-up on the rest
  * (motion/react; reduced-motion → instant). Reads ONLY from /src/content.
  */
-import { useRef, useEffect } from "react";
+import { memo, useRef, useEffect } from "react";
 import { motion, useReducedMotion } from "motion/react";
 import { personalInfo, contactLinks } from "../../content";
 import { DESTINATIONS } from "../config/destinations";
@@ -23,7 +23,10 @@ const beginTour = () => {
   else window.scrollTo({ top: targetY, behavior: "smooth" });
 };
 
-export default function V3Hero() {
+/* memo: takes no props. Rendered inside HoloBridge only when section === "hero".
+   Once mounted, the hero content is static — StellarApp re-renders (activeIdx,
+   panelHidden, extrasPhase, scrollFinale) should not force reconcile. */
+function V3Hero() {
   const reduce = useReducedMotion();
   const { isCompact } = useViewport();
   const ctaRef = useRef(null);
@@ -123,3 +126,5 @@ export default function V3Hero() {
     </motion.div>
   );
 }
+
+export default memo(V3Hero);

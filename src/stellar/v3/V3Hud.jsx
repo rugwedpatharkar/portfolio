@@ -5,6 +5,7 @@
  * clickable to jump). Pointer-transparent except the rail. Per-body accent via
  * --v3-accent. Hidden during the reveal-on-arrival flight fade is handled by opacity.
  */
+import { memo } from "react";
 import { motion, useReducedMotion } from "motion/react";
 import useViewport from "../useViewport";
 
@@ -19,7 +20,10 @@ const Corner = ({ pos }) => {
   return <i style={{ ...base, ...map[pos] }} />;
 };
 
-export default function V3Hud({ stops = [], activeIdx = 0, section = "", onJump }) {
+/* memo: props are stable (DESTINATIONS reference, useCallback([]) onJump) or
+   primitives (activeIdx, section). Skips render on panelHidden/extrasPhase/
+   scrollFinale changes — HUD only needs to reflect the active stop. */
+function V3Hud({ stops = [], activeIdx = 0, section = "", onJump }) {
   const { isCompact } = useViewport();
   const reduce = useReducedMotion();
 
@@ -80,3 +84,5 @@ export default function V3Hud({ stops = [], activeIdx = 0, section = "", onJump 
     </div>
   );
 }
+
+export default memo(V3Hud);

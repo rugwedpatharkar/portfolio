@@ -302,7 +302,7 @@ const StellarApp = () => {
         panelHidden={panelHidden}
       />
       {/* v3 FUI chrome — hairline frame, stop counter, clickable system rail. */}
-      <V3Hud stops={DESTINATIONS} activeIdx={activeIdx} label={DESTINATIONS[activeIdx]?.label} section={DESTINATIONS[activeIdx]?.section} onJump={handleJump} />
+      <V3Hud stops={DESTINATIONS} activeIdx={activeIdx} section={DESTINATIONS[activeIdx]?.section} onJump={handleJump} />
       {/* Focused-planet FUI reticle — tracks the active body via camera projection. */}
       <V3Reticle cameraRef={cameraRef} clock={sceneClockRef.current} activeIdx={activeIdx} />
       {/* Per-body editorial card — historical quote + rotating etymology / fact.
