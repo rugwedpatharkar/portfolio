@@ -236,7 +236,7 @@ export default function NotesSection({ index, bootNonce }) {
                         ))}
                       </div>
                     )}
-                    {post?.link && (
+                    {post?.link && post.link !== "#" && (
                       <a href={post.link} target={post.link.startsWith("http") ? "_blank" : undefined} rel="noreferrer" style={{
                         fontFamily: "var(--v3-font-mono)", fontWeight: 400,
                         fontSize: "clamp(9px, 0.4vw + 6px, 11px)",
