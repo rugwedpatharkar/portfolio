@@ -4,6 +4,7 @@ import { useFrame } from "@react-three/fiber";
 import * as THREE from "three";
 import { placeInFrontOfSun } from "../../config/destinations";
 import { nearCamera } from "../shared/hooks";
+import { useSceneClock } from "../SceneClock";
 
 /*
  * PHASE 4 (Wave 1) — BETELGEUSE, a red supergiant ~700× the Sun's width: drop it
@@ -20,14 +21,16 @@ export default function Hypergiant({ animate = true }) {
   const star = useRef();
   const halo = useRef();
   const comp = useRef();
-  const t = useRef(0);
+  const sceneClock = useSceneClock();
   const pos = useMemo(() => new THREE.Vector3(...placeInFrontOfSun(BETELGEUSE_RAW)), []);
 
-  useFrame(({ camera }, dt) => {
+  useFrame(({ camera }) => {
     if (!nearCamera(camera, pos, 500)) return;
     if (!animate) return;
-    t.current += dt;
-    const T = t.current;
+    /* §4.4: read shared world-time from SceneClock instead of a per-instance
+       accumulator so the pulse + companion orbit obey global time-scale changes
+       (pause / ×0.5 / ×2) and reduced-motion the same way orbits do. */
+    const T = sceneClock.t;
     const pulse = 1 + Math.sin(T * 0.28) * 0.06 + Math.sin(T * 0.11 + 1.3) * 0.03; // semiregular
     if (star.current) star.current.scale.setScalar(pulse);
     if (halo.current) halo.current.material.opacity = 0.16 + Math.sin(T * 0.28) * 0.05;

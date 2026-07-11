@@ -35,7 +35,12 @@ export default function GravWaveChirp({ animate = true }) {
     const ph = (clock.t % CY) / CY; // 0..1
     // separation shrinks (inspiral); angular speed rises as it tightens (accumulated)
     const sep = 4.2 * Math.pow(1 - ph, 0.6) + 0.25;
-    spin.current += Math.min(dt, 1 / 20) * (1.0 + 3.6 / sep);
+    /* §4.4: scale the physics delta by SceneClock.scale so this state-dependent
+       spin accumulator freezes with the rest of the system under reduced-motion
+       or a pause. The angular speed is state-dependent (grows as `sep` shrinks),
+       so we can't derive spin from clock.t alone — but multiplying dt by scale
+       gives us the same "pause coherently" behavior everything else gets. */
+    spin.current += Math.min(dt, 1 / 20) * clock.scale * (1.0 + 3.6 / sep);
     const s = spin.current;
     if (a.current) a.current.position.set(Math.cos(s) * sep, 0, Math.sin(s) * sep);
     if (b.current) b.current.position.set(-Math.cos(s) * sep, 0, -Math.sin(s) * sep);
