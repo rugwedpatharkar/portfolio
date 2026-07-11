@@ -193,7 +193,31 @@ export const PLANET_FACTS = {
       "EHT Collaboration 2022 — Sgr A* imaged, DOI:10.3847/2041-8213/ac6674",
     ],
   },
-  /* Kuiper Belt — 30–50 AU. Decorative epilogue stop, no résumé section. */
+  /* The Edge — the tour's cinematic closer, a black hole hosting the
+     Contact section. Not scientifically nearby (nearest known BH is Gaia
+     BH1 at 1,560 ly); this is the emotional endpoint of the journey. */
+  blackhole: {
+    body: "The Edge — a black hole",
+    distance: "Past the last orbit · the outward horizon",
+    diameter: "Event horizon — the point of no return",
+    mass: "Millions of Suns, collapsed to a point",
+    year: "—",
+    day: "Spins near light-speed, dragging spacetime with it",
+    gravity: "Escape velocity exceeds c — not even light gets out",
+    temp: "Hawking radiation — a whisper above absolute zero",
+    atmosphere: "Accretion disk — infalling matter heated to millions of °C",
+    moons: "—",
+    missions: "Event Horizon Telescope imaged M87* (2019) & Sgr A* (2022)",
+    wow: "Near the horizon, time itself dilates — an hour here can be years for everyone else. This is where the tour ends and the conversation begins. Beam a message aboard.",
+    sources: [
+      "Event Horizon Telescope Collaboration 2019 (M87*) — DOI:10.3847/2041-8213/ab0ec7",
+      "Event Horizon Telescope Collaboration 2022 (Sgr A*) — DOI:10.3847/2041-8213/ac6674",
+      "Interstellar visualisation reference — Thorne et al. 2015, DOI:10.1088/0264-9381/32/6/065001",
+    ],
+  },
+  /* Kuiper Belt — retired as a tour stop; kept as data for the belt
+     background scenery and any future re-mount. Not referenced by any
+     active destination now. */
   kuiper: {
     body: "Kuiper Belt — icy minor planets",
     distance: "30–50 AU from the Sun (~4.5–7.5 billion km)",

@@ -165,7 +165,19 @@ export const PLANET_EDITORIAL = {
       "The galaxy is on a collision course with Andromeda — impact in ~4.5 billion years. The merged galaxy will be called Milkomeda.",
     ],
   },
-  /* Kuiper Belt — decorative epilogue after Pluto. */
+  /* The Edge — the cinematic closer, hosts the Contact section. */
+  blackhole: {
+    quote: "Look again at that dot. That's here. That's home. That's us — on it everyone you love, everyone you know, everyone you ever heard of, every human being who ever was, lived out their lives.",
+    quoteBy: "Carl Sagan · Pale Blue Dot, 1994",
+    etymology: "Black hole — named by John Wheeler (1967): a region where gravity is so strong that nothing, not even light, escapes.",
+    discovered: "First imaged by the Event Horizon Telescope in 2019 (M87*) — a global network of radio dishes linked into one Earth-sized telescope.",
+    facts: [
+      "Time near a black hole runs slower — the closer you fall, the further ahead the rest of the universe races.",
+      "Sgr A*, the black hole at the Milky Way's centre, is 4 million times the Sun's mass — and was imaged in 2022.",
+      "You've reached the end of the tour. Beam a message aboard — let's build something together.",
+    ],
+  },
+  /* Kuiper Belt — retired as a stop; data kept for future re-mount. */
   kuiper: {
     quote: "Beyond Neptune lies not emptiness, but a second disc of worlds.",
     quoteBy: "Gerard Kuiper (paraphrased) · 1951",

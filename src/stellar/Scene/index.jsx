@@ -31,6 +31,7 @@ import Comet from "./Comet";
 import Hyperspace from "./Hyperspace";
 import SgrAStar from "./SgrAStar";
 import SpiralGalaxy from "./SpiralGalaxy";
+import BlackHole from "./anomalies/BlackHole";
 import Voyagers from "./Voyagers";
 /* BlackHole + SpiralGalaxy removed from the tour — nearest black hole is
    1,560 ly away (Gaia BH1), nothing sits "just past Pluto". Milky Way seen
@@ -482,11 +483,13 @@ const Scene = ({ scrollT, finaleT, finale = false, activeIdx, onJump, focusRef, 
             );
           }
           if (d.kind === "cosmic") {
-            /* v3 deep-space epilogue stops — Kuiper Belt + Oort Cloud are
-               camera-framing-only. The geometry already renders via
-               AsteroidBelt + BeltDust (Kuiper background scenery) and
-               OortCloud (shell around origin). These stops just park the
-               camera at the authored cameraTarget. */
+            /* v3 finale — cinematic "black hole in a nebular envelope with
+               polar jets" for the closing Contact stop. Not scientifically
+               placed (nearest BH is 1,560 ly), but the emotionally correct
+               closer for the tour. */
+            const p = d.position;
+            if (d.render === "blackhole")
+              return <BlackHole key={d.id} position={p} radius={d.radius} nebula jets animate={!reducedMotion} onPointerOver={handleHoverIn} onPointerOut={handleHoverOut} />;
             return null;
           }
           return null;

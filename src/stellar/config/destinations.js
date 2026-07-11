@@ -313,7 +313,7 @@ export const DESTINATIONS = [
   },
   {
     id: "hobbies",
-    docTitle: "What Sets Me Apart",
+    docTitle: "Testimonials",
     kind: "planet",
     type: "abyss",
     label: "Neptune",
@@ -326,7 +326,7 @@ export const DESTINATIONS = [
     /* The bundled map is the over-saturated Voyager indigo; grade it to the 2024
        true colour — a PALE greenish-blue, near-Uranus but a touch bluer. */
     grade: { sat: 0.55, lift: 0.08, mix: 0.42, tint: "#9ec6d6" },
-    section: "whatsetsmeapart",
+    section: "testimonials",
     /* Neptune — pulled back, lonely framing in the deep dark (offset scaled) */
     cameraTarget: { position: [40.54, 0.94, 2.34], lookAt: [39.0, 0, 0.8], fov: 44 },
     axialTilt: 28.3 * DEG, // Neptune's obliquity, close to Earth's
@@ -346,7 +346,7 @@ export const DESTINATIONS = [
   // section so all lookups / content / hash stay intact; only the body changes.
   {
     id: "testimonials",
-    docTitle: "Contact",
+    docTitle: "",
     kind: "planet",
     type: "rocky",
     label: "Pluto",
@@ -360,10 +360,9 @@ export const DESTINATIONS = [
     moonScale: 0.5,
     /* Charon — grey, nearly half Pluto's size (the system's true double dwarf). */
     moonSet: [{ color: "#9a948a", scale: 0.5 }],
-    /* v3 tour restructure: Pluto now hosts CONTACT (was the removed nearby
-       black hole — scientifically wrong). What Sets Me Apart shifted back to
-       Neptune. Space-object order intact. */
-    section: "contact",
+    /* Pluto hosts WHAT SETS ME APART (personal-differentiators pitch); the
+       Contact section lives on the closing black-hole "The Edge" stop. */
+    section: "whatsetsmeapart",
     /* Tight framing for the small dwarf (offset preserved through the AU remap). */
     cameraTarget: { position: [44.08, 0.97, 1.52], lookAt: [44, 0.9, 1.4], fov: 46 },
   },
