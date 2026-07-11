@@ -437,19 +437,24 @@ const Scene = ({ scrollT, finaleT, finale = false, activeIdx, onJump, focusRef, 
             keep the dust haze thinner but present so the belt still reads
             as SOMETHING when the tour scrubs past it. */}
         {showExtras && (
-          /* Main belt — 5 spectral families with a radial weight profile:
-             E/Hungaria at the inner edge → S-type (reddish silicate) →
-             mixed S/M/C → C-type (dark carbonaceous) → D-type (dark red)
-             at the outer edge. Kirkwood gaps at all four major resonances
-             carve density notches. */
-          <AsteroidBelt count={isMobile ? 1200 : 2600} innerRadius={BACKGROUND_BELTS.asteroid.inner} outerRadius={BACKGROUND_BELTS.asteroid.outer} size={0.18} thickness={BACKGROUND_BELTS.asteroid.thickness} gaps={KIRKWOOD_GAPS} animate={!reducedMotion} />
+          /* Main belt — seven families (E/S/M/C/D + ice + heavy-metal), radial
+             weight profile shifting toward C-type outward, heavy metal
+             concentration in the middle 2.4-2.8 AU zone, ice tail across the
+             outer half. Kirkwood gaps at all four major Jupiter resonances
+             (3:1, 5:2, 7:3, 2:1) carve density notches. Count bumped hard so
+             the belt reads DENSE at every zoom. */
+          <AsteroidBelt count={isMobile ? 3200 : 7500} innerRadius={BACKGROUND_BELTS.asteroid.inner} outerRadius={BACKGROUND_BELTS.asteroid.outer} size={0.18} thickness={BACKGROUND_BELTS.asteroid.thickness} gaps={KIRKWOOD_GAPS} animate={!reducedMotion} />
         )}
         {showExtras && !isMobile && (
-          /* Kuiper belt — bimodal RR/BB colour split with cold-classical zone
-             heavy on the rusty-red tholins. Resonance clumps overpopulate
-             the 3:2 Plutinos at ~39.4 AU and 2:1 Twotinos at ~47.7 AU; the
-             Kuiper Cliff drops density sharply near 48 AU. */
-          <AsteroidBelt count={1800} innerRadius={BACKGROUND_BELTS.kuiper.inner} outerRadius={BACKGROUND_BELTS.kuiper.outer} size={0.55} thickness={BACKGROUND_BELTS.kuiper.thickness} families={KUIPER_FAMILIES} weights={kuiperWeightsFor} clumps={KUIPER_CLUMPS} cliff animate={!reducedMotion} />
+          /* Kuiper belt — six families (BB / RR / intermediate / water-ice /
+             methane-ice / metal fragments). Bimodal RR/BB colour split
+             preserved with cold-classical zone heavy on the rusty-red
+             tholins, bright methane-ice tail on the outer edge (Eris /
+             Makemake style), metallic fragments dust the whole belt.
+             Resonance clumps overpopulate the 3:2 Plutinos at ~39.4 AU and
+             2:1 Twotinos at ~47.7 AU; the Kuiper Cliff drops density sharply
+             near 48 AU. Count bumped for density. */
+          <AsteroidBelt count={5000} innerRadius={BACKGROUND_BELTS.kuiper.inner} outerRadius={BACKGROUND_BELTS.kuiper.outer} size={0.55} thickness={BACKGROUND_BELTS.kuiper.thickness} families={KUIPER_FAMILIES} weights={kuiperWeightsFor} clumps={KUIPER_CLUMPS} cliff animate={!reducedMotion} />
         )}
         {/* Dust haze — tier 4 (mounts last + alone). Still substantial so the
             band reads as haze rather than empty space. */}

@@ -47,48 +47,63 @@ import { lumpyRock } from "./shared/geometry";
    photometry + IR albedo surveys, hex-mapped for a lit-material render.
    0 = E/Hungaria bright, 1 = S-type reddish silicate, 2 = M-type metallic,
    3 = C-type dark carbonaceous, 4 = D-type dark reddish-brown outer. */
+/* Seven-family main-belt palette. 0-4 are the taxonomic spectral classes
+   from the SDSS+IRAS surveys; 5 + 6 are added visual-only categories the
+   user asked for — an ice family for the volatile-rich outer belt (Themis
+   family has confirmed water-ice frost, hydrated minerals + serpentines
+   are widespread) and a HEAVY-METAL family (M-type minor + differentiated
+   iron/nickel cores exposed on collision fragments — Kleopatra, Psyche,
+   Lutetia). The heavy-metal family is metalness ~0.9 so under the
+   scene's key light it reads as brushed steel/silver. */
 export const MAIN_FAMILIES = [
-  { color: "#b8a888", metal: 0.06, rough: 0.72 }, // E / Hungaria (~1.9-2.0 AU)
-  { color: "#a67a55", metal: 0.18, rough: 0.82 }, // S-type
-  { color: "#7c7a76", metal: 0.55, rough: 0.42 }, // M-type
-  { color: "#3a3530", metal: 0.04, rough: 0.96 }, // C-type
-  { color: "#4a2f22", metal: 0.04, rough: 0.94 }, // D-type
+  { color: "#b8a888", metal: 0.06, rough: 0.72 }, // 0  E/Hungaria bright enstatite
+  { color: "#a67a55", metal: 0.22, rough: 0.78 }, // 1  S-type silicate (rocky)
+  { color: "#7c7a76", metal: 0.72, rough: 0.36 }, // 2  M-type metallic
+  { color: "#3a3530", metal: 0.05, rough: 0.96 }, // 3  C-type carbonaceous
+  { color: "#4a2f22", metal: 0.05, rough: 0.94 }, // 4  D-type dark reddish-brown
+  { color: "#c0cbd8", metal: 0.08, rough: 0.62 }, // 5  Bright water-ice (Themis / outer belt hydrated)
+  { color: "#cad3dc", metal: 0.92, rough: 0.24 }, // 6  Iron/nickel heavy-metal core exposed
 ];
 
-/* Radial weight profile for the main belt — argument `frac` is the position
-   0..1 across [innerRadius, outerRadius]. Returned array has one weight per
-   family in MAIN_FAMILIES; caller normalises. Inner belt is S-dominated;
-   outer belt is C-dominated; a D-type tail lives at the very outer edge. */
+/* Radial weight profile — argument `frac` is 0..1 across [inner, outer].
+   The metallic family (index 2) + heavy-metal family (index 6) are bumped
+   HARD per the user's "too much metals" ask, especially in the middle
+   belt (2.4-2.8 AU) where the M-type classification peaks in real surveys.
+   Ice (index 5) shows up in the outer half where hydrated minerals are
+   real, matching the Themis family + serpentine-bearing bodies. */
 export const mainWeightsFor = (frac) => {
-  if (frac < 0.05) return [0.70, 0.25, 0.05, 0.00, 0.00]; // inner Hungaria edge
-  if (frac < 0.35) return [0.10, 0.55, 0.08, 0.25, 0.02]; // S-dominated
-  if (frac < 0.60) return [0.02, 0.28, 0.05, 0.60, 0.05]; // mixed, C rising
-  if (frac < 0.85) return [0.00, 0.10, 0.02, 0.78, 0.10]; // C-dominated
-  return [0.00, 0.03, 0.01, 0.60, 0.36];                  // D-type outer edge
+  if (frac < 0.05) return [0.45, 0.20, 0.20, 0.00, 0.00, 0.00, 0.15]; // inner Hungaria + M + heavy-metal edge
+  if (frac < 0.35) return [0.08, 0.42, 0.18, 0.14, 0.02, 0.04, 0.12]; // S + heavy M/metal
+  if (frac < 0.60) return [0.02, 0.20, 0.22, 0.32, 0.03, 0.10, 0.11]; // mixed with ice + metal peaks
+  if (frac < 0.85) return [0.00, 0.10, 0.14, 0.44, 0.08, 0.14, 0.10]; // C + more ice + M holds
+  return [0.00, 0.03, 0.10, 0.42, 0.24, 0.13, 0.08];                  // D outer edge + ice tail
 };
 
-/* Kuiper family palette — bimodal on colour (RR = red-red, BB = blue-blue in
-   TNO taxonomy) plus an intermediate. Albedo of large classicals is around
-   0.1; the biggest bodies (Eris, Makemake) reach 0.9 but those render as
-   named meshes elsewhere, not in the belt scatter. */
+/* Six-family Kuiper palette. First three are the OSSOS RR/BB/intermediate
+   taxonomy from real spectra; last three add explicit ICE, METHANE/GAS-ice,
+   and METAL (rare exposed cores) categories the user asked for. */
 export const KUIPER_FAMILIES = [
-  { color: "#7a7a78", metal: 0.03, rough: 0.90 }, // BB neutral grey-blue
-  { color: "#c05a3a", metal: 0.03, rough: 0.90 }, // RR rusty red tholins
-  { color: "#a48068", metal: 0.05, rough: 0.85 }, // intermediate ochre
+  { color: "#7a7a78", metal: 0.04, rough: 0.90 }, // 0  BB neutral grey-blue
+  { color: "#c05a3a", metal: 0.03, rough: 0.90 }, // 1  RR rusty red tholins
+  { color: "#a48068", metal: 0.05, rough: 0.85 }, // 2  intermediate ochre
+  { color: "#e6edf3", metal: 0.12, rough: 0.55 }, // 3  Bright water-ice (Haumea-family shards, Charon)
+  { color: "#f5e2b0", metal: 0.06, rough: 0.68 }, // 4  Methane / N₂-ice bright yellowish (Eris/Makemake style)
+  { color: "#a8b4c0", metal: 0.88, rough: 0.28 }, // 5  Metallic core fragments (very rare in reality — bumped for visual weight)
 ];
 
-/* Cold classicals (42-48 AU) are almost exclusively RR-red; hot classicals
-   spread grey-neutral across the whole belt. Interior sparse plutino zone
-   picks up more BB; scattered edge trends mixed. */
+/* Kuiper radial weights. Cold classicals (42-48 AU) heavy on RR-red +
+   bright ices; scattered inner + outer edges pick up more BB grey, and
+   metal fragments dust the whole belt so the sparkles catch the light. */
 export const kuiperWeightsFor = (frac) => {
-  if (frac < 0.30) return [0.55, 0.15, 0.30]; // inner scattered / early plutinos
-  if (frac < 0.85) return [0.28, 0.56, 0.16]; // classical belt: RR-dominant
-  return [0.45, 0.30, 0.25];                  // outer edge / early scattered disc
+  if (frac < 0.30) return [0.38, 0.10, 0.16, 0.10, 0.08, 0.18]; // inner scattered / plutinos — heavy M
+  if (frac < 0.85) return [0.20, 0.38, 0.10, 0.14, 0.10, 0.08]; // classical belt — RR + water-ice
+  return [0.26, 0.18, 0.12, 0.18, 0.18, 0.08];                  // outer edge — ice + gas-ice tail
 };
 
 /* Slight differential rotation per family so the belt doesn't drift as a
-   rigid wheel — S/C rocks are on slightly different mean-motion regimes. */
-const DEFAULT_DRIFTS = [0.010, 0.013, 0.016, 0.019, 0.022];
+   rigid wheel — the seven families are on slightly different mean-motion
+   regimes so they shear past each other subtly. */
+const DEFAULT_DRIFTS = [0.010, 0.013, 0.016, 0.019, 0.022, 0.015, 0.017];
 
 const Family = ({ instances, geometry, mat, drift, animate = true }) => {
   const groupRef = useRef();
@@ -211,14 +226,24 @@ const AsteroidBelt = ({
          real inclination profile — peak near the mid-plane, sparse outliers
          at high inclination. Scale height compressed for tour readability. */
       const y = (Math.random() + Math.random() - 1) * 0.5 * thickness;
-      /* Multi-tier fat-tailed size mix: mostly gravel, a third small, ~7%
-         large, ~0.8% giant. Fits the real N ~ D^-3 power law loosely. */
+      /* Six-tier fat-tailed size mix. The N ~ D^-3 power law still runs the
+         shape, but every tier is boosted per the user's "very much big" ask
+         — mega-giants stretch to 22× the base size, and the small population
+         is thickened so the belt reads DENSE across every zoom.
+           mega-giant (Ceres/Vesta-scale hero rock): 1.2%, scale 10-22×
+           giant                                   : 3.5%, scale 5-9×
+           big                                     : 8.0%, scale 2.5-4.5×
+           medium                                  : 20%,  scale 1.0-2.2×
+           small                                   : 35%,  scale 0.4-1.0×
+           gravel                                  : 32%,  scale 0.14-0.5× */
       const r = Math.random();
       let baseScale;
-      if (r > 0.992)      baseScale = size * (5.0 + Math.random() * 7.0);   // rare giants
-      else if (r > 0.93)  baseScale = size * (2.2 + Math.random() * 2.6);   // large
-      else if (r > 0.62)  baseScale = size * (0.7 + Math.random() * 1.3);   // small
-      else                baseScale = size * (0.16 + Math.random() * 0.5); // gravel
+      if (r > 0.988)      baseScale = size * (10.0 + Math.random() * 12.0); // mega-giants
+      else if (r > 0.953) baseScale = size * (5.0 + Math.random() * 4.0);   // giants
+      else if (r > 0.873) baseScale = size * (2.5 + Math.random() * 2.0);   // big
+      else if (r > 0.673) baseScale = size * (1.0 + Math.random() * 1.2);   // medium
+      else if (r > 0.323) baseScale = size * (0.4 + Math.random() * 0.6);   // small
+      else                baseScale = size * (0.14 + Math.random() * 0.36); // gravel
       const familyIdx = pickFamily(weightsFn(frac));
       out[familyIdx].push({
         angle, radius, y, scale: baseScale,
