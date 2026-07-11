@@ -116,9 +116,22 @@ const SunRays = ({
     if (matRef.current) matRef.current.uniforms.uTime.value = sceneClock.t;
   });
 
+  /* The billboard quad sits at the Sun's world position. Depth test is ENABLED
+     (the previous depthTest:false made the additive rays draw over every
+     planet regardless of what was between camera and Sun — you saw the rays
+     "piercing" through Ceres). With depth test on, any opaque body between
+     camera and Sun writes closer depth values into the buffer first, and
+     the ray fragments where that body covers the Sun's screen position fail
+     the depth test → get discarded → the planet reads as a solid silhouette
+     with god-rays only emerging around its limb, matching a real total-
+     solar-eclipse "diamond ring" photograph.
+
+     renderOrder stays at the default (0) so opaque geometry draws first
+     (which writes depth), and only then does this transparent additive
+     billboard draw against the populated depth buffer. */
   return (
     <Billboard position={position} follow>
-      <mesh renderOrder={2}>
+      <mesh>
         <planeGeometry args={[radius * 2, radius * 2]} />
         <shaderMaterial
           ref={matRef}
@@ -127,7 +140,7 @@ const SunRays = ({
           uniforms={uniforms}
           transparent
           depthWrite={false}
-          depthTest={false}
+          depthTest
           blending={THREE.AdditiveBlending}
           toneMapped={false}
         />
