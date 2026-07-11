@@ -174,15 +174,16 @@ const Scene = ({ scrollT, finaleT, finale = false, activeIdx, onJump, focusRef, 
            screenshots, and any future "share this frame" image) — without it a
            programmatic capture reads a cleared/black buffer. Negligible cost. */
         preserveDrawingBuffer: true,
-        /* §7.7 — the scene spans ~140,000:1 (near-clip 0.1u for the tiniest
-           moons up to far-clip 14,000u for the finale + oort). Standard
-           24-bit depth precision distributes badly across that ratio: the
-           inner planets fight for precision with the outer belts. Log depth
-           re-maps depth to log-space (~equal precision per octave), which
-           eliminates any current z-fighting AND makes future depth-sensitive
-           effects safe. Costs one shader instruction per fragment; no known
-           regressions for standard three.js materials in r163+. */
-        logarithmicDepthBuffer: true,
+        /* §7.7 — logarithmicDepthBuffer was enabled speculatively (no observed
+           z-fighting; the audit flagged it "deferred, re-test empirically").
+           REVERTED — enabling log depth requires every custom ShaderMaterial
+           (Sun, Wormhole, BeltDust, Stars, PlanetMaterial, etc.) to include
+           three's `logdepthbuf_pars_*` + `logdepthbuf_*` GLSL chunks in both
+           vertex + fragment shaders. Without those, the shader writes wrong
+           depth values → additive particles render THROUGH opaque solids (the
+           user saw belt rocks showing on top of the Sun). Standard 24-bit
+           depth handles the current scene fine; re-enable log depth only
+           after every custom material carries the depth chunks. */
         /* ACES Filmic tone mapping on the renderer side — single
            pipeline, no post-processing ToneMapping pass (that one
            had API issues in v3). */
