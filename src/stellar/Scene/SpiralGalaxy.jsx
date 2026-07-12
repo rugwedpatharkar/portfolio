@@ -22,12 +22,12 @@ const DISC_RADIUS = 200;
 const BULGE_RADIUS = 34;
 const ARM_COUNT = 2;              // 2 dominant arms (+ their sub-branches) reads
 //                                   more like Andromeda than a symmetric 4-arm pinwheel
-const ARM_PITCH = 0.28;           // winding tightness (M31-ish)
-const ARM_WIDTH = 0.34;           // BROADER arms — wider angular spread so the disc fills
-const ARM_STARS = 11000;          // DENSER arms
-const HALO_STARS = 12000;         // DENSER inter-arm disc → reads as a filled luminous plate
-const BULGE_STARS = 7000;         // brighter dominant core
-const HII_REGIONS = 800;          // pink star-forming knots along the arms (M31 signature)
+const ARM_PITCH = 0.30;           // winding tightness (M31-ish)
+const ARM_WIDTH = 0.44;           // BROADER still — wide angular spread, arms merge into a full disc
+const ARM_STARS = 16000;          // DENSER arms
+const HALO_STARS = 18000;         // DENSER inter-arm disc → a fully filled luminous plate
+const BULGE_STARS = 9000;         // brighter dominant core
+const HII_REGIONS = 1100;         // pink star-forming knots along the arms (M31 signature)
 const SOL_R = 0.55 * DISC_RADIUS; // Sun's position out from centre (~27,000 ly / 50,000 ly disc)
 const SOL_ARM_OFFSET = 0.35;      // fractional radians past Sagittarius arm (Orion Spur is a minor arm here)
 
@@ -239,7 +239,7 @@ const SpiralGalaxy = ({ animate = true }) => {
           <bufferAttribute attach="attributes-size" count={sizes.length} array={sizes} itemSize={1} />
         </bufferGeometry>
         <pointsMaterial
-          size={5.4}
+          size={6.2}
           sizeAttenuation
           vertexColors
           transparent

@@ -117,8 +117,8 @@ function HomepageGalaxy({ reducedMotion }) {
        left where the hero text sits, keeping the copy legible. Scaled big so
        the galaxy bleeds past every screen edge (fills the whole viewport).
        Inner group spins around Y (the disc-normal after the tilt). */
-    <group ref={outerRef} position={[240, 40, -560]} rotation={[1.16, 0, 0.34]}>
-      <group ref={innerRef} scale={6.6}>
+    <group ref={outerRef} position={[40, 20, -560]} rotation={[1.16, 0, 0.34]}>
+      <group ref={innerRef} scale={11.5}>
         <SpiralGalaxy animate={false} />
       </group>
     </group>
