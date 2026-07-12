@@ -38,33 +38,36 @@ const SPRITE_TEXTURE = makeSoftDot({
   anisotropy: 8,
 });
 
-/* Diffraction-spike sprite for the JWST-style homepage sky — a bright round
-   core plus a 4-point cross + fainter 45° cross, the way a mirror telescope
-   renders bright point sources. Built on a canvas since makeSoftDot only does
-   radial gradients. Used only in `sparse` mode. */
-function makeSpikeSprite(size = 128) {
+/* Diffraction-spike sprite matching JWST's SIGNATURE 6-point pattern: three
+   long primary spikes 60° apart (from the hexagonal mirror segments) — a
+   vertical pair + two diagonal pairs — plus a short faint horizontal pair (the
+   secondary-mirror strut). This is what makes the bright stars in a Webb deep
+   field instantly read as "JWST". Built on a canvas; used only in `sparse` mode.
+   Small stars render this at a few px so only a dot shows; the brightest show
+   the full spikes. */
+function makeSpikeSprite(size = 160) {
   if (typeof document === "undefined") return null;
   const cv = document.createElement("canvas");
   cv.width = cv.height = size;
   const ctx = cv.getContext("2d");
   const c = size / 2;
   /* soft round core */
-  const core = ctx.createRadialGradient(c, c, 0, c, c, size * 0.18);
+  const core = ctx.createRadialGradient(c, c, 0, c, c, size * 0.16);
   core.addColorStop(0, "rgba(255,255,255,1)");
   core.addColorStop(0.5, "rgba(255,255,255,0.55)");
   core.addColorStop(1, "rgba(255,255,255,0)");
   ctx.fillStyle = core;
   ctx.fillRect(0, 0, size, size);
-  /* diffraction spikes — thin bright lines fading to the edge */
+  /* one call = a full spike LINE through centre (two tips), thin near the tip. */
   const spike = (angle, len, width, alpha) => {
     ctx.save();
     ctx.translate(c, c);
     ctx.rotate(angle);
     const g = ctx.createLinearGradient(0, 0, len, 0);
     g.addColorStop(0, `rgba(255,255,255,${alpha})`);
+    g.addColorStop(0.5, `rgba(255,255,255,${alpha * 0.35})`);
     g.addColorStop(1, "rgba(255,255,255,0)");
     ctx.fillStyle = g;
-    // draw both directions as a thin triangle-ish sliver
     for (const dir of [1, -1]) {
       ctx.beginPath();
       ctx.moveTo(0, -width / 2);
@@ -76,16 +79,18 @@ function makeSpikeSprite(size = 128) {
     ctx.restore();
   };
   const half = size / 2;
-  spike(0, half * 0.98, 3, 0.9);            // horizontal
-  spike(Math.PI / 2, half * 0.98, 3, 0.9);  // vertical
-  spike(Math.PI / 4, half * 0.72, 2, 0.4);  // diagonal /
-  spike(-Math.PI / 4, half * 0.72, 2, 0.4); // diagonal \
+  /* 6 primary tips at 30/90/150/210/270/330° (three lines 60° apart) */
+  spike(Math.PI / 2, half * 0.98, 2.6, 0.95);      // vertical pair
+  spike(Math.PI / 6, half * 0.96, 2.4, 0.9);       // +30°
+  spike(-Math.PI / 6, half * 0.96, 2.4, 0.9);      // −30° (= 150°)
+  /* faint secondary strut — the short horizontal pair */
+  spike(0, half * 0.5, 1.8, 0.22);
   const tex = new THREE.CanvasTexture(cv);
   tex.colorSpace = THREE.SRGBColorSpace;
   tex.needsUpdate = true;
   return tex;
 }
-const SPIKE_TEXTURE = makeSpikeSprite(128);
+export const SPIKE_TEXTURE = makeSpikeSprite(160);
 
 /* B–V colour index → RGB. Ballesteros' formula gives effective temperature from
    B–V; a blackbody approximation (Tanner Helland) turns that into the star's
@@ -149,7 +154,7 @@ const Stars = ({ sparse = false, visible = true }) => {
     /* Sparse (homepage/JWST) mode — only the ~700 brightest stars (the
        catalogue is sorted brightest-first), larger, with diffraction spikes,
        against near-black. Full field (8,920) during the tour. */
-    const count = sparse ? Math.min(700, STAR_COUNT) : STAR_COUNT;
+    const count = sparse ? Math.min(2200, STAR_COUNT) : STAR_COUNT;
     const positions = new Float32Array(count * 3);
     const colors = new Float32Array(count * 3);
     const sizes = new Float32Array(count);
@@ -185,7 +190,9 @@ const Stars = ({ sparse = false, visible = true }) => {
       /* Sparse mode renders spike sprites, which need more pixels to read the
          cross; bump the base size so the diffraction spikes are visible. */
       const baseSize = THREE.MathUtils.clamp(1.3 + (6.5 - mag) * 1.15, 1.3, 11);
-      sizes[i] = sparse ? baseSize * 2.2 + 4 : baseSize;
+      /* Sparse (JWST homepage): a wide size range so the brightest ~few show the
+         full 6-point spikes while the dense majority read as small round points. */
+      sizes[i] = sparse ? baseSize * 2.0 + 1.4 : baseSize;
     }
     const geometry = new THREE.BufferGeometry();
     geometry.setAttribute("position", new THREE.BufferAttribute(positions, 3));
