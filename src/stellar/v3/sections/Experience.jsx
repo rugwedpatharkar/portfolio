@@ -1,4 +1,3 @@
-"use client";
 /*
  * Experience (Earth) — role dossier, editorial voice.
  *
@@ -24,7 +23,8 @@ import { useState, useEffect } from "react";
 import { flushSync } from "react-dom";
 import { motion, AnimatePresence, useReducedMotion } from "motion/react";
 import { experiences, sectionMeta } from "../../../content";
-import { V3Frame, V3Scan } from "../primitives";
+import { V3Frame, V3Scan, V3SectionHeader, masterCardStyle, useMasterListKeys } from "../primitives";
+import { EASE } from "../anim";
 
 const META = sectionMeta.experience;
 
@@ -41,12 +41,12 @@ const META = sectionMeta.experience;
  */
 const KICKER_VARIANTS = {
   hidden: { opacity: 0, x: -10, y: -6 },
-  show:   { opacity: 1, x: 0, y: 0, transition: { duration: 0.28, ease: [0.22, 1, 0.36, 1] } },
+  show:   { opacity: 1, x: 0, y: 0, transition: { duration: 0.28, ease: EASE } },
   exit:   { opacity: 0, transition: { duration: 0.15 } },
 };
 const HEADING_VARIANTS = {
   hidden: { opacity: 0, y: 6 },
-  show:   { opacity: 1, y: 0, transition: { duration: 0.32, ease: [0.22, 1, 0.36, 1], delay: 0.05 } },
+  show:   { opacity: 1, y: 0, transition: { duration: 0.32, ease: EASE, delay: 0.05 } },
   exit:   { opacity: 0, transition: { duration: 0.15 } },
 };
 const LIST_VARIANTS = {
@@ -56,17 +56,19 @@ const LIST_VARIANTS = {
 };
 const BULLET_VARIANTS = {
   hidden: { opacity: 0, x: -8 },
-  show:   { opacity: 1, x: 0, transition: { duration: 0.28, ease: [0.22, 1, 0.36, 1] } },
+  show:   { opacity: 1, x: 0, transition: { duration: 0.28, ease: EASE } },
   exit:   { opacity: 0, x: -4, transition: { duration: 0.12 } },
 };
 
-export default function ExperienceSection({ index, bootNonce }) {
+export default function ExperienceSection({ bootNonce }) {
   const [active, setActive] = useState(0);
   const [activeCat, setActiveCat] = useState(0);
   const exp = experiences[active] || experiences[0];
   const cats = exp.categories || [];
   const cat = cats[activeCat] || cats[0];
   const reduce = useReducedMotion();
+  /* Experience historically clamped rather than wrapped — preserved for parity. */
+  const { onKeyDown: onCatKeys, itemProps: catItemProps } = useMasterListKeys(activeCat, setActiveCat, cats.length, { wrap: false });
 
   // Reset category selection when switching roles
   useEffect(() => { setActiveCat(0); }, [active]);
@@ -90,7 +92,7 @@ export default function ExperienceSection({ index, bootNonce }) {
     <V3Frame
       section="Experience"
       planet="VENUS"
-      index={index}
+
       scanDir="drill"
       scanKey={bootNonce}
       /* User asked to never cut or clamp: retire BOTTOM row so LEFT gets full
@@ -107,88 +109,65 @@ export default function ExperienceSection({ index, bootNonce }) {
         minWidth: 0, minHeight: 0, overflow: "hidden",
         maxWidth: "min(60vw, 1200px)", height: "100%",
       }}>
-        {/* Section header — same voice as About + FunFacts */}
-        <V3Scan variant="horizontal" delay={0.05}>
-          <div>
-            <div style={{ display: "flex", alignItems: "center", gap: 12, marginBottom: 10 }}>
-              <span style={{ width: 22, height: 1, background: "var(--v3-accent)" }} />
-              <span style={{
-                fontFamily: "var(--v3-font-mono)", fontWeight: 400, fontSize: 10,
-                letterSpacing: ".28em", textTransform: "uppercase", color: "var(--v3-fg-mute)",
-              }}>{META.sub}</span>
-            </div>
-            <div style={{
-              display: "flex", alignItems: "baseline", justifyContent: "space-between",
-              gap: "clamp(14px, 1.5vw, 26px)", flexWrap: "wrap", minWidth: 0,
+        {/* Section header — kicker + h2, role switcher in the right slot */}
+        <V3SectionHeader
+          sub={META.sub}
+          heading={META.heading}
+          kickerMb={10}
+          right={
+            <div role="tablist" aria-label="Experience roles" style={{
+              display: "inline-flex", gap: 6, flexWrap: "wrap",
+              padding: 4,
+              border: "1px solid var(--v3-line)",
+              borderRadius: 999,
+              background: "color-mix(in oklab, var(--v3-bg-void) 50%, transparent)",
             }}>
-              <h2 style={{
-                fontFamily: "var(--v3-font-display)", fontWeight: 340,
-                fontSize: "clamp(1.5rem, 1.1vw + 0.9rem, 2.3rem)", fontOpticalSizing: "auto",
-                lineHeight: 1, letterSpacing: "-.02em", color: "var(--v3-fg)",
-                margin: 0,
-              }}>
-                {META.heading}
-              </h2>
-              {/* Compact role switcher — replaces the vertical wire block that
-                  ate ~200 px. Sits inline with the h2 on the same row; on
-                  narrow viewports it wraps below. Segmented-pill row: one
-                  chip per role, active gets accent border + tint. Same
-                  View-Transition + broadsheet-stagger interaction under the
-                  hood. */}
-              <div role="tablist" aria-label="Experience roles" style={{
-                display: "inline-flex", gap: 6, flexWrap: "wrap",
-                padding: 4,
-                border: "1px solid var(--v3-line)",
-                borderRadius: 999,
-                background: "color-mix(in oklab, var(--v3-bg-void) 50%, transparent)",
-              }}>
-                {experiences.map((e, i) => {
-                  const isActive = i === active;
-                  return (
-                    <button
-                      key={i}
-                      role="tab"
-                      aria-selected={isActive}
-                      onClick={() => switchRole(i)}
-                      style={{
-                        all: "unset", cursor: "pointer",
-                        display: "inline-flex", alignItems: "center", gap: 8,
-                        padding: "clamp(5px, 0.55vw, 8px) clamp(10px, 1vw, 14px)",
-                        borderRadius: 999,
-                        border: `1px solid ${isActive ? "var(--v3-accent)" : "transparent"}`,
-                        background: isActive ? "color-mix(in oklab, var(--v3-accent) 12%, transparent)" : "transparent",
-                        transition: "background .2s, border-color .2s",
-                      }}
-                    >
-                      <span aria-hidden style={{
-                        width: 6, height: 6, borderRadius: "50%",
-                        background: isActive ? "var(--v3-accent)" : "var(--v3-fg-mute)",
-                        boxShadow: isActive ? "0 0 6px var(--v3-accent)" : "none",
-                        transition: "background .2s, box-shadow .2s",
-                        flexShrink: 0,
-                      }} />
-                      <span style={{
-                        fontFamily: "var(--v3-font-mono)", fontWeight: 400,
-                        fontSize: "clamp(9px, 0.35vw + 6px, 11px)",
-                        letterSpacing: ".18em", textTransform: "uppercase",
-                        color: isActive ? "var(--v3-accent)" : "var(--v3-fg-mute)",
-                        transition: "color .2s",
-                      }}>{String(i + 1).padStart(2, "0")}</span>
-                      <span style={{
-                        fontFamily: "var(--v3-font-display)", fontWeight: 340,
-                        fontSize: "clamp(0.85rem, 0.45vw + 0.55rem, 1rem)",
-                        color: isActive ? "var(--v3-fg)" : "var(--v3-fg-dim)",
-                        letterSpacing: "-.005em", lineHeight: 1.15,
-                        fontOpticalSizing: "auto",
-                        transition: "color .2s",
-                      }}>{e.companyName.split(" ")[0]}</span>
-                    </button>
-                  );
-                })}
-              </div>
+              {experiences.map((e, i) => {
+                const isActive = i === active;
+                return (
+                  <button
+                    key={i}
+                    role="tab"
+                    aria-selected={isActive}
+                    onClick={() => switchRole(i)}
+                    style={{
+                      all: "unset", cursor: "pointer",
+                      display: "inline-flex", alignItems: "center", gap: 8,
+                      padding: "clamp(5px, 0.55vw, 8px) clamp(10px, 1vw, 14px)",
+                      borderRadius: 999,
+                      border: `1px solid ${isActive ? "var(--v3-accent)" : "transparent"}`,
+                      background: isActive ? "color-mix(in oklab, var(--v3-accent) 12%, transparent)" : "transparent",
+                      transition: "background .2s, border-color .2s",
+                    }}
+                  >
+                    <span aria-hidden style={{
+                      width: 6, height: 6, borderRadius: "50%",
+                      background: isActive ? "var(--v3-accent)" : "var(--v3-fg-mute)",
+                      boxShadow: isActive ? "0 0 6px var(--v3-accent)" : "none",
+                      transition: "background .2s, box-shadow .2s",
+                      flexShrink: 0,
+                    }} />
+                    <span style={{
+                      fontFamily: "var(--v3-font-mono)", fontWeight: 400,
+                      fontSize: "clamp(9px, 0.35vw + 6px, 11px)",
+                      letterSpacing: ".18em", textTransform: "uppercase",
+                      color: isActive ? "var(--v3-accent)" : "var(--v3-fg-mute)",
+                      transition: "color .2s",
+                    }}>{String(i + 1).padStart(2, "0")}</span>
+                    <span style={{
+                      fontFamily: "var(--v3-font-display)", fontWeight: 340,
+                      fontSize: "clamp(0.85rem, 0.45vw + 0.55rem, 1rem)",
+                      color: isActive ? "var(--v3-fg)" : "var(--v3-fg-dim)",
+                      letterSpacing: "-.005em", lineHeight: 1.15,
+                      fontOpticalSizing: "auto",
+                      transition: "color .2s",
+                    }}>{e.companyName.split(" ")[0]}</span>
+                  </button>
+                );
+              })}
             </div>
-          </div>
-        </V3Scan>
+          }
+        />
 
         {/* Role-scoped spread — hero + metrics + categories + tech rail.
             Given a single `viewTransitionName` so a role switch (through
@@ -268,19 +247,11 @@ export default function ExperienceSection({ index, bootNonce }) {
                 active category's bullet count. Content inside each cell
                 aligns to the top. Prevents the card from breathing
                 2→4→2 bullets and shifting the Stack rail up/down. */}
-            <div style={{
-              display: "grid",
-              gridTemplateColumns: "minmax(220px, 30%) 1fr",
-              gridTemplateRows: "1fr",
+            <div style={masterCardStyle({
               gap: "clamp(14px, 1.4vw, 22px)",
-              border: "1px solid var(--v3-line)",
-              borderRadius: 6,
-              background: "color-mix(in oklab, var(--v3-bg-void) 50%, transparent)",
               padding: "clamp(8px, 0.8vw, 14px) clamp(12px, 1.2vw, 18px)",
-              minWidth: 0,
-              width: "100%", height: "100%",
               alignItems: "start",
-            }}>
+            })}>
               {/* Master: category index — stretched to full card height and
                   `justify-content: space-between` so the N category rows
                   distribute evenly. First row hugs the top, last row hugs
@@ -291,10 +262,7 @@ export default function ExperienceSection({ index, bootNonce }) {
                 role="tablist"
                 aria-label="Experience categories"
                 style={{ display: "flex", flexDirection: "column", justifyContent: "space-between", gap: 2, minWidth: 0, alignSelf: "stretch", height: "100%" }}
-                onKeyDown={(e) => {
-                  if (e.key === "ArrowDown" || e.key === "j") { setActiveCat(a => Math.min(cats.length - 1, a + 1)); e.preventDefault(); }
-                  if (e.key === "ArrowUp"   || e.key === "k") { setActiveCat(a => Math.max(0, a - 1)); e.preventDefault(); }
-                }}
+                onKeyDown={onCatKeys}
               >
                 {cats.map((c, i) => {
                   const isActive = i === activeCat;
@@ -305,13 +273,14 @@ export default function ExperienceSection({ index, bootNonce }) {
                       role="tab"
                       aria-selected={isActive}
                       onClick={() => setActiveCat(i)}
+                      {...catItemProps(i)}
+                      className={isActive ? "v3-glass-accent" : "v3-glass"}
                       style={{
                         all: "unset", cursor: "pointer",
                         display: "grid", gridTemplateColumns: "auto minmax(0, 1fr) auto",
                         alignItems: "center", gap: 10,
                         padding: "clamp(5px, 0.5vw, 8px) clamp(8px, 0.9vw, 12px)",
                         borderLeft: isActive ? "2px solid var(--v3-accent)" : "2px solid transparent",
-                        background: isActive ? "color-mix(in oklab, var(--v3-accent) 8%, transparent)" : "transparent",
                         borderRadius: "0 4px 4px 0",
                         transition: "background .2s, border-color .2s",
                         minWidth: 0,
@@ -321,7 +290,7 @@ export default function ExperienceSection({ index, bootNonce }) {
                         /* Pulse briefly on activation — accent color reads
                            as "selected", scale bump reads as focus lock. */
                         animate={isActive && !reduce ? { scale: [1, 1.18, 1] } : { scale: 1 }}
-                        transition={{ duration: 0.34, ease: [0.22, 1, 0.36, 1] }}
+                        transition={{ duration: 0.34, ease: EASE }}
                         style={{
                           fontFamily: "var(--v3-font-mono)", fontWeight: 400,
                           fontSize: "clamp(9px, 0.3vw + 6px, 11px)",

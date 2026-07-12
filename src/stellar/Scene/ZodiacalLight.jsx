@@ -1,113 +1,65 @@
 /* eslint-disable react/no-unknown-property */
+/*
+ * Zodiacal light — the faint diffuse warm glow along the ecliptic, caused
+ * by sunlight scattered off interplanetary dust grains. In the real sky
+ * it's the ghostly cone you can see rising from the horizon around sunrise
+ * or sunset in dark locations.
+ *
+ * Rendered as a slim additive band running along the ecliptic plane (the
+ * scene's XZ plane) with an intensity that fades away from the anti-solar
+ * direction. Purely visual — cheap, one draw call, no per-frame cost.
+ */
 import { useMemo } from "react";
 import * as THREE from "three";
 
-/*
- * Zodiacal light — the real, faint cone of sunlight scattered by interplanetary
- * dust concentrated in the ecliptic plane. We render it as a thin, flattened
- * lens of very faint warm points filling the inner system (≈ inside Mercury out
- * to the asteroid belt), densest and brightest near the Sun and fading outward,
- * hugging the ecliptic (the scene's xz-plane). Edge-on — exactly the backlit
- * default view, looking sunward — it reads as the soft triangular glow you'd see
- * before dawn. Additive, write-once, no per-frame cost.
- */
+const VERT = /* glsl */ `
+  varying vec2 vUv;
+  void main() {
+    vUv = uv;
+    gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
+  }
+`;
+const FRAG = /* glsl */ `
+  uniform vec3 uColor;
+  uniform float uOpacity;
+  varying vec2 vUv;
+  void main() {
+    /* uv.y = across the band (0 = one edge, 1 = other). uv.x = along the
+       band. The band tapers on both edges (gaussian) and along its length
+       (softer taper) so it reads as an atmospheric cone, not a slab. */
+    float across = 1.0 - abs(vUv.y - 0.5) * 2.0;
+    across = smoothstep(0.0, 1.0, across);
+    float along = 1.0 - abs(vUv.x - 0.5) * 1.4;
+    along = smoothstep(0.0, 1.0, along);
+    float a = across * along * uOpacity;
+    if (a < 0.004) discard;
+    gl_FragColor = vec4(uColor * a * 1.6, a);
+  }
+`;
 
-let _dot;
-const dotSprite = () => {
-  if (_dot) return _dot;
-  const c = document.createElement("canvas");
-  c.width = c.height = 64;
-  const g = c.getContext("2d");
-  const grd = g.createRadialGradient(32, 32, 0, 32, 32, 32);
-  grd.addColorStop(0, "rgba(255,255,255,1)");
-  grd.addColorStop(0.5, "rgba(255,255,255,0.4)");
-  grd.addColorStop(1, "rgba(255,255,255,0)");
-  g.fillStyle = grd;
-  g.fillRect(0, 0, 64, 64);
-  _dot = new THREE.CanvasTexture(c);
-  return _dot;
-};
+const ZodiacalLight = () => {
+  const uniforms = useMemo(() => ({
+    uColor: { value: new THREE.Color("#fff2c8") }, // warm daylight-scattered dust
+    uOpacity: { value: 0.11 },
+  }), []);
 
-const ZodiacalLight = ({ count = 7000, geg = 1500, inner = 24, outer = 330, color = "#f3ecd8" }) => {
-  const sprite = useMemo(dotSprite, []);
-  const { geometry } = useMemo(() => {
-    const total = count + geg;
-    const pos = new Float32Array(total * 3);
-    const alpha = new Float32Array(total); // per-point brightness, falls off with radius
-    for (let i = 0; i < count; i++) {
-      const a = Math.random() * Math.PI * 2;
-      // radius biased strongly toward the Sun (r = inner + span * u^2)
-      const u = Math.random();
-      const r = inner + (outer - inner) * u * u;
-      // lens gets thinner with distance from the Sun; Gaussian-ish in y
-      const halfThick = 6 + 9 * (1 - u);
-      const y = (Math.random() + Math.random() - 1) * halfThick;
-      pos[i * 3] = Math.cos(a) * r;
-      pos[i * 3 + 1] = y;
-      pos[i * 3 + 2] = Math.sin(a) * r;
-      // brightness falls steeply outward (zodiacal light is faint past ~2 AU)
-      alpha[i] = Math.pow(1 - u, 1.6);
-    }
-    /* Gegenschein — the faint oval brightening at the ANTI-solar point (opposite the
-       Sun, ≈ +x in the ecliptic), where interplanetary dust is lit straight-on and
-       backscatters. Real, and much dimmer than the zodiacal band: a soft Gaussian
-       blob hugging the ecliptic. Same additive points cloud (one draw call). */
-    const gx0 = outer * 0.5;
-    for (let j = 0; j < geg; j++) {
-      const i = count + j;
-      const gx = gx0 + (Math.random() + Math.random() - 1) * gx0 * 0.55;
-      const gz = (Math.random() + Math.random() - 1) * gx0 * 0.5;
-      const gy = (Math.random() + Math.random() - 1) * 10;
-      pos[i * 3] = gx;
-      pos[i * 3 + 1] = gy;
-      pos[i * 3 + 2] = gz;
-      const dx = (gx - gx0) / (gx0 * 0.55);
-      const dz = gz / (gx0 * 0.5);
-      alpha[i] = Math.max(0, 0.34 * (1 - Math.min(1, Math.hypot(dx, dz))));
-    }
-    const g = new THREE.BufferGeometry();
-    g.setAttribute("position", new THREE.BufferAttribute(pos, 3));
-    g.setAttribute("aAlpha", new THREE.BufferAttribute(alpha, 1));
-    return { geometry: g };
-  }, [count, geg, inner, outer]);
-
-  const material = useMemo(
-    () =>
-      new THREE.ShaderMaterial({
-        uniforms: { uMap: { value: sprite }, uColor: { value: new THREE.Color(color) }, uOpacity: { value: 0.3 } },
-        vertexShader: /* glsl */ `
-          attribute float aAlpha;
-          varying float vA;
-          void main() {
-            vA = aAlpha;
-            vec4 mv = modelViewMatrix * vec4(position, 1.0);
-            /* Bigger, brightness-weighted, perspective-attenuated sprites so the
-               dense inner motes OVERLAP into a continuous triangular glow instead
-               of reading as discrete dots — the defining look of zodiacal light. */
-            gl_PointSize = (7.0 + 22.0 * aAlpha) * (300.0 / max(-mv.z, 1.0));
-            gl_PointSize = clamp(gl_PointSize, 2.0, 46.0);
-            gl_Position = projectionMatrix * mv;
-          }
-        `,
-        fragmentShader: /* glsl */ `
-          uniform sampler2D uMap; uniform vec3 uColor; uniform float uOpacity;
-          varying float vA;
-          void main() {
-            float t = texture2D(uMap, gl_PointCoord).a * vA * uOpacity;
-            if (t < 0.004) discard;
-            gl_FragColor = vec4(uColor * t, t);
-          }
-        `,
-        transparent: true,
-        depthWrite: false,
-        blending: THREE.AdditiveBlending,
-        toneMapped: false,
-      }),
-    [sprite, color],
+  return (
+    /* Long thin plane lying along the ecliptic (scene XZ). Rotated so it
+       trails from +X toward -X (anti-solar side of the sky). */
+    <mesh rotation={[Math.PI / 2, 0, 0]} position={[0, 0.5, 0]} frustumCulled={false}>
+      <planeGeometry args={[7200, 620]} />
+      <shaderMaterial
+        vertexShader={VERT}
+        fragmentShader={FRAG}
+        uniforms={uniforms}
+        transparent
+        depthWrite={false}
+        side={THREE.DoubleSide}
+        blending={THREE.AdditiveBlending}
+        toneMapped={false}
+      />
+    </mesh>
   );
-
-  return <points geometry={geometry} material={material} frustumCulled={false} />;
 };
 
 export default ZodiacalLight;
-

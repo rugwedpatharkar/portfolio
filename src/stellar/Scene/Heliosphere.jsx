@@ -47,10 +47,14 @@ const Heliosphere = ({ radius = 5400, color = "#7d8aa8", opacity = 0.5 }) => {
     [color, opacity],
   );
   return (
-    /* Non-uniform scale → the real heliosphere's blunt teardrop: compressed on
-       the nose (interstellar headwind), drawn out into a long downstream tail,
-       rather than a perfect ball. */
-    <mesh frustumCulled={false} scale={[1, 0.9, 1.25]}>
+    /* §9.4 blunt-teardrop heliopause — the real heliosphere is compressed on
+       the nose (facing the incoming Local Interstellar Cloud wind from ~+Z,
+       Scorpius/Ophiuchus direction) and drawn out into a long downstream
+       heliotail behind. Non-uniform scale approximates the "comet-shape"
+       Voyager measurements + IBEX imaging support: ~0.7 nose radius, ~2.2
+       antisolar length. Reads as a distinctly teardrop shell during the
+       pull-back finale rather than a perfect ball. */
+    <mesh frustumCulled={false} scale={[0.72, 0.85, 2.2]}>
       <sphereGeometry args={[radius, 48, 48]} />
       <shaderMaterial
         vertexShader={VERT}

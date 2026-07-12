@@ -26,16 +26,14 @@ const Z = new THREE.Vector3(0, 0, 1);
 export default function EclipseShadow({ earthRadius = 0.07, animate = true }) {
   const grp = useRef();
   const clock = useSceneClock();
-  const t = useRef(0);
 
   useFrame((_, dt) => {
     if (!grp.current) return;
-    if (animate) t.current += Math.min(dt, 1 / 20);
     /* Earth's sunward (day-side) direction from its live orbital position. */
     orbitalPosition(EARTH, clock.t, _e);
     _sun.copy(_e).multiplyScalar(-1).normalize();
     /* Drift the umbra slowly across the day side (the path of totality). */
-    const drift = Math.sin(t.current * 0.15) * 0.5;
+    const drift = Math.sin(clock.t * 0.15) * 0.5;
     _tan.set(-_sun.z, 0.4, _sun.x).normalize();
     _p.copy(_sun).applyAxisAngle(_tan, drift).normalize();
     grp.current.position.copy(_p).multiplyScalar(earthRadius * 1.012);

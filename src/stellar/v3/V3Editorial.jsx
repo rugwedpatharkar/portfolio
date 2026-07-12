@@ -1,4 +1,3 @@
-"use client";
 /*
  * V3Editorial — the single "Planet Information" card. Docked FAR BOTTOM-RIGHT,
  * this merges what used to be two separate cards (the top-right Body Telemetry
@@ -15,10 +14,9 @@
  * mobile, and during the fly-through via the `hidden` prop → panelHidden).
  * Right-aligned, glass backing, fades out with the section panel during flight.
  */
-import { useEffect, useMemo, useState } from "react";
+import { memo, useEffect, useMemo, useState } from "react";
 import useViewport from "../useViewport";
-import { PLANET_EDITORIAL } from "./data/planetEditorial";
-import { PLANET_FACTS } from "../data/planetFacts";
+import { DESTINATION_BY_ID } from "../config/destinations";
 
 const TELEMETRY_ROWS = [
   ["Diameter", "diameter"],
@@ -26,12 +24,18 @@ const TELEMETRY_ROWS = [
   ["Gravity", "gravity"],
 ];
 
-export default function V3Editorial({ destinationId, activeIdx, hidden = false }) {
+/* memo: props are all primitives (destinationId, activeIdx, hidden). Shallow
+   compare skips the render when none of them change — cuts the extrasPhase/
+   scrollFinale-driven re-renders while still updating for panelHidden flights
+   and per-body content swaps. */
+function V3Editorial({ destinationId, activeIdx, hidden = false }) {
   const { isCompact, isMobile } = useViewport();
   const [subIdx, setSubIdx] = useState(0);
 
-  const editorial = destinationId ? PLANET_EDITORIAL[destinationId] : null;
-  const facts = destinationId ? PLANET_FACTS[destinationId] : null;
+  /* §6.3: read facts + editorial from the joined destination row. */
+  const dest = destinationId ? DESTINATION_BY_ID[destinationId] : null;
+  const editorial = dest?.editorial || null;
+  const facts = dest?.factCard || null;
 
   /* Sub-line rotation: etymology → discovery → each notable fact. Reset to
      first slot on body change so arrival always leads with the etymology. */
@@ -87,7 +91,7 @@ export default function V3Editorial({ destinationId, activeIdx, hidden = false }
     >
       <style>{`
         @keyframes v3EditorialIn { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: translateY(0); } }
-        .v3-editorial-fadein { animation: v3EditorialIn 0.55s cubic-bezier(0.22, 1, 0.36, 1) 0.2s both; }
+        .v3-editorial-fadein { animation: v3EditorialIn 0.55s var(--v3-ease-smooth) 0.2s both; }
         /* Flight hide — important-author opacity beats the entry animation fill. */
         .v3-editorial-hidden { opacity: 0 !important; }
         @media (prefers-reduced-motion: reduce) {
@@ -188,3 +192,5 @@ export default function V3Editorial({ destinationId, activeIdx, hidden = false }
     </aside>
   );
 }
+
+export default memo(V3Editorial);

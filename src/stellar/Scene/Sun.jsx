@@ -65,7 +65,20 @@ const SUN_FRAG = /* glsl */ `
     vec4 m = max(0.6 - vec4(dot(x0, x0), dot(x1, x1), dot(x2, x2), dot(x3, x3)), 0.0); m = m * m;
     return 42.0 * dot(m * m, vec4(dot(p0, x0), dot(p1, x1), dot(p2, x2), dot(p3, x3)));
   }
-  float fbm(vec3 p){ float v=0.0, a=0.5; for(int i=0;i<3;i++){ v += a*snoise(p); p*=2.05; a*=0.5; } return v; }
+  /* §7 Sun shader LOD: fbm loop count is uniform-controlled. High tier
+     (uDetail > 0.5) runs 3 octaves; low tier runs 2. GLSL early-break on
+     a uniform is coherent across the warp, so the GPU actually skips the
+     extra snoise call in low tier. */
+  uniform float uDetail;
+  float fbm(vec3 p){
+    float v=0.0, a=0.5;
+    int oct = uDetail > 0.5 ? 3 : 2;
+    for(int i=0;i<3;i++){
+      if (i >= oct) break;
+      v += a*snoise(p); p*=2.05; a*=0.5;
+    }
+    return v;
+  }
 
   void main() {
     vec3 dir = normalize(vPos);
@@ -85,9 +98,15 @@ const SUN_FRAG = /* glsl */ `
     /* Supergranulation network — large slow cells whose warped boundaries
        break up the convection into a richer, less uniform texture. One extra
        snoise call; folded in as a normalized DETAIL term so it adds structure
-       without lifting overall brightness (keeps the bloom from blowing out). */
-    float superg = snoise(q * 0.85 + warp * 0.7 + vec3(uTime * 0.025)) * 0.5 + 0.5;
-    float detail = snoise(dir * 30.0 + warp * 2.2 + vec3(uTime * 0.09)) * 0.5 + 0.5;
+       without lifting overall brightness (keeps the bloom from blowing out).
+       §7 Sun LOD: superg + detail SKIP when the Sun is far. The uniform
+       branch is coherent so the snoise calls actually don't execute. */
+    float superg = uDetail > 0.5
+      ? snoise(q * 0.85 + warp * 0.7 + vec3(uTime * 0.025)) * 0.5 + 0.5
+      : 0.5;
+    float detail = uDetail > 0.5
+      ? snoise(dir * 30.0 + warp * 2.2 + vec3(uTime * 0.09)) * 0.5 + 0.5
+      : 0.5;
     float surface = mix(gran, fine, 0.35);
     surface = mix(surface, surface * (0.75 + 0.5 * superg), 0.5);
     surface = mix(surface, detail, 0.12);
@@ -116,10 +135,14 @@ const SUN_FRAG = /* glsl */ `
 
     /* Faculae — the bright magnetic network, most visible near the limb (where
        the photosphere is dimmer), giving the granular brightening seen around
-       active regions. Added after limb darkening so it lifts the dim edge. */
-    float net = pow(snoise(dir * 22.0 + warp) * 0.5 + 0.5, 3.0);
-    float facula = net * pow(1.0 - ndv, 2.0);
-    col += facula * vec3(1.0, 0.93, 0.78) * 0.30;
+       active regions. Added after limb darkening so it lifts the dim edge.
+       §7 Sun LOD: faculae skip when the Sun is far — the limb-edge glow is
+       a subtle enhancement that's imperceptible at distance. */
+    if (uDetail > 0.5) {
+      float net = pow(snoise(dir * 22.0 + warp) * 0.5 + 0.5, 3.0);
+      float facula = net * pow(1.0 - ndv, 2.0);
+      col += facula * vec3(1.0, 0.93, 0.78) * 0.30;
+    }
 
     /* Over-bright so bloom blooms it into a warm glowing star; active regions
        stay only slightly under so they read as soft channels, not black holes. */
@@ -140,27 +163,55 @@ const Sun = ({
   const matRef = useRef();
   const sceneClock = useSceneClock();
 
+  /* §9.1 — the DEFAULT is real visible-light (5,778 K G2V blackbody = yellow-
+     white). Pass ?sun=304 in the URL for the SOHO/SDO 304-Å EUV look (orange-
+     red disc used in space imagery). Read once at mount so query-flag flips
+     require a reload — no per-frame branch on the URL. */
+  const euvMode = useMemo(() => {
+    if (typeof window === "undefined") return false;
+    return new URLSearchParams(window.location.search).get("sun") === "304";
+  }, []);
+
   const uniforms = useMemo(
     () => ({
       uTime: { value: 0 },
       uCameraPos: { value: new THREE.Vector3() },
-      /* Reddish SOHO/EIT-304 look (per the reference photo): a hot orange-red
-         photosphere. Bright convection peaks = orange-gold, mid = orange, cool
-         intergranular lanes = deep red; active regions are only soft channels. */
-      uHot: { value: new THREE.Color("#ff9a3c") },
-      uMid: { value: new THREE.Color("#e8531a") },
-      uCool: { value: new THREE.Color("#6e1a06") },
+      /* §7 Sun shader LOD control — 1.0 = full quality (near), 0.0 = reduced
+         (far). Skips superg + detail + faculae + drops fbm from 3→2 octaves.
+         Set per frame in the useFrame below based on camera distance. */
+      uDetail: { value: 1.0 },
+      /* ACCURATE visible-light G2V photosphere is the default. ?sun=304 flips
+         to the SOHO/SDO 304 Å ionized-helium EUV palette (deep red core,
+         orange mid, warm-white hot spots) — the look most viewers know from
+         solar imagery even though it's not what your eye would see. */
+      uHot: { value: new THREE.Color(euvMode ? "#fff2c8" : "#fff6e8") },
+      uMid: { value: new THREE.Color(euvMode ? "#ff9a3c" : "#ffdca2") },
+      uCool: { value: new THREE.Color(euvMode ? "#a83a10" : "#e0954c") },
     }),
-    []
+    [euvMode]
   );
 
+  /* Sun world-position vector — used for the LOD distance check below. Set
+     once from the `position` prop since the Sun doesn't orbit. */
+  const sunPos = useMemo(() => new THREE.Vector3(...position), [position]);
+
   useFrame(({ camera }) => {
-    /* Reduced-motion: freeze the churn + spin (t pinned to 0 → static star). */
+    /* Reduced-motion: freeze the churn + spin (t pinned to 0 → static star).
+       CHURN accelerates the convection so the photosphere visibly boils (the
+       real granules turn over in minutes — too slow at 1:1), and the disc
+       slowly rotates. */
     const t = animate ? sceneClock.t : 0;
-    if (meshRef.current && animate) meshRef.current.rotation.y += 0.0006;
+    if (meshRef.current && animate) meshRef.current.rotation.y += 0.0011 * sceneClock.scale;
     if (matRef.current) {
-      matRef.current.uniforms.uTime.value = t;
+      matRef.current.uniforms.uTime.value = t * 2.6;
       matRef.current.uniforms.uCameraPos.value.copy(camera.position);
+      /* §7 Sun LOD — 1.0 near, 0.0 far. Threshold 500u chosen because the
+         inner planet stops all sit within 50u; the outer stops + overview
+         beyond 500u where the fine granulation + faculae detail contributes
+         only sub-pixel information. Snap boundary (0/1) — a smooth ramp
+         would recompile the branch every frame near the threshold. */
+      matRef.current.uniforms.uDetail.value =
+        camera.position.distanceToSquared(sunPos) < 500 * 500 ? 1.0 : 0.0;
     }
   });
 
@@ -177,8 +228,47 @@ const Sun = ({
           toneMapped={false}
         />
       </mesh>
-      {/* Corona shells + prominence flare-loops removed — a clean photosphere. Bloom
-          on the over-bright surface gives it a natural glow on its own. */}
+      {/* Dramatic corona — three nested additive haloes so the Sun reads as
+          a proper stellar disc surrounded by a glowing atmosphere at the
+          overview framing. Real Sun corona is visible during solar eclipses
+          as a pearl-white halo extending millions of km outward. Kept
+          subtle-per-shell so Bloom doesn't wash it out. */}
+      <mesh>
+        <sphereGeometry args={[radius * 1.35, 32, 32]} />
+        <meshBasicMaterial
+          color="#ffe4b0"
+          transparent
+          opacity={0.24}
+          side={THREE.BackSide}
+          blending={THREE.AdditiveBlending}
+          depthWrite={false}
+          toneMapped={false}
+        />
+      </mesh>
+      <mesh>
+        <sphereGeometry args={[radius * 1.8, 32, 32]} />
+        <meshBasicMaterial
+          color="#ffbb70"
+          transparent
+          opacity={0.12}
+          side={THREE.BackSide}
+          blending={THREE.AdditiveBlending}
+          depthWrite={false}
+          toneMapped={false}
+        />
+      </mesh>
+      <mesh>
+        <sphereGeometry args={[radius * 2.6, 32, 32]} />
+        <meshBasicMaterial
+          color="#ff8a3a"
+          transparent
+          opacity={0.06}
+          side={THREE.BackSide}
+          blending={THREE.AdditiveBlending}
+          depthWrite={false}
+          toneMapped={false}
+        />
+      </mesh>
       <pointLight color="#ffb070" intensity={1.1} distance={600} decay={1.2} />
     </group>
   );

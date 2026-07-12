@@ -1,5 +1,3 @@
-"use client";
-/* eslint-disable jsx-a11y/anchor-has-content */
 /*
  * V3Hero — the v3 recruiter landing (stop 00). Far-left info column against the
  * whole-system view. Radical-minimal: a huge Fraunces name with one italic accent,
@@ -7,15 +5,15 @@
  * Cinematic entrance: masked line-reveal on the name, staggered fade-up on the rest
  * (motion/react; reduced-motion → instant). Reads ONLY from /src/content.
  */
-import { useRef, useEffect } from "react";
+import { memo, useRef, useEffect } from "react";
 import { motion, useReducedMotion } from "motion/react";
 import { personalInfo, contactLinks } from "../../content";
 import { DESTINATIONS } from "../config/destinations";
 import { magnetic } from "./motion";
 import useViewport from "../useViewport";
+import { EASE as ease } from "./anim";
 
 const SECONDARY = ["Resume", "GitHub", "LinkedIn"];
-const ease = [0.22, 1, 0.36, 1];
 
 const beginTour = () => {
   const max =
@@ -25,7 +23,10 @@ const beginTour = () => {
   else window.scrollTo({ top: targetY, behavior: "smooth" });
 };
 
-export default function V3Hero() {
+/* memo: takes no props. Rendered inside HoloBridge only when section === "hero".
+   Once mounted, the hero content is static — StellarApp re-renders (activeIdx,
+   panelHidden, extrasPhase, scrollFinale) should not force reconcile. */
+function V3Hero() {
   const reduce = useReducedMotion();
   const { isCompact } = useViewport();
   const ctaRef = useRef(null);
@@ -75,28 +76,29 @@ export default function V3Hero() {
       animate="show"
       /* Top-aligned + lifted so the (now bigger) name sits high in the frame,
          instead of being vertically centred by HoloBridge's alignItems:center. */
-      style={{ pointerEvents: "auto", alignSelf: "flex-start", marginTop: "clamp(46px, 7vh, 104px)", maxWidth: isCompact ? "100%" : "min(58ch, 52vw)", display: "flex", flexDirection: "column" }}
+      style={{ pointerEvents: "auto", alignSelf: "flex-start", marginTop: "clamp(38px, 6vh, 76px)", maxWidth: isCompact ? "100%" : "min(38ch, 34vw)", display: "flex", flexDirection: "column" }}
     >
-      {/* name — masked line reveal, italic accent surname. Bigger + lifted to the
-          top; the role line now sits BELOW it (was a mono kicker above). */}
-      <h1 style={{ fontFamily: "var(--v3-font-display)", fontWeight: 340, fontSize: isCompact ? "clamp(3rem, 14.5vw, 5rem)" : "clamp(6rem, 3.4rem + 11.5vw, 13rem)", fontOpticalSizing: "auto", lineHeight: 0.88, letterSpacing: "-.025em", color: "var(--v3-fg)", margin: "0 0 .06em" }}>
+      {/* name — masked line reveal, italic accent surname. Compact: the galaxy
+          is the hero now, so the name is a refined smaller block (was a huge
+          13rem display). The role line sits BELOW it. */}
+      <h1 style={{ fontFamily: "var(--v3-font-display)", fontWeight: 340, fontSize: isCompact ? "clamp(2.4rem, 11vw, 3.6rem)" : "clamp(2.8rem, 2rem + 4.2vw, 5rem)", fontOpticalSizing: "auto", lineHeight: 0.9, letterSpacing: "-.025em", color: "var(--v3-fg)", margin: "0 0 .06em" }}>
         <span style={maskLine}><motion.span style={{ display: "block" }} variants={lineRise}>{first}</motion.span></span>
         <span style={maskLine}><motion.span style={{ display: "block" }} variants={lineRise}><em style={{ fontStyle: "italic", fontWeight: 380, color: "var(--v3-accent)" }}>{last}</em></motion.span></span>
       </h1>
 
       {/* role · location — premium serif line BELOW the name. Fraunces bold for the
           role, italic accent-gold for the location. Replaces the old mono kicker. */}
-      <motion.div variants={rise} style={{ marginTop: ".18em", display: "flex", alignItems: "baseline", gap: "0.5ch", flexWrap: "wrap" }}>
-        <span style={{ fontFamily: "var(--v3-font-display)", fontWeight: 600, fontSize: "clamp(1.4rem, 0.85rem + 1.9vw, 2.4rem)", letterSpacing: "-.01em", color: "var(--v3-fg)", fontOpticalSizing: "auto" }}>
+      <motion.div variants={rise} style={{ marginTop: ".3em", display: "flex", alignItems: "baseline", gap: "0.5ch", flexWrap: "wrap" }}>
+        <span style={{ fontFamily: "var(--v3-font-display)", fontWeight: 600, fontSize: "clamp(1rem, 0.8rem + 0.9vw, 1.45rem)", letterSpacing: "-.01em", color: "var(--v3-fg)", fontOpticalSizing: "auto" }}>
           {personalInfo.role}
         </span>
-        <span aria-hidden="true" style={{ fontFamily: "var(--v3-font-display)", fontWeight: 400, fontSize: "clamp(1.2rem, 0.8rem + 1.5vw, 2rem)", color: "var(--v3-accent)", opacity: 0.7 }}>·</span>
-        <span style={{ fontFamily: "var(--v3-font-display)", fontStyle: "italic", fontWeight: 420, fontSize: "clamp(1.25rem, 0.8rem + 1.6vw, 2.1rem)", letterSpacing: "-.005em", color: "var(--v3-accent)", fontOpticalSizing: "auto" }}>
+        <span aria-hidden="true" style={{ fontFamily: "var(--v3-font-display)", fontWeight: 400, fontSize: "clamp(0.9rem, 0.7rem + 0.7vw, 1.25rem)", color: "var(--v3-accent)", opacity: 0.7 }}>·</span>
+        <span style={{ fontFamily: "var(--v3-font-display)", fontStyle: "italic", fontWeight: 420, fontSize: "clamp(0.95rem, 0.75rem + 0.8vw, 1.3rem)", letterSpacing: "-.005em", color: "var(--v3-accent)", fontOpticalSizing: "auto" }}>
           {personalInfo.location}
         </span>
       </motion.div>
 
-      <motion.div ref={linksRef} variants={rise} style={{ marginTop: "clamp(30px, 4.5vh, 52px)", display: "flex", gap: 14, alignItems: "center", flexWrap: "wrap" }}>
+      <motion.div ref={linksRef} variants={rise} style={{ marginTop: "clamp(22px, 3.2vh, 36px)", display: "flex", gap: 12, alignItems: "center", flexWrap: "wrap" }}>
         <button
           ref={ctaRef}
           onClick={beginTour}
@@ -125,3 +127,5 @@ export default function V3Hero() {
     </motion.div>
   );
 }
+
+export default memo(V3Hero);

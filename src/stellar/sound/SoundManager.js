@@ -7,11 +7,8 @@
  *
  * Event bus (window CustomEvents) it listens for:
  *   stellar:destination {detail:{index}} → beep(index)   (planet arrival note)
- *   stellar:whoosh                        → whoosh()       (planet switch)
- *   stellar:sound:hum                      → arms the hum   (audible once unmuted)
- *   stellar:sound:beep                     → tick()         (countdown tick)
- *   stellar:sound:jump                     → jump()         (hyperspace punch)
- *   stellar:sound:arrival                  → arrival()      (drop-out chime)
+ *   stellar:sound:hum                     → arms the hum   (audible once unmuted)
+ *   stellar:sound:jump                    → jump()         (hyperspace punch)
  */
 
 const PENTATONIC = [0, 2, 4, 7, 9, 12, 14, 16]; // comm-tone scale (semitone steps)
@@ -33,14 +30,12 @@ class SoundManagerImpl {
   _bind() {
     const on = (name, fn) => window.addEventListener(name, fn);
     on("stellar:destination", (e) => this.beep(e?.detail?.index ?? 0));
-    on("stellar:whoosh", () => this.whoosh());
     on("stellar:sound:hum", () => {
       this.humArmed = true;
       this.playHum();
     });
-    on("stellar:sound:beep", () => this.tick());
     on("stellar:sound:jump", () => this.jump());
-    on("stellar:sound:arrival", () => this.arrival());
+    on("stellar:sound:supernova", () => this.supernova());
     /* Sound is ON by default, but browsers require a user gesture to start audio.
        Resume the context on the FIRST interaction (any of these), once, so the
        armed hum + cues come alive automatically — no toggle tap needed. */
@@ -160,22 +155,36 @@ class SoundManagerImpl {
     this._blip(BASE_HZ * Math.pow(2, PENTATONIC[i] / 12), { dur: 0.16, gain: 0.1 });
   }
 
-  tick() {
-    this._blip(1320, { type: "square", dur: 0.05, gain: 0.05 });
-  }
-
   jump() {
     this._blip(120, { type: "sawtooth", dur: 0.9, gain: 0.12, glide: 6 });
     this._noise(0.7, 1200);
   }
 
-  arrival() {
-    this._blip(BASE_HZ * 2, { dur: 0.4, gain: 0.09 });
-    setTimeout(() => this._blip(BASE_HZ * 3, { dur: 0.6, gain: 0.08 }), 140);
-  }
-
-  whoosh() {
-    this._noise(0.5, 800, true);
+  /* Supernova swell — a deep sub-bass bloom + an airy wash that briefly lifts
+     the room hum, so the ambient bed breathes each time a star dies in the
+     homepage galaxy. Driven by Supernovae.jsx via stellar:sound:supernova. */
+  supernova() {
+    const ctx = this._ensure();
+    if (!ctx || this.muted) return;
+    const t = ctx.currentTime;
+    const o = ctx.createOscillator();
+    o.type = "sine";
+    o.frequency.setValueAtTime(40, t);
+    o.frequency.exponentialRampToValueAtTime(27, t + 2.6);
+    const g = ctx.createGain();
+    g.gain.setValueAtTime(0, t);
+    g.gain.linearRampToValueAtTime(0.085, t + 0.6); // swell in
+    g.gain.setTargetAtTime(0, t + 0.8, 0.9);        // long decay
+    o.connect(g);
+    g.connect(this.master);
+    o.start(t);
+    o.stop(t + 3.4);
+    this._noise(1.6, 320, true); // faint airy wash
+    if (this.humNodes) {
+      const hg = this.humNodes.g.gain;
+      hg.setTargetAtTime(0.1, t, 0.4);
+      hg.setTargetAtTime(0.06, t + 1.1, 1.3);
+    }
   }
 
   _noise(dur = 0.5, cutoff = 1000, sweep = false) {
@@ -249,9 +258,6 @@ export const SoundManager =
         playHum: noop,
         stopHum: noop,
         beep: noop,
-        tick: noop,
-        whoosh: noop,
         jump: noop,
         updateSonification: noop,
-        arrival: noop,
       };

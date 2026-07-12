@@ -1,54 +1,54 @@
 /* eslint-disable react/no-unknown-property */
-import { Suspense, useEffect, useRef, cloneElement } from "react";
-import { Canvas, invalidate } from "@react-three/fiber";
+import { Suspense, useMemo, useRef, useEffect, cloneElement } from "react";
+import { Canvas, invalidate, useFrame } from "@react-three/fiber";
+import { Preload } from "@react-three/drei";
 import * as THREE from "three";
 import { EffectComposer, Bloom } from "@react-three/postprocessing";
 import CinematicGrade from "./CinematicGrade";
 import SceneClock from "./SceneClock";
 import Stars from "./Stars";
+import Constellations from "./Constellations";
+import DistantGalaxies from "./DistantGalaxies";
+import ZodiacalLight from "./ZodiacalLight";
+import HeroDust from "./HeroDust";
+import StarLabels from "./StarLabels";
 import Sun from "./Sun";
+import SunRays from "./SunRays";
 import Planet from "./Planet";
 import CameraRig from "./CameraRig";
-import AsteroidBelt from "./AsteroidBelt";
+import AsteroidBelt, { KUIPER_FAMILIES, kuiperWeightsFor } from "./AsteroidBelt";
 import Nebulae from "./Nebulae";
 import VisibilityController from "./VisibilityController";
 import Skybox from "./Skybox";
 import OrbitGroup from "./OrbitGroup";
-import BlackHole from "./BlackHole";
-import Comet from "./Comet";
-import AtlasComet from "./AtlasComet";
-import Meteors from "./Meteors";
-import Pulsar from "./Pulsar";
-import ExoticObjects from "./ExoticObjects";
-import ProjectProbes from "./ProjectProbes";
-import DeepFieldMysteries from "./DeepFieldMysteries";
-import Kilonova from "./Kilonova";
-import Hypergiant from "./Hypergiant";
-import EtaCarinae from "./EtaCarinae";
-import EinsteinRing from "./EinsteinRing";
-import Wormhole from "./Wormhole";
-import LensFlare from "./LensFlare";
 import OrbitRings from "./OrbitRings";
-import Beacon from "./Beacon";
+import BeltRings from "./BeltRings";
 // LaneObjects retired — the Holo-Bridge dossier cluster replaces the forced-←→ convoy.
 import SolarEclipse from "./SolarEclipse";
 import EclipseLights from "./EclipseLights";
 import DwarfPlanets from "./DwarfPlanets";
+import Comet from "./Comet";
+import Hyperspace from "./Hyperspace";
+import SpiralGalaxy from "./SpiralGalaxy";
+import GalaxyGlobulars from "./GalaxyGlobulars";
+import GalaxyNebulae from "./GalaxyNebulae";
+import Supernovae from "./Supernovae";
+import MeteorShowers from "./MeteorShowers";
+import AtlasComet from "./AtlasComet";
+import DustLanes from "./DustLanes";
+import HomepageGalaxies from "./HomepageGalaxies";
+import BlackHole from "./anomalies/BlackHole";
+import Voyagers from "./Voyagers";
+/* BlackHole + SpiralGalaxy removed from the tour — nearest black hole is
+   1,560 ly away (Gaia BH1), nothing sits "just past Pluto". Milky Way seen
+   from outside is impossible from Sol. Files kept for potential reuse
+   (Sgr A* homepage marker, distant Andromeda). */
 import BeltDust from "./BeltDust";
+import LocalNeighborhood from "./LocalNeighborhood";
 import TrojanAsteroids from "./TrojanAsteroids";
 import OortCloud from "./OortCloud";
 import Heliosphere from "./Heliosphere";
-import InterstellarVisitor from "./InterstellarVisitor";
-import EarthStation from "./EarthStation";
-import { HomePin, HomeCallout } from "./HomeMarker";
-import IsroProbe from "./IsroProbe";
 import MilkyWay from "./MilkyWay";
-import ZodiacalLight from "./ZodiacalLight";
-import Constellations from "./Constellations";
-import ShootingStars from "./ShootingStars";
-import RocketLaunch from "./RocketLaunch";
-import DangerField from "./DangerField";
-import DataFragments from "./DataFragments";
 import DustParticles from "./DustParticles";
 import AdaptiveQuality from "./AdaptiveQuality";
 import Sonification from "./Sonification";
@@ -56,61 +56,38 @@ import SaturnHexagon from "./SaturnHexagon";
 import IoTorus from "./IoTorus";
 import NeptuneAurora from "./NeptuneAurora";
 import MoonGeysers from "./MoonGeysers";
-import GlobularCluster from "./GlobularCluster";
-import GravWaveChirp from "./GravWaveChirp";
-import CosmicMarker from "./CosmicMarker";
-import RedDots from "./RedDots";
 import MimasMoon from "./MimasMoon";
 import TitanLakes from "./TitanLakes";
 import EclipseShadow from "./EclipseShadow";
 import AutoExposure from "./AutoExposure";
 import KeyLight from "./KeyLight";
 import MouseParallax from "./MouseParallax";
-import FreeRoam from "./FreeRoam";
-import CameraShake from "./CameraShake";
-import Voyager from "./Voyager";
-import RobotFleet from "./RobotFleet";
-import CommitComets from "./CommitComets";
-import DeathStar from "./easter/DeathStar";
-import Tardis from "./easter/Tardis";
-import HalEye from "./easter/HalEye";
-import WallE from "./easter/WallE";
-import CooperStation from "./easter/CooperStation";
-import WatneyPotato from "./easter/WatneyPotato";
-import Endurance from "./easter/Endurance";
-import StarDestroyer from "./easter/StarDestroyer";
-import Enterprise from "./easter/Enterprise";
-import Monolith from "./easter/Monolith";
-import HaloRing from "./easter/HaloRing";
-import DysonSwarm from "./easter/DysonSwarm";
-import SolGate from "./easter/SolGate";
-import Citadel from "./easter/Citadel";
-import GenerationShip from "./easter/GenerationShip";
-import Heighliner from "./easter/Heighliner";
-import GoldenRecord from "./easter/GoldenRecord";
-import Sandworm from "./easter/Sandworm";
-import Rocinante from "./easter/Rocinante";
-import Normandy from "./easter/Normandy";
-import DiscoveryOne from "./easter/DiscoveryOne";
-import Nostromo from "./easter/Nostromo";
-import MarsRovers from "./easter/MarsRovers";
+import SafeLoad from "./SafeLoad";
 import useViewport from "../useViewport";
-import { DESTINATIONS, remapPosition, frontOfSun, BACKGROUND_BELTS } from "../config/destinations";
+import { DESTINATIONS, BACKGROUND_BELTS } from "../config/destinations";
 import { rotationSpeedFor } from "../config/planetData";
+import { SCENE_OBJECTS } from "./registry";
 
-/* Kirkwood gaps as fractions of the main belt (2.1–3.3 AU): the 3:1 (2.50 AU),
-   5:2 (2.82) and 2:1 (3.27) Jupiter resonances. Stable identity so the belt
-   isn't regenerated each render. */
-const KIRKWOOD_GAPS = [0.333, 0.6, 0.975];
+/* Kirkwood gaps as fractions of the main belt (2.1-3.3 AU) — all four major
+   Jupiter mean-motion resonances: 3:1 (2.50 AU, frac 0.333), 5:2 (2.82 AU,
+   frac 0.600), 7:3 (2.958 AU, frac 0.715), 2:1 (3.27 AU, frac 0.975). Stable
+   identity so the belt isn't regenerated each render. See belt-research.md. */
+const KIRKWOOD_GAPS = [0.333, 0.600, 0.715, 0.975];
 
-/* Kuiper-belt spectral mix — icy worlds: blue-grey ice, brighter white-ice, and
-   reddish tholin-coated bodies (the real KBO colour bimodality). */
-const ICY_FAMILIES = [
-  { color: "#8a96a8", metal: 0.05, rough: 0.85 }, // blue-grey ice
-  { color: "#aab6c6", metal: 0.04, rough: 0.9 },  // bright water ice
-  { color: "#9a7565", metal: 0.05, rough: 0.9 },  // reddish tholin
-];
-const ICY_WEIGHTS = [0.45, 0.3, 0.25];
+/* Kuiper resonance clumps — the mirror image of gaps: the belt PILES UP at
+   the mean-motion resonances with Neptune that Neptune's outward migration
+   captured planetesimals into. 3:2 Plutinos at 39.4 AU (frac 0.47),
+   2:1 Twotinos at 47.7 AU (frac 0.885). */
+const KUIPER_CLUMPS = [0.47, 0.885];
+/* Solid-colour stand-in for a planet whose texture fails to load — rendered by
+   SafeLoad in place of <Planet>. Sits at the OrbitGroup origin so it still rides
+   the body's live orbit; the accent `color` keeps it recognisable. */
+const planetFallback = (d) => (
+  <mesh>
+    <sphereGeometry args={[d.radius, 32, 32]} />
+    <meshStandardMaterial color={d.color || "#8a8a8a"} roughness={0.9} metalness={0} />
+  </mesh>
+);
 
 /*
  * Persistent Three.js scene. ONE canvas, single Suspense boundary.
@@ -124,45 +101,180 @@ const ICY_WEIGHTS = [0.45, 0.3, 0.25];
  * tune that based on viewport bucket.
  */
 
-const Scene = ({ scrollT, activeIdx, itemIdx = 0, onJump, onReady, freeRoamEnabled, speedRef, thrustRef, wideRef, wideOrbitRef, focusRef, warpVelRef, cameraRef, eclipseRef, clock, extrasPhase = 3, launchPhase = null, onLaunchComplete, v3 = false }) => {
-  const readyRef = useRef(false);
-  const { isMobile, isCompact, reducedMotion } = useViewport();
-  /* Progressive-mount tiers (StellarApp ramps extrasPhase 0→3 behind the
-     countdown cover, so the whole suite no longer mounts in one frame-freezing
-     commit). Tier 1 = structural extras + belts; tier 2 = anomalies/comets;
-     tier 3 = easter-egg models (heaviest, last). */
-  /* v3 = NATURAL OBJECTS ONLY — no spacecraft/probes/megastructures/pop-culture.
-     `showEggs` (the whole fiction/cameo tier) is force-off, and the human-made
-     objects that live in other tiers (probes, ISS, rovers, Voyager) are gated by
-     `naturalOnly` at their mount sites. */
-  const naturalOnly = v3;
-  const showExtras = extrasPhase >= 1;
-  const showMid = extrasPhase >= 2;
-  const showEggs = extrasPhase >= 3 && !naturalOnly;
-  /* v3 keeps the deep field MINIMAL — the noisy Tier-2 extras (kilonova, hypergiant,
-     Eta Carinae, Einstein ring, globular cluster, grav-wave chirp, red dots, cosmic-web
-     markers, spare comets, danger field) crowd the clean planet frames. The tour-worthy
-     landmarks (black hole, pulsar, comet, wormhole, nebulae, Milky Way) stay. */
-  const deepMid = showMid && !v3;
-  /* v3 = NO BELT DUST anywhere EXCEPT the overview (stop 0). On any other v3 stop the
-     asteroid + Kuiper belt dust, floating dust particles, Trojan asteroids and zodiacal
-     light render as "white dots around the Sun" — visually noisy. On the overview the
-     real belt IS the point (true-scale corner shot), so those come back for stop 0 only.
-     v2 keeps the full set. */
-  const noDust = v3 && activeIdx !== 0;
-  /* Additive point clouds around the Sun (BeltDust, DustParticles, OortCloud,
-     ZodiacalLight, and even the discrete AsteroidBelt / Kuiper rocks at the
-     wide-overview distance) read as a bright white halo around the Sun. In v3
-     we suppress ALL of them everywhere — the tour still shows Sun, planets,
-     Trojan swarms at Jupiter's L4/L5, Heliosphere, Milky Way and skybox stars. */
-  const noPointDust = v3;
+/* Drives the finale's cinematic through-black dip from the continuous scrub
+   (finaleT). uFade is a V: 1 at the tour end (t=0) and full finale (t=1),
+   dipping near black at t=0.5 where the solar↔neighbourhood content swap fires
+   — so the cut is unseen. Runs every frame (cheap); no-op at t=0/1. */
+/* Homepage Milky Way — tilted spinning spiral galaxy filling the frame,
+   floating in a JWST-deep-field-style backdrop of stars + distant galaxies +
+   nebulae. Rotation is a slow spin around the disc's normal so the arms
+   sweep visibly without becoming a merry-go-round. */
+const GALAXY_SCALE = 12;
+
+
+function HomepageGalaxy({ reducedMotion, scrollT, active = true }) {
+  const outerRef = useRef();
+  const innerRef = useRef();
+  const t0 = useRef(null);
+  /* Snapshot of each galaxy material's base opacity, so the dive can fade the
+     whole thing out smoothly (a real crossfade into the solar system) without
+     the hyperspace warp to mask a hard cut. Dynamic-opacity children (supernova
+     flashes, which start at 0) are excluded so they aren't pinned dark. */
+  const baseOps = useRef(null);
+  const fadeRef = useRef(1); // current dive-fade (1 → 0), fed to Supernovae so flashes dim too
+  /* Cursor parallax — pointer position in −1..1, smoothed. The galaxy group
+     shifts opposite the cursor while the far deep-field shell barely moves, so
+     they slide against each other (differential parallax). */
+  const ptr = useRef({ x: 0, y: 0, sx: 0, sy: 0 });
+  useEffect(() => {
+    if (reducedMotion) return undefined;
+    const onMove = (e) => {
+      ptr.current.x = (e.clientX / window.innerWidth) * 2 - 1;
+      ptr.current.y = (e.clientY / window.innerHeight) * 2 - 1;
+    };
+    window.addEventListener("pointermove", onMove);
+    return () => window.removeEventListener("pointermove", onMove);
+  }, [reducedMotion]);
+
+  useFrame((state, dt) => {
+    /* Off the homepage the galaxy is kept MOUNTED but hidden (visible=false via
+       the wrapper) so it never disposes its ~100k-point cloud at the crossover
+       (that disposal was a transition frame dip). Skip all per-frame work while
+       hidden. */
+    if (!active) return;
+    /* Scroll progress into the first segment: 0 at the hero, 1 at the Solar-
+       System overview (13 stops → ×12). The dive lives in [0, 0.5]: a gentle
+       zoom into the disc while the galaxy fades out, so it crossfades smoothly
+       into the system inside (no hyperspace streaks — plain smooth travel). */
+    const pos = !reducedMotion && scrollT?.current ? scrollT.current * 12 : 0;
+    const diving = pos > 0.002;
+
+    /* Zoom-in on load — the galaxy grows from a point to full size over ~2.6s
+       (easeOutCubic) as the hero text rises. Instant under reduced motion. */
+    if (t0.current == null) t0.current = state.clock.elapsedTime;
+    const age = state.clock.elapsedTime - t0.current;
+    const grow = reducedMotion ? 1 : Math.min(1, age / 2.6);
+    const eased = 1 - Math.pow(1 - grow, 3);
+    if (innerRef.current) {
+      if (diving) {
+        /* DIVE — gentle scale-up so we drift INTO the disc (not a violent surge). */
+        const dp = Math.min(1, pos / 0.5);
+        innerRef.current.scale.setScalar(GALAXY_SCALE * (1 + Math.pow(dp, 1.4) * 1.5)); // 12 → ~30
+      } else {
+        innerRef.current.scale.setScalar(0.5 + eased * (GALAXY_SCALE - 0.5));
+      }
+      if (!reducedMotion) innerRef.current.rotation.y += dt * 0.07; // slow spin
+    }
+
+    /* Smooth fade — dissolve the whole galaxy out over pos 0.12 → 0.46 so it's
+       gone before this component unmounts at ~0.5, crossfading into the tour. */
+    if (baseOps.current == null && innerRef.current) {
+      baseOps.current = [];
+      innerRef.current.traverse((o) => {
+        const mats = o.material ? (Array.isArray(o.material) ? o.material : [o.material]) : [];
+        for (const m of mats) if (m && m.transparent && m.opacity > 0.02) baseOps.current.push([m, m.opacity]);
+      });
+    }
+    const fade = diving ? THREE.MathUtils.clamp(1 - (pos - 0.12) / 0.34, 0, 1) : 1;
+    fadeRef.current = fade;
+    if (baseOps.current) {
+      for (const [m, base] of baseOps.current) m.opacity = base * fade;
+    }
+    /* Once fully faded, stop RENDERING the galaxy (additive points at opacity 0
+       still rasterize — a big overdraw cost the whole 0.46→unmount window). */
+    if (outerRef.current) outerRef.current.visible = fade > 0.01;
+    if (outerRef.current && fade > 0.01 && !reducedMotion) {
+      if (diving) {
+        /* Hold the tilt + centre steady through the plunge (freeze the ambient
+           breathing so the surge reads clean). */
+        outerRef.current.position.set(40, 20, -560);
+        outerRef.current.rotation.z = 0.34;
+      } else {
+        const t = state.clock.elapsedTime;
+        const p = ptr.current;
+        p.sx += (p.x - p.sx) * 0.04; // smooth toward cursor
+        p.sy += (p.y - p.sy) * 0.04;
+        /* breathing drift + cursor parallax (opposite the pointer) */
+        outerRef.current.rotation.z = 0.34 + Math.sin(t * 0.05) * 0.015 - p.sx * 0.02;
+        outerRef.current.position.x = 40 + Math.sin(t * 0.045) * 18 - p.sx * 55;
+        outerRef.current.position.y = 20 + Math.cos(t * 0.06) * 12 + p.sy * 40;
+      }
+    }
+  });
+  return (
+    /* Outer group: steep Andromeda-style 3/4 tilt (~66°). Inner group spins +
+       zooms and holds every galaxy-local layer so they share tilt/scale/spin:
+       star cloud, arm gas, dust lanes, globular halo, supernova flashes. */
+    <group ref={outerRef} position={[40, 20, -560]} rotation={[1.16, 0, 0.34]}>
+      <group ref={innerRef} scale={0.5}>
+        <SpiralGalaxy animate={false} solPulse />
+        <GalaxyNebulae />
+        <DustLanes />
+        <GalaxyGlobulars />
+        {/* active gates the per-frame flash cycle + its sound event so a hidden
+            (off-homepage) galaxy never fires supernova swells during the tour. */}
+        <Supernovae reducedMotion={reducedMotion} fade={fadeRef} active={active} />
+      </group>
+    </group>
+  );
+}
+
+function FinaleGradeDip({ gradeRef, finaleT }) {
+  useFrame(() => {
+    const g = gradeRef.current;
+    if (!g) return;
+    const t = finaleT?.current ?? 0;
+    const m = Math.abs(2 * t - 1); // 1 at ends, 0 at mid
+    const s = m * m * (3 - 2 * m); // smoothstep
+    g.uniforms.get("uFade").value = 0.05 + 0.95 * s;
+  });
+  return null;
+}
+
+const Scene = ({ scrollT, finaleT, finale = false, activeIdx, onJump, focusRef, warpVelRef, cameraRef, eclipseRef, clock, extrasPhase = 3, v3 = false }) => {
+  const { isMobile, reducedMotion } = useViewport();
+  /* Pull-back finale — when active the AU-scale solar system is hidden and the
+     LOCAL stellar neighbourhood (LocalNeighborhood) + the boosted Milky-Way arch
+     take over, camera pulled back to the Sun among its neighbours. `finale` is
+     the discrete content swap (StellarApp, fired by scroll at the reveal's black
+     dip, or forced by `?finale=1`); `finaleT` is the continuous 0→1 scrub the
+     camera + grade read each frame. */
+  /* Progressive-mount tiers — StellarApp ramps extrasPhase 0→3 so the heavy suite
+     doesn't build in one frame-freezing commit. Tier 1 = structural extras + belts;
+     tier 2 = deep-field anomalies/comets; tier 3 = the heaviest models last. Every
+     object is real (belts, dust, comets, visitors, spacecraft, deep-field); gating
+     is by the tiers + device/motion budget + the finale flag. */
+  /* Milky Way homepage (destination index 0): the Solar System is hidden —
+     visitor is floating in interstellar space, seeing only sky (Stars,
+     MilkyWay band, Nebulae, Constellations, DistantGalaxies, Skybox). Sun,
+     planets, belts, dwarf planets, comets — all off. Hyperspace jump on
+     scroll carries them into the tour. */
+  const isMilkyway = activeIdx === 0;
+  /* Tour layers PRE-MOUNT during the homepage (kept hidden by the
+     <group visible={tourVisible}> wrappers below) so the Milky-Way → Solar-
+     System crossover never builds the whole system in one React commit — that
+     one-commit build froze the main thread 1–7s (measured). The extrasPhase
+     tiers still spread the build over ~1.7s, now during the intro window where
+     it's masked, instead of at the scroll midpoint. */
+  const showExtras = extrasPhase >= 1 && !finale;
+  const showMid = extrasPhase >= 2 && !finale;
+  const showEggs = extrasPhase >= 3 && !finale;
+  /* Tier 4 — the heaviest point build (belt dust ~68k points) mounts LAST and
+     ALONE, so it never shares a React commit / GPU upload with the deep-field or
+     anomalies (that collision was the boot black-frame). */
+  const showDust = extrasPhase >= 4 && !finale;
+  /* Solar-system layers are built always (staged) but only VISIBLE once we've
+     left the Milky-Way homepage. Flipping a group's `visible` is free — no
+     mount/unmount hitch — so the crossover is instant. */
+  const tourVisible = !isMilkyway;
   /* Camera offsets — kept in refs so React state doesn't re-render
      the whole tree on every frame. Mouse parallax and free-roam each
      own their own offset; CameraRig sums them. */
   const parallaxOffsetRef = useRef(new THREE.Vector3());
-  const freeRoamOffsetRef = useRef(new THREE.Vector3());
   /* Bloom effect handle (static intensity; warp pulse removed in v3). */
   const bloomRef = useRef();
+  /* Grade effect handle — the finale scrub sets its uFade uniform each frame. */
+  const gradeRef = useRef();
   /* Earth's Moon world position, published by its Planet, read by SolarEclipse. */
   const moonWorldRef = useRef(new THREE.Vector3());
 
@@ -172,22 +284,31 @@ const Scene = ({ scrollT, activeIdx, itemIdx = 0, onJump, onReady, freeRoamEnabl
   const handleHoverIn = () => setCursor("pointer");
   const handleHoverOut = () => setCursor("");
 
-  useEffect(() => {
-    if (!readyRef.current && onReady) {
-      readyRef.current = true;
-      requestAnimationFrame(() => onReady());
-    }
-  }, [onReady]);
-
   /* Render at the display's native pixel ratio (up to 2× on retina/4K) for
      crisp HD. We removed Depth-of-Field, so nothing is intentionally blurred
      and the extra pixels actually read as sharpness. The adaptive guard still
      floors DPR only on a genuinely struggling GPU. */
   const dprCap = isMobile ? 1.5 : 2;
 
+  /* §7.4 — feature-flagged experiment with frameloop="demand". Off by default:
+     the tour has continuous animation everywhere (planet orbits, Sun churn,
+     anomaly pulses, camera scrub, bloom), and demand mode only renders on
+     explicit invalidate() calls — useFrame subscribers stop firing between
+     invalidates. Under reduced-motion the scene IS effectively static (
+     SceneClock.scale=0 freezes orbits + shaders), so demand mode is safe.
+     Under normal play it will visibly freeze the Sun; kept as an opt-in
+     query flag (?frameloop=demand) for measurement / experimentation. */
+  const frameloopMode = useMemo(() => {
+    if (typeof window === "undefined") return "always";
+    const q = new URLSearchParams(window.location.search).get("frameloop");
+    if (q === "demand" || (q === "auto" && reducedMotion)) return "demand";
+    if (reducedMotion && q === "auto") return "demand";
+    return "always";
+  }, [reducedMotion]);
+
   return (
     <Canvas
-      frameloop="always"
+      frameloop={frameloopMode}
       dpr={[1, dprCap]}
       /* Soft shadows on desktop only — the key light (KeyLight) follows
          the active planet so the map stays sharp + cheap. */
@@ -196,9 +317,20 @@ const Scene = ({ scrollT, activeIdx, itemIdx = 0, onJump, onReady, freeRoamEnabl
         antialias: !isMobile,
         alpha: false,
         powerPreference: "high-performance",
-        /* Photo Mode (Phase 3C) reads the canvas via toDataURL — needs the buffer
-           kept after compositing. Modest cost; fine for a portfolio. */
+        /* Keep the drawing buffer so the canvas stays capturable (headless
+           screenshots, and any future "share this frame" image) — without it a
+           programmatic capture reads a cleared/black buffer. Negligible cost. */
         preserveDrawingBuffer: true,
+        /* §7.7 — logarithmicDepthBuffer was enabled speculatively (no observed
+           z-fighting; the audit flagged it "deferred, re-test empirically").
+           REVERTED — enabling log depth requires every custom ShaderMaterial
+           (Sun, Wormhole, BeltDust, Stars, PlanetMaterial, etc.) to include
+           three's `logdepthbuf_pars_*` + `logdepthbuf_*` GLSL chunks in both
+           vertex + fragment shaders. Without those, the shader writes wrong
+           depth values → additive particles render THROUGH opaque solids (the
+           user saw belt rocks showing on top of the Sun). Standard 24-bit
+           depth handles the current scene fine; re-enable log depth only
+           after every custom material carries the depth chunks. */
         /* ACES Filmic tone mapping on the renderer side — single
            pipeline, no post-processing ToneMapping pass (that one
            had API issues in v3). */
@@ -232,6 +364,13 @@ const Scene = ({ scrollT, activeIdx, itemIdx = 0, onJump, onReady, freeRoamEnabl
         lowDpr={isMobile ? 1.0 : 1.4}
       />
       <AutoExposure />
+      {/* Full GPU prewarm of the pre-mounted (hidden) tour during the intro:
+          drei <Preload all/> un-hides every subtree, gl.compile()s shaders +
+          textures, AND cube-camera-renders once to force geometry VBO uploads
+          (which gl.compile alone does NOT do — that was a ~3s freeze on the
+          first Milky-Way→Solar-System reveal). Runs once at extrasPhase 4,
+          while still on the homepage, so the cost lands in the masked intro. */}
+      {extrasPhase >= 4 && !finale && <Preload all />}
       {/* Vacuum-lean three-point lighting. Every planet sits on +x with
           the camera on the FAR (anti-sun) side, so a literal sun-at-origin
           key would throw every hero shot into shadow. Instead:
@@ -251,7 +390,7 @@ const Scene = ({ scrollT, activeIdx, itemIdx = 0, onJump, onReady, freeRoamEnabl
           the Sun-direction key still sculpts the lit limb. */}
       <ambientLight intensity={0.30} color="#a9bce0" />
       {/* Sun-direction key + shadow caster, follows the active planet. */}
-      <KeyLight scrollT={scrollT} castShadow={!isMobile} />
+      <KeyLight scrollT={scrollT} focusRef={focusRef} castShadow={!isMobile} />
       <directionalLight position={[-30, 10, -25]} intensity={0.5} color="#6f8cff" />
 
       {/* Lane objects — the active section's résumé items as a co-orbital convoy
@@ -259,69 +398,118 @@ const Scene = ({ scrollT, activeIdx, itemIdx = 0, onJump, onReady, freeRoamEnabl
       {/* lane convoy retired — Holo-Bridge dossier cluster replaces forced ←→ */}
 
       <Suspense fallback={null}>
-        <Skybox />
-        <Stars />
-        <Nebulae />
-        {/* Grand faint galactic band — far backdrop for depth. */}
-        <MilkyWay animate={!reducedMotion} />
-        {/* Zodiacal light — faint sunlight scattered by ecliptic-plane dust.
-            8,500 additive points arrayed from the Sun outward: at the wide
-            overview shot they cluster into a bright halo — suppressed in v3
-            with the rest of the point clouds. */}
-        {showExtras && !noDust && !noPointDust && <ZodiacalLight />}
+        <SafeLoad><Skybox homepage={isMilkyway} /></SafeLoad>
+        {/* On the homepage the sky goes JWST-sparse — only the brightest stars,
+            larger, with diffraction spikes, against near-black. During the tour
+            the full 8,920-star field renders. */}
+        {/* Two star fields, both built ONCE at mount and toggled by `visible`
+            (PrewarmTour GPU-compiles the hidden one during the intro). Flipping
+            visibility at the 0→1 crossover is free — the old single
+            `sparse={isMilkyway}` rebuilt the whole 8,920-star buffer + re-uploaded
+            it synchronously, which was a major transition frame dip. */}
+        {!finale && <Stars sparse visible={isMilkyway} />}
+        {!finale && <Stars visible={!isMilkyway} />}
+        {/* Nebulae live INSIDE the Milky Way — they belong to the solar-system
+            tour backdrop, not the from-outside homepage. Hidden on the
+            homepage (where the deep-field galaxies are the backdrop instead). */}
+        {/* Tour sky layers — pre-mounted, hidden on the homepage via the group's
+            `visible`. Own Suspense boundary so a tour texture loading (behind the
+            scenes, during the intro) never suspends the homepage galaxy above. */}
+        <Suspense fallback={null}>
+        <group visible={tourVisible}>
+          {!finale && <SafeLoad><Nebulae /></SafeLoad>}
+          {/* Constellation line overlays — 12 named patterns drawn as hairline
+              gold connectors. */}
+          {!finale && <Constellations />}
+          {/* Distant naked-eye galaxies — M31 / M33 / LMC / SMC at real RA/Dec. */}
+          {!finale && <DistantGalaxies deepField={false} />}
+          {/* Zodiacal light — faint warm band along the ecliptic. */}
+          {showExtras && <ZodiacalLight />}
+          {/* Deep-field parallax dust — foreground motes riding the camera. */}
+          {showExtras && !isMobile && !reducedMotion && <HeroDust />}
+          {/* Hover labels on the 16 brightest named stars — desktop-only. */}
+          {showEggs && !isMobile && !reducedMotion && <StarLabels />}
+          {/* Milky Way band — the from-INSIDE arch. */}
+          {!finale && <MilkyWay finale={false} />}
+        </group>
+        </Suspense>
+        {/* Hyperspace transition — cinematic radial star-streaks that fire
+            during the scroll segment from Milky Way (index 0) to Solar
+            System overview (index 1). Reads warpVelRef; invisible when
+            velocity is 0 (i.e. everywhere except that one transition). */}
+        {!reducedMotion && !isMobile && <Hyperspace warpVelRef={warpVelRef} />}
+        {/* Sagittarius A* marker retired from the homepage — it's a
+            from-inside sky marker (galactic-centre direction), meaningless
+            against the from-outside galaxy view. The galaxy's own bright
+            core bulge now carries the centre. */}
+        {/* Homepage Milky Way — the visitor's first frame. A tilted spinning
+            spiral galaxy dominates the middle of the screen with a JWST-style
+            deep-field sky around it (real HYG stars + M31/M33/LMC/SMC sprites
+            + nebulae + constellations, all still mounted). Scientific-purism
+            note: from Sol we can't SEE our own galaxy face-on — this is the
+            crowd-pleasing "you are looking at our home" reveal. */}
+        {/* Mounted unconditionally (hidden via the group) so leaving the homepage
+            never disposes the ~100k-point galaxy — that disposal was a 0→1
+            transition frame dip. `active` idles its per-frame work while hidden. */}
+        <group visible={isMilkyway}>
+          <HomepageGalaxy reducedMotion={reducedMotion} scrollT={scrollT} active={isMilkyway} />
+        </group>
+        {/* Homepage ambient sky layers (sky-fixed, NOT inside the galaxy
+            transform): meteor streaks, a lone interstellar comet on a long
+            respawn, and faint foreground dust for parallax depth. Desktop +
+            motion only; the deep-field galaxies + sparse spike stars already
+            mount above. */}
+        {isMilkyway && !isMobile && !reducedMotion && <MeteorShowers animate />}
+        {isMilkyway && !isMobile && !reducedMotion && (
+          <AtlasComet start={[-620, 180, -300]} vel={[150, -8, 60]} coma="#bfe0ff" ion="#cfe6ff" dust="#e8e0ff" respawn={900} />
+        )}
+        {isMilkyway && !isMobile && !reducedMotion && <HeroDust />}
+        {/* Distant galaxies pinned to the frame's empty regions (left column +
+            lower band) — Andromeda + 7 smaller ones, never behind the Milky
+            Way. Screen-space anchored so they hold their gaps. */}
+        {isMilkyway && <HomepageGalaxies reducedMotion={reducedMotion} />}
+        {/* ── Solar-system tour body ── pre-mounted (staged by extrasPhase),
+            hidden on the homepage by the group's `visible`. Everything the
+            crossover used to build in one frozen commit lives here. Own Suspense
+            so tour textures loading during the intro never blank the homepage. */}
+        <Suspense fallback={null}>
+        <group visible={tourVisible}>
+        {/* Voyager 1 + 2 markers — humans' only interstellar spacecraft. */}
+        {!finale && showExtras && <Voyagers />}
+        {/* Pull-back finale (?finale=1) — the local stellar neighbourhood at true depth. */}
+        {finale && <LocalNeighborhood active />}
+        {/* Zodiacal light removed — its 8,500 additive points bloomed into an
+            inaccurate white bar flanking the Sun (per user). The real zodiacal
+            glow is far too faint to read at this scale. */}
         {/* Named constellations (Orion, Big Dipper, Cassiopeia) that fade in
             when the camera holds still — built but previously unmounted. */}
-        {showExtras && !isMobile && !v3 && <Constellations scrollTRef={scrollT} />}
+        {/* Stylised constellations removed — they were drawn on a small radius-380
+            sphere, so from the wide overview (camera ~2200u out) they sat in the
+            FOREGROUND as glitchy blue zigzags across the Sun; and being "not
+            astronomically precise" they clashed with the accurate real star field
+            (Stars.jsx), which is the real sky. */}
         {/* The edge anomaly — Gargantua, out in front of the camera (behind the
             Sun, −X) so it's a visible deep-space landmark throughout the tour
             rather than hidden off to the +X side behind the viewer. */}
-        {showMid && <BlackHole position={remapPosition(frontOfSun([49, -6, -15]))} radius={32} animate={!reducedMotion} onPointerOver={handleHoverIn} onPointerOut={handleHoverOut} />}
-        {/* Spaghettification dread near Gargantua — writes clock.danger. */}
-        {deepMid && <DangerField animate={!reducedMotion} />}
-        {/* Flyable résumé collectibles — collected while piloting. */}
-        {showEggs && <DataFragments active={freeRoamEnabled} animate={!reducedMotion} />}
-        {/* Anomaly suite — the discoverable spectacle (tier 2). Motion-heavy ones
-            respect reduced-motion + device. */}
-        {showMid && !reducedMotion && <Comet />}
-        {/* 'Oumuamua — the interstellar visitor cutting through on a hyperbolic
-            path, tumbling end over end. */}
-        {deepMid && !reducedMotion && <InterstellarVisitor animate={!reducedMotion} />}
-        {/* The interstellar comets: 3I/ATLAS (green coma + sunward anti-tail) and
-            2I/Borisov (reddish coma) — completing the trio with 'Oumuamua. */}
-        {deepMid && !reducedMotion && <AtlasComet />}
-        {deepMid && !reducedMotion && (
-          <AtlasComet start={[-620, -150, 240]} vel={[168, 4, -64]} coma="#e0a890" ion="#cdbfa0" dust="#e8d8b8" antiTail={false} comaR={1.2} respawn={780} />
-        )}
-        {/* Sungrazer C/2026 A1 — a steep dive through ~the Sun (true-scale path). */}
-        {deepMid && !reducedMotion && (
-          <AtlasComet start={[560, 130, -380]} vel={[-150, -35, 102]} coma="#cfe8ff" ion="#bfe0ff" dust="#eae6ff" antiTail={false} comaR={1.1} respawn={720} />
-        )}
-        {/* Clickable wishing meteors. */}
-        {deepMid && !reducedMotion && <ShootingStars animate={!reducedMotion} />}
-        {showMid && !isMobile && !reducedMotion && <Meteors />}
-        {showMid && !isMobile && !reducedMotion && <Pulsar />}
-        {/* New deep-field exotics: Sgr A*, magnetar, brown dwarf, rogue planet. */}
-        {deepMid && <ExoticObjects animate={!reducedMotion} />}
-        {/* Human-made probes + speculative "mysteries" — removed in v3 (natural only). */}
-        {showMid && !naturalOnly && <ProjectProbes animate={!reducedMotion} />}
-        {showMid && !naturalOnly && <DeepFieldMysteries animate={!reducedMotion} />}
-        {/* PHASE 4 (Wave 1) — deep-sky wonders: a kilonova event + a red supergiant. */}
-        {deepMid && <Kilonova animate={!reducedMotion} />}
-        {deepMid && <Hypergiant animate={!reducedMotion} />}
-        {/* Eta Carinae's bipolar Homunculus + an Einstein-ring lens galaxy. */}
-        {deepMid && <EtaCarinae animate={!reducedMotion} />}
-        {deepMid && <EinsteinRing animate={!reducedMotion} />}
-        {/* Wave 2 — scale & mystery: globular cluster, GW chirp, little red dots, cosmic web. */}
-        {deepMid && <GlobularCluster animate={!reducedMotion} />}
-        {deepMid && <GravWaveChirp animate={!reducedMotion} />}
-        {deepMid && <RedDots animate={!reducedMotion} />}
-        {deepMid && <CosmicMarker raw={[-44, 38, 28]} kind="void" count={520} radius={11} glow="#8aa0d8" animate={!reducedMotion} />}
-        {deepMid && <CosmicMarker raw={[60, 20, -40]} kind="attractor" count={680} radius={10} glow="#ffd0a0" animate={!reducedMotion} />}
-        {deepMid && <CosmicMarker raw={[-64, -10, -48]} kind="wall" count={760} radius={13} glow="#a0b6ff" animate={!reducedMotion} />}
-        {/* Wormhole "Beam aboard" portal at the Contact edge — the booking CTA. */}
-        {showMid && <Wormhole />}
+        {/* Tier-2 mounts (anomaly suite + transient objects) — declared once in
+            Scene/registry.js. Individual gates (motion/desktop), animate prop,
+            hover handlers, and static prop bags all live on the row. */}
+        {showMid && SCENE_OBJECTS.map((o) => {
+          if (o.motion && reducedMotion) return null;
+          if (o.desktop && isMobile) return null;
+          const C = o.C;
+          return (
+            <C
+              key={o.id}
+              {...(o.animate ? { animate: !reducedMotion } : {})}
+              {...(o.hoverable ? { onPointerOver: handleHoverIn, onPointerOut: handleHoverOut } : {})}
+              {...(o.props || {})}
+            />
+          );
+        })}
 
-        {DESTINATIONS.map((d, idx) => {
+
+        {!finale && showExtras && DESTINATIONS.map((d, idx) => {
           const handleClick = (e) => {
             e.stopPropagation();
             onJump?.(idx);
@@ -334,14 +522,29 @@ const Scene = ({ scrollT, activeIdx, itemIdx = 0, onJump, onReady, freeRoamEnabl
             };
             return (
               <group key={d.id}>
-                <Sun
+                <SafeLoad fallback={
+                  <mesh position={d.position}>
+                    <sphereGeometry args={[d.radius, 32, 32]} />
+                    <meshBasicMaterial color={d.color} toneMapped={false} />
+                  </mesh>
+                }>
+                  <Sun
+                    position={d.position}
+                    radius={d.radius}
+                    texture={d.texture}
+                    animate={!reducedMotion}
+                    onClick={handleSunClick}
+                    onPointerOver={handleHoverIn}
+                    onPointerOut={handleHoverOut}
+                  />
+                </SafeLoad>
+                {/* Anamorphic god-ray shafts. Radius scaled to the Sun's
+                    visual extent so the streaks reach out ~4× the disc — a
+                    cinematic lens-flare read without a second post pass. */}
+                <SunRays
                   position={d.position}
-                  radius={d.radius}
-                  texture={d.texture}
-                  animate={!reducedMotion}
-                  onClick={handleSunClick}
-                  onPointerOver={handleHoverIn}
-                  onPointerOut={handleHoverOut}
+                  radius={d.radius * 6}
+                  intensity={reducedMotion ? 0 : 0.55}
                 />
               </group>
             );
@@ -389,106 +592,71 @@ const Scene = ({ scrollT, activeIdx, itemIdx = 0, onJump, onReady, freeRoamEnabl
             if (d.type === "earth") {
               return (
                 <OrbitGroup key={d.id} dest={d} animate={!reducedMotion}>
-                  {/* Moon publishes its world position for the eclipse system.
-                      HomePin (Pune 'I'm here' marker) is v2-only — v3 uses the
-                      top-right Body Telemetry card as the who/where readout;
-                      the pin visually competed with the corner card + section
-                      dossier and was distracting on planet approach. */}
-                  {v3
-                    ? cloneElement(planetEl, { satelliteRef: moonWorldRef })
-                    : cloneElement(planetEl, { satelliteRef: moonWorldRef }, <HomePin radius={d.radius} animate={!reducedMotion} />)}
-                  {/* ISS on low Earth orbit — inherits Earth's live solar
-                      position from the OrbitGroup, runs its own fast LEO. */}
-                  {showExtras && !isMobile && !naturalOnly && (
-                    <EarthStation planetRadius={d.radius} animate={!reducedMotion} />
-                  )}
-                  {showExtras && !isMobile && !naturalOnly && (
-                    <RocketLaunch earthRadius={d.radius} animate={!reducedMotion} />
-                  )}
-                  {/* HomeCallout is a v2 feature — in v3 the top-right Body
-                      Telemetry card is the equivalent 'who/where' readout, and
-                      the callout would visually compete + underlap dossier cards. */}
-                  {showExtras && !v3 && <HomeCallout earthRadius={d.radius} />}
-                  {/* 2026 eclipses — the Moon's umbra drifting across Earth's day side. */}
+                  {/* Moon publishes its world position for the eclipse system. */}
+                  <SafeLoad fallback={planetFallback(d)}>
+                    {cloneElement(planetEl, { satelliteRef: moonWorldRef })}
+                  </SafeLoad>
+                  {/* Man-made craft removed (ISS, Pune rocket launch, Chandrayaan).
+                      2026 eclipses stay — the Moon's umbra drifting across Earth's
+                      day side is a real natural event. */}
                   {showExtras && <EclipseShadow earthRadius={d.radius} animate={!reducedMotion} />}
-                  {showExtras && !naturalOnly && (
-                    <IsroProbe
-                      orbitRadius={d.radius * 2.2} speed={0.22} tilt={0.4} phase={1.2} scale={d.radius * 0.18}
-                      event="stellar:chandrayaan" animate={!reducedMotion}
-                      onPointerOver={handleHoverIn} onPointerOut={handleHoverOut}
-                    />
-                  )}
                 </OrbitGroup>
               );
             }
             return (
               <OrbitGroup key={d.id} dest={d} animate={!reducedMotion}>
-                {planetEl}
+                <SafeLoad fallback={planetFallback(d)}>{planetEl}</SafeLoad>
                 {/* PHASE 4 (Wave 1) — real planetary phenomena: Saturn's hexagon,
                     Io's plasma torus (Jupiter), Neptune's mid-latitude aurora. */}
-                {d.id === "notes" && <SaturnHexagon radius={d.radius} axialTilt={d.axialTilt || 0} animate={!reducedMotion} />}
-                {d.id === "skills" && <IoTorus radius={d.radius} axialTilt={d.axialTilt || 0} animate={!reducedMotion} />}
-                {d.id === "hobbies" && <NeptuneAurora radius={d.radius} axialTilt={d.axialTilt || 0} animate={!reducedMotion} />}
+                {d.id === "hobbies" && <SaturnHexagon radius={d.radius} axialTilt={d.axialTilt || 0} animate={!reducedMotion} />}
+                {d.id === "education" && <IoTorus radius={d.radius} axialTilt={d.axialTilt || 0} animate={!reducedMotion} />}
+                {d.id === "whatsetsmeapart" && <NeptuneAurora radius={d.radius} axialTilt={d.axialTilt || 0} animate={!reducedMotion} />}
                 {/* Enceladus (Saturn) + Europa (Jupiter): south-pole water geysers from a
                     subsurface ocean — rides the parent's orbit at the moon's offset. */}
-                {d.id === "notes" && <MoonGeysers offset={[-4.3, 1.1, 1.7]} radius={0.12} color="#eef3f1" plumeColor="#bfe6ff" jets={6} dir={[0, -1, 0.3]} animate={!reducedMotion} />}
-                {d.id === "skills" && <MoonGeysers offset={[5.2, 1.0, 1.2]} radius={0.16} color="#dde6e3" plumeColor="#cfeaff" jets={4} dir={[0.4, -1, 0]} animate={!reducedMotion} />}
+                {d.id === "hobbies" && <MoonGeysers offset={[-4.3, 1.1, 1.7]} radius={0.12} color="#eef3f1" plumeColor="#bfe6ff" jets={6} dir={[0, -1, 0.3]} animate={!reducedMotion} />}
+                {d.id === "education" && <MoonGeysers offset={[5.2, 1.0, 1.2]} radius={0.16} color="#dde6e3" plumeColor="#cfeaff" jets={4} dir={[0.4, -1, 0]} animate={!reducedMotion} />}
                 {/* Wave 2 — Mimas (Saturn's Death-Star moon) + Triton's nitrogen geysers (Neptune). */}
-                {d.id === "notes" && <MimasMoon offset={[4.6, 1.0, -2.1]} radius={0.13} animate={!reducedMotion} />}
-                {d.id === "notes" && <TitanLakes offset={[4.4, 1.2, 0.9]} radius={0.18} animate={!reducedMotion} />}
-                {d.id === "hobbies" && <MoonGeysers offset={[2.0, 0.8, 0.6]} radius={0.12} color="#d8cabd" plumeColor="#e6c6d6" jets={4} dir={[0.2, -1, 0.2]} animate={!reducedMotion} />}
-                {/* Mangalyaan (Mars Orbiter Mission) rides Mars's group. */}
-                {d.id === "projects" && showExtras && !naturalOnly && (
-                  <IsroProbe
-                    orbitRadius={d.radius * 2.4} speed={0.26} tilt={0.5} phase={0.4} scale={d.radius * 0.15}
-                    event="stellar:mangalyaan" animate={!reducedMotion}
-                    onPointerOver={handleHoverIn} onPointerOut={handleHoverOut}
-                  />
-                )}
+                {d.id === "hobbies" && <MimasMoon offset={[4.6, 1.0, -2.1]} radius={0.13} animate={!reducedMotion} />}
+                {d.id === "hobbies" && <TitanLakes offset={[4.4, 1.2, 0.9]} radius={0.18} animate={!reducedMotion} />}
+                {d.id === "whatsetsmeapart" && <MoonGeysers offset={[2.0, 0.8, 0.6]} radius={0.12} color="#d8cabd" plumeColor="#e6c6d6" jets={4} dir={[0.2, -1, 0.2]} animate={!reducedMotion} />}
+                {/* Mangalyaan (Mars Orbiter Mission) removed — man-made, per user. */}
               </OrbitGroup>
             );
           }
-          if (d.kind === "beacon") {
-            return (
-              <Beacon
-                key={d.id}
-                position={d.position}
-                radius={d.radius}
-                color={d.color}
-                animate={!reducedMotion}
-                onClick={handleClick}
-                onPointerOver={handleHoverIn}
-                onPointerOut={handleHoverOut}
-              />
-            );
-          }
           if (d.kind === "cosmic") {
-            /* v3 deep-space epilogue stops — real cosmic objects placed along the
-               outward tour path, framed big-on-the-right by the v3 rig (radius). */
+            /* v3 finale — cinematic "black hole in a nebular envelope with
+               polar jets" for the closing Contact stop. Not scientifically
+               placed (nearest BH is 1,560 ly), but the emotionally correct
+               closer for the tour. At radius 80 the accretion disk + jets
+               reach far enough that at Pluto's frame (only ~120u from The
+               Edge's position) the black hole leaks into the upper sky.
+               Gate to activeIdx === 13 exact — ONLY visible at The Edge
+               itself, invisible at every other stop including Pluto. */
             const p = d.position;
-            if (d.render === "blackhole")
-              return <BlackHole key={d.id} position={p} radius={d.radius} animate={!reducedMotion} onPointerOver={handleHoverIn} onPointerOut={handleHoverOut} />;
-            if (d.render === "wormhole")
-              return <Wormhole key={d.id} position={p} radius={d.radius} />;
-            if (d.render === "pulsar")
-              return <Pulsar key={d.id} position={p} radius={d.radius} />;
-            if (d.render === "nebula")
-              return <group key={d.id} position={p} scale={d.radius / 3}><EtaCarinae animate={!reducedMotion} /></group>;
-            if (d.render === "milkyway")
-              return <group key={d.id} position={p} scale={d.radius / 60}><MilkyWay animate={!reducedMotion} /></group>;
+            if (d.render === "blackhole" && activeIdx === 13)
+              return <BlackHole key={d.id} position={p} radius={d.radius} nebula jets animate={!reducedMotion} onPointerOver={handleHoverIn} onPointerOut={handleHoverOut} />;
             return null;
           }
           return null;
         })}
 
-        {/* Lens flare OFF in v3 — the sun-driven ghost circles/artifacts clutter the
-            clean planet frames. */}
-        {!isMobile && !v3 && <LensFlare position={[0, 0, 0]} />}
+        {/* Lens flare removed — the sun-driven ghost circles/artifacts (a concentric
+            "portal" ring at the Sun's screen position) cluttered the overview + every
+            planet transition. The comment claimed it was off in v3 but it still
+            mounted; now it's actually gone. The Sun's own Bloom glows it cleanly. */}
         {/* Orrery rings — the real orbital structure. Shown in overview mode AND on
             the v3 system-overview hero (stop 0). */}
-        {showExtras && <OrbitRings wideRef={wideRef} show={v3 && activeIdx === 0} />}
+        {showExtras && <OrbitRings show={v3 && activeIdx === 1} />}
+        {/* Overview-only belt band rings — make the asteroid + Kuiper belts
+            read as belts from ~2200u out where the actual rock particles
+            are sub-pixel. Invisible at any tour stop. */}
+        {showExtras && v3 && activeIdx === 1 && <BeltRings />}
         {/* Dwarf planets + named belt bodies (Vesta, Eris, Makemake, Haumea). */}
         {showExtras && <DwarfPlanets animate={!reducedMotion} />}
+        {/* Halley's Comet on its real 76-year elliptical orbit — a live
+            moving body that visibly streaks through the overview + tour.
+            Never mounts under reduced motion or in the finale. */}
+        {showExtras && !reducedMotion && <Comet />}
         {/* The asteroid + Kuiper belts as BACKGROUND scenery (no longer tour
             stops — Ceres + Pluto host those sections). Faint debris rings. */}
         {/* EXTREME-density belts, mount SPREAD across the progressive tiers so no
@@ -500,107 +668,94 @@ const Scene = ({ scrollT, activeIdx, itemIdx = 0, onJump, onReady, freeRoamEnabl
             rock renders as a bright anti-aliased pixel and 12k of them read as
             a white halo around the Sun. Suppressed alongside the additive dust
             in v3. */}
-        {showExtras && !noDust && !noPointDust && (
-          <AsteroidBelt count={isMobile ? 5000 : 12000} innerRadius={BACKGROUND_BELTS.asteroid.inner} outerRadius={BACKGROUND_BELTS.asteroid.outer} size={0.18} thickness={BACKGROUND_BELTS.asteroid.thickness} gaps={KIRKWOOD_GAPS} animate={!reducedMotion} />
+        {/* §9.5 sparse belts — the real main asteroid belt would be at most a
+            few rocks per cubic AU. The AesReality read is a nearly-empty
+            plane, not a shrapnel field. Cut the visible-rock density hard;
+            keep the dust haze thinner but present so the belt still reads
+            as SOMETHING when the tour scrubs past it. */}
+        {showExtras && (
+          /* Main belt — seven families (E/S/M/C/D + ice + heavy-metal), radial
+             weight profile shifting toward C-type outward, heavy metal
+             concentration in the middle 2.4-2.8 AU zone, ice tail across the
+             outer half. Kirkwood gaps at all four major Jupiter resonances
+             (3:1, 5:2, 7:3, 2:1) carve density notches. Count bumped hard so
+             the belt reads DENSE at every zoom. */
+          <AsteroidBelt count={isMobile ? 3200 : 7500} innerRadius={BACKGROUND_BELTS.asteroid.inner} outerRadius={BACKGROUND_BELTS.asteroid.outer} size={0.18} thickness={BACKGROUND_BELTS.asteroid.thickness} gaps={KIRKWOOD_GAPS} animate={!reducedMotion} />
         )}
-        {showExtras && !isMobile && !noDust && !noPointDust && (
-          <AsteroidBelt count={6500} innerRadius={BACKGROUND_BELTS.kuiper.inner} outerRadius={BACKGROUND_BELTS.kuiper.outer} size={0.55} thickness={BACKGROUND_BELTS.kuiper.thickness} families={ICY_FAMILIES} weights={ICY_WEIGHTS} cliff animate={!reducedMotion} />
+        {showExtras && !isMobile && (
+          /* Kuiper belt — six families (BB / RR / intermediate / water-ice /
+             methane-ice / metal fragments). Bimodal RR/BB colour split
+             preserved with cold-classical zone heavy on the rusty-red
+             tholins, bright methane-ice tail on the outer edge (Eris /
+             Makemake style), metallic fragments dust the whole belt.
+             Resonance clumps overpopulate the 3:2 Plutinos at ~39.4 AU and
+             2:1 Twotinos at ~47.7 AU; the Kuiper Cliff drops density sharply
+             near 48 AU. Count bumped for density. */
+          <AsteroidBelt count={5000} innerRadius={BACKGROUND_BELTS.kuiper.inner} outerRadius={BACKGROUND_BELTS.kuiper.outer} size={0.55} thickness={BACKGROUND_BELTS.kuiper.thickness} families={KUIPER_FAMILIES} weights={kuiperWeightsFor} clumps={KUIPER_CLUMPS} cliff animate={!reducedMotion} />
         )}
-        {/* Dust haze — tier 2 (the heaviest point build, deferred one tier).
-            v3 suppresses the additive point clouds at ALL stops (noPointDust). */}
-        {showMid && !noDust && !noPointDust && (
-          <BeltDust count={isMobile ? 34000 : 80000} innerRadius={BACKGROUND_BELTS.asteroid.inner} outerRadius={BACKGROUND_BELTS.asteroid.outer} thickness={BACKGROUND_BELTS.asteroid.thickness} color={BACKGROUND_BELTS.asteroid.color} size={2.6} opacity={0.3} gaps={KIRKWOOD_GAPS} animate={!reducedMotion} />
+        {/* Dust haze — tier 4 (mounts last + alone). Still substantial so the
+            band reads as haze rather than empty space. */}
+        {showDust && (
+          <BeltDust count={isMobile ? 6000 : 14000} innerRadius={BACKGROUND_BELTS.asteroid.inner} outerRadius={BACKGROUND_BELTS.asteroid.outer} thickness={BACKGROUND_BELTS.asteroid.thickness} color={BACKGROUND_BELTS.asteroid.color} size={2.6} opacity={0.14} gaps={KIRKWOOD_GAPS} animate={!reducedMotion} />
         )}
-        {showMid && !isMobile && !noDust && !noPointDust && (
-          <BeltDust count={55000} innerRadius={BACKGROUND_BELTS.kuiper.inner} outerRadius={BACKGROUND_BELTS.kuiper.outer} thickness={BACKGROUND_BELTS.kuiper.thickness} color={BACKGROUND_BELTS.kuiper.color} size={2.3} opacity={0.26} cliff animate={!reducedMotion} />
+        {showDust && !isMobile && (
+          <BeltDust count={9000} innerRadius={BACKGROUND_BELTS.kuiper.inner} outerRadius={BACKGROUND_BELTS.kuiper.outer} thickness={BACKGROUND_BELTS.kuiper.thickness} color={BACKGROUND_BELTS.kuiper.color} size={2.3} opacity={0.13} cliff animate={!reducedMotion} />
         )}
         {/* Tenuous gas/dust clouds — tier 3 (big, faint, soft; distance-faded by
             the same shader so they never bloom into a bar). Desktop only. */}
-        {showEggs && !isMobile && !noPointDust && (
-          <BeltDust count={3200} innerRadius={BACKGROUND_BELTS.asteroid.inner} outerRadius={BACKGROUND_BELTS.asteroid.outer} thickness={BACKGROUND_BELTS.asteroid.thickness * 1.4} color="#8a7a64" size={16} opacity={0.09} drift={0.008} gaps={KIRKWOOD_GAPS} animate={!reducedMotion} />
+        {showEggs && !isMobile && (
+          <BeltDust count={3200} innerRadius={BACKGROUND_BELTS.asteroid.inner} outerRadius={BACKGROUND_BELTS.asteroid.outer} thickness={BACKGROUND_BELTS.asteroid.thickness * 1.4} color="#8a7a64" size={16} opacity={0.04} drift={0.008} gaps={KIRKWOOD_GAPS} animate={!reducedMotion} />
         )}
-        {showEggs && !isMobile && !noPointDust && (
-          <BeltDust count={2600} innerRadius={BACKGROUND_BELTS.kuiper.inner} outerRadius={BACKGROUND_BELTS.kuiper.outer} thickness={BACKGROUND_BELTS.kuiper.thickness * 1.3} color="#6a7e9e" size={20} opacity={0.08} drift={0.006} cliff animate={!reducedMotion} />
+        {showEggs && !isMobile && (
+          <BeltDust count={2600} innerRadius={BACKGROUND_BELTS.kuiper.inner} outerRadius={BACKGROUND_BELTS.kuiper.outer} thickness={BACKGROUND_BELTS.kuiper.thickness * 1.3} color="#6a7e9e" size={20} opacity={0.04} drift={0.006} cliff animate={!reducedMotion} />
         )}
         {/* Jupiter's Trojan asteroids — two swarms 60° ahead/behind Jupiter at
             the L4/L5 Lagrange points (true orbital radius). */}
-        {showExtras && !noDust && <TrojanAsteroids count={isMobile ? 70 : 160} />}
+        {showExtras && <TrojanAsteroids count={isMobile ? 70 : 160} />}
         {/* The Oort cloud wrapping the whole system + the heliosphere boundary
             bubble out at the edge (where Voyager crossed). Oort points are
             additive sprites and the wide-overview camera sits INSIDE the shell,
             so they read as a bright hazy halo — suppressed in v3. */}
-        {showExtras && !noPointDust && <OortCloud count={isMobile ? 700 : 1400} />}
+        {showExtras && <OortCloud count={isMobile ? 700 : 1400} />}
         {showExtras && !isMobile && <Heliosphere />}
         {/* Real solar eclipses — Earth's actual Moon + any planet you fly
             behind occlude the Sun (corona + chromosphere + diamond-ring). */}
         {showExtras && <SolarEclipse satelliteRef={moonWorldRef} eclipseRef={eclipseRef} reducedMotion={reducedMotion} />}
         {/* Fade the scene lights toward dark at totality (planet → silhouette). */}
         {showExtras && <EclipseLights eclipseRef={eclipseRef} />}
-        {!isMobile && !reducedMotion && !noDust && !noPointDust && <DustParticles />}
+        </group>
+        </Suspense>
+        {!isMobile && !reducedMotion && <DustParticles />}
         {/* PHASE 3D — proximity sonification (silent until un-muted). */}
         {!reducedMotion && <Sonification />}
         {/* Non-essential extras defer-mount until the intro completes —
             keeps the warp/countdown window + LCP light, and trims the
             initial scene-graph build. */}
-        {showExtras && !naturalOnly && <Voyager />}
-        {/* Humanity's robot fleet at their real locations (JWST@L2, Parker,
-            Juno, Lucy, New Horizons). Removed in v3 (natural only). */}
-        {showExtras && !naturalOnly && <RobotFleet />}
-        {showEggs && !isMobile && <CommitComets />}
-        {/* Easter-egg models (tier 3) — the heaviest, least-essential mounts, so
-            they come LAST in the progressive mount (kept out of the intro). */}
-        {showEggs && <DeathStar />}
-        {showEggs && <Tardis />}
-        {showEggs && <HalEye />}
-        {showEggs && <WallE />}
-        {showEggs && <CooperStation />}
-        {showEggs && <WatneyPotato />}
-        {/* Phase 6 homages — Endurance (Interstellar), a deep-field Star
-            Destroyer (Star Wars), the Enterprise (Star Trek). */}
-        {showEggs && <Endurance />}
-        {showEggs && !isMobile && <StarDestroyer />}
-        {showEggs && <Enterprise />}
-        {/* Wave 3 — diegetic megastructure cameos (deep field). */}
-        {showEggs && <Monolith animate={!reducedMotion} />}
-        {showEggs && <HaloRing animate={!reducedMotion} />}
-        {showEggs && <DysonSwarm animate={!reducedMotion} />}
-        {showEggs && <SolGate animate={!reducedMotion} />}
-        {showEggs && !isMobile && <Citadel animate={!reducedMotion} />}
-        {/* Wave 3 remainder — beside-planet cameos + deep-field structures. */}
-        {showEggs && <Sandworm />}
-        {showEggs && <MarsRovers />}
-        {showEggs && <Rocinante />}
-        {showEggs && <Normandy />}
-        {showEggs && <DiscoveryOne />}
-        {showEggs && <Nostromo />}
-        {showEggs && <GoldenRecord />}
-        {showEggs && !isMobile && <GenerationShip animate={!reducedMotion} />}
-        {showEggs && !isMobile && <Heighliner animate={!reducedMotion} />}
+        {/* Man-made craft/probes (Voyager, robot fleet, Mars rovers, Golden
+            Record, commit-comets) removed — this is an accurate NATURAL solar
+            system only (per user). Résumé content lives in the side panels. */}
         {!isMobile && !reducedMotion && <MouseParallax offsetRef={parallaxOffsetRef} />}
-        <FreeRoam enabled={freeRoamEnabled} offsetRef={freeRoamOffsetRef} speedRef={speedRef} thrustRef={thrustRef} />
-        <CameraShake parallaxOffsetRef={parallaxOffsetRef} />
         <CameraRig
           scrollT={scrollT}
           parallaxOffsetRef={parallaxOffsetRef}
-          freeRoamOffsetRef={freeRoamOffsetRef}
-          freeRoamEnabled={freeRoamEnabled}
-          wideRef={wideRef}
-          wideOrbitRef={wideOrbitRef}
           focusRef={focusRef}
           warpVelRef={warpVelRef}
           cameraRef={cameraRef}
-          launchPhase={launchPhase}
-          onLaunchComplete={onLaunchComplete}
           /* Reduced-motion + mobile → SNAP (no first-person fly-through; info
              stays visible). The rig reads these to gate the flight + flyingRef. */
           reducedMotion={reducedMotion}
           isMobile={isMobile}
           v3={v3}
+          finale={finale}
+          finaleT={finaleT}
           /* v3 desktop = cinematic split: each planet framed LARGE on the RIGHT so
              the left info column has room. (v2 kept it centred; compact/mobile stack.) */
           frameShift={v3 && !isMobile ? 0.42 : 0}
         />
       </Suspense>
+
+      {/* Drives the finale's through-black dip from the scroll scrub. */}
+      <FinaleGradeDip gradeRef={gradeRef} finaleT={finaleT} />
 
       {/* Cinematic post-processing — the biggest visual upgrade.
           Bloom makes the sun + nebulae glow properly, ACES tone-maps
@@ -627,23 +782,29 @@ const Scene = ({ scrollT, activeIdx, itemIdx = 0, onJump, onReady, freeRoamEnabl
       <EffectComposer multisampling={0} disableNormalPass>
         <Bloom
           ref={bloomRef}
-          intensity={isMobile ? 0.6 : 0.8}
-          luminanceThreshold={0.9}
-          luminanceSmoothing={0.5}
+          intensity={isMobile ? 0.8 : 1.05}
+          luminanceThreshold={0.75}
+          luminanceSmoothing={0.45}
           mipmapBlur
-          radius={0.45}
+          /* §7 Phase 6: mipmapBlur is the single most expensive post-pass, and
+             its cost scales with the render target size. Trim the radius on
+             mobile (thermally + fillrate bound) — the smaller radius is barely
+             noticeable at handheld sizes but drops the blur-chain cost meaningfully. */
+          radius={isMobile ? 0.45 : 0.6}
         />
-        {/* Grade: bright base, saturation pulled slightly NEGATIVE so colours
-            stay natural/realistic (real space sits ~0.3 sat, not cartoonish).
-            Mild contrast, soft vignette. NO saturation/vibrance push — original
-            realistic colours. */}
+        {/* Grade: near-neutral — accurate colours (per user). Saturation ≈ 0 so
+            planets/stars keep their true tints, contrast pulled right down so the
+            frame no longer crushes to black, vignette lightened, brightness lifted
+            a touch. The grade now mostly just tone-maps; the real colours show. */}
         <CinematicGrade
-          brightness={0.025}
-          contrast={0.04}
-          saturation={-0.02}
-          vigOffset={0.36}
-          vigDarkness={0.38}
-          vigBreathe={reducedMotion ? 0 : 0.05}
+          ref={gradeRef}
+          brightness={0.03}
+          contrast={0.08}
+          saturation={0.0}
+          vigOffset={0.4}
+          vigDarkness={0.28}
+          vigBreathe={reducedMotion ? 0 : 0.03}
+          grain={reducedMotion ? 0 : 0.02}
         />
       </EffectComposer>
       </SceneClock>

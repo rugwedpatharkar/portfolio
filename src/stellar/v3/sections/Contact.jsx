@@ -1,4 +1,3 @@
-"use client";
 /*
  * Contact (Blackhole finale) — HUD send channel.
  *
@@ -17,12 +16,12 @@ import { contactLinks } from "../../../content";
 import { V3Frame, V3Scan } from "../primitives";
 import V3ContactForm from "../V3ContactForm";
 
-export default function ContactSection({ index, bootNonce }) {
+export default function ContactSection({ bootNonce }) {
   return (
     <V3Frame
       section="Contact"
       planet="THE EDGE"
-      index={index}
+
       scanDir="horizontal"
       scanKey={bootNonce}
       /* Wider than the other narrow sections because Contact has two

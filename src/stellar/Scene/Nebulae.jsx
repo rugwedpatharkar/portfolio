@@ -3,6 +3,7 @@ import { useMemo, useRef } from "react";
 import { useFrame, useLoader } from "@react-three/fiber";
 import * as THREE from "three";
 import { useSceneClock } from "./SceneClock";
+import { ktx2Url } from "./shared/textureUrl";
 
 /*
  * Real Hubble nebulae as billboarded sprite planes.
@@ -95,24 +96,38 @@ void main() {
 const NEBULAE = [
   // Carina (NGC 3372) — largest emission nebula (~460 ly): warm red/orange dust
   // lanes, blue glow around the hot O-stars. The big one, upper-right of the Sun.
-  { url: "/textures/nebulae/carina.jpg", position: [-5444, 1197, 2722], scale: 2400, opacity: 0.58, haloTint: [0.6, 0.6, 1.0], coreTint: [1.0, 0.66, 0.5] },
+  { url: "/textures/nebulae/carina.webp", position: [-5444, 1197, 2722], scale: 2400, opacity: 0.58, haloTint: [0.6, 0.6, 1.0], coreTint: [1.0, 0.66, 0.5] },
   // Eagle (M16, Pillars of Creation, ~70 ly): gold/teal pillars on a reddish field.
-  { url: "/textures/nebulae/eagle.jpg", position: [-5187, 1349, -2697], scale: 1600, opacity: 0.54, haloTint: [0.5, 0.86, 0.7], coreTint: [1.0, 0.85, 0.6] },
+  { url: "/textures/nebulae/eagle.webp", position: [-5187, 1349, -2697], scale: 1600, opacity: 0.54, haloTint: [0.5, 0.86, 0.7], coreTint: [1.0, 0.85, 0.6] },
   // Orion (M42, ~24 ly): magenta-pink Hα core + teal O-III + blue reflection wisps.
-  { url: "/textures/nebulae/orion.jpg", position: [-5287, -1057, 2854], scale: 1500, opacity: 0.54, haloTint: [0.55, 0.78, 1.0], coreTint: [1.0, 0.66, 0.84] },
+  { url: "/textures/nebulae/orion.webp", position: [-5287, -1057, 2854], scale: 1500, opacity: 0.54, haloTint: [0.55, 0.78, 1.0], coreTint: [1.0, 0.66, 0.84] },
   // Crab (M1, supernova remnant, ~11 ly): orange-red filaments + blue-white synchrotron core.
-  { url: "/textures/nebulae/crab.jpg", position: [-5200, -1247, -2495], scale: 1050, opacity: 0.5, haloTint: [0.55, 0.72, 1.0], coreTint: [1.0, 0.7, 0.55] },
+  { url: "/textures/nebulae/crab.webp", position: [-5200, -1247, -2495], scale: 1050, opacity: 0.5, haloTint: [0.55, 0.72, 1.0], coreTint: [1.0, 0.7, 0.55] },
   // Helix (NGC 7293, "Eye of God" planetary, ~2.5 ly, closest): teal eye, red-orange rim.
-  { url: "/textures/nebulae/helix.jpg", position: [-5268, 1791, 632], scale: 820, opacity: 0.48, haloTint: [1.0, 0.6, 0.5], coreTint: [0.6, 1.0, 0.92] },
+  { url: "/textures/nebulae/helix.webp", position: [-5268, 1791, 632], scale: 820, opacity: 0.48, haloTint: [1.0, 0.6, 0.5], coreTint: [0.6, 1.0, 0.92] },
   // HERO BACKDROP — the others sit off on the −X tour axis, leaving the front-on
   // Sol view's −Z void empty. These two fill the deep field BEHIND the Sun that
   // the hero camera looks into, giving the dark centre cosmic colour + depth.
-  { url: "/textures/nebulae/carina.jpg", position: [900, 1200, -5100], scale: 2900, opacity: 0.5, haloTint: [0.55, 0.6, 1.0], coreTint: [1.0, 0.68, 0.55] },
-  { url: "/textures/nebulae/orion.jpg", position: [-1900, -250, -4800], scale: 2200, opacity: 0.46, haloTint: [0.6, 0.8, 1.0], coreTint: [1.0, 0.62, 0.86] },
+  { url: "/textures/nebulae/carina.webp", position: [900, 1200, -5100], scale: 2900, opacity: 0.5, haloTint: [0.55, 0.6, 1.0], coreTint: [1.0, 0.68, 0.55] },
+  { url: "/textures/nebulae/orion.webp", position: [-1900, -250, -4800], scale: 2200, opacity: 0.46, haloTint: [0.6, 0.8, 1.0], coreTint: [1.0, 0.62, 0.86] },
+  // Additional real-sky nebulae — positions from IAU RA/Dec, transformed onto
+  // a 5300u sky shell so they ride the same fixed backdrop as the star field
+  // and Milky Way band. Textures reused across visually-similar objects.
+  // Pleiades (M45) — blue reflection nebula around hot young B-stars.
+  { url: "/textures/nebulae/helix.webp",  position: [-3620, 2200,  3350], scale: 1500, opacity: 0.36, haloTint: [0.7, 0.85, 1.0], coreTint: [0.8, 0.92, 1.0] },
+  // Lagoon (M8) + Trifid (M20) region — dense H-alpha nebulosity in Sagittarius.
+  { url: "/textures/nebulae/orion.webp",  position: [ 2800, -2100, -4100], scale: 1800, opacity: 0.42, haloTint: [0.55, 0.7, 1.0], coreTint: [1.0, 0.55, 0.75] },
+  // Rosette (NGC 2237) — red hydrogen ring in Monoceros.
+  { url: "/textures/nebulae/orion.webp",  position: [-2400,  700,  4600], scale: 1500, opacity: 0.34, haloTint: [0.6, 0.7, 1.0], coreTint: [1.0, 0.4, 0.6] },
+  // Veil / Cygnus Loop — supernova remnant filaments in Cygnus.
+  { url: "/textures/nebulae/crab.webp",   position: [ 3900,  2400, -2700], scale: 1600, opacity: 0.38, haloTint: [0.5, 0.75, 1.0], coreTint: [0.85, 0.9, 1.0] },
+  // Tarantula (30 Doradus) — brightest star-forming region in the Local Group,
+  // in the LMC. Sits down-south past Crux.
+  { url: "/textures/nebulae/carina.webp", position: [ 2400, -3800, -2600], scale: 1400, opacity: 0.38, haloTint: [0.55, 0.65, 1.0], coreTint: [1.0, 0.6, 0.5] },
 ];
 
 const NebulaPlane = ({ url, position, scale, opacity, haloTint, coreTint }) => {
-  const tex = useLoader(THREE.TextureLoader, url);
+  const tex = useLoader(THREE.TextureLoader, ktx2Url(url));
   const sceneClock = useSceneClock();
   const billboardRef = useRef();
   const haloMatRef = useRef();
@@ -128,7 +143,7 @@ const NebulaPlane = ({ url, position, scale, opacity, haloTint, coreTint }) => {
       uEdgeInner: { value: 0.3 },
       uTint: { value: new THREE.Color(...coreTint) },
       uTintAmt: { value: 0.18 },
-      uSat: { value: 0.72 },
+      uSat: { value: 0.74 },
     };
   }, [tex, opacity, coreTint]);
 
@@ -144,7 +159,7 @@ const NebulaPlane = ({ url, position, scale, opacity, haloTint, coreTint }) => {
       uEdgeInner: { value: 0.16 },
       uTint: { value: new THREE.Color(...haloTint) },
       uTintAmt: { value: 0.6 },
-      uSat: { value: 0.5 },
+      uSat: { value: 0.54 },
     };
   }, [tex, opacity, haloTint]);
 

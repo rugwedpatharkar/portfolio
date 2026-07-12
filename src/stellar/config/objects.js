@@ -1,5 +1,4 @@
 import { DESTINATIONS, DESTINATION_BY_ID, remapPosition, frontOfSun } from "./destinations";
-import { PLANET_FACTS } from "../data/planetFacts";
 import { DWARF_PLANETS } from "./dwarfPlanets";
 import { MOONS } from "./moons";
 import { projects } from "../../content";
@@ -34,14 +33,18 @@ const DESTINATION_OBJECTS = DESTINATIONS.map((d, index) => ({
   category: CATEGORY_BY_KIND[d.kind] || "Planet",
   color: d.color,
   position: d.position,
-  info: PLANET_FACTS[d.id]?.wow || PLANET_FACTS[d.id]?.body || "",
+  info: d.factCard?.wow || d.factCard?.body || "",
   visit: { kind: "stop", index },
 }));
 
 /* Anomalies / ships / easter-eggs — clicking one flies the free camera there. */
 const ANOMALY_RAW = [
   {
-    id: "blackhole", label: "Gargantua", category: "Black hole", color: "#ffb066", position: [49, -6, -15],
+    /* id "blackhole" → "gargantua" to end an id collision with the v3 cosmic
+       stop of the same id in cosmicStops.js. The v3 stop owns the URL hash +
+       DEST_BY_ID lookup; this OBJECTS entry (via bodies.js) is the scanner /
+       anomaly-registry target — semantically distinct. Label was already "Gargantua". */
+    id: "gargantua", label: "Gargantua", category: "Black hole", color: "#ffb066", position: [49, -6, -15],
     info: "A stellar-mass black hole in the deep field behind the Sun. Light bends around the event horizon — the accretion disk wraps up and over in a glowing Einstein ring.",
     visit: { kind: "focus", cameraTarget: frame([49, -6, -15], 250, 60, 46) },
   },
@@ -174,11 +177,6 @@ const ANOMALY_RAW = [
     id: "borisov", label: "2I/Borisov", category: "Interstellar comet", color: "#d8b890", position: [-14, -2, 7],
     info: "2I/Borisov — the 2nd interstellar object (2019), a ~1 km comet far richer in carbon monoxide than any local comet, discovered by amateur astronomer Gennady Borisov. The middle of the interstellar trio: 1I/'Oumuamua · 2I/Borisov · 3I/ATLAS.",
     visit: { kind: "focus", cameraTarget: frame([-14, -2, 7], 5, 1.2, 44) },
-  },
-  {
-    id: "c2026a1", label: "Comet C/2026 A1", category: "Comet", color: "#cfe8ff", position: [7, -1, -3],
-    info: "C/2026 A1 — a sungrazing comet diving steeply toward the Sun. Sungrazers flare enormously as solar heat blasts gas and dust off them into a long bright tail; many don't survive perihelion, breaking apart in the Sun's glare. A potential naked-eye showpiece of 2026.",
-    visit: { kind: "focus", cameraTarget: frame([7, -1, -3], 6, 1.4, 44) },
   },
   // ── Space mysteries (deep field; positions match Scene/DeepFieldMysteries) ──
   {
@@ -400,17 +398,6 @@ const PROJECT_OBJECTS = PROJECT_LIST.map((p, i) => {
   };
 });
 
-/* Project "facts" for the scan card (year/team/status + headline stats). */
-export const PROJECT_FACTS = Object.fromEntries(
-  PROJECT_LIST.map((p, i) => {
-    const f = {};
-    if (p.year) f.Year = p.year;
-    if (p.team) f.Team = p.team;
-    if (p.status) f.Status = p.status;
-    (p.stats || []).forEach((s) => { if (s.label && s.value) f[s.label] = s.value; });
-    return [`project-${i}`, f];
-  })
-);
 /* Render positions for the probe markers (kept in sync with the registry). */
 export const PROJECT_POSITIONS = PROJECT_OBJECTS.map((o) => ({ id: o.id, position: o.position, color: o.color }));
 

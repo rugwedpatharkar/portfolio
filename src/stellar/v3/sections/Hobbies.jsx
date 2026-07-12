@@ -1,4 +1,3 @@
-"use client";
 /*
  * Hobbies (Uranus) — cursor-tracked tilt bento per the taste-stack table.
  *
@@ -28,7 +27,8 @@
 import { useMemo } from "react";
 import { motion, useMotionValue, useSpring, useTransform, useReducedMotion } from "motion/react";
 import { hobbies, sectionMeta } from "../../../content";
-import { V3Frame, V3Scan } from "../primitives";
+import { V3Frame, V3Scan, V3SectionHeader, V3Chip } from "../primitives";
+import { EASE } from "../anim";
 
 const META = sectionMeta.hobbies || { sub: "Beyond the Code", heading: "Hobbies & Interests" };
 
@@ -106,7 +106,7 @@ const TiltCell = ({ h, i, reduce }) => {
       initial={reduce ? false : { opacity: 0, y: 12 }}
       whileInView={{ opacity: 1, y: 0 }}
       viewport={{ once: true, amount: 0.2 }}
-      transition={{ duration: 0.45, ease: [0.22, 1, 0.36, 1], delay: revealDelay }}
+      transition={{ duration: 0.45, ease: EASE, delay: revealDelay }}
       className="v3-hobby-cell"
       style={{
         position: "relative",
@@ -200,14 +200,7 @@ const TiltCell = ({ h, i, reduce }) => {
         {(h.tags || []).length > 0 && (
           <div style={{ display: "flex", flexWrap: "wrap", gap: 3 }}>
             {(h.tags || []).map((t, k) => (
-              <span key={k} style={{
-                fontFamily: "var(--v3-font-mono)", fontWeight: 400,
-                fontSize: "clamp(7.5px, 0.22vw + 5.5px, 9px)",
-                letterSpacing: ".08em", textTransform: "uppercase", color: "var(--v3-fg-dim)",
-                border: "1px solid var(--v3-line-strong)", borderRadius: 999,
-                padding: "1px clamp(5px, 0.5vw, 8px)",
-                whiteSpace: "nowrap",
-              }}>{t}</span>
+              <V3Chip key={k} size="clamp(7.5px, 0.22vw + 5.5px, 9px)" pad="1px clamp(5px, 0.5vw, 8px)">{t}</V3Chip>
             ))}
           </div>
         )}
@@ -216,7 +209,7 @@ const TiltCell = ({ h, i, reduce }) => {
   );
 };
 
-export default function HobbiesSection({ index, bootNonce }) {
+export default function HobbiesSection({ bootNonce }) {
   const list = useMemo(() => hobbies || [], []);
   const reduce = useReducedMotion();
 
@@ -224,7 +217,7 @@ export default function HobbiesSection({ index, bootNonce }) {
     <V3Frame
       section="Hobbies"
       planet="URANUS"
-      index={index}
+
       scanDir="radial"
       scanKey={bootNonce}
       gridAreas={`"top top top" "left left ." "left left ." "left left ."`}
@@ -237,25 +230,7 @@ export default function HobbiesSection({ index, bootNonce }) {
         height: "100%",
       }}>
         {/* Header */}
-        <V3Scan variant="horizontal" delay={0.05}>
-          <div>
-            <div style={{ display: "flex", alignItems: "center", gap: 12, marginBottom: 8 }}>
-              <span style={{ width: 22, height: 1, background: "var(--v3-accent)" }} />
-              <span style={{
-                fontFamily: "var(--v3-font-mono)", fontWeight: 400, fontSize: 10,
-                letterSpacing: ".28em", textTransform: "uppercase", color: "var(--v3-fg-mute)",
-              }}>{META.sub}</span>
-            </div>
-            <h2 style={{
-              fontFamily: "var(--v3-font-display)", fontWeight: 340,
-              fontSize: "clamp(1.5rem, 1.1vw + 0.9rem, 2.3rem)", fontOpticalSizing: "auto",
-              lineHeight: 1, letterSpacing: "-.02em", color: "var(--v3-fg)",
-              margin: 0,
-            }}>
-              {META.heading}
-            </h2>
-          </div>
-        </V3Scan>
+        <V3SectionHeader sub={META.sub} heading={META.heading} />
 
         {/* Bento grid — 4 × 2 uniform cells, perspective on the container
             so each child's rotateX/rotateY reads as 3D not skew. */}

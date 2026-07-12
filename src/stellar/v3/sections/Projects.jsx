@@ -1,4 +1,3 @@
-"use client";
 /*
  * Projects (Earth) — cinematic carousel per the taste-stack table.
  *
@@ -19,7 +18,8 @@
 import { useMemo, useState, useEffect, useCallback } from "react";
 import { motion, AnimatePresence, useReducedMotion } from "motion/react";
 import { projects, sectionMeta } from "../../../content";
-import { V3Frame, V3Scan } from "../primitives";
+import { V3Frame, V3Scan, V3Chip, V3SectionHeader, useMasterListKeys } from "../primitives";
+import { EASE, shutterVariants } from "../anim";
 
 const META = sectionMeta.projects;
 
@@ -27,20 +27,17 @@ const META = sectionMeta.projects;
    rapid nav feels like flipping through a physical dossier. */
 const PANEL_VARIANTS = {
   enter: (dir) => ({ opacity: 0, x: dir > 0 ? 60 : -60 }),
-  center: { opacity: 1, x: 0, transition: { duration: 0.4, ease: [0.22, 1, 0.36, 1] } },
-  exit:  (dir) => ({ opacity: 0, x: dir > 0 ? -60 : 60, transition: { duration: 0.25, ease: [0.22, 1, 0.36, 1] } }),
+  center: { opacity: 1, x: 0, transition: { duration: 0.4, ease: EASE } },
+  exit:  (dir) => ({ opacity: 0, x: dir > 0 ? -60 : 60, transition: { duration: 0.25, ease: EASE } }),
 };
 /* Shutter reveal on the project name — clip-path mask sweeps L→R.
    Vertical inset is negative so the reveal region extends beyond the box
    at top and bottom — descenders (`g`, `j`, `p`, `y`) and cap ascenders
    never get shaved by the clip. The horizontal inset does all the
    masking work. */
-const SHUTTER_VARIANTS = {
-  hidden: { clipPath: "inset(-0.2em 100% -0.3em 0)" },
-  show:   { clipPath: "inset(-0.2em 0 -0.3em 0)", transition: { duration: 0.5, ease: [0.22, 1, 0.36, 1], delay: 0.1 } },
-};
+const SHUTTER_VARIANTS = shutterVariants();
 
-export default function ProjectsSection({ index, bootNonce }) {
+export default function ProjectsSection({ bootNonce }) {
   const [tab, setTab] = useState("professional");
   const [active, setActive] = useState(0);
   const [dir, setDir] = useState(1);
@@ -67,12 +64,15 @@ export default function ProjectsSection({ index, bootNonce }) {
 
   const next = useCallback(() => goto((active + 1) % list.length), [active, list.length, goto]);
   const prev = useCallback(() => goto((active - 1 + list.length) % list.length), [active, list.length, goto]);
+  /* Projects is a carousel — one container gets tabIndex + arrow keys and swaps
+     the active project; there's no per-item button list, so no `itemProps`. */
+  const { onKeyDown: onKeys } = useMasterListKeys(active, goto, list.length, { axis: "x" });
 
   return (
     <V3Frame
       section="Projects"
       planet="EARTH"
-      index={index}
+
       scanDir="plot"
       scanKey={bootNonce}
       gridAreas={`"top top top" "left left ." "left left ." "left left ."`}
@@ -84,26 +84,14 @@ export default function ProjectsSection({ index, bootNonce }) {
         minWidth: 0, minHeight: 0, overflow: "hidden",
         maxWidth: "min(60vw, 1200px)", height: "100%",
       }}>
-        {/* Header row — kicker + h2 on the left, filter pills + page indicator + carousel arrows on the right. */}
-        <V3Scan variant="horizontal" delay={0.05}>
-          <div style={{ display: "flex", alignItems: "flex-end", justifyContent: "space-between", gap: "clamp(12px, 1.4vw, 24px)", flexWrap: "wrap", minWidth: 0 }}>
-            <div style={{ minWidth: 0 }}>
-              <div style={{ display: "flex", alignItems: "center", gap: 12, marginBottom: 8 }}>
-                <span style={{ width: 22, height: 1, background: "var(--v3-accent)" }} />
-                <span style={{
-                  fontFamily: "var(--v3-font-mono)", fontWeight: 400, fontSize: "clamp(9px, 0.3vw + 7px, 11px)",
-                  letterSpacing: ".28em", textTransform: "uppercase", color: "var(--v3-fg-mute)",
-                }}>{META.sub}</span>
-              </div>
-              <h2 style={{
-                fontFamily: "var(--v3-font-display)", fontWeight: 340,
-                fontSize: "clamp(1.5rem, 1.1vw + 0.9rem, 2.3rem)", fontOpticalSizing: "auto",
-                lineHeight: 1, letterSpacing: "-.02em", color: "var(--v3-fg)",
-                margin: 0,
-              }}>
-                {META.heading}
-              </h2>
-            </div>
+        {/* Header row — V3SectionHeader owns the kicker + h2 on the left; we pass
+            the filter pills + page indicator + carousel arrows as the `right` slot. */}
+        <V3SectionHeader
+          sub={META.sub}
+          heading={META.heading}
+          kickerSize="clamp(9px, 0.3vw + 7px, 11px)"
+          wrapMinWidth
+          right={
             <div style={{ display: "flex", alignItems: "center", gap: "clamp(8px, 1vw, 14px)", flexWrap: "wrap" }}>
               {/* Filter pills */}
               <div role="tablist" style={{
@@ -149,8 +137,8 @@ export default function ProjectsSection({ index, bootNonce }) {
                 })}
               </div>
             </div>
-          </div>
-        </V3Scan>
+          }
+        />
 
         {/* Carousel body — full-panel horizontal swipe. Frame wraps a
             single active panel that AnimatePresence swaps in/out. */}
@@ -160,10 +148,7 @@ export default function ProjectsSection({ index, bootNonce }) {
             aria-roledescription="carousel"
             aria-label={`${META.heading} ${active + 1} of ${list.length}`}
             tabIndex={0}
-            onKeyDown={(e) => {
-              if (e.key === "ArrowRight" || e.key === "l") { next(); e.preventDefault(); }
-              if (e.key === "ArrowLeft"  || e.key === "h") { prev(); e.preventDefault(); }
-            }}
+            onKeyDown={onKeys}
             style={{
               position: "relative",
               width: "100%", height: "100%",
@@ -234,7 +219,10 @@ export default function ProjectsSection({ index, bootNonce }) {
                   display: "flex", flexDirection: "column",
                   gap: "clamp(14px, 1.4vw, 22px)",
                   minWidth: 0, minHeight: 0, flex: 1,
-                  paddingRight: "clamp(80px, 8vw, 130px)",
+                  /* Long projects were silently clipped — scroll instead (the v3
+                     scrollbar is styled). Reserve less right gutter for the arrows. */
+                  overflowY: "auto", overflowX: "hidden",
+                  paddingRight: "clamp(52px, 5vw, 92px)",
                 }}
               >
                 {/* kicker: status · year · team */}
@@ -296,14 +284,7 @@ export default function ProjectsSection({ index, bootNonce }) {
                 {tags.length > 0 && (
                   <div style={{ display: "flex", flexWrap: "wrap", gap: 4, marginTop: "clamp(4px, 0.4vw, 8px)" }}>
                     {tags.map((t, k) => (
-                      <span key={k} style={{
-                        fontFamily: "var(--v3-font-mono)", fontWeight: 400,
-                        fontSize: "clamp(8.5px, 0.3vw + 6px, 10.5px)",
-                        letterSpacing: ".08em", textTransform: "uppercase", color: "var(--v3-fg-dim)",
-                        border: "1px solid var(--v3-line-strong)", borderRadius: 999,
-                        padding: "clamp(1px, 0.15vw, 2px) clamp(6px, 0.6vw, 10px)",
-                        whiteSpace: "nowrap",
-                      }}>{t}</span>
+                      <V3Chip key={k}>{t}</V3Chip>
                     ))}
                   </div>
                 )}

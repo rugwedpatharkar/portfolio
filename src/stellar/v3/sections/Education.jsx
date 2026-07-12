@@ -1,4 +1,3 @@
-"use client";
 /*
  * Education (Saturn) — concentric orbital rings per the taste-stack table.
  *
@@ -28,7 +27,8 @@
 import { useMemo, useState, useCallback } from "react";
 import { motion, AnimatePresence, useReducedMotion } from "motion/react";
 import { educations, sectionMeta } from "../../../content";
-import { V3Frame, V3Scan } from "../primitives";
+import { V3Frame, V3Scan, V3SectionHeader, V3Chip, masterCardStyle, useMasterListKeys } from "../primitives";
+import { EASE } from "../anim";
 
 const META = sectionMeta.education || {
   sub: "Formation",
@@ -45,8 +45,8 @@ const DOT_R = 6;
 
 const strokeForPct = (pct) => 1.5 + (Math.max(0, Math.min(100, pct)) / 100) * 3.5;
 
-export default function EducationSection({ index, bootNonce }) {
-  const list = educations || [];
+export default function EducationSection({ bootNonce }) {
+  const list = useMemo(() => educations || [], []);
   const [active, setActive] = useState(0);
   const reduce = useReducedMotion();
   const item = list[active] || list[0];
@@ -72,12 +72,16 @@ export default function EducationSection({ index, bootNonce }) {
     if (i < 0 || i >= list.length || i === active) return;
     setActive(i);
   }, [active, list.length]);
+  /* Education uses SVG <motion.circle> tabs — the roving-tabIndex + `.focus()`
+     model doesn't apply cleanly to SVG focus semantics, so this stop keeps the
+     container-level onKeyDown only. Per-item focus is a separate design pass. */
+  const { onKeyDown: onKeys } = useMasterListKeys(active, goto, list.length);
 
   return (
     <V3Frame
       section="Education"
       planet="SATURN"
-      index={index}
+
       scanDir="orbit"
       scanKey={bootNonce}
       gridAreas={`"top top top" "left left ." "left left ." "left left ."`}
@@ -89,46 +93,14 @@ export default function EducationSection({ index, bootNonce }) {
           minWidth: 0, minHeight: 0, overflow: "hidden",
           maxWidth: "min(60vw, 1200px)", height: "100%",
         }}
-        onKeyDown={(e) => {
-          if (e.key === "ArrowDown" || e.key === "j") { goto((active + 1) % list.length); e.preventDefault(); }
-          if (e.key === "ArrowUp"   || e.key === "k") { goto((active - 1 + list.length) % list.length); e.preventDefault(); }
-        }}
+        onKeyDown={onKeys}
       >
         {/* Header */}
-        <V3Scan variant="horizontal" delay={0.05}>
-          <div>
-            <div style={{ display: "flex", alignItems: "center", gap: 12, marginBottom: 8 }}>
-              <span style={{ width: 22, height: 1, background: "var(--v3-accent)" }} />
-              <span style={{
-                fontFamily: "var(--v3-font-mono)", fontWeight: 400, fontSize: 10,
-                letterSpacing: ".28em", textTransform: "uppercase", color: "var(--v3-fg-mute)",
-              }}>{META.sub}</span>
-            </div>
-            <h2 style={{
-              fontFamily: "var(--v3-font-display)", fontWeight: 340,
-              fontSize: "clamp(1.5rem, 1.1vw + 0.9rem, 2.3rem)", fontOpticalSizing: "auto",
-              lineHeight: 1, letterSpacing: "-.02em", color: "var(--v3-fg)",
-              margin: 0,
-            }}>
-              {META.heading}
-            </h2>
-          </div>
-        </V3Scan>
+        <V3SectionHeader sub={META.sub} heading={META.heading} />
 
         {/* Chart + detail card */}
         <V3Scan variant="orbit" delay={0.15} style={{ minWidth: 0, flex: 1, minHeight: 0, display: "flex" }}>
-          <div style={{
-            width: "100%", height: "100%",
-            display: "grid",
-            gridTemplateColumns: "minmax(280px, 45%) 1fr",
-            gridTemplateRows: "1fr",
-            gap: "clamp(14px, 1.5vw, 28px)",
-            border: "1px solid var(--v3-line)",
-            borderRadius: 6,
-            background: "color-mix(in oklab, var(--v3-bg-void) 50%, transparent)",
-            padding: "clamp(12px, 1.2vw, 20px) clamp(14px, 1.4vw, 22px)",
-            minWidth: 0, minHeight: 0, alignItems: "stretch",
-          }}>
+          <div style={masterCardStyle({ cols: "minmax(280px, 45%) 1fr", gap: "clamp(14px, 1.5vw, 28px)", padding: "clamp(12px, 1.2vw, 20px) clamp(14px, 1.4vw, 22px)" })}>
             {/* LEFT — orbital chart */}
             <div style={{
               display: "flex", flexDirection: "column",
@@ -175,7 +147,7 @@ export default function EducationSection({ index, bootNonce }) {
                         initial={reduce ? { pathLength: 1, opacity: isActive ? 1 : 0.55 } : { pathLength: 0, opacity: 0 }}
                         whileInView={{ pathLength: 1, opacity: isActive ? 1 : 0.55 }}
                         viewport={{ once: true, amount: 0.3 }}
-                        transition={{ duration: 0.9, ease: [0.22, 1, 0.36, 1], delay: 0.15 + i * 0.08 }}
+                        transition={{ duration: 0.9, ease: EASE, delay: 0.15 + i * 0.08 }}
                         onClick={() => goto(i)}
                       />
                     );
@@ -190,7 +162,7 @@ export default function EducationSection({ index, bootNonce }) {
                         initial={reduce ? false : { opacity: 0, scale: 0.6 }}
                         whileInView={{ opacity: 1, scale: 1 }}
                         viewport={{ once: true, amount: 0.3 }}
-                        transition={{ duration: 0.35, ease: [0.22, 1, 0.36, 1], delay: 0.9 + i * 0.06 }}
+                        transition={{ duration: 0.35, ease: EASE, delay: 0.9 + i * 0.06 }}
                       >
                         <circle
                           cx={dot.x} cy={dot.y}
@@ -286,7 +258,7 @@ export default function EducationSection({ index, bootNonce }) {
                 aria-hidden
                 initial={reduce ? { scaleX: 1 } : { scaleX: 0 }}
                 animate={{ scaleX: 1 }}
-                transition={{ duration: 0.45, ease: [0.22, 1, 0.36, 1] }}
+                transition={{ duration: 0.45, ease: EASE }}
                 style={{
                   height: 1, background: "var(--v3-accent)",
                   transformOrigin: "left",
@@ -299,7 +271,7 @@ export default function EducationSection({ index, bootNonce }) {
                   initial={reduce ? false : { opacity: 0, x: 30 }}
                   animate={{ opacity: 1, x: 0 }}
                   exit={{ opacity: 0, transition: { duration: 0.15 } }}
-                  transition={{ duration: 0.4, ease: [0.22, 1, 0.36, 1], delay: 0.1 }}
+                  transition={{ duration: 0.4, ease: EASE, delay: 0.1 }}
                   style={{
                     display: "flex", flexDirection: "column",
                     gap: "clamp(8px, 0.9vw, 14px)",
@@ -369,15 +341,7 @@ export default function EducationSection({ index, bootNonce }) {
                       }}>Focus areas</span>
                       <div style={{ display: "flex", flexWrap: "wrap", gap: 4, minWidth: 0 }}>
                         {(item.highlights || []).map((h, k) => (
-                          <span key={k} style={{
-                            fontFamily: "var(--v3-font-mono)", fontWeight: 400,
-                            fontSize: "clamp(8.5px, 0.3vw + 6px, 10.5px)",
-                            letterSpacing: ".08em", textTransform: "uppercase",
-                            color: "var(--v3-fg-dim)",
-                            border: "1px solid var(--v3-line-strong)", borderRadius: 999,
-                            padding: "clamp(1px, 0.15vw, 2px) clamp(6px, 0.6vw, 10px)",
-                            whiteSpace: "nowrap",
-                          }}>{h}</span>
+                          <V3Chip key={k}>{h}</V3Chip>
                         ))}
                       </div>
                     </div>

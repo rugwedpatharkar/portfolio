@@ -1,4 +1,3 @@
-"use client";
 /*
  * V3Scan — the arrival scan-reveal wrapper. Reads scan direction from V3Frame's
  * context (horizontal | radial | drill | orbit | plot | circuit) and reveals
@@ -9,8 +8,7 @@
  */
 import { motion, useReducedMotion } from "motion/react";
 import { useV3Scan } from "./V3Frame";
-
-const ease = [0.22, 1, 0.36, 1];
+import { EASE as ease } from "../anim";
 
 const DIR = {
   horizontal: {

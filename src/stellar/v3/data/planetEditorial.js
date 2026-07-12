@@ -21,7 +21,7 @@
  */
 
 export const PLANET_EDITORIAL = {
-  sol: {
+  impact: {
     quote: "In the middle of all sits the Sun enthroned.",
     quoteBy: "Copernicus · De Revolutionibus · 1543",
     etymology: "Latin sōl, the sun — the source of the word 'solar'.",
@@ -33,7 +33,7 @@ export const PLANET_EDITORIAL = {
     ],
   },
 
-  about: {
+  experience: {
     quote: "For a few days I was beside myself with joyous excitement.",
     quoteBy: "Einstein, on solving Mercury's perihelion precession · 1915",
     etymology: "Roman god of commerce and messengers — named for the planet that moves fastest across the sky.",
@@ -45,7 +45,7 @@ export const PLANET_EDITORIAL = {
     ],
   },
 
-  funfacts: {
+  projects: {
     quote: "Cynthiae figuras aemulatur mater amorum.",
     quoteBy: "Galileo, anagram sent to Kepler on discovering the phases of Venus · 1610",
     etymology: "Roman goddess of love — for the brightest, most beautiful object in the sky after the Moon.",
@@ -57,7 +57,7 @@ export const PLANET_EDITORIAL = {
     ],
   },
 
-  experience: {
+  achievements: {
     quote: "Look again at that dot. That's here. That's home. That's us.",
     quoteBy: "Carl Sagan · Pale Blue Dot · 1994",
     etymology: "Old English eorþe — 'the ground' — the only planet whose name is not from Greek or Roman mythology.",
@@ -69,7 +69,7 @@ export const PLANET_EDITORIAL = {
     ],
   },
 
-  projects: {
+  skills: {
     quote: "Mars alone laid bare the secrets of astronomy.",
     quoteBy: "Kepler · Astronomia Nova · 1609",
     etymology: "Roman god of war — for its blood-red hue.",
@@ -81,7 +81,7 @@ export const PLANET_EDITORIAL = {
     ],
   },
 
-  achievements: {
+  writing: {
     quote: "It shone with a light like that of a star of the eighth magnitude.",
     quoteBy: "Giuseppe Piazzi, on discovering Ceres · 1 Jan 1801",
     etymology: "Roman goddess of agriculture — Piazzi chose the name for his native Sicily's patron goddess.",
@@ -93,7 +93,7 @@ export const PLANET_EDITORIAL = {
     ],
   },
 
-  skills: {
+  education: {
     quote: "Four Medicean stars, never before seen from the beginning of the world until our own time.",
     quoteBy: "Galileo · Sidereus Nuncius · 1610",
     etymology: "King of the Roman gods — for the largest planet.",
@@ -105,7 +105,7 @@ export const PLANET_EDITORIAL = {
     ],
   },
 
-  notes: {
+  hobbies: {
     quote: "Annulo cingitur, tenui, plano, nusquam cohaerente, ad eclipticam inclinato.",
     quoteBy: "Huygens, on the ring: 'surrounded by a ring — thin, flat, nowhere touching, tilted to the ecliptic' · 1656",
     etymology: "Roman god of agriculture and time — Saturday is 'Saturn's day'.",
@@ -117,7 +117,7 @@ export const PLANET_EDITORIAL = {
     ],
   },
 
-  education: {
+  testimonials: {
     quote: "It appears visibly larger than the fixed stars.",
     quoteBy: "William Herschel · discovery night · 13 March 1781",
     etymology: "Greek Οὐρανός, primordial god of the sky — the only planet named from Greek, not Roman, mythology.",
@@ -129,7 +129,7 @@ export const PLANET_EDITORIAL = {
     ],
   },
 
-  hobbies: {
+  whatsetsmeapart: {
     quote: "The planet whose position you have indicated actually exists.",
     quoteBy: "Johann Galle to Urbain Le Verrier · 25 September 1846",
     etymology: "Roman god of the sea — for its deep blue methane hue.",
@@ -141,7 +141,7 @@ export const PLANET_EDITORIAL = {
     ],
   },
 
-  testimonials: {
+  contact: {
     quote: "Suddenly I spied the image popping in and out.",
     quoteBy: "Clyde Tombaugh, discovering Pluto by blink-comparator · 18 Feb 1930",
     etymology: "Roman god of the underworld — proposed by Venetia Burney, aged 11, at breakfast in Oxford.",
@@ -153,15 +153,43 @@ export const PLANET_EDITORIAL = {
     ],
   },
 
-  contact: {
-    quote: "We have literally entered a new realm of space.",
-    quoteBy: "Ed Stone, Voyager project scientist · 12 September 2013",
-    etymology: "Heliopause — from Greek Ἥλιος (Sun) + Latin pausa (cessation): where the solar wind can no longer push back the interstellar medium.",
-    discovered: "Crossed by Voyager 1, 25 August 2012 — humanity's first spacecraft in interstellar space.",
+  /* The Milky Way — the HOMEPAGE grand intro, view from INSIDE. */
+  hero: {
+    quote: "We are made of star-stuff. We are a way for the cosmos to know itself.",
+    quoteBy: "Carl Sagan · Cosmos, 1980",
+    etymology: "Milky Way — a translation of the Latin via lactea (Ovid, ~8 CE) → itself from the Greek galaxías kýklos, \"circle of milk\".",
+    discovered: "Galileo pointed the first telescope at the Milky Way in 1610 and resolved it into individual stars — proof our galaxy is made of suns.",
     facts: [
-      "Voyager 1 crossed the heliopause 122 AU from the Sun — 18 hours of light-travel time away.",
-      "Its 22.4 W transmitter reaches Earth via a 70 m dish. Signal power on arrival: about 10⁻²³ watts.",
-      "The Golden Record on board is expected to remain readable for a billion years.",
+      "Four main spiral arms: Perseus, Sagittarius, Scutum-Centaurus, Norma. Sol rides on the Orion Spur — a minor arm segment between Sagittarius and Perseus.",
+      "The bright band arching across your night sky IS the disc of the Milky Way seen edge-on. The Great Rift is a dark dust lane cutting along its spine.",
+      "The galaxy is on a collision course with Andromeda — impact in ~4.5 billion years. The merged galaxy will be called Milkomeda.",
+    ],
+  },
+  /* The Edge — the cinematic closer, hosts the Contact section. */
+  /* The Edge intentionally has NO planetEditorial entry — user wants the
+     black-hole finale to render WIDE without any info card overlay. */
+  /* Kuiper Belt — retired as a stop; data kept for future re-mount. */
+  kuiper: {
+    quote: "Beyond Neptune lies not emptiness, but a second disc of worlds.",
+    quoteBy: "Gerard Kuiper (paraphrased) · 1951",
+    etymology: "Named for Gerard Kuiper, who predicted a debris belt beyond Neptune in 1951. First object 1992 QB1 discovered by David Jewitt and Jane Luu.",
+    discovered: "1992 — Jewitt & Luu observed the first Kuiper Belt Object (KBO), 1992 QB1, at 41 AU. Over 3,000 KBOs are now catalogued.",
+    facts: [
+      "Pluto, Eris, Haumea, Makemake — all dwarf planets — orbit within the Kuiper Belt.",
+      "The 3:2 resonance with Neptune parks the Plutinos at 39.4 AU. The 2:1 resonance parks the Twotinos at 47.7 AU.",
+      "The Kuiper Cliff at ~48 AU: beyond it, objects abruptly become rare. No one knows why — a lost planet, or the disc's true edge?",
+    ],
+  },
+  /* Oort Cloud — final ambient beat. Where the Solar System actually ends. */
+  oort: {
+    quote: "The Sun's family reaches almost to the next star.",
+    quoteBy: "Jan Oort · 1950",
+    etymology: "Proposed by Dutch astronomer Jan Oort in 1950 to explain the origin of long-period comets — vast spherical shell of icy comet nuclei surrounding the Solar System.",
+    discovered: "1950 — Oort's paper Origin and Development of Comets inferred the cloud's existence from the orbital statistics of long-period comets.",
+    facts: [
+      "The Oort Cloud is spherical, not disc-shaped like the Kuiper Belt — comet orbits arrive from every direction.",
+      "The outer edge is ~1 light-year from the Sun — 63,000 AU. Beyond that lies interstellar space.",
+      "Voyager 1, our fastest spacecraft (17 km/s), is at 166 AU today. It needs 300 more years to reach the inner Oort Cloud, and 30,000 years to cross it.",
     ],
   },
 };

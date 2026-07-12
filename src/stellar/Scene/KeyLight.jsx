@@ -2,7 +2,7 @@
 import { useRef } from "react";
 import { useFrame } from "@react-three/fiber";
 import * as THREE from "three";
-import { DESTINATIONS } from "../config/destinations";
+import { DESTINATIONS, DESTINATION_BY_ID } from "../config/destinations";
 import { orbitalPosition } from "../config/orbits";
 import { useSceneClock } from "./SceneClock";
 
@@ -28,7 +28,7 @@ const FILL_D = 24; // fill sits on the anti-sun (camera) side
 const _active = new THREE.Vector3();
 const _sunward = new THREE.Vector3();
 
-const KeyLight = ({ scrollT, castShadow = true }) => {
+const KeyLight = ({ scrollT, focusRef, castShadow = true }) => {
   const lightRef = useRef();
   const fillRef = useRef();
   const clock = useSceneClock();
@@ -36,9 +36,22 @@ const KeyLight = ({ scrollT, castShadow = true }) => {
   useFrame(() => {
     const light = lightRef.current;
     if (!light) return;
-    const rawT = THREE.MathUtils.clamp(scrollT.current ?? 0, 0, 1);
-    const idx = Math.round(rawT * (DESTINATIONS.length - 1));
-    orbitalPosition(DESTINATIONS[idx], clock.t, _active);
+    /* Prefer the CAMERA's focus target so this light lit the same body the camera
+       is framing. Before: we picked by Math.round(scrollT), which momentarily
+       disagreed with focusRef during a keyboard hop (the camera jumped to the
+       new focus synchronously; scrollT only caught up when Lenis animated the
+       scrollTo — a few frames of "old planet lit while new one is framed").
+       Fall back to Math.round(scrollT) on the hero stop (focusRef is null
+       there — Sol keeps its subtle pointer parallax). */
+    let dest = null;
+    const f = focusRef?.current;
+    if (f?.live && f.target?.destId) dest = DESTINATION_BY_ID[f.target.destId];
+    if (!dest) {
+      const rawT = THREE.MathUtils.clamp(scrollT.current ?? 0, 0, 1);
+      const idx = Math.round(rawT * (DESTINATIONS.length - 1));
+      dest = DESTINATIONS[idx];
+    }
+    orbitalPosition(dest, clock.t, _active);
     /* PHYSICAL lighting: the light comes FROM the Sun (origin) → the planet's
        sun-facing side is lit, the far side falls to night → real phases. Sit
        the shadow caster on the sun side, aimed back at the planet. */

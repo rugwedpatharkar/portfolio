@@ -5,6 +5,8 @@ import * as THREE from "three";
 import PlanetMaterial from "./PlanetMaterial";
 import AtmosphereGlow from "./AtmosphereGlow";
 import RingSystem from "./RingSystem";
+import { useSceneClock } from "./SceneClock";
+import { ktx2Urls } from "./shared/textureUrl";
 
 /* Atmosphere preset per planet type. With bloom on, the rim will glow
    secondarily on its own — keep intensities moderate so atmospheres
@@ -90,6 +92,7 @@ const Planet = ({
   const planetRef = useRef();
   const cloudRef = useRef();
   const moonsRef = useRef([]);
+  const sceneClock = useSceneClock();
 
   /* Load textures via Suspense — Scene wraps in <Suspense> already.
      Normal + specular + bump maps must NOT be sRGB — they're data,
@@ -102,8 +105,11 @@ const Planet = ({
     () => [normalTexture, specularTexture, bumpTexture].filter(Boolean),
     [normalTexture, specularTexture, bumpTexture]
   );
-  const loadedColor = useLoader(THREE.TextureLoader, colorUrls.length ? colorUrls : []);
-  const loadedData = useLoader(THREE.TextureLoader, dataUrls.length ? dataUrls : []);
+  /* §9.3 KTX2 flag — ktx2Urls() maps `.webp` → `.ktx2` on every URL only when
+     ?ktx2=1 is on. Behavior is IDENTICAL to the previous WebP path with the
+     flag off (default) because the URL passes through untouched. */
+  const loadedColor = useLoader(THREE.TextureLoader, colorUrls.length ? ktx2Urls(colorUrls) : []);
+  const loadedData = useLoader(THREE.TextureLoader, dataUrls.length ? ktx2Urls(dataUrls) : []);
 
   const textureMap = useMemo(() => {
     const out = {};
@@ -176,13 +182,45 @@ const Planet = ({
     };
   }, [grade]);
 
-  useFrame((_, delta) => {
-    /* Natural axial rotation (frozen on reduced-motion). */
-    if (planetRef.current && animate) planetRef.current.rotation.y += delta * rotationSpeed;
-    if (cloudRef.current && animate) cloudRef.current.rotation.y += delta * rotationSpeed * 1.35;
+  /* §7 Planet LOD — three precomputed sphere geometries; the useFrame below swaps
+     `planetRef.current.geometry` between them based on camera distance so React
+     never re-renders and the material instance (with its texture uniforms) never
+     re-mounts. Only vertex-processing cost scales with distance. */
+  const bodyGeos = useMemo(() => ({
+    high: new THREE.SphereGeometry(radius, 48, 48),
+    mid: new THREE.SphereGeometry(radius, 24, 24),
+    low: new THREE.SphereGeometry(radius, 12, 12),
+  }), [radius]);
+  const lodTier = useRef("high");
+  const _lodProbe = useMemo(() => new THREE.Vector3(), []);
+
+  useFrame(({ camera }, delta) => {
+    /* Clamp dt: VisibilityController pauses the loop while the tab is hidden, so
+       the first delta on refocus ≈ the whole hidden span — unclamped, the planets
+       + moons would snap-spin a full frame. Matches SceneClock's own 1/20 clamp.
+       Scaled by clock.scale so ONE master control speeds spin + moons together
+       with the orbits + Sun churn (they read the same clock). */
+    const dt = Math.min(delta, 1 / 20) * sceneClock.scale;
+    /* Axial rotation + moons — frozen on reduced-motion (animate=false). */
+    if (!animate) return;
+    if (planetRef.current) {
+      planetRef.current.rotation.y += dt * rotationSpeed;
+      /* §7 Planet LOD swap. Thresholds scaled by body radius so a Jupiter-sized
+         giant swaps later than a Ceres-sized dwarf (the giant fills more of the
+         frame at any given world distance). Snap boundaries — a smooth blend
+         would require running both meshes and blending, which drops the win. */
+      planetRef.current.getWorldPosition(_lodProbe);
+      const d = camera.position.distanceTo(_lodProbe);
+      const nextTier = d < radius * 40 ? "high" : d < radius * 200 ? "mid" : "low";
+      if (nextTier !== lodTier.current) {
+        lodTier.current = nextTier;
+        planetRef.current.geometry = bodyGeos[nextTier];
+      }
+    }
+    if (cloudRef.current) cloudRef.current.rotation.y += dt * rotationSpeed * 1.35;
     moonsRef.current.forEach((m, i) => {
       if (m) {
-        const t = m.userData.t + delta * (0.25 + (i % 3) * 0.05);
+        const t = m.userData.t + dt * (0.25 + (i % 3) * 0.05);
         m.userData.t = t;
         const orbitR = m.userData.orbit;
         m.position.set(

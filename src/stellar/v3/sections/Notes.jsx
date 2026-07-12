@@ -1,4 +1,3 @@
-"use client";
 /*
  * Notes (Jupiter) — editorial magazine (no scroll).
  *
@@ -22,25 +21,23 @@
 import { useState, useCallback } from "react";
 import { motion, AnimatePresence, useReducedMotion } from "motion/react";
 import { blogPosts, sectionMeta } from "../../../content";
-import { V3Frame, V3Scan } from "../primitives";
+import { V3Frame, V3Scan, V3SectionHeader, V3Chip, masterCardStyle, useMasterListKeys } from "../primitives";
+import { EASE, shutterVariants } from "../anim";
 
 const META = sectionMeta.notes || {
   sub: "Working Notes",
   heading: "Journal from Production",
 };
 
-const SHUTTER_VARIANTS = {
-  hidden: { clipPath: "inset(-0.2em 100% -0.3em 0)" },
-  show:   { clipPath: "inset(-0.2em 0 -0.3em 0)", transition: { duration: 0.5, ease: [0.22, 1, 0.36, 1], delay: 0.1 } },
-};
+const SHUTTER_VARIANTS = shutterVariants();
 
 const BODY_VARIANTS = {
   hidden: { opacity: 0, y: 8 },
-  show:   { opacity: 1, y: 0, transition: { duration: 0.35, ease: [0.22, 1, 0.36, 1], delay: 0.2 } },
+  show:   { opacity: 1, y: 0, transition: { duration: 0.35, ease: EASE, delay: 0.2 } },
   exit:   { opacity: 0, transition: { duration: 0.12 } },
 };
 
-export default function NotesSection({ index, bootNonce }) {
+export default function NotesSection({ bootNonce }) {
   const list = blogPosts || [];
   const [active, setActive] = useState(0);
   const reduce = useReducedMotion();
@@ -50,12 +47,13 @@ export default function NotesSection({ index, bootNonce }) {
     if (i < 0 || i >= list.length || i === active) return;
     setActive(i);
   }, [active, list.length]);
+  const { onKeyDown: onKeys, itemProps } = useMasterListKeys(active, goto, list.length);
 
   return (
     <V3Frame
       section="Notes"
       planet="JUPITER"
-      index={index}
+
       scanDir="horizontal"
       scanKey={bootNonce}
       gridAreas={`"top top top" "left left ." "left left ." "left left ."`}
@@ -67,48 +65,15 @@ export default function NotesSection({ index, bootNonce }) {
         maxWidth: "min(60vw, 1200px)", height: "100%",
       }}>
         {/* Header */}
-        <V3Scan variant="horizontal" delay={0.05}>
-          <div style={{ minWidth: 0 }}>
-            <div style={{ display: "flex", alignItems: "center", gap: 12, marginBottom: 8 }}>
-              <span style={{ width: 22, height: 1, background: "var(--v3-accent)" }} />
-              <span style={{
-                fontFamily: "var(--v3-font-mono)", fontWeight: 400,
-                fontSize: "clamp(9px, 0.3vw + 7px, 11px)",
-                letterSpacing: ".28em", textTransform: "uppercase", color: "var(--v3-fg-mute)",
-              }}>{META.sub}</span>
-            </div>
-            <h2 style={{
-              fontFamily: "var(--v3-font-display)", fontWeight: 340,
-              fontSize: "clamp(1.5rem, 1.1vw + 0.9rem, 2.3rem)", fontOpticalSizing: "auto",
-              lineHeight: 1, letterSpacing: "-.02em", color: "var(--v3-fg)",
-              margin: 0,
-            }}>
-              {META.heading}
-            </h2>
-          </div>
-        </V3Scan>
+        <V3SectionHeader sub={META.sub} heading={META.heading} kickerSize="clamp(9px, 0.3vw + 7px, 11px)" wrapMinWidth />
 
         {/* Master-detail card */}
         <V3Scan variant="horizontal" delay={0.15} style={{ minWidth: 0, flex: 1, minHeight: 0, display: "flex" }}>
           <div
             role="tablist"
             aria-label="Working notes"
-            onKeyDown={(e) => {
-              if (e.key === "ArrowDown" || e.key === "j") { goto((active + 1) % list.length); e.preventDefault(); }
-              if (e.key === "ArrowUp"   || e.key === "k") { goto((active - 1 + list.length) % list.length); e.preventDefault(); }
-            }}
-            style={{
-              width: "100%", height: "100%",
-              display: "grid",
-              gridTemplateColumns: "minmax(240px, 32%) 1fr",
-              gridTemplateRows: "1fr",
-              gap: "clamp(14px, 1.5vw, 26px)",
-              border: "1px solid var(--v3-line)",
-              borderRadius: 6,
-              background: "color-mix(in oklab, var(--v3-bg-void) 50%, transparent)",
-              padding: "clamp(12px, 1.2vw, 20px) clamp(14px, 1.4vw, 22px)",
-              minWidth: 0, minHeight: 0, alignItems: "stretch",
-            }}
+            onKeyDown={onKeys}
+            style={masterCardStyle({ cols: "minmax(240px, 32%) 1fr", gap: "clamp(14px, 1.5vw, 26px)", padding: "clamp(12px, 1.2vw, 20px) clamp(14px, 1.4vw, 22px)" })}
           >
             {/* Master — 3 chapter buttons */}
             <div style={{
@@ -124,6 +89,7 @@ export default function NotesSection({ index, bootNonce }) {
                     role="tab"
                     aria-selected={isActive}
                     onClick={() => goto(i)}
+                    {...itemProps(i)}
                     style={{
                       all: "unset", cursor: "pointer",
                       display: "flex", flexDirection: "column",
@@ -265,18 +231,11 @@ export default function NotesSection({ index, bootNonce }) {
                     {(post?.tags || []).length > 0 && (
                       <div style={{ display: "flex", flexWrap: "wrap", gap: 4, minWidth: 0 }}>
                         {(post.tags || []).map((t, k) => (
-                          <span key={k} style={{
-                            fontFamily: "var(--v3-font-mono)", fontWeight: 400,
-                            fontSize: "clamp(8.5px, 0.3vw + 6px, 10.5px)",
-                            letterSpacing: ".08em", textTransform: "uppercase", color: "var(--v3-fg-dim)",
-                            border: "1px solid var(--v3-line-strong)", borderRadius: 999,
-                            padding: "clamp(1px, 0.15vw, 2px) clamp(6px, 0.6vw, 10px)",
-                            whiteSpace: "nowrap",
-                          }}>{t}</span>
+                          <V3Chip key={k}>{t}</V3Chip>
                         ))}
                       </div>
                     )}
-                    {post?.link && (
+                    {post?.link && post.link !== "#" && (
                       <a href={post.link} target={post.link.startsWith("http") ? "_blank" : undefined} rel="noreferrer" style={{
                         fontFamily: "var(--v3-font-mono)", fontWeight: 400,
                         fontSize: "clamp(9px, 0.4vw + 6px, 11px)",

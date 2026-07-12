@@ -1,7 +1,8 @@
 /* eslint-disable react/no-unknown-property */
-import { useMemo, useRef } from "react";
+import { useEffect, useMemo, useRef } from "react";
 import { useFrame } from "@react-three/fiber";
 import * as THREE from "three";
+import { makeSoftDot } from "./shared/textures";
 
 /*
  * Dense dust band for a belt — tens of thousands of tiny additive points filling
@@ -21,21 +22,20 @@ import * as THREE from "three";
  * haze far away while staying dense up close.
  */
 
-/* Soft circular sprite (radial gradient) — shared module-level so every belt
-   reuses one texture. */
+/* Soft circular sprite (radial gradient) — shared module-level singleton so every
+   belt reuses one texture (both main-belt AND Kuiper mount at once). */
 let _dot;
 const dotSprite = () => {
-  if (_dot) return _dot;
-  const c = document.createElement("canvas");
-  c.width = c.height = 64;
-  const g = c.getContext("2d");
-  const grd = g.createRadialGradient(32, 32, 0, 32, 32, 32);
-  grd.addColorStop(0, "rgba(255,255,255,1)");
-  grd.addColorStop(0.45, "rgba(255,255,255,0.55)");
-  grd.addColorStop(1, "rgba(255,255,255,0)");
-  g.fillStyle = grd;
-  g.fillRect(0, 0, 64, 64);
-  _dot = new THREE.CanvasTexture(c);
+  if (!_dot) {
+    _dot = makeSoftDot({
+      size: 64,
+      stops: [
+        [0, "rgba(255,255,255,1)"],
+        [0.45, "rgba(255,255,255,0.55)"],
+        [1, "rgba(255,255,255,0)"],
+      ],
+    });
+  }
   return _dot;
 };
 
@@ -138,6 +138,15 @@ const BeltDust = ({
   useFrame((_, delta) => {
     if (animate && ref.current) ref.current.rotation.y += delta * drift;
   });
+
+  /* §9.6 disposal — BeltDust unmounts when the finale engages (Scene/index.jsx
+     gates `showDust && <BeltDust />`, and showDust = false in finale). The
+     BufferGeometry + ShaderMaterial are useMemo-allocated, so they need
+     explicit cleanup to release GPU memory on unmount. */
+  useEffect(() => () => {
+    geo.dispose();
+    material.dispose();
+  }, [geo, material]);
 
   return (
     <group ref={ref}>

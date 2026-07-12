@@ -1,4 +1,3 @@
-"use client";
 /*
  * Skills (Ceres) — radar-chart dossier.
  *
@@ -24,7 +23,8 @@
 import { useMemo, useState } from "react";
 import { motion, useReducedMotion } from "motion/react";
 import { skills, sectionMeta } from "../../../content";
-import { V3Frame, V3Scan } from "../primitives";
+import { V3Frame, V3Scan, V3SectionHeader, masterCardStyle, useMasterListKeys } from "../primitives";
+import { EASE } from "../anim";
 
 const META = sectionMeta.skills || { sub: "What I Bring", heading: "Technical Skills" };
 
@@ -63,11 +63,13 @@ const polar = (angle, radius) => ({
   y: CY - radius * Math.cos(angle),
 });
 
-export default function SkillsSection({ index, bootNonce }) {
+export default function SkillsSection({ bootNonce }) {
   const cats = Object.entries(skills);
   const [active, setActive] = useState(0);
   const [activeName, activeList] = cats[active] || cats[0];
   const reduce = useReducedMotion();
+  /* Skills historically clamped rather than wrapped — preserved for parity. */
+  const { onKeyDown: onKeys, itemProps } = useMasterListKeys(active, setActive, cats.length, { wrap: false });
 
   /* Precompute axis geometry per skill in the active category. */
   const geometry = useMemo(() => {
@@ -99,7 +101,7 @@ export default function SkillsSection({ index, bootNonce }) {
     <V3Frame
       section="Skills"
       planet="CERES"
-      index={index}
+
       scanDir="orbit"
       scanKey={bootNonce}
       gridAreas={`"top top top" "left left ." "left left ." "left left ."`}
@@ -111,40 +113,11 @@ export default function SkillsSection({ index, bootNonce }) {
         maxWidth: "min(60vw, 1200px)", height: "100%",
       }}>
         {/* Header */}
-        <V3Scan variant="horizontal" delay={0.05}>
-          <div>
-            <div style={{ display: "flex", alignItems: "center", gap: 12, marginBottom: 8 }}>
-              <span style={{ width: 22, height: 1, background: "var(--v3-accent)" }} />
-              <span style={{
-                fontFamily: "var(--v3-font-mono)", fontWeight: 400, fontSize: 10,
-                letterSpacing: ".28em", textTransform: "uppercase", color: "var(--v3-fg-mute)",
-              }}>{META.sub}</span>
-            </div>
-            <h2 style={{
-              fontFamily: "var(--v3-font-display)", fontWeight: 340,
-              fontSize: "clamp(1.5rem, 1.1vw + 0.9rem, 2.3rem)", fontOpticalSizing: "auto",
-              lineHeight: 1, letterSpacing: "-.02em", color: "var(--v3-fg)",
-              margin: 0,
-            }}>
-              {META.heading}
-            </h2>
-          </div>
-        </V3Scan>
+        <V3SectionHeader sub={META.sub} heading={META.heading} />
 
         {/* Master-detail: index LEFT (~30%), radar chart RIGHT (~70%). */}
         <V3Scan variant="orbit" delay={0.15} style={{ minWidth: 0, flex: 1, minHeight: 0, display: "flex" }}>
-          <div style={{
-            width: "100%", height: "100%",
-            display: "grid",
-            gridTemplateColumns: "minmax(220px, 30%) 1fr",
-            gridTemplateRows: "1fr",
-            gap: "clamp(14px, 1.5vw, 24px)",
-            border: "1px solid var(--v3-line)",
-            borderRadius: 6,
-            background: "color-mix(in oklab, var(--v3-bg-void) 50%, transparent)",
-            padding: "clamp(10px, 1vw, 18px) clamp(12px, 1.3vw, 22px)",
-            minWidth: 0, minHeight: 0, alignItems: "stretch",
-          }}>
+          <div style={masterCardStyle()}>
             {/* Master column */}
             <div
               role="tablist"
@@ -154,10 +127,7 @@ export default function SkillsSection({ index, bootNonce }) {
                 justifyContent: "space-between", gap: 2,
                 minWidth: 0, alignSelf: "stretch", height: "100%",
               }}
-              onKeyDown={(e) => {
-                if (e.key === "ArrowDown" || e.key === "j") { setActive(a => Math.min(cats.length - 1, a + 1)); e.preventDefault(); }
-                if (e.key === "ArrowUp"   || e.key === "k") { setActive(a => Math.max(0, a - 1)); e.preventDefault(); }
-              }}
+              onKeyDown={onKeys}
             >
               {cats.map(([cat, list], i) => {
                 const isActive = i === active;
@@ -167,13 +137,14 @@ export default function SkillsSection({ index, bootNonce }) {
                     role="tab"
                     aria-selected={isActive}
                     onClick={() => setActive(i)}
+                    {...itemProps(i)}
+                    className={isActive ? "v3-glass-accent" : "v3-glass"}
                     style={{
                       all: "unset", cursor: "pointer",
                       display: "grid", gridTemplateColumns: "auto minmax(0, 1fr) auto",
                       alignItems: "baseline", gap: "clamp(6px, 0.6vw, 10px)",
                       padding: "clamp(5px, 0.5vw, 8px) clamp(8px, 0.9vw, 12px)",
                       borderLeft: isActive ? "2px solid var(--v3-accent)" : "2px solid transparent",
-                      background: isActive ? "color-mix(in oklab, var(--v3-accent) 8%, transparent)" : "transparent",
                       borderRadius: "0 4px 4px 0",
                       transition: "background .2s, border-color .2s",
                       minWidth: 0,
@@ -306,7 +277,7 @@ export default function SkillsSection({ index, bootNonce }) {
                       strokeLinejoin="round"
                       initial={reduce ? false : { opacity: 0, scale: 0.85, transformOrigin: `${CX}px ${CY}px` }}
                       animate={{ opacity: 1, scale: 1 }}
-                      transition={{ duration: 0.5, ease: [0.22, 1, 0.36, 1] }}
+                      transition={{ duration: 0.5, ease: EASE }}
                       style={{ transformOrigin: `${CX}px ${CY}px` }}
                     />
                   )}
@@ -317,7 +288,7 @@ export default function SkillsSection({ index, bootNonce }) {
                       key={`v-${activeName}-${i}`}
                       initial={reduce ? false : { opacity: 0 }}
                       animate={{ opacity: 1 }}
-                      transition={{ duration: 0.3, ease: [0.22, 1, 0.36, 1], delay: 0.15 + i * 0.03 }}
+                      transition={{ duration: 0.3, ease: EASE, delay: 0.15 + i * 0.03 }}
                     >
                       {/* Vertex dot */}
                       <circle

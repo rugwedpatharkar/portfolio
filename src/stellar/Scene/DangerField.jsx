@@ -3,7 +3,7 @@ import { useMemo, useRef } from "react";
 import { useFrame, useThree } from "@react-three/fiber";
 import * as THREE from "three";
 import { useSceneClock } from "./SceneClock";
-import { remapPosition, frontOfSun } from "../config/destinations";
+import { placeInFrontOfSun } from "../config/destinations";
 
 /*
  * Spaghettification danger field — the dread you feel flying too close to
@@ -32,7 +32,7 @@ import { remapPosition, frontOfSun } from "../config/destinations";
  * not decoration.
  */
 
-const GARGANTUA = new THREE.Vector3(...remapPosition(frontOfSun([49, -6, -15]))); // in front of the camera, behind the Sun (matches BlackHole)
+const GARGANTUA = new THREE.Vector3(...placeInFrontOfSun([49, -6, -15])); // in front of the camera, behind the Sun (matches BlackHole)
 
 /* Scratch vector reused every frame — no per-frame allocation. */
 const _camPos = new THREE.Vector3();

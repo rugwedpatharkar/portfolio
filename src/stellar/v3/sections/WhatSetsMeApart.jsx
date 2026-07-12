@@ -1,4 +1,3 @@
-"use client";
 /*
  * What Sets Me Apart (Pluto) — massive-numeral master-detail.
  *
@@ -23,53 +22,27 @@
  */
 import { useState, useCallback } from "react";
 import { motion, AnimatePresence, useReducedMotion } from "motion/react";
-import { V3Frame, V3Scan } from "../primitives";
+import { V3Frame, V3Scan, V3SectionHeader, V3Chip, masterCardStyle, useMasterListKeys } from "../primitives";
+import { EASE } from "../anim";
+import { pillars as PILLARS } from "../../../content";
 
 const META = {
   sub: "What Sets Me Apart",
   heading: "Signals a Résumé Can't Show",
 };
 
-const PILLARS = [
-  {
-    title: "Systems thinking, production-tested",
-    body: "I own the 31-service Python/gRPC platform end-to-end — from p95 latency budgets and distributed race conditions in inventory-hold to on-call incident response.",
-    proof: ["31 services", "96% p95 cut", "99.9% availability"],
-  },
-  {
-    title: "Backend + Agentic AI, without a seam",
-    body: "I architect the whole stack: FastAPI/gRPC on GKE below, a LangGraph multi-agent supervisor with MCP tool-calling and hybrid RAG on top. One head shipping both, not a hand-off.",
-    proof: ["LangGraph · MCP", "4 LLM providers", "Qdrant hybrid RAG"],
-  },
-  {
-    title: "Integration pragmatism at scale",
-    body: "7+ PMS providers, door-lock vendors, GRMS platforms — unified under one polymorphic base-class contract with idempotent webhooks. Zero-downtime provider switching, 60% less duplicated code.",
-    proof: ["7+ vendors", "Idempotent by design", "60% code reduction"],
-  },
-  {
-    title: "Impact the P&L can see",
-    body: "The latency work paid back in the cloud bill: compute cost dropped ~25% off the back of the p95 cut. Faster vendor onboarding, 50% less time-to-first-integration.",
-    proof: ["~25% compute saved", "50% faster onboarding", "Star Performer of the Quarter"],
-  },
-  {
-    title: "Ownership + legibility as a habit",
-    body: "What I ship is legible: versioned prompts, 500+ line Makefiles for deploy/logs/pods, published production notes, ~65% test coverage on core paths. Handovers are boring in the best way.",
-    proof: ["Versioned prompts", "500+ line Makefiles", "~65% core coverage"],
-  },
-];
-
 const NUMERAL_VARIANTS = {
   hidden: { opacity: 0, y: 24 },
-  show:   { opacity: 1, y: 0, transition: { duration: 0.4, ease: [0.22, 1, 0.36, 1] } },
+  show:   { opacity: 1, y: 0, transition: { duration: 0.4, ease: EASE } },
   exit:   { opacity: 0, y: -18, transition: { duration: 0.2 } },
 };
 const BODY_VARIANTS = {
   hidden: { opacity: 0, y: 10 },
-  show:   { opacity: 1, y: 0, transition: { duration: 0.35, ease: [0.22, 1, 0.36, 1], delay: 0.12 } },
+  show:   { opacity: 1, y: 0, transition: { duration: 0.35, ease: EASE, delay: 0.12 } },
   exit:   { opacity: 0, transition: { duration: 0.12 } },
 };
 
-export default function WhatSetsMeApartSection({ index, bootNonce }) {
+export default function WhatSetsMeApartSection({ bootNonce }) {
   const [active, setActive] = useState(0);
   const reduce = useReducedMotion();
   const p = PILLARS[active] || PILLARS[0];
@@ -78,12 +51,13 @@ export default function WhatSetsMeApartSection({ index, bootNonce }) {
     if (i < 0 || i >= PILLARS.length || i === active) return;
     setActive(i);
   }, [active]);
+  const { onKeyDown: onKeys, itemProps } = useMasterListKeys(active, goto, PILLARS.length);
 
   return (
     <V3Frame
       section="What Sets Me Apart"
       planet="PLUTO"
-      index={index}
+
       scanDir="drill"
       scanKey={bootNonce}
       gridAreas={`"top top top" "left left ." "left left ." "left left ."`}
@@ -95,49 +69,17 @@ export default function WhatSetsMeApartSection({ index, bootNonce }) {
           minWidth: 0, minHeight: 0, overflow: "hidden",
           maxWidth: "min(60vw, 1200px)", height: "100%",
         }}
-        onKeyDown={(e) => {
-          if (e.key === "ArrowDown" || e.key === "j") { goto((active + 1) % PILLARS.length); e.preventDefault(); }
-          if (e.key === "ArrowUp"   || e.key === "k") { goto((active - 1 + PILLARS.length) % PILLARS.length); e.preventDefault(); }
-        }}
+        onKeyDown={onKeys}
       >
         {/* Header */}
-        <V3Scan variant="horizontal" delay={0.05}>
-          <div>
-            <div style={{ display: "flex", alignItems: "center", gap: 12, marginBottom: 8 }}>
-              <span style={{ width: 22, height: 1, background: "var(--v3-accent)" }} />
-              <span style={{
-                fontFamily: "var(--v3-font-mono)", fontWeight: 400, fontSize: 10,
-                letterSpacing: ".28em", textTransform: "uppercase", color: "var(--v3-fg-mute)",
-              }}>{META.sub}</span>
-            </div>
-            <h2 style={{
-              fontFamily: "var(--v3-font-display)", fontWeight: 340,
-              fontSize: "clamp(1.5rem, 1.1vw + 0.9rem, 2.3rem)", fontOpticalSizing: "auto",
-              lineHeight: 1, letterSpacing: "-.02em", color: "var(--v3-fg)",
-              margin: 0,
-            }}>
-              {META.heading}
-            </h2>
-          </div>
-        </V3Scan>
+        <V3SectionHeader sub={META.sub} heading={META.heading} />
 
         {/* Master-detail card */}
         <V3Scan variant="drill" delay={0.15} style={{ minWidth: 0, flex: 1, minHeight: 0, display: "flex" }}>
           <div
             role="tablist"
             aria-label="Differentiators"
-            style={{
-              width: "100%", height: "100%",
-              display: "grid",
-              gridTemplateColumns: "minmax(240px, 32%) 1fr",
-              gridTemplateRows: "1fr",
-              gap: "clamp(18px, 1.8vw, 32px)",
-              border: "1px solid var(--v3-line)",
-              borderRadius: 6,
-              background: "color-mix(in oklab, var(--v3-bg-void) 50%, transparent)",
-              padding: "clamp(14px, 1.3vw, 22px) clamp(16px, 1.5vw, 26px)",
-              minWidth: 0, minHeight: 0, alignItems: "stretch",
-            }}
+            style={masterCardStyle({ cols: "minmax(240px, 32%) 1fr", gap: "clamp(18px, 1.8vw, 32px)", padding: "clamp(14px, 1.3vw, 22px) clamp(16px, 1.5vw, 26px)" })}
           >
             {/* Master */}
             <div style={{
@@ -153,13 +95,14 @@ export default function WhatSetsMeApartSection({ index, bootNonce }) {
                     role="tab"
                     aria-selected={isActive}
                     onClick={() => goto(i)}
+                    {...itemProps(i)}
+                    className={isActive ? "v3-glass-accent" : "v3-glass"}
                     style={{
                       all: "unset", cursor: "pointer",
                       display: "grid", gridTemplateColumns: "auto minmax(0, 1fr)",
                       alignItems: "baseline", gap: 10,
                       padding: "clamp(8px, 0.8vw, 12px) clamp(10px, 1vw, 14px)",
                       borderLeft: isActive ? "2px solid var(--v3-accent)" : "2px solid transparent",
-                      background: isActive ? "color-mix(in oklab, var(--v3-accent) 10%, transparent)" : "transparent",
                       borderRadius: "0 4px 4px 0",
                       transition: "background .2s, border-color .2s",
                       minWidth: 0,
@@ -299,15 +242,7 @@ export default function WhatSetsMeApartSection({ index, bootNonce }) {
                         }}>Receipts</span>
                         <div style={{ display: "flex", flexWrap: "wrap", gap: 4, minWidth: 0 }}>
                           {(p.proof || []).map((pr, k) => (
-                            <span key={k} style={{
-                              fontFamily: "var(--v3-font-mono)", fontWeight: 400,
-                              fontSize: "clamp(8.5px, 0.3vw + 6px, 10.5px)",
-                              letterSpacing: ".08em", textTransform: "uppercase",
-                              color: "var(--v3-fg-dim)",
-                              border: "1px solid var(--v3-line-strong)", borderRadius: 999,
-                              padding: "clamp(1px, 0.15vw, 2px) clamp(6px, 0.6vw, 10px)",
-                              whiteSpace: "nowrap",
-                            }}>{pr}</span>
+                            <V3Chip key={k}>{pr}</V3Chip>
                           ))}
                         </div>
                       </div>

@@ -4,10 +4,15 @@
  * non-obvious fact a recruiter could share at a party. mass / temp /
  * missions are real (mass vs Earth, mean or range surface/cloud-top
  * temperature, and the real spacecraft that have visited).
+ *
+ * §13 / Phase 12: entries may include an optional `sources: [...]` array —
+ * the audit trail for the numbers on the card. Not surfaced in the UI;
+ * V3Editorial ignores unknown keys. See docs/architecture/knowledge-foundation.md
+ * for the pattern + priority list of entries to backfill.
  */
 
 export const PLANET_FACTS = {
-  sol: {
+  impact: {
     body: "Sol — G2V yellow dwarf star",
     distance: "0 AU · 8 light-min from Earth",
     diameter: "1,391,400 km · ~109 Earths",
@@ -20,8 +25,13 @@ export const PLANET_FACTS = {
     moons: "0 (we are one of 8 planets)",
     missions: "Parker Solar Probe · SOHO · SDO",
     wow: "Loses ~4.3 million tonnes of mass per second to fusion + solar wind. Still has 5 billion years left.",
+    sources: [
+      "NASA/JPL Sun fact sheet — nssdc.gsfc.nasa.gov/planetary/factsheet/sunfact.html",
+      "GRAVITY 2019 (Sun R0, Sgr A* mass) — DOI:10.1051/0004-6361/201935656",
+      "SDO/SOHO composite imagery — sohowww.nascom.nasa.gov",
+    ],
   },
-  about: {
+  experience: {
     body: "Mercury — M-class terrestrial",
     distance: "0.39 AU · 3.2 light-min",
     diameter: "4,879 km · 0.38× Earth",
@@ -35,7 +45,7 @@ export const PLANET_FACTS = {
     missions: "Mariner 10 · MESSENGER · BepiColombo",
     wow: "Day-side hits 430 °C, night-side drops to −180 °C. Largest temperature swing of any solar system body.",
   },
-  funfacts: {
+  projects: {
     body: "Venus — M-class terrestrial",
     distance: "0.72 AU · 6.0 light-min",
     diameter: "12,104 km · 0.95× Earth",
@@ -49,7 +59,7 @@ export const PLANET_FACTS = {
     missions: "Venera landers · Magellan · Akatsuki",
     wow: "Spins backward (retrograde) — the sun rises in the west on Venus. Surface pressure equals 900 m underwater on Earth.",
   },
-  experience: {
+  achievements: {
     body: "Earth — M-class terrestrial · cradle",
     distance: "1.00 AU · 8.3 light-min",
     diameter: "12,742 km",
@@ -63,7 +73,7 @@ export const PLANET_FACTS = {
     missions: "Home — ISS + thousands of satellites",
     wow: "Only known body where water exists in all three states at the surface simultaneously. The night-side glow you see is real city lights, ~20% of which use renewable power.",
   },
-  projects: {
+  skills: {
     body: "Mars — M-class terrestrial",
     distance: "1.52 AU · 12.7 light-min",
     diameter: "6,779 km · 0.53× Earth",
@@ -77,7 +87,7 @@ export const PLANET_FACTS = {
     missions: "Viking · Curiosity · Perseverance · Mangalyaan",
     wow: "Hosts Olympus Mons, the largest known volcano: 22 km tall (2.5× Everest), base wider than the state of Arizona.",
   },
-  achievements: {
+  writing: {
     body: "Ceres — dwarf planet, in the asteroid belt",
     distance: "2.77 AU between Mars & Jupiter",
     diameter: "940 km Ø (~0.07× Earth)",
@@ -91,7 +101,7 @@ export const PLANET_FACTS = {
     missions: "Dawn (orbited 2015–2018)",
     wow: "The largest body in the asteroid belt and the only dwarf planet in the inner solar system — round under its own gravity, holding ~a third of the belt's entire mass. Its crust hides briny water.",
   },
-  skills: {
+  education: {
     body: "Jupiter — class I gas giant",
     distance: "5.20 AU · 43 light-min",
     diameter: "139,820 km · 11× Earth",
@@ -101,11 +111,11 @@ export const PLANET_FACTS = {
     gravity: "24.79 m/s² · 2.53× Earth",
     temp: "−145 °C cloud tops",
     atmosphere: "H₂ (90%) · He (10%) · ammonia ice clouds",
-    moons: "95 confirmed (Io, Europa, Ganymede, Callisto)",
+    moons: "97 confirmed (Io, Europa, Ganymede, Callisto)",
     missions: "Pioneer · Voyager · Galileo · Juno",
     wow: "The Great Red Spot is a storm wider than Earth that has raged 350+ years. That glowing ring is Io's plasma torus — volcanic sulfur trapped in a magnetic field 20,000× Earth's.",
   },
-  notes: {
+  hobbies: {
     body: "Saturn — class II gas giant · ringed",
     distance: "9.54 AU · 79 light-min",
     diameter: "116,460 km · 9.4× Earth",
@@ -119,7 +129,7 @@ export const PLANET_FACTS = {
     missions: "Pioneer 11 · Voyager · Cassini–Huygens",
     wow: "That hexagon turning over the north pole is real — a six-sided jet stream wider than two Earths, stable since Voyager spotted it in 1981. Saturn is also so low-density it would float in a big enough bath.",
   },
-  education: {
+  testimonials: {
     body: "Uranus — ice giant · tilted 97.8°",
     distance: "19.19 AU · 159 light-min",
     diameter: "50,724 km · 4× Earth",
@@ -129,11 +139,11 @@ export const PLANET_FACTS = {
     gravity: "8.69 m/s² · 0.89× Earth",
     temp: "−224 °C · coldest planet",
     atmosphere: "H₂ (83%) · He (15%) · methane gives cyan tint",
-    moons: "28 (Titania, Oberon, Miranda)",
+    moons: "29 (Titania, Oberon, Umbriel, Miranda)",
     missions: "Voyager 2 (1986 flyby — only visit)",
     wow: "Rolls on its side — its axis tilt is 97.8°. Each pole sees 42 Earth years of continuous sunlight, then 42 years of darkness.",
   },
-  hobbies: {
+  whatsetsmeapart: {
     body: "Neptune — ice giant · methane blue",
     distance: "30.07 AU · 250 light-min",
     diameter: "49,244 km · 3.9× Earth",
@@ -147,7 +157,7 @@ export const PLANET_FACTS = {
     missions: "Voyager 2 (1989 flyby — only visit)",
     wow: "JWST finally caught Neptune's aurora in 2025 — glowing at MID-latitudes, not the poles, because its magnetic field is tilted ~47° and off-centre. It also has the solar system's fastest winds: supersonic, up to 2,100 km/h.",
   },
-  testimonials: {
+  contact: {
     body: "Pluto — dwarf planet, in the Kuiper belt",
     distance: "39.5 AU (eccentric: 30–49 AU)",
     diameter: "2,377 km Ø",
@@ -161,18 +171,71 @@ export const PLANET_FACTS = {
     missions: "New Horizons (2015 flyby)",
     wow: "Its moon Charon is half Pluto's size — the pair orbit a point in empty space between them, a true double dwarf-planet. Pluto's orbit is so tilted (17°) + eccentric it sometimes comes closer to the Sun than Neptune.",
   },
-  contact: {
-    body: "Edge Beacon — heliopause boundary",
-    distance: "~49 AU · 6.8 light-hours",
-    diameter: "ø — concept marker",
-    mass: "—",
-    year: "—",
+  /* The Milky Way — the HOMEPAGE grand intro. View from INSIDE the galaxy
+     (arching band, Great Rift, Sagittarius core). Not a spiral from outside
+     (physically impossible from Sol). */
+  hero: {
+    body: "The Milky Way — our home galaxy",
+    distance: "26,670 ly from the galactic centre",
+    diameter: "~100,000 light-years across",
+    mass: "~1.5 trillion Suns (dark matter + stars)",
+    year: "230 million years — one galactic rotation at Sol's radius",
     day: "—",
-    gravity: "—",
-    temp: "~ −230 °C · interstellar medium",
-    atmosphere: "Interstellar medium begins here",
+    gravity: "Sgr A* — 4.15 million solar-mass black hole at the core",
+    temp: "—",
+    atmosphere: "Interstellar medium — hydrogen, dust, molecular clouds",
+    moons: "~50 satellite galaxies (LMC, SMC, Sagittarius Dwarf, …)",
+    missions: "Gaia (ESA) mapping 1.8 billion stars in 3D since 2013",
+    wow: "You're on the Orion Spur — a minor branch between the Sagittarius and Perseus arms. Every star you can see at night is inside this single galaxy. There are ~200 billion more like it.",
+    sources: [
+      "Gaia Data Release 3 (2022) — DOI:10.1051/0004-6361/202243940",
+      "Reid et al. 2019 — Sgr A* distance 8.15 kpc, DOI:10.3847/1538-4357/ab4a11",
+      "EHT Collaboration 2022 — Sgr A* imaged, DOI:10.3847/2041-8213/ac6674",
+    ],
+  },
+  /* The Edge — the tour's cinematic closer, a black hole hosting the
+     Contact section. Not scientifically nearby (nearest known BH is Gaia
+     BH1 at 1,560 ly); this is the emotional endpoint of the journey. */
+  /* The Edge intentionally has NO planetFacts entry — user wants the
+     black-hole finale to render WIDE without any info card overlay. */
+  /* Kuiper Belt — retired as a tour stop; kept as data for the belt
+     background scenery and any future re-mount. Not referenced by any
+     active destination now. */
+  kuiper: {
+    body: "Kuiper Belt — icy minor planets",
+    distance: "30–50 AU from the Sun (~4.5–7.5 billion km)",
+    diameter: "Belt width ~20 AU; ~50,000 objects > 100 km",
+    mass: "~0.1× Earth's mass, spread across thousands of icy worlds",
+    year: "Pluto: 248 Earth-years; Eris: 558",
+    day: "—",
+    gravity: "Dominated by Neptune's gravitational sculpting",
+    temp: "40–50 K (−230 to −220 °C)",
+    atmosphere: "None — surface ices only sublime near perihelion",
+    moons: "Charon (Pluto), Dysnomia (Eris), Hi'iaka + Namaka (Haumea)",
+    missions: "New Horizons flew past Pluto (2015) and Arrokoth (2019)",
+    wow: "Home of Pluto, Eris, Haumea, Makemake. Resonance clumps at 3:2 (Plutinos, 39.4 AU) and 2:1 (Twotinos, 47.7 AU) — the belt piles up where Neptune's migration parked it. Kuiper Cliff at ~48 AU: the disc simply ends.",
+    sources: [
+      "New Horizons mission data (NASA/JHU-APL/SwRI, 2015+)",
+      "Jewitt & Luu 1993 — discovery of first Kuiper Belt object 1992 QB1",
+    ],
+  },
+  /* Oort Cloud — 2,000 to 100,000 AU. Final ambient beat of the tour. */
+  oort: {
+    body: "Oort Cloud — the outermost shell",
+    distance: "2,000 to 100,000 AU · outer edge nearly a light-year",
+    diameter: "Spherical shell — hundreds of billions of km thick",
+    mass: "~5× Earth's mass across ~10¹² icy comet nuclei",
+    year: "Long-period comets orbit for millions of years",
+    day: "—",
+    gravity: "Weak — nudged by passing stars + galactic tides",
+    temp: "~4 K (near absolute zero)",
+    atmosphere: "Ices only — water, methane, carbon monoxide",
     moons: "—",
-    missions: "Voyager 1 & 2 — crossed the heliopause",
-    wow: "Voyager 1 crossed the heliopause in 2012 at 121 AU and entered interstellar space — the first human-made object to leave the solar system.",
+    missions: "None. Voyager 1 (166 AU today) needs ~300 years to reach the inner edge.",
+    wow: "The Solar System's outermost boundary — a spherical shell that reaches nearly to Proxima Centauri (4.24 ly). Every long-period comet you've ever seen (Halley, Hale-Bopp, NEOWISE) began its fall from here.",
+    sources: [
+      "Oort 1950 — Bull. Astron. Inst. Netherlands, 11, 91",
+      "Voyager Interstellar Mission data (NASA JPL)",
+    ],
   },
 };

@@ -3,51 +3,75 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>404 - Page Not Found | Rugwed Patharkar</title>
+  <title>404 · Rugwed Patharkar</title>
   <style>
+    :root {
+      --bg-void: #050609;
+      --fg: #f5f7fc;
+      --fg-dim: #b3b9c7;
+      --fg-mute: #7c8391;
+      --gold: #e9c675;
+      --line: rgba(255,255,255,0.10);
+    }
     * { margin: 0; padding: 0; box-sizing: border-box; }
     body {
-      font-family: 'DM Sans', sans-serif;
-      background: #050816;
-      color: white;
+      font-family: 'Manrope', system-ui, sans-serif;
+      background: var(--bg-void);
+      color: var(--fg);
       min-height: 100vh;
       display: flex;
       align-items: center;
       justify-content: center;
-      text-align: center;
       padding: 2rem;
     }
-    .container { max-width: 500px; }
-    .code {
-      font-size: 8rem;
-      font-weight: 900;
-      background: linear-gradient(90.13deg, #00cea8 1.9%, #bf61ff 97.5%);
-      -webkit-background-clip: text;
-      -webkit-text-fill-color: transparent;
-      line-height: 1;
+    .container { max-width: 560px; text-align: left; }
+    .kicker {
+      font-family: ui-monospace, 'Geist Mono', monospace;
+      font-size: 0.72rem;
+      color: var(--fg-mute);
+      letter-spacing: 0.28em;
+      text-transform: uppercase;
+      margin-bottom: 18px;
     }
-    h2 { font-size: 1.5rem; margin: 1rem 0; }
-    p { color: #aaa6c3; margin: 1rem 0 2rem; font-size: 0.95rem; line-height: 1.6; }
+    .rule { display: inline-block; width: 32px; height: 2px; background: var(--gold); vertical-align: middle; margin: 0 10px 3px 0; }
+    h1 {
+      font-family: 'Fraunces', 'DM Serif Display', Georgia, serif;
+      font-weight: 400;
+      font-size: clamp(3rem, 8vw, 5.5rem);
+      line-height: 1.02;
+      letter-spacing: -0.02em;
+      margin-bottom: 0.35em;
+    }
+    h1 em { font-style: italic; color: var(--gold); }
+    p {
+      font-size: 1.02rem;
+      color: var(--fg-dim);
+      line-height: 1.55;
+      margin-bottom: 2rem;
+      max-width: 44ch;
+    }
     a {
       display: inline-block;
-      padding: 0.75rem 2rem;
-      background: linear-gradient(90.13deg, #00cea8 1.9%, #bf61ff 97.5%);
-      color: white;
+      padding: 0.72rem 1.5rem;
+      border: 1px solid var(--line);
+      color: var(--gold);
+      background: transparent;
       text-decoration: none;
-      border-radius: 50px;
-      font-weight: 600;
-      font-size: 0.9rem;
-      transition: transform 0.2s, box-shadow 0.2s;
+      font-weight: 500;
+      font-size: 0.95rem;
+      letter-spacing: 0.02em;
+      border-radius: 4px;
+      transition: background 0.2s, border-color 0.2s;
     }
-    a:hover { transform: scale(1.05); box-shadow: 0 4px 20px rgba(145, 94, 255, 0.4); }
+    a:hover, a:focus-visible { background: rgba(233,198,117,0.08); border-color: var(--gold); outline: none; }
   </style>
 </head>
 <body>
-  <div class="container">
-    <p class="code">404</p>
-    <h2>Page Not Found</h2>
-    <p>The page you're looking for doesn't exist or has been moved. Let's get you back on track.</p>
-    <a href="/">Back to Portfolio</a>
-  </div>
+  <main class="container">
+    <div class="kicker"><span class="rule"></span>Signal lost · 404</div>
+    <h1>Off <em>the map.</em></h1>
+    <p>The stop you tried to visit isn't on the tour. Head back to the Sun and I'll take you through the whole system from there.</p>
+    <a href="/">Return to the Solar System</a>
+  </main>
 </body>
 </html>

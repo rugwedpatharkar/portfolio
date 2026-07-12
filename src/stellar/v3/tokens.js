@@ -21,32 +21,9 @@ export const COLOR = {
   accent: "#e9c675", // Sol default (warm-white gold)
 };
 
-/* Per-body accent — each stop's REAL color tints its HUD/labels/active states.
-   Keyed by destination id AND by common body name so callers can use either. */
-export const ACCENT = {
-  sol: "#e9c675",
-  mercury: "#8a8079",
-  venus: "#e6c98a",
-  earth: "#3d7fd6",
-  mars: "#c1440e",
-  jupiter: "#d8a06a",
-  saturn: "#e3c07a",
-  uranus: "#a9dbe0",
-  neptune: "#3f66d6",
-  belt: "#9a8f80",
-  kuiper: "#8fb4c4",
-  comet: "#7fd3ff",
-  heliopause: "#6f86c9",
-  blackhole: "#ffb14a",
-  wormhole: "#8ea2ff",
-  nebula: "#ff5a8a",
-  pulsar: "#bcd4ff",
-  milkyway: "#e8ddc4",
-};
-
-/* Resolve an accent from a destination id / section / body name (fallback = Sol). */
-export const accentFor = (key) =>
-  (key && ACCENT[String(key).toLowerCase()]) || COLOR.accent;
+/* §6.3: per-stop accent lives on each destination row now (`accent` for
+   non-planets, `color` for planets). See config/destinations.js. V3Style
+   resolves `dest.accent || dest.color || COLOR.accent`. */
 
 /* ---- type ----------------------------------------------------------------- */
 export const FONT = {

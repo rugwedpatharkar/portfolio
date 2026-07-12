@@ -1,4 +1,3 @@
-"use client";
 /*
  * Achievements (Mars) — Hero + rundown, interactive.
  *
@@ -16,7 +15,8 @@
 import { useMemo, useState, useCallback } from "react";
 import { motion, AnimatePresence, useReducedMotion } from "motion/react";
 import { achievements, sectionMeta } from "../../../content";
-import { V3Frame, V3Scan, V3Ticker } from "../primitives";
+import { V3Frame, V3Scan, V3Ticker, V3SectionHeader, useMasterListKeys } from "../primitives";
+import { EASE, shutterVariants } from "../anim";
 
 const META = sectionMeta.achievements || {
   sub: "Milestones",
@@ -44,20 +44,17 @@ const pickFlagship = (list) => {
 /* Shutter reveal on the flagship title. Vertical inset is negative so
    descenders don't get shaved by the clip-path. Same technique as
    Projects. */
-const SHUTTER_VARIANTS = {
-  hidden: { clipPath: "inset(-0.2em 100% -0.3em 0)" },
-  show:   { clipPath: "inset(-0.2em 0 -0.3em 0)", transition: { duration: 0.5, ease: [0.22, 1, 0.36, 1], delay: 0.08 } },
-};
+const SHUTTER_VARIANTS = shutterVariants(0.08);
 
 /* Hero body crossfade on active-index change. */
 const HERO_BODY_VARIANTS = {
   hidden: { opacity: 0, y: 6 },
-  show:   { opacity: 1, y: 0, transition: { duration: 0.3, ease: [0.22, 1, 0.36, 1] } },
+  show:   { opacity: 1, y: 0, transition: { duration: 0.3, ease: EASE } },
   exit:   { opacity: 0, transition: { duration: 0.15 } },
 };
 
-export default function AchievementsSection({ index, bootNonce }) {
-  const list = achievements || [];
+export default function AchievementsSection({ bootNonce }) {
+  const list = useMemo(() => achievements || [], []);
   const reduce = useReducedMotion();
 
   const initialIdx = useMemo(() => pickFlagship(list), [list]);
@@ -71,12 +68,13 @@ export default function AchievementsSection({ index, bootNonce }) {
     if (i < 0 || i >= list.length || i === active) return;
     setActive(i);
   }, [active, list.length]);
+  const { onKeyDown: onKeys, itemProps } = useMasterListKeys(active, goto, list.length, { axis: "x" });
 
   return (
     <V3Frame
       section="Achievements"
       planet="MARS"
-      index={index}
+
       scanDir="circuit"
       scanKey={bootNonce}
       gridAreas={`"top top top" "left left ." "left left ." "left left ."`}
@@ -89,25 +87,7 @@ export default function AchievementsSection({ index, bootNonce }) {
         height: "100%",
       }}>
         {/* Header */}
-        <V3Scan variant="horizontal" delay={0.05}>
-          <div>
-            <div style={{ display: "flex", alignItems: "center", gap: 12, marginBottom: 8 }}>
-              <span style={{ width: 22, height: 1, background: "var(--v3-accent)" }} />
-              <span style={{
-                fontFamily: "var(--v3-font-mono)", fontWeight: 400, fontSize: 10,
-                letterSpacing: ".28em", textTransform: "uppercase", color: "var(--v3-fg-mute)",
-              }}>{META.sub}</span>
-            </div>
-            <h2 style={{
-              fontFamily: "var(--v3-font-display)", fontWeight: 340,
-              fontSize: "clamp(1.5rem, 1.1vw + 0.9rem, 2.3rem)", fontOpticalSizing: "auto",
-              lineHeight: 1, letterSpacing: "-.02em", color: "var(--v3-fg)",
-              margin: 0,
-            }}>
-              {META.heading}
-            </h2>
-          </div>
-        </V3Scan>
+        <V3SectionHeader sub={META.sub} heading={META.heading} />
 
         {/* Hero card — content swaps via AnimatePresence when active changes */}
         {hero && (
@@ -140,7 +120,7 @@ export default function AchievementsSection({ index, bootNonce }) {
                   initial={reduce ? false : { opacity: 0, scale: 0.7 }}
                   animate={{ opacity: 1, scale: 1 }}
                   exit={{ opacity: 0, transition: { duration: 0.12 } }}
-                  transition={{ duration: 0.3, ease: [0.22, 1, 0.36, 1] }}
+                  transition={{ duration: 0.3, ease: EASE }}
                   style={{
                     fontSize: "clamp(2.4rem, 2.4vw + 1rem, 3.8rem)",
                     lineHeight: 1,
@@ -233,10 +213,7 @@ export default function AchievementsSection({ index, bootNonce }) {
             <div
               role="tablist"
               aria-label="Milestones"
-              onKeyDown={(e) => {
-                if (e.key === "ArrowRight" || e.key === "l") { goto((active + 1) % list.length); e.preventDefault(); }
-                if (e.key === "ArrowLeft"  || e.key === "h") { goto((active - 1 + list.length) % list.length); e.preventDefault(); }
-              }}
+              onKeyDown={onKeys}
               style={{
                 width: "100%", height: "100%",
                 display: "grid",
@@ -257,10 +234,11 @@ export default function AchievementsSection({ index, bootNonce }) {
                     role="tab"
                     aria-selected={isActive}
                     onClick={() => goto(i)}
+                    {...itemProps(i)}
                     initial={reduce ? false : { opacity: 0, y: 10 }}
                     whileInView={{ opacity: 1, y: 0 }}
                     viewport={{ once: true, amount: 0.2 }}
-                    transition={{ duration: 0.4, ease: [0.22, 1, 0.36, 1], delay }}
+                    transition={{ duration: 0.4, ease: EASE, delay }}
                     style={{
                       all: "unset", cursor: "pointer",
                       display: "flex", flexDirection: "column",

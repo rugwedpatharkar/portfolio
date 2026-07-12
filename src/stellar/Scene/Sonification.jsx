@@ -1,7 +1,7 @@
 import { useMemo, useRef } from "react";
 import { useFrame } from "@react-three/fiber";
 import * as THREE from "three";
-import { remapPosition, frontOfSun } from "../config/destinations";
+import { placeInFrontOfSun } from "../config/destinations";
 import { useSceneClock } from "./SceneClock";
 import { SoundManager } from "../sound/SoundManager";
 
@@ -16,8 +16,8 @@ import { SoundManager } from "../sound/SoundManager";
  * (The NASA "sounds of space" ambient bed is deferred — it needs an audio asset.)
  */
 
-const HOLE = remapPosition(frontOfSun([49, -6, -15])); // Gargantua, matches Scene mount
-const PULSE = remapPosition(frontOfSun([-26, 16, -34])); // pulsar, matches Pulsar default
+const HOLE = placeInFrontOfSun([49, -6, -15]); // Gargantua, matches Scene mount
+const PULSE = placeInFrontOfSun([-26, 16, -34]); // pulsar, matches Pulsar default
 const HOLE_RANGE = 1400;
 const PULSE_RANGE = 700;
 

@@ -1,4 +1,3 @@
-"use client";
 /*
  * V3Reticle — a hairline FUI targeting reticle + mono label on the ACTIVE planet.
  * Projects the body's LIVE orbital position (the same orbitalPosition the camera
@@ -7,7 +6,7 @@
  * settle. Planet stops only (no Sun/overview/cosmic); off on mobile, reduced
  * motion, and during the fly-through (where the projected point would swim).
  */
-import { useEffect, useRef, useState } from "react";
+import { memo, useEffect, useRef, useState } from "react";
 import * as THREE from "three";
 import { DESTINATIONS } from "../config/destinations";
 import { orbitalPosition } from "../config/orbits";
@@ -27,7 +26,10 @@ const Bracket = ({ corner }) => {
   return <i style={{ ...base, ...map[corner] }} />;
 };
 
-export default function V3Reticle({ cameraRef, clock, activeIdx }) {
+/* memo: cameraRef + clock are stable refs; activeIdx is a per-hop primitive.
+   Skips render on panelHidden / extrasPhase / scrollFinale — the reticle only
+   needs to switch which body it tracks. */
+function V3Reticle({ cameraRef, clock, activeIdx }) {
   const boxRef = useRef(null);
   const { isMobile, reducedMotion } = useViewport();
   const [flying, setFlying] = useState(false);
@@ -80,3 +82,5 @@ export default function V3Reticle({ cameraRef, clock, activeIdx }) {
     </div>
   );
 }
+
+export default memo(V3Reticle);

@@ -1,176 +1,122 @@
-import {
-  backend,
-  frontend,
-  fullstack,
-  javascript,
-  html,
-  css,
-  reactjs,
-  redux,
-  tailwind,
-  mongodb,
-  docker,
-  java,
-  kubernetes,
-  linux,
-  mysql,
-  python,
-  springboot,
-  techentrepreneurs,
-  upswing,
-  web,
-  django,
-  github,
-  hsc,
-  bachelor,
-  ssc,
-  bigquery,
-  fastapi,
-  firebase,
-  gcp,
-  grpc,
-  helm,
-  langchain,
-  nextjs,
-  nodejs,
-  openai,
-  postgresql,
-  prometheus,
-  rabbitmq,
-  redis,
-  restapi,
-  soapapi,
-  terraform,
-  typescript,
-  celery,
-  gadgetgalaxy,
-  blogbuddy,
-  careerforall,
-} from "../assets";
-
-export const navLinks = [
-  { id: "about", title: "About" },
-  { id: "experience", title: "Experience" },
-  { id: "skills", title: "Skills" },
-  { id: "projects", title: "Projects" },
-  { id: "notes", title: "Notes" },
-  { id: "education", title: "Education" },
-  { id: "hobbies", title: "Hobbies" },
-  { id: "contact", title: "Contact" },
-];
-
-export const services = [
-  { title: "Backend & Distributed Systems", icon: backend },
-  { title: "Agentic AI (LangGraph · MCP)", icon: fullstack },
-  { title: "Hybrid RAG · Vector Search", icon: web },
-  { title: "Cloud-native on GKE", icon: frontend },
-];
+/*
+ * UPSWING headline numbers — the four flagship stats from the Upswing tenure.
+ * Extracted so `funFacts` and `experiences[0].metrics` reference the SAME
+ * numbers instead of duplicating them (they used to; audit §4.10). Each
+ * consumer keeps its own display formatting (chip vs count-up), but the raw
+ * values live here once.
+ */
+const UPSWING = {
+  servicesOwned: 31,
+  p95LatencyCutPct: 96,
+  computeCostSavedPct: 25,
+  availabilityPct: 99.9,
+};
 
 export const skills = {
   "Languages": [
-    { name: "Python", icon: python, level: 92 },
-    { name: "JavaScript", icon: javascript, level: 82 },
-    { name: "TypeScript", icon: typescript, level: 75 },
-    { name: "Java", icon: java, level: 80 },
-    { name: "Protocol Buffers", icon: grpc, level: 85 },
-    { name: "SQL", icon: mysql, level: 85 },
-    { name: "Shell", icon: linux, level: 80 },
+    { name: "Python", level: 92 },
+    { name: "JavaScript", level: 82 },
+    { name: "TypeScript", level: 75 },
+    { name: "Java", level: 80 },
+    { name: "Protocol Buffers", level: 85 },
+    { name: "SQL", level: 85 },
+    { name: "Shell", level: 80 },
   ],
   "AI & Agentic AI": [
-    { name: "LangChain", icon: langchain, level: 88 },
-    { name: "LangGraph", icon: langchain, level: 88 },
-    { name: "Model Context Protocol (MCP)", icon: openai, level: 88 },
-    { name: "FastMCP", icon: fastapi, level: 85 },
-    { name: "OpenAI", icon: openai, level: 85 },
-    { name: "Gemini · Vertex AI", icon: gcp, level: 82 },
-    { name: "Anthropic Claude", icon: openai, level: 82 },
-    { name: "Groq", icon: openai, level: 78 },
-    { name: "Google ADK", icon: gcp, level: 78 },
-    { name: "Hybrid RAG (Dense + BM25)", icon: langchain, level: 85 },
-    { name: "Embeddings · FastEmbed", icon: langchain, level: 82 },
-    { name: "Prompt Engineering", icon: langchain, level: 85 },
-    { name: "LangSmith", icon: langchain, level: 70 },
-    { name: "Vapi (Voice AI)", icon: openai, level: 65 },
-    { name: "Prophet (forecasting)", icon: python, level: 68 },
+    { name: "LangChain", level: 88 },
+    { name: "LangGraph", level: 88 },
+    { name: "Model Context Protocol (MCP)", level: 88 },
+    { name: "FastMCP", level: 85 },
+    { name: "OpenAI", level: 85 },
+    { name: "Gemini · Vertex AI", level: 82 },
+    { name: "Anthropic Claude", level: 82 },
+    { name: "Groq", level: 78 },
+    { name: "Google ADK", level: 78 },
+    { name: "Hybrid RAG (Dense + BM25)", level: 85 },
+    { name: "Embeddings · FastEmbed", level: 82 },
+    { name: "Prompt Engineering", level: 85 },
+    { name: "LangSmith", level: 70 },
+    { name: "Vapi (Voice AI)", level: 65 },
+    { name: "Prophet (forecasting)", level: 68 },
   ],
   "Backend": [
-    { name: "FastAPI", icon: fastapi, level: 92 },
-    { name: "gRPC", icon: grpc, level: 88 },
-    { name: "Pydantic", icon: fastapi, level: 90 },
-    { name: "asyncio", icon: python, level: 88 },
-    { name: "WebSockets · Socket.IO", icon: nodejs, level: 80 },
-    { name: "Celery", icon: celery, level: 80 },
-    { name: "Django", icon: django, level: 78 },
-    { name: "Spring Boot", icon: springboot, level: 72 },
-    { name: "Node.js", icon: nodejs, level: 75 },
+    { name: "FastAPI", level: 92 },
+    { name: "gRPC", level: 88 },
+    { name: "Pydantic", level: 90 },
+    { name: "asyncio", level: 88 },
+    { name: "WebSockets · Socket.IO", level: 80 },
+    { name: "Celery", level: 80 },
+    { name: "Django", level: 78 },
+    { name: "Spring Boot", level: 72 },
+    { name: "Node.js", level: 75 },
   ],
   "Frontend": [
-    { name: "React JS", icon: reactjs, level: 82 },
-    { name: "Next JS", icon: nextjs, level: 70 },
-    { name: "Vite", icon: reactjs, level: 80 },
-    { name: "Tailwind CSS", icon: tailwind, level: 82 },
-    { name: "Redux", icon: redux, level: 70 },
-    { name: "Three.js", icon: reactjs, level: 65 },
-    { name: "HTML", icon: html, level: 90 },
-    { name: "CSS", icon: css, level: 85 },
+    { name: "React JS", level: 82 },
+    { name: "Next JS", level: 70 },
+    { name: "Vite", level: 80 },
+    { name: "Tailwind CSS", level: 82 },
+    { name: "Redux", level: 70 },
+    { name: "Three.js", level: 65 },
+    { name: "HTML", level: 90 },
+    { name: "CSS", level: 85 },
   ],
   "Databases & Search": [
-    { name: "MongoDB", icon: mongodb, level: 88 },
-    { name: "Redis (Cloud · multi-shard)", icon: redis, level: 88 },
-    { name: "Qdrant (Vector DB)", icon: mongodb, level: 82 },
-    { name: "ChromaDB", icon: mongodb, level: 82 },
-    { name: "Firebase Firestore", icon: firebase, level: 82 },
-    { name: "Google BigQuery", icon: bigquery, level: 80 },
-    { name: "PostgreSQL", icon: postgresql, level: 78 },
-    { name: "MySQL", icon: mysql, level: 80 },
-    { name: "FastEmbed", icon: openai, level: 78 },
+    { name: "MongoDB", level: 88 },
+    { name: "Redis (Cloud · multi-shard)", level: 88 },
+    { name: "Qdrant (Vector DB)", level: 82 },
+    { name: "ChromaDB", level: 82 },
+    { name: "Firebase Firestore", level: 82 },
+    { name: "Google BigQuery", level: 80 },
+    { name: "PostgreSQL", level: 78 },
+    { name: "MySQL", level: 80 },
+    { name: "FastEmbed", level: 78 },
   ],
   "Distributed Systems": [
-    { name: "Event-driven architecture", icon: rabbitmq, level: 88 },
-    { name: "Idempotency", icon: grpc, level: 88 },
-    { name: "Eventual consistency", icon: mongodb, level: 82 },
-    { name: "Multi-tenancy isolation", icon: gcp, level: 88 },
-    { name: "Caching & connection pooling", icon: redis, level: 90 },
-    { name: "Multi-region deployments", icon: gcp, level: 80 },
-    { name: "Observability (Prometheus / Grafana)", icon: prometheus, level: 80 },
-    { name: "On-call · incident response", icon: prometheus, level: 80 },
+    { name: "Event-driven architecture", level: 88 },
+    { name: "Idempotency", level: 88 },
+    { name: "Eventual consistency", level: 82 },
+    { name: "Multi-tenancy isolation", level: 88 },
+    { name: "Caching & connection pooling", level: 90 },
+    { name: "Multi-region deployments", level: 80 },
+    { name: "Observability (Prometheus / Grafana)", level: 80 },
+    { name: "On-call · incident response", level: 80 },
   ],
   "Cloud & DevOps": [
-    { name: "GCP (GKE, Pub/Sub, Cloud Storage, Vertex AI)", icon: gcp, level: 88 },
-    { name: "Docker", icon: docker, level: 90 },
-    { name: "Kubernetes", icon: kubernetes, level: 85 },
-    { name: "Helm · Helmfile", icon: helm, level: 80 },
-    { name: "Terraform", icon: terraform, level: 78 },
-    { name: "Pants (build system)", icon: python, level: 75 },
-    { name: "Apache Airflow", icon: python, level: 75 },
-    { name: "GitHub Actions (self-hosted)", icon: github, level: 88 },
-    { name: "GitLab CI/CD", icon: github, level: 78 },
-    { name: "Prometheus · Grafana", icon: prometheus, level: 78 },
-    { name: "Trivy (container scanning)", icon: docker, level: 78 },
+    { name: "GCP (GKE, Pub/Sub, Cloud Storage, Vertex AI)", level: 88 },
+    { name: "Docker", level: 90 },
+    { name: "Kubernetes", level: 85 },
+    { name: "Helm · Helmfile", level: 80 },
+    { name: "Terraform", level: 78 },
+    { name: "Pants (build system)", level: 75 },
+    { name: "Apache Airflow", level: 75 },
+    { name: "GitHub Actions (self-hosted)", level: 88 },
+    { name: "GitLab CI/CD", level: 78 },
+    { name: "Prometheus · Grafana", level: 78 },
+    { name: "Trivy (container scanning)", level: 78 },
   ],
   "Messaging & Integration": [
-    { name: "RabbitMQ", icon: rabbitmq, level: 85 },
-    { name: "Google Pub/Sub", icon: gcp, level: 82 },
-    { name: "MQTT", icon: rabbitmq, level: 72 },
-    { name: "Stripe", icon: nodejs, level: 75 },
-    { name: "SMTP · Resend", icon: nodejs, level: 80 },
-    { name: "Zoho CRM SDK", icon: nodejs, level: 70 },
-    { name: "Webhooks (idempotent)", icon: grpc, level: 88 },
-    { name: "REST API", icon: restapi, level: 92 },
-    { name: "SOAP API · XML", icon: soapapi, level: 75 },
+    { name: "RabbitMQ", level: 85 },
+    { name: "Google Pub/Sub", level: 82 },
+    { name: "MQTT", level: 72 },
+    { name: "Stripe", level: 75 },
+    { name: "SMTP · Resend", level: 80 },
+    { name: "Zoho CRM SDK", level: 70 },
+    { name: "Webhooks (idempotent)", level: 88 },
+    { name: "REST API", level: 92 },
+    { name: "SOAP API · XML", level: 75 },
   ],
   "Testing · Security · Practices": [
-    { name: "pytest", icon: python, level: 88 },
-    { name: "Integration & smoke testing", icon: python, level: 85 },
-    { name: "CI quality gates", icon: github, level: 85 },
-    { name: "TDD", icon: python, level: 78 },
-    { name: "Code review", icon: github, level: 90 },
-    { name: "Agile", icon: github, level: 85 },
-    { name: "JWT", icon: nodejs, level: 88 },
-    { name: "OAuth 2.1", icon: nodejs, level: 80 },
-    { name: "RBAC", icon: nodejs, level: 85 },
-    { name: "Firebase Authentication", icon: firebase, level: 82 },
-    { name: "AES Encryption", icon: nodejs, level: 80 },
+    { name: "pytest", level: 88 },
+    { name: "Integration & smoke testing", level: 85 },
+    { name: "CI quality gates", level: 85 },
+    { name: "TDD", level: 78 },
+    { name: "Code review", level: 90 },
+    { name: "Agile", level: 85 },
+    { name: "JWT", level: 88 },
+    { name: "OAuth 2.1", level: 80 },
+    { name: "RBAC", level: 85 },
+    { name: "Firebase Authentication", level: 82 },
+    { name: "AES Encryption", level: 80 },
   ],
 };
 
@@ -178,7 +124,7 @@ export const experiences = [
   {
     title: "Software Engineer",
     companyName: "Upswing Cognitive Hospitality Solutions",
-    icon: upswing,
+
     iconBg: "#ffffff",
     date: "May 2024 – Present",
     tech: [
@@ -187,10 +133,10 @@ export const experiences = [
       "RabbitMQ", "Pub/Sub", "BigQuery", "Airflow", "Terraform", "Helm", "Pants",
     ],
     metrics: [
-      { value: "31", label: "Services Owned" },
-      { value: "96%", label: "p95 Latency Cut" },
-      { value: "~25%", label: "Compute Cost Saved" },
-      { value: "99.9%", label: "Availability" },
+      { value: `${UPSWING.servicesOwned}`, label: "Services Owned" },
+      { value: `${UPSWING.p95LatencyCutPct}%`, label: "p95 Latency Cut" },
+      { value: `~${UPSWING.computeCostSavedPct}%`, label: "Compute Cost Saved" },
+      { value: `${UPSWING.availabilityPct}%`, label: "Availability" },
     ],
     achievement: "Awarded Star Performer of the Quarter",
     categories: [
@@ -237,7 +183,7 @@ export const experiences = [
   {
     title: "IT Trainee Intern",
     companyName: "Tech Entrepreneurs",
-    icon: techentrepreneurs,
+
     iconBg: "#383E56",
     date: "March 2023 – September 2023",
     tech: ["Python", "Django", "JavaScript", "PostgreSQL"],
@@ -439,7 +385,7 @@ export const projects = [
     status: "completed",
     year: "2023",
     team: "Solo",
-    image: blogbuddy,
+
     github: "https://github.com/rugwedpatharkar/BlogBuddy",
     description:
       "BlogBuddy — a full-stack blogging platform with secure authentication, email OTP verification, and responsive UI. Deployed with Docker on Render.",
@@ -468,7 +414,7 @@ export const projects = [
     status: "completed",
     year: "2023",
     team: "Solo",
-    image: gadgetgalaxy,
+
     github: "https://github.com/rugwedpatharkar/GadgetGalaxy",
     description:
       "GadgetGalaxy — an e-commerce platform with secure user authentication, product catalog, cart system, and email notifications. Deployed on PythonAnywhere.",
@@ -497,7 +443,7 @@ export const projects = [
     status: "completed",
     year: "2023",
     team: "Solo",
-    image: careerforall,
+
     github: "https://github.com/rugwedpatharkar/CareerForAll",
     description:
       "Recruitment platform connecting startups, institutes, and job seekers. Streamlines the matching process with multi-role access and modular architecture.",
@@ -547,7 +493,7 @@ export const educations = [
     level: "Postgraduate",
     percentage: 81.95,
     name: "Savitribai Phule Pune University",
-    image: bachelor,
+
     year: "2021 – 2023",
     duration: "2 years",
     highlights: ["Cloud Computing & DevOps", "AI / Machine Learning", "Advanced DBMS", "Software Architecture"],
@@ -558,7 +504,7 @@ export const educations = [
     level: "Undergraduate",
     percentage: 72.57,
     name: "Savitribai Phule Pune University",
-    image: bachelor,
+
     year: "2017 – 2021",
     duration: "4 years",
     highlights: ["Data Structures & Algorithms", "Operating Systems", "Computer Networks", "Web Development"],
@@ -569,7 +515,7 @@ export const educations = [
     level: "Higher Secondary",
     percentage: 62.31,
     name: "PVG College, Pune",
-    image: hsc,
+
     year: "2017",
     duration: "2 years",
     highlights: ["Physics", "Mathematics", "Computer Science"],
@@ -580,7 +526,7 @@ export const educations = [
     level: "Secondary",
     percentage: 79.40,
     name: "M.S.G.G.V., Pune",
-    image: ssc,
+
     year: "2015",
     duration: null,
     highlights: ["Mathematics", "Science", "English"],
@@ -690,15 +636,51 @@ export const testimonials = [
 
 // "Numbers I've moved" — every value below is grounded in a specific Upswing
 // initiative documented in the experience entry above. Recruiter-scannable.
+/* First 4 flagship numbers share their raw values with experiences[0].metrics
+   via the UPSWING constant (see top of file). If one of those four values
+   changes, edit UPSWING once; both displays follow. */
 export const funFacts = [
-  { label: "Services Architected", value: 31, suffix: "", icon: "🛰️", detail: "Multi-tenant Python/FastAPI/gRPC platform on GKE with multi-region production deployments and an API Gateway translating REST to internal gRPC." },
-  { label: "p95 Latency Cut", value: 96, suffix: "%", icon: "⚡", detail: "From 5s to 200ms on availability and pricing endpoints via Redis caching, connection pooling, query optimization, and efficient serialization." },
-  { label: "Compute Cost Saved", value: 25, suffix: "%", icon: "💰", detail: "Direct outcome of the latency work — fewer wasted cycles per request, paid back in cloud bill." },
+  { label: "Services Architected", value: UPSWING.servicesOwned, suffix: "", icon: "🛰️", detail: "Multi-tenant Python/FastAPI/gRPC platform on GKE with multi-region production deployments and an API Gateway translating REST to internal gRPC." },
+  { label: "p95 Latency Cut", value: UPSWING.p95LatencyCutPct, suffix: "%", icon: "⚡", detail: "From 5s to 200ms on availability and pricing endpoints via Redis caching, connection pooling, query optimization, and efficient serialization." },
+  { label: "Compute Cost Saved", value: UPSWING.computeCostSavedPct, suffix: "%", icon: "💰", detail: "Direct outcome of the latency work — fewer wasted cycles per request, paid back in cloud bill." },
   { label: "PMS / Hardware Vendors", value: 7, suffix: "+", icon: "🔌", detail: "Apaleo, Opera/OHIP, Cloudbeds, RMS, Clock, Maxxton — plus ASSA ABLOY and Messerschmitt for door-locks and GRMS." },
-  { label: "Production Availability", value: 99.9, suffix: "%", icon: "🟢", detail: "Backed by Prometheus/Grafana observability, on-call rotation, and incident response on the platform I own." },
+  { label: "Production Availability", value: UPSWING.availabilityPct, suffix: "%", icon: "🟢", detail: "Backed by Prometheus/Grafana observability, on-call rotation, and incident response on the platform I own." },
   { label: "Vendor Onboarding Speed", value: 50, suffix: "%", icon: "🚀", detail: "Faster, via a template-driven architecture of abstract base classes and provider-specific implementations." },
   { label: "Code Redundancy Cut", value: 60, suffix: "%", icon: "🧹", detail: "Polymorphic base-class design across the PMS integration layer — one contract, many providers." },
   { label: "Test Coverage on Core", value: 65, suffix: "%", icon: "🧪", detail: "pytest integration & smoke suites behind CI quality gates on the services that matter most." },
+];
+
+/*
+ * Pillars for the "What Sets Me Apart" section (§4.9 — was hard-coded inside
+ * WhatSetsMeApart.jsx). Every planet stop reads its résumé section from this
+ * file; this closes the last content-in-code leak.
+ */
+export const pillars = [
+  {
+    title: "Systems thinking, production-tested",
+    body: "I own the 31-service Python/gRPC platform end-to-end — from p95 latency budgets and distributed race conditions in inventory-hold to on-call incident response.",
+    proof: ["31 services", "96% p95 cut", "99.9% availability"],
+  },
+  {
+    title: "Backend + Agentic AI, without a seam",
+    body: "I architect the whole stack: FastAPI/gRPC on GKE below, a LangGraph multi-agent supervisor with MCP tool-calling and hybrid RAG on top. One head shipping both, not a hand-off.",
+    proof: ["LangGraph · MCP", "4 LLM providers", "Qdrant hybrid RAG"],
+  },
+  {
+    title: "Integration pragmatism at scale",
+    body: "7+ PMS providers, door-lock vendors, GRMS platforms — unified under one polymorphic base-class contract with idempotent webhooks. Zero-downtime provider switching, 60% less duplicated code.",
+    proof: ["7+ vendors", "Idempotent by design", "60% code reduction"],
+  },
+  {
+    title: "Impact the P&L can see",
+    body: "The latency work paid back in the cloud bill: compute cost dropped ~25% off the back of the p95 cut. Faster vendor onboarding, 50% less time-to-first-integration.",
+    proof: ["~25% compute saved", "50% faster onboarding", "Star Performer of the Quarter"],
+  },
+  {
+    title: "Ownership + legibility as a habit",
+    body: "What I ship is legible: versioned prompts, 500+ line Makefiles for deploy/logs/pods, published production notes, ~65% test coverage on core paths. Handovers are boring in the best way.",
+    proof: ["Versioned prompts", "500+ line Makefiles", "~65% core coverage"],
+  },
 ];
 
 export const hobbies = [
@@ -813,76 +795,6 @@ export const sectionMeta = {
   contact: { sub: "Get in Touch", heading: "Contact", description: "Have a project idea, collaboration opportunity, or just want to say hi? I'd love to hear from you." },
 };
 
-export const heroContent = {
-  stats: [
-    { value: 31, suffix: "", label: "Services Architected" },
-    { value: 7, suffix: "+", label: "PMS / Hardware Vendors" },
-    { value: 96, suffix: "%", label: "p95 Latency Cut" },
-  ],
-  typewriterRoles: [
-    "Backend & Agentic AI Engineer",
-    "Distributed Systems @ GKE",
-    "LangGraph · MCP · Hybrid RAG",
-  ],
-  tagline: "31-service Python/FastAPI/gRPC platform on GKE · multi-agent LLM systems with MCP & hybrid RAG, in production.",
-  codeSnippet: [
-    { text: "const ", color: "#bf61ff" },
-    { text: "rugwed", color: "#79c0ff" },
-    { text: " = {", color: "#e6e6e6" },
-    { text: "\n  role: ", color: "#e6e6e6" },
-    { text: '"SWE"', color: "#00cea8" },
-    { text: ",", color: "#e6e6e6" },
-    { text: "\n  stack: ", color: "#e6e6e6" },
-    { text: "[", color: "#e6e6e6" },
-    { text: '"Python"', color: "#00cea8" },
-    { text: ", ", color: "#e6e6e6" },
-    { text: '"React"', color: "#00cea8" },
-    { text: "]", color: "#e6e6e6" },
-    { text: ",", color: "#e6e6e6" },
-    { text: "\n  passion: ", color: "#e6e6e6" },
-    { text: '"building"', color: "#00cea8" },
-    { text: "\n};", color: "#e6e6e6" },
-  ],
-  orbitTags: [
-    { name: "Python", color: "#915eff", r: 0.58, dur: 22, delay: 0 },
-    { name: "Django", color: "#00cea8", r: 0.58, dur: 22, delay: -7.33 },
-    { name: "FastAPI", color: "#bf61ff", r: 0.58, dur: 22, delay: -14.67 },
-    { name: "React", color: "#61dafb", r: 0.75, dur: 32, delay: 0 },
-    { name: "Docker", color: "#2496ed", r: 0.75, dur: 32, delay: -10.67 },
-    { name: "Redis", color: "#ff4438", r: 0.75, dur: 32, delay: -21.33 },
-    { name: "K8s", color: "#326ce5", r: 0.92, dur: 45, delay: 0 },
-    { name: "GCP", color: "#f8c555", r: 0.92, dur: 45, delay: -11.25 },
-    { name: "PostgreSQL", color: "#336791", r: 0.92, dur: 45, delay: -22.5 },
-    { name: "AI/ML", color: "#00cea8", r: 0.92, dur: 45, delay: -33.75 },
-  ],
-  orbitDots: [
-    { r: 0.58, dur: 22, delay: -4, size: 3, color: "#915eff" },
-    { r: 0.58, dur: 22, delay: -15, size: 2, color: "#00cea8" },
-    { r: 0.75, dur: 32, delay: -5, size: 3, color: "#61dafb" },
-    { r: 0.75, dur: 32, delay: -18, size: 2, color: "#915eff" },
-    { r: 0.75, dur: 32, delay: -28, size: 2.5, color: "#bf61ff" },
-    { r: 0.92, dur: 45, delay: -7, size: 2.5, color: "#f8c555" },
-    { r: 0.92, dur: 45, delay: -22, size: 2, color: "#00cea8" },
-    { r: 0.92, dur: 45, delay: -38, size: 3, color: "#915eff" },
-    { r: 1.08, dur: 60, delay: -10, size: 2, color: "#915eff" },
-    { r: 1.08, dur: 60, delay: -30, size: 1.5, color: "#00cea8" },
-    { r: 1.08, dur: 60, delay: -50, size: 2.5, color: "#bf61ff" },
-  ],
-  comets: [
-    { name: "TypeScript", color: "#3178c6", dur: 30, delay: 0, x1: -1.3, y1: -0.5, x2: 1.3, y2: 0.5, tail: "left" },
-    { name: "Node.js", color: "#68a063", dur: 38, delay: -10, x1: 1.3, y1: -0.3, x2: -1.3, y2: 0.4, tail: "right" },
-    { name: "MongoDB", color: "#4db33d", dur: 34, delay: -20, x1: -1.1, y1: 0.6, x2: 1.2, y2: -0.4, tail: "left" },
-    { name: "GraphQL", color: "#e535ab", dur: 42, delay: -30, x1: 0.8, y1: -1.2, x2: -0.5, y2: 1.3, tail: "right" },
-    { name: "Terraform", color: "#7b42bc", dur: 36, delay: -8, x1: -0.6, y1: -1.3, x2: 0.7, y2: 1.2, tail: "left" },
-  ],
-};
-
-export const aboutStats = [
-  { value: 2, suffix: "+", label: "Years Building Production" },
-  { value: 31, suffix: "", label: "Services in One Platform" },
-  { value: 99.9, suffix: "%", label: "Production Availability" },
-];
-
 export const contactLinks = [
   {
     label: "Email",
@@ -965,82 +877,3 @@ export const easterEggs = {
   repoLink: "Curious about the code? Check it out: https://github.com/rugwedpatharkar/portfolio",
   hint: "🛸  Try the Konami code. Click the sun. Drag to explore.",
 };
-
-export const builtWith = [
-  { name: "React", color: "#61dafb" },
-  { name: "Tailwind CSS", color: "#61dafb" },
-  { name: "Framer Motion", color: "#bf61ff" },
-  { name: "Three.js", color: "#00cea8" },
-  { name: "Vite", color: "#f8c555" },
-];
-
-export const footerContent = {
-  tagline: `${personalInfo.role}. Building scalable microservices & AI-powered systems.`,
-  navigateHeader: "Navigate",
-  builtWithHeader: "Built With",
-  version: "v3.0",
-  madeWith: "Designed & Developed with",
-  portfolioDownload: "Download Portfolio",
-  portfolioFile: "/Rugwed-Patharkar-Resume.pdf",
-};
-
-export const navbarContent = {
-  name: personalInfo.fullName,
-  suffix: "| Portfolio",
-};
-
-export const heroButtons = {
-  primary: "Explore My Work",
-  secondary: "Get in Touch",
-  resume: "Resume",
-  resumeFilename: "Rugwed-Patharkar-Resume.pdf",
-};
-
-export const uiLabels = {
-  projects: {
-    professional: "// professional",
-    personal: "// personal",
-    source: "Source",
-    liveDemo: "Live Demo",
-    noResults: "No projects found for this filter.",
-    showAll: "Show all projects",
-    collapseAll: "↑ Collapse all",
-    expandAll: "↓ Expand all",
-  },
-  education: {
-    score: "Score",
-    completed: "Completed",
-    prev: "Prev",
-    next: "Next",
-  },
-  funFacts: {
-    flipHint: "click to reveal",
-    flipBack: "tap to flip back",
-  },
-  testimonials: {
-    endorses: "Endorses",
-    projects: "Projects:",
-  },
-  about: {
-    viewResume: "View Resume",
-    downloadCv: "Download CV",
-  },
-};
-
-// Notes data lives in its own module so the Notes section chunk owns it.
-// The barrel-re-export keeps the public API stable for SpotlightSearch.
-export { notes } from "./sections/notes";
-
-export const sectionOrder = [
-  "about",
-  "funFacts",
-  "experience",
-  "skills",
-  "projects",
-  "notes",
-  "education",
-  "achievements",
-  "hobbies",
-  "testimonials",
-  "contact",
-];

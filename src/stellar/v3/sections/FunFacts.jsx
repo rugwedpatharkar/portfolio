@@ -1,4 +1,3 @@
-"use client";
 /*
  * Fun facts (Mercury) — the numbers dossier.
  *
@@ -19,7 +18,7 @@
  *     force cut-off.
  */
 import { funFacts, sectionMeta } from "../../../content";
-import { V3Frame, V3Scan, V3Ticker } from "../primitives";
+import { V3Frame, V3Scan, V3Ticker, V3SectionHeader } from "../primitives";
 
 const META = sectionMeta.funFacts;
 
@@ -33,8 +32,8 @@ const StatCard = ({ f, i, cols }) => {
         display: "flex", flexDirection: "column",
         gap: "clamp(6px, 0.55vw, 10px)",
         padding: "clamp(12px, 1.1vw, 18px) clamp(12px, 1.15vw, 20px)",
-        borderTop: row > 0 ? "1px solid var(--v3-line)" : "none",
-        borderLeft: col > 0 ? "1px solid var(--v3-line)" : "none",
+        border: "1px solid var(--v3-line)",
+        borderRadius: 6,
         minWidth: 0, height: "100%", minHeight: 0,
       }}>
         {/* emoji + big number inline */}
@@ -73,13 +72,13 @@ const StatCard = ({ f, i, cols }) => {
   );
 };
 
-export default function FunFactsSection({ index, bootNonce }) {
+export default function FunFactsSection({ bootNonce }) {
   const cols = 4; // 4-col grid so 8 stats fit as 4×2
   return (
     <V3Frame
       section="Fun facts"
       planet="MERCURY"
-      index={index}
+
       scanDir="radial"
       scanKey={bootNonce}
       /* LEFT area spans grid cols 1+2 (full frame height) so the 4-col grid
@@ -91,42 +90,28 @@ export default function FunFactsSection({ index, bootNonce }) {
         gridArea: "left",
         display: "flex", flexDirection: "column",
         gap: "clamp(14px, 1.4vw, 22px)",
-        minWidth: 0, minHeight: 0, overflow: "hidden",
+        minWidth: 0, minHeight: 0, overflow: "hidden auto",
         maxWidth: "min(60vw, 1200px)", height: "100%",
       }}>
-        {/* Header */}
-        <V3Scan variant="horizontal" delay={0.05}>
-          <div>
-            <div style={{ display: "flex", alignItems: "center", gap: 12, marginBottom: 10, flexWrap: "wrap", minWidth: 0 }}>
-              <span style={{ width: 22, height: 1, background: "var(--v3-accent)", flexShrink: 0 }} />
-              <span style={{
-                fontFamily: "var(--v3-font-mono)", fontWeight: 400,
-                fontSize: "clamp(9.5px, 0.2vw + 8px, 11px)",
-                letterSpacing: ".28em", textTransform: "uppercase", color: "var(--v3-fg-mute)",
-                overflowWrap: "anywhere",
-              }}>{META.sub}</span>
-            </div>
-            <h2 style={{
-              fontFamily: "var(--v3-font-display)", fontWeight: 340,
-              fontSize: "clamp(1.6rem, 1.1vw + 1rem, 2.4rem)",
-              fontOpticalSizing: "auto",
-              lineHeight: 1, letterSpacing: "-.02em", color: "var(--v3-fg)",
-              margin: "0 0 8px",
-              overflowWrap: "anywhere",
-            }}>
-              {META.heading}
-            </h2>
-            <p style={{
-              fontFamily: "var(--v3-font-ui)", fontWeight: 300,
-              fontSize: "clamp(.8rem, 0.3vw + 0.65rem, .9rem)",
-              color: "var(--v3-fg-dim)",
-              lineHeight: 1.55, margin: 0,
-              maxWidth: "min(72ch, 100%)",
-              overflowWrap: "break-word",
-            }}>
-              {META.description}
-            </p>
-          </div>
+        {/* Header — kicker + h2 via V3SectionHeader; lede paragraph rides along
+            in a following block (V3SectionHeader doesn't own a lede slot). */}
+        <V3SectionHeader
+          sub={META.sub}
+          heading={META.heading}
+          kickerSize="clamp(9.5px, 0.2vw + 8px, 11px)"
+          kickerMb={10}
+        />
+        <V3Scan variant="horizontal" delay={0.08}>
+          <p style={{
+            fontFamily: "var(--v3-font-ui)", fontWeight: 300,
+            fontSize: "clamp(.8rem, 0.3vw + 0.65rem, .9rem)",
+            color: "var(--v3-fg-dim)",
+            lineHeight: 1.55, margin: 0,
+            maxWidth: "min(72ch, 100%)",
+            overflowWrap: "break-word",
+          }}>
+            {META.description}
+          </p>
         </V3Scan>
 
         {/* 4×2 stats grid — hairline dividers between rows AND columns.
@@ -138,9 +123,7 @@ export default function FunFactsSection({ index, bootNonce }) {
           display: "grid",
           gridTemplateColumns: `repeat(${cols}, minmax(0, 1fr))`,
           gridAutoRows: "1fr",
-          border: "1px solid var(--v3-line)",
-          borderRadius: 6,
-          background: "color-mix(in oklab, var(--v3-bg-void) 50%, transparent)",
+          gap: "clamp(8px, 0.7vw, 12px)",
           flex: 1, minHeight: 0,
         }}>
           {funFacts.map((f, i) => (

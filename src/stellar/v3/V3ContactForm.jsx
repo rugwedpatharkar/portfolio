@@ -1,4 +1,3 @@
-/* eslint-disable jsx-a11y/no-autofocus */
 /*
  * V3ContactForm — the send-a-message form for the v3 Contact stop. Matches v3's
  * hairline/mono/serif aesthetic: no borders except accent underlines, JetBrains
@@ -11,8 +10,7 @@ import { useState, useRef, useEffect, useCallback } from "react";
 import emailjs from "@emailjs/browser";
 import { motion, useReducedMotion } from "motion/react";
 import { contactContent, personalInfo } from "../../content";
-
-const ease = [0.22, 1, 0.36, 1];
+import { EASE as ease } from "./anim";
 
 /* Hold-to-confirm duration and the sequence of tickered labels shown
    while the request is in flight. Per the taste-stack table:
@@ -50,6 +48,15 @@ export default function V3ContactForm() {
       setTickerLabel(TICKER_STATES[i]);
     }, TICKER_INTERVAL_MS);
     return () => clearInterval(id);
+  }, [status.state]);
+
+  /* After a successful send, drop back to idle so the send button re-enables and
+     the visitor can send another message (the form is already cleared on success).
+     Without this, isDone stayed true forever and the form was one-shot. */
+  useEffect(() => {
+    if (status.state !== "sent") return undefined;
+    const t = setTimeout(() => setStatus({ state: "idle", note: "" }), 5000);
+    return () => clearTimeout(t);
   }, [status.state]);
 
   const cancelHold = useCallback(() => {
@@ -122,7 +129,7 @@ export default function V3ContactForm() {
       );
   };
 
-  const useTemplate = (t) => {
+  const applyTemplate = (t) => {
     setTopic(t);
     if (!form.message.trim()) setForm((f) => ({ ...f, message: contactContent.msgTemplates?.[t] || "" }));
   };
@@ -176,7 +183,7 @@ export default function V3ContactForm() {
             <button
               key={t.label}
               type="button"
-              onClick={() => useTemplate(t.label)}
+              onClick={() => applyTemplate(t.label)}
               style={chip(topic === t.label)}
             >
               {t.icon} {t.label}

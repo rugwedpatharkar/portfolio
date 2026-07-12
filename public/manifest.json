@@ -1,23 +1,35 @@
 {
   "name": "Rugwed Patharkar | Portfolio",
   "short_name": "Rugwed",
-  "description": "Full Stack Developer Portfolio - Rugwed Patharkar",
+  "description": "Backend & Agentic AI Engineer — Rugwed Patharkar's portfolio",
   "start_url": "/",
   "display": "standalone",
-  "background_color": "#050816",
-  "theme_color": "#915eff",
+  "background_color": "#050609",
+  "theme_color": "#050609",
   "icons": [
     {
       "src": "/logo.png",
       "sizes": "192x192",
       "type": "image/png",
-      "purpose": "any maskable"
+      "purpose": "any"
     },
     {
       "src": "/logo.png",
       "sizes": "512x512",
       "type": "image/png",
-      "purpose": "any maskable"
+      "purpose": "any"
+    },
+    {
+      "src": "/logo-maskable-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "maskable"
+    },
+    {
+      "src": "/logo-maskable.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "maskable"
     }
   ]
 }

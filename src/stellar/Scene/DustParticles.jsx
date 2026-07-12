@@ -2,6 +2,7 @@
 import { useMemo, useRef } from "react";
 import { useFrame } from "@react-three/fiber";
 import * as THREE from "three";
+import { makeSoftDot } from "./shared/textures";
 
 /*
  * Foreground dust particles — small bright specks drifting around the
@@ -20,21 +21,14 @@ const SPAWN_RADIUS = 22;
 const NEAR_CLEAR = 6; // keep dust out of this bubble around the camera
 const DRIFT_SPEED = 0.4;
 
-const SPRITE_TEXTURE = (() => {
-  if (typeof document === "undefined") return null;
-  const c = document.createElement("canvas");
-  c.width = c.height = 32;
-  const ctx = c.getContext("2d");
-  const g = ctx.createRadialGradient(16, 16, 0, 16, 16, 16);
-  g.addColorStop(0, "rgba(255,255,255,1)");
-  g.addColorStop(0.5, "rgba(255,255,255,0.4)");
-  g.addColorStop(1, "rgba(255,255,255,0)");
-  ctx.fillStyle = g;
-  ctx.fillRect(0, 0, 32, 32);
-  const t = new THREE.CanvasTexture(c);
-  t.needsUpdate = true;
-  return t;
-})();
+const SPRITE_TEXTURE = makeSoftDot({
+  size: 32,
+  stops: [
+    [0, "rgba(255,255,255,1)"],
+    [0.5, "rgba(255,255,255,0.4)"],
+    [1, "rgba(255,255,255,0)"],
+  ],
+});
 
 const DustParticles = () => {
   const meshRef = useRef();

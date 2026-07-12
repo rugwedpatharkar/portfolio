@@ -11,10 +11,18 @@ import { useFrame } from "@react-three/fiber";
  */
 
 const DIM = 0.92; // fade lights to ~8% at totality
+/* Cheap early-out: any totality below this is visually indistinguishable from
+   noon, so we skip the whole-scene traverse (thousands of nodes at v3 scale).
+   `wasActive` guards the one restore pass when totality drops back through the
+   threshold — otherwise a partial eclipse would leave lights permanently dimmed. */
+const EPS = 0.005;
 
 const EclipseLights = ({ eclipseRef }) => {
   useFrame(({ scene }) => {
-    const f = 1 - Math.min(1, eclipseRef?.current || 0) * DIM;
+    const t = Math.min(1, eclipseRef?.current || 0);
+    if (t < EPS && !scene.userData.__eclipseWasActive) return;
+    scene.userData.__eclipseWasActive = t >= EPS;
+    const f = 1 - t * DIM;
     scene.traverse((o) => {
       if (!o.isLight) return;
       if (o.userData.__baseI === undefined) o.userData.__baseI = o.intensity;

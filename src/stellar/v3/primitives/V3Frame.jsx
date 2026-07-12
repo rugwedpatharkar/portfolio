@@ -1,4 +1,3 @@
-"use client";
 /*
  * V3Frame — the section chrome for every résumé stop in the Planetary Dossier.
  *
@@ -13,32 +12,24 @@
  */
 import { createContext, useContext } from "react";
 import useViewport from "../../useViewport";
+import FocusHint from "./FocusHint";
 
 /* Passes the current scan direction to V3Scan / arrival-choreography children. */
 export const V3ScanContext = createContext({ dir: "horizontal", key: 0 });
 export const useV3Scan = () => useContext(V3ScanContext);
 
-const Corner = ({ pos }) => {
-  const s = 12;
-  const base = { position: "absolute", width: s, height: s, borderColor: "var(--v3-accent)", borderStyle: "solid", borderWidth: 0, opacity: 0.55 };
-  const map = {
-    tl: { top: 0, left: 0, borderTopWidth: 1, borderLeftWidth: 1 },
-    tr: { top: 0, right: 0, borderTopWidth: 1, borderRightWidth: 1 },
-    bl: { bottom: 0, left: 0, borderBottomWidth: 1, borderLeftWidth: 1 },
-    br: { bottom: 0, right: 0, borderBottomWidth: 1, borderRightWidth: 1 },
-  };
-  return <i aria-hidden style={{ ...base, ...map[pos] }} />;
-};
-
 export default function V3Frame({
   section,
   planet,           // "MERCURY" etc.
-  index,            // "03/13"
   scanDir = "horizontal",
   scanKey = 0,      // change to re-fire the reveal (e.g. bootNonce)
   children,
   gridAreas,        // optional override; defaults to full L-wrap
 }) {
+  /* Note: `index` used to be part of the top label strip ("PLANET · SECTION ·
+     INDEX") that was removed with the decluttered layout — the section's own
+     kicker/heading now rise to the top of the frame. Sections should not pass
+     an `index` prop through anymore; it's a no-op. */
   const { isCompact } = useViewport();
   const defaultAreas = isCompact
     ? `"top" "left" "right-top" "right-bottom" "bottom"`
@@ -81,6 +72,11 @@ export default function V3Frame({
             in the Planet Information card. The "top" grid row simply collapses. */}
         {children}
       </div>
+      {/* §3.7: subtle "Press ↑ ↓ to navigate" hint that appears when a tab
+          inside the dossier first receives focus, and self-dismisses on the
+          first arrow-key press (remembered per session). Fixed-positioned so
+          it doesn't disturb the grid layout. */}
+      <FocusHint />
     </V3ScanContext.Provider>
   );
 }

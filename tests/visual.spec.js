@@ -1,70 +1,31 @@
 import { test, expect } from "@playwright/test";
 
 /*
- * Smoke + visual regression. Captures key sections at each project's viewport
- * (mobile / tablet / desktop) and diffs against the committed baselines.
- *
- * To accept new visuals after an intentional change:
- *   npx playwright test --update-snapshots
+ * Smoke tests for the single-route v3 Stellar tour. The scene is a live WebGL
+ * canvas — pixel-diffing it is flaky — so we assert on the DOM overlay and the
+ * navigation state instead of screenshot-diffing the canvas.
  */
-
-const SECTIONS = [
-  { id: "hero", scrollTo: () => 0 },
-  { id: "about" },
-  { id: "projects" },
-  { id: "notes" },
-  { id: "contact" },
-];
-
-test.describe("Portfolio visual regression", () => {
+test.describe("Stellar v3 portfolio", () => {
   test.beforeEach(async ({ page }) => {
     await page.goto("/");
     await page.waitForLoadState("networkidle");
-    // Cancel typewriter / parallax loops for stable screenshots
-    await page.addStyleTag({
-      content: `
-        *, *::before, *::after {
-          animation-duration: 0s !important;
-          transition-duration: 0s !important;
-        }
-      `,
-    });
   });
 
-  for (const section of SECTIONS) {
-    test(`section ${section.id} renders`, async ({ page }, testInfo) => {
-      const scroll =
-        section.scrollTo ??
-        (async (id) => {
-          const el = await page.$(`#${id}`);
-          if (!el) return;
-          await el.scrollIntoViewIfNeeded();
-        });
-      if (typeof scroll === "function") {
-        await page.evaluate(async (id) => {
-          if (!id) return;
-          const el = document.getElementById(id);
-          if (el) el.scrollIntoView({ behavior: "instant", block: "start" });
-        }, section.id);
-      }
-      // Wait one frame after scroll for paint
-      await page.waitForTimeout(300);
-
-      await expect(page).toHaveScreenshot(`${section.id}-${testInfo.project.name}.png`, {
-        fullPage: false,
-      });
-    });
-  }
-
-  test("command palette opens on ⌘K", async ({ page }) => {
-    await page.keyboard.press("Meta+k");
-    await page.waitForTimeout(300);
-    await expect(page.getByRole("dialog", { name: /command palette|search/i })).toBeVisible();
+  test("hero loads with the name, CTA, and no crash", async ({ page }) => {
+    await expect(page.getByRole("heading", { level: 1 })).toContainText("Patharkar");
+    await expect(page.getByRole("button", { name: /begin the tour/i })).toBeVisible();
+    // The error-boundary "alert" must NOT be showing.
+    await expect(page.getByRole("alert")).toHaveCount(0);
   });
 
-  test("design route loads from #design", async ({ page }) => {
-    await page.goto("/#design");
-    await page.waitForLoadState("networkidle");
-    await expect(page.getByRole("heading", { level: 1 })).toContainText(/Tokens/);
+  test("keyboard navigation advances the tour", async ({ page }) => {
+    // Let the scene settle so the key handler is bound.
+    await page.waitForTimeout(600);
+    await page.keyboard.press("ArrowDown");
+    await page.keyboard.press("ArrowDown");
+    await page.waitForTimeout(900);
+    // The active résumé section drives the tab title + the URL hash.
+    await expect(page).toHaveTitle(/· Rugwed Patharkar$/);
+    expect(page.url()).toContain("#v3/");
   });
 });

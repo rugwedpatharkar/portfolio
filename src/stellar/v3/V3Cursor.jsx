@@ -1,11 +1,10 @@
-"use client";
 /*
  * V3Cursor — a premium two-part cursor: a crisp dot that tracks the pointer 1:1, and
  * a larger ring that lags behind on a spring (the classic "expensive" feel). The ring
  * expands + the dot hides over interactive elements (links, buttons, [data-cursor]).
  * Desktop + fine-pointer only; fully removed under reduced-motion or touch. SSR-safe.
  */
-import { useEffect, useRef, useState } from "react";
+import { memo, useEffect, useRef, useState } from "react";
 import { motion, useMotionValue, useSpring } from "motion/react";
 
 const isFinePointer = () =>
@@ -13,7 +12,9 @@ const isFinePointer = () =>
   window.matchMedia("(pointer: fine)").matches &&
   !window.matchMedia("(prefers-reduced-motion: reduce)").matches;
 
-export default function V3Cursor() {
+/* memo: takes no props → after mount, StellarApp re-renders (activeIdx,
+   panelHidden, extrasPhase, scrollFinale) never touch V3Cursor's tree again. */
+function V3Cursor() {
   const [on, setOn] = useState(false);
   const [hovering, setHovering] = useState(false);
   const [pressed, setPressed] = useState(false);
@@ -76,3 +77,5 @@ export default function V3Cursor() {
     </div>
   );
 }
+
+export default memo(V3Cursor);

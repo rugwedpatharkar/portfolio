@@ -1,117 +1,198 @@
 /* eslint-disable react/no-unknown-property */
-import { useMemo, useRef } from "react";
-import { useFrame } from "@react-three/fiber";
+import { useMemo } from "react";
 import * as THREE from "three";
+import { GALAXY } from "../config/galaxy";
+import { makeSoftDot } from "./shared/textures";
 
 /*
- * The galactic band — a faint, grand sweep of stars + dust sitting far
- * behind everything (radius ~260, well beyond Stars at 150 and the
- * skybox sphere). A single THREE.Points field scattered along a thin
- * band on a huge sphere shell, tilted on a diagonal so it reads as the
- * Milky Way arching across the deep sky.
+ * The galactic band — the Milky Way as it TRULY appears from our solar system:
+ * the disk seen edge-on from inside, a band arching across the sky. Unlike the
+ * old arbitrary-diagonal version, this is placed on the REAL galactic great
+ * circle (from galaxy.js: the galactic pole + center directions), brightest
+ * toward the Sagittarius core/bulge and feathering to the faint anticenter,
+ * split by the Great Rift dust lane. Backdrop shell at ~6800 (behind the
+ * true-scale system + Stars, inside the skybox at 7000); additive + subtle so
+ * it reads as grandeur, not clutter. Static like the star field (the sky sits
+ * at infinity). No post pass (the scene allows exactly one).
  *
- * Deliberately cheap and subtle: ~2600 additive points, low opacity, so
- * it reads as depth/grandeur without competing with the planets. Colour
- * runs cool blue-white at the dense core → faint purple/amber at the
- * sparse edges, the warm-dust-lane look of the real galactic plane.
- *
- * No post-processing (the scene allows exactly one effect). Motion is
- * an optional, almost-imperceptible drift; under reduced-motion it is
- * fully static.
+ * Data-driven: change galaxy.js and the band re-places itself. See
+ * docs/galaxy/technical-scale-regimes.md §3.
  */
 
-const POINT_COUNT = 7200;
-const RADIUS = 6800; // behind the true-scale system + Stars, inside the skybox (7000)
-const BAND_TILT = 0.62; // diagonal lean of the band, radians
+const POINT_COUNT = 11000;
+const RADIUS = 6800;
+const OBLIQUITY = 23.44 * (Math.PI / 180);
+const HgToRad = Math.PI / 12; // hours → radians
+const DegToRad = Math.PI / 180;
 
-/* Soft round sprite — broad, gentle falloff (unlike the crisp pinprick
-   Stars sprite) so each dust mote blends into a hazy band rather than a
-   field of distinct dots. */
-const DUST_TEXTURE = (() => {
-  if (typeof document === "undefined") return null;
-  const size = 64;
-  const c = document.createElement("canvas");
-  c.width = c.height = size;
-  const ctx = c.getContext("2d");
-  const g = ctx.createRadialGradient(size / 2, size / 2, 0, size / 2, size / 2, size / 2);
-  g.addColorStop(0, "rgba(255,255,255,1)");
-  g.addColorStop(0.4, "rgba(255,255,255,0.35)");
-  g.addColorStop(1, "rgba(255,255,255,0)");
-  ctx.fillStyle = g;
-  ctx.fillRect(0, 0, size, size);
-  const t = new THREE.CanvasTexture(c);
-  t.minFilter = THREE.LinearMipmapLinearFilter;
-  t.magFilter = THREE.LinearFilter;
-  t.needsUpdate = true;
-  return t;
-})();
+/* Equatorial RA/Dec (radians) → scene-frame unit vector. IDENTICAL transform to
+   Scene/Stars.jsx so the band, the real star field and the skybox share one sky:
+   equatorial → ecliptic (obliquity ε) → scene [x=xe, y=eclNorth, z=yEcl]. */
+function sceneVec(raRad, decRad, out) {
+  const cd = Math.cos(decRad);
+  const xe = cd * Math.cos(raRad);
+  const ye = cd * Math.sin(raRad);
+  const ze = Math.sin(decRad);
+  const cosE = Math.cos(OBLIQUITY);
+  const sinE = Math.sin(OBLIQUITY);
+  const yEcl = ye * cosE + ze * sinE;
+  const zEcl = -ye * sinE + ze * cosE;
+  return out.set(xe, zEcl, yEcl);
+}
 
-const MilkyWay = ({ animate = true }) => {
-  const groupRef = useRef();
+const DUST_TEXTURE = makeSoftDot({
+  size: 64,
+  stops: [
+    [0, "rgba(255,255,255,1)"],
+    [0.4, "rgba(255,255,255,0.35)"],
+    [1, "rgba(255,255,255,0)"],
+  ],
+  mipmaps: true,
+});
 
+/* §12.1 — arm-density peaks approximated as gaussians in galactic longitude λ.
+   Rather than integrate each log-spiral along the sightline (r(θ) = refR·
+   exp(tan(pitch)·(θ - refAz)) intersecting the Sun's radial line), we use the
+   documented on-sky longitudes where the major arms visibly concentrate. Real
+   naked-eye + long-exposure imagery of the Milky Way peaks at Sagittarius/
+   Scutum toward the core, Cygnus at ~80°, Vela/Carina at ~-80°, and Perseus at
+   the anticenter. Widths approximate each arm's spanDeg / 2. */
+const ARM_PEAKS = [
+  { name: "Scutum-Centaurus toward the core", lambdaDeg: -20, sigmaDeg: 22, weight: 0.55 },
+  { name: "Cygnus (Orion-Spur outbound)",     lambdaDeg:  75, sigmaDeg: 26, weight: 0.42 },
+  { name: "Vela/Carina",                       lambdaDeg: -95, sigmaDeg: 30, weight: 0.36 },
+  { name: "Perseus (anticenter)",              lambdaDeg: 155, sigmaDeg: 40, weight: 0.24 },
+  { name: "Sagittarius-Carina foreground",     lambdaDeg:  45, sigmaDeg: 18, weight: 0.30 },
+];
+
+/* Coalsack Nebula — a prominent dark nebula near Crux (RA 12h50m, Dec -63°).
+   From the Sun's frame, Crux is at galactic longitude ~-58° (l ≈ 302°). Adds
+   a small, sharp darkening on the band toward the southern arm. */
+const COALSACK_LAMBDA_DEG = -58;
+const COALSACK_SIGMA_DEG = 5;
+const COALSACK_DEPTH = 0.55;
+
+const MilkyWay = ({ finale = false }) => {
   const { positions, colors, sizes } = useMemo(() => {
+    const { galacticNorthPole: pole, galacticCenter: center } = GALAXY.orientation;
+
+    // Real galactic frame in scene space: P = pole (band-plane normal),
+    // C = galactic-center direction. U spans the plane pointing at the core, V
+    // completes the right-handed basis. Points ride the great circle ⊥ P.
+    const P = sceneVec(pole.raHours * HgToRad, pole.decDeg * DegToRad, new THREE.Vector3()).normalize();
+    const C = sceneVec(center.raHours * HgToRad, center.decDeg * DegToRad, new THREE.Vector3()).normalize();
+    const U = C.clone().addScaledVector(P, -C.dot(P)).normalize(); // core direction, in-plane
+    const V = new THREE.Vector3().crossVectors(P, U).normalize();
+
     const positions = new Float32Array(POINT_COUNT * 3);
     const colors = new Float32Array(POINT_COUNT * 3);
     const sizes = new Float32Array(POINT_COUNT);
-    const tmp = new THREE.Vector3();
-    const core = new THREE.Color("#dce8ff"); // cool blue-white centre
-    const edgeCool = new THREE.Color("#6b7795"); // dim steel-blue (no purple — real band has none)
-    const edgeWarm = new THREE.Color("#b88f5e"); // warm ochre dust lane
+    const dir = new THREE.Vector3();
+
+    /* Pre-convert arm peak angles to radians for the density sum below. */
+    const armPeaks = ARM_PEAKS.map((a) => ({
+      lambda: a.lambdaDeg * DegToRad,
+      sigma: a.sigmaDeg * DegToRad,
+      weight: a.weight,
+    }));
+    const coalsackLambda = COALSACK_LAMBDA_DEG * DegToRad;
+    const coalsackSigma = COALSACK_SIGMA_DEG * DegToRad;
+
+    /* Wrap two angles into [-π, π] and return the wrapped delta. Prevents
+       gaussians near λ=±π from missing points on the far side. */
+    const angDist = (a, b) => {
+      let d = a - b;
+      while (d > Math.PI) d -= 2 * Math.PI;
+      while (d < -Math.PI) d += 2 * Math.PI;
+      return d;
+    };
+
+    // Accurate naked-eye/long-exposure Milky Way: a pale cream-white band, very
+    // slightly warm toward the star-cloud bulge, cooling to a faint pale blue —
+    // NOT the vivid blue/gold of the earlier stylised pass.
+    const core = new THREE.Color("#f6ecd8"); // warm cream star clouds toward the bulge
+    const mid = new THREE.Color("#d3d9e2"); // pale blue-white disk
+    const edge = new THREE.Color("#9199a6"); // muted grey-blue toward the anticenter
     const tint = new THREE.Color();
 
     for (let i = 0; i < POINT_COUNT; i++) {
-      const theta = Math.random() * 2 * Math.PI; // around the band
-      /* Gaussian-ish offset off the band plane (sum of uniforms) so the
-         band is dense at its spine and feathers out top/bottom. */
+      // Galactic longitude λ measured from the core (λ=0 → Sagittarius). Bias the
+      // SAMPLING toward the core so density peaks at the bulge (sample two angles,
+      // keep the one nearer 0) — cheap importance sampling.
+      const a = Math.random() * 2 * Math.PI - Math.PI;
+      const b = Math.random() * 2 * Math.PI - Math.PI;
+      const lambda = Math.abs(a) < Math.abs(b) ? a : b;
+      const towardCore = 0.5 + 0.5 * Math.cos(lambda); // 1 at core, 0 at anticenter
+
+      // Gaussian-ish thickness off the plane; the disk is thinner toward the core.
       const spread = (Math.random() + Math.random() + Math.random() - 1.5) / 1.5;
-      const phi = Math.PI / 2 + spread * 0.34; // band thickness
+      const halfWidth = 0.16 + 0.14 * (1 - towardCore); // radians; flares to the anticenter
+      const off = spread * halfWidth;
 
-      const r = RADIUS * (0.97 + Math.random() * 0.06);
-      tmp.setFromSphericalCoords(r, phi, theta);
-      positions[i * 3 + 0] = tmp.x;
-      positions[i * 3 + 1] = tmp.y;
-      positions[i * 3 + 2] = tmp.z;
+      // point on the sphere: in-plane direction tilted off-plane toward ±P
+      dir.copy(U).multiplyScalar(Math.cos(lambda)).addScaledVector(V, Math.sin(lambda));
+      dir.multiplyScalar(Math.cos(off)).addScaledVector(P, Math.sin(off)).normalize();
+      const r = RADIUS * (0.985 + Math.random() * 0.03);
+      positions[i * 3] = dir.x * r;
+      positions[i * 3 + 1] = dir.y * r;
+      positions[i * 3 + 2] = dir.z * r;
 
-      /* Colour by distance from the band spine: bright cool core fading
-         to a mix of purple + amber at the edges. */
-      const edge = Math.min(1, Math.abs(spread));
-      tint.copy(core).lerp(Math.random() < 0.5 ? edgeCool : edgeWarm, edge * 0.85);
-      const dim = 1 - edge * 0.4;
-      colors[i * 3 + 0] = tint.r * dim;
-      colors[i * 3 + 1] = tint.g * dim;
-      colors[i * 3 + 2] = tint.b * dim;
+      // Great Rift: a dark dust lane along the spine, strongest toward the core.
+      const rift = 1 - 0.7 * towardCore * Math.exp(-(off * off) / (0.05 * 0.05));
 
-      sizes[i] = 1.6 + Math.random() * 3.4;
+      /* §12.1 arm-density boost: gaussians summed across the 5 documented arm
+         longitudes. Multiplies onto the base brightness so arm-crossings light
+         up (Cygnus, Vela/Carina, Perseus, Sagittarius); non-arm gaps darken
+         gently. */
+      let armBoost = 1.0;
+      for (let a = 0; a < armPeaks.length; a++) {
+        const p = armPeaks[a];
+        const d = angDist(lambda, p.lambda);
+        armBoost += p.weight * Math.exp(-(d * d) / (2 * p.sigma * p.sigma));
+      }
+
+      /* Coalsack — a hard darkening toward Crux, only on the band spine
+         (|off| small) so it doesn't punch a hole out of the diffuse haze. */
+      const cd = angDist(lambda, coalsackLambda);
+      const coalsack = 1 - COALSACK_DEPTH * Math.exp(-(cd * cd) / (2 * coalsackSigma * coalsackSigma)) * Math.exp(-(off * off) / (0.04 * 0.04));
+
+      // Colour: warm star-cloud core → cool disk → dim edge, by |spread| + longitude.
+      const e = Math.min(1, Math.abs(spread));
+      tint.copy(core).lerp(mid, e * 0.7).lerp(edge, (1 - towardCore) * 0.8);
+      const bright = (0.42 + 0.95 * towardCore) * rift * coalsack * (0.6 + 0.4 * armBoost) * (1 - e * 0.32);
+      colors[i * 3] = tint.r * bright;
+      colors[i * 3 + 1] = tint.g * bright;
+      colors[i * 3 + 2] = tint.b * bright;
+
+      sizes[i] = 1.6 + Math.random() * 3.4 + towardCore * 2.6;
     }
     return { positions, colors, sizes };
   }, []);
 
-  useFrame((_, delta) => {
-    if (animate && groupRef.current) groupRef.current.rotation.y += delta * 0.0006;
-  });
-
   return (
-    <group ref={groupRef} rotation={[BAND_TILT, 0.4, 0.25]}>
-      <points frustumCulled={false}>
-        <bufferGeometry>
-          <bufferAttribute attach="attributes-position" count={POINT_COUNT} array={positions} itemSize={3} />
-          <bufferAttribute attach="attributes-color" count={POINT_COUNT} array={colors} itemSize={3} />
-          <bufferAttribute attach="attributes-size" count={POINT_COUNT} array={sizes} itemSize={1} />
-        </bufferGeometry>
-        <pointsMaterial
-          size={38}
-          sizeAttenuation
-          vertexColors
-          transparent
-          opacity={0.14}
-          depthWrite={false}
-          map={DUST_TEXTURE}
-          alphaTest={0.01}
-          blending={THREE.AdditiveBlending}
-          toneMapped={false}
-        />
-      </points>
-    </group>
+    <points frustumCulled={false}>
+      <bufferGeometry>
+        <bufferAttribute attach="attributes-position" count={POINT_COUNT} array={positions} itemSize={3} />
+        <bufferAttribute attach="attributes-color" count={POINT_COUNT} array={colors} itemSize={3} />
+        <bufferAttribute attach="attributes-size" count={POINT_COUNT} array={sizes} itemSize={1} />
+      </bufferGeometry>
+      {/* The `finale` prop is now the "make me the hero" prop — brightens
+          size+opacity so the arching band is unmistakably the galaxy.
+          Consumers: Milky Way homepage (isMilkyway=true), and the tour
+          finale (finale=true). Names kept for continuity. */}
+      <pointsMaterial
+        size={finale ? 96 : 38}
+        sizeAttenuation
+        vertexColors
+        transparent
+        opacity={finale ? 1.0 : 0.24}
+        depthWrite={false}
+        map={DUST_TEXTURE}
+        alphaTest={0.01}
+        blending={THREE.AdditiveBlending}
+        toneMapped={false}
+      />
+    </points>
   );
 };
 
