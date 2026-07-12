@@ -136,6 +136,12 @@ function HomepageGalaxy({ reducedMotion, scrollT }) {
   const outerRef = useRef();
   const innerRef = useRef();
   const t0 = useRef(null);
+  /* Snapshot of each galaxy material's base opacity, so the dive can fade the
+     whole thing out smoothly (a real crossfade into the solar system) without
+     the hyperspace warp to mask a hard cut. Dynamic-opacity children (supernova
+     flashes, which start at 0) are excluded so they aren't pinned dark. */
+  const baseOps = useRef(null);
+  const fadeRef = useRef(1); // current dive-fade (1 → 0), fed to Supernovae so flashes dim too
   /* Cursor parallax — pointer position in −1..1, smoothed. The galaxy group
      shifts opposite the cursor while the far deep-field shell barely moves, so
      they slide against each other (differential parallax). */
@@ -152,10 +158,9 @@ function HomepageGalaxy({ reducedMotion, scrollT }) {
 
   useFrame((state, dt) => {
     /* Scroll progress into the first segment: 0 at the hero, 1 at the Solar-
-       System overview (13 stops → ×12). The plunge lives in [0, 0.5]; at ~0.5
-       activeIdx flips to 1 and this component unmounts — masked by the peak
-       hyperspace warp, so the galaxy dissolving into streaks reads as us
-       breaking through it into the system inside. */
+       System overview (13 stops → ×12). The dive lives in [0, 0.5]: a gentle
+       zoom into the disc while the galaxy fades out, so it crossfades smoothly
+       into the system inside (no hyperspace streaks — plain smooth travel). */
     const pos = !reducedMotion && scrollT?.current ? scrollT.current * 12 : 0;
     const diving = pos > 0.002;
 
@@ -167,15 +172,28 @@ function HomepageGalaxy({ reducedMotion, scrollT }) {
     const eased = 1 - Math.pow(1 - grow, 3);
     if (innerRef.current) {
       if (diving) {
-        /* DIVE — surge the disc scale so the arms blow past the frame edges and
-           the core rushes up: flying INTO the galaxy. */
+        /* DIVE — gentle scale-up so we drift INTO the disc (not a violent surge). */
         const dp = Math.min(1, pos / 0.5);
-        const surge = Math.pow(dp, 1.5);
-        innerRef.current.scale.setScalar(GALAXY_SCALE * (1 + surge * 3.4)); // 12 → ~53
+        innerRef.current.scale.setScalar(GALAXY_SCALE * (1 + Math.pow(dp, 1.4) * 1.5)); // 12 → ~30
       } else {
         innerRef.current.scale.setScalar(0.5 + eased * (GALAXY_SCALE - 0.5));
       }
       if (!reducedMotion) innerRef.current.rotation.y += dt * 0.07; // slow spin
+    }
+
+    /* Smooth fade — dissolve the whole galaxy out over pos 0.12 → 0.46 so it's
+       gone before this component unmounts at ~0.5, crossfading into the tour. */
+    if (baseOps.current == null && innerRef.current) {
+      baseOps.current = [];
+      innerRef.current.traverse((o) => {
+        const mats = o.material ? (Array.isArray(o.material) ? o.material : [o.material]) : [];
+        for (const m of mats) if (m && m.transparent && m.opacity > 0.02) baseOps.current.push([m, m.opacity]);
+      });
+    }
+    const fade = diving ? THREE.MathUtils.clamp(1 - (pos - 0.12) / 0.34, 0, 1) : 1;
+    fadeRef.current = fade;
+    if (baseOps.current) {
+      for (const [m, base] of baseOps.current) m.opacity = base * fade;
     }
     if (outerRef.current && !reducedMotion) {
       if (diving) {
@@ -205,7 +223,7 @@ function HomepageGalaxy({ reducedMotion, scrollT }) {
         <GalaxyNebulae />
         <DustLanes />
         <GalaxyGlobulars />
-        <Supernovae reducedMotion={reducedMotion} />
+        <Supernovae reducedMotion={reducedMotion} fade={fadeRef} />
       </group>
     </group>
   );

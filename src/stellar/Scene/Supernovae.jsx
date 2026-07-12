@@ -40,7 +40,7 @@ const RING_SPRITE = makeSoftDot({
   mipmaps: true,
 });
 
-const Supernovae = ({ reducedMotion = false }) => {
+const Supernovae = ({ reducedMotion = false, fade }) => {
   const flashRefs = useRef([]);
   const ringRefs = useRef([]);
   /* Each slot seeded with a position + a staggered phase so they don't all
@@ -81,15 +81,17 @@ const Supernovae = ({ reducedMotion = false }) => {
       ring.visible = true;
       flash.position.set(s.pos.x, s.pos.y + 3, s.pos.z);
       ring.position.copy(flash.position);
+      /* dim with the galaxy during the dive-out crossfade (1 = normal). */
+      const dim = fade?.current ?? 1;
       /* flare: fast rise, slow decay */
       const rise = Math.min(1, p / 0.08);
       const decay = Math.pow(1 - p, 2.2);
       const fa = rise * decay;
-      flash.material.opacity = fa;
+      flash.material.opacity = fa * dim;
       const fs = 10 + rise * 26;
       flash.scale.setScalar(fs);
       /* ring expands + fades */
-      ring.material.opacity = decay * 0.5;
+      ring.material.opacity = decay * 0.5 * dim;
       ring.scale.setScalar(14 + p * 90);
     }
   });

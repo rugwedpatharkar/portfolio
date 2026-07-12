@@ -148,26 +148,11 @@ const CameraRig = ({
     /* 1) Finale takes precedence when finaleT > 0. Returns true if it handled. */
     if (runFinaleStrategy(ctx)) return;
 
-    /* 1b) Hyperspace — modulates warpVelRef during the first scroll segment
-          (milkyway → overview), driving the Hyperspace.jsx streak effect.
-          Independent of jumpStrategy's warp pulse; both may briefly overlap
-          on a rail-click jump, which reads as a smooth boost. */
-    const N = DESTINATIONS.length;
-    if (N > 1 && warpVelRef) {
-      const pos = rawT * (N - 1);
-      if (pos > 0 && pos < 1.0 && !reducedMotion && !isMobile) {
-        /* Fatter peak than a pure sine — the transition SPENDS time at full
-           warp so streaks read as motion, not a flicker. */
-        const s = Math.max(0, Math.min(1, pos));
-        warpVelRef.current = Math.pow(Math.sin(Math.PI * s), 0.55);
-      } else {
-        /* Outside the milkyway→overview segment: force decay so warpVelRef
-           doesn't stay pinned at peak. A Math.max merge earlier kept the
-           streaks visible on every later stop — that's why Pluto rendered
-           as a rainbow tunnel. */
-        warpVelRef.current = Math.max(0, (warpVelRef.current || 0) * 0.85);
-      }
-    }
+    /* 1b) Hyperspace warp on the milkyway → overview scroll segment REMOVED —
+          the visitor asked for a plain smooth travel there, not the speed-line
+          tunnel. warpVelRef just decays toward 0 so any residual (e.g. from a
+          planet-click jump's own pulse) fades cleanly. */
+    if (warpVelRef) warpVelRef.current = Math.max(0, (warpVelRef.current || 0) * 0.85);
 
     /* 2) Scroll — writes scratch._camTarget + _lookTarget from the destination
           chain; returns fov/roll targets and travel speed. */
