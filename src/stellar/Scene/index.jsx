@@ -486,9 +486,12 @@ const Scene = ({ scrollT, finaleT, finale = false, activeIdx, onJump, focusRef, 
             /* v3 finale — cinematic "black hole in a nebular envelope with
                polar jets" for the closing Contact stop. Not scientifically
                placed (nearest BH is 1,560 ly), but the emotionally correct
-               closer for the tour. */
+               closer for the tour. At radius 80 the accretion disk + jets
+               are visible from FAR away, so gate the mount to activeIdx ≥
+               12 (only Pluto and The Edge stops) — earlier stops don't need
+               a distant black hole leaking into their sky. */
             const p = d.position;
-            if (d.render === "blackhole")
+            if (d.render === "blackhole" && activeIdx >= 12)
               return <BlackHole key={d.id} position={p} radius={d.radius} nebula jets animate={!reducedMotion} onPointerOver={handleHoverIn} onPointerOut={handleHoverOut} />;
             return null;
           }
