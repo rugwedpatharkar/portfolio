@@ -160,6 +160,15 @@ const StellarApp = () => {
   const applyFocus = useCallback((planetIdx) => {
     const dest = DESTINATIONS[planetIdx];
     if (!dest) return;
+    /* Bodyless stops (kind "overview" / "hero") have radius 0 and no orbital
+       position — focusStrategy's `radius / tan(halfAngle)` standoff collapses
+       to ~0.14u and the camera lands INSIDE the Sun. Skip focus for these so
+       scrollStrategy's authored cameraTarget is what actually renders. */
+    if (dest.kind === "overview" || dest.kind === "hero") {
+      focusRef.current = null;
+      prevTargetRef.current = { destId: dest.id, k: -1 };
+      return;
+    }
     const target = { destId: dest.id, k: -1 };
     const from = prevTargetRef.current;
     const changed = from.destId !== target.destId;
