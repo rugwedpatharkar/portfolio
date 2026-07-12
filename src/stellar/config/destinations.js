@@ -59,14 +59,13 @@ export const DESTINATIONS = [
     radius: 0,
     section: "about",
     docTitle: "About",
-    /* v3 system overview — TOP-DOWN 3/4 vantage so the whole solar system
-       reads as concentric golden orbit rings around a bright Sun. Camera
-       high above the ecliptic, offset in +X for the classic corner shot;
-       lookAt near origin. At altitude ~1800u with the outermost planet
-       (Neptune) at 2857u out, all orbit rings fit in a fov=68 frame — no
-       more washed-white bloom dominating the right, just gold ellipses on
-       black with the Sun as a distinct bright dot in the middle. */
-    cameraTarget: { position: [1200, 2200, 1800], lookAt: [200, 0, 0], fov: 68 },
+    /* v3 system overview — pulled WAY back so the whole solar system fits
+       in-frame with Neptune's 2857u orbit visible. Camera at ~5300u from
+       origin (inside the 7000u sky shell) at a high 3/4 vantage so orbits
+       read as concentric ellipses around a distant Sun. Was too zoomed
+       in at 2200u altitude — Sun's bloom swallowed the frame; from here
+       Sun is a bright dot and the orbits dominate. */
+    cameraTarget: { position: [2000, 4000, 2800], lookAt: [0, 0, 0], fov: 60 },
   },
   {
     id: "impact",
