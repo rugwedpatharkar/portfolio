@@ -26,19 +26,15 @@ export const COSMIC_STOPS = [
     /* Radius is what BlackHole.jsx uses to size the event horizon sphere,
        accretion disk, photon ring, and lensing halo. Big so the visual
        spreads across the entire frame — Interstellar-style Gargantua. */
-    radius: 80,
-    position: [4300, 120, -420],
-    /* Custom cameraTarget — the default cosmic-stop math (`radius * 3.6`
-       standoff) would put the camera 288u away; at radius 80 that renders
-       a ~30° disc. To FILL THE FRAME the camera sits ~120u away with
-       fov 78° → the event horizon + accretion disk + lensed halo spread
-       from edge to edge. Positioned dead-on the black hole's axis so the
-       accretion disk shows face-on with the photon ring dominant. */
-    cameraTarget: {
-      position: [4300 - 120, 120 + 8, -420 + 4],
-      lookAt: [4300, 120, -420],
-      fov: 78,
-    },
+    radius: 40,
+    /* Well past Pluto but within scene bounds. Pluto is at ~(4180, 0.9, 1.4);
+       The Edge at (5400, 200, -600) is ~1500u further out. Uses the default
+       cosmic-stop cameraTarget math from destinations.js (`radius * 3.6`
+       standoff sunward), which reliably places the camera at 144u away
+       looking at the singularity — proven working on the original blackhole
+       at the same distance regime. Index-gated to activeIdx === 13 so it
+       stays invisible from earlier stops. */
+    position: [5400, 200, -600],
   },
 ];
 

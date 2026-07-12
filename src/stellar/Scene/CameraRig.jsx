@@ -153,14 +153,19 @@ const CameraRig = ({
           Independent of jumpStrategy's warp pulse; both may briefly overlap
           on a rail-click jump, which reads as a smooth boost. */
     const N = DESTINATIONS.length;
-    if (N > 1) {
+    if (N > 1 && warpVelRef) {
       const pos = rawT * (N - 1);
-      if (pos > 0 && pos < 1.05 && !reducedMotion && !isMobile) {
+      if (pos > 0 && pos < 1.0 && !reducedMotion && !isMobile) {
         /* Fatter peak than a pure sine — the transition SPENDS time at full
            warp so streaks read as motion, not a flicker. */
         const s = Math.max(0, Math.min(1, pos));
-        const v = Math.pow(Math.sin(Math.PI * s), 0.55);
-        if (warpVelRef) warpVelRef.current = Math.max(warpVelRef.current || 0, v);
+        warpVelRef.current = Math.pow(Math.sin(Math.PI * s), 0.55);
+      } else {
+        /* Outside the milkyway→overview segment: force decay so warpVelRef
+           doesn't stay pinned at peak. A Math.max merge earlier kept the
+           streaks visible on every later stop — that's why Pluto rendered
+           as a rainbow tunnel. */
+        warpVelRef.current = Math.max(0, (warpVelRef.current || 0) * 0.85);
       }
     }
 

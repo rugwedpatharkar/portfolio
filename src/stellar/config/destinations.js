@@ -583,7 +583,12 @@ export const SCROLL_LENGTH_PER_DESTINATION = 100; // viewport heights
 /* Extra scroll runway AFTER the last destination — the cinematic pull-back
    finale scrubs across this (≈2 destinations of travel), collapsing the solar
    system to the Sun among its real neighbours + the galaxy arching around. */
-export const FINALE_SCROLL_VH = 200;
+/* Was 200 — the pull-back "finale" was a legacy leftover from when the tour
+   ended with LocalNeighborhood + arching MilkyWay band. With The Edge as
+   the last stop, the finale runway ate the scroll budget between Pluto and
+   The Edge and prevented The Edge from ever landing at a stable pose. Set
+   to 0 so The Edge sits cleanly at scrollFraction 1.0. */
+export const FINALE_SCROLL_VH = 0;
 const TOUR_SCROLL_VH = DESTINATIONS.length * SCROLL_LENGTH_PER_DESTINATION;
 export const TOTAL_SCROLL_VH = TOUR_SCROLL_VH + FINALE_SCROLL_VH;
 /* Fraction of total scroll where the tour ends and the finale reveal begins. */
