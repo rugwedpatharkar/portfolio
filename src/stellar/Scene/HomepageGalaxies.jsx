@@ -1,15 +1,17 @@
 /* eslint-disable react/no-unknown-property */
 /*
- * A deliberate scatter of distant galaxies across the EMPTY regions of the
- * homepage frame — the left column + lower band, never over the Milky Way's
- * footprint (a galaxy behind the MW just reads as part of it) nor the hero
- * text. Each one is screen-PINNED: its position is the unprojection of a fixed
- * NDC coordinate through the live camera every frame, so it stays locked to its
- * empty gap regardless of the intro fly-in or camera breathing.
+ * A DENSE deep field of distant galaxies scattered across the homepage sky —
+ * small, faint, and slowly DRIFTING ("moving here and there in the distant
+ * background"), like a JWST field behind the Milky Way. A mix of warm
+ * ellipticals, cool blue-white spirals with a hot nucleus, and thin edge-on
+ * slivers.
  *
- * Mix of types like a real deep field: warm ellipticals, cool blue-white
- * spirals with a hot nucleus, and thin edge-on slivers. Additive so they never
- * occlude — only their screen position matters, which we control directly.
+ * Each galaxy is screen-anchored: its world position is the unprojection of a
+ * (slowly wandering) NDC coordinate through the live camera every frame, so the
+ * whole field holds its screen distribution through the intro fly-in while each
+ * member drifts on its own slow Lissajous path. Kept EXTRA faint over the Milky
+ * Way's bright footprint + the hero text so it reads as depth, never as part of
+ * the galaxy or as clutter behind the type. Additive, depth-off → pure backdrop.
  */
 import { useRef, useMemo } from "react";
 import { useFrame } from "@react-three/fiber";
@@ -39,27 +41,58 @@ const NUCLEUS = makeSoftDot({
 });
 
 const DIST = 5000; // far out — reads as deep background (additive → depth is cosmetic)
+const COUNT = 84;
+const TAU = Math.PI * 2;
 
-/* ndc [x,y] in −1..1 (y up). size = disc major-axis (world units at DIST) —
-   small so they read as FAR-away background galaxies. aspect < 1 squashes the
-   minor axis (low = edge-on sliver). nuc = bulge tint or null.
-   Spread across ALL the frame's empty pockets — the top gap, the far-left
-   column at every height, the top-right corner above the disc, and the bottom
-   strip — while staying clear of the Milky Way's bright footprint (centre-right)
-   and the hero text/buttons (top-left). */
-const GALAXIES = [
-  { ndc: [-0.14,  0.80], size: 230, aspect: 0.5,  roll: 2.7,  tint: "#dfe6ff", nuc: "#fff0d8" }, // top-centre gap
-  { ndc: [-0.96,  0.46], size: 300, aspect: 0.15, roll: 1.2,  tint: "#d4e4ff", nuc: null },      // far-left upper sliver
-  { ndc: [ 0.90,  0.66], size: 210, aspect: 0.85, roll: 0.4,  tint: "#ffcf9e", nuc: "#fff0d8" }, // top-right corner (above disc)
-  { ndc: [-0.97,  0.00], size: 220, aspect: 0.8,  roll: 0.6,  tint: "#ffd7a8", nuc: "#fff0d8" }, // far-left mid, beside buttons
-  { ndc: [-0.70, -0.20], size: 190, aspect: 0.45, roll: 1.9,  tint: "#ecdcff", nuc: "#ffe8c8" }, // left-mid below buttons
-  { ndc: [-0.90, -0.60], size: 300, aspect: 0.15, roll: 0.95, tint: "#e6ecff", nuc: null },      // left-lower sliver
-  { ndc: [-0.42, -0.52], size: 250, aspect: 0.55, roll: 2.75, tint: "#fff0d2", nuc: "#ffe0b0" }, // lower-centre-left spiral
-  { ndc: [-0.64, -0.88], size: 200, aspect: 0.82, roll: 0.2,  tint: "#ffc890", nuc: "#ffe4b0" }, // bottom-left elliptical
-  { ndc: [-0.12, -0.90], size: 230, aspect: 0.18, roll: 0.35, tint: "#cfe0ff", nuc: null },      // bottom-centre sliver
-];
+const ELLIPTICAL = ["#ffcf9e", "#ffbe86", "#f2b57e", "#ffd8b0", "#ffd7a8"]; // warm
+const SPIRAL = ["#cfe0ff", "#dfe6ff", "#e6ecff", "#d4e4ff", "#ecdcff"];     // cool blue-white
+const NUC_TINT = ["#fff0d8", "#ffe0b0", "#ffe4b0", "#ffe8c8"];
 
-const HomepageGalaxies = () => {
+/* Milky-Way bright footprint on the homepage (screen ellipse, NDC): centre-right
+   disc. Galaxies inside are dimmed + shrunk so they recede behind it. */
+const inMilkyWay = (x, y) => ((x - 0.22) / 0.72) ** 2 + (y / 0.85) ** 2 < 1;
+/* Hero name + buttons block, top-left — keep the type clean. */
+const inText = (x, y) => x < -0.3 && y > 0.1;
+
+const pick = (arr) => arr[(Math.random() * arr.length) | 0];
+
+function makeField() {
+  const out = [];
+  for (let i = 0; i < COUNT; i++) {
+    const bx = Math.random() * 2 - 1;
+    const by = Math.random() * 2 - 1;
+    const kind = Math.random();
+    const edgeOn = kind < 0.28;
+    const spiral = !edgeOn && kind < 0.6;
+    const big = Math.random() < 0.14;
+    const size = (44 + Math.random() * 78) * (big ? 1.7 : 1);
+    let op = 0.26 + Math.random() * 0.3;
+    let sizeMul = 1;
+    if (inMilkyWay(bx, by)) { op *= 0.4; sizeMul = 0.72; } // recede behind the MW
+    if (inText(bx, by)) op *= 0.5;                          // don't fight the type
+    out.push({
+      bx, by,
+      size: size * sizeMul,
+      aspect: edgeOn ? 0.12 + Math.random() * 0.14 : 0.5 + Math.random() * 0.45,
+      roll: Math.random() * Math.PI,
+      tint: spiral ? pick(SPIRAL) : pick(ELLIPTICAL),
+      nuc: edgeOn ? null : (Math.random() < 0.7 ? pick(NUC_TINT) : null),
+      op,
+      /* gentle 2D Lissajous wander — enough amplitude to visibly drift "here and
+         there" over ~10s, but slow enough to still read as a distant background. */
+      ax: 0.05 + Math.random() * 0.13,
+      ay: 0.05 + Math.random() * 0.13,
+      sx: 0.03 + Math.random() * 0.06,
+      sy: 0.03 + Math.random() * 0.06,
+      px: Math.random() * TAU,
+      py: Math.random() * TAU,
+    });
+  }
+  return out;
+}
+
+const HomepageGalaxies = ({ reducedMotion = false }) => {
+  const items = useMemo(() => makeField(), []);
   const refs = useRef([]);
   const camPos = useMemo(() => new THREE.Vector3(), []);
   const tmp = useMemo(() => new THREE.Vector3(), []);
@@ -67,10 +100,14 @@ const HomepageGalaxies = () => {
   useFrame((state) => {
     const cam = state.camera;
     cam.getWorldPosition(camPos);
-    for (let i = 0; i < GALAXIES.length; i++) {
+    const t = reducedMotion ? 0 : state.clock.elapsedTime;
+    for (let i = 0; i < items.length; i++) {
       const grp = refs.current[i];
       if (!grp) continue;
-      tmp.set(GALAXIES[i].ndc[0], GALAXIES[i].ndc[1], 0.5).unproject(cam);
+      const g = items[i];
+      const nx = g.bx + g.ax * Math.sin(t * g.sx + g.px);
+      const ny = g.by + g.ay * Math.sin(t * g.sy + g.py);
+      tmp.set(nx, ny, 0.5).unproject(cam);
       tmp.sub(camPos).normalize().multiplyScalar(DIST).add(camPos);
       grp.position.copy(tmp);
     }
@@ -78,14 +115,14 @@ const HomepageGalaxies = () => {
 
   return (
     <group frustumCulled={false}>
-      {GALAXIES.map((g, i) => (
+      {items.map((g, i) => (
         <group key={i} ref={(el) => { refs.current[i] = el; }}>
           <sprite scale={[g.size, g.size * g.aspect, 1]} material-rotation={g.roll}>
-            <spriteMaterial map={DISC} color={g.tint} transparent opacity={0.6} depthWrite={false} depthTest={false} blending={THREE.AdditiveBlending} toneMapped={false} />
+            <spriteMaterial map={DISC} color={g.tint} transparent opacity={g.op} depthWrite={false} depthTest={false} blending={THREE.AdditiveBlending} toneMapped={false} />
           </sprite>
           {g.nuc && (
-            <sprite scale={[g.size * 0.28, g.size * 0.28, 1]}>
-              <spriteMaterial map={NUCLEUS} color={g.nuc} transparent opacity={0.8} depthWrite={false} depthTest={false} blending={THREE.AdditiveBlending} toneMapped={false} />
+            <sprite scale={[g.size * 0.26, g.size * 0.26, 1]}>
+              <spriteMaterial map={NUCLEUS} color={g.nuc} transparent opacity={Math.min(1, g.op * 1.5)} depthWrite={false} depthTest={false} blending={THREE.AdditiveBlending} toneMapped={false} />
             </sprite>
           )}
         </group>

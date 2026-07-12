@@ -467,7 +467,7 @@ const Scene = ({ scrollT, finaleT, finale = false, activeIdx, onJump, focusRef, 
         {/* Distant galaxies pinned to the frame's empty regions (left column +
             lower band) — Andromeda + 7 smaller ones, never behind the Milky
             Way. Screen-space anchored so they hold their gaps. */}
-        {isMilkyway && <HomepageGalaxies />}
+        {isMilkyway && <HomepageGalaxies reducedMotion={reducedMotion} />}
         {/* ── Solar-system tour body ── pre-mounted (staged by extrasPhase),
             hidden on the homepage by the group's `visible`. Everything the
             crossover used to build in one frozen commit lives here. Own Suspense

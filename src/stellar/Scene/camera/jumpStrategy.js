@@ -82,9 +82,15 @@ export function runJumpStrategy(ctx) {
   camera.position.copy(scratch._p).addScaledVector(J.dir, -back).addScaledVector(scratch._upp, back * UP_FRAC * (1 - h * 0.7));
   lookAtTarget.current.copy(scratch._p).addScaledVector(J.dir, back * LOOK_FRAC);
   camera.lookAt(lookAtTarget.current);
-  const fv = J.fov + (FOV_FLY - J.fov) * h;
+  /* FOV punch softened to a hair (was → FOV_FLY 64, a "warp whoosh"). The
+     visitor wants plain smooth travel between planets, not a hyperspace jump —
+     so the camera still swoops body→body (the dolly + first-person dip above)
+     but without the wide-angle lunge. */
+  const fv = J.fov + (FOV_FLY - J.fov) * h * 0.18;
   if (Math.abs(camera.fov - fv) > 0.01) { camera.fov = fv; camera.updateProjectionMatrix(); }
-  if (warpVelRef) warpVelRef.current = Math.sin(e * Math.PI) * J.intensity;
+  /* Hyperspace streak tunnel + glare REMOVED from planet travel — keep
+     warpVelRef at 0 so neither Hyperspace nor StellarGlare fire. */
+  if (warpVelRef) warpVelRef.current = 0;
   setFlying(h > 0.12);
   if (e >= 1) { J.active = false; if (warpVelRef) warpVelRef.current = 0; setFlying(false); }
   return true;
