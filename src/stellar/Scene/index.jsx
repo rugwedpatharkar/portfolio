@@ -35,7 +35,7 @@ import Supernovae from "./Supernovae";
 import MeteorShowers from "./MeteorShowers";
 import AtlasComet from "./AtlasComet";
 import DustLanes from "./DustLanes";
-import AndromedaNod from "./AndromedaNod";
+import HomepageGalaxies from "./HomepageGalaxies";
 import BlackHole from "./anomalies/BlackHole";
 import Voyagers from "./Voyagers";
 /* BlackHole + SpiralGalaxy removed from the tour — nearest black hole is
@@ -346,10 +346,11 @@ const Scene = ({ scrollT, finaleT, finale = false, activeIdx, onJump, focusRef, 
         {!finale && !isMilkyway && <Constellations />}
         {/* Distant naked-eye galaxies — Andromeda (M31), Triangulum (M33),
             LMC + SMC — fuzzy discs at real RA/Dec on the sky shell. */}
-        {/* Distant galaxies — 4 real naked-eye ones during the tour; on the
-            homepage a full JWST-style deep-field scatter (~80 small galaxies)
-            becomes the backdrop behind the Milky Way. */}
-        {!finale && <DistantGalaxies deepField={isMilkyway} />}
+        {/* Distant galaxies — the 4 real naked-eye ones during the tour only.
+            On the homepage they'd fall behind the Milky Way (reading as part of
+            it), so there they're replaced by HomepageGalaxies below: a
+            deliberate scatter pinned to the empty regions of the frame. */}
+        {!finale && !isMilkyway && <DistantGalaxies deepField={false} />}
         {/* Zodiacal light — faint warm band along the ecliptic from
             interplanetary-dust scatter of sunlight (real phenomenon). */}
         {showExtras && !finale && <ZodiacalLight />}
@@ -390,9 +391,10 @@ const Scene = ({ scrollT, finaleT, finale = false, activeIdx, onJump, focusRef, 
           <AtlasComet start={[-620, 180, -300]} vel={[150, -8, 60]} coma="#bfe0ff" ion="#cfe6ff" dust="#e8e0ff" respawn={900} />
         )}
         {isMilkyway && !isMobile && !reducedMotion && <HeroDust />}
-        {/* Andromeda (M31) — our nearest large neighbour, drifting in the
-            upper-left deep field as a nod. Frozen under reduced motion. */}
-        {isMilkyway && !isMobile && <AndromedaNod reducedMotion={reducedMotion} />}
+        {/* Distant galaxies pinned to the frame's empty regions (left column +
+            lower band) — Andromeda + 7 smaller ones, never behind the Milky
+            Way. Screen-space anchored so they hold their gaps. */}
+        {isMilkyway && <HomepageGalaxies />}
         {/* Voyager 1 + 2 markers — humans' only interstellar spacecraft.
             Positioned along their real trajectories, compressed to 4200u so
             they're visible during outer-tour stops. Mounted anywhere except
