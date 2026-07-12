@@ -1,6 +1,6 @@
 /* eslint-disable react/no-unknown-property */
 import { Suspense, useMemo, useRef, useEffect, cloneElement } from "react";
-import { Canvas, invalidate, useFrame } from "@react-three/fiber";
+import { Canvas, invalidate, useFrame, useThree } from "@react-three/fiber";
 import * as THREE from "three";
 import { EffectComposer, Bloom } from "@react-three/postprocessing";
 import CinematicGrade from "./CinematicGrade";
@@ -110,7 +110,29 @@ const planetFallback = (d) => (
    sweep visibly without becoming a merry-go-round. */
 const GALAXY_SCALE = 12;
 
-function HomepageGalaxy({ reducedMotion }) {
+/* Prewarm — force the GPU upload + shader compile of the pre-mounted (but
+   hidden) solar-system tour DURING the homepage intro, so the Milky-Way →
+   Solar-System crossover doesn't do it all in one frame (that was the
+   remaining ~1.9s freeze: `visible={false}` defers every texture upload +
+   program compile to the first VISIBLE render, i.e. the reveal). We flip the
+   hidden subtrees visible for a single compile() call — compile doesn't draw,
+   so nothing flashes — then restore them. Runs once, when the tour has fully
+   mounted (extrasPhase 4) while still on the homepage. */
+function PrewarmTour() {
+  const { gl, scene, camera } = useThree();
+  const done = useRef(false);
+  useFrame(() => {
+    if (done.current) return;
+    done.current = true;
+    const hidden = [];
+    scene.traverse((o) => { if (o.visible === false) { hidden.push(o); o.visible = true; } });
+    try { gl.compile(scene, camera); } catch { /* best-effort precompile */ }
+    for (const o of hidden) o.visible = false;
+  });
+  return null;
+}
+
+function HomepageGalaxy({ reducedMotion, scrollT }) {
   const outerRef = useRef();
   const innerRef = useRef();
   const t0 = useRef(null);
@@ -129,6 +151,14 @@ function HomepageGalaxy({ reducedMotion }) {
   }, [reducedMotion]);
 
   useFrame((state, dt) => {
+    /* Scroll progress into the first segment: 0 at the hero, 1 at the Solar-
+       System overview (13 stops → ×12). The plunge lives in [0, 0.5]; at ~0.5
+       activeIdx flips to 1 and this component unmounts — masked by the peak
+       hyperspace warp, so the galaxy dissolving into streaks reads as us
+       breaking through it into the system inside. */
+    const pos = !reducedMotion && scrollT?.current ? scrollT.current * 12 : 0;
+    const diving = pos > 0.002;
+
     /* Zoom-in on load — the galaxy grows from a point to full size over ~2.6s
        (easeOutCubic) as the hero text rises. Instant under reduced motion. */
     if (t0.current == null) t0.current = state.clock.elapsedTime;
@@ -136,18 +166,33 @@ function HomepageGalaxy({ reducedMotion }) {
     const grow = reducedMotion ? 1 : Math.min(1, age / 2.6);
     const eased = 1 - Math.pow(1 - grow, 3);
     if (innerRef.current) {
-      innerRef.current.scale.setScalar(0.5 + eased * (GALAXY_SCALE - 0.5));
+      if (diving) {
+        /* DIVE — surge the disc scale so the arms blow past the frame edges and
+           the core rushes up: flying INTO the galaxy. */
+        const dp = Math.min(1, pos / 0.5);
+        const surge = Math.pow(dp, 1.5);
+        innerRef.current.scale.setScalar(GALAXY_SCALE * (1 + surge * 3.4)); // 12 → ~53
+      } else {
+        innerRef.current.scale.setScalar(0.5 + eased * (GALAXY_SCALE - 0.5));
+      }
       if (!reducedMotion) innerRef.current.rotation.y += dt * 0.07; // slow spin
     }
     if (outerRef.current && !reducedMotion) {
-      const t = state.clock.elapsedTime;
-      const p = ptr.current;
-      p.sx += (p.x - p.sx) * 0.04; // smooth toward cursor
-      p.sy += (p.y - p.sy) * 0.04;
-      /* breathing drift + cursor parallax (opposite the pointer) */
-      outerRef.current.rotation.z = 0.34 + Math.sin(t * 0.05) * 0.015 - p.sx * 0.02;
-      outerRef.current.position.x = 40 + Math.sin(t * 0.045) * 18 - p.sx * 55;
-      outerRef.current.position.y = 20 + Math.cos(t * 0.06) * 12 + p.sy * 40;
+      if (diving) {
+        /* Hold the tilt + centre steady through the plunge (freeze the ambient
+           breathing so the surge reads clean). */
+        outerRef.current.position.set(40, 20, -560);
+        outerRef.current.rotation.z = 0.34;
+      } else {
+        const t = state.clock.elapsedTime;
+        const p = ptr.current;
+        p.sx += (p.x - p.sx) * 0.04; // smooth toward cursor
+        p.sy += (p.y - p.sy) * 0.04;
+        /* breathing drift + cursor parallax (opposite the pointer) */
+        outerRef.current.rotation.z = 0.34 + Math.sin(t * 0.05) * 0.015 - p.sx * 0.02;
+        outerRef.current.position.x = 40 + Math.sin(t * 0.045) * 18 - p.sx * 55;
+        outerRef.current.position.y = 20 + Math.cos(t * 0.06) * 12 + p.sy * 40;
+      }
     }
   });
   return (
@@ -197,13 +242,23 @@ const Scene = ({ scrollT, finaleT, finale = false, activeIdx, onJump, focusRef, 
      planets, belts, dwarf planets, comets — all off. Hyperspace jump on
      scroll carries them into the tour. */
   const isMilkyway = activeIdx === 0;
-  const showExtras = extrasPhase >= 1 && !finale && !isMilkyway;
-  const showMid = extrasPhase >= 2 && !finale && !isMilkyway;
-  const showEggs = extrasPhase >= 3 && !finale && !isMilkyway;
+  /* Tour layers PRE-MOUNT during the homepage (kept hidden by the
+     <group visible={tourVisible}> wrappers below) so the Milky-Way → Solar-
+     System crossover never builds the whole system in one React commit — that
+     one-commit build froze the main thread 1–7s (measured). The extrasPhase
+     tiers still spread the build over ~1.7s, now during the intro window where
+     it's masked, instead of at the scroll midpoint. */
+  const showExtras = extrasPhase >= 1 && !finale;
+  const showMid = extrasPhase >= 2 && !finale;
+  const showEggs = extrasPhase >= 3 && !finale;
   /* Tier 4 — the heaviest point build (belt dust ~68k points) mounts LAST and
      ALONE, so it never shares a React commit / GPU upload with the deep-field or
      anomalies (that collision was the boot black-frame). */
-  const showDust = extrasPhase >= 4 && !finale && !isMilkyway;
+  const showDust = extrasPhase >= 4 && !finale;
+  /* Solar-system layers are built always (staged) but only VISIBLE once we've
+     left the Milky-Way homepage. Flipping a group's `visible` is free — no
+     mount/unmount hitch — so the crossover is instant. */
+  const tourVisible = !isMilkyway;
   /* Camera offsets — kept in refs so React state doesn't re-render
      the whole tree on every frame. Mouse parallax and free-roam each
      own their own offset; CameraRig sums them. */
@@ -301,6 +356,9 @@ const Scene = ({ scrollT, finaleT, finale = false, activeIdx, onJump, focusRef, 
         lowDpr={isMobile ? 1.0 : 1.4}
       />
       <AutoExposure />
+      {/* Precompile + upload the hidden tour to the GPU during the intro so the
+          crossover reveal is hitch-free (see PrewarmTour). */}
+      {extrasPhase >= 4 && !finale && <PrewarmTour />}
       {/* Vacuum-lean three-point lighting. Every planet sits on +x with
           the camera on the FAR (anti-sun) side, so a literal sun-at-origin
           key would throw every hero shot into shadow. Instead:
@@ -336,35 +394,27 @@ const Scene = ({ scrollT, finaleT, finale = false, activeIdx, onJump, focusRef, 
         {/* Nebulae live INSIDE the Milky Way — they belong to the solar-system
             tour backdrop, not the from-outside homepage. Hidden on the
             homepage (where the deep-field galaxies are the backdrop instead). */}
-        {!finale && !isMilkyway && <SafeLoad><Nebulae /></SafeLoad>}
-        {/* Constellation line overlays — 12 named patterns (Orion, Big Dipper,
-            Cassiopeia, Cygnus, Scorpius, Crux, Leo, Perseus, Gemini, Lyra,
-            Aquila, Canis Major) drawn as hairline gold connectors. Ambient
-            "you are surrounded by named patterns" feeling. */}
-        {/* Constellations are the from-INSIDE sky — hide them on the homepage
-            (we're viewing the galaxy from outside there); keep during the tour. */}
-        {!finale && !isMilkyway && <Constellations />}
-        {/* Distant naked-eye galaxies — Andromeda (M31), Triangulum (M33),
-            LMC + SMC — fuzzy discs at real RA/Dec on the sky shell. */}
-        {/* Distant galaxies — the 4 real naked-eye ones during the tour only.
-            On the homepage they'd fall behind the Milky Way (reading as part of
-            it), so there they're replaced by HomepageGalaxies below: a
-            deliberate scatter pinned to the empty regions of the frame. */}
-        {!finale && !isMilkyway && <DistantGalaxies deepField={false} />}
-        {/* Zodiacal light — faint warm band along the ecliptic from
-            interplanetary-dust scatter of sunlight (real phenomenon). */}
-        {showExtras && !finale && <ZodiacalLight />}
-        {/* Deep-field parallax dust — foreground motes that ride the camera
-            so pans/drifts produce real parallax against the star backdrop.
-            Desktop-only, reduced-motion off. */}
-        {showExtras && !isMobile && !reducedMotion && !finale && <HeroDust />}
-        {/* Hover labels on the 16 brightest named stars — desktop-only,
-            reveals name + distance + constellation on hover. */}
-        {showEggs && !isMobile && !reducedMotion && !finale && <StarLabels />}
-        {/* Milky Way band — the from-INSIDE view. Belongs to the tour only.
-            Hidden on the homepage, where we view the galaxy from OUTSIDE
-            (the arch + the external spiral in one frame would be nonsense). */}
-        {!isMilkyway && <MilkyWay finale={false} />}
+        {/* Tour sky layers — pre-mounted, hidden on the homepage via the group's
+            `visible`. Own Suspense boundary so a tour texture loading (behind the
+            scenes, during the intro) never suspends the homepage galaxy above. */}
+        <Suspense fallback={null}>
+        <group visible={tourVisible}>
+          {!finale && <SafeLoad><Nebulae /></SafeLoad>}
+          {/* Constellation line overlays — 12 named patterns drawn as hairline
+              gold connectors. */}
+          {!finale && <Constellations />}
+          {/* Distant naked-eye galaxies — M31 / M33 / LMC / SMC at real RA/Dec. */}
+          {!finale && <DistantGalaxies deepField={false} />}
+          {/* Zodiacal light — faint warm band along the ecliptic. */}
+          {showExtras && <ZodiacalLight />}
+          {/* Deep-field parallax dust — foreground motes riding the camera. */}
+          {showExtras && !isMobile && !reducedMotion && <HeroDust />}
+          {/* Hover labels on the 16 brightest named stars — desktop-only. */}
+          {showEggs && !isMobile && !reducedMotion && <StarLabels />}
+          {/* Milky Way band — the from-INSIDE arch. */}
+          {!finale && <MilkyWay finale={false} />}
+        </group>
+        </Suspense>
         {/* Hyperspace transition — cinematic radial star-streaks that fire
             during the scroll segment from Milky Way (index 0) to Solar
             System overview (index 1). Reads warpVelRef; invisible when
@@ -380,7 +430,7 @@ const Scene = ({ scrollT, finaleT, finale = false, activeIdx, onJump, focusRef, 
             + nebulae + constellations, all still mounted). Scientific-purism
             note: from Sol we can't SEE our own galaxy face-on — this is the
             crowd-pleasing "you are looking at our home" reveal. */}
-        {isMilkyway && <HomepageGalaxy reducedMotion={reducedMotion} />}
+        {isMilkyway && <HomepageGalaxy reducedMotion={reducedMotion} scrollT={scrollT} />}
         {/* Homepage ambient sky layers (sky-fixed, NOT inside the galaxy
             transform): meteor streaks, a lone interstellar comet on a long
             respawn, and faint foreground dust for parallax depth. Desktop +
@@ -395,11 +445,14 @@ const Scene = ({ scrollT, finaleT, finale = false, activeIdx, onJump, focusRef, 
             lower band) — Andromeda + 7 smaller ones, never behind the Milky
             Way. Screen-space anchored so they hold their gaps. */}
         {isMilkyway && <HomepageGalaxies />}
-        {/* Voyager 1 + 2 markers — humans' only interstellar spacecraft.
-            Positioned along their real trajectories, compressed to 4200u so
-            they're visible during outer-tour stops. Mounted anywhere except
-            the Milky Way homepage. */}
-        {!isMilkyway && !finale && showExtras && <Voyagers />}
+        {/* ── Solar-system tour body ── pre-mounted (staged by extrasPhase),
+            hidden on the homepage by the group's `visible`. Everything the
+            crossover used to build in one frozen commit lives here. Own Suspense
+            so tour textures loading during the intro never blank the homepage. */}
+        <Suspense fallback={null}>
+        <group visible={tourVisible}>
+        {/* Voyager 1 + 2 markers — humans' only interstellar spacecraft. */}
+        {!finale && showExtras && <Voyagers />}
         {/* Pull-back finale (?finale=1) — the local stellar neighbourhood at true depth. */}
         {finale && <LocalNeighborhood active />}
         {/* Zodiacal light removed — its 8,500 additive points bloomed into an
@@ -433,7 +486,7 @@ const Scene = ({ scrollT, finaleT, finale = false, activeIdx, onJump, focusRef, 
         })}
 
 
-        {!finale && !isMilkyway && DESTINATIONS.map((d, idx) => {
+        {!finale && showExtras && DESTINATIONS.map((d, idx) => {
           const handleClick = (e) => {
             e.stopPropagation();
             onJump?.(idx);
@@ -647,6 +700,8 @@ const Scene = ({ scrollT, finaleT, finale = false, activeIdx, onJump, focusRef, 
         {showExtras && <SolarEclipse satelliteRef={moonWorldRef} eclipseRef={eclipseRef} reducedMotion={reducedMotion} />}
         {/* Fade the scene lights toward dark at totality (planet → silhouette). */}
         {showExtras && <EclipseLights eclipseRef={eclipseRef} />}
+        </group>
+        </Suspense>
         {!isMobile && !reducedMotion && <DustParticles />}
         {/* PHASE 3D — proximity sonification (silent until un-muted). */}
         {!reducedMotion && <Sonification />}
