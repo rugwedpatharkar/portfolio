@@ -38,22 +38,25 @@ const NUCLEUS = makeSoftDot({
   mipmaps: true,
 });
 
-const DIST = 3200; // distance from camera along each NDC ray (additive → depth is cosmetic)
+const DIST = 5000; // far out — reads as deep background (additive → depth is cosmetic)
 
-/* ndc [x,y] in −1..1 (y up). size = disc major-axis (world units at DIST).
-   aspect < 1 squashes the minor axis (low = edge-on sliver). nuc = bulge tint
-   or null (nucleus-less elliptical / edge-on). All kept in the left + lower
-   empties: x ≤ −0.2 (clear of the Milky Way on the right) and y ≤ −0.28 (clear
-   of the hero text + buttons top-left). */
+/* ndc [x,y] in −1..1 (y up). size = disc major-axis (world units at DIST) —
+   small so they read as FAR-away background galaxies. aspect < 1 squashes the
+   minor axis (low = edge-on sliver). nuc = bulge tint or null.
+   Spread across ALL the frame's empty pockets — the top gap, the far-left
+   column at every height, the top-right corner above the disc, and the bottom
+   strip — while staying clear of the Milky Way's bright footprint (centre-right)
+   and the hero text/buttons (top-left). */
 const GALAXIES = [
-  { ndc: [-0.78, -0.32], size: 560, aspect: 0.42, roll: 2.3,  tint: "#fff0d2", nuc: "#ffe0b0" }, // Andromeda-ish spiral (biggest)
-  { ndc: [-0.42, -0.30], size: 300, aspect: 0.88, roll: 0.5,  tint: "#ffcf9e", nuc: "#fff0d8" }, // warm elliptical
-  { ndc: [-0.93, -0.62], size: 420, aspect: 0.15, roll: 1.05, tint: "#d4e4ff", nuc: null },      // edge-on sliver
-  { ndc: [-0.30, -0.52], size: 380, aspect: 0.5,  roll: 2.75, tint: "#dfe6ff", nuc: "#fff0d8" }, // blue spiral
-  { ndc: [-0.60, -0.70], size: 300, aspect: 0.8,  roll: 0.9,  tint: "#ffc890", nuc: "#ffe4b0" }, // elliptical
-  { ndc: [-0.26, -0.84], size: 330, aspect: 0.18, roll: 0.35, tint: "#e6ecff", nuc: null },      // edge-on sliver
-  { ndc: [-0.48, -0.88], size: 320, aspect: 0.55, roll: 1.7,  tint: "#ecdcff", nuc: "#ffe8c8" }, // spiral
-  { ndc: [-0.82, -0.90], size: 260, aspect: 0.82, roll: 0.2,  tint: "#ffd7a8", nuc: "#fff0d8" }, // elliptical
+  { ndc: [-0.14,  0.80], size: 230, aspect: 0.5,  roll: 2.7,  tint: "#dfe6ff", nuc: "#fff0d8" }, // top-centre gap
+  { ndc: [-0.96,  0.46], size: 300, aspect: 0.15, roll: 1.2,  tint: "#d4e4ff", nuc: null },      // far-left upper sliver
+  { ndc: [ 0.90,  0.66], size: 210, aspect: 0.85, roll: 0.4,  tint: "#ffcf9e", nuc: "#fff0d8" }, // top-right corner (above disc)
+  { ndc: [-0.97,  0.00], size: 220, aspect: 0.8,  roll: 0.6,  tint: "#ffd7a8", nuc: "#fff0d8" }, // far-left mid, beside buttons
+  { ndc: [-0.70, -0.20], size: 190, aspect: 0.45, roll: 1.9,  tint: "#ecdcff", nuc: "#ffe8c8" }, // left-mid below buttons
+  { ndc: [-0.90, -0.60], size: 300, aspect: 0.15, roll: 0.95, tint: "#e6ecff", nuc: null },      // left-lower sliver
+  { ndc: [-0.42, -0.52], size: 250, aspect: 0.55, roll: 2.75, tint: "#fff0d2", nuc: "#ffe0b0" }, // lower-centre-left spiral
+  { ndc: [-0.64, -0.88], size: 200, aspect: 0.82, roll: 0.2,  tint: "#ffc890", nuc: "#ffe4b0" }, // bottom-left elliptical
+  { ndc: [-0.12, -0.90], size: 230, aspect: 0.18, roll: 0.35, tint: "#cfe0ff", nuc: null },      // bottom-centre sliver
 ];
 
 const HomepageGalaxies = () => {
@@ -78,11 +81,11 @@ const HomepageGalaxies = () => {
       {GALAXIES.map((g, i) => (
         <group key={i} ref={(el) => { refs.current[i] = el; }}>
           <sprite scale={[g.size, g.size * g.aspect, 1]} material-rotation={g.roll}>
-            <spriteMaterial map={DISC} color={g.tint} transparent opacity={0.95} depthWrite={false} depthTest={false} blending={THREE.AdditiveBlending} toneMapped={false} />
+            <spriteMaterial map={DISC} color={g.tint} transparent opacity={0.6} depthWrite={false} depthTest={false} blending={THREE.AdditiveBlending} toneMapped={false} />
           </sprite>
           {g.nuc && (
-            <sprite scale={[g.size * 0.36, g.size * 0.36, 1]}>
-              <spriteMaterial map={NUCLEUS} color={g.nuc} transparent opacity={1.0} depthWrite={false} depthTest={false} blending={THREE.AdditiveBlending} toneMapped={false} />
+            <sprite scale={[g.size * 0.28, g.size * 0.28, 1]}>
+              <spriteMaterial map={NUCLEUS} color={g.nuc} transparent opacity={0.8} depthWrite={false} depthTest={false} blending={THREE.AdditiveBlending} toneMapped={false} />
             </sprite>
           )}
         </group>
