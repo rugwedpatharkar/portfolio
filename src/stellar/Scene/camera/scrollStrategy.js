@@ -28,7 +28,12 @@ export function runScrollStrategy(ctx) {
   const N = DESTINATIONS.length;
   const pos = rawT * (N - 1);
   const i = Math.min(N - 2, Math.max(0, Math.floor(pos)));
-  const fe = dwellEase(pos - i);
+  /* The two opening segments — Milky Way→overview (i=0) and overview→Sun (i=1) —
+     are one continuous cinematic dive: use a hold-free smoothstep so the camera
+     never freezes at the dead-zone (the "pause" between stops). Planet hops
+     (i≥2) keep the authored dwell hold so they rest on résumé content. The
+     magnetic snap still lands exactly on each stop. */
+  const fe = i < 2 ? dwellEase(pos - i, 0, 0) : dwellEase(pos - i);
 
   /* Travel speed — drives banking + the settle detector below. */
   const posVel = (pos - lastPos.current) / d;

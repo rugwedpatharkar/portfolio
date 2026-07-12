@@ -10,20 +10,32 @@
  */
 import { lazy, memo, Suspense } from "react";
 
-const SECTION_COMPONENT = {
-  about: lazy(() => import("./sections/About")),
-  funfacts: lazy(() => import("./sections/FunFacts")),
-  experience: lazy(() => import("./sections/Experience")),
-  skills: lazy(() => import("./sections/Skills")),
-  projects: lazy(() => import("./sections/Projects")),
-  notes: lazy(() => import("./sections/Notes")),
-  achievements: lazy(() => import("./sections/Achievements")),
-  education: lazy(() => import("./sections/Education")),
-  hobbies: lazy(() => import("./sections/Hobbies")),
-  testimonials: lazy(() => import("./sections/Testimonials")),
-  whatsetsmeapart: lazy(() => import("./sections/WhatSetsMeApart")),
-  contact: lazy(() => import("./sections/Contact")),
+/* Import thunks kept separate from the lazy() wrappers so they can be PRELOADED
+   (warmed into the module cache) during the intro — otherwise the first display
+   of a section at a scroll boundary pays the dynamic-import + glass-paint cost
+   as a frame dip. `preloadSection` and `lazy()` share these, so specifiers never
+   desync. */
+const SECTION_LOADERS = {
+  about: () => import("./sections/About"),
+  funfacts: () => import("./sections/FunFacts"),
+  experience: () => import("./sections/Experience"),
+  skills: () => import("./sections/Skills"),
+  projects: () => import("./sections/Projects"),
+  notes: () => import("./sections/Notes"),
+  achievements: () => import("./sections/Achievements"),
+  education: () => import("./sections/Education"),
+  hobbies: () => import("./sections/Hobbies"),
+  testimonials: () => import("./sections/Testimonials"),
+  whatsetsmeapart: () => import("./sections/WhatSetsMeApart"),
+  contact: () => import("./sections/Contact"),
 };
+
+/* Fire-and-forget preload — the module cache dedupes with the matching lazy(). */
+export const preloadSection = (name) => { SECTION_LOADERS[name]?.(); };
+
+const SECTION_COMPONENT = Object.fromEntries(
+  Object.entries(SECTION_LOADERS).map(([k, load]) => [k, lazy(load)]),
+);
 
 /* memo: HoloBridge re-renders on every panelHidden toggle (twice per planet
    hop: hide-on-depart + reveal-on-arrival). Without memo the 150-400 line

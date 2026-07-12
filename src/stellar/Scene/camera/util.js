@@ -35,10 +35,15 @@ export const DEG = Math.PI / 180;
 /* ---- dwell ease (asymmetric — see CameraRig comment) --------------------- */
 const DWELL_IN = 0.05;
 const DWELL_OUT = 0.30;
-export const dwellEase = (f) => {
-  if (f <= DWELL_IN) return 0;
-  if (f >= 1 - DWELL_OUT) return 1;
-  const x = (f - DWELL_IN) / (1 - DWELL_IN - DWELL_OUT);
+/* Asymmetric hold-then-ease. The default holds at the arriving pose for the last
+   30% (and start pose for the first 5%) of a segment so planet stops park on
+   their résumé content. The hold is parametrized so the cinematic opening
+   segments (Milky Way → overview → Sun) can pass dIn=dOut=0 for a pure,
+   continuous smoothstep with NO frozen dead-zone. */
+export const dwellEase = (f, dIn = DWELL_IN, dOut = DWELL_OUT) => {
+  if (f <= dIn) return 0;
+  if (f >= 1 - dOut) return 1;
+  const x = (f - dIn) / (1 - dIn - dOut);
   return x * x * (3 - 2 * x);
 };
 

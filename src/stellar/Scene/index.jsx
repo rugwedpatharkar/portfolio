@@ -1,6 +1,7 @@
 /* eslint-disable react/no-unknown-property */
 import { Suspense, useMemo, useRef, useEffect, cloneElement } from "react";
-import { Canvas, invalidate, useFrame, useThree } from "@react-three/fiber";
+import { Canvas, invalidate, useFrame } from "@react-three/fiber";
+import { Preload } from "@react-three/drei";
 import * as THREE from "three";
 import { EffectComposer, Bloom } from "@react-three/postprocessing";
 import CinematicGrade from "./CinematicGrade";
@@ -110,29 +111,8 @@ const planetFallback = (d) => (
    sweep visibly without becoming a merry-go-round. */
 const GALAXY_SCALE = 12;
 
-/* Prewarm — force the GPU upload + shader compile of the pre-mounted (but
-   hidden) solar-system tour DURING the homepage intro, so the Milky-Way →
-   Solar-System crossover doesn't do it all in one frame (that was the
-   remaining ~1.9s freeze: `visible={false}` defers every texture upload +
-   program compile to the first VISIBLE render, i.e. the reveal). We flip the
-   hidden subtrees visible for a single compile() call — compile doesn't draw,
-   so nothing flashes — then restore them. Runs once, when the tour has fully
-   mounted (extrasPhase 4) while still on the homepage. */
-function PrewarmTour() {
-  const { gl, scene, camera } = useThree();
-  const done = useRef(false);
-  useFrame(() => {
-    if (done.current) return;
-    done.current = true;
-    const hidden = [];
-    scene.traverse((o) => { if (o.visible === false) { hidden.push(o); o.visible = true; } });
-    try { gl.compile(scene, camera); } catch { /* best-effort precompile */ }
-    for (const o of hidden) o.visible = false;
-  });
-  return null;
-}
 
-function HomepageGalaxy({ reducedMotion, scrollT }) {
+function HomepageGalaxy({ reducedMotion, scrollT, active = true }) {
   const outerRef = useRef();
   const innerRef = useRef();
   const t0 = useRef(null);
@@ -157,6 +137,11 @@ function HomepageGalaxy({ reducedMotion, scrollT }) {
   }, [reducedMotion]);
 
   useFrame((state, dt) => {
+    /* Off the homepage the galaxy is kept MOUNTED but hidden (visible=false via
+       the wrapper) so it never disposes its ~100k-point cloud at the crossover
+       (that disposal was a transition frame dip). Skip all per-frame work while
+       hidden. */
+    if (!active) return;
     /* Scroll progress into the first segment: 0 at the hero, 1 at the Solar-
        System overview (13 stops → ×12). The dive lives in [0, 0.5]: a gentle
        zoom into the disc while the galaxy fades out, so it crossfades smoothly
@@ -195,7 +180,10 @@ function HomepageGalaxy({ reducedMotion, scrollT }) {
     if (baseOps.current) {
       for (const [m, base] of baseOps.current) m.opacity = base * fade;
     }
-    if (outerRef.current && !reducedMotion) {
+    /* Once fully faded, stop RENDERING the galaxy (additive points at opacity 0
+       still rasterize — a big overdraw cost the whole 0.46→unmount window). */
+    if (outerRef.current) outerRef.current.visible = fade > 0.01;
+    if (outerRef.current && fade > 0.01 && !reducedMotion) {
       if (diving) {
         /* Hold the tilt + centre steady through the plunge (freeze the ambient
            breathing so the surge reads clean). */
@@ -223,7 +211,9 @@ function HomepageGalaxy({ reducedMotion, scrollT }) {
         <GalaxyNebulae />
         <DustLanes />
         <GalaxyGlobulars />
-        <Supernovae reducedMotion={reducedMotion} fade={fadeRef} />
+        {/* active gates the per-frame flash cycle + its sound event so a hidden
+            (off-homepage) galaxy never fires supernova swells during the tour. */}
+        <Supernovae reducedMotion={reducedMotion} fade={fadeRef} active={active} />
       </group>
     </group>
   );
@@ -374,9 +364,13 @@ const Scene = ({ scrollT, finaleT, finale = false, activeIdx, onJump, focusRef, 
         lowDpr={isMobile ? 1.0 : 1.4}
       />
       <AutoExposure />
-      {/* Precompile + upload the hidden tour to the GPU during the intro so the
-          crossover reveal is hitch-free (see PrewarmTour). */}
-      {extrasPhase >= 4 && !finale && <PrewarmTour />}
+      {/* Full GPU prewarm of the pre-mounted (hidden) tour during the intro:
+          drei <Preload all/> un-hides every subtree, gl.compile()s shaders +
+          textures, AND cube-camera-renders once to force geometry VBO uploads
+          (which gl.compile alone does NOT do — that was a ~3s freeze on the
+          first Milky-Way→Solar-System reveal). Runs once at extrasPhase 4,
+          while still on the homepage, so the cost lands in the masked intro. */}
+      {extrasPhase >= 4 && !finale && <Preload all />}
       {/* Vacuum-lean three-point lighting. Every planet sits on +x with
           the camera on the FAR (anti-sun) side, so a literal sun-at-origin
           key would throw every hero shot into shadow. Instead:
@@ -408,7 +402,13 @@ const Scene = ({ scrollT, finaleT, finale = false, activeIdx, onJump, focusRef, 
         {/* On the homepage the sky goes JWST-sparse — only the brightest stars,
             larger, with diffraction spikes, against near-black. During the tour
             the full 8,920-star field renders. */}
-        {!finale && <Stars sparse={isMilkyway} />}
+        {/* Two star fields, both built ONCE at mount and toggled by `visible`
+            (PrewarmTour GPU-compiles the hidden one during the intro). Flipping
+            visibility at the 0→1 crossover is free — the old single
+            `sparse={isMilkyway}` rebuilt the whole 8,920-star buffer + re-uploaded
+            it synchronously, which was a major transition frame dip. */}
+        {!finale && <Stars sparse visible={isMilkyway} />}
+        {!finale && <Stars visible={!isMilkyway} />}
         {/* Nebulae live INSIDE the Milky Way — they belong to the solar-system
             tour backdrop, not the from-outside homepage. Hidden on the
             homepage (where the deep-field galaxies are the backdrop instead). */}
@@ -448,7 +448,12 @@ const Scene = ({ scrollT, finaleT, finale = false, activeIdx, onJump, focusRef, 
             + nebulae + constellations, all still mounted). Scientific-purism
             note: from Sol we can't SEE our own galaxy face-on — this is the
             crowd-pleasing "you are looking at our home" reveal. */}
-        {isMilkyway && <HomepageGalaxy reducedMotion={reducedMotion} scrollT={scrollT} />}
+        {/* Mounted unconditionally (hidden via the group) so leaving the homepage
+            never disposes the ~100k-point galaxy — that disposal was a 0→1
+            transition frame dip. `active` idles its per-frame work while hidden. */}
+        <group visible={isMilkyway}>
+          <HomepageGalaxy reducedMotion={reducedMotion} scrollT={scrollT} active={isMilkyway} />
+        </group>
         {/* Homepage ambient sky layers (sky-fixed, NOT inside the galaxy
             transform): meteor streaks, a lone interstellar comet on a long
             respawn, and faint foreground dust for parallax depth. Desktop +

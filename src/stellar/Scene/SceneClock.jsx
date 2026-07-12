@@ -33,7 +33,16 @@ const SceneClock = ({ clock, reducedMotion = false, children }) => {
   useFrame((_, dt) => {
     /* Clamp the step so a backgrounded tab (huge dt on refocus) can't fling
        the system forward. */
-    clock.t += Math.min(dt, 1 / 20) * (reducedMotion ? 0 : clock.scale);
+    const d = Math.min(dt, 1 / 20);
+    /* Ease `scale` toward its target (~0.5s) so a stop-change doesn't snap the
+       orbital RATE ×10/÷10 (a visible velocity jerk at the overview boundaries).
+       t still integrates delta*scale, so the timeline stays phase-continuous.
+       Older callers that write `scale` directly and never set `targetScale`
+       still work — the ramp just converges onto whatever `scale` already is. */
+    if (clock.targetScale != null) {
+      clock.scale += (clock.targetScale - clock.scale) * (1 - Math.pow(1 - 0.09, d * 60));
+    }
+    clock.t += d * (reducedMotion ? 0 : clock.scale);
   });
   return (
     <SceneClockContext.Provider value={clock}>{children}</SceneClockContext.Provider>

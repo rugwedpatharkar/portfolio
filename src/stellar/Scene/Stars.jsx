@@ -144,7 +144,7 @@ const FRAG = /* glsl */ `
   }
 `;
 
-const Stars = ({ sparse = false }) => {
+const Stars = ({ sparse = false, visible = true }) => {
   const { geometry, material } = useMemo(() => {
     /* Sparse (homepage/JWST) mode — only the ~700 brightest stars (the
        catalogue is sorted brightest-first), larger, with diffraction spikes,
@@ -225,7 +225,7 @@ const Stars = ({ sparse = false }) => {
   }, [geometry, material]);
 
   return (
-    <group ref={groupRef}>
+    <group ref={groupRef} visible={visible}>
       <points geometry={geometry} material={material} frustumCulled={false} />
     </group>
   );

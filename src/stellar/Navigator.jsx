@@ -96,7 +96,10 @@ const Navigator = ({ scrollTRef, finaleTRef, onDestinationChange, onFinaleConten
         const max =
           (document.scrollingElement || document.documentElement).scrollHeight -
           window.innerHeight;
-        lenis.scrollTo(targetRaw * max, { duration: SNAP_DURATION_S, easing: (t) => 1 - Math.pow(1 - t, 3) });
+        /* smootherstep (ease-in-out) — starts from REST so the snap picks up
+           smoothly out of the just-ended inertia instead of the easeOutCubic
+           fast-start that read as a "re-move" jerk; still lands gently. */
+        lenis.scrollTo(targetRaw * max, { duration: SNAP_DURATION_S, easing: (t) => t * t * t * (t * (t * 6 - 15) + 10) });
       }
     };
 

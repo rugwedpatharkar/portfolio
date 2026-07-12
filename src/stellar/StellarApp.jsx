@@ -15,6 +15,7 @@ import V3Editorial from "./v3/V3Editorial";
 import V3FinaleOverlay from "./v3/V3FinaleOverlay";
 import V3ScaleAnnotations from "./v3/V3ScaleAnnotations";
 import V3TheEdgeQuote from "./v3/V3TheEdgeQuote";
+import { preloadSection } from "./v3/V3Panel";
 
 /* Section → document-title label (recruiter-facing tab title + a11y context). */
 /* §6.3: docTitle lives on each destination row now — see DESTINATIONS in
@@ -86,7 +87,7 @@ const StellarApp = () => {
   /* Shared virtual-clock handle { t, scale, danger } — the scene writes t/danger,
      read across the canvas boundary by CameraRig / KeyLight / the reticle. */
   const sceneClockRef = useRef(null);
-  if (!sceneClockRef.current) sceneClockRef.current = { t: 0, scale: 1, danger: 0 };
+  if (!sceneClockRef.current) sceneClockRef.current = { t: 0, scale: 1, targetScale: 1, danger: 0 };
 
   /* Stream the heavy extras suite in tiers over the first ~1.7s so the core scene
      (sun + planets + stars) shows first and no single commit builds the whole
@@ -123,6 +124,13 @@ const StellarApp = () => {
     window.dispatchEvent(new CustomEvent("stellar:sound:hum"));
   }, []);
 
+  /* Warm the first few résumé-section chunks during the intro so the first scroll
+     into the tour (0→1 About, 1→2 FunFacts, 2→3 Experience) doesn't pay a
+     dynamic-import + glass-paint frame dip at the boundary. */
+  useEffect(() => {
+    ["about", "funfacts", "experience"].forEach(preloadSection);
+  }, []);
+
   /* Boost the shared virtual clock at the Solar-System overview stop (index 1)
      so planetary orbital motion is VISIBLE while the visitor lingers. No
      camera locks to a planet there, so a 10× boost is safe — inner planets
@@ -131,7 +139,10 @@ const StellarApp = () => {
      1 everywhere else. */
   useEffect(() => {
     if (!sceneClockRef.current) return;
-    sceneClockRef.current.scale = activeIdx === 1 ? 10 : 1;
+    /* Set the TARGET; SceneClock ramps `scale` toward it (~0.5s) so orbital
+       velocity doesn't snap ×10/÷10 at the 0→1 / 1→2 boundaries (a visible jerk).
+       t integrates delta*scale, so this stays position-continuous. */
+    sceneClockRef.current.targetScale = activeIdx === 1 ? 10 : 1;
   }, [activeIdx]);
 
   const handleJump = useCallback((idx) => {
@@ -159,11 +170,14 @@ const StellarApp = () => {
   const applyFocus = useCallback((planetIdx) => {
     const dest = DESTINATIONS[planetIdx];
     if (!dest) return;
-    /* Bodyless stops (kind "overview" / "hero") have radius 0 and no orbital
-       position — focusStrategy's `radius / tan(halfAngle)` standoff collapses
-       to ~0.14u and the camera lands INSIDE the Sun. Skip focus for these so
-       scrollStrategy's authored cameraTarget is what actually renders. */
-    if (dest.kind === "overview" || dest.kind === "hero") {
+    /* Bodyless / origin-anchored stops (kind "overview" / "hero" / "star") have
+       no meaningful orbital position — focusStrategy's `radius / tan(halfAngle)`
+       standoff misframes them, and a live focus arms a hyperspace jump. The Sun
+       ("star") sits at the origin and is static, so a live focus buys nothing but
+       a degenerate warp + a retarget away from the authored pose. Skip focus for
+       all three so scrollStrategy's authored cameraTarget renders as a clean
+       far→near dolly-in (the "zoom toward the Sun"). */
+    if (dest.kind === "overview" || dest.kind === "hero" || dest.kind === "star") {
       focusRef.current = null;
       prevTargetRef.current = { destId: dest.id, k: -1 };
       return;

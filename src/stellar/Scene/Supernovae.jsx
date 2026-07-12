@@ -40,7 +40,7 @@ const RING_SPRITE = makeSoftDot({
   mipmaps: true,
 });
 
-const Supernovae = ({ reducedMotion = false, fade }) => {
+const Supernovae = ({ reducedMotion = false, fade, active = true }) => {
   const flashRefs = useRef([]);
   const ringRefs = useRef([]);
   /* Each slot seeded with a position + a staggered phase so they don't all
@@ -54,7 +54,7 @@ const Supernovae = ({ reducedMotion = false, fade }) => {
   );
 
   useFrame((state) => {
-    if (reducedMotion) return;
+    if (reducedMotion || !active) return;
     const now = state.clock.elapsedTime;
     for (let i = 0; i < POOL; i++) {
       const s = slots.current[i];

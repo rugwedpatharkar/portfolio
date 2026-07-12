@@ -47,7 +47,7 @@ export const DIR_HYSTERESIS = 0.001;
  *   SNAP_DURATION_S       = duration of the snap glide
  *   SNAP_FINALE_MARGIN    = don't snap once we've crossed TOUR_END + this much
  */
-export const SNAP_DEBOUNCE_MS = 200;
+export const SNAP_DEBOUNCE_MS = 120;
 export const SNAP_MIN_DELTA = 0.004;
 export const SNAP_DURATION_S = 0.85;
 export const SNAP_FINALE_MARGIN = 0.006;
