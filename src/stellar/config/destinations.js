@@ -59,13 +59,14 @@ export const DESTINATIONS = [
     radius: 0,
     section: "about",
     docTitle: "About",
-    /* v3 system overview — CLOSER corner shot so the Sun + inner orbit rings +
-       asteroid belt are all VISIBLE against the About Me content. Previous
-       vantage at (1400,900,1600) put the Sun at 2287u distance where it was a
-       ~1° dot; new vantage at ~950u so Sun reads as a proper bright disc with
-       orbit rings sweeping visibly across the right two-thirds of the frame.
-       LookAt scaled proportionally so the Sun still sits right-of-centre. */
-    cameraTarget: { position: [560, 380, 700], lookAt: [180, -20, 30], fov: 62 },
+    /* v3 system overview — TOP-DOWN 3/4 vantage so the whole solar system
+       reads as concentric golden orbit rings around a bright Sun. Camera
+       high above the ecliptic, offset in +X for the classic corner shot;
+       lookAt near origin. At altitude ~1800u with the outermost planet
+       (Neptune) at 2857u out, all orbit rings fit in a fov=68 frame — no
+       more washed-white bloom dominating the right, just gold ellipses on
+       black with the Sun as a distinct bright dot in the middle. */
+    cameraTarget: { position: [1200, 2200, 1800], lookAt: [200, 0, 0], fov: 68 },
   },
   {
     id: "impact",

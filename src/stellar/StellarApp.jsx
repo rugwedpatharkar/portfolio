@@ -14,6 +14,7 @@ import V3Reticle from "./v3/V3Reticle";
 import V3Editorial from "./v3/V3Editorial";
 import V3FinaleOverlay from "./v3/V3FinaleOverlay";
 import V3ScaleAnnotations from "./v3/V3ScaleAnnotations";
+import V3TheEdgeQuote from "./v3/V3TheEdgeQuote";
 
 /* Section → document-title label (recruiter-facing tab title + a11y context). */
 /* §6.3: docTitle lives on each destination row now — see DESTINATIONS in
@@ -347,6 +348,10 @@ const StellarApp = () => {
           the viewer where they are in the physical hierarchy. Fades out on
           every planet stop. */}
       <V3ScaleAnnotations activeIdx={activeIdx} hidden={panelHidden} />
+      {/* Closing quote overlay on The Edge stop (activeIdx === 13). Not the
+          V3Panel section content — the black hole finale has none. Just an
+          elegant floating line + attribution to close the tour. */}
+      <V3TheEdgeQuote activeIdx={activeIdx} />
     </MotionConfig>
     </ViewportProvider>
   );
