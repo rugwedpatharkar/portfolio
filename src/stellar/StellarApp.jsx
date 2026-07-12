@@ -16,6 +16,7 @@ import V3FinaleOverlay from "./v3/V3FinaleOverlay";
 import V3ScaleAnnotations from "./v3/V3ScaleAnnotations";
 import V3TheEdgeQuote from "./v3/V3TheEdgeQuote";
 import { preloadSection } from "./v3/V3Panel";
+import BootLoader from "./v3/BootLoader";
 
 /* Section → document-title label (recruiter-facing tab title + a11y context). */
 /* §6.3: docTitle lives on each destination row now — see DESTINATIONS in
@@ -64,6 +65,10 @@ const StellarApp = () => {
   /* Progressive-mount tier (0→3) for the heavy extras suite — ramped BEHIND the
      first paint so the whole suite doesn't build in one frame-freezing commit. */
   const [extrasPhase, setExtrasPhase] = useState(0);
+  /* Boot gate — a "systems calibrating" screen covers the first load while
+     textures stream in, the tour pre-mounts + GPU-warms, and the intro settles;
+     it lifts to reveal an already-settled homepage (see BootLoader). */
+  const [booting, setBooting] = useState(true);
   const [activeIdx, setActiveIdx] = useState(0);
   const activeIdxRef = useRef(0);
   /* During the hyperspace fly-through the section info hides; it fades back in on
@@ -76,6 +81,23 @@ const StellarApp = () => {
     return () => window.removeEventListener("stellar:flight", onFlight);
   }, []);
   const { reducedMotion } = useViewport();
+
+  /* Freeze scroll (so the reveal is always the settled hero, never a stray
+     mid-tour position) while the boot screen is up; release on reveal. Lenis is
+     mounted by Navigator; poll briefly for it since it may not exist on the very
+     first commit. */
+  useEffect(() => {
+    if (booting) {
+      let tries = 0;
+      const id = setInterval(() => {
+        if (window.__lenis) { window.__lenis.scrollTo(0, { immediate: true }); window.__lenis.stop(); clearInterval(id); }
+        else if (++tries > 60) clearInterval(id);
+      }, 16);
+      return () => clearInterval(id);
+    }
+    window.__lenis?.start();
+    return undefined;
+  }, [booting]);
 
   /* Camera framing refs — kept out of React state so per-frame reads never
      re-render the tree. CameraRig reads these each frame. */
@@ -374,6 +396,15 @@ const StellarApp = () => {
           V3Panel section content — the black hole finale has none. Just an
           elegant floating line + attribution to close the tour. */}
       <V3TheEdgeQuote activeIdx={activeIdx} />
+      {/* Boot calibration screen — covers the first load until textures + GPU
+          warm-up + the intro have settled, then fades to the ready homepage. */}
+      {booting && (
+        <BootLoader
+          warmed={extrasPhase >= 4}
+          reducedMotion={reducedMotion}
+          onDone={() => setBooting(false)}
+        />
+      )}
     </MotionConfig>
     </ViewportProvider>
   );
