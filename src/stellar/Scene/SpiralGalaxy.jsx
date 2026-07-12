@@ -12,7 +12,7 @@
  * a very slow drift so the galaxy feels alive without becoming a merry-
  * go-round.
  */
-import { useMemo, useRef, useEffect } from "react";
+import { useMemo, useRef } from "react";
 import { useFrame } from "@react-three/fiber";
 import * as THREE from "three";
 import { makeSoftDot } from "./shared/textures";
@@ -251,7 +251,7 @@ function solPosition(out) {
   return armSpiralPoint(ARMS[2].offset, SOL_R, SOL_ARM_OFFSET, out);
 }
 
-const SpiralGalaxy = ({ animate = true, solPulse = false, lens = false }) => {
+const SpiralGalaxy = ({ animate = true, solPulse = false }) => {
   const groupRef = useRef();
   const solRef = useRef();
   const clock = useSceneClock();
@@ -259,58 +259,12 @@ const SpiralGalaxy = ({ animate = true, solPulse = false, lens = false }) => {
   const { positions, colors, sizes } = useMemo(() => makeGalaxy(), []);
   const solPos = useMemo(() => solPosition(new THREE.Vector3()), []);
 
-  /* Cursor "gravitational lensing" — the pointer bends nearby star light in
-     screen space (a subtle swirl + pull), like a mass warping the field behind
-     it. Cursor tracked in NDC; parked far offscreen (2,2) when absent. */
-  const cursor = useRef(new THREE.Vector2(2, 2));
-  const lensU = useRef({ uCursor: { value: new THREE.Vector2(2, 2) }, uAspect: { value: 1 } });
-  useEffect(() => {
-    if (!lens) return undefined;
-    const move = (e) => cursor.current.set(
-      (e.clientX / window.innerWidth) * 2 - 1,
-      -((e.clientY / window.innerHeight) * 2 - 1),
-    );
-    const leave = () => cursor.current.set(2, 2);
-    window.addEventListener("pointermove", move);
-    window.addEventListener("pointerout", leave);
-    return () => {
-      window.removeEventListener("pointermove", move);
-      window.removeEventListener("pointerout", leave);
-    };
-  }, [lens]);
-  const onBeforeCompile = useMemo(
-    () => (shader) => {
-      shader.uniforms.uCursor = lensU.current.uCursor;
-      shader.uniforms.uAspect = lensU.current.uAspect;
-      shader.vertexShader =
-        "uniform vec2 uCursor;\nuniform float uAspect;\n" +
-        shader.vertexShader.replace(
-          "#include <project_vertex>",
-          `#include <project_vertex>
-          {
-            vec2 ndc = gl_Position.xy / gl_Position.w;
-            vec2 dd = ndc - uCursor;
-            dd.x *= uAspect;
-            float m = smoothstep(0.42, 0.02, length(dd)) * 0.11;
-            vec2 shift = (vec2(-dd.y, dd.x) * 0.9 - dd * 0.35) * m;
-            shift.x /= uAspect;
-            gl_Position.xy += shift * gl_Position.w;
-          }`,
-        );
-    },
-    [],
-  );
-
   useFrame((state) => {
     if (animate && groupRef.current) {
       /* Slow rotation about the galactic pole. Sceneclock-driven so the
          reduced-motion consumer freezes it. */
       const t = clock?.t || 0;
       groupRef.current.rotation.y = t * 0.017;
-    }
-    if (lens) {
-      lensU.current.uCursor.value.copy(cursor.current);
-      lensU.current.uAspect.value = state.size.width / state.size.height;
     }
     /* Sol "you are here" pulse — gentle breathe on the pin. */
     if (solPulse && solRef.current) {
@@ -340,7 +294,6 @@ const SpiralGalaxy = ({ animate = true, solPulse = false, lens = false }) => {
           alphaTest={0.01}
           blending={THREE.AdditiveBlending}
           toneMapped={false}
-          onBeforeCompile={lens ? onBeforeCompile : undefined}
         />
       </points>
 

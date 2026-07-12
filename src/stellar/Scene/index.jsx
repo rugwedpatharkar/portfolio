@@ -207,7 +207,7 @@ function HomepageGalaxy({ reducedMotion, scrollT, active = true }) {
        star cloud, arm gas, dust lanes, globular halo, supernova flashes. */
     <group ref={outerRef} position={[40, 20, -560]} rotation={[1.16, 0, 0.34]}>
       <group ref={innerRef} scale={0.5}>
-        <SpiralGalaxy animate={false} solPulse lens={!reducedMotion} />
+        <SpiralGalaxy animate={false} solPulse />
         <GalaxyNebulae />
         <DustLanes />
         <GalaxyGlobulars />
