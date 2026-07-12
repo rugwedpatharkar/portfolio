@@ -24,8 +24,8 @@ const ARM_COUNT = 2;              // 2 dominant arms (+ their sub-branches) read
 //                                   more like Andromeda than a symmetric 4-arm pinwheel
 const ARM_PITCH = 0.30;           // winding tightness (M31-ish)
 const ARM_WIDTH = 0.44;           // BROADER still — wide angular spread, arms merge into a full disc
-const ARM_STARS = 16000;          // DENSER arms
-const HALO_STARS = 18000;         // DENSER inter-arm disc → a fully filled luminous plate
+const ARM_STARS = 18000;          // DENSER arms
+const HALO_STARS = 26000;         // DENSER inter-arm disc → a fully filled luminous plate
 const BULGE_STARS = 9000;         // brighter dominant core
 const HII_REGIONS = 1100;         // pink star-forming knots along the arms (M31 signature)
 const SOL_R = 0.55 * DISC_RADIUS; // Sun's position out from centre (~27,000 ly / 50,000 ly disc)
@@ -191,12 +191,14 @@ function makeGalaxy() {
 
     const nearCore = 1 - rt;
     /* warm cream near the core, cooling to the disc tint outward */
-    c.copy(HALO_TINT).lerp(CORE_TINT, nearCore * 0.75);
-    const bright = 0.5 + 0.7 * nearCore + Math.random() * 0.25;
+    c.copy(HALO_TINT).lerp(CORE_TINT, nearCore * 0.7);
+    /* Higher floor + less core-bias so the WHOLE disc reads as a luminous
+       plate out to the rim (was a bright core + faint outer ring). */
+    const bright = 0.85 + 0.45 * nearCore + Math.random() * 0.25;
     colors[idx * 3    ] = c.r * bright;
     colors[idx * 3 + 1] = c.g * bright;
     colors[idx * 3 + 2] = c.b * bright;
-    sizes[idx] = 1.8 + Math.random() * 2.4 + nearCore * 1.5;
+    sizes[idx] = 2.2 + Math.random() * 2.6 + nearCore * 1.5;
     idx++;
   }
 

@@ -118,7 +118,7 @@ function HomepageGalaxy({ reducedMotion }) {
        the galaxy bleeds past every screen edge (fills the whole viewport).
        Inner group spins around Y (the disc-normal after the tilt). */
     <group ref={outerRef} position={[40, 20, -560]} rotation={[1.16, 0, 0.34]}>
-      <group ref={innerRef} scale={11.5}>
+      <group ref={innerRef} scale={13}>
         <SpiralGalaxy animate={false} />
       </group>
     </group>
