@@ -29,7 +29,6 @@ import EclipseLights from "./EclipseLights";
 import DwarfPlanets from "./DwarfPlanets";
 import Comet from "./Comet";
 import Hyperspace from "./Hyperspace";
-import SgrAStar from "./SgrAStar";
 import SpiralGalaxy from "./SpiralGalaxy";
 import BlackHole from "./anomalies/BlackHole";
 import Voyagers from "./Voyagers";
@@ -112,11 +111,14 @@ function HomepageGalaxy({ reducedMotion }) {
     if (innerRef.current) innerRef.current.rotation.y += dt * 0.07;
   });
   return (
-    /* Outer group: 3/4 face-on tilt so we see the spiral arms + disc depth.
-       Inner group: rotates around Y (galactic-pole axis) — the disc-normal
-       AFTER the outer tilt, so spin looks like a real galactic rotation. */
-    <group ref={outerRef} position={[0, 0, -600]} rotation={[Math.PI / 4.2, 0, Math.PI / 8]}>
-      <group ref={innerRef} scale={3.2}>
+    /* Outer group: steep Andromeda-style 3/4 tilt (~66°) so the disc reads as
+       an elongated ellipse, not a flat face-on circle. Positioned so the
+       blazing core sits RIGHT-of-centre — the dimmer outer arm falls on the
+       left where the hero text sits, keeping the copy legible. Scaled big so
+       the galaxy bleeds past every screen edge (fills the whole viewport).
+       Inner group spins around Y (the disc-normal after the tilt). */
+    <group ref={outerRef} position={[240, 40, -560]} rotation={[1.16, 0, 0.34]}>
+      <group ref={innerRef} scale={5.2}>
         <SpiralGalaxy animate={false} />
       </group>
     </group>
@@ -287,13 +289,18 @@ const Scene = ({ scrollT, finaleT, finale = false, activeIdx, onJump, focusRef, 
 
       <Suspense fallback={null}>
         <SafeLoad><Skybox homepage={isMilkyway} /></SafeLoad>
-        {!finale && <Stars />}
+        {/* On the homepage the sky goes JWST-sparse — only the brightest stars,
+            larger, with diffraction spikes, against near-black. During the tour
+            the full 8,920-star field renders. */}
+        {!finale && <Stars sparse={isMilkyway} />}
         {!finale && <SafeLoad><Nebulae /></SafeLoad>}
         {/* Constellation line overlays — 12 named patterns (Orion, Big Dipper,
             Cassiopeia, Cygnus, Scorpius, Crux, Leo, Perseus, Gemini, Lyra,
             Aquila, Canis Major) drawn as hairline gold connectors. Ambient
             "you are surrounded by named patterns" feeling. */}
-        {!finale && <Constellations />}
+        {/* Constellations are the from-INSIDE sky — hide them on the homepage
+            (we're viewing the galaxy from outside there); keep during the tour. */}
+        {!finale && !isMilkyway && <Constellations />}
         {/* Distant naked-eye galaxies — Andromeda (M31), Triangulum (M33),
             LMC + SMC — fuzzy discs at real RA/Dec on the sky shell. */}
         {!finale && <DistantGalaxies />}
@@ -307,22 +314,19 @@ const Scene = ({ scrollT, finaleT, finale = false, activeIdx, onJump, focusRef, 
         {/* Hover labels on the 16 brightest named stars — desktop-only,
             reveals name + distance + constellation on hover. */}
         {showEggs && !isMobile && !reducedMotion && !finale && <StarLabels />}
-        {/* Milky Way band — the from-inside view of our galaxy. Always on
-            (not gated by finale) — brightened significantly at the Milky Way
-            homepage (activeIdx===0) so the Sagittarius core glows, and
-            gently faded during the tour so the planets stay the hero. */}
-        <MilkyWay finale={isMilkyway} />
+        {/* Milky Way band — the from-INSIDE view. Belongs to the tour only.
+            Hidden on the homepage, where we view the galaxy from OUTSIDE
+            (the arch + the external spiral in one frame would be nonsense). */}
+        {!isMilkyway && <MilkyWay finale={false} />}
         {/* Hyperspace transition — cinematic radial star-streaks that fire
             during the scroll segment from Milky Way (index 0) to Solar
             System overview (index 1). Reads warpVelRef; invisible when
             velocity is 0 (i.e. everywhere except that one transition). */}
         {!reducedMotion && !isMobile && <Hyperspace warpVelRef={warpVelRef} />}
-        {/* Sagittarius A* marker — the Milky Way's central supermassive
-            black hole (4.15M M☉, 26,670 ly). Placed at its real J2000 sky
-            position so it sits on the Sagittarius core glow on the band.
-            Only visible on the homepage — it's a sky marker, not an object
-            in the Solar System. */}
-        {isMilkyway && <SgrAStar />}
+        {/* Sagittarius A* marker retired from the homepage — it's a
+            from-inside sky marker (galactic-centre direction), meaningless
+            against the from-outside galaxy view. The galaxy's own bright
+            core bulge now carries the centre. */}
         {/* Homepage Milky Way — the visitor's first frame. A tilted spinning
             spiral galaxy dominates the middle of the screen with a JWST-style
             deep-field sky around it (real HYG stars + M31/M33/LMC/SMC sprites

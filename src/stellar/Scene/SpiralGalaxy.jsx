@@ -19,22 +19,25 @@ import { makeSoftDot } from "./shared/textures";
 import { useSceneClock } from "./SceneClock";
 
 const DISC_RADIUS = 200;
-const BULGE_RADIUS = 32;
-const ARM_COUNT = 4;
-const ARM_PITCH = 0.32;           // logarithmic spiral tightness (radians per unit ln r)
-const ARM_WIDTH = 0.28;           // stddev of the arm's angular spread (radians)
-const ARM_STARS = 4000;           // stars per arm
-const HALO_STARS = 4000;          // diffuse background stars in the disc
-const BULGE_STARS = 3500;         // stars in the central bulge
+const BULGE_RADIUS = 34;
+const ARM_COUNT = 2;              // 2 dominant arms (+ their sub-branches) reads
+//                                   more like Andromeda than a symmetric 4-arm pinwheel
+const ARM_PITCH = 0.26;           // tighter winding (smaller pitch → more wraps) like M31
+const ARM_WIDTH = 0.22;           // stddev of the arm's angular spread (radians)
+const ARM_STARS = 6000;           // stars per arm (denser arms now there are only 2)
+const HALO_STARS = 5000;          // diffuse background stars in the disc
+const BULGE_STARS = 5000;         // stars in the central bulge (brighter dominant core)
+const HII_REGIONS = 520;          // pink star-forming knots along the arms (M31 signature)
 const SOL_R = 0.55 * DISC_RADIUS; // Sun's position out from centre (~27,000 ly / 50,000 ly disc)
 const SOL_ARM_OFFSET = 0.35;      // fractional radians past Sagittarius arm (Orion Spur is a minor arm here)
 
-/* Warm yellow-white bulge → cool blue-white disc → dim edge — matches
-   real Milky Way colour photography. */
-const CORE_TINT   = new THREE.Color("#ffe8b8"); // core cream/gold
-const ARM_TINT    = new THREE.Color("#c8dcff"); // arm blue-white
-const DUST_TINT   = new THREE.Color("#4a3520"); // dust lane brown
-const HALO_TINT   = new THREE.Color("#7a8298"); // disc background stars
+/* Warm yellow-white bulge → cool blue-white disc → dim edge — matches real
+   spiral-galaxy colour photography (Andromeda reference). */
+const CORE_TINT   = new THREE.Color("#fff0cf"); // core cream/gold — brighter, more dominant
+const ARM_TINT    = new THREE.Color("#bcd4ff"); // arm blue-white (young stars)
+const DUST_TINT   = new THREE.Color("#3a2a1c"); // dust lane brown — darker, more opaque
+const HALO_TINT   = new THREE.Color("#6d7590"); // disc background stars
+const HII_TINT    = new THREE.Color("#ff5c9e"); // pink Hα star-forming regions
 
 const STAR_SPRITE = makeSoftDot({
   size: 64,
@@ -73,7 +76,7 @@ const SOL_PIN_SPRITE = makeSoftDot({
    bulge + a diffuse disc halo of "field" stars filling the plane between
    arms. All in one geometry to save draw calls. */
 function makeGalaxy() {
-  const total = ARM_STARS * ARM_COUNT + HALO_STARS + BULGE_STARS;
+  const total = ARM_STARS * ARM_COUNT + HALO_STARS + BULGE_STARS + HII_REGIONS;
   const positions = new Float32Array(total * 3);
   const colors = new Float32Array(total * 3);
   const sizes = new Float32Array(total);
@@ -107,10 +110,14 @@ function makeGalaxy() {
          reddish-brown dust patch where the arm ridge is (small scatter). */
       const nearCore = 1 - t;
       c.copy(ARM_TINT).lerp(CORE_TINT, nearCore * 0.7);
-      /* Dust lane on the inner edge of the arm — dim + brownward. */
-      const dustBias = Math.abs(scatter) < ARM_WIDTH * 0.35 ? Math.random() < 0.18 : false;
-      if (dustBias) c.lerp(DUST_TINT, 0.6);
-      const bright = (0.55 + 0.85 * nearCore) * (dustBias ? 0.4 : 1);
+      /* Dust lane on the INNER edge of each arm — Andromeda's arms are split by
+         dark brown absorption bands. Wider band + stronger darkening than
+         before so the lanes actually read against the bloom. */
+      const dustBias = scatter < -ARM_WIDTH * 0.1 && scatter > -ARM_WIDTH * 0.9
+        ? Math.random() < 0.35
+        : false;
+      if (dustBias) c.lerp(DUST_TINT, 0.8);
+      const bright = (0.55 + 0.85 * nearCore) * (dustBias ? 0.22 : 1);
       colors[idx * 3    ] = c.r * bright;
       colors[idx * 3 + 1] = c.g * bright;
       colors[idx * 3 + 2] = c.b * bright;
@@ -118,6 +125,32 @@ function makeGalaxy() {
       sizes[idx] = (2.2 + Math.random() * 3.8) * (0.7 + 0.3 * nearCore);
       idx++;
     }
+  }
+
+  /* --- HII REGIONS: pink Hα star-forming knots strung along the arm ridges.
+     This is Andromeda's signature — the rose-coloured beads that trace the
+     spiral. Placed on the arm centreline (small scatter), biased to the
+     mid-to-outer disc where star formation is active. */
+  for (let i = 0; i < HII_REGIONS; i++) {
+    const a = i % ARM_COUNT;
+    const armOffset = (a / ARM_COUNT) * Math.PI * 2;
+    const t = 0.25 + Math.pow(Math.random(), 0.8) * 0.72; // mid → outer disc
+    const r = BULGE_RADIUS + t * (DISC_RADIUS - BULGE_RADIUS);
+    const theta = armOffset + Math.log(r / BULGE_RADIUS) / ARM_PITCH;
+    const scatter = (Math.random() - 0.5) * ARM_WIDTH * 0.5;
+    const th = theta + scatter;
+    const z = (Math.random() - 0.5) * 4;
+    positions[idx * 3    ] = Math.cos(th) * r;
+    positions[idx * 3 + 1] = z;
+    positions[idx * 3 + 2] = Math.sin(th) * r;
+    /* Slight hue jitter magenta↔rose so the knots don't read as one flat pink. */
+    c.copy(HII_TINT).lerp(new THREE.Color("#ff9ec4"), Math.random() * 0.5);
+    const bright = 0.9 + Math.random() * 0.5;
+    colors[idx * 3    ] = c.r * bright;
+    colors[idx * 3 + 1] = c.g * bright;
+    colors[idx * 3 + 2] = c.b * bright;
+    sizes[idx] = 3.5 + Math.random() * 4.5; // small bright clumps
+    idx++;
   }
 
   /* --- BULGE: dense spheroidal star cloud in the centre. */
@@ -213,17 +246,17 @@ const SpiralGalaxy = ({ animate = true }) => {
         />
       </points>
 
-      {/* Soft central bulge glow — an additive sprite that gives the core
-          the diffuse yellow-white blaze real spirals photograph with. */}
-      <sprite position={[0, 0, 0]} scale={[BULGE_RADIUS * 3.4, BULGE_RADIUS * 3.4, 1]}>
-        <spriteMaterial
-          map={BULGE_SPRITE}
-          transparent
-          opacity={0.9}
-          depthWrite={false}
-          blending={THREE.AdditiveBlending}
-          toneMapped={false}
-        />
+      {/* Core bulge — layered additive glow for Andromeda's dominant blazing
+          centre. A wide diffuse halo, a mid warm glow, and a hot white inner
+          core stacked so the centre reads as the brightest thing in frame. */}
+      <sprite position={[0, 0, 0]} scale={[BULGE_RADIUS * 5.2, BULGE_RADIUS * 5.2, 1]}>
+        <spriteMaterial map={BULGE_SPRITE} transparent opacity={0.5} depthWrite={false} blending={THREE.AdditiveBlending} toneMapped={false} />
+      </sprite>
+      <sprite position={[0, 0, 0]} scale={[BULGE_RADIUS * 3.0, BULGE_RADIUS * 3.0, 1]}>
+        <spriteMaterial map={BULGE_SPRITE} transparent opacity={0.85} depthWrite={false} blending={THREE.AdditiveBlending} toneMapped={false} />
+      </sprite>
+      <sprite position={[0, 0, 0]} scale={[BULGE_RADIUS * 1.5, BULGE_RADIUS * 1.5, 1]}>
+        <spriteMaterial map={BULGE_SPRITE} color="#fffdf6" transparent opacity={1} depthWrite={false} blending={THREE.AdditiveBlending} toneMapped={false} />
       </sprite>
 
       {/* SOL PIN — a hot yellow-white pinprick at the Sun's position, riding

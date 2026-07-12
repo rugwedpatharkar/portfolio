@@ -45,15 +45,15 @@ const Skybox = ({ homepage = false }) => {
        direction so the visitor's first frame is dominated by galactic core. */
     <mesh rotation={homepage ? [0.15, 3.6, 0] : [0.3, 2.4, 0]}>
       <sphereGeometry args={[7000, 64, 32]} />
-      {/* On the tour, dim hard so the dense Tycho star field recedes into a
-          backdrop. On the homepage, bright it up so the panorama IS the
-          image, not a backdrop. toneMapped={false} keeps the colour
-          deterministic across GPUs (ACES tone-mapping washed it near-white
-          on some drivers). */}
+      {/* Homepage = the galaxy is the subject, seen against a JWST-style deep
+          field, so the Tycho panorama must recede to near-black (any brighter
+          and its milky haze fights the galaxy). The tour keeps a slightly
+          lifted dim so the star field reads as a backdrop. toneMapped={false}
+          keeps the colour deterministic across GPUs. */}
       <meshBasicMaterial
         map={tex}
         side={THREE.BackSide}
-        color={homepage ? "#c8c8c8" : "#44474f"}
+        color={homepage ? "#0a0b12" : "#44474f"}
         toneMapped={false}
         depthWrite={false}
       />

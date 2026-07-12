@@ -38,6 +38,55 @@ const SPRITE_TEXTURE = makeSoftDot({
   anisotropy: 8,
 });
 
+/* Diffraction-spike sprite for the JWST-style homepage sky — a bright round
+   core plus a 4-point cross + fainter 45° cross, the way a mirror telescope
+   renders bright point sources. Built on a canvas since makeSoftDot only does
+   radial gradients. Used only in `sparse` mode. */
+function makeSpikeSprite(size = 128) {
+  if (typeof document === "undefined") return null;
+  const cv = document.createElement("canvas");
+  cv.width = cv.height = size;
+  const ctx = cv.getContext("2d");
+  const c = size / 2;
+  /* soft round core */
+  const core = ctx.createRadialGradient(c, c, 0, c, c, size * 0.18);
+  core.addColorStop(0, "rgba(255,255,255,1)");
+  core.addColorStop(0.5, "rgba(255,255,255,0.55)");
+  core.addColorStop(1, "rgba(255,255,255,0)");
+  ctx.fillStyle = core;
+  ctx.fillRect(0, 0, size, size);
+  /* diffraction spikes — thin bright lines fading to the edge */
+  const spike = (angle, len, width, alpha) => {
+    ctx.save();
+    ctx.translate(c, c);
+    ctx.rotate(angle);
+    const g = ctx.createLinearGradient(0, 0, len, 0);
+    g.addColorStop(0, `rgba(255,255,255,${alpha})`);
+    g.addColorStop(1, "rgba(255,255,255,0)");
+    ctx.fillStyle = g;
+    // draw both directions as a thin triangle-ish sliver
+    for (const dir of [1, -1]) {
+      ctx.beginPath();
+      ctx.moveTo(0, -width / 2);
+      ctx.lineTo(dir * len, 0);
+      ctx.lineTo(0, width / 2);
+      ctx.closePath();
+      ctx.fill();
+    }
+    ctx.restore();
+  };
+  const half = size / 2;
+  spike(0, half * 0.98, 3, 0.9);            // horizontal
+  spike(Math.PI / 2, half * 0.98, 3, 0.9);  // vertical
+  spike(Math.PI / 4, half * 0.72, 2, 0.4);  // diagonal /
+  spike(-Math.PI / 4, half * 0.72, 2, 0.4); // diagonal \
+  const tex = new THREE.CanvasTexture(cv);
+  tex.colorSpace = THREE.SRGBColorSpace;
+  tex.needsUpdate = true;
+  return tex;
+}
+const SPIKE_TEXTURE = makeSpikeSprite(128);
+
 /* B–V colour index → RGB. Ballesteros' formula gives effective temperature from
    B–V; a blackbody approximation (Tanner Helland) turns that into the star's
    real tint — hot blue-white (B–V<0) through the Sun's yellow-white (~0.65) to
@@ -95,15 +144,19 @@ const FRAG = /* glsl */ `
   }
 `;
 
-const Stars = () => {
+const Stars = ({ sparse = false }) => {
   const { geometry, material } = useMemo(() => {
-    const positions = new Float32Array(STAR_COUNT * 3);
-    const colors = new Float32Array(STAR_COUNT * 3);
-    const sizes = new Float32Array(STAR_COUNT);
+    /* Sparse (homepage/JWST) mode — only the ~700 brightest stars (the
+       catalogue is sorted brightest-first), larger, with diffraction spikes,
+       against near-black. Full field (8,920) during the tour. */
+    const count = sparse ? Math.min(700, STAR_COUNT) : STAR_COUNT;
+    const positions = new Float32Array(count * 3);
+    const colors = new Float32Array(count * 3);
+    const sizes = new Float32Array(count);
     const col = new THREE.Color();
     const cosE = Math.cos(OBLIQUITY);
     const sinE = Math.sin(OBLIQUITY);
-    for (let i = 0; i < STAR_COUNT; i++) {
+    for (let i = 0; i < count; i++) {
       const b = i * STAR_STRIDE; // stride-5: [raRad, decRad, mag, ci, distLy]
       const ra = STARS[b];
       const dec = STARS[b + 1];
@@ -129,14 +182,17 @@ const Stars = () => {
       colors[i * 3 + 1] = col.g * bright;
       colors[i * 3 + 2] = col.b * bright;
 
-      sizes[i] = THREE.MathUtils.clamp(1.3 + (6.5 - mag) * 1.15, 1.3, 11);
+      /* Sparse mode renders spike sprites, which need more pixels to read the
+         cross; bump the base size so the diffraction spikes are visible. */
+      const baseSize = THREE.MathUtils.clamp(1.3 + (6.5 - mag) * 1.15, 1.3, 11);
+      sizes[i] = sparse ? baseSize * 2.2 + 4 : baseSize;
     }
     const geometry = new THREE.BufferGeometry();
     geometry.setAttribute("position", new THREE.BufferAttribute(positions, 3));
     geometry.setAttribute("aColor", new THREE.BufferAttribute(colors, 3));
     geometry.setAttribute("aSize", new THREE.BufferAttribute(sizes, 1));
     const material = new THREE.ShaderMaterial({
-      uniforms: { uMap: { value: SPRITE_TEXTURE }, uTime: { value: 0 } },
+      uniforms: { uMap: { value: sparse && SPIKE_TEXTURE ? SPIKE_TEXTURE : SPRITE_TEXTURE }, uTime: { value: 0 } },
       vertexShader: VERT,
       fragmentShader: FRAG,
       transparent: true,
@@ -145,7 +201,7 @@ const Stars = () => {
       toneMapped: false,
     });
     return { geometry, material };
-  }, []);
+  }, [sparse]);
 
   const groupRef = useRef();
 

@@ -40,12 +40,12 @@ export const DESTINATIONS = [
     accent: "#ffd58a",
     section: "hero", // no résumé — pure intro
     docTitle: "",
-    /* Camera pose: looking straight at the HomepageGalaxy — a tilted spinning
-       spiral positioned at (0, 0, -600). Camera centered on the disc so the
-       galaxy sits mid-frame with the sky wrapping around; hero copy sits ON
-       TOP of the galaxy on the left column. Wide fov=68 so the galaxy fills
-       the middle third, dust arms sweeping into the sky frame. */
-    cameraTarget: { position: [0, 220, 420], lookAt: [0, 0, -600], fov: 68 },
+    /* Camera pose framing the full-screen HomepageGalaxy (core at ~[240,40,
+       -560]). Camera pulled to +Z and lifted so the tilted disc fills the
+       frame and bleeds past the edges; lookAt aimed at the core so the galaxy
+       reads right-of-centre with the dim outer arm sweeping across the left
+       (where the hero text sits). Wide fov=72 for the full-bleed spread. */
+    cameraTarget: { position: [120, 300, 470], lookAt: [240, 30, -560], fov: 72 },
   },
   {
     /* v3 STOP 01 — Solar-System overview / arrival pose. Reached via the
