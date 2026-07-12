@@ -118,7 +118,7 @@ function HomepageGalaxy({ reducedMotion }) {
        the galaxy bleeds past every screen edge (fills the whole viewport).
        Inner group spins around Y (the disc-normal after the tilt). */
     <group ref={outerRef} position={[240, 40, -560]} rotation={[1.16, 0, 0.34]}>
-      <group ref={innerRef} scale={5.2}>
+      <group ref={innerRef} scale={6.6}>
         <SpiralGalaxy animate={false} />
       </group>
     </group>
@@ -293,7 +293,10 @@ const Scene = ({ scrollT, finaleT, finale = false, activeIdx, onJump, focusRef, 
             larger, with diffraction spikes, against near-black. During the tour
             the full 8,920-star field renders. */}
         {!finale && <Stars sparse={isMilkyway} />}
-        {!finale && <SafeLoad><Nebulae /></SafeLoad>}
+        {/* Nebulae live INSIDE the Milky Way — they belong to the solar-system
+            tour backdrop, not the from-outside homepage. Hidden on the
+            homepage (where the deep-field galaxies are the backdrop instead). */}
+        {!finale && !isMilkyway && <SafeLoad><Nebulae /></SafeLoad>}
         {/* Constellation line overlays — 12 named patterns (Orion, Big Dipper,
             Cassiopeia, Cygnus, Scorpius, Crux, Leo, Perseus, Gemini, Lyra,
             Aquila, Canis Major) drawn as hairline gold connectors. Ambient
@@ -303,7 +306,10 @@ const Scene = ({ scrollT, finaleT, finale = false, activeIdx, onJump, focusRef, 
         {!finale && !isMilkyway && <Constellations />}
         {/* Distant naked-eye galaxies — Andromeda (M31), Triangulum (M33),
             LMC + SMC — fuzzy discs at real RA/Dec on the sky shell. */}
-        {!finale && <DistantGalaxies />}
+        {/* Distant galaxies — 4 real naked-eye ones during the tour; on the
+            homepage a full JWST-style deep-field scatter (~80 small galaxies)
+            becomes the backdrop behind the Milky Way. */}
+        {!finale && <DistantGalaxies deepField={isMilkyway} />}
         {/* Zodiacal light — faint warm band along the ecliptic from
             interplanetary-dust scatter of sunlight (real phenomenon). */}
         {showExtras && !finale && <ZodiacalLight />}

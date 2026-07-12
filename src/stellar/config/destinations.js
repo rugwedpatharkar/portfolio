@@ -45,7 +45,7 @@ export const DESTINATIONS = [
        frame and bleeds past the edges; lookAt aimed at the core so the galaxy
        reads right-of-centre with the dim outer arm sweeping across the left
        (where the hero text sits). Wide fov=72 for the full-bleed spread. */
-    cameraTarget: { position: [120, 300, 470], lookAt: [240, 30, -560], fov: 72 },
+    cameraTarget: { position: [60, 470, 900], lookAt: [240, 20, -560], fov: 76 },
   },
   {
     /* v3 STOP 01 — Solar-System overview / arrival pose. Reached via the

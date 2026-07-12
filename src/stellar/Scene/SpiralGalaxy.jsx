@@ -22,12 +22,12 @@ const DISC_RADIUS = 200;
 const BULGE_RADIUS = 34;
 const ARM_COUNT = 2;              // 2 dominant arms (+ their sub-branches) reads
 //                                   more like Andromeda than a symmetric 4-arm pinwheel
-const ARM_PITCH = 0.26;           // tighter winding (smaller pitch → more wraps) like M31
-const ARM_WIDTH = 0.22;           // stddev of the arm's angular spread (radians)
-const ARM_STARS = 6000;           // stars per arm (denser arms now there are only 2)
-const HALO_STARS = 5000;          // diffuse background stars in the disc
-const BULGE_STARS = 5000;         // stars in the central bulge (brighter dominant core)
-const HII_REGIONS = 520;          // pink star-forming knots along the arms (M31 signature)
+const ARM_PITCH = 0.28;           // winding tightness (M31-ish)
+const ARM_WIDTH = 0.34;           // BROADER arms — wider angular spread so the disc fills
+const ARM_STARS = 11000;          // DENSER arms
+const HALO_STARS = 12000;         // DENSER inter-arm disc → reads as a filled luminous plate
+const BULGE_STARS = 7000;         // brighter dominant core
+const HII_REGIONS = 800;          // pink star-forming knots along the arms (M31 signature)
 const SOL_R = 0.55 * DISC_RADIUS; // Sun's position out from centre (~27,000 ly / 50,000 ly disc)
 const SOL_ARM_OFFSET = 0.35;      // fractional radians past Sagittarius arm (Orion Spur is a minor arm here)
 
@@ -176,21 +176,27 @@ function makeGalaxy() {
     idx++;
   }
 
-  /* --- HALO/FIELD STARS: thin, diffuse disc filling the space between arms. */
+  /* --- HALO/FIELD STARS: the diffuse disc filling the space between arms.
+     Density biased toward the centre (pow 0.55) and brightness graded warm
+     near the core → cool at the edge, so the disc reads as a FILLED luminous
+     plate (Andromeda) rather than a few sparse rings. */
   for (let i = 0; i < HALO_STARS; i++) {
-    const r = BULGE_RADIUS + Math.pow(Math.random(), 0.7) * (DISC_RADIUS - BULGE_RADIUS);
+    const rt = Math.pow(Math.random(), 0.55);
+    const r = BULGE_RADIUS + rt * (DISC_RADIUS - BULGE_RADIUS);
     const th = Math.random() * Math.PI * 2;
     const z = (Math.random() + Math.random() + Math.random() - 1.5) * 5;
     positions[idx * 3    ] = Math.cos(th) * r;
     positions[idx * 3 + 1] = z;
     positions[idx * 3 + 2] = Math.sin(th) * r;
 
-    c.copy(HALO_TINT);
-    const bright = 0.35 + Math.random() * 0.4;
+    const nearCore = 1 - rt;
+    /* warm cream near the core, cooling to the disc tint outward */
+    c.copy(HALO_TINT).lerp(CORE_TINT, nearCore * 0.75);
+    const bright = 0.5 + 0.7 * nearCore + Math.random() * 0.25;
     colors[idx * 3    ] = c.r * bright;
     colors[idx * 3 + 1] = c.g * bright;
     colors[idx * 3 + 2] = c.b * bright;
-    sizes[idx] = 1.6 + Math.random() * 2.2;
+    sizes[idx] = 1.8 + Math.random() * 2.4 + nearCore * 1.5;
     idx++;
   }
 
@@ -233,7 +239,7 @@ const SpiralGalaxy = ({ animate = true }) => {
           <bufferAttribute attach="attributes-size" count={sizes.length} array={sizes} itemSize={1} />
         </bufferGeometry>
         <pointsMaterial
-          size={4.6}
+          size={5.4}
           sizeAttenuation
           vertexColors
           transparent

@@ -115,10 +115,65 @@ const GALAXIES = [
   },
 ];
 
-const DistantGalaxies = () => {
+/* JWST-deep-field scatter — many small distant galaxies strewn across the
+   whole sky shell (the homepage background, replacing the nebulae which now
+   live inside the galaxy / behind the solar-system tour). Types match a real
+   deep field: warm orange ellipticals (the redshifted majority), a few
+   blue-white spirals, and thin edge-on slivers. Small + faint so they read
+   as depth, not foreground. Positions on a random unit-sphere; slightly
+   inside the named-galaxy shell so they never clip the Milky Way band. */
+function makeDeepField(count) {
+  const out = [];
+  const ELLIPTICAL = ["#ffcf9e", "#ffbe86", "#f2b57e", "#e8a878", "#ffd8b0"]; // warm/orange
+  const SPIRAL = ["#cfe0ff", "#e6ecff", "#dfe6f5", "#f0f2ff"];               // cool blue-white
+  for (let i = 0; i < count; i++) {
+    /* uniform point on the sphere */
+    const u = Math.random() * 2 - 1;
+    const th = Math.random() * Math.PI * 2;
+    const s = Math.sqrt(1 - u * u);
+    const dir = [s * Math.cos(th), u, s * Math.sin(th)];
+    const r = R * (0.94 + Math.random() * 0.05); // slightly inside the shell, jittered depth
+    const pos = [dir[0] * r, dir[1] * r, dir[2] * r];
+
+    const roll = Math.random() * Math.PI;
+    const kind = Math.random();
+    let base, tint, aspect, hasNucleus;
+    if (kind < 0.62) {
+      /* elliptical / distant smudge — round-ish, warm, faint */
+      base = 26 + Math.random() * 46;
+      tint = ELLIPTICAL[(Math.random() * ELLIPTICAL.length) | 0];
+      aspect = 0.75 + Math.random() * 0.25;
+      hasNucleus = Math.random() < 0.5;
+    } else if (kind < 0.86) {
+      /* small spiral — mild elongation, cool, tiny bright nucleus */
+      base = 34 + Math.random() * 60;
+      tint = SPIRAL[(Math.random() * SPIRAL.length) | 0];
+      aspect = 0.45 + Math.random() * 0.35;
+      hasNucleus = true;
+    } else {
+      /* edge-on sliver — high aspect ratio, thin streak */
+      base = 60 + Math.random() * 90;
+      tint = Math.random() < 0.5 ? ELLIPTICAL[0] : SPIRAL[0];
+      aspect = 0.14 + Math.random() * 0.12;
+      hasNucleus = Math.random() < 0.4;
+    }
+    out.push({
+      pos,
+      scale: [base, base * aspect, base],
+      rotation: roll,
+      tint,
+      opacity: 0.32 + Math.random() * 0.4,
+      nucleusScale: hasNucleus ? base * (0.32 + Math.random() * 0.2) : 0,
+      nucleusTint: "#fff0d8",
+    });
+  }
+  return out;
+}
+
+const DistantGalaxies = ({ deepField = false }) => {
   const items = useMemo(() => {
     const scratch = new THREE.Vector3();
-    return GALAXIES.map((g) => {
+    const named = GALAXIES.map((g) => {
       sceneVec(g.raHours, g.decDeg, scratch);
       return {
         pos: scratch.clone().multiplyScalar(R).toArray(),
@@ -127,10 +182,14 @@ const DistantGalaxies = () => {
         tint: g.tint,
         nucleusTint: g.nucleusTint,
         rotation: g.rotation,
+        opacity: 1.0,
         name: g.name,
       };
     });
-  }, []);
+    /* Homepage → add the deep-field scatter behind the galaxy. Tour → just
+       the four real naked-eye galaxies. */
+    return deepField ? [...named, ...makeDeepField(80)] : named;
+  }, [deepField]);
 
   return (
     <group frustumCulled={false}>
@@ -142,27 +201,28 @@ const DistantGalaxies = () => {
               map={GALAXY_SPRITE}
               color={g.tint}
               transparent
-              opacity={1.0}
+              opacity={g.opacity ?? 1.0}
               depthWrite={false}
               blending={THREE.AdditiveBlending}
               toneMapped={false}
             />
           </sprite>
           {/* Hot compact nucleus / bulge — the visual signature that turns
-              a fuzzy smudge into an identifiable galaxy. Rides on top of
-              the disc at same position; smaller + brighter core makes it
-              punch through the nebula backdrop. */}
-          <sprite position={g.pos} scale={[g.nucleusScale, g.nucleusScale, g.nucleusScale]}>
-            <spriteMaterial
-              map={NUCLEUS_SPRITE}
-              color={g.nucleusTint}
-              transparent
-              opacity={1.0}
-              depthWrite={false}
-              blending={THREE.AdditiveBlending}
-              toneMapped={false}
-            />
-          </sprite>
+              a fuzzy smudge into an identifiable galaxy. Skipped for the
+              nucleus-less distant ellipticals (nucleusScale 0). */}
+          {g.nucleusScale > 0 && (
+            <sprite position={g.pos} scale={[g.nucleusScale, g.nucleusScale, g.nucleusScale]}>
+              <spriteMaterial
+                map={NUCLEUS_SPRITE}
+                color={g.nucleusTint}
+                transparent
+                opacity={g.opacity ?? 1.0}
+                depthWrite={false}
+                blending={THREE.AdditiveBlending}
+                toneMapped={false}
+              />
+            </sprite>
+          )}
         </group>
       ))}
     </group>
