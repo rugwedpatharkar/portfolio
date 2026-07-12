@@ -64,6 +64,9 @@ const Supernovae = ({ reducedMotion = false }) => {
         randomArmPoint(s.pos, 0.3, 0.95);
         s.t0 = now;
         e = 0;
+        /* one audible swell per cycle (slot 0 only) so the audio bed breathes
+           with the supernovae without a sound on every one of the 5 slots. */
+        if (i === 0) window.dispatchEvent(new CustomEvent("stellar:sound:supernova"));
       }
       const flash = flashRefs.current[i];
       const ring = ringRefs.current[i];

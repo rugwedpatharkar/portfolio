@@ -1,5 +1,5 @@
 /* eslint-disable react/no-unknown-property */
-import { Suspense, useMemo, useRef, cloneElement } from "react";
+import { Suspense, useMemo, useRef, useEffect, cloneElement } from "react";
 import { Canvas, invalidate, useFrame } from "@react-three/fiber";
 import * as THREE from "three";
 import { EffectComposer, Bloom } from "@react-three/postprocessing";
@@ -21,7 +21,6 @@ import VisibilityController from "./VisibilityController";
 import Skybox from "./Skybox";
 import OrbitGroup from "./OrbitGroup";
 import OrbitRings from "./OrbitRings";
-import PlanetBeacons from "./PlanetBeacons";
 import BeltRings from "./BeltRings";
 // LaneObjects retired — the Holo-Bridge dossier cluster replaces the forced-←→ convoy.
 import SolarEclipse from "./SolarEclipse";
@@ -35,6 +34,8 @@ import GalaxyNebulae from "./GalaxyNebulae";
 import Supernovae from "./Supernovae";
 import MeteorShowers from "./MeteorShowers";
 import AtlasComet from "./AtlasComet";
+import DustLanes from "./DustLanes";
+import AndromedaNod from "./AndromedaNod";
 import BlackHole from "./anomalies/BlackHole";
 import Voyagers from "./Voyagers";
 /* BlackHole + SpiralGalaxy removed from the tour — nearest black hole is
@@ -107,33 +108,57 @@ const planetFallback = (d) => (
    floating in a JWST-deep-field-style backdrop of stars + distant galaxies +
    nebulae. Rotation is a slow spin around the disc's normal so the arms
    sweep visibly without becoming a merry-go-round. */
+const GALAXY_SCALE = 12;
+
 function HomepageGalaxy({ reducedMotion }) {
   const outerRef = useRef();
   const innerRef = useRef();
+  const t0 = useRef(null);
+  /* Cursor parallax — pointer position in −1..1, smoothed. The galaxy group
+     shifts opposite the cursor while the far deep-field shell barely moves, so
+     they slide against each other (differential parallax). */
+  const ptr = useRef({ x: 0, y: 0, sx: 0, sy: 0 });
+  useEffect(() => {
+    if (reducedMotion) return undefined;
+    const onMove = (e) => {
+      ptr.current.x = (e.clientX / window.innerWidth) * 2 - 1;
+      ptr.current.y = (e.clientY / window.innerHeight) * 2 - 1;
+    };
+    window.addEventListener("pointermove", onMove);
+    return () => window.removeEventListener("pointermove", onMove);
+  }, [reducedMotion]);
+
   useFrame((state, dt) => {
-    if (reducedMotion) return;
-    /* Slow galactic-plane spin — ~1 full rotation every 90s at 60fps. */
-    if (innerRef.current) innerRef.current.rotation.y += dt * 0.07;
-    /* Camera breathing — a very slow orbital drift + push so the hero never
-       reads as a frozen image. Tiny amplitude; the galaxy is huge so this is
-       a gentle parallax, not a swing. */
-    if (outerRef.current) {
+    /* Zoom-in on load — the galaxy grows from a point to full size over ~2.6s
+       (easeOutCubic) as the hero text rises. Instant under reduced motion. */
+    if (t0.current == null) t0.current = state.clock.elapsedTime;
+    const age = state.clock.elapsedTime - t0.current;
+    const grow = reducedMotion ? 1 : Math.min(1, age / 2.6);
+    const eased = 1 - Math.pow(1 - grow, 3);
+    if (innerRef.current) {
+      innerRef.current.scale.setScalar(0.5 + eased * (GALAXY_SCALE - 0.5));
+      if (!reducedMotion) innerRef.current.rotation.y += dt * 0.07; // slow spin
+    }
+    if (outerRef.current && !reducedMotion) {
       const t = state.clock.elapsedTime;
-      outerRef.current.rotation.z = 0.34 + Math.sin(t * 0.05) * 0.015;
-      outerRef.current.position.x = 40 + Math.sin(t * 0.045) * 18;
-      outerRef.current.position.y = 20 + Math.cos(t * 0.06) * 12;
+      const p = ptr.current;
+      p.sx += (p.x - p.sx) * 0.04; // smooth toward cursor
+      p.sy += (p.y - p.sy) * 0.04;
+      /* breathing drift + cursor parallax (opposite the pointer) */
+      outerRef.current.rotation.z = 0.34 + Math.sin(t * 0.05) * 0.015 - p.sx * 0.02;
+      outerRef.current.position.x = 40 + Math.sin(t * 0.045) * 18 - p.sx * 55;
+      outerRef.current.position.y = 20 + Math.cos(t * 0.06) * 12 + p.sy * 40;
     }
   });
   return (
-    /* Outer group: steep Andromeda-style 3/4 tilt (~66°). Scaled big so the
-       galaxy bleeds past every screen edge. Inner group spins around Y (the
-       disc-normal after the tilt) and holds every galaxy-local layer so they
-       all share the tilt + scale + spin: the star cloud, the arm gas, the
-       globular halo, and the supernova flashes. */
+    /* Outer group: steep Andromeda-style 3/4 tilt (~66°). Inner group spins +
+       zooms and holds every galaxy-local layer so they share tilt/scale/spin:
+       star cloud, arm gas, dust lanes, globular halo, supernova flashes. */
     <group ref={outerRef} position={[40, 20, -560]} rotation={[1.16, 0, 0.34]}>
-      <group ref={innerRef} scale={12}>
-        <SpiralGalaxy animate={false} solPulse />
+      <group ref={innerRef} scale={0.5}>
+        <SpiralGalaxy animate={false} solPulse lens={!reducedMotion} />
         <GalaxyNebulae />
+        <DustLanes />
         <GalaxyGlobulars />
         <Supernovae reducedMotion={reducedMotion} />
       </group>
@@ -172,7 +197,6 @@ const Scene = ({ scrollT, finaleT, finale = false, activeIdx, onJump, focusRef, 
      planets, belts, dwarf planets, comets — all off. Hyperspace jump on
      scroll carries them into the tour. */
   const isMilkyway = activeIdx === 0;
-  const isOverview = activeIdx === 1;
   const showExtras = extrasPhase >= 1 && !finale && !isMilkyway;
   const showMid = extrasPhase >= 2 && !finale && !isMilkyway;
   const showEggs = extrasPhase >= 3 && !finale && !isMilkyway;
@@ -366,6 +390,9 @@ const Scene = ({ scrollT, finaleT, finale = false, activeIdx, onJump, focusRef, 
           <AtlasComet start={[-620, 180, -300]} vel={[150, -8, 60]} coma="#bfe0ff" ion="#cfe6ff" dust="#e8e0ff" respawn={900} />
         )}
         {isMilkyway && !isMobile && !reducedMotion && <HeroDust />}
+        {/* Andromeda (M31) — our nearest large neighbour, drifting in the
+            upper-left deep field as a nod. Frozen under reduced motion. */}
+        {isMilkyway && !isMobile && <AndromedaNod reducedMotion={reducedMotion} />}
         {/* Voyager 1 + 2 markers — humans' only interstellar spacecraft.
             Positioned along their real trajectories, compressed to 4200u so
             they're visible during outer-tour stops. Mounted anywhere except

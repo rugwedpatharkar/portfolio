@@ -35,6 +35,7 @@ class SoundManagerImpl {
       this.playHum();
     });
     on("stellar:sound:jump", () => this.jump());
+    on("stellar:sound:supernova", () => this.supernova());
     /* Sound is ON by default, but browsers require a user gesture to start audio.
        Resume the context on the FIRST interaction (any of these), once, so the
        armed hum + cues come alive automatically — no toggle tap needed. */
@@ -157,6 +158,33 @@ class SoundManagerImpl {
   jump() {
     this._blip(120, { type: "sawtooth", dur: 0.9, gain: 0.12, glide: 6 });
     this._noise(0.7, 1200);
+  }
+
+  /* Supernova swell — a deep sub-bass bloom + an airy wash that briefly lifts
+     the room hum, so the ambient bed breathes each time a star dies in the
+     homepage galaxy. Driven by Supernovae.jsx via stellar:sound:supernova. */
+  supernova() {
+    const ctx = this._ensure();
+    if (!ctx || this.muted) return;
+    const t = ctx.currentTime;
+    const o = ctx.createOscillator();
+    o.type = "sine";
+    o.frequency.setValueAtTime(40, t);
+    o.frequency.exponentialRampToValueAtTime(27, t + 2.6);
+    const g = ctx.createGain();
+    g.gain.setValueAtTime(0, t);
+    g.gain.linearRampToValueAtTime(0.085, t + 0.6); // swell in
+    g.gain.setTargetAtTime(0, t + 0.8, 0.9);        // long decay
+    o.connect(g);
+    g.connect(this.master);
+    o.start(t);
+    o.stop(t + 3.4);
+    this._noise(1.6, 320, true); // faint airy wash
+    if (this.humNodes) {
+      const hg = this.humNodes.g.gain;
+      hg.setTargetAtTime(0.1, t, 0.4);
+      hg.setTargetAtTime(0.06, t + 1.1, 1.3);
+    }
   }
 
   _noise(dur = 0.5, cutoff = 1000, sweep = false) {
