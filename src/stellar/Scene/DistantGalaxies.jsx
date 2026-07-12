@@ -150,12 +150,20 @@ function makeDeepField(count) {
       tint = SPIRAL[(Math.random() * SPIRAL.length) | 0];
       aspect = 0.45 + Math.random() * 0.35;
       hasNucleus = true;
-    } else {
+    } else if (kind < 0.95) {
       /* edge-on sliver — high aspect ratio, thin streak */
       base = 60 + Math.random() * 90;
       tint = Math.random() < 0.5 ? ELLIPTICAL[0] : SPIRAL[0];
       aspect = 0.14 + Math.random() * 0.12;
       hasNucleus = Math.random() < 0.4;
+    } else {
+      /* gravitational-lens arc — a thin, bright, blue-white curved sliver, the
+         JWST deep-field signature (a background galaxy smeared by a foreground
+         cluster's gravity). Rendered as a very high-aspect bright streak. */
+      base = 90 + Math.random() * 70;
+      tint = "#dCEBFF";
+      aspect = 0.07 + Math.random() * 0.06;
+      hasNucleus = false;
     }
     out.push({
       pos,
@@ -188,7 +196,7 @@ const DistantGalaxies = ({ deepField = false }) => {
     });
     /* Homepage → add the deep-field scatter behind the galaxy. Tour → just
        the four real naked-eye galaxies. */
-    return deepField ? [...named, ...makeDeepField(80)] : named;
+    return deepField ? [...named, ...makeDeepField(200)] : named;
   }, [deepField]);
 
   return (

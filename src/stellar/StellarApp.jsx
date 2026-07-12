@@ -123,16 +123,15 @@ const StellarApp = () => {
     window.dispatchEvent(new CustomEvent("stellar:sound:hum"));
   }, []);
 
-  /* Boost the shared virtual clock at the overview stop so planetary orbital
-     motion is VISIBLE while the visitor lingers on the hero. At scale=1 Earth
-     takes ~10 min per orbit (tuned so a tracked tour planet doesn't out-run
-     the framing camera). At overview no camera locks to a planet, so a 10×
-     boost is safe — Earth's year now takes ~60s, inner planets visibly sweep
-     the Sun, the system reads as alive. Scale snaps back at every other
-     stop. */
+  /* Boost the shared virtual clock at the Solar-System overview stop (index 1)
+     so planetary orbital motion is VISIBLE while the visitor lingers. No
+     camera locks to a planet there, so a 10× boost is safe — inner planets
+     visibly sweep the Sun. NOT at index 0 — that's now the Milky Way homepage
+     (no planets; a 10× clock would just over-speed the ambient FX). Scale is
+     1 everywhere else. */
   useEffect(() => {
     if (!sceneClockRef.current) return;
-    sceneClockRef.current.scale = activeIdx === 0 ? 10 : 1;
+    sceneClockRef.current.scale = activeIdx === 1 ? 10 : 1;
   }, [activeIdx]);
 
   const handleJump = useCallback((idx) => {

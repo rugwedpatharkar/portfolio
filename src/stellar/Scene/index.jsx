@@ -30,6 +30,11 @@ import DwarfPlanets from "./DwarfPlanets";
 import Comet from "./Comet";
 import Hyperspace from "./Hyperspace";
 import SpiralGalaxy from "./SpiralGalaxy";
+import GalaxyGlobulars from "./GalaxyGlobulars";
+import GalaxyNebulae from "./GalaxyNebulae";
+import Supernovae from "./Supernovae";
+import MeteorShowers from "./MeteorShowers";
+import AtlasComet from "./AtlasComet";
 import BlackHole from "./anomalies/BlackHole";
 import Voyagers from "./Voyagers";
 /* BlackHole + SpiralGalaxy removed from the tour — nearest black hole is
@@ -105,21 +110,32 @@ const planetFallback = (d) => (
 function HomepageGalaxy({ reducedMotion }) {
   const outerRef = useRef();
   const innerRef = useRef();
-  useFrame((_, dt) => {
+  useFrame((state, dt) => {
     if (reducedMotion) return;
     /* Slow galactic-plane spin — ~1 full rotation every 90s at 60fps. */
     if (innerRef.current) innerRef.current.rotation.y += dt * 0.07;
+    /* Camera breathing — a very slow orbital drift + push so the hero never
+       reads as a frozen image. Tiny amplitude; the galaxy is huge so this is
+       a gentle parallax, not a swing. */
+    if (outerRef.current) {
+      const t = state.clock.elapsedTime;
+      outerRef.current.rotation.z = 0.34 + Math.sin(t * 0.05) * 0.015;
+      outerRef.current.position.x = 40 + Math.sin(t * 0.045) * 18;
+      outerRef.current.position.y = 20 + Math.cos(t * 0.06) * 12;
+    }
   });
   return (
-    /* Outer group: steep Andromeda-style 3/4 tilt (~66°) so the disc reads as
-       an elongated ellipse, not a flat face-on circle. Positioned so the
-       blazing core sits RIGHT-of-centre — the dimmer outer arm falls on the
-       left where the hero text sits, keeping the copy legible. Scaled big so
-       the galaxy bleeds past every screen edge (fills the whole viewport).
-       Inner group spins around Y (the disc-normal after the tilt). */
+    /* Outer group: steep Andromeda-style 3/4 tilt (~66°). Scaled big so the
+       galaxy bleeds past every screen edge. Inner group spins around Y (the
+       disc-normal after the tilt) and holds every galaxy-local layer so they
+       all share the tilt + scale + spin: the star cloud, the arm gas, the
+       globular halo, and the supernova flashes. */
     <group ref={outerRef} position={[40, 20, -560]} rotation={[1.16, 0, 0.34]}>
-      <group ref={innerRef} scale={13}>
-        <SpiralGalaxy animate={false} />
+      <group ref={innerRef} scale={12}>
+        <SpiralGalaxy animate={false} solPulse />
+        <GalaxyNebulae />
+        <GalaxyGlobulars />
+        <Supernovae reducedMotion={reducedMotion} />
       </group>
     </group>
   );
@@ -340,6 +356,16 @@ const Scene = ({ scrollT, finaleT, finale = false, activeIdx, onJump, focusRef, 
             note: from Sol we can't SEE our own galaxy face-on — this is the
             crowd-pleasing "you are looking at our home" reveal. */}
         {isMilkyway && <HomepageGalaxy reducedMotion={reducedMotion} />}
+        {/* Homepage ambient sky layers (sky-fixed, NOT inside the galaxy
+            transform): meteor streaks, a lone interstellar comet on a long
+            respawn, and faint foreground dust for parallax depth. Desktop +
+            motion only; the deep-field galaxies + sparse spike stars already
+            mount above. */}
+        {isMilkyway && !isMobile && !reducedMotion && <MeteorShowers animate />}
+        {isMilkyway && !isMobile && !reducedMotion && (
+          <AtlasComet start={[-620, 180, -300]} vel={[150, -8, 60]} coma="#bfe0ff" ion="#cfe6ff" dust="#e8e0ff" respawn={900} />
+        )}
+        {isMilkyway && !isMobile && !reducedMotion && <HeroDust />}
         {/* Voyager 1 + 2 markers — humans' only interstellar spacecraft.
             Positioned along their real trajectories, compressed to 4200u so
             they're visible during outer-tour stops. Mounted anywhere except

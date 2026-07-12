@@ -18,18 +18,30 @@ import * as THREE from "three";
 import { makeSoftDot } from "./shared/textures";
 import { useSceneClock } from "./SceneClock";
 
-const DISC_RADIUS = 200;
-const BULGE_RADIUS = 34;
-const ARM_COUNT = 2;              // 2 dominant arms (+ their sub-branches) reads
-//                                   more like Andromeda than a symmetric 4-arm pinwheel
-const ARM_PITCH = 0.30;           // winding tightness (M31-ish)
-const ARM_WIDTH = 0.44;           // BROADER still — wide angular spread, arms merge into a full disc
-const ARM_STARS = 18000;          // DENSER arms
-const HALO_STARS = 26000;         // DENSER inter-arm disc → a fully filled luminous plate
-const BULGE_STARS = 9000;         // brighter dominant core
-const HII_REGIONS = 1100;         // pink star-forming knots along the arms (M31 signature)
-const SOL_R = 0.55 * DISC_RADIUS; // Sun's position out from centre (~27,000 ly / 50,000 ly disc)
-const SOL_ARM_OFFSET = 0.35;      // fractional radians past Sagittarius arm (Orion Spur is a minor arm here)
+const DISC_RADIUS = 220;
+const BULGE_RADIUS = 30;          // smaller core so the ARMS dominate, not the bulge
+const BAR_LENGTH = 90;            // central bar half-length (barred-spiral: arms spring from its ends)
+const BAR_WIDTH = 16;
+/* Milky Way = barred spiral: 2 MAJOR arms (Scutum-Centaurus, Perseus) off the
+   bar ends + 2 MINOR arms (Norma, Sagittarius) between them. Per-arm weight
+   makes the majors brighter/denser than the minors. */
+const ARMS = [
+  { offset: 0.0,            major: true },   // Scutum-Centaurus (off +bar end)
+  { offset: Math.PI,        major: true },   // Perseus (off −bar end)
+  { offset: Math.PI * 0.5,  major: false },  // Sagittarius
+  { offset: Math.PI * 1.5,  major: false },  // Norma
+];
+const ARM_PITCH = 0.17;           // TIGHTER winding → each arm sweeps ~1.7 turns (more "waves")
+const ARM_WIDTH = 0.30;           // arm angular spread
+const ARM_STARS_MAJOR = 15000;    // per major arm
+const ARM_STARS_MINOR = 8000;     // per minor arm
+const SPUR_STARS = 4000;          // the Orion Spur sub-branch (Sun's home)
+const HALO_STARS = 24000;         // diffuse inter-arm disc
+const BULGE_STARS = 8000;         // central bulge + bar
+const HII_REGIONS = 1400;         // pink star-forming knots along the arms
+const ARM_STARS_TOTAL = ARM_STARS_MAJOR * 2 + ARM_STARS_MINOR * 2;
+const SOL_R = 0.62 * DISC_RADIUS; // Sun ~27,000 ly out
+const SOL_ARM_OFFSET = 0.35;      // Orion Spur sits just off the Sagittarius arm
 
 /* Warm yellow-white bulge → cool blue-white disc → dim edge — matches real
    spiral-galaxy colour photography (Andromeda reference). */
@@ -72,163 +84,194 @@ const SOL_PIN_SPRITE = makeSoftDot({
   mipmaps: true,
 });
 
-/* Build the spiral galaxy point cloud. Four log-spiral arms + a spheroidal
-   bulge + a diffuse disc halo of "field" stars filling the plane between
-   arms. All in one geometry to save draw calls. */
+/* Log-spiral arm position at radius r on the arm at `armOffset`, with an
+   optional cross-arm angular `scatter`. Shared by the star cloud, the HII
+   knots, and the sibling nebula/supernova layers so everything traces the
+   SAME arms. Exported for GalaxyNebulae / Supernovae. */
+const _scratch = new THREE.Vector3();
+
+export function armSpiralPoint(armOffset, r, scatter, out) {
+  const theta = armOffset + Math.log(r / BULGE_RADIUS) / ARM_PITCH + scatter;
+  return (out || new THREE.Vector3()).set(Math.cos(theta) * r, 0, Math.sin(theta) * r);
+}
+
+/* Pick a random point along a random arm (majors weighted 2:1 over minors),
+   biased mid→outer disc where star formation happens. Returns the vec + the
+   fractional radius t. Used by the gas + supernova layers. */
+const _MAJ = ARMS.filter((a) => a.major);
+export function randomArmPoint(out, minT = 0.2, maxT = 0.98) {
+  const arm = Math.random() < 0.7
+    ? _MAJ[(Math.random() * _MAJ.length) | 0]
+    : ARMS[(Math.random() * ARMS.length) | 0];
+  const t = minT + Math.pow(Math.random(), 0.85) * (maxT - minT);
+  const r = BULGE_RADIUS + t * (DISC_RADIUS - BULGE_RADIUS);
+  const scatter = (Math.random() - 0.5) * ARM_WIDTH * 0.6;
+  armSpiralPoint(arm.offset, r, scatter, out);
+  return t;
+}
+
+/* Build the galaxy point cloud: central BAR + spheroidal bulge, 4 weighted
+   log-spiral arms (2 major + 2 minor) springing from the bar ends, the Orion
+   Spur sub-branch, pink HII knots, and a diffuse inter-arm disc — one draw
+   call. */
 function makeGalaxy() {
-  const total = ARM_STARS * ARM_COUNT + HALO_STARS + BULGE_STARS + HII_REGIONS;
+  const total = ARM_STARS_TOTAL + SPUR_STARS + HALO_STARS + BULGE_STARS + HII_REGIONS;
   const positions = new Float32Array(total * 3);
   const colors = new Float32Array(total * 3);
   const sizes = new Float32Array(total);
   const c = new THREE.Color();
   let idx = 0;
 
-  /* --- ARMS: r = R0·exp(pitch · θ), each arm offset by 2π/N in θ. Sample
-     stars along ln(r) uniformly to get natural log-spiral density that's
-     bright inside and thins outward. */
-  for (let a = 0; a < ARM_COUNT; a++) {
-    const armOffset = (a / ARM_COUNT) * Math.PI * 2;
-    for (let i = 0; i < ARM_STARS; i++) {
-      /* Distribute along the arm: t in [0,1], radius grows exponentially. */
-      const t = Math.pow(Math.random(), 0.6); // more density near centre
-      const r = BULGE_RADIUS + t * (DISC_RADIUS - BULGE_RADIUS);
-      /* Log-spiral phase along the arm. */
-      const theta = armOffset + Math.log(r / BULGE_RADIUS) / ARM_PITCH;
-      /* Cross-arm scatter (perpendicular to arm direction) — gaussian-ish. */
-      const scatter = (Math.random() + Math.random() + Math.random() - 1.5) * ARM_WIDTH * (0.6 + 0.4 * (1 - t));
-      const th = theta + scatter;
-      /* Off-plane thickness thins outward — real spirals are dead-flat in
-         the outer disc, puff up near the core. */
-      const zSpread = 3 + 8 * (1 - t);
-      const z = (Math.random() + Math.random() + Math.random() - 1.5) * zSpread;
-
-      positions[idx * 3    ] = Math.cos(th) * r;
-      positions[idx * 3 + 1] = z;
-      positions[idx * 3 + 2] = Math.sin(th) * r;
-
-      /* Colour: warm cream near core, cool blue-white in the arms, occasional
-         reddish-brown dust patch where the arm ridge is (small scatter). */
-      const nearCore = 1 - t;
-      c.copy(ARM_TINT).lerp(CORE_TINT, nearCore * 0.7);
-      /* Dust lane on the INNER edge of each arm — Andromeda's arms are split by
-         dark brown absorption bands. Wider band + stronger darkening than
-         before so the lanes actually read against the bloom. */
-      const dustBias = scatter < -ARM_WIDTH * 0.1 && scatter > -ARM_WIDTH * 0.9
-        ? Math.random() < 0.35
-        : false;
-      if (dustBias) c.lerp(DUST_TINT, 0.8);
-      const bright = (0.55 + 0.85 * nearCore) * (dustBias ? 0.22 : 1);
-      colors[idx * 3    ] = c.r * bright;
-      colors[idx * 3 + 1] = c.g * bright;
-      colors[idx * 3 + 2] = c.b * bright;
-
-      sizes[idx] = (2.2 + Math.random() * 3.8) * (0.7 + 0.3 * nearCore);
-      idx++;
-    }
-  }
-
-  /* --- HII REGIONS: pink Hα star-forming knots strung along the arm ridges.
-     This is Andromeda's signature — the rose-coloured beads that trace the
-     spiral. Placed on the arm centreline (small scatter), biased to the
-     mid-to-outer disc where star formation is active. */
-  for (let i = 0; i < HII_REGIONS; i++) {
-    const a = i % ARM_COUNT;
-    const armOffset = (a / ARM_COUNT) * Math.PI * 2;
-    const t = 0.25 + Math.pow(Math.random(), 0.8) * 0.72; // mid → outer disc
-    const r = BULGE_RADIUS + t * (DISC_RADIUS - BULGE_RADIUS);
-    const theta = armOffset + Math.log(r / BULGE_RADIUS) / ARM_PITCH;
-    const scatter = (Math.random() - 0.5) * ARM_WIDTH * 0.5;
-    const th = theta + scatter;
-    const z = (Math.random() - 0.5) * 4;
-    positions[idx * 3    ] = Math.cos(th) * r;
+  const putArmStar = (armOffset, major) => {
+    const t = Math.pow(Math.random(), 0.65);
+    /* arms spring from the BAR ends, not the geometric centre */
+    const r = BAR_LENGTH * 0.75 + t * (DISC_RADIUS - BAR_LENGTH * 0.75);
+    const scatter = (Math.random() + Math.random() + Math.random() - 1.5) * ARM_WIDTH * (0.6 + 0.4 * (1 - t));
+    armSpiralPoint(armOffset, r, scatter, _scratch);
+    const zSpread = 3 + 7 * (1 - t);
+    const z = (Math.random() + Math.random() + Math.random() - 1.5) * zSpread;
+    positions[idx * 3    ] = _scratch.x;
     positions[idx * 3 + 1] = z;
-    positions[idx * 3 + 2] = Math.sin(th) * r;
-    /* Slight hue jitter magenta↔rose so the knots don't read as one flat pink. */
+    positions[idx * 3 + 2] = _scratch.z;
+    const nearCore = 1 - t;
+    /* young blue arm stars outer → warm cream toward the core */
+    c.copy(ARM_TINT).lerp(CORE_TINT, nearCore * 0.65);
+    /* dust lane along the inner edge of the arm */
+    const dust = scatter < -ARM_WIDTH * 0.1 && scatter > -ARM_WIDTH * 0.95 && Math.random() < 0.4;
+    if (dust) c.lerp(DUST_TINT, 0.82);
+    const armW = major ? 1 : 0.66;
+    const bright = (0.6 + 0.8 * nearCore) * (dust ? 0.2 : 1) * armW;
+    colors[idx * 3    ] = c.r * bright;
+    colors[idx * 3 + 1] = c.g * bright;
+    colors[idx * 3 + 2] = c.b * bright;
+    sizes[idx] = (2.4 + Math.random() * 4) * (0.7 + 0.3 * nearCore) * (major ? 1 : 0.85);
+    idx++;
+  };
+
+  /* --- ARMS (2 major + 2 minor) --- */
+  for (const arm of ARMS) {
+    const n = arm.major ? ARM_STARS_MAJOR : ARM_STARS_MINOR;
+    for (let i = 0; i < n; i++) putArmStar(arm.offset, arm.major);
+  }
+
+  /* --- ORION SPUR: a short bright sub-branch off the Sagittarius arm where
+     the Sun lives — a small burst of young blue stars. */
+  const sagArm = ARMS[2].offset;
+  for (let i = 0; i < SPUR_STARS; i++) {
+    const t = SOL_R / DISC_RADIUS + (Math.random() - 0.5) * 0.14;
+    const r = t * DISC_RADIUS;
+    const scatter = SOL_ARM_OFFSET + (Math.random() - 0.5) * 0.18;
+    armSpiralPoint(sagArm, r, scatter, _scratch);
+    positions[idx * 3    ] = _scratch.x;
+    positions[idx * 3 + 1] = (Math.random() - 0.5) * 5;
+    positions[idx * 3 + 2] = _scratch.z;
+    c.copy(ARM_TINT).lerp(new THREE.Color("#e8f0ff"), Math.random() * 0.5);
+    const bright = 0.7 + Math.random() * 0.4;
+    colors[idx * 3    ] = c.r * bright;
+    colors[idx * 3 + 1] = c.g * bright;
+    colors[idx * 3 + 2] = c.b * bright;
+    sizes[idx] = 2.2 + Math.random() * 3;
+    idx++;
+  }
+
+  /* --- HII REGIONS strung along the arms (majors weighted) --- */
+  for (let i = 0; i < HII_REGIONS; i++) {
+    const t = randomArmPoint(_scratch, 0.24, 0.96);
+    positions[idx * 3    ] = _scratch.x;
+    positions[idx * 3 + 1] = (Math.random() - 0.5) * 4;
+    positions[idx * 3 + 2] = _scratch.z;
     c.copy(HII_TINT).lerp(new THREE.Color("#ff9ec4"), Math.random() * 0.5);
-    const bright = 0.9 + Math.random() * 0.5;
+    const bright = 0.9 + Math.random() * 0.55;
     colors[idx * 3    ] = c.r * bright;
     colors[idx * 3 + 1] = c.g * bright;
     colors[idx * 3 + 2] = c.b * bright;
-    sizes[idx] = 3.5 + Math.random() * 4.5; // small bright clumps
+    sizes[idx] = 3.5 + Math.random() * 4.5;
     idx++;
   }
 
-  /* --- BULGE: dense spheroidal star cloud in the centre. */
+  /* --- BULGE + BAR: spheroidal core with an elongated bar through it (old
+     gold stars). The bar is stretched along local X (arms spring from its
+     ends at offset 0 / π). */
   for (let i = 0; i < BULGE_STARS; i++) {
-    const r = Math.pow(Math.random(), 1.8) * BULGE_RADIUS * 1.15;
-    const phi = Math.random() * Math.PI * 2;
-    const costheta = 1 - Math.random() * 2;
-    const sintheta = Math.sqrt(1 - costheta * costheta);
-    /* Squash to an oblate spheroid: half as thick as it is wide. */
-    positions[idx * 3    ] = r * sintheta * Math.cos(phi);
-    positions[idx * 3 + 1] = r * costheta * 0.5;
-    positions[idx * 3 + 2] = r * sintheta * Math.sin(phi);
-
-    /* Core is hot yellow-white, edges warmer/dimmer. */
-    const nearCentre = 1 - (r / (BULGE_RADIUS * 1.15));
-    c.copy(CORE_TINT).lerp(new THREE.Color("#ffcf88"), 1 - nearCentre);
-    const bright = 0.7 + 0.9 * nearCentre;
+    let x, y, zc;
+    if (i % 5 < 2) {
+      /* 40% → the BAR: long in X, narrow in Z, thin in Y */
+      x = (Math.random() - 0.5) * 2 * BAR_LENGTH;
+      zc = (Math.random() - 0.5) * 2 * BAR_WIDTH * (1 - Math.abs(x) / (BAR_LENGTH * 1.3));
+      y = (Math.random() - 0.5) * BAR_WIDTH * 0.7;
+    } else {
+      /* 60% → the spheroidal bulge */
+      const r = Math.pow(Math.random(), 1.7) * BULGE_RADIUS * 1.2;
+      const phi = Math.random() * Math.PI * 2;
+      const ct = 1 - Math.random() * 2;
+      const st = Math.sqrt(1 - ct * ct);
+      x = r * st * Math.cos(phi);
+      zc = r * st * Math.sin(phi);
+      y = r * ct * 0.5;
+    }
+    positions[idx * 3    ] = x;
+    positions[idx * 3 + 1] = y;
+    positions[idx * 3 + 2] = zc;
+    const d = Math.hypot(x, zc) / BAR_LENGTH;
+    const nearCentre = Math.max(0, 1 - d);
+    c.copy(CORE_TINT).lerp(new THREE.Color("#ffc878"), 0.4 + 0.5 * (1 - nearCentre));
+    const bright = 0.6 + 0.7 * nearCentre;
     colors[idx * 3    ] = c.r * bright;
     colors[idx * 3 + 1] = c.g * bright;
     colors[idx * 3 + 2] = c.b * bright;
-
-    sizes[idx] = (2.4 + Math.random() * 4) * (0.7 + 0.3 * nearCentre);
+    sizes[idx] = 2.2 + Math.random() * 3.5 + nearCentre * 2;
     idx++;
   }
 
-  /* --- HALO/FIELD STARS: the diffuse disc filling the space between arms.
-     Density biased toward the centre (pow 0.55) and brightness graded warm
-     near the core → cool at the edge, so the disc reads as a FILLED luminous
-     plate (Andromeda) rather than a few sparse rings. */
+  /* --- HALO/FIELD STARS: diffuse inter-arm disc so the plate reads filled. */
   for (let i = 0; i < HALO_STARS; i++) {
-    const rt = Math.pow(Math.random(), 0.55);
+    const rt = Math.pow(Math.random(), 0.6);
     const r = BULGE_RADIUS + rt * (DISC_RADIUS - BULGE_RADIUS);
     const th = Math.random() * Math.PI * 2;
     const z = (Math.random() + Math.random() + Math.random() - 1.5) * 5;
     positions[idx * 3    ] = Math.cos(th) * r;
     positions[idx * 3 + 1] = z;
     positions[idx * 3 + 2] = Math.sin(th) * r;
-
     const nearCore = 1 - rt;
-    /* warm cream near the core, cooling to the disc tint outward */
-    c.copy(HALO_TINT).lerp(CORE_TINT, nearCore * 0.7);
-    /* Higher floor + less core-bias so the WHOLE disc reads as a luminous
-       plate out to the rim (was a bright core + faint outer ring). */
-    const bright = 0.85 + 0.45 * nearCore + Math.random() * 0.25;
+    c.copy(HALO_TINT).lerp(CORE_TINT, nearCore * 0.6);
+    const bright = 0.7 + 0.4 * nearCore + Math.random() * 0.25;
     colors[idx * 3    ] = c.r * bright;
     colors[idx * 3 + 1] = c.g * bright;
     colors[idx * 3 + 2] = c.b * bright;
-    sizes[idx] = 2.2 + Math.random() * 2.6 + nearCore * 1.5;
+    sizes[idx] = 2 + Math.random() * 2.4 + nearCore * 1.2;
     idx++;
   }
 
   return { positions, colors, sizes };
 }
 
-/* Sol's position in the galaxy — on the Orion Spur, ~27,000 ly from centre
-   ≈ 55% of the way out to the visible disc edge. Placed on the trailing
-   side of the Sagittarius arm (where the real Orion Spur is). */
+/* Sol's position — on the Orion Spur, ~27,000 ly out, just off the
+   Sagittarius arm. */
 function solPosition(out) {
-  const arm = 1; // second arm = Sagittarius (0=Perseus, 1=Sag, 2=Scutum, 3=Norma)
-  const armOffset = (arm / ARM_COUNT) * Math.PI * 2;
-  const theta = armOffset + Math.log(SOL_R / BULGE_RADIUS) / ARM_PITCH + SOL_ARM_OFFSET;
-  return out.set(Math.cos(theta) * SOL_R, 0, Math.sin(theta) * SOL_R);
+  return armSpiralPoint(ARMS[2].offset, SOL_R, SOL_ARM_OFFSET, out);
 }
 
-const SpiralGalaxy = ({ animate = true }) => {
+const SpiralGalaxy = ({ animate = true, solPulse = false }) => {
   const groupRef = useRef();
+  const solRef = useRef();
   const clock = useSceneClock();
 
   const { positions, colors, sizes } = useMemo(() => makeGalaxy(), []);
   const solPos = useMemo(() => solPosition(new THREE.Vector3()), []);
 
-  useFrame(() => {
-    if (!animate || !groupRef.current) return;
-    /* Slow rotation about the galactic pole. Sceneclock-driven so the
-       reduced-motion consumer freezes it. Full turn ≈ 6 minutes at scale
-       1 — glacial but not motionless. */
-    const t = clock?.t || 0;
-    groupRef.current.rotation.y = t * 0.017;
+  useFrame((state) => {
+    if (animate && groupRef.current) {
+      /* Slow rotation about the galactic pole. Sceneclock-driven so the
+         reduced-motion consumer freezes it. */
+      const t = clock?.t || 0;
+      groupRef.current.rotation.y = t * 0.017;
+    }
+    /* Sol "you are here" pulse — gentle breathe on the pin. */
+    if (solPulse && solRef.current) {
+      const p = 1 + Math.sin(state.clock.elapsedTime * 1.8) * 0.28;
+      solRef.current.scale.setScalar(11 * p);
+      solRef.current.material.opacity = 0.75 + 0.25 * (p - 0.72);
+    }
   });
 
   return (
@@ -254,22 +297,19 @@ const SpiralGalaxy = ({ animate = true }) => {
         />
       </points>
 
-      {/* Core bulge — layered additive glow for Andromeda's dominant blazing
-          centre. A wide diffuse halo, a mid warm glow, and a hot white inner
-          core stacked so the centre reads as the brightest thing in frame. */}
-      <sprite position={[0, 0, 0]} scale={[BULGE_RADIUS * 5.2, BULGE_RADIUS * 5.2, 1]}>
-        <spriteMaterial map={BULGE_SPRITE} transparent opacity={0.5} depthWrite={false} blending={THREE.AdditiveBlending} toneMapped={false} />
+      {/* Core bulge — TAMED so the arms are the hero (was a frame-flooding
+          3-layer blaze). A soft warm halo + a smaller bright core; the bar
+          star cloud carries the rest of the centre's light. */}
+      <sprite position={[0, 0, 0]} scale={[BULGE_RADIUS * 3.4, BULGE_RADIUS * 3.4, 1]}>
+        <spriteMaterial map={BULGE_SPRITE} transparent opacity={0.42} depthWrite={false} blending={THREE.AdditiveBlending} toneMapped={false} />
       </sprite>
-      <sprite position={[0, 0, 0]} scale={[BULGE_RADIUS * 3.0, BULGE_RADIUS * 3.0, 1]}>
-        <spriteMaterial map={BULGE_SPRITE} transparent opacity={0.85} depthWrite={false} blending={THREE.AdditiveBlending} toneMapped={false} />
-      </sprite>
-      <sprite position={[0, 0, 0]} scale={[BULGE_RADIUS * 1.5, BULGE_RADIUS * 1.5, 1]}>
-        <spriteMaterial map={BULGE_SPRITE} color="#fffdf6" transparent opacity={1} depthWrite={false} blending={THREE.AdditiveBlending} toneMapped={false} />
+      <sprite position={[0, 0, 0]} scale={[BULGE_RADIUS * 1.7, BULGE_RADIUS * 1.7, 1]}>
+        <spriteMaterial map={BULGE_SPRITE} color="#fff6e0" transparent opacity={0.8} depthWrite={false} blending={THREE.AdditiveBlending} toneMapped={false} />
       </sprite>
 
-      {/* SOL PIN — a hot yellow-white pinprick at the Sun's position, riding
-          on the Orion Spur. This is the "you are here" moment. */}
-      <sprite position={[solPos.x, solPos.y + 6, solPos.z]} scale={[9, 9, 1]}>
+      {/* SOL PIN — a hot pinprick at the Sun's position on the Orion Spur;
+          gently pulses when solPulse is on ("you are here"). */}
+      <sprite ref={solRef} position={[solPos.x, solPos.y + 6, solPos.z]} scale={[11, 11, 1]}>
         <spriteMaterial
           map={SOL_PIN_SPRITE}
           color="#fff2a8"
