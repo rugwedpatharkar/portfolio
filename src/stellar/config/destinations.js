@@ -74,7 +74,7 @@ export const DESTINATIONS = [
     position: [0, 0, 0],
     /* TRUE-SCALE Sun: its real radius, ≈109× Earth. The whole system is scaled
        up (large AU_UNIT) so this colossal Sun clears the inner orbits. */
-    radius: 19.8, // 695,700 km — 109× Earth (0.182)
+    radius: 19.87, // 695,700 km — 109.2× Earth (0.182 × 109.2)
     color: "#ff9a3c",
     /* HUD accent (Sol gold) — distinct from the body color (fire-orange).
        Non-planet stops carry `accent`; planets fall back to `color`. */

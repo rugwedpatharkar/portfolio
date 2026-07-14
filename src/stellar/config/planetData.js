@@ -14,7 +14,7 @@ export const PLANET_DATA = {
   achievements: { rotationHours: 23.93,   eccentricity: 0.0167, inclination: 0.00 }, // Earth
   skills:   { rotationHours: 24.62,   eccentricity: 0.0934, inclination: 1.85 }, // Mars
   education:     { rotationHours: 9.93,    eccentricity: 0.0489, inclination: 1.30 }, // Jupiter
-  hobbies:      { rotationHours: 10.66,   eccentricity: 0.0565, inclination: 2.49 }, // Saturn
+  hobbies:      { rotationHours: 10.56,   eccentricity: 0.0565, inclination: 2.49 }, // Saturn (Cassini 2019: 10h 33m)
   testimonials:  { rotationHours: -17.24,  eccentricity: 0.0457, inclination: 0.77 }, // Uranus — retrograde / on its side
   whatsetsmeapart:    { rotationHours: 16.11,   eccentricity: 0.0113, inclination: 1.77 }, // Neptune
   contact: { rotationHours: -153.3, eccentricity: 0.2444, inclination: 17.16 }, // Pluto — retrograde, eccentric, inclined
