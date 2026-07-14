@@ -154,7 +154,7 @@ const Stars = ({ sparse = false, visible = true }) => {
     /* Sparse (homepage/JWST) mode — only the ~700 brightest stars (the
        catalogue is sorted brightest-first), larger, with diffraction spikes,
        against near-black. Full field (8,920) during the tour. */
-    const count = sparse ? Math.min(2200, STAR_COUNT) : STAR_COUNT;
+    const count = sparse ? Math.min(4800, STAR_COUNT) : STAR_COUNT;
     const positions = new Float32Array(count * 3);
     const colors = new Float32Array(count * 3);
     const sizes = new Float32Array(count);

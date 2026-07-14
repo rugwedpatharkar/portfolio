@@ -196,7 +196,7 @@ const DistantGalaxies = ({ deepField = false }) => {
     });
     /* Homepage → add the deep-field scatter behind the galaxy. Tour → just
        the four real naked-eye galaxies. */
-    return deepField ? [...named, ...makeDeepField(200)] : named;
+    return deepField ? [...named, ...makeDeepField(360)] : named;
   }, [deepField]);
 
   return (

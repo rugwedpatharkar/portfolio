@@ -421,8 +421,9 @@ const Scene = ({ scrollT, finaleT, finale = false, activeIdx, onJump, focusRef, 
           {/* Constellation line overlays — 12 named patterns drawn as hairline
               gold connectors. */}
           {!finale && <Constellations />}
-          {/* Distant naked-eye galaxies — M31 / M33 / LMC / SMC at real RA/Dec. */}
-          {!finale && <DistantGalaxies deepField={false} />}
+          {/* Distant galaxies — the 4 named naked-eye ones + a dense JWST-style
+              deep-field scatter behind the tour sky (extra background depth). */}
+          {!finale && <DistantGalaxies deepField />}
           {/* Zodiacal light — faint warm band along the ecliptic. */}
           {showExtras && <ZodiacalLight />}
           {/* Deep-field parallax dust — foreground motes riding the camera. */}
@@ -454,14 +455,21 @@ const Scene = ({ scrollT, finaleT, finale = false, activeIdx, onJump, focusRef, 
         <group visible={isMilkyway}>
           <HomepageGalaxy reducedMotion={reducedMotion} scrollT={scrollT} active={isMilkyway} />
         </group>
-        {/* Homepage ambient sky layers (sky-fixed, NOT inside the galaxy
-            transform): meteor streaks + a lone interstellar comet on a long
-            respawn. Desktop + motion only; the deep-field galaxies + sparse
-            spike stars already mount above. Foreground dust is intentionally NOT
-            here — it read as distracting floating white specks over the galaxy. */}
-        {isMilkyway && !isMobile && !reducedMotion && <MeteorShowers animate />}
+        {/* Ambient sky layers (sky-fixed, NOT inside any body transform):
+            meteor streaks EVERYWHERE (homepage + tour) + interstellar comets.
+            Desktop + motion only. Foreground dust is intentionally NOT here — it
+            read as distracting floating white specks over the galaxy. */}
+        {!isMobile && !reducedMotion && !finale && <MeteorShowers animate />}
+        {/* Homepage — a pair of interstellar comets crossing the deep field. */}
         {isMilkyway && !isMobile && !reducedMotion && (
-          <AtlasComet start={[-620, 180, -300]} vel={[150, -8, 60]} coma="#bfe0ff" ion="#cfe6ff" dust="#e8e0ff" respawn={900} />
+          <>
+            <AtlasComet start={[-620, 180, -300]} vel={[150, -8, 60]} coma="#bfe0ff" ion="#cfe6ff" dust="#e8e0ff" respawn={900} />
+            <AtlasComet start={[760, -240, -180]} vel={[-150, 18, 60]} coma="#e2dcff" ion="#dce6ff" dust="#fff0e0" respawn={1150} />
+          </>
+        )}
+        {/* Tour — an extra comet sweeping the outer system (alongside Halley). */}
+        {!isMilkyway && !isMobile && !reducedMotion && !finale && (
+          <AtlasComet start={[1500, 320, 980]} vel={[-270, -34, -170]} coma="#bfe0ff" ion="#cfe6ff" dust="#e8e0ff" respawn={1500} />
         )}
         {/* Distant galaxies pinned to the frame's empty regions (left column +
             lower band) — Andromeda + 7 smaller ones, never behind the Milky
@@ -679,7 +687,7 @@ const Scene = ({ scrollT, finaleT, finale = false, activeIdx, onJump, focusRef, 
              outer half. Kirkwood gaps at all four major Jupiter resonances
              (3:1, 5:2, 7:3, 2:1) carve density notches. Count bumped hard so
              the belt reads DENSE at every zoom. */
-          <AsteroidBelt count={isMobile ? 3200 : 7500} innerRadius={BACKGROUND_BELTS.asteroid.inner} outerRadius={BACKGROUND_BELTS.asteroid.outer} size={0.18} thickness={BACKGROUND_BELTS.asteroid.thickness} gaps={KIRKWOOD_GAPS} animate={!reducedMotion} />
+          <AsteroidBelt count={isMobile ? 4800 : 11000} innerRadius={BACKGROUND_BELTS.asteroid.inner} outerRadius={BACKGROUND_BELTS.asteroid.outer} size={0.18} thickness={BACKGROUND_BELTS.asteroid.thickness} gaps={KIRKWOOD_GAPS} animate={!reducedMotion} />
         )}
         {showExtras && !isMobile && (
           /* Kuiper belt — six families (BB / RR / intermediate / water-ice /
@@ -690,7 +698,7 @@ const Scene = ({ scrollT, finaleT, finale = false, activeIdx, onJump, focusRef, 
              Resonance clumps overpopulate the 3:2 Plutinos at ~39.4 AU and
              2:1 Twotinos at ~47.7 AU; the Kuiper Cliff drops density sharply
              near 48 AU. Count bumped for density. */
-          <AsteroidBelt count={5000} innerRadius={BACKGROUND_BELTS.kuiper.inner} outerRadius={BACKGROUND_BELTS.kuiper.outer} size={0.55} thickness={BACKGROUND_BELTS.kuiper.thickness} families={KUIPER_FAMILIES} weights={kuiperWeightsFor} clumps={KUIPER_CLUMPS} cliff animate={!reducedMotion} />
+          <AsteroidBelt count={7500} innerRadius={BACKGROUND_BELTS.kuiper.inner} outerRadius={BACKGROUND_BELTS.kuiper.outer} size={0.55} thickness={BACKGROUND_BELTS.kuiper.thickness} families={KUIPER_FAMILIES} weights={kuiperWeightsFor} clumps={KUIPER_CLUMPS} cliff animate={!reducedMotion} />
         )}
         {/* Dust haze — tier 4 (mounts last + alone). Still substantial so the
             band reads as haze rather than empty space. */}
@@ -710,12 +718,12 @@ const Scene = ({ scrollT, finaleT, finale = false, activeIdx, onJump, focusRef, 
         )}
         {/* Jupiter's Trojan asteroids — two swarms 60° ahead/behind Jupiter at
             the L4/L5 Lagrange points (true orbital radius). */}
-        {showExtras && <TrojanAsteroids count={isMobile ? 70 : 160} />}
+        {showExtras && <TrojanAsteroids count={isMobile ? 130 : 340} />}
         {/* The Oort cloud wrapping the whole system + the heliosphere boundary
             bubble out at the edge (where Voyager crossed). Oort points are
             additive sprites and the wide-overview camera sits INSIDE the shell,
             so they read as a bright hazy halo — suppressed in v3. */}
-        {showExtras && <OortCloud count={isMobile ? 700 : 1400} />}
+        {showExtras && <OortCloud count={isMobile ? 1100 : 2600} />}
         {showExtras && !isMobile && <Heliosphere />}
         {/* Real solar eclipses — Earth's actual Moon + any planet you fly
             behind occlude the Sun (corona + chromosphere + diamond-ring). */}

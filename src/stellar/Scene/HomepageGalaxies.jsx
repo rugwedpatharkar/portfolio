@@ -118,8 +118,8 @@ function makeBigSpike(size = 256) {
 const BIG_SPIKE = makeBigSpike(256);
 
 const DIST = 5000;
-const COUNT = 150;   // galaxies
-const ARCS = 11;     // lensing arcs
+const COUNT = 240;   // galaxies
+const ARCS = 16;     // lensing arcs
 const TAU = Math.PI * 2;
 
 const RED_DISTANT = ["#d98a6a", "#c97a5a", "#e0a284", "#cf8f72", "#d67a58", "#e6b090", "#c96f52"]; // redshifted

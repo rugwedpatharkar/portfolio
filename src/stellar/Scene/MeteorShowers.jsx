@@ -115,7 +115,7 @@ function radiantVec(raH, decD, out) {
  * short train of decaying sprites just behind it. All meteors share a
  * single Points draw call.
  */
-const METEORS = 60;          // active meteors in flight at once
+const METEORS = 120;         // active meteors in flight at once
 const TRAIL_LEN = 14;         // trail samples per meteor
 const POINTS_PER_METEOR = TRAIL_LEN + 1;
 const TOTAL_POINTS = METEORS * POINTS_PER_METEOR;
