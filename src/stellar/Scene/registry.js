@@ -43,7 +43,6 @@ import AtlasComet from "./AtlasComet";
 import Comet from "./Comet";
 import DangerField from "./DangerField";
 import InterstellarVisitor from "./InterstellarVisitor";
-import MeteorShowers from "./MeteorShowers";
 /* placeInFrontOfSun no longer used — was only for the removed BlackHole. */
 
 export const SCENE_OBJECTS = [
@@ -55,7 +54,10 @@ export const SCENE_OBJECTS = [
   { id: "interstellar",    C: InterstellarVisitor, motion: true, animate: true },
   { id: "atlas-green",     C: AtlasComet,          motion: true },
   { id: "atlas-red",       C: AtlasComet,          motion: true, props: { start: [-620, -150, 240], vel: [168, 4, -64], coma: "#e0a890", ion: "#cdbfa0", dust: "#e8d8b8", antiTail: false, comaR: 1.2, respawn: 780 } },
-  { id: "showers",         C: MeteorShowers,       motion: true, animate: true },
+  /* MeteorShowers is mounted once in Scene/index.jsx for BOTH scenes; the
+     duplicate registry mount here doubled the tour's meteors (accidental).
+     Removed — the single index.jsx mount (now denser + more frequent) is the
+     source of truth. */
   { id: "pulsar",          C: Pulsar,              motion: true, desktop: true },
   { id: "exotic",          C: ExoticObjects,       animate: true },
   { id: "deepfield",       C: DeepFieldMysteries,  animate: true },

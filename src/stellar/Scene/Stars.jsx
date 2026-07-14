@@ -131,7 +131,7 @@ const VERT = /* glsl */ `
     /* Per-star hash — position dotted with a magic vector — gives every star
        its own twinkle phase without needing a separate attribute. */
     float phase = fract(sin(dot(position, vec3(12.9898, 78.233, 45.164))) * 43758.5453);
-    float twinkle = 1.0 + sin(uTime * 2.4 + phase * 6.2831) * 0.14 * smoothstep(2.0, 7.0, aSize);
+    float twinkle = 1.0 + sin(uTime * 2.6 + phase * 6.2831) * 0.20 * smoothstep(1.0, 6.0, aSize);
     vTwinkle = 0.75 + 0.25 * twinkle;
     vColor = aColor * vTwinkle;
     gl_PointSize = aSize * twinkle;      // slightly grow/shrink with brightness

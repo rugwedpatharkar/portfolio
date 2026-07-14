@@ -115,7 +115,7 @@ function radiantVec(raH, decD, out) {
  * short train of decaying sprites just behind it. All meteors share a
  * single Points draw call.
  */
-const METEORS = 120;         // active meteors in flight at once
+const METEORS = 210;         // active meteors in flight at once
 const TRAIL_LEN = 14;         // trail samples per meteor
 const POINTS_PER_METEOR = TRAIL_LEN + 1;
 const TOTAL_POINTS = METEORS * POINTS_PER_METEOR;
@@ -266,8 +266,9 @@ function spawn(m, cameraDir) {
   m.fragmented = false;
 
   /* Startup delay — first appearance is staggered so meteors don't all
-     ignite in unison at mount time. */
-  m.delay = Math.random() * 4.5;
+     ignite in unison at mount time. Shorter window → meteors fall more
+     frequently (the sky lights up sooner and re-ignites faster). */
+  m.delay = Math.random() * 1.8;
   m.spawned = false;
 }
 
