@@ -455,15 +455,14 @@ const Scene = ({ scrollT, finaleT, finale = false, activeIdx, onJump, focusRef, 
           <HomepageGalaxy reducedMotion={reducedMotion} scrollT={scrollT} active={isMilkyway} />
         </group>
         {/* Homepage ambient sky layers (sky-fixed, NOT inside the galaxy
-            transform): meteor streaks, a lone interstellar comet on a long
-            respawn, and faint foreground dust for parallax depth. Desktop +
-            motion only; the deep-field galaxies + sparse spike stars already
-            mount above. */}
+            transform): meteor streaks + a lone interstellar comet on a long
+            respawn. Desktop + motion only; the deep-field galaxies + sparse
+            spike stars already mount above. Foreground dust is intentionally NOT
+            here — it read as distracting floating white specks over the galaxy. */}
         {isMilkyway && !isMobile && !reducedMotion && <MeteorShowers animate />}
         {isMilkyway && !isMobile && !reducedMotion && (
           <AtlasComet start={[-620, 180, -300]} vel={[150, -8, 60]} coma="#bfe0ff" ion="#cfe6ff" dust="#e8e0ff" respawn={900} />
         )}
-        {isMilkyway && !isMobile && !reducedMotion && <HeroDust />}
         {/* Distant galaxies pinned to the frame's empty regions (left column +
             lower band) — Andromeda + 7 smaller ones, never behind the Milky
             Way. Screen-space anchored so they hold their gaps. */}
@@ -725,7 +724,10 @@ const Scene = ({ scrollT, finaleT, finale = false, activeIdx, onJump, focusRef, 
         {showExtras && <EclipseLights eclipseRef={eclipseRef} />}
         </group>
         </Suspense>
-        {!isMobile && !reducedMotion && <DustParticles />}
+        {/* Foreground parallax dust — tour only (kept off the homepage, where it
+            read as distracting floating white specks; on the tour it adds depth
+            between the camera and the planets). */}
+        {!isMobile && !reducedMotion && !isMilkyway && <DustParticles />}
         {/* PHASE 3D — proximity sonification (silent until un-muted). */}
         {!reducedMotion && <Sonification />}
         {/* Non-essential extras defer-mount until the intro completes —
