@@ -130,15 +130,15 @@ const CATALOG = [
   { name: "Lagoon (M8)",        tex: "lagoon",          type: "emission",   ra: 18.061, dec: -24.383, arcmin: 90,  core: "#ff3b2f", halo: "#ff7a8a", p: true },
   { name: "Trifid (M20)",       tex: "trifid",          type: "emission",   ra: 18.045, dec: -22.972, arcmin: 28,  core: "#ff3b2f", halo: "#6f9bd6", p: true },
   { name: "Carina (NGC 3372)",  tex: "carina",          type: "emission",   ra: 10.752, dec: -59.868, arcmin: 120, core: "#ff5a36", halo: "#4fb9a8", p: true },
-  { name: "Rosette (NGC 2237)", tex: "rosette",         type: "emission",   ra: 6.563,  dec: 4.998,   arcmin: 80,  core: "#ff3b2f", halo: "#6f9bd6" },
+  { name: "Rosette (NGC 2237)", tex: "rosette",         type: "emission",   ra: 6.563,  dec: 4.998,   arcmin: 80,  core: "#ff3b2f", halo: "#33ccaa" }, // Hα red ring + [OIII] teal central cavity
   { name: "Helix (NGC 7293)",   tex: "helix",           type: "planetary",  ra: 22.494, dec: -20.833, arcmin: 25,  core: "#3bd6c6", halo: "#ff6b4a", p: true },
   { name: "Ring (M57)",         tex: "ring",            type: "planetary",  ra: 18.893, dec: 33.029,  arcmin: 3.5, core: "#3bd6c6", halo: "#ff3b2f" },
-  { name: "Crab (M1)",          tex: "crab",            type: "snr",        ra: 5.575,  dec: 22.017,  arcmin: 6,   core: "#ff6b35", halo: "#5a8fd6" },
+  { name: "Crab (M1)",          tex: "crab",            type: "snr",        ra: 5.575,  dec: 22.017,  arcmin: 6,   core: "#b8c8e8", halo: "#ff5a4a" }, // blue-white pulsar-wind synchrotron interior, red Hα filament cage
   { name: "Veil (Cygnus Loop)", tex: "veil",            type: "snr",        ra: 20.85,  dec: 30.7,    arcmin: 180, core: "#ff3b2f", halo: "#3bd6c6", p: true },
   { name: "North America",      tex: "north_america",   type: "emission",   ra: 20.988, dec: 44.53,   arcmin: 120, core: "#ff3b2f", halo: "#4fb9a8" },
   { name: "Cat's Eye (NGC 6543)", tex: "cats_eye",      type: "planetary",  ra: 17.976, dec: 66.633, arcmin: 5,   core: "#3bd6c6", halo: "#ff6b4a" },
-  { name: "Dumbbell (M27)",     tex: "dumbbell",        type: "planetary",  ra: 19.993, dec: 22.717,  arcmin: 8,   core: "#3bd6c6", halo: "#4fb9a8" },
-  { name: "California (NGC 1499)", tex: "california",   type: "emission",   ra: 4.012, dec: 36.167,   arcmin: 150, core: "#ff3b2f", halo: "#c62f2f" },
+  { name: "Dumbbell (M27)",     tex: "dumbbell",        type: "planetary",  ra: 19.993, dec: 22.717,  arcmin: 8,   core: "#3bd6c6", halo: "#ff5a4a" }, // [OIII] teal apple-core, Hα/[NII] red wings
+  { name: "California (NGC 1499)", tex: "california",   type: "emission",   ra: 4.055, dec: 36.42,    arcmin: 150, core: "#ff3b2f", halo: "#c62f2f" },
   { name: "Flame (NGC 2024)",   tex: "flame",           type: "emission",   ra: 5.698,  dec: -1.85,   arcmin: 30,  core: "#ff5a36", halo: "#c62f2f" },
   { name: "Pelican (IC 5070)",  tex: "pelican",         type: "emission",   ra: 20.847, dec: 44.35,   arcmin: 60,  core: "#ff3b2f", halo: "#c62f2f" },
   { name: "Cave (Sh2-155)",     tex: "cave",            type: "emission",   ra: 22.95,  dec: 62.52,   arcmin: 50,  core: "#ff3b2f", halo: "#6f9bd6" },

@@ -75,8 +75,8 @@ export const DESTINATIONS = [
     /* TRUE-SCALE Sun: its real radius, ≈109× Earth. The whole system is scaled
        up (large AU_UNIT) so this colossal Sun clears the inner orbits. */
     radius: 19.87, // 695,700 km — 109.2× Earth (0.182 × 109.2)
-    color: "#ff9a3c",
-    /* HUD accent (Sol gold) — distinct from the body color (fire-orange).
+    color: "#fff2e0", // the Sun is WHITE (5772K); warm-white here, warmth lives in the corona/bloom
+    /* HUD accent (Sol gold) — distinct from the near-white body colour.
        Non-planet stops carry `accent`; planets fall back to `color`. */
     accent: "#e9c675",
     texture: "/textures/planets/sunmap.webp",
@@ -434,8 +434,8 @@ export const BACKGROUND_BELTS = {
   // Real spans (main belt ~2.1–3.3 AU, Kuiper ~30–50 AU) rendered as FAT tori —
   // a real vertical thickness from inclination dispersion (not a thin ribbon),
   // so they read as the dense dusty donuts the reference imagery shows.
-  asteroid: { inner: 2.1 * AU_UNIT, outer: 3.3 * AU_UNIT, thickness: 36, color: "#c9b48a" },
-  kuiper: { inner: 30 * AU_UNIT, outer: 50 * AU_UNIT, thickness: 320, color: "#9fb0d0" },
+  asteroid: { inner: 2.1 * AU_UNIT, outer: 3.3 * AU_UNIT, thickness: 36, color: "#6f645a" }, // C-type-weighted dark grey-brown (belt is ~75% dark carbonaceous)
+  kuiper: { inner: 30 * AU_UNIT, outer: 50 * AU_UNIT, thickness: 320, color: "#8a7360" }, // red-to-neutral (tholins) — Kuiper objects are NEVER blue
 };
 
 /* Sample curve (original radius → true radius) from the planets, used to remap

@@ -28,7 +28,7 @@ const RAW = [
   // ── Main asteroid belt ──
   {
     id: "vesta", label: "Vesta", category: "Asteroid", position: [20.4, -0.6, -1.1], radius: 0.045, color: "#b8a98c",
-    info: "The brightest asteroid and second-largest belt body (S-type), scarred by a giant impact basin near its south pole that flung debris across the solar system. With Ceres, Pallas and Hygiea it holds over half the belt's entire mass.",
+    info: "The brightest asteroid and second-largest belt body (V-type — a basaltic, differentiated protoplanet), scarred by a giant impact basin near its south pole that flung debris across the solar system. With Ceres, Pallas and Hygiea it holds over half the belt's entire mass.",
   },
   {
     id: "pallas", label: "Pallas", category: "Asteroid", position: [20.7, 2.2, -1.6], radius: 0.043, color: "#9aa4ac",
@@ -75,7 +75,7 @@ const RAW = [
   },
   {
     id: "orcus", label: "Orcus", category: "Dwarf planet", position: [44.5, 2.3, 2.6], radius: 0.038, color: "#bcc6cc",
-    info: "90482 Orcus — the 'anti-Pluto': same size class and orbital period as Pluto but always on the opposite side of its orbit. Has a large moon, Vanth, and signs of past ice volcanism.",
+    info: "90482 Orcus — the 'anti-Pluto': a fellow Plutino sharing Pluto's 3:2 resonance and ~247-year orbital period, but always on the opposite side of its orbit (though only ~1/3 Pluto's size). Has a large moon, Vanth, and signs of past ice volcanism.",
   },
   {
     id: "chiron", label: "Chiron", category: "Centaur", position: [32.6, 1.5, -2.1], radius: 0.02, color: "#8a7a6a",
