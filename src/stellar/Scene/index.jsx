@@ -1,5 +1,5 @@
 /* eslint-disable react/no-unknown-property */
-import { Suspense, useMemo, useRef, useEffect, cloneElement } from "react";
+import { Suspense, useMemo, useRef, useState, useEffect, cloneElement } from "react";
 import { Canvas, invalidate, useFrame } from "@react-three/fiber";
 import { Preload } from "@react-three/drei";
 import * as THREE from "three";
@@ -307,6 +307,13 @@ const Scene = ({ scrollT, finaleT, finale = false, activeIdx, onJump, focusRef, 
      of the dive — otherwise LY-scale local stars and AU-scale planets would
      briefly co-render (impossible scales). */
   const tourBodiesRef = useRef(null);
+  /* Auto-adaptive quality: AdaptiveQuality flips this to true only when frames
+     genuinely dip (<~43fps sustained) on a struggling GPU. Capable machines keep
+     everything; strugglers shed the heaviest, least-perceptible layers (the faint
+     big-particle drift dust, the procedural deep star haze) to hold smoothness.
+     Toggles rarely (wide dead-zone), so the one-time remount when it flips is
+     masked by the fact that the machine was already dropping frames. */
+  const [perfLow, setPerfLow] = useState(false);
   /* Camera offsets — kept in refs so React state doesn't re-render
      the whole tree on every frame. Mouse parallax and free-roam each
      own their own offset; CameraRig sums them. */
@@ -407,6 +414,7 @@ const Scene = ({ scrollT, finaleT, finale = false, activeIdx, onJump, focusRef, 
            render at 1× during scroll — maximises the frame budget exactly when
            the journey needs it, then restores to dprCap on settle. */
         lowDpr={1.0}
+        onPerf={(tier) => setPerfLow(tier === "low")}
       />
       <AutoExposure />
       {/* Full GPU prewarm of the pre-mounted (hidden) tour during the intro:
@@ -459,7 +467,7 @@ const Scene = ({ scrollT, finaleT, finale = false, activeIdx, onJump, focusRef, 
             its own phase. Layers on top so BOTH the homepage sky and the tour read
             as extremely dense + alive. Sky-fixed (radius 6600), so unlike the
             foreground dust it never rides the cursor. */}
-        {!finale && <DeepStars count={isMobile ? 6000 : 16000} reducedMotion={reducedMotion} />}
+        {!finale && !perfLow && <DeepStars count={isMobile ? 6000 : 16000} reducedMotion={reducedMotion} />}
         {/* Nebulae live INSIDE the Milky Way — they belong to the solar-system
             tour backdrop, not the from-outside homepage. Hidden on the
             homepage (where the deep-field galaxies are the backdrop instead). */}
@@ -782,10 +790,10 @@ const Scene = ({ scrollT, finaleT, finale = false, activeIdx, onJump, focusRef, 
         )}
         {/* Tenuous gas/dust clouds — tier 3 (big, faint, soft; distance-faded by
             the same shader so they never bloom into a bar). Desktop only. */}
-        {showEggs && !isMobile && (
+        {showEggs && !isMobile && !perfLow && (
           <BeltDust count={3200} innerRadius={BACKGROUND_BELTS.asteroid.inner} outerRadius={BACKGROUND_BELTS.asteroid.outer} thickness={BACKGROUND_BELTS.asteroid.thickness * 1.4} color="#8a7a64" size={16} opacity={0.04} drift={0.008} gaps={KIRKWOOD_GAPS} animate={!reducedMotion} />
         )}
-        {showEggs && !isMobile && (
+        {showEggs && !isMobile && !perfLow && (
           <BeltDust count={2600} innerRadius={BACKGROUND_BELTS.kuiper.inner} outerRadius={BACKGROUND_BELTS.kuiper.outer} thickness={BACKGROUND_BELTS.kuiper.thickness * 1.3} color="#6a7e9e" size={20} opacity={0.04} drift={0.006} cliff animate={!reducedMotion} />
         )}
         {/* Jupiter's Trojan asteroids — two swarms 60° ahead/behind Jupiter at

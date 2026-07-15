@@ -24,10 +24,15 @@ import { useFrame, useThree } from "@react-three/fiber";
  *       together, and restore is quick, so a decent machine always recovers.
  */
 
-const LOW_MS = 46; // ~22fps — only degrade if genuinely struggling
-const HIGH_MS = 38; // ~26fps — restore as soon as it's merely OK
+/* Wide dead-zone so a machine never oscillates: shed the heavy layers only once
+   frames genuinely dip (<~43fps sustained), and don't restore until there's real
+   headroom (>~58fps sustained). Capable GPUs that hold 45-60fps keep FULL density;
+   only struggling hardware sheds — and once shed, it stays shed while the heavy
+   scene is up (shedding gains < the 15fps gap, so it can't bounce back and forth). */
+const LOW_MS = 23;  // ~43fps — shed heavy layers below this (sustained)
+const HIGH_MS = 17; // ~59fps — only restore with genuine headroom
 const DROP_AFTER = 2500;
-const RESTORE_AFTER = 1800;
+const RESTORE_AFTER = 2200;
 const GRACE = 8000; // ms after mount during which we never degrade
 
 const AdaptiveQuality = ({ scrollTRef, highDpr = 1.75, lowDpr = 1.0, onPerf }) => {
