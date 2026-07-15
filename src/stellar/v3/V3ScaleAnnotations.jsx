@@ -44,6 +44,12 @@ export default function V3ScaleAnnotations({ activeIdx, hidden = false }) {
       <div>
         <span style={{ color: "var(--v3-fg-dim, #b3b9c7)" }}>Position ·</span> Orion Spur
       </div>
+      <div>
+        <span style={{ color: "var(--v3-fg-dim, #b3b9c7)" }}>Planetary systems ·</span> 100–400 billion
+      </div>
+      <div>
+        <span style={{ color: "var(--v3-fg-dim, #b3b9c7)" }}>Confirmed ·</span> ~6,000 by NASA
+      </div>
     </motion.div>
   );
 }
