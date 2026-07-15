@@ -39,7 +39,6 @@ import MeteorShowers from "./MeteorShowers";
 import AtlasComet from "./AtlasComet";
 import DustLanes from "./DustLanes";
 import HomepageGalaxies from "./HomepageGalaxies";
-import InterstellarDive from "./InterstellarDive";
 import BlackHole from "./anomalies/BlackHole";
 import Voyagers from "./Voyagers";
 /* BlackHole + SpiralGalaxy removed from the tour — nearest black hole is
@@ -115,11 +114,25 @@ const planetFallback = (d) => (
    sweep visibly without becoming a merry-go-round. */
 const GALAXY_SCALE = 12;
 
+/* Cosmic-zoom scratch — the dive scales the galaxy ABOUT the Sun's dust mote
+   (SpiralGalaxy.SOL) so that mote stays screen-centered and grows while the rest
+   of the disk streams outward past the edges. `outerPos = T − R·(S·SOL)` keeps SOL
+   pinned to the screen-center target T at any zoom S (see docs/design/cosmic-zoom). */
+const _fwd = new THREE.Vector3();
+const _T = new THREE.Vector3();
+const _sol = new THREE.Vector3();
+const _tiltQuat = new THREE.Quaternion().setFromEuler(new THREE.Euler(1.16, 0, 0.34));
+const _heroPos = new THREE.Vector3(40, 20, -560);
+const Y_UP = new THREE.Vector3(0, 1, 0);
+const ZOOM_DEPTH = 1600;   // how far ahead of the camera the mote sits (screen center)
+const ZOOM_MAX = 20;       // final zoom factor into the mote (S = GALAXY_SCALE × (1 + …×ZOOM_MAX)) — gentle so the disk fills the frame through the plunge, not black
+const s01 = (a, b, x) => THREE.MathUtils.smoothstep(THREE.MathUtils.clamp(x, 0, 1), a, b);
 
 function HomepageGalaxy({ reducedMotion, scrollT, active = true }) {
   const outerRef = useRef();
   const innerRef = useRef();
   const t0 = useRef(null);
+  const diveFrozenY = useRef(null); // spin angle frozen at dive start, so SOL is a stable pivot
   /* Snapshot of each galaxy material's base opacity, so the dive can fade the
      whole thing out smoothly (a real crossfade into the solar system) without
      the hyperspace warp to mask a hard cut. Dynamic-opacity children (supernova
@@ -141,37 +154,18 @@ function HomepageGalaxy({ reducedMotion, scrollT, active = true }) {
   }, [reducedMotion]);
 
   useFrame((state, dt) => {
-    /* Off the homepage the galaxy is kept MOUNTED but hidden (visible=false via
-       the wrapper) so it never disposes its ~100k-point cloud at the crossover
-       (that disposal was a transition frame dip). Skip all per-frame work while
-       hidden. */
     if (!active) return;
-    /* Scroll progress into the first segment: 0 at the hero, 1 at the Solar-
-       System overview (13 stops → ×12). The dive lives in [0, 0.5]: a gentle
-       zoom into the disc while the galaxy fades out, so it crossfades smoothly
-       into the system inside (no hyperspace streaks — plain smooth travel). */
-    const pos = !reducedMotion && scrollT?.current ? scrollT.current * 12 : 0;
+    /* diveT: 0 at the hero, 1 at the Solar-System overview (the hero→about
+       segment). This IS the cosmic zoom into the Sun's dust mote. */
+    const pos = !reducedMotion && scrollT?.current ? THREE.MathUtils.clamp(scrollT.current * 12, 0, 1) : 0;
     const diving = pos > 0.002;
 
-    /* Zoom-in on load — the galaxy grows from a point to full size over ~2.6s
-       (easeOutCubic) as the hero text rises. Instant under reduced motion. */
+    /* Load-in: grow from a point to full size (easeOutCubic). */
     if (t0.current == null) t0.current = state.clock.elapsedTime;
     const age = state.clock.elapsedTime - t0.current;
-    const grow = reducedMotion ? 1 : Math.min(1, age / 2.6);
-    const eased = 1 - Math.pow(1 - grow, 3);
-    if (innerRef.current) {
-      if (diving) {
-        /* DIVE — gentle scale-up so we drift INTO the disc (not a violent surge). */
-        const dp = Math.min(1, pos / 0.5);
-        innerRef.current.scale.setScalar(GALAXY_SCALE * (1 + Math.pow(dp, 1.4) * 1.5)); // 12 → ~30
-      } else {
-        innerRef.current.scale.setScalar(0.5 + eased * (GALAXY_SCALE - 0.5));
-      }
-      if (!reducedMotion) innerRef.current.rotation.y += dt * 0.07; // slow spin
-    }
+    const eased = 1 - Math.pow(1 - (reducedMotion ? 1 : Math.min(1, age / 2.6)), 3);
 
-    /* Smooth fade — dissolve the whole galaxy out over pos 0.12 → 0.46 so it's
-       gone before this component unmounts at ~0.5, crossfading into the tour. */
+    /* Snapshot each material's base opacity once (for the seam cross-fade). */
     if (baseOps.current == null && innerRef.current) {
       baseOps.current = [];
       innerRef.current.traverse((o) => {
@@ -179,29 +173,60 @@ function HomepageGalaxy({ reducedMotion, scrollT, active = true }) {
         for (const m of mats) if (m && m.transparent && m.opacity > 0.02) baseOps.current.push([m, m.opacity]);
       });
     }
-    const fade = diving ? THREE.MathUtils.clamp(1 - (pos - 0.12) / 0.34, 0, 1) : 1;
-    fadeRef.current = fade;
-    if (baseOps.current) {
-      for (const [m, base] of baseOps.current) m.opacity = base * fade;
-    }
-    /* Once fully faded, stop RENDERING the galaxy (additive points at opacity 0
-       still rasterize — a big overdraw cost the whole 0.46→unmount window). */
-    if (outerRef.current) outerRef.current.visible = fade > 0.01;
-    if (outerRef.current && fade > 0.01 && !reducedMotion) {
-      if (diving) {
-        /* Hold the tilt + centre steady through the plunge (freeze the ambient
-           breathing so the surge reads clean). */
-        outerRef.current.position.set(40, 20, -560);
-        outerRef.current.rotation.z = 0.34;
-      } else {
-        const t = state.clock.elapsedTime;
-        const p = ptr.current;
-        p.sx += (p.x - p.sx) * 0.04; // smooth toward cursor
-        p.sy += (p.y - p.sy) * 0.04;
-        /* breathing drift + cursor parallax (opposite the pointer) */
-        outerRef.current.rotation.z = 0.34 + Math.sin(t * 0.05) * 0.015 - p.sx * 0.02;
-        outerRef.current.position.x = 40 + Math.sin(t * 0.045) * 18 - p.sx * 55;
-        outerRef.current.position.y = 20 + Math.cos(t * 0.06) * 12 + p.sy * 40;
+
+    if (diving) {
+      /* ===== COSMIC ZOOM into the mote ===== */
+      /* Freeze the spin the instant the dive begins so SOL is a stable pivot. */
+      if (diveFrozenY.current == null && innerRef.current) diveFrozenY.current = innerRef.current.rotation.y;
+      /* Zoom S grows deep into the disc; the mote (and its immediate neighbourhood)
+         balloon while everything toward the galactic centre streams outward past
+         the edges — you fly INTO one dust particle. */
+      const S = GALAXY_SCALE * (1 + Math.pow(s01(0, 1, pos), 1.4) * ZOOM_MAX);
+      if (innerRef.current) {
+        innerRef.current.scale.setScalar(S);
+        innerRef.current.rotation.y = diveFrozenY.current;
+      }
+      if (outerRef.current) {
+        outerRef.current.rotation.set(1.16, 0, 0.34); // freeze tilt
+        /* Screen-center target T: a point on the camera's forward ray. */
+        _fwd.set(0, 0, -1).applyQuaternion(state.camera.quaternion);
+        _T.copy(state.camera.position).addScaledVector(_fwd, ZOOM_DEPTH);
+        /* Where SOL lands at this scale (rotated by the frozen spin, then the tilt). */
+        _sol.copy(SpiralGalaxy.SOL).applyAxisAngle(Y_UP, diveFrozenY.current).multiplyScalar(S).applyQuaternion(_tiltQuat);
+        /* outerPos = T − that pins SOL exactly to screen-center T; ramp the
+           centering in over the first bit so entry from the hero is smooth. */
+        const c = s01(0, 0.28, pos);
+        outerRef.current.position.set(
+          THREE.MathUtils.lerp(_heroPos.x, _T.x - _sol.x, c),
+          THREE.MathUtils.lerp(_heroPos.y, _T.y - _sol.y, c),
+          THREE.MathUtils.lerp(_heroPos.z, _T.z - _sol.z, c),
+        );
+      }
+      /* Galaxy stays fully rendered through the plunge; cross-fades out only at
+         the SEAM (pos 0.8→1) as the solar system opens out of the mote. */
+      const fade = 1 - s01(0.8, 1.0, pos);
+      fadeRef.current = fade;
+      if (baseOps.current) for (const [m, base] of baseOps.current) m.opacity = base * fade;
+      if (outerRef.current) outerRef.current.visible = fade > 0.01;
+    } else {
+      /* ===== Hero idle — grow-in + breathing + cursor parallax ===== */
+      diveFrozenY.current = null; // re-arm the pivot
+      fadeRef.current = 1;
+      if (baseOps.current) for (const [m, base] of baseOps.current) m.opacity = base;
+      if (innerRef.current) {
+        innerRef.current.scale.setScalar(0.5 + eased * (GALAXY_SCALE - 0.5));
+        if (!reducedMotion) innerRef.current.rotation.y += dt * 0.07;
+      }
+      if (outerRef.current) {
+        outerRef.current.visible = true;
+        if (!reducedMotion) {
+          const t = state.clock.elapsedTime;
+          const p = ptr.current;
+          p.sx += (p.x - p.sx) * 0.04;
+          p.sy += (p.y - p.sy) * 0.04;
+          outerRef.current.rotation.set(1.16, 0, 0.34 + Math.sin(t * 0.05) * 0.015 - p.sx * 0.02);
+          outerRef.current.position.set(40 + Math.sin(t * 0.045) * 18 - p.sx * 55, 20 + Math.cos(t * 0.06) * 12 + p.sy * 40, -560);
+        }
       }
     }
   });
@@ -517,12 +542,12 @@ const Scene = ({ scrollT, finaleT, finale = false, activeIdx, onJump, focusRef, 
         <group visible={isMilkyway}>
           <HomepageGalaxy reducedMotion={reducedMotion} scrollT={scrollT} active={isMilkyway} />
         </group>
-        {/* Dive middle regime — the real local stars at TRUE depth (LY_UNIT),
-            flown through on the plunge from the galactic plate to our Sun. Mounted
-            across the hero→overview dive (activeIdx 0-1); its own scrollT fade
-            hands off to the plate above and the solar system below. */}
-        {!finale && !reducedMotion && activeIdx <= 1 && <InterstellarDive scrollT={scrollT} active />}
-        {/* Holds the AU-scale solar system hidden until the interstellar leg fades. */}
+        {/* The cosmic zoom into the Sun's dust mote lives in HomepageGalaxy (it
+            scales the galaxy about the SOL pivot). The old InterstellarDive
+            local-star stage is removed — the viewer wants the mote to zoom
+            straight into the solar system, no in-between stop. */}
+        {/* Holds the AU-scale solar system hidden until the mote fills the frame,
+            then reveals it at the seam (the galaxy cross-fades out there). */}
         <DiveGate scrollT={scrollT} finale={finale} groupRef={tourBodiesRef} reducedMotion={reducedMotion} activeIdx={activeIdx} />
         {/* Ambient sky layers (sky-fixed, NOT inside any body transform):
             meteor streaks EVERYWHERE (homepage + tour) + interstellar comets.

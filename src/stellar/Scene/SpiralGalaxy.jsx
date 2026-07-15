@@ -321,7 +321,7 @@ const SpiralGalaxy = ({ animate = true, solPulse = false }) => {
 
       {/* SOL PIN — a hot pinprick at the Sun's position on the Orion Spur;
           gently pulses when solPulse is on ("you are here"). */}
-      <sprite ref={solRef} position={[solPos.x, solPos.y + 6, solPos.z]} scale={[11, 11, 1]}>
+      <sprite ref={solRef} position={[solPos.x, solPos.y, solPos.z]} scale={[11, 11, 1]}>
         <spriteMaterial
           map={SOL_PIN_SPRITE}
           color="#fff2a8"
