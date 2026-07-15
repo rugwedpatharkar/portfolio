@@ -241,11 +241,20 @@ function FinaleGradeDip({ gradeRef, finaleT }) {
    scaleRegimes.js). diveT: 0 at the hero → 1 at the Solar-System overview; the
    whole tour + finale sit at diveT ≥ 1. Ref-driven so it never re-renders. */
 function DiveGate({ scrollT, finale, groupRef }) {
+  const flyingRef = useRef(false);
   useFrame(() => {
-    const g = groupRef.current;
-    if (!g) return;
     const diveT = THREE.MathUtils.clamp((scrollT?.current ?? 0) * 12, 0, 1);
-    g.visible = finale || diveT > 0.88;
+    if (groupRef.current) groupRef.current.visible = finale || diveT > 0.88;
+    /* Fade the hero/landing surface out during the interstellar leg — reuse the
+       flight-hide channel (panelHidden) so "Rugwed Patharkar / Begin the tour"
+       dissolves as we plunge off the home page, then the arrival content takes
+       over at the overview. Edge-dispatched (only on state change), never every
+       frame. During the dive no camera-jump fires, so this owns the flag. */
+    const flying = !finale && diveT > 0.14 && diveT < 0.9;
+    if (flying !== flyingRef.current) {
+      flyingRef.current = flying;
+      window.dispatchEvent(new CustomEvent("stellar:flight", { detail: { flying } }));
+    }
   });
   return null;
 }
@@ -776,7 +785,7 @@ const Scene = ({ scrollT, finaleT, finale = false, activeIdx, onJump, focusRef, 
             so they read as a bright hazy halo — suppressed in v3. */}
         {showExtras && <OortCloud count={isMobile ? 1600 : 4200} />}
         {showExtras && !isMobile && <Heliosphere />}
-        {showExtras && !isMobile && <LocalInterstellarCloud />}
+        {showExtras && !isMobile && activeIdx >= 10 && <LocalInterstellarCloud />}
         {/* Real solar eclipses — Earth's actual Moon + any planet you fly
             behind occlude the Sun (corona + chromosphere + diamond-ring). */}
         {showExtras && <SolarEclipse satelliteRef={moonWorldRef} eclipseRef={eclipseRef} reducedMotion={reducedMotion} active={!isMilkyway} />}
