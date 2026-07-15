@@ -324,11 +324,13 @@ const Scene = ({ scrollT, finaleT, finale = false, activeIdx, onJump, focusRef, 
   const handleHoverIn = () => setCursor("pointer");
   const handleHoverOut = () => setCursor("");
 
-  /* Render at the display's native pixel ratio (up to 2× on retina/4K) for
-     crisp HD. We removed Depth-of-Field, so nothing is intentionally blurred
-     and the extra pixels actually read as sharpness. The adaptive guard still
-     floors DPR only on a genuinely struggling GPU. */
-  const dprCap = isMobile ? 1.5 : 2;
+  /* DPR cap for the STILL frame — kept near-crisp (1.75) since a settled planet
+     is what you actually study. The real smoothness win is the adaptive guard
+     dropping DPR to 1.0 while the camera MOVES (the eye can't resolve fine pixels
+     mid-motion), which is exactly when the journey needs the frame budget. On a
+     retina display DPR is a quadratic fragment multiplier, so 2→1.75 already buys
+     headroom at negligible visible cost. */
+  const dprCap = isMobile ? 1.3 : 1.75;
 
   /* §7.4 — feature-flagged experiment with frameloop="demand". Off by default:
      the tour has continuous animation everywhere (planet orbits, Sun churn,
@@ -401,7 +403,10 @@ const Scene = ({ scrollT, finaleT, finale = false, activeIdx, onJump, focusRef, 
       <AdaptiveQuality
         scrollTRef={scrollT}
         highDpr={dprCap}
-        lowDpr={isMobile ? 1.0 : 1.4}
+        /* While the camera is moving the eye can't resolve fine pixels anyway, so
+           render at 1× during scroll — maximises the frame budget exactly when
+           the journey needs it, then restores to dprCap on settle. */
+        lowDpr={1.0}
       />
       <AutoExposure />
       {/* Full GPU prewarm of the pre-mounted (hidden) tour during the intro:
