@@ -7,6 +7,7 @@ import { EffectComposer, Bloom } from "@react-three/postprocessing";
 import CinematicGrade from "./CinematicGrade";
 import SceneClock from "./SceneClock";
 import Stars from "./Stars";
+import DeepStars from "./DeepStars";
 import Constellations from "./Constellations";
 import DistantGalaxies from "./DistantGalaxies";
 import ZodiacalLight from "./ZodiacalLight";
@@ -23,6 +24,7 @@ import Skybox from "./Skybox";
 import OrbitGroup from "./OrbitGroup";
 import OrbitRings from "./OrbitRings";
 import BeltRings from "./BeltRings";
+import PlanetBeacons from "./PlanetBeacons";
 // LaneObjects retired — the Holo-Bridge dossier cluster replaces the forced-←→ convoy.
 import SolarEclipse from "./SolarEclipse";
 import EclipseLights from "./EclipseLights";
@@ -64,7 +66,7 @@ import KeyLight from "./KeyLight";
 import MouseParallax from "./MouseParallax";
 import SafeLoad from "./SafeLoad";
 import useViewport from "../useViewport";
-import { DESTINATIONS, BACKGROUND_BELTS } from "../config/destinations";
+import { DESTINATIONS, BACKGROUND_BELTS, SKY_SCALE } from "../config/destinations";
 import { rotationSpeedFor } from "../config/planetData";
 import { SCENE_OBJECTS } from "./registry";
 
@@ -338,7 +340,7 @@ const Scene = ({ scrollT, finaleT, finale = false, activeIdx, onJump, focusRef, 
         toneMappingExposure: 1.05,
         outputColorSpace: THREE.SRGBColorSpace,
       }}
-      camera={{ position: [0, 2.5, 11], fov: 52, near: 0.1, far: 14000 }}
+      camera={{ position: [0, 2.5, 11], fov: 52, near: 0.1, far: 14000 * SKY_SCALE }}
       style={{ position: "fixed", inset: 0, background: "#03050d" }}
       onCreated={({ gl, scene }) => {
         /* Hard guarantee a dark backdrop: explicit clear colour + a
@@ -409,6 +411,12 @@ const Scene = ({ scrollT, finaleT, finale = false, activeIdx, onJump, focusRef, 
             it synchronously, which was a major transition frame dip. */}
         {!finale && <Stars sparse visible={isMilkyway} />}
         {!finale && <Stars visible={!isMilkyway} />}
+        {/* Dense procedural twinkling star haze — thousands of faint field stars
+            on the same celestial shell as the real catalogue, each twinkling on
+            its own phase. Layers on top so BOTH the homepage sky and the tour read
+            as extremely dense + alive. Sky-fixed (radius 6600), so unlike the
+            foreground dust it never rides the cursor. */}
+        {!finale && <DeepStars count={isMobile ? 6000 : 16000} reducedMotion={reducedMotion} />}
         {/* Nebulae live INSIDE the Milky Way — they belong to the solar-system
             tour backdrop, not the from-outside homepage. Hidden on the
             homepage (where the deep-field galaxies are the backdrop instead). */}
@@ -421,12 +429,16 @@ const Scene = ({ scrollT, finaleT, finale = false, activeIdx, onJump, focusRef, 
           {/* Constellation line overlays — 12 named patterns drawn as hairline
               gold connectors. */}
           {!finale && <Constellations />}
-          {/* Distant naked-eye galaxies — M31 / M33 / LMC / SMC at real RA/Dec. */}
-          {!finale && <DistantGalaxies deepField={false} />}
+          {/* Distant galaxies — ONLY the 4 named naked-eye ones on the tour.
+              The JWST deep-field scatter is homepage-only now: on the solar-system
+              view its ~640 soft coreless discs read as distracting floating white
+              smudges over the planets (user complaint), so it's dropped here. */}
+          {!finale && <DistantGalaxies />}
           {/* Zodiacal light — faint warm band along the ecliptic. */}
           {showExtras && <ZodiacalLight />}
-          {/* Deep-field parallax dust — foreground motes riding the camera. */}
-          {showExtras && !isMobile && !reducedMotion && <HeroDust />}
+          {/* HeroDust moved OFF the tour — its camera-riding motes read as "white
+              specks that move with the cursor" on the solar-system view (user asked
+              to remove those). It now lives on the Milky-Way homepage only. */}
           {/* Hover labels on the 16 brightest named stars — desktop-only. */}
           {showEggs && !isMobile && !reducedMotion && <StarLabels />}
           {/* Milky Way band — the from-INSIDE arch. */}
@@ -454,16 +466,28 @@ const Scene = ({ scrollT, finaleT, finale = false, activeIdx, onJump, focusRef, 
         <group visible={isMilkyway}>
           <HomepageGalaxy reducedMotion={reducedMotion} scrollT={scrollT} active={isMilkyway} />
         </group>
-        {/* Homepage ambient sky layers (sky-fixed, NOT inside the galaxy
-            transform): meteor streaks, a lone interstellar comet on a long
-            respawn, and faint foreground dust for parallax depth. Desktop +
-            motion only; the deep-field galaxies + sparse spike stars already
-            mount above. */}
-        {isMilkyway && !isMobile && !reducedMotion && <MeteorShowers animate />}
+        {/* Ambient sky layers (sky-fixed, NOT inside any body transform):
+            meteor streaks EVERYWHERE (homepage + tour) + interstellar comets.
+            Desktop + motion only. Foreground dust is intentionally NOT here — it
+            read as distracting floating white specks over the galaxy. */}
+        {!isMobile && !reducedMotion && !finale && <MeteorShowers animate />}
+        {/* Homepage — interstellar comets crossing the deep field. More of them,
+            respawning faster, so a comet is almost always streaking somewhere. */}
         {isMilkyway && !isMobile && !reducedMotion && (
-          <AtlasComet start={[-620, 180, -300]} vel={[150, -8, 60]} coma="#bfe0ff" ion="#cfe6ff" dust="#e8e0ff" respawn={900} />
+          <>
+            <AtlasComet start={[-620, 180, -300]} vel={[150, -8, 60]} coma="#bfe0ff" ion="#cfe6ff" dust="#e8e0ff" respawn={560} />
+            <AtlasComet start={[760, -240, -180]} vel={[-150, 18, 60]} coma="#e2dcff" ion="#dce6ff" dust="#fff0e0" respawn={680} />
+            <AtlasComet start={[-380, -420, 260]} vel={[110, 70, -40]} coma="#cfe0ff" ion="#d6ecff" dust="#f0ead8" respawn={820} />
+          </>
         )}
-        {isMilkyway && !isMobile && !reducedMotion && <HeroDust />}
+        {/* Tour — extra comets sweeping the outer system (alongside Halley),
+            faster respawn so the tour sky stays alive. */}
+        {!isMilkyway && !isMobile && !reducedMotion && !finale && (
+          <>
+            <AtlasComet start={[1500, 320, 980]} vel={[-270, -34, -170]} coma="#bfe0ff" ion="#cfe6ff" dust="#e8e0ff" respawn={720} />
+            <AtlasComet start={[-1400, -260, 1100]} vel={[250, 40, -190]} coma="#e2dcff" ion="#dce6ff" dust="#fff0e0" respawn={900} />
+          </>
+        )}
         {/* Distant galaxies pinned to the frame's empty regions (left column +
             lower band) — Andromeda + 7 smaller ones, never behind the Milky
             Way. Screen-space anchored so they hold their gaps. */}
@@ -651,6 +675,11 @@ const Scene = ({ scrollT, finaleT, finale = false, activeIdx, onJump, focusRef, 
             read as belts from ~2200u out where the actual rock particles
             are sub-pixel. Invisible at any tour stop. */}
         {showExtras && v3 && activeIdx === 1 && <BeltRings />}
+        {/* Overview-only planet beacons — each planet's real texture at a constant
+            26px on-screen size at its orbital position. Essential at TRUE scale,
+            where the real planets are sub-pixel dots on 128,000u orbits: the
+            beacons make them findable little discs strung along the orrery rings. */}
+        {showExtras && v3 && activeIdx === 1 && <PlanetBeacons />}
         {/* Dwarf planets + named belt bodies (Vesta, Eris, Makemake, Haumea). */}
         {showExtras && <DwarfPlanets animate={!reducedMotion} />}
         {/* Halley's Comet on its real 76-year elliptical orbit — a live
@@ -680,7 +709,7 @@ const Scene = ({ scrollT, finaleT, finale = false, activeIdx, onJump, focusRef, 
              outer half. Kirkwood gaps at all four major Jupiter resonances
              (3:1, 5:2, 7:3, 2:1) carve density notches. Count bumped hard so
              the belt reads DENSE at every zoom. */
-          <AsteroidBelt count={isMobile ? 3200 : 7500} innerRadius={BACKGROUND_BELTS.asteroid.inner} outerRadius={BACKGROUND_BELTS.asteroid.outer} size={0.18} thickness={BACKGROUND_BELTS.asteroid.thickness} gaps={KIRKWOOD_GAPS} animate={!reducedMotion} />
+          <AsteroidBelt count={isMobile ? 7000 : 16000} innerRadius={BACKGROUND_BELTS.asteroid.inner} outerRadius={BACKGROUND_BELTS.asteroid.outer} size={0.18} thickness={BACKGROUND_BELTS.asteroid.thickness} gaps={KIRKWOOD_GAPS} animate={!reducedMotion} />
         )}
         {showExtras && !isMobile && (
           /* Kuiper belt — six families (BB / RR / intermediate / water-ice /
@@ -691,15 +720,15 @@ const Scene = ({ scrollT, finaleT, finale = false, activeIdx, onJump, focusRef, 
              Resonance clumps overpopulate the 3:2 Plutinos at ~39.4 AU and
              2:1 Twotinos at ~47.7 AU; the Kuiper Cliff drops density sharply
              near 48 AU. Count bumped for density. */
-          <AsteroidBelt count={5000} innerRadius={BACKGROUND_BELTS.kuiper.inner} outerRadius={BACKGROUND_BELTS.kuiper.outer} size={0.55} thickness={BACKGROUND_BELTS.kuiper.thickness} families={KUIPER_FAMILIES} weights={kuiperWeightsFor} clumps={KUIPER_CLUMPS} cliff animate={!reducedMotion} />
+          <AsteroidBelt count={11000} innerRadius={BACKGROUND_BELTS.kuiper.inner} outerRadius={BACKGROUND_BELTS.kuiper.outer} size={0.55} thickness={BACKGROUND_BELTS.kuiper.thickness} families={KUIPER_FAMILIES} weights={kuiperWeightsFor} clumps={KUIPER_CLUMPS} cliff animate={!reducedMotion} />
         )}
         {/* Dust haze — tier 4 (mounts last + alone). Still substantial so the
             band reads as haze rather than empty space. */}
         {showDust && (
-          <BeltDust count={isMobile ? 6000 : 14000} innerRadius={BACKGROUND_BELTS.asteroid.inner} outerRadius={BACKGROUND_BELTS.asteroid.outer} thickness={BACKGROUND_BELTS.asteroid.thickness} color={BACKGROUND_BELTS.asteroid.color} size={2.6} opacity={0.14} gaps={KIRKWOOD_GAPS} animate={!reducedMotion} />
+          <BeltDust count={isMobile ? 8000 : 18000} innerRadius={BACKGROUND_BELTS.asteroid.inner} outerRadius={BACKGROUND_BELTS.asteroid.outer} thickness={BACKGROUND_BELTS.asteroid.thickness} color={BACKGROUND_BELTS.asteroid.color} size={2.6} opacity={0.15} gaps={KIRKWOOD_GAPS} animate={!reducedMotion} />
         )}
         {showDust && !isMobile && (
-          <BeltDust count={9000} innerRadius={BACKGROUND_BELTS.kuiper.inner} outerRadius={BACKGROUND_BELTS.kuiper.outer} thickness={BACKGROUND_BELTS.kuiper.thickness} color={BACKGROUND_BELTS.kuiper.color} size={2.3} opacity={0.13} cliff animate={!reducedMotion} />
+          <BeltDust count={12000} innerRadius={BACKGROUND_BELTS.kuiper.inner} outerRadius={BACKGROUND_BELTS.kuiper.outer} thickness={BACKGROUND_BELTS.kuiper.thickness} color={BACKGROUND_BELTS.kuiper.color} size={2.3} opacity={0.14} cliff animate={!reducedMotion} />
         )}
         {/* Tenuous gas/dust clouds — tier 3 (big, faint, soft; distance-faded by
             the same shader so they never bloom into a bar). Desktop only. */}
@@ -711,21 +740,27 @@ const Scene = ({ scrollT, finaleT, finale = false, activeIdx, onJump, focusRef, 
         )}
         {/* Jupiter's Trojan asteroids — two swarms 60° ahead/behind Jupiter at
             the L4/L5 Lagrange points (true orbital radius). */}
-        {showExtras && <TrojanAsteroids count={isMobile ? 70 : 160} />}
+        {showExtras && <TrojanAsteroids count={isMobile ? 200 : 500} />}
         {/* The Oort cloud wrapping the whole system + the heliosphere boundary
             bubble out at the edge (where Voyager crossed). Oort points are
             additive sprites and the wide-overview camera sits INSIDE the shell,
             so they read as a bright hazy halo — suppressed in v3. */}
-        {showExtras && <OortCloud count={isMobile ? 700 : 1400} />}
+        {showExtras && <OortCloud count={isMobile ? 1600 : 4200} />}
         {showExtras && !isMobile && <Heliosphere />}
         {/* Real solar eclipses — Earth's actual Moon + any planet you fly
             behind occlude the Sun (corona + chromosphere + diamond-ring). */}
-        {showExtras && <SolarEclipse satelliteRef={moonWorldRef} eclipseRef={eclipseRef} reducedMotion={reducedMotion} />}
+        {showExtras && <SolarEclipse satelliteRef={moonWorldRef} eclipseRef={eclipseRef} reducedMotion={reducedMotion} active={!isMilkyway} />}
         {/* Fade the scene lights toward dark at totality (planet → silhouette). */}
         {showExtras && <EclipseLights eclipseRef={eclipseRef} />}
         </group>
         </Suspense>
-        {!isMobile && !reducedMotion && <DustParticles />}
+        {/* Foreground parallax dust — HOMEPAGE only. These motes ride the
+            mouse-parallax camera, so on the SOLAR-SYSTEM view they read as "white
+            specks that move with the cursor" (the user asked to remove those). On
+            the Milky-Way homepage the same gentle drift is welcome depth over the
+            deep field, so the two foreground layers live here now. */}
+        {isMilkyway && !isMobile && !reducedMotion && <DustParticles />}
+        {isMilkyway && !isMobile && !reducedMotion && <HeroDust />}
         {/* PHASE 3D — proximity sonification (silent until un-muted). */}
         {!reducedMotion && <Sonification />}
         {/* Non-essential extras defer-mount until the intro completes —

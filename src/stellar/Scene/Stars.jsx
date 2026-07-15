@@ -4,6 +4,7 @@ import { useFrame } from "@react-three/fiber";
 import * as THREE from "three";
 import { STARS, STAR_COUNT, STAR_STRIDE } from "../data/brightStars";
 import { makeSoftDot } from "./shared/textures";
+import { SKY_SCALE } from "../config/destinations";
 
 /*
  * The REAL night sky — 8,920 naked-eye stars (HYG catalogue, derived from
@@ -21,7 +22,7 @@ import { makeSoftDot } from "./shared/textures";
  * two parallax together.
  */
 
-const R = 6800; // celestial-sphere radius (just inside the Tycho skybox at 7000)
+const R = 6800 * SKY_SCALE; // celestial-sphere radius (just inside the Tycho skybox at 7000)
 const OBLIQUITY = 23.44 * (Math.PI / 180);
 
 /* Soft round sprite — crisp bright core, fast falloff; bloom adds the glow. */
@@ -131,7 +132,7 @@ const VERT = /* glsl */ `
     /* Per-star hash — position dotted with a magic vector — gives every star
        its own twinkle phase without needing a separate attribute. */
     float phase = fract(sin(dot(position, vec3(12.9898, 78.233, 45.164))) * 43758.5453);
-    float twinkle = 1.0 + sin(uTime * 2.4 + phase * 6.2831) * 0.14 * smoothstep(2.0, 7.0, aSize);
+    float twinkle = 1.0 + sin(uTime * 2.6 + phase * 6.2831) * 0.20 * smoothstep(1.0, 6.0, aSize);
     vTwinkle = 0.75 + 0.25 * twinkle;
     vColor = aColor * vTwinkle;
     gl_PointSize = aSize * twinkle;      // slightly grow/shrink with brightness
@@ -154,7 +155,7 @@ const Stars = ({ sparse = false, visible = true }) => {
     /* Sparse (homepage/JWST) mode — only the ~700 brightest stars (the
        catalogue is sorted brightest-first), larger, with diffraction spikes,
        against near-black. Full field (8,920) during the tour. */
-    const count = sparse ? Math.min(2200, STAR_COUNT) : STAR_COUNT;
+    const count = sparse ? Math.min(4800, STAR_COUNT) : STAR_COUNT;
     const positions = new Float32Array(count * 3);
     const colors = new Float32Array(count * 3);
     const sizes = new Float32Array(count);

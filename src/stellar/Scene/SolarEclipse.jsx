@@ -33,7 +33,7 @@ const corona = makeCorona();
 const chromo = makeChromo();
 const glint = makeGlint();
 
-const SolarEclipse = ({ satelliteRef, eclipseRef, reducedMotion = false }) => {
+const SolarEclipse = ({ satelliteRef, eclipseRef, reducedMotion = false, active = true }) => {
   const coronaRef = useRef();
   const chromoRef = useRef();
   const glintRef = useRef();
@@ -41,6 +41,11 @@ const SolarEclipse = ({ satelliteRef, eclipseRef, reducedMotion = false }) => {
   const v = useMemo(() => ({ occ: new THREE.Vector3(), dir: new THREE.Vector3(), sunDir: new THREE.Vector3(), bestPos: new THREE.Vector3(), fwd: new THREE.Vector3() }), []);
 
   useFrame(({ camera }) => {
+    /* Off the tour (e.g. the Milky-Way homepage, where the whole system is
+       pre-mounted but hidden) the camera isn't framing the Sun, so the drifting
+       Moon/planets would score FALSE eclipses and the EclipseDimmer would black
+       the screen out in a "spotlight". Keep totality at 0 there. */
+    if (!active) { if (eclipseRef) eclipseRef.current = 0; return; }
     const t = reducedMotion ? 0 : sceneClock.t;
     const cam = camera.position;
     const sunDist = cam.distanceTo(SUN);

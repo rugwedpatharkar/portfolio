@@ -3,6 +3,7 @@ import { useMemo } from "react";
 import { useLoader, useThree } from "@react-three/fiber";
 import * as THREE from "three";
 import { ktx2Url } from "./shared/textureUrl";
+import { SKY_SCALE } from "../config/destinations";
 
 /*
  * Real Milky Way skybox — NASA Tycho catalog all-sky panorama (4K, ~2 MB),
@@ -44,7 +45,7 @@ const Skybox = ({ homepage = false }) => {
        baked Sagittarius core with the milkyway destination's camera lookAt
        direction so the visitor's first frame is dominated by galactic core. */
     <mesh rotation={homepage ? [0.15, 3.6, 0] : [0.3, 2.4, 0]}>
-      <sphereGeometry args={[7000, 64, 32]} />
+      <sphereGeometry args={[7000 * SKY_SCALE, 64, 32]} />
       {/* Homepage = the galaxy is the subject, seen against a JWST-style deep
           field, so the Tycho panorama must recede to near-black (any brighter
           and its milky haze fights the galaxy). The tour keeps a slightly

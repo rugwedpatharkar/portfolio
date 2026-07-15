@@ -4,24 +4,32 @@
  * galaxy that the tour scrolls into after Pluto. Four logarithmic spiral
  * arms (Perseus, Sagittarius, Scutum-Centaurus, Norma), a bright yellow-
  * white central bulge, a thick disc of ~15k background stars, and a Sol
- * pin at ~27% out on the Orion Spur so the visitor sees themselves in the
- * galaxy at the "You are here" moment.
+ * pin at ~53% out (26,670 ly) on the Orion Spur so the visitor sees
+ * themselves in the galaxy at the "You are here" moment.
  *
- * Not to physical scale — this is a stylised, cinematic reveal that reads
- * as "our galaxy" without demanding literal 100,000-ly units. Rotation is
- * a very slow drift so the galaxy feels alive without becoming a merry-
- * go-round.
+ * PROPORTIONED to the real Milky Way (config/galaxy.js): DISC_RADIUS is the
+ * 50,000-ly disk edge, and the bulge (0.20R), bar (0.32R), Sun radius (0.533R =
+ * 26,670 ly), arm pitch (12.5°) and thin-disk height (~1,000 ly) are all their
+ * real fractions of it. Rotation is a very slow drift so the galaxy feels alive
+ * without becoming a merry-go-round.
  */
 import { useMemo, useRef } from "react";
 import { useFrame } from "@react-three/fiber";
 import * as THREE from "three";
 import { makeSoftDot } from "./shared/textures";
 import { useSceneClock } from "./SceneClock";
+import { GALAXY } from "../config/galaxy";
 
-const DISC_RADIUS = 220;
-const BULGE_RADIUS = 30;          // smaller core so the ARMS dominate, not the bulge
-const BAR_LENGTH = 90;            // central bar half-length (barred-spiral: arms spring from its ends)
-const BAR_WIDTH = 16;
+/* PROPORTIONED TO THE REAL MILKY WAY — every size is SOURCED from config/galaxy.js
+   (the single source of truth), so editing the astronomy there reproportions this
+   render automatically. DISC_RADIUS is the only free choice: it maps the
+   50,000-ly bright-disk edge to scene units; SCENE_PER_LY carries that scale to
+   the rest. */
+const DISC_RADIUS = 220;                                    // ≙ GALAXY.diskRadiusLy
+const SCENE_PER_LY = DISC_RADIUS / GALAXY.diskRadiusLy;     // scene-units per light-year
+const BULGE_RADIUS = GALAXY.bulge.radiusLy * SCENE_PER_LY;  // 10,000 ly → 44 (0.20 R)
+const BAR_LENGTH = GALAXY.bar.halfLengthLy * SCENE_PER_LY;  // 16,000 ly → 70 (0.32 R)
+const BAR_WIDTH = BAR_LENGTH * GALAXY.bar.axisRatio[1];     // 0.4:1 real bar axis ratio → 28
 /* Milky Way = barred spiral: 2 MAJOR arms (Scutum-Centaurus, Perseus) off the
    bar ends + 2 MINOR arms (Norma, Sagittarius) between them. Per-arm weight
    makes the majors brighter/denser than the minors. */
@@ -31,7 +39,7 @@ const ARMS = [
   { offset: Math.PI * 0.5,  major: false },  // Sagittarius
   { offset: Math.PI * 1.5,  major: false },  // Norma
 ];
-const ARM_PITCH = 0.17;           // TIGHTER winding → each arm sweeps ~1.7 turns (more "waves")
+const ARM_PITCH = Math.tan(GALAXY.pitchAngleDeg * Math.PI / 180); // tan(12.5°) — real mean log-spiral pitch (Reid et al. 2019)
 const ARM_WIDTH = 0.30;           // arm angular spread
 const ARM_STARS_MAJOR = 15000;    // per major arm
 const ARM_STARS_MINOR = 8000;     // per minor arm
@@ -40,7 +48,7 @@ const HALO_STARS = 24000;         // diffuse inter-arm disc
 const BULGE_STARS = 8000;         // central bulge + bar
 const HII_REGIONS = 1400;         // pink star-forming knots along the arms
 const ARM_STARS_TOTAL = ARM_STARS_MAJOR * 2 + ARM_STARS_MINOR * 2;
-const SOL_R = 0.62 * DISC_RADIUS; // Sun ~27,000 ly out
+const SOL_R = GALAXY.sun.galactocentricRadiusLy * SCENE_PER_LY; // 26,670 ly → 0.533 R — Sun's true galactocentric radius
 const SOL_ARM_OFFSET = 0.35;      // Orion Spur sits just off the Sagittarius arm
 
 /* Warm yellow-white bulge → cool blue-white disc → dim edge — matches real
@@ -128,7 +136,7 @@ function makeGalaxy() {
     const r = BAR_LENGTH * 0.75 + t * (DISC_RADIUS - BAR_LENGTH * 0.75);
     const scatter = (Math.random() + Math.random() + Math.random() - 1.5) * ARM_WIDTH * (0.6 + 0.4 * (1 - t));
     armSpiralPoint(armOffset, r, scatter, _scratch);
-    const zSpread = 3 + 7 * (1 - t);
+    const zSpread = 2 + 4 * (1 - t); // ~1,000-ly thin disk (4.4u) flaring toward the bulge
     const z = (Math.random() + Math.random() + Math.random() - 1.5) * zSpread;
     positions[idx * 3    ] = _scratch.x;
     positions[idx * 3 + 1] = z;

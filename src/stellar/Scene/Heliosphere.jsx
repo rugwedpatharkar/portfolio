@@ -1,6 +1,7 @@
 /* eslint-disable react/no-unknown-property */
 import { useMemo } from "react";
 import * as THREE from "three";
+import { SKY_SCALE } from "../config/destinations";
 
 /*
  * The heliosphere / heliopause — the bubble the solar wind inflates against the
@@ -41,7 +42,7 @@ const FRAG = /* glsl */ `
   }
 `;
 
-const Heliosphere = ({ radius = 5400, color = "#7d8aa8", opacity = 0.5 }) => {
+const Heliosphere = ({ radius = 5400 * SKY_SCALE, color = "#7d8aa8", opacity = 0.5 }) => {
   const uniforms = useMemo(
     () => ({ uColor: { value: new THREE.Color(color) }, uOpacity: { value: opacity } }),
     [color, opacity],

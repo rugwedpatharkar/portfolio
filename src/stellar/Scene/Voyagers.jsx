@@ -24,6 +24,7 @@ import { useMemo } from "react";
 import * as THREE from "three";
 import { Html } from "@react-three/drei";
 import { makeSoftDot } from "./shared/textures";
+import { SKY_SCALE } from "../config/destinations";
 
 /* Approximate ecliptic-frame direction vectors (unit) — the DIRECTION Voyager
    1/2 are HEADING from the Sun in the Solar System's ecliptic reference frame.
@@ -34,7 +35,7 @@ const V2_DIR = new THREE.Vector3(-0.16, -0.63, 0.76).normalize(); // roughly out
 /* Scale-compressed distance so the probes are visible in the outer-tour
    framings without leaving the sky shell. 4200u = between Kuiper Belt and
    Oort Cloud in scene space; the DIRECTION stays honest. */
-const SCENE_DIST = 4200;
+const SCENE_DIST = 4200 * SKY_SCALE;
 
 const PROBE_SPRITE = makeSoftDot({
   size: 64,

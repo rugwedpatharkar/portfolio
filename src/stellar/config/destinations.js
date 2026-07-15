@@ -74,9 +74,9 @@ export const DESTINATIONS = [
     position: [0, 0, 0],
     /* TRUE-SCALE Sun: its real radius, ≈109× Earth. The whole system is scaled
        up (large AU_UNIT) so this colossal Sun clears the inner orbits. */
-    radius: 19.8, // 695,700 km — 109× Earth (0.182)
-    color: "#ff9a3c",
-    /* HUD accent (Sol gold) — distinct from the body color (fire-orange).
+    radius: 19.87, // 695,700 km — 109.2× Earth (0.182 × 109.2)
+    color: "#fff2e0", // the Sun is WHITE (5772K); warm-white here, warmth lives in the corona/bloom
+    /* HUD accent (Sol gold) — distinct from the near-white body colour.
        Non-planet stops carry `accent`; planets fall back to `color`. */
     accent: "#e9c675",
     texture: "/textures/planets/sunmap.webp",
@@ -409,7 +409,19 @@ COSMIC_STOPS.forEach((c) => {
  * off-the-line object (anomalies, easter-eggs, dwarf planets) out by the same
  * curve; the background, flight bounds and far-clip are scaled to match.
  * ──────────────────────────────────────────────────────────────────────── */
-export const AU_UNIT = 95; // scene units per AU — large so the true-size Sun clears Mercury's orbit
+/* LITERAL 1:1 orbital distance is now the DEFAULT — orbits use the same unit as
+   the true planet radii (1 AU = 4274u), so Neptune lands ~128,000u out like the
+   real solar system. `?compress=1` restores the old navigable ×45-compressed
+   scale (kept as an escape hatch / A-B compare). Read once at module load
+   (query params are available then; SSR-safe guard). */
+const COMPRESS =
+  typeof window !== "undefined" &&
+  new URLSearchParams(window.location.search).get("compress") === "1";
+export const AU_UNIT = COMPRESS ? 95 : 4274; // scene units per AU — true 1:1 by default
+/* Everything with a FIXED backdrop distance (sky shells, Oort, heliosphere,
+   far-clip) multiplies by this so it stays just outside the planets in either
+   mode: 1 compressed, 45 at true scale. */
+export const SKY_SCALE = AU_UNIT / 95;
 const AU = {
   experience: 0.387, projects: 0.723, achievements: 1.0, skills: 1.524,
   writing: 2.77, education: 5.203, hobbies: 9.537, testimonials: 19.191, // writing = Ceres @ 2.77 AU
@@ -422,8 +434,8 @@ export const BACKGROUND_BELTS = {
   // Real spans (main belt ~2.1–3.3 AU, Kuiper ~30–50 AU) rendered as FAT tori —
   // a real vertical thickness from inclination dispersion (not a thin ribbon),
   // so they read as the dense dusty donuts the reference imagery shows.
-  asteroid: { inner: 2.1 * AU_UNIT, outer: 3.3 * AU_UNIT, thickness: 36, color: "#c9b48a" },
-  kuiper: { inner: 30 * AU_UNIT, outer: 50 * AU_UNIT, thickness: 320, color: "#9fb0d0" },
+  asteroid: { inner: 2.1 * AU_UNIT, outer: 3.3 * AU_UNIT, thickness: 36, color: "#6f645a" }, // C-type-weighted dark grey-brown (belt is ~75% dark carbonaceous)
+  kuiper: { inner: 30 * AU_UNIT, outer: 50 * AU_UNIT, thickness: 320, color: "#8a7360" }, // red-to-neutral (tholins) — Kuiper objects are NEVER blue
 };
 
 /* Sample curve (original radius → true radius) from the planets, used to remap

@@ -1,6 +1,7 @@
 /* eslint-disable react/no-unknown-property */
 import { useMemo } from "react";
 import * as THREE from "three";
+import { SKY_SCALE } from "../config/destinations";
 
 /*
  * The Oort cloud — the vast spherical shell of icy bodies that wraps the ENTIRE
@@ -10,7 +11,7 @@ import * as THREE from "three";
  * the whole planetary region — "the system is cocooned in a cloud." Additive,
  * low-opacity, write-once; no per-frame work.
  */
-const OortCloud = ({ count = 1400, radius = 5200, thickness = 3200 }) => {
+const OortCloud = ({ count = 1400, radius = 5200 * SKY_SCALE, thickness = 3200 * SKY_SCALE }) => {
   const geo = useMemo(() => {
     const pos = new Float32Array(count * 3);
     for (let i = 0; i < count; i++) {

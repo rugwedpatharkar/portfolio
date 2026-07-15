@@ -14,8 +14,9 @@
 import { useMemo, useState } from "react";
 import { Html } from "@react-three/drei";
 import * as THREE from "three";
+import { SKY_SCALE } from "../config/destinations";
 
-const R = 6720;
+const R = 6720 * SKY_SCALE;
 const OBLIQUITY = 23.44 * Math.PI / 180;
 
 function sceneVec(raHours, decDeg, out) {
