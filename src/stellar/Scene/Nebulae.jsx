@@ -145,7 +145,7 @@ const CATALOG = [
   { name: "Elephant's Trunk (IC 1396)", tex: "elephants_trunk", type: "emission", ra: 21.65, dec: 57.49, arcmin: 170, core: "#ff3b2f", halo: "#c62f2f" },
   { name: "Cocoon (IC 5146)",   tex: "cocoon",          type: "emission",   ra: 21.891, dec: 47.267,  arcmin: 12,  core: "#ff3b2f", halo: "#6f9bd6" },
   { name: "Omega / Swan (M17)", tex: "omega",           type: "emission",   ra: 18.341, dec: -16.183, arcmin: 20,  core: "#ff3b2f", halo: "#ff7a8a" },
-  { name: "Cone (NGC 2264)",    tex: "cone",            type: "emission",   ra: 6.686,  dec: 9.88,    arcmin: 30,  core: "#ff3b2f", halo: "#6f9bd6" },
+  { name: "Cone (NGC 2264)",    tex: "cone",            type: "emission",   ra: 6.688,  dec: 9.35,    arcmin: 30,  core: "#ff3b2f", halo: "#6f9bd6" }, // dec on the Cone pillar itself, not the cluster/S Mon
   { name: "Bubble (NGC 7635)",  tex: "bubble",          type: "emission",   ra: 23.347, dec: 61.2,    arcmin: 15,  core: "#ff3b2f", halo: "#3bd6c6" },
   { name: "Iris (NGC 7023)",    tex: "iris",            type: "reflection", ra: 21.027, dec: 68.163,  arcmin: 18,  core: "#6f9bd6", halo: "#4a7fc0" },
   { name: "Horsehead (B33)",    tex: "horsehead",       type: "emission",   ra: 5.683,  dec: -2.458,  arcmin: 8,   core: "#ff3b2f", halo: "#6f9bd6", p: true },

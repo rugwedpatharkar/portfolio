@@ -170,7 +170,7 @@ const ANOMALY_RAW = [
   },
   {
     id: "atlas", label: "3I/ATLAS", category: "Interstellar comet", color: "#7fffb0", position: [13, 1, -5],
-    info: "3I/ATLAS (C/2025 N1) — the 3rd interstellar object, found Jul 2025, and the first ACTIVE interstellar comet: a blue-green C₂ coma, twin tails, and a rare sunward anti-tail. It swung just inside Mars's orbit at perihelion and is leaving forever.",
+    info: "3I/ATLAS (C/2025 N1) — the 3rd known interstellar object (found Jul 2025) and the largest yet: a blue-green C₂ coma, twin tails, and a rare sunward anti-tail. (2I/Borisov was the first interstellar comet, back in 2019.) It swung just inside Mars's orbit at perihelion and is leaving forever.",
     visit: { kind: "focus", cameraTarget: frame([13, 1, -5], 6, 1.4, 46) },
   },
   {
@@ -206,7 +206,7 @@ const ANOMALY_RAW = [
   },
   {
     id: "betelgeuse", label: "Betelgeuse", category: "Red supergiant", color: "#ff6a48", position: [40, 16, -28],
-    info: "Betelgeuse — a red supergiant ~700× the Sun's width. Put it where the Sun is and it would swallow Jupiter's orbit. It's near the end of its life and will go supernova (astronomically soon). In 2025 a close companion star was confirmed, nicknamed Siwarħa.",
+    info: "Betelgeuse — a red supergiant ~750× the Sun's width. Put it where the Sun is and its surface (~3.5 AU) would engulf Mercury, Venus, Earth, Mars and the entire asteroid belt, reaching most of the way to Jupiter. It's near the end of its life and will go supernova (astronomically soon). In 2025 a close companion star was confirmed, nicknamed Siwarħa.",
     visit: { kind: "focus", cameraTarget: frame([40, 16, -28], 14, 3, 46) },
   },
   {

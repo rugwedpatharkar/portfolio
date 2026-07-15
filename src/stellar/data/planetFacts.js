@@ -13,7 +13,7 @@
 
 export const PLANET_FACTS = {
   impact: {
-    body: "Sol — G2V yellow dwarf star",
+    body: "Sol — G2V star (a 'yellow dwarf' that actually shines pure white)",
     distance: "0 AU · 8 light-min from Earth",
     diameter: "1,391,400 km · ~109 Earths",
     mass: "1.989×10³⁰ kg · 333,000 Earths",
@@ -33,7 +33,7 @@ export const PLANET_FACTS = {
   },
   experience: {
     body: "Mercury — M-class terrestrial",
-    distance: "0.39 AU · 3.2 light-min",
+    distance: "0.39 AU · 57.9 M km · 3.2 light-min",
     diameter: "4,879 km · 0.38× Earth",
     mass: "3.30×10²³ kg · 0.055× Earth",
     year: "88 Earth days",
@@ -47,7 +47,7 @@ export const PLANET_FACTS = {
   },
   projects: {
     body: "Venus — M-class terrestrial",
-    distance: "0.72 AU · 6.0 light-min",
+    distance: "0.72 AU · 108 M km · 6.0 light-min",
     diameter: "12,104 km · 0.95× Earth",
     mass: "4.87×10²⁴ kg · 0.815× Earth",
     year: "225 Earth days",
@@ -61,7 +61,7 @@ export const PLANET_FACTS = {
   },
   achievements: {
     body: "Earth — M-class terrestrial · cradle",
-    distance: "1.00 AU · 8.3 light-min",
+    distance: "1.00 AU · 150 M km · 8.3 light-min",
     diameter: "12,742 km",
     mass: "5.97×10²⁴ kg",
     year: "365.25 days",
@@ -75,7 +75,7 @@ export const PLANET_FACTS = {
   },
   skills: {
     body: "Mars — M-class terrestrial",
-    distance: "1.52 AU · 12.7 light-min",
+    distance: "1.52 AU · 228 M km · 12.7 light-min",
     diameter: "6,779 km · 0.53× Earth",
     mass: "6.42×10²³ kg · 0.107× Earth",
     year: "687 Earth days",
@@ -89,7 +89,7 @@ export const PLANET_FACTS = {
   },
   writing: {
     body: "Ceres — dwarf planet, in the asteroid belt",
-    distance: "2.77 AU between Mars & Jupiter",
+    distance: "2.77 AU · 414 M km (between Mars & Jupiter)",
     diameter: "940 km Ø (~0.07× Earth)",
     mass: "9.4×10²⁰ kg · 0.00016× Earth",
     year: "4.6 Earth years",
@@ -103,7 +103,7 @@ export const PLANET_FACTS = {
   },
   education: {
     body: "Jupiter — class I gas giant",
-    distance: "5.20 AU · 43 light-min",
+    distance: "5.20 AU · 779 M km · 43 light-min",
     diameter: "139,820 km · 11× Earth",
     mass: "1.90×10²⁷ kg · 318× Earth",
     year: "11.86 Earth years",
@@ -117,7 +117,7 @@ export const PLANET_FACTS = {
   },
   hobbies: {
     body: "Saturn — class II gas giant · ringed",
-    distance: "9.54 AU · 79 light-min",
+    distance: "9.54 AU · 1.43 B km · 79 light-min",
     diameter: "120,536 km · 9.5× Earth",
     mass: "5.68×10²⁶ kg · 95× Earth",
     year: "29.45 Earth years",
@@ -131,7 +131,7 @@ export const PLANET_FACTS = {
   },
   testimonials: {
     body: "Uranus — ice giant · tilted 97.8°",
-    distance: "19.19 AU · 159 light-min",
+    distance: "19.19 AU · 2.87 B km · 159 light-min",
     diameter: "50,724 km · 4× Earth",
     mass: "8.68×10²⁵ kg · 14.5× Earth",
     year: "84 Earth years",
@@ -145,7 +145,7 @@ export const PLANET_FACTS = {
   },
   whatsetsmeapart: {
     body: "Neptune — ice giant · methane blue",
-    distance: "30.07 AU · 250 light-min",
+    distance: "30.07 AU · 4.50 B km · 250 light-min",
     diameter: "49,244 km · 3.9× Earth",
     mass: "1.02×10²⁶ kg · 17× Earth",
     year: "165 Earth years",
@@ -159,7 +159,7 @@ export const PLANET_FACTS = {
   },
   contact: {
     body: "Pluto — dwarf planet, in the Kuiper belt",
-    distance: "39.5 AU (eccentric: 30–49 AU)",
+    distance: "39.5 AU · 5.9 B km (eccentric: 30–49 AU)",
     diameter: "2,377 km Ø",
     mass: "1.30×10²² kg · 0.0022× Earth",
     year: "248 Earth years",
