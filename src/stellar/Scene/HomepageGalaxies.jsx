@@ -209,15 +209,22 @@ const SPIKES = [
 const makeSpikes = () =>
   SPIKES.map((s) => ({ bx: s.ndc[0], by: s.ndc[1], size: s.size, tint: s.tint, amp: 0.13 + Math.random() * 0.13, speed: 0.6 + Math.random() * 0.9, phase: Math.random() * TAU }));
 
-/* TRUE LOCAL-GROUP SCALE — only the Milky Way's own SATELLITES are near enough
-   to read. The LMC (~163,000 ly) and SMC (~200,000 ly) sit 3-4 galaxy-radii out,
-   so they're small and hug the Milky Way's lower edge (they're below the galactic
-   plane, toward the south galactic pole). Every other galaxy — Andromeda 2.5 Mly
-   (50 radii), Sombrero/Whirlpool 23-29 Mly (460-580 radii) — is so far it belongs
-   in the faint distant deep-field scatter below, not as a hero. Real photos. */
+/* TRUE LOCAL-GROUP SCALE. The Milky Way's own SATELLITES read brightest: the
+   LMC (~163,000 ly) and SMC (~200,000 ly) sit 3-4 galaxy-radii out, so they're
+   small and hug the Milky Way's lower edge (below the galactic plane, toward the
+   south galactic pole). Beyond them, the two big Local-Group spirals appear as
+   the FAINT smudges they truly are to the naked eye: Andromeda (M31, 2.5 Mly ≈
+   50 radii — the farthest thing visible unaided) and its neighbour Triangulum
+   (M33, 2.7 Mly ≈ 55 radii, lower surface brightness → fainter still). They're a
+   bound pair ~15° apart in the real sky, so they cluster together up-sky, far
+   smaller + dimmer than the satellites — the honest look of 50× the distance.
+   Everything past them (Sombrero/Whirlpool, 460-580 radii) stays in the faint
+   deep-field scatter above, not here. Real photos. */
 const HERO_GALAXIES = [
-  { ndc: [-0.02, -0.62], size: 230, tex: "lmc", op: 0.85 }, // LMC — nearest satellite, small, below the disc
-  { ndc: [0.16, -0.84],  size: 150, tex: "smc", op: 0.72 }, // SMC — smaller, further out toward the pole
+  { ndc: [-0.02, -0.62], size: 230, tex: "lmc", op: 0.85 },        // LMC — nearest satellite, small, below the disc
+  { ndc: [0.16, -0.84],  size: 150, tex: "smc", op: 0.72 },        // SMC — smaller, further out toward the pole
+  { ndc: [-0.06, 0.66],  size: 150, tex: "andromeda", op: 0.44 },  // M31 — faint distant smudge, ~50 radii out
+  { ndc: [0.12, 0.79],   size: 104, tex: "triangulum", op: 0.24 }, // M33 — fainter, its bound neighbour, ~55 radii
 ];
 const HERO_URLS = HERO_GALAXIES.map((h) => `/textures/galaxies/${h.tex}.webp`);
 const makeHeroes = () =>
