@@ -17,7 +17,6 @@
  */
 import { useEffect, useMemo, useRef } from "react";
 import { useFrame } from "@react-three/fiber";
-import { Html } from "@react-three/drei";
 import * as THREE from "three";
 import { STARS, STAR_COUNT, STAR_STRIDE } from "../data/brightStars";
 import { bvToColor } from "./Stars";
@@ -76,7 +75,6 @@ const InterstellarDive = ({ scrollT, active = false }) => {
   const matRef = useRef();
   const sunRef = useRef();
   const sunGlowRef = useRef();
-  const labelRef = useRef();
 
   const { geometry, material } = useMemo(() => {
     const dir = new THREE.Vector3();
@@ -121,8 +119,11 @@ const InterstellarDive = ({ scrollT, active = false }) => {
        plate is dissolving, hold across the interstellar leg, fade out as the
        solar system resolves — so LY-scale stars and AU-scale planets never
        coexist (they can't; the scales are 63,241× apart). */
+    /* diveT maxes at ~0.923 at the settled overview (scrollT·12, but 13 segments),
+       so every fade here MUST complete by ~0.9 — a window ending at 1.0 would
+       leave the layer stuck partway on at the overview stop. */
     const diveT = THREE.MathUtils.clamp((scrollT?.current ?? 0) * 12, 0, 1);
-    const fade = smooth(0.26, 0.5, diveT) * (1 - smooth(0.74, 0.92, diveT));
+    const fade = smooth(0.26, 0.5, diveT) * (1 - smooth(0.72, 0.9, diveT));
     if (matRef.current) matRef.current.uniforms.uFade.value = fade;
     /* The Sun (origin) resolves out of the field as we approach — grows + brightens. */
     if (sunRef.current) {
@@ -133,11 +134,6 @@ const InterstellarDive = ({ scrollT, active = false }) => {
     if (sunGlowRef.current) {
       sunGlowRef.current.scale.setScalar(120 + smooth(0.4, 0.95, diveT) * 520);
       sunGlowRef.current.material.opacity = fade * 0.4;
-    }
-    /* "You are here" — resolves on the blooming Sun late in the leg, then fades
-       before the solar system takes over. */
-    if (labelRef.current) {
-      labelRef.current.style.opacity = String(smooth(0.52, 0.82, diveT) * (1 - smooth(0.9, 1, diveT)));
     }
   });
 
@@ -153,23 +149,6 @@ const InterstellarDive = ({ scrollT, active = false }) => {
       <sprite ref={sunRef} scale={[40, 40, 1]}>
         <spriteMaterial map={SPRITE} color="#fff1d4" transparent opacity={0} depthWrite={false} blending={THREE.AdditiveBlending} toneMapped={false} />
       </sprite>
-      <Html center position={[0, 0, 0]} zIndexRange={[20, 0]} style={{ pointerEvents: "none" }}>
-        <div
-          ref={labelRef}
-          style={{
-            opacity: 0,
-            transform: "translateY(-96px)",
-            fontFamily: "JetBrains Mono, monospace",
-            textTransform: "uppercase",
-            textAlign: "center",
-            whiteSpace: "nowrap",
-            textShadow: "0 0 12px rgba(0,0,0,0.9)",
-          }}
-        >
-          <div style={{ fontSize: 13, letterSpacing: "0.32em", color: "rgba(255,238,200,0.92)" }}>Our Sun</div>
-          <div style={{ fontSize: 9, letterSpacing: "0.24em", color: "rgba(205,184,145,0.75)", marginTop: 4 }}>you are here</div>
-        </div>
-      </Html>
     </group>
   );
 };

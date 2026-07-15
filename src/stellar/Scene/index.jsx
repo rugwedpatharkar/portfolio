@@ -240,9 +240,16 @@ function FinaleGradeDip({ gradeRef, finaleT }) {
    frame — their unit scales are 63,241× apart and cannot coexist (config/
    scaleRegimes.js). diveT: 0 at the hero → 1 at the Solar-System overview; the
    whole tour + finale sit at diveT ≥ 1. Ref-driven so it never re-renders. */
-function DiveGate({ scrollT, finale, groupRef }) {
+function DiveGate({ scrollT, finale, groupRef, reducedMotion, activeIdx }) {
   const flyingRef = useRef(false);
   useFrame(() => {
+    /* Reduced motion: no interstellar fly-through (InterstellarDive is unmounted),
+       so reveal the solar system on the plain activeIdx snap — no diveT delay, no
+       flight-hide — matching the project's snap-tour policy. */
+    if (reducedMotion) {
+      if (groupRef.current) groupRef.current.visible = finale || activeIdx >= 1;
+      return;
+    }
     const diveT = THREE.MathUtils.clamp((scrollT?.current ?? 0) * 12, 0, 1);
     if (groupRef.current) groupRef.current.visible = finale || diveT > 0.88;
     /* Fade the hero/landing surface out during the interstellar leg — reuse the
@@ -501,9 +508,9 @@ const Scene = ({ scrollT, finaleT, finale = false, activeIdx, onJump, focusRef, 
             flown through on the plunge from the galactic plate to our Sun. Mounted
             across the hero→overview dive (activeIdx 0-1); its own scrollT fade
             hands off to the plate above and the solar system below. */}
-        {!finale && activeIdx <= 1 && <InterstellarDive scrollT={scrollT} active />}
+        {!finale && !reducedMotion && activeIdx <= 1 && <InterstellarDive scrollT={scrollT} active />}
         {/* Holds the AU-scale solar system hidden until the interstellar leg fades. */}
-        <DiveGate scrollT={scrollT} finale={finale} groupRef={tourBodiesRef} />
+        <DiveGate scrollT={scrollT} finale={finale} groupRef={tourBodiesRef} reducedMotion={reducedMotion} activeIdx={activeIdx} />
         {/* Ambient sky layers (sky-fixed, NOT inside any body transform):
             meteor streaks EVERYWHERE (homepage + tour) + interstellar comets.
             Desktop + motion only. Foreground dust is intentionally NOT here — it
