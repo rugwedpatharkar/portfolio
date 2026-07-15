@@ -58,6 +58,7 @@ const RAW = [
     id: "haumea", label: "Haumea", category: "Dwarf planet", position: [44.7, -1.1, 2.7], radius: 0.03, color: "#e3e0d9", // ~1,560 km mean (triaxial, see scale)
     /* Spins every ~4h → famously stretched ~2:1 into a triaxial ellipsoid. */
     scale: [1.6, 0.78, 0.95],
+    ring: [2.0, 2.9], // real ring at ~2,287 km (Ortiz 2017)
     info: "An egg-shaped dwarf planet spinning so fast (~4-hour day) that it's stretched into an ellipsoid — and it has its own ring.",
   },
   {
@@ -69,7 +70,7 @@ const RAW = [
     info: "90377 Sedna — one of the most distant known worlds, on an extreme 11,400-year orbit that never approaches the planets. Its deep-red, tholin-coated surface is among the reddest in the solar system.",
   },
   {
-    id: "quaoar", label: "Quaoar", category: "Dwarf planet", position: [43.2, 1.6, -2.3], radius: 0.027, color: "#b09a82", // ~1,086 km
+    id: "quaoar", label: "Quaoar", category: "Dwarf planet", position: [43.2, 1.6, -2.3], radius: 0.027, color: "#b09a82", ring: [6.0, 7.4], // ring at ~7.4 body-radii, far beyond the Roche limit
     info: "50000 Quaoar — a ~1,100 km Kuiper dwarf with a moon (Weywot) and a ring that sits impossibly far out, beyond where rings should be able to survive — rewriting the textbook on ring formation.",
   },
   {
@@ -81,8 +82,12 @@ const RAW = [
     info: "90482 Orcus — the 'anti-Pluto': a fellow Plutino sharing Pluto's 3:2 resonance and ~247-year orbital period, but always on the opposite side of its orbit (though only ~1/3 Pluto's size). Has a large moon, Vanth, and signs of past ice volcanism.",
   },
   {
-    id: "chiron", label: "Chiron", category: "Centaur", position: [32.6, 1.5, -2.1], radius: 0.02, color: "#8a7a6a",
+    id: "chiron", label: "Chiron", category: "Centaur", position: [32.6, 1.5, -2.1], radius: 0.02, color: "#8a7a6a", ring: [2.4, 3.4],
     info: "2060 Chiron — the first centaur (an icy body orbiting between Saturn and Uranus), part-asteroid part-comet: it shows a comet-like coma AND a faint ring system, blurring the line between the two.",
+  },
+  {
+    id: "chariklo", label: "Chariklo", category: "Centaur", position: [28, -1.2, 19.5], radius: 0.021, color: "#8a7266", ring: [2.2, 3.3],
+    info: "10199 Chariklo — the largest centaur (~250 km) and the FIRST small body ever found with rings: two dense, narrow icy rings, spotted in 2013 when it briefly blocked a background star. Nobody yet knows how a body this small holds a ring system.",
   },
 ];
 

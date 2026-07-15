@@ -113,8 +113,8 @@ function scaleFor(arcmin, priority) {
 }
 
 /*
- * The catalogue — 25 real Milky Way nebulae, each wired to its OWN real
- * NASA/ESA/ESO photo (`tex`). `core`/`halo` are the real emission-line palette
+ * The catalogue — 29 real nebulae (27 Milky-Way + 2 extragalactic H II regions
+ * in the LMC/M33), each wired to its OWN real NASA/ESA/ESO photo (`tex`). `core`/`halo` are the real emission-line palette
  * used only as a gentle secondary-hue depth cue now that the texture carries
  * the true colour. `p` flags the iconic priority objects (bigger + brighter).
  * ra in decimal hours, dec in decimal degrees (J2000); size in arcmin.
@@ -150,6 +150,12 @@ const CATALOG = [
   { name: "Iris (NGC 7023)",    tex: "iris",            type: "reflection", ra: 21.027, dec: 68.163,  arcmin: 18,  core: "#6f9bd6", halo: "#4a7fc0" },
   { name: "Horsehead (B33)",    tex: "horsehead",       type: "emission",   ra: 5.683,  dec: -2.458,  arcmin: 8,   core: "#ff3b2f", halo: "#6f9bd6", p: true },
   { name: "Coalsack",           type: "dark",           ra: 12.833, dec: -62.5,   arcmin: 420 },
+  /* ── Reflection nebulae — Rayleigh-blue dust scattering starlight ── */
+  { name: "Pleiades (M45)",     tex: "pleiades",        type: "reflection", ra: 3.790,  dec: 24.120,  arcmin: 110, core: "#9fc0ff", halo: "#5a7fc0", p: true }, // the textbook blue reflection patch
+  { name: "Witch Head (IC 2118)", tex: "witch_head",    type: "reflection", ra: 5.050,  dec: -7.900,  arcmin: 150, core: "#8fb0f0", halo: "#4a7fc0" }, // faint blue glow lit by Rigel
+  /* ── Extragalactic H II regions — giant star-forming webs in nearby galaxies ── */
+  { name: "Tarantula (30 Dor)", tex: "tarantula",       type: "emission",   ra: 5.643,  dec: -69.100, arcmin: 40,  core: "#ff5a4a", halo: "#4fb9d0", p: true }, // in the LMC — a red web with a blue-hot core
+  { name: "NGC 604",            tex: "ngc604",          type: "emission",   ra: 1.575,  dec: 30.780,  arcmin: 14,  core: "#ff4a5a", halo: "#6f9bd6" }, // giant H II region in M33
 ];
 
 /* Split into the additive (luminous, real photo per object) and multiply (dark

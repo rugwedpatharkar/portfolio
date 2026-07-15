@@ -79,6 +79,29 @@ export default function V3FinaleOverlay({ finaleT }) {
         />
       </svg>
 
+      {/* Local Group context — top-right (free during the finale; the hero's
+          V3ScaleAnnotations lives there but is hidden off the hero stop). Frames
+          the whole galaxy we just toured as one member of a bound pair — the two
+          faint smudges on the finale sky (M31 + M33 via DistantGalaxies) are the
+          neighbours this names. */}
+      <div style={{
+        position: "absolute",
+        top: "clamp(28px, 4vh, 46px)",
+        right: "clamp(28px, 4vw, 60px)",
+        fontFamily: "var(--v3-font-mono)",
+        fontSize: "clamp(9px, 0.3vw + 7px, 11px)",
+        letterSpacing: ".22em",
+        textTransform: "uppercase",
+        color: "var(--v3-fg-mute, #7c8391)",
+        textAlign: "right",
+        lineHeight: 1.7,
+      }}>
+        <div><span style={{ color: "var(--v3-fg-dim, #b3b9c7)" }}>Local Group ·</span> 54+ galaxies</div>
+        <div><span style={{ color: "var(--v3-fg-dim, #b3b9c7)" }}>Milky Way + Andromeda ·</span> a bound pair</div>
+        <div><span style={{ color: "var(--v3-fg-dim, #b3b9c7)" }}>2.5 Mly apart ·</span> closing at 110 km/s</div>
+        <div><span style={{ color: "var(--v3-fg-dim, #b3b9c7)" }}>Merge ·</span> in ~4.5 billion years</div>
+      </div>
+
       {/* Label — sits just above the stem, centered on the Sun. */}
       <div style={{
         position: "absolute",
