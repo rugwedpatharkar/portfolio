@@ -39,6 +39,7 @@ import MeteorShowers from "./MeteorShowers";
 import AtlasComet from "./AtlasComet";
 import DustLanes from "./DustLanes";
 import HomepageGalaxies from "./HomepageGalaxies";
+import { makeSoftDot } from "./shared/textures";
 import BlackHole from "./anomalies/BlackHole";
 import Voyagers from "./Voyagers";
 /* BlackHole + SpiralGalaxy removed from the tour — nearest black hole is
@@ -127,12 +128,28 @@ const Y_UP = new THREE.Vector3(0, 1, 0);
 const ZOOM_DEPTH = 1600;   // how far ahead of the camera the mote sits (screen center)
 const ZOOM_MAX = 20;       // final zoom factor into the mote (S = GALAXY_SCALE × (1 + …×ZOOM_MAX)) — gentle so the disk fills the frame through the plunge, not black
 const s01 = (a, b, x) => THREE.MathUtils.smoothstep(THREE.MathUtils.clamp(x, 0, 1), a, b);
+/* The mote → Sun: a dedicated bright warm sprite pinned to the screen-center
+   target T through the dive, so THE dust particle you're diving into is
+   unmistakable (the plain SOL pin blends with the globular clusters). It starts a
+   speck and blooms into the Sun, then hands to the real solar system at the seam. */
+const MOTE_SPRITE = makeSoftDot({
+  size: 128,
+  stops: [
+    [0, "rgba(255,255,255,1)"],
+    [0.13, "rgba(255,247,216,0.95)"],
+    [0.36, "rgba(255,214,138,0.42)"],
+    [0.7, "rgba(255,180,92,0.08)"],
+    [1, "rgba(255,170,80,0)"],
+  ],
+  mipmaps: true,
+});
 
 function HomepageGalaxy({ reducedMotion, scrollT, active = true }) {
   const outerRef = useRef();
   const innerRef = useRef();
   const t0 = useRef(null);
   const diveFrozenY = useRef(null); // spin angle frozen at dive start, so SOL is a stable pivot
+  const moteRef = useRef();         // the mote → Sun bloom, pinned to screen-center T
   /* Snapshot of each galaxy material's base opacity, so the dive can fade the
      whole thing out smoothly (a real crossfade into the solar system) without
      the hyperspace warp to mask a hard cut. Dynamic-opacity children (supernova
@@ -208,9 +225,18 @@ function HomepageGalaxy({ reducedMotion, scrollT, active = true }) {
       fadeRef.current = fade;
       if (baseOps.current) for (const [m, base] of baseOps.current) m.opacity = base * fade;
       if (outerRef.current) outerRef.current.visible = fade > 0.01;
+      /* The mote → Sun bloom: pinned to screen-center T, a speck that swells and
+         brightens into the Sun, then fades at the seam as the real system opens. */
+      if (moteRef.current) {
+        moteRef.current.visible = true;
+        moteRef.current.position.copy(_T);
+        moteRef.current.scale.setScalar(6 + Math.pow(s01(0.04, 0.96, pos), 1.7) * 1000);
+        moteRef.current.material.opacity = s01(0.02, 0.16, pos) * (1 - s01(0.9, 1.0, pos));
+      }
     } else {
       /* ===== Hero idle — grow-in + breathing + cursor parallax ===== */
       diveFrozenY.current = null; // re-arm the pivot
+      if (moteRef.current) moteRef.current.visible = false;
       fadeRef.current = 1;
       if (baseOps.current) for (const [m, base] of baseOps.current) m.opacity = base;
       if (innerRef.current) {
@@ -231,20 +257,27 @@ function HomepageGalaxy({ reducedMotion, scrollT, active = true }) {
     }
   });
   return (
-    /* Outer group: steep Andromeda-style 3/4 tilt (~66°). Inner group spins +
-       zooms and holds every galaxy-local layer so they share tilt/scale/spin:
-       star cloud, arm gas, dust lanes, globular halo, supernova flashes. */
-    <group ref={outerRef} position={[40, 20, -560]} rotation={[1.16, 0, 0.34]}>
-      <group ref={innerRef} scale={0.5}>
-        <SpiralGalaxy animate={false} solPulse />
-        <GalaxyNebulae />
-        <DustLanes />
-        <GalaxyGlobulars />
-        {/* active gates the per-frame flash cycle + its sound event so a hidden
-            (off-homepage) galaxy never fires supernova swells during the tour. */}
-        <Supernovae reducedMotion={reducedMotion} fade={fadeRef} active={active} />
+    <>
+      {/* Outer group: steep Andromeda-style 3/4 tilt (~66°). Inner group spins +
+          zooms and holds every galaxy-local layer so they share tilt/scale/spin:
+          star cloud, arm gas, dust lanes, globular halo, supernova flashes. */}
+      <group ref={outerRef} position={[40, 20, -560]} rotation={[1.16, 0, 0.34]}>
+        <group ref={innerRef} scale={0.5}>
+          <SpiralGalaxy animate={false} solPulse />
+          <GalaxyNebulae />
+          <DustLanes />
+          <GalaxyGlobulars />
+          {/* active gates the per-frame flash cycle + its sound event so a hidden
+              (off-homepage) galaxy never fires supernova swells during the tour. */}
+          <Supernovae reducedMotion={reducedMotion} fade={fadeRef} active={active} />
+        </group>
       </group>
-    </group>
+      {/* The mote → Sun bloom — a SIBLING (not scaled by the galaxy group),
+          positioned at the screen-center target each frame. */}
+      <sprite ref={moteRef} visible={false}>
+        <spriteMaterial map={MOTE_SPRITE} color="#fff2d0" transparent opacity={0} depthWrite={false} depthTest={false} blending={THREE.AdditiveBlending} toneMapped={false} />
+      </sprite>
+    </>
   );
 }
 
