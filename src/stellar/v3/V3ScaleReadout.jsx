@@ -6,9 +6,12 @@
  * light-days → approaching a light-year at the Oort edge. Makes the true scale
  * FELT as a number, not just a framing.
  *
- * Solar-system tour only (not the hero, not the finale — the finale is a
- * different scale regime with its own Local-Group context). Pure DOM + one rAF
- * loop reading cameraRef imperatively (no React re-render), mirroring V3Reticle.
+ * Shows DURING the fly-throughs (panelHidden ← the stellar:flight event), which
+ * is exactly "during the outward scroll": a flight instrument that ticks up as
+ * you cross the void, then hands off to the settled planet card (which carries
+ * the same distance). Solar-system tour only — the finale is a different scale
+ * regime with its own Local-Group context. Pure DOM + one rAF loop reading
+ * cameraRef imperatively (no React re-render), mirroring V3Reticle.
  */
 import { memo, useEffect, useRef } from "react";
 import { AU_UNIT } from "../config/destinations";
@@ -27,10 +30,12 @@ function format(au) {
   return [`${(au * 149.6).toFixed(1)} million km`, `${Math.round(lightMin * 60)} light-seconds`];
 }
 
-function V3ScaleReadout({ cameraRef, activeIdx = 0, finale = false, hidden = false }) {
+function V3ScaleReadout({ cameraRef, activeIdx = 0, finale = false, flying = false }) {
   const priRef = useRef(null);
   const secRef = useRef(null);
-  const show = activeIdx >= 1 && !finale && !hidden;
+  /* Show while flying between stops (the outward scroll), when the résumé panel
+     + planet card have faded out and the bottom-left is clear. */
+  const show = activeIdx >= 1 && !finale && flying;
 
   useEffect(() => {
     if (!show) return undefined;
