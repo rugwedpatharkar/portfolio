@@ -14,6 +14,7 @@
  */
 import * as THREE from "three";
 import { orbitalPosition, laneObjectPosition } from "../../config/orbits";
+import { SKY_SCALE } from "../../config/destinations";
 import { DEST_BY_ID } from "./focusStrategy";
 import {
   UP,
@@ -47,8 +48,18 @@ export function maybeStartJump(ctx) {
       const dist = J.fromBody.distanceTo(J.toBody);
       J.active = true;
       J.elapsed = 0;
-      J.dur = THREE.MathUtils.clamp(0.5 + dist * 0.016, 0.55, 2.6);
-      J.intensity = THREE.MathUtils.clamp(dist * 0.06, 0.22, 1.5);
+      /* Flight length. At TRUE scale the inter-planet gaps are ~45× larger, so
+         the leg length tracks the REAL gap: outer legs (Saturn→Uranus→Neptune,
+         ~10 AU each) become ~5s cinematic crossings while inner hops
+         (Mercury→Venus, ~0.3 AU) stay ~1.2s. The old flat 2.6s cap pinned every
+         true-scale leg to the same length and erased the very proportion the
+         true scale exists to convey. Compressed scale keeps the snappy original. */
+      J.dur = SKY_SCALE > 1
+        ? THREE.MathUtils.clamp(0.9 + dist * 0.0001, 1.2, 5.4)
+        : THREE.MathUtils.clamp(0.5 + dist * 0.016, 0.55, 2.6);
+      J.intensity = SKY_SCALE > 1
+        ? THREE.MathUtils.clamp(dist * 0.00003, 0.15, 1.2)
+        : THREE.MathUtils.clamp(dist * 0.06, 0.22, 1.5);
     }
   }
 }
@@ -88,9 +99,12 @@ export function runJumpStrategy(ctx) {
      but without the wide-angle lunge. */
   const fv = J.fov + (FOV_FLY - J.fov) * h * 0.18;
   if (Math.abs(camera.fov - fv) > 0.01) { camera.fov = fv; camera.updateProjectionMatrix(); }
-  /* Hyperspace streak tunnel + glare REMOVED from planet travel — keep
-     warpVelRef at 0 so neither Hyperspace nor StellarGlare fire. */
-  if (warpVelRef) warpVelRef.current = 0;
+  /* Warp streak — TRUE SCALE ONLY, and gently. It peaks mid-flight (the hump)
+     and scales with the leg's real length (J.intensity), so the long outer
+     crossings of the void get a subtle motion streak — the vastness made
+     visible — while the short inner hops get almost none. Compressed scale
+     keeps warp off (its legs are genuinely tiny, so a streak would just lie). */
+  if (warpVelRef) warpVelRef.current = SKY_SCALE > 1 ? h * 0.3 * J.intensity : 0;
   setFlying(h > 0.12);
   if (e >= 1) { J.active = false; if (warpVelRef) warpVelRef.current = 0; setFlying(false); }
   return true;
