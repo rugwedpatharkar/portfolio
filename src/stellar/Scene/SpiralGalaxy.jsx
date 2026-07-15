@@ -4,8 +4,8 @@
  * galaxy that the tour scrolls into after Pluto. Four logarithmic spiral
  * arms (Perseus, Sagittarius, Scutum-Centaurus, Norma), a bright yellow-
  * white central bulge, a thick disc of ~15k background stars, and a Sol
- * pin at ~27% out on the Orion Spur so the visitor sees themselves in the
- * galaxy at the "You are here" moment.
+ * pin at ~53% out (26,670 ly) on the Orion Spur so the visitor sees
+ * themselves in the galaxy at the "You are here" moment.
  *
  * PROPORTIONED to the real Milky Way (config/galaxy.js): DISC_RADIUS is the
  * 50,000-ly disk edge, and the bulge (0.20R), bar (0.32R), Sun radius (0.533R =
@@ -18,15 +18,18 @@ import { useFrame } from "@react-three/fiber";
 import * as THREE from "three";
 import { makeSoftDot } from "./shared/textures";
 import { useSceneClock } from "./SceneClock";
+import { GALAXY } from "../config/galaxy";
 
-/* PROPORTIONED TO THE REAL MILKY WAY (config/galaxy.js). DISC_RADIUS maps to the
-   50,000-ly bright-disk edge; every other size is its real fraction of that:
-     bulge 10,000 ly → 0.20R · bar half-length 16,000 ly → 0.32R
-     Sun 26,670 ly   → 0.533R (Orion Spur) · mean arm pitch 12.5°. */
-const DISC_RADIUS = 220;
-const BULGE_RADIUS = 44;          // 10,000 ly / 50,000 ly = 0.20 R
-const BAR_LENGTH = 70;            // bar half-length 16,000 ly / 50,000 ly = 0.32 R
-const BAR_WIDTH = 20;             // axis ratio 0.4:1 from the bar's real shape
+/* PROPORTIONED TO THE REAL MILKY WAY — every size is SOURCED from config/galaxy.js
+   (the single source of truth), so editing the astronomy there reproportions this
+   render automatically. DISC_RADIUS is the only free choice: it maps the
+   50,000-ly bright-disk edge to scene units; SCENE_PER_LY carries that scale to
+   the rest. */
+const DISC_RADIUS = 220;                                    // ≙ GALAXY.diskRadiusLy
+const SCENE_PER_LY = DISC_RADIUS / GALAXY.diskRadiusLy;     // scene-units per light-year
+const BULGE_RADIUS = GALAXY.bulge.radiusLy * SCENE_PER_LY;  // 10,000 ly → 44 (0.20 R)
+const BAR_LENGTH = GALAXY.bar.halfLengthLy * SCENE_PER_LY;  // 16,000 ly → 70 (0.32 R)
+const BAR_WIDTH = BAR_LENGTH * GALAXY.bar.axisRatio[1];     // 0.4:1 real bar axis ratio → 28
 /* Milky Way = barred spiral: 2 MAJOR arms (Scutum-Centaurus, Perseus) off the
    bar ends + 2 MINOR arms (Norma, Sagittarius) between them. Per-arm weight
    makes the majors brighter/denser than the minors. */
@@ -36,7 +39,7 @@ const ARMS = [
   { offset: Math.PI * 0.5,  major: false },  // Sagittarius
   { offset: Math.PI * 1.5,  major: false },  // Norma
 ];
-const ARM_PITCH = 0.222;          // tan(12.5°) — the real mean log-spiral pitch (Reid et al. 2019)
+const ARM_PITCH = Math.tan(GALAXY.pitchAngleDeg * Math.PI / 180); // tan(12.5°) — real mean log-spiral pitch (Reid et al. 2019)
 const ARM_WIDTH = 0.30;           // arm angular spread
 const ARM_STARS_MAJOR = 15000;    // per major arm
 const ARM_STARS_MINOR = 8000;     // per minor arm
@@ -45,7 +48,7 @@ const HALO_STARS = 24000;         // diffuse inter-arm disc
 const BULGE_STARS = 8000;         // central bulge + bar
 const HII_REGIONS = 1400;         // pink star-forming knots along the arms
 const ARM_STARS_TOTAL = ARM_STARS_MAJOR * 2 + ARM_STARS_MINOR * 2;
-const SOL_R = 0.533 * DISC_RADIUS; // 26,670 ly / 50,000 ly — the Sun's true galactocentric radius
+const SOL_R = GALAXY.sun.galactocentricRadiusLy * SCENE_PER_LY; // 26,670 ly → 0.533 R — Sun's true galactocentric radius
 const SOL_ARM_OFFSET = 0.35;      // Orion Spur sits just off the Sagittarius arm
 
 /* Warm yellow-white bulge → cool blue-white disc → dim edge — matches real
