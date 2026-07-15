@@ -1,5 +1,5 @@
 /* eslint-disable react/no-unknown-property */
-import { Suspense, useMemo, useRef, useEffect, cloneElement } from "react";
+import { Suspense, useMemo, useRef, useState, useEffect, cloneElement } from "react";
 import { Canvas, invalidate, useFrame } from "@react-three/fiber";
 import { Preload } from "@react-three/drei";
 import * as THREE from "three";
@@ -39,6 +39,7 @@ import MeteorShowers from "./MeteorShowers";
 import AtlasComet from "./AtlasComet";
 import DustLanes from "./DustLanes";
 import HomepageGalaxies from "./HomepageGalaxies";
+import InterstellarDive from "./InterstellarDive";
 import BlackHole from "./anomalies/BlackHole";
 import Voyagers from "./Voyagers";
 /* BlackHole + SpiralGalaxy removed from the tour — nearest black hole is
@@ -234,6 +235,37 @@ function FinaleGradeDip({ gradeRef, finaleT }) {
   return null;
 }
 
+/* Delays the AU-scale solar-system reveal until the interstellar leg of the dive
+   has (mostly) faded, so LY-scale local stars and AU-scale planets never share a
+   frame — their unit scales are 63,241× apart and cannot coexist (config/
+   scaleRegimes.js). diveT: 0 at the hero → 1 at the Solar-System overview; the
+   whole tour + finale sit at diveT ≥ 1. Ref-driven so it never re-renders. */
+function DiveGate({ scrollT, finale, groupRef, reducedMotion, activeIdx }) {
+  const flyingRef = useRef(false);
+  useFrame(() => {
+    /* Reduced motion: no interstellar fly-through (InterstellarDive is unmounted),
+       so reveal the solar system on the plain activeIdx snap — no diveT delay, no
+       flight-hide — matching the project's snap-tour policy. */
+    if (reducedMotion) {
+      if (groupRef.current) groupRef.current.visible = finale || activeIdx >= 1;
+      return;
+    }
+    const diveT = THREE.MathUtils.clamp((scrollT?.current ?? 0) * 12, 0, 1);
+    if (groupRef.current) groupRef.current.visible = finale || diveT > 0.88;
+    /* Fade the hero/landing surface out during the interstellar leg — reuse the
+       flight-hide channel (panelHidden) so "Rugwed Patharkar / Begin the tour"
+       dissolves as we plunge off the home page, then the arrival content takes
+       over at the overview. Edge-dispatched (only on state change), never every
+       frame. During the dive no camera-jump fires, so this owns the flag. */
+    const flying = !finale && diveT > 0.14 && diveT < 0.9;
+    if (flying !== flyingRef.current) {
+      flyingRef.current = flying;
+      window.dispatchEvent(new CustomEvent("stellar:flight", { detail: { flying } }));
+    }
+  });
+  return null;
+}
+
 const Scene = ({ scrollT, finaleT, finale = false, activeIdx, onJump, focusRef, warpVelRef, cameraRef, eclipseRef, clock, extrasPhase = 3, v3 = false }) => {
   const { isMobile, reducedMotion } = useViewport();
   /* Pull-back finale — when active the AU-scale solar system is hidden and the
@@ -270,6 +302,18 @@ const Scene = ({ scrollT, finaleT, finale = false, activeIdx, onJump, focusRef, 
      left the Milky-Way homepage. Flipping a group's `visible` is free — no
      mount/unmount hitch — so the crossover is instant. */
   const tourVisible = !isMilkyway;
+  /* The AU-scale solar-system group is ref-gated (DiveGate) rather than
+     activeIdx-gated, so its reveal can be held back through the interstellar leg
+     of the dive — otherwise LY-scale local stars and AU-scale planets would
+     briefly co-render (impossible scales). */
+  const tourBodiesRef = useRef(null);
+  /* Auto-adaptive quality: AdaptiveQuality flips this to true only when frames
+     genuinely dip (<~43fps sustained) on a struggling GPU. Capable machines keep
+     everything; strugglers shed the heaviest, least-perceptible layers (the faint
+     big-particle drift dust, the procedural deep star haze) to hold smoothness.
+     Toggles rarely (wide dead-zone), so the one-time remount when it flips is
+     masked by the fact that the machine was already dropping frames. */
+  const [perfLow, setPerfLow] = useState(false);
   /* Camera offsets — kept in refs so React state doesn't re-render
      the whole tree on every frame. Mouse parallax and free-roam each
      own their own offset; CameraRig sums them. */
@@ -287,11 +331,13 @@ const Scene = ({ scrollT, finaleT, finale = false, activeIdx, onJump, focusRef, 
   const handleHoverIn = () => setCursor("pointer");
   const handleHoverOut = () => setCursor("");
 
-  /* Render at the display's native pixel ratio (up to 2× on retina/4K) for
-     crisp HD. We removed Depth-of-Field, so nothing is intentionally blurred
-     and the extra pixels actually read as sharpness. The adaptive guard still
-     floors DPR only on a genuinely struggling GPU. */
-  const dprCap = isMobile ? 1.5 : 2;
+  /* DPR cap for the STILL frame — kept near-crisp (1.75) since a settled planet
+     is what you actually study. The real smoothness win is the adaptive guard
+     dropping DPR to 1.0 while the camera MOVES (the eye can't resolve fine pixels
+     mid-motion), which is exactly when the journey needs the frame budget. On a
+     retina display DPR is a quadratic fragment multiplier, so 2→1.75 already buys
+     headroom at negligible visible cost. */
+  const dprCap = isMobile ? 1.3 : 1.75;
 
   /* §7.4 — feature-flagged experiment with frameloop="demand". Off by default:
      the tour has continuous animation everywhere (planet orbits, Sun churn,
@@ -364,7 +410,11 @@ const Scene = ({ scrollT, finaleT, finale = false, activeIdx, onJump, focusRef, 
       <AdaptiveQuality
         scrollTRef={scrollT}
         highDpr={dprCap}
-        lowDpr={isMobile ? 1.0 : 1.4}
+        /* While the camera is moving the eye can't resolve fine pixels anyway, so
+           render at 1× during scroll — maximises the frame budget exactly when
+           the journey needs it, then restores to dprCap on settle. */
+        lowDpr={1.0}
+        onPerf={(tier) => setPerfLow(tier === "low")}
       />
       <AutoExposure />
       {/* Full GPU prewarm of the pre-mounted (hidden) tour during the intro:
@@ -417,7 +467,7 @@ const Scene = ({ scrollT, finaleT, finale = false, activeIdx, onJump, focusRef, 
             its own phase. Layers on top so BOTH the homepage sky and the tour read
             as extremely dense + alive. Sky-fixed (radius 6600), so unlike the
             foreground dust it never rides the cursor. */}
-        {!finale && <DeepStars count={isMobile ? 6000 : 16000} reducedMotion={reducedMotion} />}
+        {!finale && !perfLow && <DeepStars count={isMobile ? 6000 : 16000} reducedMotion={reducedMotion} />}
         {/* Nebulae live INSIDE the Milky Way — they belong to the solar-system
             tour backdrop, not the from-outside homepage. Hidden on the
             homepage (where the deep-field galaxies are the backdrop instead). */}
@@ -467,6 +517,13 @@ const Scene = ({ scrollT, finaleT, finale = false, activeIdx, onJump, focusRef, 
         <group visible={isMilkyway}>
           <HomepageGalaxy reducedMotion={reducedMotion} scrollT={scrollT} active={isMilkyway} />
         </group>
+        {/* Dive middle regime — the real local stars at TRUE depth (LY_UNIT),
+            flown through on the plunge from the galactic plate to our Sun. Mounted
+            across the hero→overview dive (activeIdx 0-1); its own scrollT fade
+            hands off to the plate above and the solar system below. */}
+        {!finale && !reducedMotion && activeIdx <= 1 && <InterstellarDive scrollT={scrollT} active />}
+        {/* Holds the AU-scale solar system hidden until the interstellar leg fades. */}
+        <DiveGate scrollT={scrollT} finale={finale} groupRef={tourBodiesRef} reducedMotion={reducedMotion} activeIdx={activeIdx} />
         {/* Ambient sky layers (sky-fixed, NOT inside any body transform):
             meteor streaks EVERYWHERE (homepage + tour) + interstellar comets.
             Desktop + motion only. Foreground dust is intentionally NOT here — it
@@ -498,7 +555,7 @@ const Scene = ({ scrollT, finaleT, finale = false, activeIdx, onJump, focusRef, 
             crossover used to build in one frozen commit lives here. Own Suspense
             so tour textures loading during the intro never blank the homepage. */}
         <Suspense fallback={null}>
-        <group visible={tourVisible}>
+        <group ref={tourBodiesRef} visible={false}>
         {/* Voyager 1 + 2 markers — humans' only interstellar spacecraft. */}
         {!finale && showExtras && <Voyagers />}
         {/* Pull-back finale (?finale=1) — the local stellar neighbourhood at true depth. */}
@@ -733,10 +790,10 @@ const Scene = ({ scrollT, finaleT, finale = false, activeIdx, onJump, focusRef, 
         )}
         {/* Tenuous gas/dust clouds — tier 3 (big, faint, soft; distance-faded by
             the same shader so they never bloom into a bar). Desktop only. */}
-        {showEggs && !isMobile && (
+        {showEggs && !isMobile && !perfLow && (
           <BeltDust count={3200} innerRadius={BACKGROUND_BELTS.asteroid.inner} outerRadius={BACKGROUND_BELTS.asteroid.outer} thickness={BACKGROUND_BELTS.asteroid.thickness * 1.4} color="#8a7a64" size={16} opacity={0.04} drift={0.008} gaps={KIRKWOOD_GAPS} animate={!reducedMotion} />
         )}
-        {showEggs && !isMobile && (
+        {showEggs && !isMobile && !perfLow && (
           <BeltDust count={2600} innerRadius={BACKGROUND_BELTS.kuiper.inner} outerRadius={BACKGROUND_BELTS.kuiper.outer} thickness={BACKGROUND_BELTS.kuiper.thickness * 1.3} color="#6a7e9e" size={20} opacity={0.04} drift={0.006} cliff animate={!reducedMotion} />
         )}
         {/* Jupiter's Trojan asteroids — two swarms 60° ahead/behind Jupiter at
@@ -748,7 +805,7 @@ const Scene = ({ scrollT, finaleT, finale = false, activeIdx, onJump, focusRef, 
             so they read as a bright hazy halo — suppressed in v3. */}
         {showExtras && <OortCloud count={isMobile ? 1600 : 4200} />}
         {showExtras && !isMobile && <Heliosphere />}
-        {showExtras && !isMobile && <LocalInterstellarCloud />}
+        {showExtras && !isMobile && activeIdx >= 10 && <LocalInterstellarCloud />}
         {/* Real solar eclipses — Earth's actual Moon + any planet you fly
             behind occlude the Sun (corona + chromosphere + diamond-ring). */}
         {showExtras && <SolarEclipse satelliteRef={moonWorldRef} eclipseRef={eclipseRef} reducedMotion={reducedMotion} active={!isMilkyway} />}

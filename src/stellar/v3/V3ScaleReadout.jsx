@@ -34,8 +34,11 @@ function V3ScaleReadout({ cameraRef, activeIdx = 0, finale = false, flying = fal
   const priRef = useRef(null);
   const secRef = useRef(null);
   /* Show while flying between stops (the outward scroll), when the résumé panel
-     + planet card have faded out and the bottom-left is clear. */
-  const show = activeIdx >= 1 && !finale && flying;
+     + planet card have faded out and the bottom-left is clear. Gated to the Sun
+     onward (idx ≥ 2): the opening galaxy→solar DIVE also fires the flight-hide,
+     but it's the light-YEAR regime — an AU/light-minute readout there would
+     misreport the scale (the whole point is that the dive is NOT solar-scale). */
+  const show = activeIdx >= 2 && !finale && flying;
 
   useEffect(() => {
     if (!show) return undefined;
