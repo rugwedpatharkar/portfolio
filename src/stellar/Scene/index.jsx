@@ -113,7 +113,7 @@ const planetFallback = (d) => (
    floating in a JWST-deep-field-style backdrop of stars + distant galaxies +
    nebulae. Rotation is a slow spin around the disc's normal so the arms
    sweep visibly without becoming a merry-go-round. */
-const GALAXY_SCALE = 12;
+const GALAXY_SCALE = 18; // bigger — fills the wide hero frame (was 12, left too much empty space)
 
 /* Cosmic-zoom scratch — the dive scales the galaxy ABOUT the Sun's dust mote
    (SpiralGalaxy.SOL) so that mote stays screen-centered and grows while the rest
@@ -219,9 +219,13 @@ function HomepageGalaxy({ reducedMotion, scrollT, active = true }) {
           THREE.MathUtils.lerp(_heroPos.z, _T.z - _sol.z, c),
         );
       }
-      /* Galaxy stays fully rendered through the plunge; cross-fades out only at
-         the SEAM (pos 0.8→1) as the solar system opens out of the mote. */
-      const fade = 1 - s01(0.8, 1.0, pos);
+      /* Fade the point cloud out EARLY (0.3→0.58), before the deep zoom balloons
+         150k additive points into screen-filling overdraw that stutters the
+         plunge. By the deep end it's the cheap mote bloom + sky carrying the
+         focal point; alphaTest then discards the faded points' fragments so the
+         fillrate actually drops (not just the blend). Smoothness > "visible all
+         the way" now that the disk fills the frame big on the still hero. */
+      const fade = 1 - s01(0.14, 0.42, pos);
       fadeRef.current = fade;
       if (baseOps.current) for (const [m, base] of baseOps.current) m.opacity = base * fade;
       if (outerRef.current) outerRef.current.visible = fade > 0.01;
@@ -395,7 +399,7 @@ const Scene = ({ scrollT, finaleT, finale = false, activeIdx, onJump, focusRef, 
      mid-motion), which is exactly when the journey needs the frame budget. On a
      retina display DPR is a quadratic fragment multiplier, so 2→1.75 already buys
      headroom at negligible visible cost. */
-  const dprCap = isMobile ? 1.3 : 1.75;
+  const dprCap = isMobile ? 1.4 : 2;
 
   /* §7.4 — feature-flagged experiment with frameloop="demand". Off by default:
      the tour has continuous animation everywhere (planet orbits, Sun churn,
