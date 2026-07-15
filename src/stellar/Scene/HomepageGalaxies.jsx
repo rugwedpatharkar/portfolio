@@ -14,9 +14,10 @@
  * drifts on its own slow Lissajous path. Additive, depth-off → pure backdrop.
  */
 import { useRef, useMemo } from "react";
-import { useFrame } from "@react-three/fiber";
+import { useFrame, useLoader } from "@react-three/fiber";
 import * as THREE from "three";
 import { makeSoftDot } from "./shared/textures";
+import { ktx2Url } from "./shared/textureUrl";
 
 const DISC = makeSoftDot({
   size: 256,
@@ -208,13 +209,31 @@ const SPIKES = [
 const makeSpikes = () =>
   SPIKES.map((s) => ({ bx: s.ndc[0], by: s.ndc[1], size: s.size, tint: s.tint, amp: 0.13 + Math.random() * 0.13, speed: 0.6 + Math.random() * 0.9, phase: Math.random() * TAU }));
 
+/* TRUE LOCAL-GROUP SCALE — only the Milky Way's own SATELLITES are near enough
+   to read. The LMC (~163,000 ly) and SMC (~200,000 ly) sit 3-4 galaxy-radii out,
+   so they're small and hug the Milky Way's lower edge (they're below the galactic
+   plane, toward the south galactic pole). Every other galaxy — Andromeda 2.5 Mly
+   (50 radii), Sombrero/Whirlpool 23-29 Mly (460-580 radii) — is so far it belongs
+   in the faint distant deep-field scatter below, not as a hero. Real photos. */
+const HERO_GALAXIES = [
+  { ndc: [-0.02, -0.62], size: 230, tex: "lmc", op: 0.85 }, // LMC — nearest satellite, small, below the disc
+  { ndc: [0.16, -0.84],  size: 150, tex: "smc", op: 0.72 }, // SMC — smaller, further out toward the pole
+];
+const HERO_URLS = HERO_GALAXIES.map((h) => `/textures/galaxies/${h.tex}.webp`);
+const makeHeroes = () =>
+  HERO_GALAXIES.map((h) => ({ ...h, bx: h.ndc[0], by: h.ndc[1], ...drift() }));
+
 const HomepageGalaxies = ({ reducedMotion = false }) => {
   const items = useMemo(() => makeField(), []);
   const arcs = useMemo(() => makeArcs(), []);
   const spikes = useMemo(() => makeSpikes(), []);
+  const heroes = useMemo(() => makeHeroes(), []);
+  const heroTex = useLoader(THREE.TextureLoader, HERO_URLS.map(ktx2Url));
+  useMemo(() => { for (const t of heroTex) t.colorSpace = THREE.SRGBColorSpace; }, [heroTex]);
   const gRefs = useRef([]);
   const aRefs = useRef([]);
   const sRefs = useRef([]);
+  const hRefs = useRef([]);
   const camPos = useMemo(() => new THREE.Vector3(), []);
   const tmp = useMemo(() => new THREE.Vector3(), []);
 
@@ -236,6 +255,7 @@ const HomepageGalaxies = ({ reducedMotion = false }) => {
     };
     place(items, gRefs);
     place(arcs, aRefs);
+    place(heroes, hRefs);
     /* Spike stars — screen-pinned (fixed sky), twinkling in size + brightness. */
     for (let i = 0; i < spikes.length; i++) {
       const sp = sRefs.current[i];
@@ -273,6 +293,11 @@ const HomepageGalaxies = ({ reducedMotion = false }) => {
       {spikes.map((s, i) => (
         <sprite key={`s${i}`} ref={(el) => { sRefs.current[i] = el; }} scale={[s.size, s.size, 1]}>
           <spriteMaterial map={BIG_SPIKE} color={s.tint} transparent opacity={0.9} depthWrite={false} depthTest={false} blending={THREE.AdditiveBlending} toneMapped={false} />
+        </sprite>
+      ))}
+      {heroes.map((h, i) => (
+        <sprite key={`h${i}`} ref={(el) => { hRefs.current[i] = el; }} scale={[h.size, h.size, 1]}>
+          <spriteMaterial map={heroTex[i]} transparent opacity={h.op} depthWrite={false} depthTest={false} blending={THREE.AdditiveBlending} toneMapped={false} />
         </sprite>
       ))}
     </group>
