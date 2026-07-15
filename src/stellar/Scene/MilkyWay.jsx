@@ -73,6 +73,13 @@ const COALSACK_LAMBDA_DEG = -58;
 const COALSACK_SIGMA_DEG = 5;
 const COALSACK_DEPTH = 0.55;
 
+/* Great Rift — the real naked-eye dark-dust lane runs from Sagittarius (the
+   galactic center, λ≈0°) up through Ophiuchus, the Serpens/Aquila Rift, and into
+   Cygnus (λ≈+75°) — asymmetric, on ONE side of the band, not a symmetric core
+   darkening. A plateau over that longitude range, strongest mid-path (~Aquila). */
+const RIFT_C = 28 * Math.PI / 180;    // center ≈ Aquila
+const RIFT_HALF = 58 * Math.PI / 180; // spans Sagittarius(0°) → Cygnus(~85°)
+
 const MilkyWay = ({ finale = false }) => {
   const { positions, colors, sizes } = useMemo(() => {
     const { galacticNorthPole: pole, galacticCenter: center } = GALAXY.orientation;
@@ -138,8 +145,12 @@ const MilkyWay = ({ finale = false }) => {
       positions[i * 3 + 1] = dir.y * r;
       positions[i * 3 + 2] = dir.z * r;
 
-      // Great Rift: a dark dust lane along the spine, strongest toward the core.
-      const rift = 1 - 0.7 * towardCore * Math.exp(-(off * off) / (0.05 * 0.05));
+      // Great Rift: the real dark dust lane, following the Sagittarius→Aquila→
+      // Cygnus path (see RIFT_C/RIFT_HALF) rather than a symmetric core darkening,
+      // and confined to the band spine (|off| small).
+      const dRift = angDist(lambda, RIFT_C);
+      const alongRift = Math.max(0, 1 - (dRift * dRift) / (RIFT_HALF * RIFT_HALF));
+      const rift = 1 - 0.72 * alongRift * Math.exp(-(off * off) / (0.05 * 0.05));
 
       /* §12.1 arm-density boost: gaussians summed across the 5 documented arm
          longitudes. Multiplies onto the base brightness so arm-crossings light

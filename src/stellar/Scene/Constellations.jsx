@@ -180,6 +180,33 @@ const CONSTELLATIONS = [
     ],
     edges: [[1,0],[0,2],[0,3],[3,4],[3,5]],
   },
+  /* ── Zodiac constellations on the ecliptic — the road the Sun + planets ride ── */
+  {
+    name: "Sagittarius · the Teapot",
+    stars: [
+      /* 0 Kaus Australis (ε) */ [18.403, -34.385],
+      /* 1 Kaus Media (δ)     */ [18.350, -29.828],
+      /* 2 Kaus Borealis (λ)  */ [18.466, -25.421],
+      /* 3 Nunki (σ)          */ [18.921, -26.297],
+      /* 4 Ascella (ζ)        */ [19.043, -29.880],
+      /* 5 Phi (φ)            */ [18.763, -26.990],
+      /* 6 Alnasl (γ)         */ [18.097, -30.424],
+      /* 7 Tau (τ)            */ [19.115, -27.670],
+    ],
+    edges: [[6,1],[1,0],[0,4],[4,5],[5,2],[2,1],[5,3],[3,7],[7,4]], // spout · pot · handle
+  },
+  {
+    name: "Taurus",
+    stars: [
+      /* 0 Aldebaran   */ [ 4.599, 16.509],
+      /* 1 Gamma (γ)   */ [ 4.329, 15.628],
+      /* 2 Delta (δ)   */ [ 4.382, 17.542],
+      /* 3 Ain (ε)     */ [ 4.478, 19.180],
+      /* 4 Elnath (β)  */ [ 5.438, 28.607], // north horn tip
+      /* 5 Zeta (ζ)    */ [ 5.627, 21.142], // south horn tip
+    ],
+    edges: [[3,2],[2,1],[1,0],[3,4],[0,5]], // Hyades V + the two horns
+  },
 ];
 
 const Constellations = () => {
@@ -202,17 +229,46 @@ const Constellations = () => {
     return g;
   }, []);
 
+  /* The ECLIPTIC — the plane the planets orbit in, projected onto the sky. In
+     this scene the ecliptic pole maps to +Y (see sceneVec), so the ecliptic is
+     the y=0 great circle at the sky radius: the zodiac road the Sun + every
+     planet rides, threading Sagittarius, Scorpius, Leo, Gemini, Taurus… */
+  const eclipticGeometry = useMemo(() => {
+    const N = 256;
+    const pos = [];
+    for (let i = 0; i < N; i++) {
+      const a0 = (i / N) * Math.PI * 2;
+      const a1 = ((i + 1) / N) * Math.PI * 2;
+      pos.push(Math.cos(a0) * R, 0, Math.sin(a0) * R, Math.cos(a1) * R, 0, Math.sin(a1) * R);
+    }
+    const g = new THREE.BufferGeometry();
+    g.setAttribute("position", new THREE.BufferAttribute(new Float32Array(pos), 3));
+    return g;
+  }, []);
+
   return (
-    <lineSegments geometry={geometry} frustumCulled={false}>
-      <lineBasicMaterial
-        color="#c9b48a"
-        transparent
-        opacity={0.32}
-        depthWrite={false}
-        blending={THREE.AdditiveBlending}
-        toneMapped={false}
-      />
-    </lineSegments>
+    <group>
+      <lineSegments geometry={geometry} frustumCulled={false}>
+        <lineBasicMaterial
+          color="#c9b48a"
+          transparent
+          opacity={0.32}
+          depthWrite={false}
+          blending={THREE.AdditiveBlending}
+          toneMapped={false}
+        />
+      </lineSegments>
+      <lineSegments geometry={eclipticGeometry} frustumCulled={false}>
+        <lineBasicMaterial
+          color="#6f86b0"
+          transparent
+          opacity={0.13}
+          depthWrite={false}
+          blending={THREE.AdditiveBlending}
+          toneMapped={false}
+        />
+      </lineSegments>
+    </group>
   );
 };
 
