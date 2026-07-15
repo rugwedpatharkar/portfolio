@@ -4,6 +4,7 @@ import { useFrame } from "@react-three/fiber";
 import * as THREE from "three";
 import { STARS, STAR_COUNT, STAR_STRIDE } from "../data/brightStars";
 import { makeSoftDot } from "./shared/textures";
+import { SKY_SCALE } from "../config/destinations";
 
 /*
  * The REAL night sky — 8,920 naked-eye stars (HYG catalogue, derived from
@@ -21,7 +22,7 @@ import { makeSoftDot } from "./shared/textures";
  * two parallax together.
  */
 
-const R = 6800; // celestial-sphere radius (just inside the Tycho skybox at 7000)
+const R = 6800 * SKY_SCALE; // celestial-sphere radius (just inside the Tycho skybox at 7000)
 const OBLIQUITY = 23.44 * (Math.PI / 180);
 
 /* Soft round sprite — crisp bright core, fast falloff; bloom adds the glow. */

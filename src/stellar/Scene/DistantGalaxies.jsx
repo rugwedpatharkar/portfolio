@@ -20,10 +20,16 @@
  * naturally rather than clipping through.
  */
 import { useMemo } from "react";
+import { useLoader } from "@react-three/fiber";
 import * as THREE from "three";
 import { makeSoftDot } from "./shared/textures";
+import { ktx2Url } from "./shared/textureUrl";
+import { SKY_SCALE } from "../config/destinations";
 
-const R = 6700;
+const R = 6700 * SKY_SCALE;
+/* Real NASA/ESA/ESO photos for the four naked-eye galaxies, index-aligned to
+   GALAXIES below (M31, M33, LMC, SMC). */
+const NAMED_URLS = ["andromeda", "triangulum", "lmc", "smc"].map((t) => `/textures/galaxies/${t}.webp`);
 const OBLIQUITY = 23.44 * Math.PI / 180;
 
 /* Same equatorial → scene transform Stars.jsx uses so this shares the sky
@@ -179,18 +185,20 @@ function makeDeepField(count) {
 }
 
 const DistantGalaxies = ({ deepField = false }) => {
+  const namedTex = useLoader(THREE.TextureLoader, NAMED_URLS.map(ktx2Url));
+  useMemo(() => { for (const t of namedTex) t.colorSpace = THREE.SRGBColorSpace; }, [namedTex]);
   const items = useMemo(() => {
     const scratch = new THREE.Vector3();
-    const named = GALAXIES.map((g) => {
+    /* The four naked-eye galaxies — now REAL photos. Square sprite sized to the
+       galaxy's largest angular extent; the true shape/inclination is baked into
+       the photo, so no elongation/rotation needed. */
+    const named = GALAXIES.map((g, idx) => {
       sceneVec(g.raHours, g.decDeg, scratch);
       return {
         pos: scratch.clone().multiplyScalar(R).toArray(),
-        scale: g.scale,
-        nucleusScale: g.nucleusScale,
-        tint: g.tint,
-        nucleusTint: g.nucleusTint,
-        rotation: g.rotation,
-        opacity: 1.0,
+        texIndex: idx,
+        scale: Math.max(...g.scale) * 1.15 * SKY_SCALE,
+        opacity: 0.92,
         name: g.name,
       };
     });
@@ -201,28 +209,26 @@ const DistantGalaxies = ({ deepField = false }) => {
 
   return (
     <group frustumCulled={false}>
-      {items.map((g, i) => (
-        <group key={i}>
-          {/* Diffuse galactic disc — the elongated smear of stars */}
-          <sprite position={g.pos} scale={g.scale} material-rotation={g.rotation}>
+      {items.map((g, i) =>
+        g.texIndex != null ? (
+          /* Named naked-eye galaxy — real photo. */
+          <sprite key={i} position={g.pos} scale={[g.scale, g.scale, 1]}>
             <spriteMaterial
-              map={GALAXY_SPRITE}
-              color={g.tint}
+              map={namedTex[g.texIndex]}
               transparent
-              opacity={g.opacity ?? 1.0}
+              opacity={g.opacity}
               depthWrite={false}
               blending={THREE.AdditiveBlending}
               toneMapped={false}
             />
           </sprite>
-          {/* Hot compact nucleus / bulge — the visual signature that turns
-              a fuzzy smudge into an identifiable galaxy. Skipped for the
-              nucleus-less distant ellipticals (nucleusScale 0). */}
-          {g.nucleusScale > 0 && (
-            <sprite position={g.pos} scale={[g.nucleusScale, g.nucleusScale, g.nucleusScale]}>
+        ) : (
+          /* Deep-field smudge — soft procedural disc + optional nucleus. */
+          <group key={i}>
+            <sprite position={g.pos} scale={g.scale} material-rotation={g.rotation}>
               <spriteMaterial
-                map={NUCLEUS_SPRITE}
-                color={g.nucleusTint}
+                map={GALAXY_SPRITE}
+                color={g.tint}
                 transparent
                 opacity={g.opacity ?? 1.0}
                 depthWrite={false}
@@ -230,9 +236,22 @@ const DistantGalaxies = ({ deepField = false }) => {
                 toneMapped={false}
               />
             </sprite>
-          )}
-        </group>
-      ))}
+            {g.nucleusScale > 0 && (
+              <sprite position={g.pos} scale={[g.nucleusScale, g.nucleusScale, g.nucleusScale]}>
+                <spriteMaterial
+                  map={NUCLEUS_SPRITE}
+                  color={g.nucleusTint}
+                  transparent
+                  opacity={g.opacity ?? 1.0}
+                  depthWrite={false}
+                  blending={THREE.AdditiveBlending}
+                  toneMapped={false}
+                />
+              </sprite>
+            )}
+          </group>
+        )
+      )}
     </group>
   );
 };

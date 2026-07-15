@@ -24,6 +24,7 @@ import Skybox from "./Skybox";
 import OrbitGroup from "./OrbitGroup";
 import OrbitRings from "./OrbitRings";
 import BeltRings from "./BeltRings";
+import PlanetBeacons from "./PlanetBeacons";
 // LaneObjects retired — the Holo-Bridge dossier cluster replaces the forced-←→ convoy.
 import SolarEclipse from "./SolarEclipse";
 import EclipseLights from "./EclipseLights";
@@ -65,7 +66,7 @@ import KeyLight from "./KeyLight";
 import MouseParallax from "./MouseParallax";
 import SafeLoad from "./SafeLoad";
 import useViewport from "../useViewport";
-import { DESTINATIONS, BACKGROUND_BELTS } from "../config/destinations";
+import { DESTINATIONS, BACKGROUND_BELTS, SKY_SCALE } from "../config/destinations";
 import { rotationSpeedFor } from "../config/planetData";
 import { SCENE_OBJECTS } from "./registry";
 
@@ -339,7 +340,7 @@ const Scene = ({ scrollT, finaleT, finale = false, activeIdx, onJump, focusRef, 
         toneMappingExposure: 1.05,
         outputColorSpace: THREE.SRGBColorSpace,
       }}
-      camera={{ position: [0, 2.5, 11], fov: 52, near: 0.1, far: 14000 }}
+      camera={{ position: [0, 2.5, 11], fov: 52, near: 0.1, far: 14000 * SKY_SCALE }}
       style={{ position: "fixed", inset: 0, background: "#03050d" }}
       onCreated={({ gl, scene }) => {
         /* Hard guarantee a dark backdrop: explicit clear colour + a
@@ -674,6 +675,11 @@ const Scene = ({ scrollT, finaleT, finale = false, activeIdx, onJump, focusRef, 
             read as belts from ~2200u out where the actual rock particles
             are sub-pixel. Invisible at any tour stop. */}
         {showExtras && v3 && activeIdx === 1 && <BeltRings />}
+        {/* Overview-only planet beacons — each planet's real texture at a constant
+            26px on-screen size at its orbital position. Essential at TRUE scale,
+            where the real planets are sub-pixel dots on 128,000u orbits: the
+            beacons make them findable little discs strung along the orrery rings. */}
+        {showExtras && v3 && activeIdx === 1 && <PlanetBeacons />}
         {/* Dwarf planets + named belt bodies (Vesta, Eris, Makemake, Haumea). */}
         {showExtras && <DwarfPlanets animate={!reducedMotion} />}
         {/* Halley's Comet on its real 76-year elliptical orbit — a live

@@ -2,7 +2,7 @@
 import { useRef, useEffect } from "react";
 import { useFrame, useThree } from "@react-three/fiber";
 import * as THREE from "three";
-import { DESTINATIONS } from "../config/destinations";
+import { DESTINATIONS, SKY_SCALE } from "../config/destinations";
 import { useSceneClock } from "./SceneClock";
 import {
   FOV_DEFAULT,
@@ -148,15 +148,20 @@ const CameraRig = ({
     /* 1) Finale takes precedence when finaleT > 0. Returns true if it handled. */
     if (runFinaleStrategy(ctx)) return;
 
-    /* 1b) Hyperspace warp on the milkyway → overview scroll segment REMOVED —
-          the visitor asked for a plain smooth travel there, not the speed-line
-          tunnel. warpVelRef just decays toward 0 so any residual (e.g. from a
-          planet-click jump's own pulse) fades cleanly. */
-    if (warpVelRef) warpVelRef.current = Math.max(0, (warpVelRef.current || 0) * 0.85);
-
     /* 2) Scroll — writes scratch._camTarget + _lookTarget from the destination
           chain; returns fov/roll targets and travel speed. */
     const { fovTarget, rollTarget, posVel } = runScrollStrategy(ctx);
+
+    /* 1b) Hyperspace warp — TRUE-SCALE ONLY. posVel is scroll velocity (scale-
+          invariant), but at true scale the same scroll speed flings the camera
+          ~45× farther in world space, so the inter-planet legs are genuine warps.
+          Mask that travel with the streak effect, driven by scroll velocity and
+          capped low (a motion streak, not a blinding tunnel); it decays to 0 at
+          each dwell. At the compressed scale world-travel is slow → no warp. */
+    if (warpVelRef) {
+      const warp = SKY_SCALE > 1 ? THREE.MathUtils.clamp((Math.abs(posVel) - 0.15) * 0.4, 0, 0.5) : 0;
+      warpVelRef.current = Math.max(warp, (warpVelRef.current || 0) * 0.85);
+    }
 
     /* Banking — a subtle roll into the direction of travel, smoothed. */
     const targetBank = THREE.MathUtils.clamp(-posVel * BANK_GAIN, -BANK_MAX, BANK_MAX);

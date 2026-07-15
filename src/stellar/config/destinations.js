@@ -409,7 +409,19 @@ COSMIC_STOPS.forEach((c) => {
  * off-the-line object (anomalies, easter-eggs, dwarf planets) out by the same
  * curve; the background, flight bounds and far-clip are scaled to match.
  * ──────────────────────────────────────────────────────────────────────── */
-export const AU_UNIT = 95; // scene units per AU — large so the true-size Sun clears Mercury's orbit
+/* LITERAL 1:1 orbital distance is now the DEFAULT — orbits use the same unit as
+   the true planet radii (1 AU = 4274u), so Neptune lands ~128,000u out like the
+   real solar system. `?compress=1` restores the old navigable ×45-compressed
+   scale (kept as an escape hatch / A-B compare). Read once at module load
+   (query params are available then; SSR-safe guard). */
+const COMPRESS =
+  typeof window !== "undefined" &&
+  new URLSearchParams(window.location.search).get("compress") === "1";
+export const AU_UNIT = COMPRESS ? 95 : 4274; // scene units per AU — true 1:1 by default
+/* Everything with a FIXED backdrop distance (sky shells, Oort, heliosphere,
+   far-clip) multiplies by this so it stays just outside the planets in either
+   mode: 1 compressed, 45 at true scale. */
+export const SKY_SCALE = AU_UNIT / 95;
 const AU = {
   experience: 0.387, projects: 0.723, achievements: 1.0, skills: 1.524,
   writing: 2.77, education: 5.203, hobbies: 9.537, testimonials: 19.191, // writing = Ceres @ 2.77 AU

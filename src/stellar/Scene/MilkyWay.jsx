@@ -3,6 +3,7 @@ import { useMemo } from "react";
 import * as THREE from "three";
 import { GALAXY } from "../config/galaxy";
 import { makeSoftDot } from "./shared/textures";
+import { SKY_SCALE } from "../config/destinations";
 
 /*
  * The galactic band — the Milky Way as it TRULY appears from our solar system:
@@ -20,7 +21,7 @@ import { makeSoftDot } from "./shared/textures";
  */
 
 const POINT_COUNT = 11000;
-const RADIUS = 6800;
+const RADIUS = 6800 * SKY_SCALE;
 const OBLIQUITY = 23.44 * (Math.PI / 180);
 const HgToRad = Math.PI / 12; // hours → radians
 const DegToRad = Math.PI / 180;

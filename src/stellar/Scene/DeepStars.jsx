@@ -10,8 +10,9 @@ import { useMemo, useRef } from "react";
 import { useFrame } from "@react-three/fiber";
 import * as THREE from "three";
 import { makeSoftDot } from "./shared/textures";
+import { SKY_SCALE } from "../config/destinations";
 
-const R = 6600; // just inside the skybox / real-star shell
+const R = 6600 * SKY_SCALE; // just inside the skybox / real-star shell
 const TAU = Math.PI * 2;
 
 const SPRITE = makeSoftDot({

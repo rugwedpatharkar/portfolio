@@ -13,8 +13,9 @@
  */
 import { useMemo } from "react";
 import * as THREE from "three";
+import { SKY_SCALE } from "../config/destinations";
 
-const R = 6790;
+const R = 6790 * SKY_SCALE;
 const OBLIQUITY = 23.44 * Math.PI / 180;
 
 function sceneVec(raHours, decDeg, out) {
