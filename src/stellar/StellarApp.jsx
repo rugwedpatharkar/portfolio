@@ -14,6 +14,7 @@ import V3Reticle from "./v3/V3Reticle";
 import V3Editorial from "./v3/V3Editorial";
 import V3FinaleOverlay from "./v3/V3FinaleOverlay";
 import V3ScaleAnnotations from "./v3/V3ScaleAnnotations";
+import V3ScaleReadout from "./v3/V3ScaleReadout";
 import V3TheEdgeQuote from "./v3/V3TheEdgeQuote";
 import { preloadSection } from "./v3/V3Panel";
 import BootLoader from "./v3/BootLoader";
@@ -392,6 +393,10 @@ const StellarApp = () => {
           the viewer where they are in the physical hierarchy. Fades out on
           every planet stop. */}
       <V3ScaleAnnotations activeIdx={activeIdx} hidden={panelHidden} />
+      {/* Live "powers of ten" distance-from-Sun readout — climbs through the
+          regimes (M km → AU + light-min → light-hours → light-days) as the tour
+          scrolls outward. Bottom-left; solar-system stops only. */}
+      <V3ScaleReadout cameraRef={cameraRef} activeIdx={activeIdx} finale={showFinaleContent} hidden={panelHidden} />
       {/* Closing quote overlay on The Edge stop (activeIdx === 13). Not the
           V3Panel section content — the black hole finale has none. Just an
           elegant floating line + attribution to close the tour. */}
