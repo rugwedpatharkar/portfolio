@@ -16,7 +16,7 @@ import V3FinaleOverlay from "./v3/V3FinaleOverlay";
 import V3ScaleAnnotations from "./v3/V3ScaleAnnotations";
 import V3ScaleReadout from "./v3/V3ScaleReadout";
 import V3TheEdgeQuote from "./v3/V3TheEdgeQuote";
-import { preloadSection } from "./v3/V3Panel";
+import { preloadSection, preloadAllSections } from "./v3/V3Panel";
 import BootLoader from "./v3/BootLoader";
 
 /* Section → document-title label (recruiter-facing tab title + a11y context). */
@@ -147,11 +147,15 @@ const StellarApp = () => {
     window.dispatchEvent(new CustomEvent("stellar:sound:hum"));
   }, []);
 
-  /* Warm the first few résumé-section chunks during the intro so the first scroll
-     into the tour (0→1 About, 1→2 FunFacts, 2→3 Experience) doesn't pay a
-     dynamic-import + glass-paint frame dip at the boundary. */
+  /* Warm the résumé-section chunks so scrolling to a stop never pays a dynamic-
+     import + lazy-mount frame hitch. The first three go immediately (the opening
+     stops); the rest are staggered ~1.2s later — during the intro, behind the
+     boot loader — so they never compete with the critical first scene build but
+     are all cached well before the visitor reaches them. */
   useEffect(() => {
     ["about", "funfacts", "experience"].forEach(preloadSection);
+    const id = setTimeout(preloadAllSections, 1200);
+    return () => clearTimeout(id);
   }, []);
 
   /* Boost the shared virtual clock at the Solar-System overview stop (index 1)

@@ -33,6 +33,12 @@ const SECTION_LOADERS = {
 /* Fire-and-forget preload — the module cache dedupes with the matching lazy(). */
 export const preloadSection = (name) => { SECTION_LOADERS[name]?.(); };
 
+/* Preload EVERY section chunk (each ~2-3KB gzip). Fired during the boot/intro
+   window so scrolling to any planet never pays a dynamic-import + lazy-mount
+   frame hitch mid-journey — a common source of the "hiccup" as you reach a new
+   stop. */
+export const preloadAllSections = () => { Object.values(SECTION_LOADERS).forEach((load) => load()); };
+
 const SECTION_COMPONENT = Object.fromEntries(
   Object.entries(SECTION_LOADERS).map(([k, load]) => [k, lazy(load)]),
 );
