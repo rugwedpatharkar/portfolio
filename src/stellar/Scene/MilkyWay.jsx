@@ -62,7 +62,7 @@ const ARM_PEAKS = [
   { name: "Scutum-Centaurus toward the core", lambdaDeg: -20, sigmaDeg: 22, weight: 0.55 },
   { name: "Cygnus (Orion-Spur outbound)",     lambdaDeg:  75, sigmaDeg: 26, weight: 0.42 },
   { name: "Vela/Carina",                       lambdaDeg: -95, sigmaDeg: 30, weight: 0.36 },
-  { name: "Perseus (anticenter)",              lambdaDeg: 155, sigmaDeg: 40, weight: 0.24 },
+  { name: "Perseus (anticenter)",              lambdaDeg: 155, sigmaDeg: 32, weight: 0.15 }, // the faintest arm — the anticenter is the dim side of the band, so a narrow, low peak
   { name: "Sagittarius-Carina foreground",     lambdaDeg:  45, sigmaDeg: 18, weight: 0.30 },
 ];
 
@@ -160,7 +160,10 @@ const MilkyWay = ({ finale = false }) => {
       // Colour: warm star-cloud core → cool disk → dim edge, by |spread| + longitude.
       const e = Math.min(1, Math.abs(spread));
       tint.copy(core).lerp(mid, e * 0.7).lerp(edge, (1 - towardCore) * 0.8);
-      const bright = (0.42 + 0.95 * towardCore) * rift * coalsack * (0.6 + 0.4 * armBoost) * (1 - e * 0.32);
+      // Deeper core→anticenter falloff (floor 0.34, was 0.42) so Sagittarius
+      // dominates as it truly does; core brightness (towardCore=1 → ~1.37) is
+      // unchanged, only the faint anticenter side drops.
+      const bright = (0.34 + 1.03 * towardCore) * rift * coalsack * (0.6 + 0.4 * armBoost) * (1 - e * 0.32);
       colors[i * 3] = tint.r * bright;
       colors[i * 3 + 1] = tint.g * bright;
       colors[i * 3 + 2] = tint.b * bright;
