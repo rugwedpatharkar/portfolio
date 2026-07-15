@@ -7,10 +7,15 @@
  *
  * Rendered as a slim additive band running along the ecliptic plane (the
  * scene's XZ plane) with an intensity that fades away from the anti-solar
- * direction. Purely visual — cheap, one draw call, no per-frame cost.
+ * direction, PLUS the gegenschein — the faint round counterglow directly
+ * OPPOSITE the Sun, where dust backscatters sunlight straight back at you.
+ * The band is static; the gegenschein billboards along the live anti-solar
+ * ray (one cheap vector op per frame) so it always sits opposite the Sun.
  */
-import { useMemo } from "react";
+import { useMemo, useRef } from "react";
+import { useFrame } from "@react-three/fiber";
 import * as THREE from "three";
+import { makeSoftDot } from "./shared/textures";
 
 const VERT = /* glsl */ `
   varying vec2 vUv;
@@ -37,28 +42,57 @@ const FRAG = /* glsl */ `
   }
 `;
 
+const GEGEN_SPRITE = makeSoftDot({
+  size: 128,
+  stops: [
+    [0, "rgba(255,244,208,0.6)"],
+    [0.5, "rgba(255,240,200,0.16)"],
+    [1, "rgba(255,235,190,0)"],
+  ],
+  mipmaps: true,
+});
+
 const ZodiacalLight = () => {
   const uniforms = useMemo(() => ({
     uColor: { value: new THREE.Color("#fff2c8") }, // warm daylight-scattered dust
     uOpacity: { value: 0.11 },
   }), []);
+  const gegenRef = useRef();
+
+  /* Gegenschein — the anti-solar counterglow. The Sun is at the origin, so the
+     anti-solar direction from the camera is the ray from the Sun THROUGH the
+     camera, continued outward; project it onto the ecliptic (y≈0) and park the
+     soft disc out there. Backscatter concentrates the zodiacal glow into a faint
+     round patch exactly 180° from the Sun. */
+  useFrame((state) => {
+    const g = gegenRef.current;
+    if (!g) return;
+    const c = state.camera.position;
+    const d = Math.hypot(c.x, c.z) || 1;
+    g.position.set((c.x / d) * 2600, 0.5, (c.z / d) * 2600);
+  });
 
   return (
-    /* Long thin plane lying along the ecliptic (scene XZ). Rotated so it
-       trails from +X toward -X (anti-solar side of the sky). */
-    <mesh rotation={[Math.PI / 2, 0, 0]} position={[0, 0.5, 0]} frustumCulled={false}>
-      <planeGeometry args={[7200, 620]} />
-      <shaderMaterial
-        vertexShader={VERT}
-        fragmentShader={FRAG}
-        uniforms={uniforms}
-        transparent
-        depthWrite={false}
-        side={THREE.DoubleSide}
-        blending={THREE.AdditiveBlending}
-        toneMapped={false}
-      />
-    </mesh>
+    <group>
+      {/* Long thin plane lying along the ecliptic (scene XZ). Rotated so it
+          trails from +X toward -X (anti-solar side of the sky). */}
+      <mesh rotation={[Math.PI / 2, 0, 0]} position={[0, 0.5, 0]} frustumCulled={false}>
+        <planeGeometry args={[7200, 620]} />
+        <shaderMaterial
+          vertexShader={VERT}
+          fragmentShader={FRAG}
+          uniforms={uniforms}
+          transparent
+          depthWrite={false}
+          side={THREE.DoubleSide}
+          blending={THREE.AdditiveBlending}
+          toneMapped={false}
+        />
+      </mesh>
+      <sprite ref={gegenRef} scale={[900, 560, 1]}>
+        <spriteMaterial map={GEGEN_SPRITE} color="#fff2c8" transparent opacity={0.5} depthWrite={false} blending={THREE.AdditiveBlending} toneMapped={false} />
+      </sprite>
+    </group>
   );
 };
 

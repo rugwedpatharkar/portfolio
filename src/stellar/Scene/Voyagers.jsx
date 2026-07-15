@@ -48,7 +48,7 @@ const PROBE_SPRITE = makeSoftDot({
   mipmaps: true,
 });
 
-const Probe = ({ dir, label, distance, target, tint }) => {
+const Probe = ({ dir, label, distance, target, crossed, tint }) => {
   const pos = useMemo(() => dir.clone().multiplyScalar(SCENE_DIST).toArray(), [dir]);
 
   return (
@@ -83,6 +83,9 @@ const Probe = ({ dir, label, distance, target, tint }) => {
         <div style={{ opacity: 0.6, fontSize: 9, marginTop: 2 }}>
           {distance} AU · → {target}
         </div>
+        <div style={{ opacity: 0.42, fontSize: 8, marginTop: 1 }}>
+          {crossed}
+        </div>
       </Html>
     </group>
   );
@@ -90,8 +93,8 @@ const Probe = ({ dir, label, distance, target, tint }) => {
 
 const Voyagers = () => (
   <>
-    <Probe dir={V1_DIR} tint="#ffe0a0" label="Voyager 1" distance="166" target="Camelopardalis" />
-    <Probe dir={V2_DIR} tint="#ffe0a0" label="Voyager 2" distance="139" target="Sagittarius" />
+    <Probe dir={V1_DIR} tint="#ffe0a0" label="Voyager 1" distance="166" target="Camelopardalis" crossed="shock 2004 · heliopause 2012" />
+    <Probe dir={V2_DIR} tint="#ffe0a0" label="Voyager 2" distance="139" target="Sagittarius" crossed="shock 2007 · heliopause 2018" />
   </>
 );
 
