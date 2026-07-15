@@ -39,6 +39,7 @@ import MeteorShowers from "./MeteorShowers";
 import AtlasComet from "./AtlasComet";
 import DustLanes from "./DustLanes";
 import HomepageGalaxies from "./HomepageGalaxies";
+import InterstellarDive from "./InterstellarDive";
 import BlackHole from "./anomalies/BlackHole";
 import Voyagers from "./Voyagers";
 /* BlackHole + SpiralGalaxy removed from the tour — nearest black hole is
@@ -234,6 +235,21 @@ function FinaleGradeDip({ gradeRef, finaleT }) {
   return null;
 }
 
+/* Delays the AU-scale solar-system reveal until the interstellar leg of the dive
+   has (mostly) faded, so LY-scale local stars and AU-scale planets never share a
+   frame — their unit scales are 63,241× apart and cannot coexist (config/
+   scaleRegimes.js). diveT: 0 at the hero → 1 at the Solar-System overview; the
+   whole tour + finale sit at diveT ≥ 1. Ref-driven so it never re-renders. */
+function DiveGate({ scrollT, finale, groupRef }) {
+  useFrame(() => {
+    const g = groupRef.current;
+    if (!g) return;
+    const diveT = THREE.MathUtils.clamp((scrollT?.current ?? 0) * 12, 0, 1);
+    g.visible = finale || diveT > 0.88;
+  });
+  return null;
+}
+
 const Scene = ({ scrollT, finaleT, finale = false, activeIdx, onJump, focusRef, warpVelRef, cameraRef, eclipseRef, clock, extrasPhase = 3, v3 = false }) => {
   const { isMobile, reducedMotion } = useViewport();
   /* Pull-back finale — when active the AU-scale solar system is hidden and the
@@ -270,6 +286,11 @@ const Scene = ({ scrollT, finaleT, finale = false, activeIdx, onJump, focusRef, 
      left the Milky-Way homepage. Flipping a group's `visible` is free — no
      mount/unmount hitch — so the crossover is instant. */
   const tourVisible = !isMilkyway;
+  /* The AU-scale solar-system group is ref-gated (DiveGate) rather than
+     activeIdx-gated, so its reveal can be held back through the interstellar leg
+     of the dive — otherwise LY-scale local stars and AU-scale planets would
+     briefly co-render (impossible scales). */
+  const tourBodiesRef = useRef(null);
   /* Camera offsets — kept in refs so React state doesn't re-render
      the whole tree on every frame. Mouse parallax and free-roam each
      own their own offset; CameraRig sums them. */
@@ -467,6 +488,13 @@ const Scene = ({ scrollT, finaleT, finale = false, activeIdx, onJump, focusRef, 
         <group visible={isMilkyway}>
           <HomepageGalaxy reducedMotion={reducedMotion} scrollT={scrollT} active={isMilkyway} />
         </group>
+        {/* Dive middle regime — the real local stars at TRUE depth (LY_UNIT),
+            flown through on the plunge from the galactic plate to our Sun. Mounted
+            across the hero→overview dive (activeIdx 0-1); its own scrollT fade
+            hands off to the plate above and the solar system below. */}
+        {!finale && activeIdx <= 1 && <InterstellarDive scrollT={scrollT} active />}
+        {/* Holds the AU-scale solar system hidden until the interstellar leg fades. */}
+        <DiveGate scrollT={scrollT} finale={finale} groupRef={tourBodiesRef} />
         {/* Ambient sky layers (sky-fixed, NOT inside any body transform):
             meteor streaks EVERYWHERE (homepage + tour) + interstellar comets.
             Desktop + motion only. Foreground dust is intentionally NOT here — it
@@ -498,7 +526,7 @@ const Scene = ({ scrollT, finaleT, finale = false, activeIdx, onJump, focusRef, 
             crossover used to build in one frozen commit lives here. Own Suspense
             so tour textures loading during the intro never blank the homepage. */}
         <Suspense fallback={null}>
-        <group visible={tourVisible}>
+        <group ref={tourBodiesRef} visible={false}>
         {/* Voyager 1 + 2 markers — humans' only interstellar spacecraft. */}
         {!finale && showExtras && <Voyagers />}
         {/* Pull-back finale (?finale=1) — the local stellar neighbourhood at true depth. */}
