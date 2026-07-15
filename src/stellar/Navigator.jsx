@@ -2,7 +2,7 @@
 import { useEffect, useRef } from "react";
 import Lenis from "lenis";
 import { invalidate } from "@react-three/fiber";
-import { DESTINATIONS, SCROLL_LENGTH_PER_DESTINATION, FINALE_SCROLL_VH, TOUR_END_FRACTION } from "./config/destinations";
+import { DESTINATIONS, SCROLL_LENGTH_PER_DESTINATION, FINALE_SCROLL_VH, TOUR_END_FRACTION, DIVE_STRETCH, stopScrollFraction } from "./config/destinations";
 import {
   LENIS_LERP, WHEEL_MULT, TOUCH_MULT,
   COMMIT_DEADBAND, DIR_HYSTERESIS,
@@ -64,7 +64,22 @@ const Navigator = ({ scrollTRef, finaleTRef, onDestinationChange, onFinaleConten
        through the finale) so every existing tour consumer is unchanged; the
        finale rides its own finaleTRef 0→1. */
     const TOUR_END = TOUR_END_FRACTION;
-    const toTourT = (raw) => (TOUR_END > 0 ? Math.min(1, raw / TOUR_END) : raw);
+    /* Segment 0 (the galaxy→solar dive) is stretched to DIVE_STRETCH normal
+       segments of scroll. We keep scrollTRef ("tourT", 0→1) mapping each stop to
+       idx/(N-1) — so pos = tourT·(N-1) stays uniform for the camera + dive
+       visuals — but distribute the RAW scroll non-uniformly: segment 0 owns a
+       wider slice of the runway. DIVE_END_RAW is the raw-progress where the
+       stretched segment 0 ends; SEG0_T is its tourT span (one normal segment). */
+    const SEG0_T = 1 / (N - 1);
+    /* N-1 segments total; segment 0 is DIVE_STRETCH units, the other N-2 are 1
+       unit each → seg 0 owns DIVE_STRETCH/(N-2+DIVE_STRETCH) of the raw runway. */
+    const DIVE_END_RAW = DIVE_STRETCH / (N - 2 + DIVE_STRETCH);
+    /* raw-progress (0→1) → tourT (0→1), stretching segment 0. */
+    const toTourT = (raw) => {
+      const r = TOUR_END > 0 ? Math.min(1, raw / TOUR_END) : raw;
+      if (r <= DIVE_END_RAW) return (r / DIVE_END_RAW) * SEG0_T;
+      return SEG0_T + ((r - DIVE_END_RAW) / (1 - DIVE_END_RAW)) * (1 - SEG0_T);
+    };
 
     let committed = -1;
     let lastRaw = toTourT(lenis.progress) * (N - 1);
@@ -90,8 +105,9 @@ const Navigator = ({ scrollTRef, finaleTRef, onDestinationChange, onFinaleConten
       const tourT = toTourT(raw);
       const nearest = Math.max(0, Math.min(N - 1, Math.round(tourT * (N - 1))));
       commitTo(nearest);
-      // The destination's position in RAW runway progress (tour occupies [0, TOUR_END]).
-      const targetRaw = (nearest / (N - 1)) * TOUR_END;
+      // The destination's position in the runway (segment 0 stretched) — shared
+      // with handleJump so a snap and a jump land identically.
+      const targetRaw = stopScrollFraction(nearest);
       if (Math.abs(raw - targetRaw) > SNAP_MIN_DELTA) {
         const max =
           (document.scrollingElement || document.documentElement).scrollHeight -
@@ -164,7 +180,9 @@ const Navigator = ({ scrollTRef, finaleTRef, onDestinationChange, onFinaleConten
     };
   }, [scrollTRef, finaleTRef, onDestinationChange, onFinaleContent]);
 
-  const totalVh = DESTINATIONS.length * SCROLL_LENGTH_PER_DESTINATION + FINALE_SCROLL_VH;
+  /* Extra runway for the stretched opening dive (segment 0) — keeps every planet
+     segment at its original pixel length while the dive gets DIVE_STRETCH×. */
+  const totalVh = (DESTINATIONS.length + DIVE_STRETCH - 1) * SCROLL_LENGTH_PER_DESTINATION + FINALE_SCROLL_VH;
 
   // The sentinel must live in normal document flow (not absolute) so the
   // <body>'s scrollHeight extends and Lenis has real scrollable runway.

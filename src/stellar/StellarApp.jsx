@@ -3,7 +3,7 @@ import { MotionConfig } from "motion/react";
 import Scene from "./Scene";
 import Navigator from "./Navigator";
 import HoloBridge from "./holobridge/HoloBridge";
-import { DESTINATIONS, TOUR_END_FRACTION } from "./config/destinations";
+import { DESTINATIONS, stopScrollFraction } from "./config/destinations";
 import useViewport, { ViewportProvider } from "./useViewport";
 import StellarGlare from "./StellarGlare";
 import EclipseDimmer from "./EclipseDimmer";
@@ -169,14 +169,13 @@ const StellarApp = () => {
   }, [activeIdx]);
 
   const handleJump = useCallback((idx) => {
-    /* Map destination index → exact scroll position. The destination tour only
-       occupies [0, TOUR_END_FRACTION] of the runway (the pull-back finale owns the
-       rest), so the target must be scaled by TOUR_END_FRACTION — the same mapping
-       Navigator.trySnap uses (targetRaw = idx/(N-1) * TOUR_END). Omitting it made
-       every mid-tour jump (rail, keys, deep-link, back/forward) overshoot by 1–2
-       planets. */
+    /* Map destination index → exact scroll position via stopScrollFraction — the
+       shared index↔scroll mapping (accounts for the stretched opening dive +
+       finale split). Navigator.trySnap uses the SAME helper, so a jump (rail,
+       keys, deep-link, back/forward) lands exactly where the magnetic snap rests;
+       a mismatched mapping overshot mid-tour jumps by 1–2 planets. */
     const max = (document.scrollingElement || document.documentElement).scrollHeight - window.innerHeight;
-    const targetY = (idx / (DESTINATIONS.length - 1)) * TOUR_END_FRACTION * max;
+    const targetY = stopScrollFraction(idx) * max;
     /* Tell the Navigator this is a deliberate jump so its one-stop-per-swipe cap
        is bypassed and it lands EXACTLY here. Snap instantly — the camera travel
        is the warp-jump (CameraRig); an animated scroll fed intermediate positions

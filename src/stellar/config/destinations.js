@@ -592,6 +592,12 @@ export const besidePlanet = (id, dir = [1, 0], { lateral = 1.4, toward = 0.5 } =
 export const besideScale = (id, frac = 0.5) => (DESTINATION_BY_ID[id]?.radius || 1) * frac;
 
 export const SCROLL_LENGTH_PER_DESTINATION = 100; // viewport heights
+/* The opening galaxy→solar-system DIVE (segment 0: hero → overview) gets this
+   many normal-segments' worth of scroll, so the plunge through the galactic
+   plate, the interstellar star-field, and into the solar system is a felt
+   journey rather than a one-flick glide. Only segment 0 is stretched; every
+   planet segment stays at 1× (SCROLL_LENGTH_PER_DESTINATION). */
+export const DIVE_STRETCH = 2.6;
 /* Extra scroll runway AFTER the last destination — the cinematic pull-back
    finale scrubs across this (≈2 destinations of travel), collapsing the solar
    system to the Sun among its real neighbours + the galaxy arching around. */
@@ -605,3 +611,19 @@ const TOUR_SCROLL_VH = DESTINATIONS.length * SCROLL_LENGTH_PER_DESTINATION;
 export const TOTAL_SCROLL_VH = TOUR_SCROLL_VH + FINALE_SCROLL_VH;
 /* Fraction of total scroll where the tour ends and the finale reveal begins. */
 export const TOUR_END_FRACTION = TOUR_SCROLL_VH / TOTAL_SCROLL_VH;
+
+/* A stop index → its position as a fraction of the full scroll runway (0→1),
+   accounting for the stretched opening dive (segment 0 owns DIVE_STRETCH×). The
+   SINGLE source of truth for index↔scroll: Navigator's magnetic snap AND
+   StellarApp's handleJump (rail / keys / deep-link) both use it, so a jump lands
+   exactly where the snap rests. Inverse of Navigator's toTourT. */
+export const stopScrollFraction = (idx) => {
+  const N = DESTINATIONS.length;
+  const seg0T = 1 / (N - 1);
+  const diveEndRaw = DIVE_STRETCH / (N - 2 + DIVE_STRETCH);
+  const tt = idx / (N - 1);
+  const raw = tt <= seg0T
+    ? (tt / seg0T) * diveEndRaw
+    : diveEndRaw + ((tt - seg0T) / (1 - seg0T)) * (1 - diveEndRaw);
+  return raw * TOUR_END_FRACTION;
+};
