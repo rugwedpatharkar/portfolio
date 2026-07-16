@@ -51,6 +51,7 @@ const scratch = {
   _dir: new THREE.Vector3(),
   _upp: new THREE.Vector3(),
   _up2: new THREE.Vector3(),
+  _off: new THREE.Vector3(),
 };
 
 const CameraRig = ({
@@ -78,6 +79,10 @@ const CameraRig = ({
   const jump = useRef({ active: false, elapsed: 0, dur: 0, intensity: 0, fromBody: new THREE.Vector3(), toBody: new THREE.Vector3(), dir: new THREE.Vector3(1, 0, 0), back: 1, fov: BACKLIT_FOV, lastKey: "sol:-1" });
   const lastDir = useRef(new THREE.Vector3(1, 0, 0));
   const focusBack = useRef(1);
+  /* Rigid orbit-follow state: the camera's offset from the live-focused planet,
+     and the id it's currently tracking (to re-seat the offset on a target change). */
+  const camOffset = useRef(new THREE.Vector3());
+  const lastFocusId = useRef(null);
   const flyingRef = useRef(false);
   const wasFlying = useRef(false);
   const flightOffTimer = useRef(null);
@@ -177,14 +182,32 @@ const CameraRig = ({
     if (runJumpStrategy(ctx)) return;
     setFlying(false);
 
-    /* Settle-lerp — the same for every non-jump frame. Focused / live-focus
-       branches pick tighter lerp alphas. */
-    const posBase = focus?.live ? LIVE_FOCUS_LERP_60 : focus ? FOCUS_STATIC_LERP_60 : POS_LERP_60;
     /* Look lerp: while a body is orbit-tracked (focus.live), snap lookAt to
        the live target every frame so the fast-orbiting Mercury doesn't get
        nudged off-axis by proportional chase-lag. */
     const lookBase = focus?.live ? 1 : focus ? FOCUS_STATIC_LERP_60 : LOOK_LERP_60;
-    camera.position.lerp(scratch._camTarget, fAlpha(posBase, d));
+    /* Position settle. For a LIVE-focused (orbit-tracked) body, follow it RIGIDLY:
+       lerp the camera's OFFSET from the planet, not its world position. At true 1:1
+       scale the inner planets sweep their orbits at tens of units/sec, so lerping the
+       world position toward that fast-moving target left the camera lagging several
+       units behind a sub-unit standoff — the planet rendered as a tiny off-frame dot
+       (lookAt still snapped, so it stayed centred but far). Following the offset cancels
+       the orbital translation (the planet position is exact each frame); only the
+       arrival/settle transient is smoothed. Gas giants were unaffected — their standoff
+       dwarfs the lag — which is why only the small inner planets looked broken. */
+    if (focus?.live && focus.target) {
+      scratch._off.copy(scratch._camTarget).sub(scratch._p); // desired offset from the planet
+      if (lastFocusId.current !== focus.target.destId) {
+        lastFocusId.current = focus.target.destId;
+        camOffset.current.copy(camera.position).sub(scratch._p); // seat from the current (post-jump) pose
+      }
+      camOffset.current.lerp(scratch._off, fAlpha(LIVE_FOCUS_LERP_60, d));
+      camera.position.copy(scratch._p).add(camOffset.current);
+    } else {
+      lastFocusId.current = null;
+      const posBase = focus ? FOCUS_STATIC_LERP_60 : POS_LERP_60;
+      camera.position.lerp(scratch._camTarget, fAlpha(posBase, d));
+    }
     lookAtTarget.current.lerp(scratch._lookTarget, fAlpha(lookBase, d));
     camera.lookAt(lookAtTarget.current);
 
