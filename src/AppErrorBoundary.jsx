@@ -29,7 +29,7 @@ class AppErrorBoundary extends React.Component {
   render() {
     if (!this.state.hasError) return this.props.children;
     const onReload = () => window.location.reload();
-    const btn = { font: "500 .82rem 'Space Grotesk', system-ui, sans-serif", letterSpacing: ".01em", borderRadius: 7, padding: "12px 22px", cursor: "pointer", border: "1px solid #2a2d38", background: "transparent", color: "#f5f7fc", transition: "border-color .2s, background .2s" };
+    const btn = { font: "500 .82rem 'Sora', system-ui, sans-serif", letterSpacing: ".01em", borderRadius: 7, padding: "12px 22px", cursor: "pointer", border: "1px solid #2a2d38", background: "transparent", color: "#f5f7fc", transition: "border-color .2s, background .2s" };
     const primary = { ...btn, background: "#e9c675", color: "#050609", border: "1px solid transparent" };
     return (
       <div role="alert" style={{ position: "fixed", inset: 0, zIndex: 10000, background: "#050609", color: "#f5f7fc", display: "flex", alignItems: "center", justifyContent: "center", padding: 24, textAlign: "center" }}>
@@ -37,10 +37,10 @@ class AppErrorBoundary extends React.Component {
           <div style={{ font: "400 .72rem 'Space Mono', monospace", letterSpacing: ".28em", textTransform: "uppercase", color: "#8a8fa3", marginBottom: 18 }}>
             <span style={{ display: "inline-block", width: 30, height: 1, background: "#e9c675", verticalAlign: "middle", marginRight: 10 }} />Signal lost
           </div>
-          <h1 style={{ font: "400 clamp(2rem, 5vw, 3rem) 'Fraunces', Georgia, serif", fontOpticalSizing: "auto", lineHeight: 1.05, letterSpacing: "-.02em", color: "#f5f7fc", margin: "0 0 .3em" }}>
+          <h1 style={{ font: "400 clamp(2rem, 5vw, 3rem) 'Syne', system-ui, sans-serif", fontOpticalSizing: "auto", lineHeight: 1.05, letterSpacing: "-.02em", color: "#f5f7fc", margin: "0 0 .3em" }}>
             Something went <em style={{ fontStyle: "italic", color: "#e9c675" }}>sideways</em>.
           </h1>
-          <p style={{ font: "300 1rem 'Space Grotesk', system-ui, sans-serif", color: "#c4c8d6", lineHeight: 1.55, margin: "0 0 26px" }}>
+          <p style={{ font: "300 1rem 'Sora', system-ui, sans-serif", color: "#c4c8d6", lineHeight: 1.55, margin: "0 0 26px" }}>
             The 3D tour hit an error. Reload to try again — or grab my résumé.
           </p>
           <div style={{ display: "flex", gap: 12, justifyContent: "center", flexWrap: "wrap" }}>

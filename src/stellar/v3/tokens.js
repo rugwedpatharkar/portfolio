@@ -29,15 +29,15 @@ export const COLOR = {
 
 /* ---- type ----------------------------------------------------------------- */
 export const FONT = {
-  /* Type triad (redesign 2026-07): one expressive display + neutral sans + instrument mono.
-     Fraunces — variable serif (opsz/wght/SOFT); display + big numbers + its ITALIC for
-       accents/quotes (replaces Instrument Serif so we never pair two characterful serifs).
-     Space Grotesk — geometric sans with a subtle spacey edge; all body/UI/labels/buttons.
+  /* Type triad (redesign 2026-07): futuristic geometric display + clean sans + instrument mono.
+     Syne — geometric display with a space-age edge; name, section titles, big numbers.
+       (No true italic — emphasis is by weight + the warm accent colour, not slant.)
+     Sora — clean geometric sans "for the digital future"; body/UI/labels/buttons + accents.
      Space Mono — the instrument voice; every readout, coordinate, metric label, eyebrow, HUD.
      Fallbacks preserve the AppErrorBoundary / read-mode stack if a webfont fails to load. */
-  display: "'Fraunces', Georgia, 'Times New Roman', serif",
-  serif: "'Fraunces', Georgia, serif",
-  ui: "'Space Grotesk', system-ui, -apple-system, sans-serif",
+  display: "'Syne', system-ui, sans-serif",
+  serif: "'Sora', system-ui, sans-serif",
+  ui: "'Sora', system-ui, -apple-system, sans-serif",
   mono: "'Space Mono', ui-monospace, 'SFMono-Regular', monospace",
 };
 

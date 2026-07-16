@@ -339,7 +339,7 @@ const StellarApp = () => {
           position: fixed; left: 16px; top: -64px; z-index: 200;
           padding: 10px 16px; border-radius: 8px;
           background: var(--focus-ring, #915eff); color: #050609;
-          font: 600 14px/1 'Space Grotesk', system-ui, sans-serif; text-decoration: none;
+          font: 600 14px/1 'Sora', system-ui, sans-serif; text-decoration: none;
           transition: top .2s ease;
         }
         .stellar-skip:focus { top: 16px; outline: none; }
