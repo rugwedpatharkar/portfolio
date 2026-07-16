@@ -13,6 +13,8 @@ export const COLOR = {
   bgVoid: "#050609", // deepest space
   bg0: "#0a0c11", // base surface
   bg1: "#111520", // raised (HUD panels)
+  bgPanel: "#10131f", // dossier surface (elevated over the void)
+  bgElevated: "#161a2b", // raised card within a dossier
   line: "rgba(255,255,255,0.07)", // hairline dividers/frames
   lineStrong: "rgba(255,255,255,0.15)",
   fg: "#f5f7fc", // primary (~96%, never pure white)
@@ -61,9 +63,13 @@ export const MOTION = {
     smooth: [0.22, 1, 0.36, 1],
     sharp: [0.4, 0, 0.2, 1],
     bounce: [0.34, 1.56, 0.64, 1],
+    cine: [0.25, 0.1, 0.25, 1], // cinematicSmooth — general content reveals
+    silk: [0.45, 0.05, 0.55, 0.95], // cinematicSilk — slow, held beats
   },
   /* CSS cubic-bezier strings for GSAP/CSS use */
   cssSmooth: "cubic-bezier(0.22,1,0.36,1)",
+  cssCine: "cubic-bezier(0.25,0.1,0.25,1)",
+  cssSilk: "cubic-bezier(0.45,0.05,0.55,0.95)",
   spring: {
     snappy: { type: "spring", stiffness: 300, damping: 30 },
     gentle: { type: "spring", stiffness: 120, damping: 14 },
@@ -76,6 +82,8 @@ export const cssVars = () => `
   --v3-bg-void:${COLOR.bgVoid};
   --v3-bg-0:${COLOR.bg0};
   --v3-bg-1:${COLOR.bg1};
+  --v3-bg-panel:${COLOR.bgPanel};
+  --v3-bg-elevated:${COLOR.bgElevated};
   --v3-line:${COLOR.line};
   --v3-line-strong:${COLOR.lineStrong};
   --v3-fg:${COLOR.fg};
@@ -93,4 +101,6 @@ export const cssVars = () => `
   --v3-type-s4:${TYPE.s4};
   --v3-type-s6:${TYPE.s6};
   --v3-ease-smooth:${MOTION.cssSmooth};
+  --v3-ease-cine:${MOTION.cssCine};
+  --v3-ease-silk:${MOTION.cssSilk};
 `;
