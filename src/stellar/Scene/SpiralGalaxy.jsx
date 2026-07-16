@@ -42,15 +42,18 @@ const ARMS = [
 const ARM_PITCH = Math.tan(GALAXY.pitchAngleDeg * Math.PI / 180); // tan(12.5°) — real mean log-spiral pitch (Reid et al. 2019)
 const ARM_WIDTH = 0.30;           // arm angular spread
 /* The real Milky Way holds 100–400 BILLION planetary systems — unrenderable as
-   literal points (~TB of memory), so this ~150k-point cloud is the RESOLVED
+   literal points (~TB of memory), so this ~200k-point cloud is the RESOLVED
    scatter on top of the continuous surface-brightness glow below; together they
-   read as "countless". Bumped ~2× from the original for a denser field. */
-const ARM_STARS_MAJOR = 26000;    // per major arm
-const ARM_STARS_MINOR = 14000;    // per minor arm
-const SPUR_STARS = 7000;          // the Orion Spur sub-branch (Sun's home)
-const HALO_STARS = 46000;         // diffuse inter-arm disc — fills the gaps
-const BULGE_STARS = 17000;        // central bulge + bar
-const HII_REGIONS = 2600;         // pink star-forming knots along the arms
+   read as "countless". It's ONE draw call (a single BufferGeometry) with FINE
+   points (small sprites → low overdraw, and finer detail reads more like a real
+   galaxy than fat blobs); the adaptive guard sheds the surrounding layers
+   (deep-star haze, dust) on weaker machines to hold the frame. */
+const ARM_STARS_MAJOR = 34000;    // per major arm
+const ARM_STARS_MINOR = 19000;    // per minor arm
+const SPUR_STARS = 8000;          // the Orion Spur sub-branch (Sun's home)
+const HALO_STARS = 58000;         // diffuse inter-arm disc — fills the gaps
+const BULGE_STARS = 22000;        // central bulge + bar
+const HII_REGIONS = 3000;         // pink star-forming knots along the arms
 const ARM_STARS_TOTAL = ARM_STARS_MAJOR * 2 + ARM_STARS_MINOR * 2;
 const SOL_R = GALAXY.sun.galactocentricRadiusLy * SCENE_PER_LY; // 26,670 ly → 0.533 R — Sun's true galactocentric radius
 const SOL_ARM_OFFSET = 0.35;      // Orion Spur sits just off the Sagittarius arm
@@ -296,14 +299,14 @@ const SpiralGalaxy = ({ animate = true, solPulse = false }) => {
           <bufferAttribute attach="attributes-size" count={sizes.length} array={sizes} itemSize={1} />
         </bufferGeometry>
         <pointsMaterial
-          size={6.2}
+          size={4.0}
           sizeAttenuation
           vertexColors
           transparent
-          opacity={0.95}
+          opacity={1.0}
           depthWrite={false}
           map={STAR_SPRITE}
-          alphaTest={0.01}
+          alphaTest={0.06}
           blending={THREE.AdditiveBlending}
           toneMapped={false}
         />

@@ -399,7 +399,7 @@ const Scene = ({ scrollT, finaleT, finale = false, activeIdx, onJump, focusRef, 
      mid-motion), which is exactly when the journey needs the frame budget. On a
      retina display DPR is a quadratic fragment multiplier, so 2→1.75 already buys
      headroom at negligible visible cost. */
-  const dprCap = isMobile ? 1.4 : 2;
+  const dprCap = isMobile ? 1.3 : 1.75;
 
   /* §7.4 — feature-flagged experiment with frameloop="demand". Off by default:
      the tour has continuous animation everywhere (planet orbits, Sun churn,
@@ -529,7 +529,7 @@ const Scene = ({ scrollT, finaleT, finale = false, activeIdx, onJump, focusRef, 
             its own phase. Layers on top so BOTH the homepage sky and the tour read
             as extremely dense + alive. Sky-fixed (radius 6600), so unlike the
             foreground dust it never rides the cursor. */}
-        {!finale && !perfLow && <DeepStars count={isMobile ? 6000 : 16000} reducedMotion={reducedMotion} />}
+        {!finale && !perfLow && <DeepStars count={isMobile ? 6000 : 19000} reducedMotion={reducedMotion} />}
         {/* Nebulae live INSIDE the Milky Way — they belong to the solar-system
             tour backdrop, not the from-outside homepage. Hidden on the
             homepage (where the deep-field galaxies are the backdrop instead). */}
