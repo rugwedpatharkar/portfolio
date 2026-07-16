@@ -1,136 +1,187 @@
 /*
- * Fun facts (Mercury) — the numbers dossier.
+ * FunFacts / Impact in Production — masthead + big-number tile grid (redesign 2026-07).
+ * No cards, no scroll — fits inside the fixed 906px `.stellar-dossier-frame`.
  *
- * User feedback: 'redesign it — even if the screen size increases or
- * decreases the content should never cut or clamp.'
+ *   LEFT  — kicker · huge Syne section title (planet-tinted) · short lede.
+ *   RIGHT — 4×2 grid of big-number tiles. Each tile: index · Syne value with
+ *           tinted suffix · mono label · Sora detail sentence.
  *
- * Redesign approach:
- *   - LEFT area spans grid cols 1+2 (wider) so 4 stats can sit side-by-side.
- *   - Grid: 4 cols × 2 rows for the 8 stats. `min-content` rows so cells size
- *     to their natural content (no clamps, no line-clamp, full detail shown).
- *   - Header (kicker + heading + optional lede) sits on top spanning full
- *     width and does NOT compete for vertical space with the stats.
- *   - Description clamps + WebkitLineClamp REMOVED. If the viewport can't fit
- *     everything, the LEFT container's overflow: auto gives a v3 scrollbar,
- *     but nothing is truncated or clipped mid-word.
- *   - Card content: emoji + big serif number stacked, mono label, full detail
- *     paragraph. All fluid clamps for scalability without upper caps that
- *     force cut-off.
+ * All fields from funFacts[] are rendered verbatim (src/content/index.js).
+ * Every tile is a receipt — the detail line answers "why is this number impressive."
  */
+import { memo, useMemo } from "react";
+import { motion, useReducedMotion } from "motion/react";
 import { funFacts, sectionMeta } from "../../../content";
-import { V3Frame, V3Scan, V3Ticker, V3SectionHeader } from "../primitives";
 
-const META = sectionMeta.funFacts;
+const CINE = [0.25, 0.1, 0.25, 1];
 
-const StatCard = ({ f, i, cols }) => {
-  const row = Math.floor(i / cols);
-  const col = i % cols;
-  const isFloat = !Number.isInteger(f.value);
-  return (
-    <V3Scan variant="radial" delay={0.15 + (row + col) * 0.05}>
-      <div style={{
-        display: "flex", flexDirection: "column",
-        gap: "clamp(6px, 0.55vw, 10px)",
-        padding: "clamp(12px, 1.1vw, 18px) clamp(12px, 1.15vw, 20px)",
-        border: "1px solid var(--v3-line)",
-        borderRadius: 6,
-        minWidth: 0, height: "100%", minHeight: 0,
-      }}>
-        {/* emoji + big number inline */}
-        <div style={{ display: "flex", alignItems: "baseline", gap: "clamp(6px, 0.6vw, 10px)", flexWrap: "wrap" }}>
-          <span aria-hidden style={{
-            fontSize: "clamp(1rem, 0.6vw + 0.5rem, 1.35rem)",
-            opacity: 0.85, flexShrink: 0,
-          }}>{f.icon}</span>
-          <span style={{
-            fontFamily: "var(--v3-font-display)", fontWeight: 340,
-            fontSize: "clamp(1.4rem, 0.6vw + 1rem, 2.2rem)",
-            lineHeight: 1, letterSpacing: "-.02em",
-            color: "var(--v3-fg)", fontOpticalSizing: "auto",
-            overflowWrap: "anywhere",
-          }}>
-            <V3Ticker value={f.value} suffix={f.suffix || ""} decimals={isFloat ? 1 : 0} />
-          </span>
-        </div>
-        {/* mono label */}
-        <div style={{
-          fontFamily: "var(--v3-font-mono)", fontWeight: 400,
-          fontSize: "clamp(9px, 0.35vw + 6px, 11px)",
-          letterSpacing: ".18em", textTransform: "uppercase",
-          color: "var(--v3-fg-mute)",
-          overflowWrap: "anywhere",
-        }}>{f.label}</div>
-        {/* detail — no clamp, full text visible */}
-        <p style={{
-          fontFamily: "var(--v3-font-ui)", fontWeight: 300,
-          fontSize: "clamp(.72rem, 0.3vw + 0.55rem, .82rem)",
-          color: "var(--v3-fg-dim)", lineHeight: 1.45, margin: 0,
-          overflowWrap: "break-word", hyphens: "auto",
-        }}>{f.detail}</p>
-      </div>
-    </V3Scan>
-  );
+const S = {
+  root: {
+    /* Kept narrower than Experience/Projects — Sun stop is `kind:"star"` and
+       the camera pulls up close, so the Sun's disk + glow fills the right half
+       of the viewport. Constraining the whole spread to the left ~55% keeps the
+       tiles clear of it. */
+    width: "min(100%, clamp(760px, 55vw, 980px))",
+    height: "100%",
+    display: "grid",
+    gridTemplateColumns: "minmax(240px, 280px) 1fr",
+    gap: "clamp(32px, 4vw, 56px)",
+    pointerEvents: "auto",
+    color: "var(--v3-fg)",
+    fontFamily: "var(--v3-font-ui)",
+    minHeight: 0,
+    alignItems: "start",
+  },
+
+  /* ---- LEFT (masthead) ---- */
+  left: { display: "flex", flexDirection: "column", gap: 18, minHeight: 0 },
+  kicker: {
+    fontFamily: "var(--v3-font-mono)",
+    fontSize: 11,
+    letterSpacing: ".28em",
+    textTransform: "uppercase",
+    color: "var(--v3-fg-mute)",
+  },
+  title: {
+    fontFamily: "var(--v3-font-display)",
+    fontWeight: 700,
+    fontSize: "clamp(32px, 3.4vw, 52px)",
+    lineHeight: 0.94,
+    letterSpacing: "-.02em",
+    color: "color-mix(in oklab, var(--v3-accent) 62%, #ffffff 38%)",
+    margin: 0,
+    /* Prevent mid-word hyphenation ("Producti-on") when the column is narrow. */
+    overflowWrap: "normal",
+    wordBreak: "keep-all",
+    hyphens: "none",
+  },
+  lede: {
+    fontFamily: "var(--v3-font-ui)",
+    fontSize: 14.5,
+    lineHeight: 1.55,
+    color: "var(--v3-fg-dim)",
+    maxWidth: "34ch",
+    margin: 0,
+  },
+  count: {
+    marginTop: 6,
+    paddingTop: 14,
+    borderTop: "1px solid var(--v3-line)",
+    fontFamily: "var(--v3-font-mono)",
+    fontSize: 10,
+    letterSpacing: ".24em",
+    textTransform: "uppercase",
+    color: "var(--v3-accent)",
+  },
+
+  /* ---- RIGHT (tile grid) ---- */
+  grid: {
+    display: "grid",
+    /* 2 columns × 4 rows keeps tiles wide enough to read the values + labels
+       + a two-line detail, while stacking vertically to stay in the safe zone
+       away from the Sun's disk on the right. */
+    gridTemplateColumns: "repeat(2, 1fr)",
+    gap: 0,
+    borderTop: "1px solid var(--v3-line-strong)",
+    borderLeft: "1px solid var(--v3-line-strong)",
+    alignSelf: "stretch",
+  },
+  tile: {
+    padding: "14px 18px 16px",
+    borderRight: "1px solid var(--v3-line-strong)",
+    borderBottom: "1px solid var(--v3-line-strong)",
+    display: "flex",
+    flexDirection: "column",
+    gap: 4,
+    minHeight: 0,
+  },
+  tileHead: {
+    display: "flex",
+    justifyContent: "space-between",
+    alignItems: "baseline",
+    fontFamily: "var(--v3-font-mono)",
+    fontSize: 9,
+    letterSpacing: ".22em",
+    textTransform: "uppercase",
+    color: "var(--v3-fg-mute)",
+  },
+  tileIdx: { color: "var(--v3-accent)" },
+  tileValue: {
+    fontFamily: "var(--v3-font-display)",
+    fontWeight: 700,
+    fontSize: "clamp(28px, 2.6vw, 40px)",
+    lineHeight: 1,
+    letterSpacing: "-.02em",
+    color: "color-mix(in oklab, var(--v3-accent) 62%, #ffffff 38%)",
+    margin: "2px 0 4px",
+  },
+  tileSuffix: { color: "var(--v3-accent)", fontStyle: "normal" },
+  tileLabel: {
+    fontFamily: "var(--v3-font-mono)",
+    fontSize: 10,
+    letterSpacing: ".22em",
+    textTransform: "uppercase",
+    color: "var(--v3-fg)",
+    marginBottom: 4,
+  },
+  tileDetail: {
+    fontSize: 12,
+    lineHeight: 1.5,
+    color: "var(--v3-fg-mute)",
+    margin: 0,
+  },
 };
 
-export default function FunFactsSection({ bootNonce }) {
-  const cols = 4; // 4-col grid so 8 stats fit as 4×2
+const Tile = memo(function Tile({ f, i, reduced }) {
   return (
-    <V3Frame
-      section="Fun facts"
-      planet="MERCURY"
-
-      scanDir="radial"
-      scanKey={bootNonce}
-      /* LEFT area spans grid cols 1+2 (full frame height) so the 4-col grid
-         + header have real horizontal room. Col 3 stays empty for Mercury +
-         corner telemetry card. */
-      gridAreas={`"top top top" "left left ." "left left ." "left left ."`}
+    <motion.div
+      initial={reduced ? {} : { opacity: 0, y: 12 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.5, delay: 0.05 * i, ease: CINE }}
+      style={S.tile}
     >
-      <div style={{
-        gridArea: "left",
-        display: "flex", flexDirection: "column",
-        gap: "clamp(14px, 1.4vw, 22px)",
-        minWidth: 0, minHeight: 0, overflow: "hidden auto",
-        maxWidth: "min(60vw, 1200px)", height: "100%",
-      }}>
-        {/* Header — kicker + h2 via V3SectionHeader; lede paragraph rides along
-            in a following block (V3SectionHeader doesn't own a lede slot). */}
-        <V3SectionHeader
-          sub={META.sub}
-          heading={META.heading}
-          kickerSize="clamp(9.5px, 0.2vw + 8px, 11px)"
-          kickerMb={10}
-        />
-        <V3Scan variant="horizontal" delay={0.08}>
-          <p style={{
-            fontFamily: "var(--v3-font-ui)", fontWeight: 300,
-            fontSize: "clamp(.8rem, 0.3vw + 0.65rem, .9rem)",
-            color: "var(--v3-fg-dim)",
-            lineHeight: 1.55, margin: 0,
-            maxWidth: "min(72ch, 100%)",
-            overflowWrap: "break-word",
-          }}>
-            {META.description}
-          </p>
-        </V3Scan>
-
-        {/* 4×2 stats grid — hairline dividers between rows AND columns.
-            gridAutoRows: 1fr + flex:1 stretches cells to fill remaining height.
-            No line clamps anywhere — content is never cut. If the viewport is
-            genuinely too short for 8 stats, LEFT container's overflow: auto
-            catches it and the elegant v3 scrollbar appears. */}
-        <div style={{
-          display: "grid",
-          gridTemplateColumns: `repeat(${cols}, minmax(0, 1fr))`,
-          gridAutoRows: "1fr",
-          gap: "clamp(8px, 0.7vw, 12px)",
-          flex: 1, minHeight: 0,
-        }}>
-          {funFacts.map((f, i) => (
-            <StatCard key={i} f={f} i={i} cols={cols} />
-          ))}
-        </div>
+      <div style={S.tileHead}>
+        <span style={S.tileIdx}>{String(i + 1).padStart(2, "0")}</span>
+        {f.icon && <span aria-hidden style={{ fontSize: 14, letterSpacing: 0 }}>{f.icon}</span>}
       </div>
-    </V3Frame>
+      <div style={S.tileValue}>
+        {f.value}
+        {f.suffix && <em style={S.tileSuffix}>{f.suffix}</em>}
+      </div>
+      <div style={S.tileLabel}>{f.label}</div>
+      {f.detail && <p style={S.tileDetail}>{f.detail}</p>}
+    </motion.div>
+  );
+});
+
+export default function FunFactsSection({ bootNonce }) {
+  const reduced = useReducedMotion();
+  const meta = sectionMeta.funfacts || {};
+  const facts = useMemo(() => funFacts || [], []);
+
+  return (
+    <div key={bootNonce} style={S.root}>
+      {/* ================== LEFT ================== */}
+      <div style={S.left}>
+        <div style={S.kicker}>{meta.sub || "Numbers I've moved"}</div>
+        <motion.h1
+          initial={reduced ? {} : { opacity: 0, y: 14 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.6, ease: CINE }}
+          style={S.title}
+        >
+          {meta.heading || "Impact in Production"}
+        </motion.h1>
+        {meta.description && <p style={S.lede}>{meta.description}</p>}
+        <div style={S.count}>{String(facts.length).padStart(2, "0")} receipts</div>
+      </div>
+
+      {/* ================== RIGHT (tiles) ================== */}
+      <div style={S.grid}>
+        {facts.map((f, i) => (
+          <Tile key={f.label} f={f} i={i} reduced={reduced} />
+        ))}
+      </div>
+    </div>
   );
 }
