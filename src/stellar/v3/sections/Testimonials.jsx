@@ -1,183 +1,315 @@
 /*
- * Testimonials (Neptune) — editorial triptych.
+ * Testimonials — source directory + featured quote (redesign 2026-07).
+ * No cards, no scroll — fits inside the fixed 906px `.stellar-dossier-frame`.
  *
- * Dual-marquee was overkill for 3 testimonials — a marquee needs a
- * stream of content to feel like a wall of praise. With 3, each row
- * just cycled the same short loop, which read as thin and repetitive.
+ *   LEFT  — kicker · huge Uranus-tinted title · source directory
+ *           (each row: index + role + company). Click a row to feature it.
+ *   RIGHT — mono attribution meta · giant Syne pull-quote glyph · quote body
+ *           in Fraunces-italic-style (Syne italic-effect via slant) · attribution
+ *           block · endorsements + related projects (hairline hairlines).
  *
- * Replaced with a static 3-column triptych. Each card gets full
- * editorial treatment: huge Instrument Serif italic pull-quote glyph
- * as a background element, big Fraunces name at the top, italic
- * role · company below, prose quote in Satoshi, star rating dots,
- * endorsement chip cloud, period kicker in mono.
- *
- * Cards fill the section as an even 3-col grid consuming 88 vh. No
- * scroll, no marquee — just three panels of praise sitting side by
- * side like a magazine spread.
- *
- * Motion: each card fades + y-slides in on view with a 100 ms
- * stagger. Reduced motion → static.
+ * All 3 testimonials[] entries rendered verbatim (src/content/index.js).
  */
-import { motion, useReducedMotion } from "motion/react";
+import { memo, useEffect, useState } from "react";
+import { motion, AnimatePresence, useReducedMotion } from "motion/react";
 import { testimonials, sectionMeta } from "../../../content";
-import { V3Frame, V3Scan, V3SectionHeader, V3Chip } from "../primitives";
-import { EASE } from "../anim";
 
-const META = sectionMeta.testimonials || {
-  sub: "What Others Say",
-  heading: "Testimonials",
+const CINE = [0.25, 0.1, 0.25, 1];
+
+const S = {
+  root: {
+    width: "min(100%, clamp(880px, 72vw, 1240px))",
+    height: "100%",
+    display: "grid",
+    gridTemplateColumns: "minmax(300px, 360px) 1fr",
+    gap: "clamp(40px, 5vw, 72px)",
+    pointerEvents: "auto",
+    color: "var(--v3-fg)",
+    fontFamily: "var(--v3-font-ui)",
+    minHeight: 0,
+    alignItems: "start",
+  },
+
+  /* ---- LEFT (masthead + source list) ---- */
+  left: { display: "flex", flexDirection: "column", gap: 18, minHeight: 0 },
+  kicker: {
+    fontFamily: "var(--v3-font-mono)",
+    fontSize: 11,
+    letterSpacing: ".28em",
+    textTransform: "uppercase",
+    color: "var(--v3-fg-mute)",
+  },
+  title: {
+    fontFamily: "var(--v3-font-display)",
+    fontWeight: 700,
+    fontSize: "clamp(36px, 4vw, 60px)",
+    lineHeight: 0.92,
+    letterSpacing: "-.02em",
+    color: "color-mix(in oklab, var(--v3-accent) 62%, #ffffff 38%)",
+    margin: 0,
+    overflowWrap: "normal",
+    wordBreak: "keep-all",
+    hyphens: "none",
+  },
+  dirLabel: {
+    marginTop: 8,
+    paddingTop: 14,
+    borderTop: "1px solid var(--v3-line-strong)",
+    fontFamily: "var(--v3-font-mono)",
+    fontSize: 10,
+    letterSpacing: ".24em",
+    textTransform: "uppercase",
+    color: "var(--v3-accent)",
+    paddingBottom: 4,
+  },
+  row: (active) => ({
+    all: "unset",
+    cursor: "pointer",
+    display: "grid",
+    gridTemplateColumns: "28px 1fr",
+    gap: 10,
+    padding: "12px 0",
+    borderBottom: "1px solid var(--v3-line)",
+    width: "100%",
+    transition: "background .15s ease",
+    background: active ? "color-mix(in oklab, var(--v3-accent) 8%, transparent)" : "transparent",
+  }),
+  rowN: {
+    fontFamily: "var(--v3-font-mono)",
+    fontSize: 10,
+    letterSpacing: ".14em",
+    color: "var(--v3-accent)",
+    paddingTop: 4,
+  },
+  rowRole: (active) => ({
+    fontFamily: "var(--v3-font-display)",
+    fontWeight: active ? 600 : 500,
+    fontSize: 14,
+    letterSpacing: "-.005em",
+    color: active ? "var(--v3-fg)" : "var(--v3-fg-dim)",
+    lineHeight: 1.25,
+    transition: "color .18s ease, font-weight .18s ease",
+  }),
+  rowCo: {
+    fontFamily: "var(--v3-font-mono)",
+    fontSize: 10,
+    letterSpacing: ".14em",
+    color: "var(--v3-fg-mute)",
+    marginTop: 4,
+    display: "block",
+  },
+
+  /* ---- RIGHT (featured quote) ---- */
+  right: { display: "flex", flexDirection: "column", minHeight: 0 },
+  metaRow: {
+    display: "flex",
+    gap: 24,
+    flexWrap: "wrap",
+    paddingBottom: 14,
+    borderBottom: "1px solid var(--v3-line)",
+    fontFamily: "var(--v3-font-mono)",
+    fontSize: 10,
+    letterSpacing: ".22em",
+    textTransform: "uppercase",
+    color: "var(--v3-fg-mute)",
+  },
+  metaK: { color: "var(--v3-fg)", fontWeight: 500 },
+  quoteRow: {
+    display: "grid",
+    gridTemplateColumns: "64px 1fr",
+    gap: 20,
+    marginTop: 24,
+  },
+  quoteGlyph: {
+    fontFamily: "var(--v3-font-display)",
+    fontStyle: "italic",
+    fontSize: "clamp(72px, 8vw, 120px)",
+    lineHeight: 0.7,
+    color: "color-mix(in oklab, var(--v3-accent) 62%, #ffffff 38%)",
+    userSelect: "none",
+  },
+  quote: {
+    fontFamily: "var(--v3-font-display)",
+    fontStyle: "italic",
+    fontWeight: 500,
+    fontSize: "clamp(19px, 1.8vw, 26px)",
+    lineHeight: 1.4,
+    letterSpacing: "-.005em",
+    color: "var(--v3-fg)",
+    margin: 0,
+    maxWidth: "58ch",
+  },
+  attribution: {
+    marginTop: 22,
+    paddingTop: 16,
+    borderTop: "1px solid var(--v3-line)",
+    display: "flex",
+    flexWrap: "wrap",
+    gap: "8px 24px",
+    alignItems: "baseline",
+  },
+  attribName: {
+    fontFamily: "var(--v3-font-display)",
+    fontSize: 16,
+    fontWeight: 600,
+    letterSpacing: "-.005em",
+    color: "color-mix(in oklab, var(--v3-accent) 62%, #ffffff 38%)",
+  },
+  attribRole: {
+    fontFamily: "var(--v3-font-ui)",
+    fontSize: 13,
+    color: "var(--v3-fg-dim)",
+  },
+  rating: {
+    marginLeft: "auto",
+    fontFamily: "var(--v3-font-mono)",
+    fontSize: 12,
+    letterSpacing: ".2em",
+    color: "var(--v3-accent)",
+  },
+  endorseWrap: {
+    marginTop: 20,
+    paddingTop: 14,
+    borderTop: "1px solid var(--v3-line-strong)",
+    display: "grid",
+    gridTemplateColumns: "120px 1fr",
+    gap: 20,
+    alignItems: "baseline",
+  },
+  endorseLbl: {
+    fontFamily: "var(--v3-font-mono)",
+    fontSize: 10,
+    letterSpacing: ".24em",
+    textTransform: "uppercase",
+    color: "var(--v3-fg-mute)",
+  },
+  endorseRow: {
+    color: "var(--v3-fg-dim)",
+    fontSize: 13,
+    lineHeight: 1.9,
+  },
+  endorseItem: { color: "var(--v3-fg)" },
+  endorseSep: { color: "rgba(255,255,255,.20)", margin: "0 6px" },
+  ctxWrap: {
+    marginTop: 14,
+    paddingTop: 14,
+    borderTop: "1px solid var(--v3-line)",
+    display: "grid",
+    gridTemplateColumns: "120px 1fr",
+    gap: 20,
+    alignItems: "baseline",
+  },
 };
 
-const TestimonialCard = ({ t, index, reduce }) => {
-  const delay = 0.15 + index * 0.1;
+const SourceRow = memo(function SourceRow({ t, n, active, onSelect }) {
   return (
-    <motion.article
-      initial={reduce ? false : { opacity: 0, y: 16 }}
-      whileInView={{ opacity: 1, y: 0 }}
-      viewport={{ once: true, amount: 0.2 }}
-      transition={{ duration: 0.5, ease: EASE, delay }}
-      style={{
-        position: "relative",
-        display: "flex", flexDirection: "column",
-        justifyContent: "space-between",
-        gap: "clamp(14px, 1.4vw, 22px)",
-        padding: "clamp(22px, 2vw, 34px) clamp(20px, 1.8vw, 30px)",
-        border: "1px solid var(--v3-line)",
-        borderRadius: 8,
-        background: "color-mix(in oklab, var(--v3-bg-void) 55%, transparent)",
-        boxShadow: "inset 0 0 0 1px color-mix(in oklab, var(--v3-fg) 3%, transparent)",
-        overflow: "hidden",
-        minWidth: 0, minHeight: 0,
-      }}
-    >
-      {/* Enormous pull-quote glyph — background element, offset up and
-          to the left. Sits behind everything with a low opacity. */}
-      <span aria-hidden style={{
-        position: "absolute",
-        top: "clamp(-32px, -3vw, -18px)",
-        left: "clamp(-8px, -0.5vw, -2px)",
-        fontFamily: "var(--v3-font-serif)",
-        fontStyle: "italic",
-        fontSize: "clamp(9rem, 12vw, 18rem)",
-        lineHeight: 0.75,
-        color: "var(--v3-accent)",
-        opacity: 0.22,
-        pointerEvents: "none",
-        userSelect: "none",
-        textShadow: "0 0 40px color-mix(in oklab, var(--v3-accent) 22%, transparent)",
-        zIndex: 0,
-      }}>&ldquo;</span>
-
-      {/* Header: attribution — name in Fraunces, role · company in italic serif */}
-      <header style={{ position: "relative", zIndex: 1, display: "flex", flexDirection: "column", gap: 6, minWidth: 0 }}>
-        <div style={{ display: "flex", alignItems: "center", gap: 10, minWidth: 0 }}>
-          <span aria-hidden style={{ width: 16, height: 1, background: "var(--v3-accent)", flexShrink: 0 }} />
-          <h3 style={{
-            fontFamily: "var(--v3-font-display)", fontWeight: 340,
-            fontSize: "clamp(1.05rem, 0.6vw + 0.55rem, 1.4rem)",
-            lineHeight: 1.15, letterSpacing: "-.01em",
-            color: "var(--v3-fg)", margin: 0, fontOpticalSizing: "auto",
-            overflowWrap: "anywhere",
-            overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap",
-            minWidth: 0,
-          }}>{t.name}</h3>
-        </div>
-        <span style={{
-          fontFamily: "var(--v3-font-serif)", fontStyle: "italic",
-          fontWeight: 400,
-          fontSize: "clamp(0.82rem, 0.35vw + 0.55rem, 0.98rem)",
-          lineHeight: 1.3,
-          color: "var(--v3-fg-dim)",
-          paddingLeft: 26,
-          overflowWrap: "anywhere",
-        }}>{[t.role, t.company].filter(Boolean).join(" · ")}</span>
-      </header>
-
-      {/* Quote body — the editorial voice */}
-      <blockquote style={{
-        position: "relative", zIndex: 1,
-        margin: 0, padding: 0,
-        fontFamily: "var(--v3-font-ui)", fontWeight: 300,
-        fontSize: "clamp(0.9rem, 0.4vw + 0.6rem, 1.05rem)",
-        color: "var(--v3-fg)", lineHeight: 1.65,
-        maxWidth: "min(38ch, 100%)",
-        overflowWrap: "break-word",
-        display: "-webkit-box", WebkitLineClamp: 8, WebkitBoxOrient: "vertical", overflow: "hidden",
-      }}>{t.quote}</blockquote>
-
-      {/* Footer: rating + period + endorsements */}
-      <footer style={{ position: "relative", zIndex: 1, display: "flex", flexDirection: "column", gap: "clamp(10px, 1vw, 16px)", minWidth: 0 }}>
-        <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 10, minWidth: 0, flexWrap: "wrap" }}>
-          <div aria-label={`${t.rating}/5 rating`} style={{ display: "flex", gap: 4 }}>
-            {Array.from({ length: 5 }, (_, i) => (
-              <span key={i} aria-hidden style={{
-                width: 7, height: 7, borderRadius: "50%",
-                background: i < (t.rating || 0) ? "var(--v3-accent)" : "var(--v3-line-strong)",
-                boxShadow: i < (t.rating || 0) ? "0 0 8px color-mix(in oklab, var(--v3-accent) 60%, transparent)" : "none",
-              }} />
-            ))}
-          </div>
-          {t.context?.period && (
-            <span style={{
-              fontFamily: "var(--v3-font-mono)", fontWeight: 400,
-              fontSize: "clamp(9px, 0.3vw + 6px, 10.5px)",
-              letterSpacing: ".2em", textTransform: "uppercase",
-              color: "var(--v3-fg-mute)",
-              fontVariantNumeric: "tabular-nums", whiteSpace: "nowrap",
-            }}>{t.context.period}</span>
-          )}
-        </div>
-        {(t.endorsements || []).length > 0 && (
-          <div style={{ display: "flex", flexWrap: "wrap", gap: 4 }}>
-            {(t.endorsements || []).map((e, k) => (
-              <V3Chip key={k} size="clamp(8.5px, 0.25vw + 6px, 10px)" pad="1px clamp(6px, 0.55vw, 10px)">{e}</V3Chip>
-            ))}
-          </div>
-        )}
-      </footer>
-    </motion.article>
+    <button type="button" data-cursor onClick={onSelect} aria-pressed={active} style={S.row(active)}>
+      <span style={S.rowN}>{String(n).padStart(2, "0")}</span>
+      <span>
+        <span style={S.rowRole(active)}>{t.role}</span>
+        <span style={S.rowCo}>{t.company}</span>
+      </span>
+    </button>
   );
-};
+});
+
+const Featured = memo(function Featured({ t, reduced }) {
+  if (!t) return null;
+  const projects = t.context?.projects || [];
+  return (
+    <motion.div
+      key={t.name}
+      initial={reduced ? {} : { opacity: 0, y: 14 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.5, ease: CINE }}
+      style={{ display: "flex", flexDirection: "column", height: "100%" }}
+    >
+      <div style={S.metaRow}>
+        <span><span style={S.metaK}>Endorsement</span></span>
+        {t.context?.period && <span>· {t.context.period}</span>}
+        <span>· via {t.company}</span>
+      </div>
+
+      <div style={S.quoteRow}>
+        <span aria-hidden style={S.quoteGlyph}>&ldquo;</span>
+        <p style={S.quote}>{t.quote}</p>
+      </div>
+
+      <div style={S.attribution}>
+        <span style={S.attribName}>— {t.name}</span>
+        <span style={S.attribRole}>{t.role}</span>
+        {typeof t.rating === "number" && (
+          <span style={S.rating} aria-label={`${t.rating} out of 5`}>
+            {"★".repeat(t.rating)}
+            <span style={{ color: "rgba(255,255,255,.20)" }}>{"★".repeat(Math.max(0, 5 - t.rating))}</span>
+          </span>
+        )}
+      </div>
+
+      {(t.endorsements || []).length > 0 && (
+        <div style={S.endorseWrap}>
+          <div style={S.endorseLbl}>Endorsed</div>
+          <div style={S.endorseRow}>
+            {t.endorsements.map((e, i) => (
+              <span key={i}>
+                {i > 0 && <span style={S.endorseSep}>·</span>}
+                <span style={S.endorseItem}>{e}</span>
+              </span>
+            ))}
+          </div>
+        </div>
+      )}
+
+      {projects.length > 0 && (
+        <div style={S.ctxWrap}>
+          <div style={S.endorseLbl}>Projects</div>
+          <div style={S.endorseRow}>
+            {projects.map((p, i) => (
+              <span key={i}>
+                {i > 0 && <span style={S.endorseSep}>·</span>}
+                <span style={S.endorseItem}>{p}</span>
+              </span>
+            ))}
+          </div>
+        </div>
+      )}
+    </motion.div>
+  );
+});
 
 export default function TestimonialsSection({ bootNonce }) {
+  const reduced = useReducedMotion();
+  const meta = sectionMeta.testimonials || {};
   const list = testimonials || [];
-  const reduce = useReducedMotion();
+  const [idx, setIdx] = useState(0);
+  useEffect(() => { setIdx(0); }, [bootNonce]);
+  const active = list[Math.min(idx, list.length - 1)];
 
   return (
-    <V3Frame
-      section="Testimonials"
-      planet="NEPTUNE"
-
-      scanDir="horizontal"
-      scanKey={bootNonce}
-      gridAreas={`"top top top" "left left ." "left left ." "left left ."`}
-    >
-      <div style={{
-        gridArea: "left", display: "flex", flexDirection: "column",
-        gap: "clamp(12px, 1.2vw, 20px)",
-        minWidth: 0, minHeight: 0, overflow: "hidden",
-        maxWidth: "min(60vw, 1200px)", height: "100%",
-      }}>
-        {/* Header */}
-        <V3SectionHeader sub={META.sub} heading={META.heading} />
-
-        {/* Triptych — 3 cards in a static row, each taking the full remaining
-            vertical. Uses grid rather than flex so all cards land at
-            identical widths without needing per-card flex sizing. */}
-        <V3Scan variant="horizontal" delay={0.12} style={{ minWidth: 0, flex: 1, minHeight: 0, display: "flex" }}>
-          <div style={{
-            width: "100%", height: "100%",
-            display: "grid",
-            gridTemplateColumns: `repeat(${Math.min(list.length, 3)}, minmax(0, 1fr))`,
-            gap: "clamp(12px, 1.2vw, 20px)",
-            minWidth: 0, minHeight: 0,
-          }}>
-            {list.map((t, i) => (
-              <TestimonialCard key={i} t={t} index={i} reduce={reduce} />
-            ))}
-          </div>
-        </V3Scan>
+    <div style={S.root}>
+      {/* ================== LEFT ================== */}
+      <div style={S.left}>
+        <div style={S.kicker}>{meta.sub || "What others say"}</div>
+        <motion.h1
+          initial={reduced ? {} : { opacity: 0, y: 14 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.6, ease: CINE }}
+          style={S.title}
+        >
+          {meta.heading || "Testimonials"}
+        </motion.h1>
+        <div style={S.dirLabel}>{String(list.length).padStart(2, "0")} endorsements</div>
+        {list.map((t, i) => (
+          <SourceRow key={t.name} t={t} n={i + 1} active={i === idx} onSelect={() => setIdx(i)} />
+        ))}
       </div>
-    </V3Frame>
+
+      {/* ================== RIGHT ================== */}
+      <div style={S.right}>
+        <AnimatePresence mode="wait">
+          <Featured key={active?.name || "empty"} t={active} reduced={reduced} />
+        </AnimatePresence>
+      </div>
+    </div>
   );
 }
