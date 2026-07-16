@@ -27,22 +27,16 @@ export const COLOR = {
 
 /* ---- type ----------------------------------------------------------------- */
 export const FONT = {
-  /* Font stack — Option 2 (Rauno/Kenta editorial-technical).
-     Fraunces: variable serif for display + values. Uses `opsz`+`SOFT`+`wght`
-       axes for optical-size correctness + softened contrast at large sizes.
-     Instrument Serif: italic-forward accent serif (kept — its italic is
-       iconic and pairs with Fraunces).
-     Satoshi: Fontshare geometric sans for UI/body — more character than
-       Inter, more restraint than Manrope's warmth. Feels premium without
-       generic.
-     JetBrains Mono: the tool builders' monospace — signals "software engineer"
-       more explicitly than Geist Mono, still modern.
-     Fallbacks preserve the legacy AppErrorBoundary + StellarApp read-mode
-     stack in case Fraunces / Satoshi / JetBrains Mono fail to load. */
-  display: "'Fraunces', 'DM Serif Display', Georgia, serif",
-  serif: "'Instrument Serif', Georgia, serif",
-  ui: "'Satoshi', 'Manrope', system-ui, sans-serif",
-  mono: "'JetBrains Mono', 'Geist Mono', ui-monospace, monospace",
+  /* Type triad (redesign 2026-07): one expressive display + neutral sans + instrument mono.
+     Fraunces — variable serif (opsz/wght/SOFT); display + big numbers + its ITALIC for
+       accents/quotes (replaces Instrument Serif so we never pair two characterful serifs).
+     Space Grotesk — geometric sans with a subtle spacey edge; all body/UI/labels/buttons.
+     Space Mono — the instrument voice; every readout, coordinate, metric label, eyebrow, HUD.
+     Fallbacks preserve the AppErrorBoundary / read-mode stack if a webfont fails to load. */
+  display: "'Fraunces', Georgia, 'Times New Roman', serif",
+  serif: "'Fraunces', Georgia, serif",
+  ui: "'Space Grotesk', system-ui, -apple-system, sans-serif",
+  mono: "'Space Mono', ui-monospace, 'SFMono-Regular', monospace",
 };
 
 /* Utopia fluid clamp() steps (type). Hero name (step6) bumped per sign-off. */
