@@ -90,7 +90,7 @@ const BootLoader = ({ warmed = false, reducedMotion = false, onDone }) => {
       <div style={{ width: "min(340px, 74vw)", textAlign: "center" }}>
         <div
           style={{
-            font: "500 11px/1 'Geist Mono', 'JetBrains Mono', monospace",
+            font: "500 11px/1 'Space Mono', monospace",
             letterSpacing: "0.34em",
             textTransform: "uppercase",
             color: "rgba(212, 220, 236, 0.5)",
@@ -129,7 +129,7 @@ const BootLoader = ({ warmed = false, reducedMotion = false, onDone }) => {
             display: "flex",
             justifyContent: "space-between",
             marginTop: 12,
-            font: "500 11px/1 'Geist Mono', 'JetBrains Mono', monospace",
+            font: "500 11px/1 'Space Mono', monospace",
             letterSpacing: "0.2em",
             color: "rgba(212, 220, 236, 0.42)",
           }}

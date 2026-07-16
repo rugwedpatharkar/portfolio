@@ -81,7 +81,7 @@ const StarLabel = ({ star }) => {
             border: "1px solid rgba(201,180,138,0.4)",
             backdropFilter: "blur(8px)",
             WebkitBackdropFilter: "blur(8px)",
-            fontFamily: "'Martian Mono', monospace",
+            fontFamily: "'Space Mono', monospace",
             color: "#f5f7fc",
             fontSize: 11,
             lineHeight: 1.35,

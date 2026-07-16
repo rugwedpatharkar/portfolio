@@ -52,7 +52,7 @@ const LocalInterstellarCloud = () => {
         position={[0, 1400 * SKY_SCALE, 5700 * SKY_SCALE]}
         style={{
           pointerEvents: "none",
-          fontFamily: "JetBrains Mono, monospace",
+          fontFamily: "'Space Mono', monospace",
           fontSize: 10,
           letterSpacing: "0.18em",
           color: "rgba(240, 220, 192, 0.7)",

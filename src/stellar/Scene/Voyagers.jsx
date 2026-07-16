@@ -69,7 +69,7 @@ const Probe = ({ dir, label, distance, target, crossed, tint }) => {
         position={[0, 22, 0]}
         style={{
           pointerEvents: "none",
-          fontFamily: "JetBrains Mono, monospace",
+          fontFamily: "'Space Mono', monospace",
           fontSize: 10,
           letterSpacing: "0.18em",
           color: "rgba(255, 224, 168, 0.85)",

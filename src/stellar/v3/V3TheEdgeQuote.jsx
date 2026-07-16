@@ -62,7 +62,7 @@ export default function V3TheEdgeQuote({ activeIdx }) {
         <div
           style={{
             marginTop: "clamp(14px, 1.4vw, 22px)",
-            fontFamily: "JetBrains Mono, monospace",
+            fontFamily: "'Space Mono', monospace",
             fontSize: "clamp(10px, 0.85vw, 12px)",
             letterSpacing: "0.28em",
             textTransform: "uppercase",

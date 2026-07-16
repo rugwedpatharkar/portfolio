@@ -24,7 +24,7 @@ const StellarApp = lazy(() => import("./stellar/StellarApp"));
    flash. Hardcoded v3 colours since the token skin mounts after this. */
 const BootReveal = () => (
   <div style={{ position: "fixed", inset: 0, zIndex: 9999, background: "#050609", display: "flex", alignItems: "center", justifyContent: "center" }}>
-    <div style={{ fontFamily: "'DM Serif Display', Georgia, serif", fontWeight: 340, fontSize: "clamp(1.5rem, 5vw, 2.4rem)", letterSpacing: "-.01em", color: "#f5f7fc", opacity: 0, animation: "stellarBoot 700ms cubic-bezier(.22,1,.36,1) forwards" }}>
+    <div style={{ fontFamily: "'Fraunces', Georgia, serif", fontWeight: 340, fontSize: "clamp(1.5rem, 5vw, 2.4rem)", letterSpacing: "-.01em", color: "#f5f7fc", opacity: 0, animation: "stellarBoot 700ms cubic-bezier(.22,1,.36,1) forwards" }}>
       Rugwed <em style={{ fontStyle: "italic", color: "#e9c675" }}>Patharkar</em>
     </div>
     <style>{`@keyframes stellarBoot{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
@@ -40,15 +40,15 @@ const StaticResume = () => {
   return (
     <main id="main-content" style={{ position: "fixed", inset: 0, overflow: "auto", background: "#050609", color: "#f5f7fc", display: "flex", alignItems: "center", justifyContent: "center", padding: 24, textAlign: "center" }}>
       <div style={{ maxWidth: 560 }}>
-        <div style={{ font: "400 .72rem 'Geist Mono', monospace", letterSpacing: ".28em", textTransform: "uppercase", color: "#8a8fa3", marginBottom: 18 }}>Rugwed Patharkar</div>
-        <h1 style={{ font: "400 clamp(2.2rem, 6vw, 3.4rem) 'DM Serif Display', Georgia, serif", lineHeight: 1.05, letterSpacing: "-.02em", margin: "0 0 .4em" }}>
+        <div style={{ font: "400 .72rem 'Space Mono', monospace", letterSpacing: ".28em", textTransform: "uppercase", color: "#8a8fa3", marginBottom: 18 }}>Rugwed Patharkar</div>
+        <h1 style={{ font: "400 clamp(2.2rem, 6vw, 3.4rem) 'Fraunces', Georgia, serif", lineHeight: 1.05, letterSpacing: "-.02em", margin: "0 0 .4em" }}>
           Backend &amp; <em style={{ fontStyle: "italic", color: "#e9c675" }}>Agentic AI</em> Engineer
         </h1>
-        <p style={{ font: "300 1.05rem 'Manrope', system-ui, sans-serif", color: "#c4c8d6", lineHeight: 1.6, margin: "0 0 28px" }}>
+        <p style={{ font: "300 1.05rem 'Space Grotesk', system-ui, sans-serif", color: "#c4c8d6", lineHeight: 1.6, margin: "0 0 28px" }}>
           I build distributed Python/FastAPI/gRPC backends and agentic-AI systems at Upswing
           (Pune, India). Your browser can’t run the interactive 3D tour — here are the essentials.
         </p>
-        <div style={{ font: "400 1rem 'Manrope', system-ui, sans-serif", display: "flex", gap: 22, justifyContent: "center", flexWrap: "wrap" }}>
+        <div style={{ font: "400 1rem 'Space Grotesk', system-ui, sans-serif", display: "flex", gap: 22, justifyContent: "center", flexWrap: "wrap" }}>
           <a style={link} href="/Rugwed-Patharkar-Resume.pdf">Résumé (PDF)</a>
           <a style={link} href="mailto:rugwed@upswing.global">Email</a>
           <a style={link} href="https://www.linkedin.com/in/rugwed-patharkar" target="_blank" rel="noopener noreferrer">LinkedIn</a>
