@@ -35,7 +35,7 @@ const DROP_AFTER = 2500;
 const RESTORE_AFTER = 2200;
 const GRACE = 8000; // ms after mount during which we never degrade
 
-const AdaptiveQuality = ({ scrollTRef, highDpr = 1.75, lowDpr = 1.0, adaptive = true, onPerf }) => {
+const AdaptiveQuality = ({ scrollTRef, highDpr = 1.75, lowDpr = 1.0, onPerf }) => {
   const { gl } = useThree();
   const ema = useRef(16.7);
   const lastT = useRef(0);
@@ -66,16 +66,10 @@ const AdaptiveQuality = ({ scrollTRef, highDpr = 1.75, lowDpr = 1.0, adaptive = 
     const scrolling = vel > 0.0008;
     if (scrolling) idleAt.current = now;
 
-    /* Potato-tier hysteresis — only in Balanced (adaptive); Ultra never sheds,
-       Performance sheds via the quality tier. On leaving Balanced, restore. */
-    if (!adaptive) {
-      if (tier.current === "low") {
-        tier.current = "high";
-        gl.shadowMap.enabled = true;
-        gl.shadowMap.needsUpdate = true;
-        onPerf?.("high");
-      }
-    } else if (now - startAt.current > GRACE) {
+    /* Potato-tier hysteresis — shed the heavy layers only when frames genuinely
+       dip on a struggling GPU (<~43fps sustained), and only after the grace window;
+       restore once there's real headroom again (>~58fps sustained). */
+    if (now - startAt.current > GRACE) {
       if (ema.current > LOW_MS) {
         goodSince.current = 0;
         if (!badSince.current) badSince.current = now;

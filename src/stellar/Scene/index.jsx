@@ -328,7 +328,7 @@ function DiveGate({ scrollT, finale, groupRef, reducedMotion, activeIdx }) {
   return null;
 }
 
-const Scene = ({ scrollT, finaleT, finale = false, activeIdx, onJump, focusRef, warpVelRef, cameraRef, eclipseRef, clock, extrasPhase = 3, quality = "balanced", v3 = false }) => {
+const Scene = ({ scrollT, finaleT, finale = false, activeIdx, onJump, focusRef, warpVelRef, cameraRef, eclipseRef, clock, extrasPhase = 3, v3 = false }) => {
   const { isMobile, reducedMotion } = useViewport();
   /* Pull-back finale — when active the AU-scale solar system is hidden and the
      LOCAL stellar neighbourhood (LocalNeighborhood) + the boosted Milky-Way arch
@@ -376,9 +376,9 @@ const Scene = ({ scrollT, finaleT, finale = false, activeIdx, onJump, focusRef, 
      Toggles rarely (wide dead-zone), so the one-time remount when it flips is
      masked by the fact that the machine was already dropping frames. */
   const [perfLow, setPerfLow] = useState(false);
-  /* Heavy near-invisible layers shed when the viewer picks Performance, or when
-     the adaptive guard trips in Balanced. Ultra never sheds. */
-  const shedHeavy = quality === "performance" || perfLow;
+  /* Heavy near-invisible layers (deep-star haze, big-particle drift dust) shed
+     only when the adaptive guard trips on a genuinely struggling GPU. */
+  const shedHeavy = perfLow;
   /* Camera offsets — kept in refs so React state doesn't re-render
      the whole tree on every frame. Mouse parallax and free-roam each
      own their own offset; CameraRig sums them. */
@@ -402,9 +402,7 @@ const Scene = ({ scrollT, finaleT, finale = false, activeIdx, onJump, focusRef, 
      mid-motion), which is exactly when the journey needs the frame budget. On a
      retina display DPR is a quadratic fragment multiplier, so 2→1.75 already buys
      headroom at negligible visible cost. */
-  const dprCap = isMobile
-    ? (quality === "performance" ? 1.0 : 1.3)
-    : (quality === "ultra" ? 2 : quality === "performance" ? 1.3 : 1.75);
+  const dprCap = isMobile ? 1.3 : 1.75;
 
   /* §7.4 — feature-flagged experiment with frameloop="demand". Off by default:
      the tour has continuous animation everywhere (planet orbits, Sun churn,
@@ -428,7 +426,7 @@ const Scene = ({ scrollT, finaleT, finale = false, activeIdx, onJump, focusRef, 
       dpr={[1, dprCap]}
       /* Soft shadows on desktop only — the key light (KeyLight) follows
          the active planet so the map stays sharp + cheap. */
-      shadows={isMobile || quality === "performance" ? false : "soft"}
+      shadows={isMobile ? false : "soft"}
       gl={{
         antialias: !isMobile,
         alpha: false,
@@ -481,9 +479,6 @@ const Scene = ({ scrollT, finaleT, finale = false, activeIdx, onJump, focusRef, 
            render at 1× during scroll — maximises the frame budget exactly when
            the journey needs it, then restores to dprCap on settle. */
         lowDpr={1.0}
-        /* Only auto-shed in Balanced; Ultra never sheds, Performance already
-           sheds via the quality tier. */
-        adaptive={quality === "balanced"}
         onPerf={(tier) => setPerfLow(tier === "low")}
       />
       <AutoExposure />
