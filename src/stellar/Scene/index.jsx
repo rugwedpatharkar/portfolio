@@ -328,7 +328,7 @@ function DiveGate({ scrollT, finale, groupRef, reducedMotion, activeIdx }) {
   return null;
 }
 
-const Scene = ({ scrollT, finaleT, finale = false, activeIdx, onJump, focusRef, warpVelRef, cameraRef, eclipseRef, clock, extrasPhase = 3, v3 = false }) => {
+const Scene = ({ scrollT, finaleT, finale = false, activeIdx, onJump, focusRef, warpVelRef, cameraRef, eclipseRef, clock, extrasPhase = 3, quality = "balanced", v3 = false }) => {
   const { isMobile, reducedMotion } = useViewport();
   /* Pull-back finale — when active the AU-scale solar system is hidden and the
      LOCAL stellar neighbourhood (LocalNeighborhood) + the boosted Milky-Way arch
@@ -376,6 +376,9 @@ const Scene = ({ scrollT, finaleT, finale = false, activeIdx, onJump, focusRef, 
      Toggles rarely (wide dead-zone), so the one-time remount when it flips is
      masked by the fact that the machine was already dropping frames. */
   const [perfLow, setPerfLow] = useState(false);
+  /* Heavy near-invisible layers shed when the viewer picks Performance, or when
+     the adaptive guard trips in Balanced. Ultra never sheds. */
+  const shedHeavy = quality === "performance" || perfLow;
   /* Camera offsets — kept in refs so React state doesn't re-render
      the whole tree on every frame. Mouse parallax and free-roam each
      own their own offset; CameraRig sums them. */
@@ -399,7 +402,9 @@ const Scene = ({ scrollT, finaleT, finale = false, activeIdx, onJump, focusRef, 
      mid-motion), which is exactly when the journey needs the frame budget. On a
      retina display DPR is a quadratic fragment multiplier, so 2→1.75 already buys
      headroom at negligible visible cost. */
-  const dprCap = isMobile ? 1.3 : 1.75;
+  const dprCap = isMobile
+    ? (quality === "performance" ? 1.0 : 1.3)
+    : (quality === "ultra" ? 2 : quality === "performance" ? 1.3 : 1.75);
 
   /* §7.4 — feature-flagged experiment with frameloop="demand". Off by default:
      the tour has continuous animation everywhere (planet orbits, Sun churn,
@@ -423,7 +428,7 @@ const Scene = ({ scrollT, finaleT, finale = false, activeIdx, onJump, focusRef, 
       dpr={[1, dprCap]}
       /* Soft shadows on desktop only — the key light (KeyLight) follows
          the active planet so the map stays sharp + cheap. */
-      shadows={isMobile ? false : "soft"}
+      shadows={isMobile || quality === "performance" ? false : "soft"}
       gl={{
         antialias: !isMobile,
         alpha: false,
@@ -476,6 +481,9 @@ const Scene = ({ scrollT, finaleT, finale = false, activeIdx, onJump, focusRef, 
            render at 1× during scroll — maximises the frame budget exactly when
            the journey needs it, then restores to dprCap on settle. */
         lowDpr={1.0}
+        /* Only auto-shed in Balanced; Ultra never sheds, Performance already
+           sheds via the quality tier. */
+        adaptive={quality === "balanced"}
         onPerf={(tier) => setPerfLow(tier === "low")}
       />
       <AutoExposure />
@@ -529,7 +537,7 @@ const Scene = ({ scrollT, finaleT, finale = false, activeIdx, onJump, focusRef, 
             its own phase. Layers on top so BOTH the homepage sky and the tour read
             as extremely dense + alive. Sky-fixed (radius 6600), so unlike the
             foreground dust it never rides the cursor. */}
-        {!finale && !perfLow && <DeepStars count={isMobile ? 6000 : 19000} reducedMotion={reducedMotion} />}
+        {!finale && !shedHeavy && <DeepStars count={isMobile ? 6000 : 19000} reducedMotion={reducedMotion} />}
         {/* Nebulae live INSIDE the Milky Way — they belong to the solar-system
             tour backdrop, not the from-outside homepage. Hidden on the
             homepage (where the deep-field galaxies are the backdrop instead). */}
@@ -852,10 +860,10 @@ const Scene = ({ scrollT, finaleT, finale = false, activeIdx, onJump, focusRef, 
         )}
         {/* Tenuous gas/dust clouds — tier 3 (big, faint, soft; distance-faded by
             the same shader so they never bloom into a bar). Desktop only. */}
-        {showEggs && !isMobile && !perfLow && (
+        {showEggs && !isMobile && !shedHeavy && (
           <BeltDust count={3200} innerRadius={BACKGROUND_BELTS.asteroid.inner} outerRadius={BACKGROUND_BELTS.asteroid.outer} thickness={BACKGROUND_BELTS.asteroid.thickness * 1.4} color="#8a7a64" size={16} opacity={0.04} drift={0.008} gaps={KIRKWOOD_GAPS} animate={!reducedMotion} />
         )}
-        {showEggs && !isMobile && !perfLow && (
+        {showEggs && !isMobile && !shedHeavy && (
           <BeltDust count={2600} innerRadius={BACKGROUND_BELTS.kuiper.inner} outerRadius={BACKGROUND_BELTS.kuiper.outer} thickness={BACKGROUND_BELTS.kuiper.thickness * 1.3} color="#6a7e9e" size={20} opacity={0.04} drift={0.006} cliff animate={!reducedMotion} />
         )}
         {/* Jupiter's Trojan asteroids — two swarms 60° ahead/behind Jupiter at

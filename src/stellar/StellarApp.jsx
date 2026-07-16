@@ -16,6 +16,7 @@ import V3FinaleOverlay from "./v3/V3FinaleOverlay";
 import V3ScaleAnnotations from "./v3/V3ScaleAnnotations";
 import V3ScaleReadout from "./v3/V3ScaleReadout";
 import V3TheEdgeQuote from "./v3/V3TheEdgeQuote";
+import V3QualityToggle, { loadQuality } from "./v3/V3QualityToggle";
 import { preloadSection, preloadAllSections } from "./v3/V3Panel";
 import BootLoader from "./v3/BootLoader";
 
@@ -72,6 +73,13 @@ const StellarApp = () => {
   const [booting, setBooting] = useState(true);
   const [activeIdx, setActiveIdx] = useState(0);
   const activeIdxRef = useRef(0);
+  /* Viewer-chosen quality tier (performance / balanced / ultra), persisted — the
+     explicit resolution to density-vs-smoothness. */
+  const [quality, setQuality] = useState(loadQuality);
+  const changeQuality = useCallback((q) => {
+    setQuality(q);
+    try { window.localStorage?.setItem("stellar:quality", q); } catch { /* private mode */ }
+  }, []);
   /* During the hyperspace fly-through the section info hides; it fades back in on
      arrival (settle). CameraRig edge-fires stellar:flight {flying}. Reduced-motion
      / mobile never fly, so the info stays visible there. */
@@ -361,6 +369,7 @@ const StellarApp = () => {
         cameraRef={cameraRef}
         clock={sceneClockRef.current}
         extrasPhase={extrasPhase}
+        quality={quality}
         v3
       />
       <Navigator
@@ -404,6 +413,8 @@ const StellarApp = () => {
           V3Panel section content — the black hole finale has none. Just an
           elegant floating line + attribution to close the tour. */}
       <V3TheEdgeQuote activeIdx={activeIdx} />
+      {/* Quality tier control — viewer picks density-vs-smoothness. */}
+      {!booting && <V3QualityToggle quality={quality} onChange={changeQuality} />}
       {/* Boot calibration screen — covers the first load until textures + GPU
           warm-up + the intro have settled, then fades to the ready homepage. */}
       {booting && (
