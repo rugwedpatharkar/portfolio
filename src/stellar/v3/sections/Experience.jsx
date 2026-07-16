@@ -108,7 +108,10 @@ const S = {
     fontSize: "clamp(38px, 3.4vw, 60px)",
     lineHeight: 0.9,
     letterSpacing: "-.02em",
-    color: "var(--v3-fg)",
+    /* Planet-tinted title. --v3-accent is the current stop's planet colour
+       (Mercury gray, Mars ochre, Jupiter tan, …). Mixing 62% with white
+       gives every planet's identity while staying legible against the scene. */
+    color: "color-mix(in oklab, var(--v3-accent) 62%, #ffffff 38%)",
     margin: 0,
     overflowWrap: "normal",
     wordBreak: "keep-all",
@@ -353,7 +356,7 @@ export default function ExperienceSection({ bootNonce }) {
         >
           {head}
           {head ? <br /> : null}
-          <Em>{tail}</Em>
+          {tail}
         </motion.h1>
 
         <div style={S.meta}>
