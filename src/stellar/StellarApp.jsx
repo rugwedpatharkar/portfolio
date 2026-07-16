@@ -24,6 +24,12 @@ import BootLoader from "./v3/BootLoader";
    config/destinations.js. Blank/missing → the default site title. */
 const DOC_DEFAULT_TITLE = "Rugwed Patharkar — Backend & Agentic AI Engineer";
 
+/* Sections that render as an editorial spread (redesign 2026-07). On those stops
+   the tour's per-body V3Editorial "Planet Information" card is redundant — the
+   spread carries all the identity + data — so we hide it. Grow this set as more
+   sections port to the spread format in Phase 3. */
+const SPREAD_SECTIONS = new Set(["experience"]);
+
 /* Hash → destination index (deep-link + browser back/forward). The hash is always
    written as the destination `id` (handleDestinationChange), so match id ONLY —
    matching section too made `#v3/skills` resolve to Ceres (section:"skills")
@@ -387,7 +393,7 @@ const StellarApp = () => {
       <V3Reticle cameraRef={cameraRef} clock={sceneClockRef.current} activeIdx={activeIdx} />
       {/* Per-body editorial card — historical quote + rotating etymology / fact.
           Bottom-right; hidden on hero stop, mobile, or bodies without data. */}
-      <V3Editorial destinationId={DESTINATIONS[activeIdx]?.id} activeIdx={activeIdx} hidden={panelHidden} />
+      <V3Editorial destinationId={DESTINATIONS[activeIdx]?.id} activeIdx={activeIdx} hidden={panelHidden || SPREAD_SECTIONS.has(DESTINATIONS[activeIdx]?.section)} />
       {/* §12.4 — "You are here / Orion Spur" callout that fades in during the
           pull-back finale, pinned to the Sun (viewport centre — that's where
           the finale camera aims). */}

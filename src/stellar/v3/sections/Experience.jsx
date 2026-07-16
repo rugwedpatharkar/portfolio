@@ -52,7 +52,10 @@ const splitCompany = (name) => {
 /* ---- styles ---- */
 const S = {
   root: {
-    width: "100%",
+    /* Cap the spread's width so track rows don't extend under the tour's planet
+       body / reticle on the right. The tour's Mercury sits ~x=1200-1600 at 1920w;
+       clamping to ~72vw keeps the spread comfortably left of it. */
+    width: "min(100%, clamp(880px, 72vw, 1240px))",
     height: "100%",
     display: "grid",
     gridTemplateColumns: "minmax(320px, 380px) 1fr",
