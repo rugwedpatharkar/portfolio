@@ -137,11 +137,13 @@ const S = {
   },
   metaK: { color: "var(--v3-fg)", fontWeight: 500 },
 
-  /* Axis chart wrapper. Fixed height so label rows have known slots. */
+  /* Axis chart wrapper. Fixed height so label rows have known slots — 4 label
+     slots (2 above, 2 below the rail) means adjacent skills at similar levels
+     never collide even in the densest category. */
   axisWrap: {
     position: "relative",
-    height: 200,
-    padding: "72px 24px 48px",
+    height: 250,
+    padding: "24px 32px",
     background: "linear-gradient(180deg, rgba(255,255,255,.02) 0%, rgba(255,255,255,0) 100%)",
     border: "1px solid var(--v3-line)",
     borderRadius: 3,
@@ -149,8 +151,8 @@ const S = {
   },
   rail: {
     position: "absolute",
-    left: 24,
-    right: 24,
+    left: 32,
+    right: 32,
     top: "50%",
     height: 1,
     background: "linear-gradient(90deg, transparent, var(--v3-line-strong) 20%, color-mix(in oklab, var(--v3-accent) 60%, transparent))",
@@ -158,14 +160,14 @@ const S = {
   },
   tick: {
     position: "absolute",
-    top: "calc(50% - 6px)",
+    top: "calc(50% - 3px)",
     width: 1,
-    height: 12,
-    background: "var(--v3-line)",
+    height: 6,
+    background: "rgba(255,255,255,.14)",
   },
   tickLbl: {
     position: "absolute",
-    top: "calc(50% + 14px)",
+    bottom: 4,
     fontFamily: "var(--v3-font-mono)",
     fontSize: 9,
     letterSpacing: ".22em",
@@ -187,29 +189,40 @@ const S = {
       opacity: 0.5 + norm * 0.5,
     };
   },
-  starLbl: (above) => ({
-    position: "absolute",
-    top: above ? -32 : 22,
-    fontFamily: "var(--v3-font-mono)",
-    fontSize: 10,
-    letterSpacing: ".04em",
-    color: "var(--v3-fg)",
-    transform: "translateX(-50%)",
-    padding: "2px 6px",
-    background: "rgba(5,6,9,.72)",
-    borderRadius: 2,
-    whiteSpace: "nowrap",
-    pointerEvents: "none",
-  }),
+  /* Label offsets — 4 slots (indices 0..3) rotate: 0=far above, 1=near below,
+     2=near above, 3=far below. Guarantees adjacent labels never overlap. */
+  starLbl: (slot) => {
+    const offsets = [-58, 24, -32, 50];
+    return {
+      position: "absolute",
+      top: offsets[slot % 4],
+      fontFamily: "var(--v3-font-mono)",
+      fontSize: 10,
+      letterSpacing: ".04em",
+      color: "var(--v3-fg)",
+      transform: "translateX(-50%)",
+      padding: "2px 6px",
+      background: "rgba(5,6,9,.85)",
+      borderRadius: 2,
+      whiteSpace: "nowrap",
+      pointerEvents: "none",
+      border: "1px solid rgba(255,255,255,.06)",
+    };
+  },
   starLvl: { color: "var(--v3-accent)", marginLeft: 6 },
-  starGuide: (above) => ({
-    position: "absolute",
-    top: above ? "calc(50% - 20px)" : "calc(50% + 4px)",
-    width: 1,
-    height: 16,
-    background: "rgba(255,255,255,.12)",
-    transform: "translateX(-.5px)",
-  }),
+  starGuide: (slot) => {
+    /* Each guide connects the star (rail center) to its label slot. */
+    const heights = { 0: 46, 1: 20, 2: 22, 3: 44 };
+    const above = slot === 0 || slot === 2;
+    return {
+      position: "absolute",
+      top: above ? `calc(50% - ${heights[slot] - 4}px)` : "calc(50% + 4px)",
+      width: 1,
+      height: heights[slot] - 8,
+      background: "rgba(255,255,255,.14)",
+      transform: "translateX(-.5px)",
+    };
+  },
 
   legend: {
     display: "flex",
@@ -267,24 +280,31 @@ const Axis = memo(function Axis({ list }) {
   return (
     <div style={S.axisWrap}>
       <div style={S.rail} aria-hidden />
-      {/* tick marks */}
-      {[60, 70, 80, 90, 100].map((v) => (
-        <div key={v}>
-          <div style={{ ...S.tick, left: `calc(24px + ${levelToPct(v)}% * (100% - 48px) / 100)` }} />
-          <div style={{ ...S.tickLbl, left: `calc(24px + ${levelToPct(v)}% * (100% - 48px) / 100)` }}>{v}</div>
-        </div>
-      ))}
-      {/* stars — alternate above/below by index so adjacent labels don't collide */}
+      {/* tick marks. CSS calc doesn't allow percentage × length, so use a plain
+          numeric fraction × (100% - 64px). */}
+      {[60, 70, 80, 90, 100].map((v) => {
+        const frac = levelToPct(v) / 100;
+        const left = `calc(32px + ${frac} * (100% - 64px))`;
+        return (
+          <div key={v}>
+            <div style={{ ...S.tick, left }} />
+            <div style={{ ...S.tickLbl, left }}>{v}</div>
+          </div>
+        );
+      })}
+      {/* stars — 4 vertical label slots (rotating 0..3 by sorted index) so
+          adjacent skills at similar levels never collide, no matter how dense
+          the category. Numeric-fraction × length calc so CSS is valid. */}
       {sorted.map((s, i) => {
         const norm = Math.min(1, Math.max(0, (s.level - AXIS_MIN) / (AXIS_MAX - AXIS_MIN)));
-        const pct = levelToPct(s.level);
-        const left = `calc(24px + ${pct}% * (100% - 48px) / 100)`;
-        const above = i % 2 === 0;
+        const frac = levelToPct(s.level) / 100;
+        const left = `calc(32px + ${frac} * (100% - 64px))`;
+        const slot = i % 4;
         return (
           <div key={s.name} style={{ position: "absolute", left, top: "50%", pointerEvents: "auto" }} title={`${s.name} · ${s.level}`}>
-            <div style={S.starGuide(above)} />
+            <div style={S.starGuide(slot)} />
             <div style={S.star(norm)} />
-            <div style={S.starLbl(above)}>
+            <div style={S.starLbl(slot)}>
               {s.name}<span style={S.starLvl}>{s.level}</span>
             </div>
           </div>
