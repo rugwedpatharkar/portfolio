@@ -28,7 +28,7 @@ const DOC_DEFAULT_TITLE = "Rugwed Patharkar — Backend & Agentic AI Engineer";
    the tour's per-body V3Editorial "Planet Information" card is redundant — the
    spread carries all the identity + data — so we hide it. Grow this set as more
    sections port to the spread format in Phase 3. */
-const SPREAD_SECTIONS = new Set(["experience", "projects", "funfacts", "achievements", "education", "testimonials", "notes"]);
+const SPREAD_SECTIONS = new Set(["experience", "projects", "funfacts", "achievements", "education", "testimonials", "notes", "hobbies"]);
 
 /* Hash → destination index (deep-link + browser back/forward). The hash is always
    written as the destination `id` (handleDestinationChange), so match id ONLY —

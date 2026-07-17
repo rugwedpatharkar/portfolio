@@ -1,267 +1,267 @@
 /*
- * Hobbies (Uranus) — cursor-tracked tilt bento per the taste-stack table.
+ * Hobbies — hobby directory + featured hobby (redesign 2026-07).
+ * No cards, no scroll — fits inside the fixed 906px `.stellar-dossier-frame`.
  *
- *   "Cursor-tracked spring rotateX/rotateY on each cell (subtle, ±4°);
- *    hover reveals a long-form callout without disturbing the grid;
- *    one cell is a 'wildcard' that plays a lottie glyph."
+ *   LEFT  — kicker · huge Saturn-tinted title · hobby directory
+ *           (each row: index + icon + name). Click a row to feature it.
+ *   RIGHT — meta line · huge planet-tinted hobby name · italic tagline ·
+ *           detail prose · big stat readout · tag line.
  *
- * Layout:
- *   - 4-col × 2-row bento grid, 8 hobby cells. All cells the same
- *     footprint so the grid doesn't reflow on hover.
- *   - The Music cell is the "wildcard" — instead of a static emoji,
- *     it plays an animated waveform SVG (Lottie substitute — GPU
- *     cheap and matches the mono/hairline vocabulary of the rest of
- *     the tour).
- *
- * Motion:
- *   - Each cell has cursor-tracked tilt: rotateX/rotateY driven by
- *     useMotionValue + useSpring, clamped to ±4°. transformStyle
- *     preserve-3d + parent perspective so the tilt reads as
- *     physical. Cursor leaves → spring back to 0.
- *   - Hover reveals a detail overlay INSIDE the cell (crossfade over
- *     the tagline). Overlay contains long-form detail + stat + tag
- *     chips. Grid doesn't grow — the overlay sits within existing
- *     dimensions.
- *   - Reduced motion → tilt disabled, hover crossfade instant.
+ * All hobbies[] entries rendered verbatim (src/content/index.js).
  */
-import { useMemo } from "react";
-import { motion, useMotionValue, useSpring, useTransform, useReducedMotion } from "motion/react";
+import { memo, useEffect, useState } from "react";
+import { motion, AnimatePresence, useReducedMotion } from "motion/react";
 import { hobbies, sectionMeta } from "../../../content";
-import { V3Frame, V3Scan, V3SectionHeader, V3Chip } from "../primitives";
-import { EASE } from "../anim";
 
-const META = sectionMeta.hobbies || { sub: "Beyond the Code", heading: "Hobbies & Interests" };
+const CINE = [0.25, 0.1, 0.25, 1];
 
-const WILDCARD_NAME = "Music";
+const S = {
+  root: {
+    width: "min(100%, clamp(880px, 72vw, 1240px))",
+    height: "100%",
+    display: "grid",
+    gridTemplateColumns: "minmax(280px, 340px) 1fr",
+    gap: "clamp(40px, 5vw, 72px)",
+    pointerEvents: "auto",
+    color: "var(--v3-fg)",
+    fontFamily: "var(--v3-font-ui)",
+    minHeight: 0,
+    alignItems: "start",
+  },
 
-/* Waveform visualizer — 8 vertical bars, each independently animated
-   with an oscillating height. Reads like a mini equalizer / audio
-   visualizer. GPU-cheap since only `y` and `height` animate, no layout. */
-const WAVEFORM_BARS = Array.from({ length: 8 }, (_, i) => i);
-const barHeights = (i) => {
-  const patterns = [
-    [4, 14, 6, 12, 4, 10, 6, 12, 4],
-    [6, 10, 14, 8, 4, 12, 6, 10, 6],
-    [4, 12, 8, 14, 10, 6, 12, 4, 6],
-    [8, 4, 12, 6, 14, 8, 4, 10, 8],
-  ];
-  return patterns[i % patterns.length];
+  /* ---- LEFT ---- */
+  left: { display: "flex", flexDirection: "column", gap: 18, minHeight: 0 },
+  kicker: {
+    fontFamily: "var(--v3-font-mono)",
+    fontSize: 11,
+    letterSpacing: ".28em",
+    textTransform: "uppercase",
+    color: "var(--v3-fg-mute)",
+  },
+  title: {
+    fontFamily: "var(--v3-font-display)",
+    fontWeight: 700,
+    fontSize: "clamp(34px, 3.6vw, 54px)",
+    lineHeight: 0.92,
+    letterSpacing: "-.02em",
+    color: "color-mix(in oklab, var(--v3-accent) 62%, #ffffff 38%)",
+    margin: 0,
+    overflowWrap: "normal",
+    wordBreak: "keep-all",
+    hyphens: "none",
+  },
+  dirLabel: {
+    marginTop: 8,
+    paddingTop: 14,
+    borderTop: "1px solid var(--v3-line-strong)",
+    fontFamily: "var(--v3-font-mono)",
+    fontSize: 10,
+    letterSpacing: ".24em",
+    textTransform: "uppercase",
+    color: "var(--v3-accent)",
+    paddingBottom: 4,
+  },
+  row: (active) => ({
+    all: "unset",
+    cursor: "pointer",
+    display: "grid",
+    gridTemplateColumns: "26px 22px 1fr",
+    gap: 10,
+    alignItems: "baseline",
+    padding: "10px 0",
+    borderBottom: "1px solid var(--v3-line)",
+    width: "100%",
+    transition: "background .15s ease",
+    background: active ? "color-mix(in oklab, var(--v3-accent) 8%, transparent)" : "transparent",
+  }),
+  rowN: {
+    fontFamily: "var(--v3-font-mono)",
+    fontSize: 10,
+    letterSpacing: ".14em",
+    color: "var(--v3-accent)",
+  },
+  rowIcon: { fontSize: 15, lineHeight: 1 },
+  rowName: (active) => ({
+    fontFamily: "var(--v3-font-display)",
+    fontWeight: active ? 600 : 500,
+    fontSize: 14,
+    letterSpacing: "-.005em",
+    color: active ? "var(--v3-fg)" : "var(--v3-fg-dim)",
+    transition: "color .18s ease, font-weight .18s ease",
+  }),
+
+  /* ---- RIGHT ---- */
+  right: { display: "flex", flexDirection: "column", minHeight: 0 },
+  metaRow: {
+    display: "flex",
+    gap: 24,
+    flexWrap: "wrap",
+    paddingBottom: 14,
+    borderBottom: "1px solid var(--v3-line)",
+    fontFamily: "var(--v3-font-mono)",
+    fontSize: 10,
+    letterSpacing: ".22em",
+    textTransform: "uppercase",
+    color: "var(--v3-fg-mute)",
+  },
+  metaK: { color: "var(--v3-fg)", fontWeight: 500 },
+  hobbyTitle: {
+    marginTop: 18,
+    fontFamily: "var(--v3-font-display)",
+    fontWeight: 700,
+    fontSize: "clamp(36px, 4vw, 64px)",
+    lineHeight: 0.98,
+    letterSpacing: "-.02em",
+    color: "color-mix(in oklab, var(--v3-accent) 62%, #ffffff 38%)",
+    margin: "18px 0 0",
+  },
+  tagline: {
+    marginTop: 8,
+    fontFamily: "var(--v3-font-display)",
+    fontStyle: "italic",
+    fontSize: "clamp(15px, 1.4vw, 19px)",
+    color: "var(--v3-fg-dim)",
+    lineHeight: 1.4,
+    margin: "8px 0 0",
+  },
+  detail: {
+    marginTop: 20,
+    fontFamily: "var(--v3-font-ui)",
+    fontSize: 15,
+    lineHeight: 1.65,
+    color: "var(--v3-fg-dim)",
+    maxWidth: "62ch",
+    margin: "20px 0 0",
+  },
+  statBox: {
+    marginTop: 24,
+    padding: "16px 20px",
+    borderTop: "1px solid var(--v3-line-strong)",
+    borderBottom: "1px solid var(--v3-line-strong)",
+    display: "flex",
+    alignItems: "baseline",
+    gap: 16,
+  },
+  statN: {
+    fontFamily: "var(--v3-font-display)",
+    fontWeight: 700,
+    fontSize: "clamp(30px, 3.2vw, 44px)",
+    lineHeight: 1,
+    letterSpacing: "-.02em",
+    color: "color-mix(in oklab, var(--v3-accent) 62%, #ffffff 38%)",
+  },
+  statL: {
+    fontFamily: "var(--v3-font-mono)",
+    fontSize: 10,
+    letterSpacing: ".22em",
+    textTransform: "uppercase",
+    color: "var(--v3-fg-mute)",
+  },
+  tagsWrap: { marginTop: "auto", paddingTop: 22 },
+  tagsLbl: {
+    fontFamily: "var(--v3-font-mono)",
+    fontSize: 10,
+    letterSpacing: ".24em",
+    textTransform: "uppercase",
+    color: "var(--v3-fg-mute)",
+    marginBottom: 8,
+  },
+  tagsRow: {
+    color: "var(--v3-fg-dim)",
+    fontSize: 13,
+    lineHeight: 1.9,
+  },
+  tagItem: { color: "var(--v3-fg)" },
+  tagSep: { color: "rgba(255,255,255,.20)", margin: "0 6px" },
 };
 
-const Waveform = ({ reduce }) => (
-  <svg aria-hidden viewBox="0 0 80 20" style={{ width: "clamp(48px, 4vw, 68px)", height: "auto" }}>
-    {WAVEFORM_BARS.map((i) => {
-      const seq = barHeights(i);
-      const ys = seq.map((h) => 10 - h / 2);
-      return (
-        <motion.rect
-          key={i}
-          x={i * 9 + 4}
-          width={4}
-          rx={1.5}
-          fill="var(--v3-accent)"
-          initial={reduce ? { y: 8, height: 4 } : { y: ys[0], height: seq[0] }}
-          animate={reduce ? { y: 8, height: 4 } : { y: ys, height: seq }}
-          transition={reduce ? undefined : {
-            duration: 1.6,
-            repeat: Infinity,
-            ease: "easeInOut",
-            delay: i * 0.09,
-          }}
-          style={{ filter: "drop-shadow(0 0 4px color-mix(in oklab, var(--v3-accent) 60%, transparent))" }}
-        />
-      );
-    })}
-  </svg>
-);
+const HobbyRow = memo(function HobbyRow({ h, n, active, onSelect }) {
+  return (
+    <button type="button" data-cursor onClick={onSelect} aria-pressed={active} style={S.row(active)}>
+      <span style={S.rowN}>{String(n).padStart(2, "0")}</span>
+      <span style={S.rowIcon} aria-hidden>{h.icon}</span>
+      <span style={S.rowName(active)}>{h.name}</span>
+    </button>
+  );
+});
 
-/*
- * TiltCell — one bento cell with cursor-tracked spring tilt + hover
- * detail overlay.
- */
-const TiltCell = ({ h, i, reduce }) => {
-  /* Track pointer as normalized [-0.5, 0.5] within the cell's bounding
-     box; then map to a rotation range. useSpring smooths the raw value
-     so the tilt feels physical, not artificial. */
-  const px = useMotionValue(0);
-  const py = useMotionValue(0);
-  const rotateX = useSpring(useTransform(py, [-0.5, 0.5], [4, -4]), { stiffness: 220, damping: 22 });
-  const rotateY = useSpring(useTransform(px, [-0.5, 0.5], [-4, 4]), { stiffness: 220, damping: 22 });
-
-  const onMove = (e) => {
-    if (reduce) return;
-    const rect = e.currentTarget.getBoundingClientRect();
-    px.set((e.clientX - rect.left) / rect.width - 0.5);
-    py.set((e.clientY - rect.top) / rect.height - 0.5);
-  };
-  const onLeave = () => { px.set(0); py.set(0); };
-
-  const isWildcard = h.name === WILDCARD_NAME;
-  const revealDelay = 0.05 + i * 0.06;
-
+const Featured = memo(function Featured({ h, reduced }) {
+  if (!h) return null;
+  const tags = h.tags || [];
   return (
     <motion.div
-      onMouseMove={onMove}
-      onMouseLeave={onLeave}
-      initial={reduce ? false : { opacity: 0, y: 12 }}
-      whileInView={{ opacity: 1, y: 0 }}
-      viewport={{ once: true, amount: 0.2 }}
-      transition={{ duration: 0.45, ease: EASE, delay: revealDelay }}
-      className="v3-hobby-cell"
-      style={{
-        position: "relative",
-        display: "flex", flexDirection: "column",
-        justifyContent: "space-between",
-        gap: "clamp(6px, 0.6vw, 12px)",
-        padding: "clamp(12px, 1.1vw, 20px) clamp(14px, 1.2vw, 22px)",
-        border: "1px solid var(--v3-line)",
-        borderRadius: 8,
-        background: "color-mix(in oklab, var(--v3-bg-void) 60%, transparent)",
-        minWidth: 0, minHeight: 0,
-        cursor: "pointer",
-        transformStyle: "preserve-3d",
-        rotateX: reduce ? 0 : rotateX,
-        rotateY: reduce ? 0 : rotateY,
-        willChange: reduce ? "auto" : "transform",
-      }}
+      key={h.name}
+      initial={reduced ? {} : { opacity: 0, y: 14 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.45, ease: CINE }}
+      style={{ display: "flex", flexDirection: "column", height: "100%" }}
     >
-      {/* Top row: emoji/waveform + tags */}
-      <div style={{ display: "flex", alignItems: "flex-start", justifyContent: "space-between", gap: 10, minWidth: 0 }}>
-        {isWildcard ? (
-          <Waveform reduce={reduce} />
-        ) : (
-          <span aria-hidden style={{
-            fontSize: "clamp(1.7rem, 1.4vw + 0.7rem, 2.6rem)",
-            lineHeight: 1,
-            filter: "drop-shadow(0 0 8px color-mix(in oklab, var(--v3-accent) 24%, transparent))",
-          }}>{h.icon}</span>
-        )}
-        {h.stat && (
-          <div style={{ display: "flex", flexDirection: "column", alignItems: "flex-end", gap: 2, minWidth: 0 }}>
-            <span style={{
-              fontFamily: "var(--v3-font-display)", fontWeight: 340,
-              fontSize: "clamp(0.95rem, 0.55vw + 0.5rem, 1.25rem)",
-              lineHeight: 1, letterSpacing: "-.01em",
-              color: "var(--v3-accent)", fontOpticalSizing: "auto",
-              fontVariantNumeric: "tabular-nums",
-            }}>{h.stat.value}</span>
-            <span style={{
-              fontFamily: "var(--v3-font-mono)", fontWeight: 400,
-              fontSize: "clamp(8px, 0.25vw + 5px, 9.5px)",
-              letterSpacing: ".2em", textTransform: "uppercase", color: "var(--v3-fg-mute)",
-              whiteSpace: "nowrap",
-            }}>{h.stat.label}</span>
-          </div>
-        )}
+      <div style={S.metaRow}>
+        <span><span style={S.metaK}>Beyond the code</span></span>
+        <span>· {h.icon} {h.name}</span>
       </div>
 
-      {/* Name + tagline — visible by default, fades out on hover behind the overlay */}
-      <div className="v3-hobby-default" style={{ display: "flex", flexDirection: "column", gap: 4, minWidth: 0 }}>
-        <h3 style={{
-          fontFamily: "var(--v3-font-display)", fontWeight: 340,
-          fontSize: "clamp(1rem, 0.55vw + 0.55rem, 1.3rem)",
-          lineHeight: 1.15, letterSpacing: "-.005em",
-          color: "var(--v3-fg)", margin: 0, fontOpticalSizing: "auto",
-          overflowWrap: "anywhere",
-        }}>{h.name}</h3>
-        <span style={{
-          fontFamily: "var(--v3-font-ui)", fontWeight: 300,
-          fontSize: "clamp(0.75rem, 0.28vw + 0.5rem, 0.85rem)",
-          color: "var(--v3-fg-dim)", lineHeight: 1.45,
-          overflowWrap: "break-word",
-          display: "-webkit-box", WebkitLineClamp: 2, WebkitBoxOrient: "vertical", overflow: "hidden",
-        }}>{h.tagline}</span>
-      </div>
+      <h1 style={S.hobbyTitle}>{h.name}</h1>
+      {h.tagline && <p style={S.tagline}>{h.tagline}</p>}
+      {h.detail && <p style={S.detail}>{h.detail}</p>}
 
-      {/* Hover-reveal detail overlay — sits over the "default" block,
-          faded in on parent :hover. Same footprint, no grid disturbance. */}
-      <div className="v3-hobby-detail" style={{
-        position: "absolute",
-        inset: "auto clamp(14px, 1.2vw, 22px) clamp(12px, 1.1vw, 20px) clamp(14px, 1.2vw, 22px)",
-        display: "flex", flexDirection: "column", gap: "clamp(6px, 0.55vw, 10px)",
-        opacity: 0,
-        transform: "translateY(4px)",
-        transition: "opacity .28s var(--v3-ease-smooth), transform .28s var(--v3-ease-smooth)",
-        pointerEvents: "none",
-        minWidth: 0,
-      }}>
-        <h3 style={{
-          fontFamily: "var(--v3-font-display)", fontWeight: 340,
-          fontSize: "clamp(0.95rem, 0.5vw + 0.5rem, 1.2rem)",
-          lineHeight: 1.15, letterSpacing: "-.005em",
-          color: "var(--v3-fg)", margin: 0, fontOpticalSizing: "auto",
-        }}>{h.name}</h3>
-        <p style={{
-          fontFamily: "var(--v3-font-ui)", fontWeight: 300,
-          fontSize: "clamp(0.72rem, 0.25vw + 0.5rem, 0.82rem)",
-          color: "var(--v3-fg-dim)", lineHeight: 1.5, margin: 0,
-          display: "-webkit-box", WebkitLineClamp: 4, WebkitBoxOrient: "vertical", overflow: "hidden",
-        }}>{h.detail}</p>
-        {(h.tags || []).length > 0 && (
-          <div style={{ display: "flex", flexWrap: "wrap", gap: 3 }}>
-            {(h.tags || []).map((t, k) => (
-              <V3Chip key={k} size="clamp(7.5px, 0.22vw + 5.5px, 9px)" pad="1px clamp(5px, 0.5vw, 8px)">{t}</V3Chip>
+      {h.stat && (
+        <div style={S.statBox}>
+          <span style={S.statN}>{h.stat.value}</span>
+          <span style={S.statL}>{h.stat.label}</span>
+        </div>
+      )}
+
+      {tags.length > 0 && (
+        <div style={S.tagsWrap}>
+          <div style={S.tagsLbl}>Tags</div>
+          <div style={S.tagsRow}>
+            {tags.map((it, i) => (
+              <span key={i}>
+                {i > 0 && <span style={S.tagSep}>·</span>}
+                <span style={S.tagItem}>{it}</span>
+              </span>
             ))}
           </div>
-        )}
-      </div>
+        </div>
+      )}
     </motion.div>
   );
-};
+});
 
 export default function HobbiesSection({ bootNonce }) {
-  const list = useMemo(() => hobbies || [], []);
-  const reduce = useReducedMotion();
+  const reduced = useReducedMotion();
+  const meta = sectionMeta.hobbies || {};
+  const list = hobbies || [];
+  const [idx, setIdx] = useState(0);
+  useEffect(() => { setIdx(0); }, [bootNonce]);
+  const active = list[Math.min(idx, list.length - 1)];
 
   return (
-    <V3Frame
-      section="Hobbies"
-      planet="URANUS"
-
-      scanDir="radial"
-      scanKey={bootNonce}
-      gridAreas={`"top top top" "left left ." "left left ." "left left ."`}
-    >
-      <div style={{
-        gridArea: "left", display: "flex", flexDirection: "column",
-        gap: "clamp(12px, 1.2vw, 20px)",
-        minWidth: 0, minHeight: 0, overflow: "hidden",
-        maxWidth: "min(60vw, 1200px)",
-        height: "100%",
-      }}>
-        {/* Header */}
-        <V3SectionHeader sub={META.sub} heading={META.heading} />
-
-        {/* Bento grid — 4 × 2 uniform cells, perspective on the container
-            so each child's rotateX/rotateY reads as 3D not skew. */}
-        <V3Scan variant="radial" delay={0.15} style={{ minWidth: 0, flex: 1, minHeight: 0, display: "flex" }}>
-          <div style={{
-            width: "100%", height: "100%",
-            display: "grid",
-            gridTemplateColumns: "repeat(4, minmax(0, 1fr))",
-            gridTemplateRows: "1fr 1fr",
-            gap: "clamp(10px, 1vw, 16px)",
-            perspective: 1200,
-            minWidth: 0, minHeight: 0,
-          }}>
-            {list.map((h, i) => (
-              <TiltCell key={h.name + i} h={h} i={i} reduce={reduce} />
-            ))}
-          </div>
-        </V3Scan>
-
-        {/* Hover CSS — crossfade default → detail on hover of the cell.
-            Scoped via `.v3-hobby-cell` so no other card picks it up.
-            `!important` beats the inline `opacity: 0` / `transform` on the
-            overlay's style prop (inline styles otherwise win over class
-            rules). `pointerEvents` toggle so tag chips inside the overlay
-            aren't clickable when it's hidden. */}
-        <style>{`
-          .v3-hobby-cell:hover .v3-hobby-default { opacity: 0 !important; transition: opacity .22s var(--v3-ease-smooth); }
-          .v3-hobby-cell:hover .v3-hobby-detail  { opacity: 1 !important; transform: translateY(0) !important; pointer-events: auto !important; }
-          .v3-hobby-cell:focus-visible { outline: 1px solid var(--v3-accent); outline-offset: 3px; }
-        `}</style>
+    <div style={S.root}>
+      {/* ================== LEFT ================== */}
+      <div style={S.left}>
+        <div style={S.kicker}>{meta.sub || "Beyond the Code"}</div>
+        <motion.h1
+          initial={reduced ? {} : { opacity: 0, y: 14 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.6, ease: CINE }}
+          style={S.title}
+        >
+          {meta.heading || "Hobbies & Interests"}
+        </motion.h1>
+        <div style={S.dirLabel}>{String(list.length).padStart(2, "0")} interests</div>
+        {list.map((h, i) => (
+          <HobbyRow key={h.name} h={h} n={i + 1} active={i === idx} onSelect={() => setIdx(i)} />
+        ))}
       </div>
-    </V3Frame>
+
+      {/* ================== RIGHT ================== */}
+      <div style={S.right}>
+        <AnimatePresence mode="wait">
+          <Featured key={active?.name || "empty"} h={active} reduced={reduced} />
+        </AnimatePresence>
+      </div>
+    </div>
   );
 }
