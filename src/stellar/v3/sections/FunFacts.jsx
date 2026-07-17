@@ -1,13 +1,13 @@
 /*
- * FunFacts / Impact in Production — masthead + big-number tile grid (redesign 2026-07).
- * No cards, no scroll — fits inside the fixed 906px `.stellar-dossier-frame`.
+ * FunFacts / Impact — masthead + editorial metric rows (redesign 2026-07 v2).
+ * No cards, no borders, no boxed grid — same typography-only ethos as Skills.
+ * The Sun disk on the right stays fully visible; content sits on the left.
  *
- *   LEFT  — kicker · huge Syne section title (planet-tinted) · short lede.
- *   RIGHT — 4×2 grid of big-number tiles. Each tile: index · Syne value with
- *           tinted suffix · mono label · Sora detail sentence.
+ *   LEFT  (top)     — kicker · huge Sol-tinted title · lede · receipt count.
+ *   LEFT  (bottom)  — 8 metric ROWS (index + big Syne value + mono label +
+ *                     Sora detail sentence), separated only by dotted hairlines.
  *
- * All fields from funFacts[] are rendered verbatim (src/content/index.js).
- * Every tile is a receipt — the detail line answers "why is this number impressive."
+ * All fields from funFacts[] rendered verbatim (src/content/index.js).
  */
 import { memo, useMemo } from "react";
 import { motion, useReducedMotion } from "motion/react";
@@ -17,10 +17,7 @@ const CINE = [0.25, 0.1, 0.25, 1];
 
 const S = {
   root: {
-    /* Kept narrower than Experience/Projects — Sun stop is `kind:"star"` and
-       the camera pulls up close, so the Sun's disk + glow fills the right half
-       of the viewport. Constraining the whole spread to the left ~55% keeps the
-       tiles clear of it. */
+    /* Sun stop — the disk owns the right ~40%, so content stays in the left ~55vw. */
     width: "min(100%, clamp(760px, 55vw, 980px))",
     height: "100%",
     display: "grid",
@@ -34,7 +31,7 @@ const S = {
   },
 
   /* ---- LEFT (masthead) ---- */
-  left: { display: "flex", flexDirection: "column", gap: 18, minHeight: 0 },
+  left: { display: "flex", flexDirection: "column", gap: 16, minHeight: 0 },
   kicker: {
     fontFamily: "var(--v3-font-mono)",
     fontSize: 11,
@@ -50,17 +47,16 @@ const S = {
     letterSpacing: "-.02em",
     color: "color-mix(in oklab, var(--v3-accent) 62%, #ffffff 38%)",
     margin: 0,
-    /* Prevent mid-word hyphenation ("Producti-on") when the column is narrow. */
     overflowWrap: "normal",
     wordBreak: "keep-all",
     hyphens: "none",
   },
   lede: {
     fontFamily: "var(--v3-font-ui)",
-    fontSize: 14.5,
+    fontSize: 13.5,
     lineHeight: 1.55,
     color: "var(--v3-fg-dim)",
-    maxWidth: "34ch",
+    maxWidth: "30ch",
     margin: 0,
   },
   count: {
@@ -74,82 +70,78 @@ const S = {
     color: "var(--v3-accent)",
   },
 
-  /* ---- RIGHT (tile grid) ---- */
-  grid: {
-    display: "grid",
-    /* 2 columns × 4 rows keeps tiles wide enough to read the values + labels
-       + a two-line detail, while stacking vertically to stay in the safe zone
-       away from the Sun's disk on the right. */
-    gridTemplateColumns: "repeat(2, 1fr)",
-    gap: 0,
-    borderTop: "1px solid var(--v3-line-strong)",
-    borderLeft: "1px solid var(--v3-line-strong)",
-    alignSelf: "stretch",
-  },
-  tile: {
-    padding: "14px 18px 16px",
-    borderRight: "1px solid var(--v3-line-strong)",
-    borderBottom: "1px solid var(--v3-line-strong)",
+  /* ---- RIGHT (metric rows, no boxes) ---- */
+  list: {
     display: "flex",
     flexDirection: "column",
-    gap: 4,
     minHeight: 0,
   },
-  tileHead: {
-    display: "flex",
-    justifyContent: "space-between",
-    alignItems: "baseline",
-    fontFamily: "var(--v3-font-mono)",
-    fontSize: 9,
-    letterSpacing: ".22em",
-    textTransform: "uppercase",
-    color: "var(--v3-fg-mute)",
+  row: {
+    /* Tight vertical rhythm so all 8 receipts fit inside the 906px frame. */
+    padding: "3px 0",
+    borderBottom: "1px dotted rgba(255,255,255,.08)",
   },
-  tileIdx: { color: "var(--v3-accent)" },
-  tileValue: {
+  rowHead: {
+    display: "grid",
+    /* [idx  value  label] — inline. Detail wraps below on its own row so it
+       gets the full column width and doesn't squeeze against the Sun. */
+    gridTemplateColumns: "24px auto 1fr",
+    gap: 14,
+    alignItems: "baseline",
+  },
+  rowN: {
+    fontFamily: "var(--v3-font-mono)",
+    fontSize: 10,
+    letterSpacing: ".14em",
+    color: "var(--v3-accent)",
+    paddingTop: 6,
+  },
+  value: {
     fontFamily: "var(--v3-font-display)",
     fontWeight: 700,
-    fontSize: "clamp(28px, 2.6vw, 40px)",
+    fontSize: "clamp(24px, 2.6vw, 34px)",
     lineHeight: 1,
     letterSpacing: "-.02em",
     color: "color-mix(in oklab, var(--v3-accent) 62%, #ffffff 38%)",
-    margin: "2px 0 4px",
+    whiteSpace: "nowrap",
   },
-  tileSuffix: { color: "var(--v3-accent)", fontStyle: "normal" },
-  tileLabel: {
+  valueSuffix: { color: "var(--v3-accent)", fontStyle: "normal" },
+  label: {
     fontFamily: "var(--v3-font-mono)",
     fontSize: 10,
     letterSpacing: ".22em",
     textTransform: "uppercase",
     color: "var(--v3-fg)",
-    marginBottom: 4,
+    paddingTop: 6,
+    justifySelf: "start",
   },
-  tileDetail: {
-    fontSize: 12,
-    lineHeight: 1.5,
+  detail: {
+    fontFamily: "var(--v3-font-ui)",
+    fontSize: 11.5,
+    lineHeight: 1.4,
     color: "var(--v3-fg-mute)",
-    margin: 0,
+    margin: "2px 0 0 38px",
+    maxWidth: "58ch",
   },
 };
 
-const Tile = memo(function Tile({ f, i, reduced }) {
+const MetricRow = memo(function MetricRow({ f, i, reduced }) {
   return (
     <motion.div
-      initial={reduced ? {} : { opacity: 0, y: 12 }}
+      initial={reduced ? {} : { opacity: 0, y: 8 }}
       animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.5, delay: 0.05 * i, ease: CINE }}
-      style={S.tile}
+      transition={{ duration: 0.4, delay: 0.03 * i, ease: CINE }}
+      style={S.row}
     >
-      <div style={S.tileHead}>
-        <span style={S.tileIdx}>{String(i + 1).padStart(2, "0")}</span>
-        {f.icon && <span aria-hidden style={{ fontSize: 14, letterSpacing: 0 }}>{f.icon}</span>}
+      <div style={S.rowHead}>
+        <span style={S.rowN}>{String(i + 1).padStart(2, "0")}</span>
+        <span style={S.value}>
+          {f.value}
+          {f.suffix && <em style={S.valueSuffix}>{f.suffix}</em>}
+        </span>
+        <span style={S.label}>{f.label}</span>
       </div>
-      <div style={S.tileValue}>
-        {f.value}
-        {f.suffix && <em style={S.tileSuffix}>{f.suffix}</em>}
-      </div>
-      <div style={S.tileLabel}>{f.label}</div>
-      {f.detail && <p style={S.tileDetail}>{f.detail}</p>}
+      {f.detail && <p style={S.detail}>{f.detail}</p>}
     </motion.div>
   );
 });
@@ -161,7 +153,7 @@ export default function FunFactsSection({ bootNonce }) {
 
   return (
     <div key={bootNonce} style={S.root}>
-      {/* ================== LEFT ================== */}
+      {/* ================== LEFT (masthead) ================== */}
       <div style={S.left}>
         <div style={S.kicker}>{meta.sub || "Numbers I've moved"}</div>
         <motion.h1
@@ -176,10 +168,10 @@ export default function FunFactsSection({ bootNonce }) {
         <div style={S.count}>{String(facts.length).padStart(2, "0")} receipts</div>
       </div>
 
-      {/* ================== RIGHT (tiles) ================== */}
-      <div style={S.grid}>
+      {/* ================== RIGHT (rows, no boxes) ================== */}
+      <div style={S.list}>
         {facts.map((f, i) => (
-          <Tile key={f.label} f={f} i={i} reduced={reduced} />
+          <MetricRow key={f.label} f={f} i={i} reduced={reduced} />
         ))}
       </div>
     </div>
