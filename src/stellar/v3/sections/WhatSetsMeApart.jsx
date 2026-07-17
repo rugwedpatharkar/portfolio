@@ -1,259 +1,231 @@
 /*
- * What Sets Me Apart (Pluto) — massive-numeral master-detail.
+ * What Sets Me Apart — pillar directory + featured pillar (redesign 2026-07).
+ * No cards, no scroll — fits inside the fixed 906px `.stellar-dossier-frame`.
  *
- * Adapts the taste-stack table's "sticky-pin pillar reveal" to the
- * no-scroll rule: the huge pinned pillar numeral still carries the
- * signature moment, but it lives inside a master-detail interaction
- * instead of a scroll pin.
+ *   LEFT  — kicker · huge Neptune-tinted title · pillar directory
+ *           (each row: big index + pillar title). Click a row to feature it.
+ *   RIGHT — meta · huge planet-tinted pillar title · body prose · proof
+ *           receipts (hairline chip row).
  *
- * Layout:
- *   - LEFT (~32%): 5-item pillar list. Each row = mono numeral +
- *     DM Serif Display title (2-line clamp so long pillars don't
- *     inflate their button). Active row picks up an accent left
- *     border, tint background, brighter title.
- *   - RIGHT (~68%): active pillar spread.
- *     - MASSIVE Fraunces numeral (~clamp(6rem, 12vw, 12rem)) at
- *       top-left, tabular-nums, tight tracking. Crossfades + slight
- *       y-slide on pillar switch via AnimatePresence mode="wait".
- *     - Pillar title in Fraunces below the numeral.
- *     - Body copy in Satoshi as an editorial column with drop-cap
- *       first-letter.
- *     - Proof chips at the bottom.
+ * All pillars[] entries rendered verbatim (src/content/index.js).
  */
-import { useState, useCallback } from "react";
+import { memo, useEffect, useState } from "react";
 import { motion, AnimatePresence, useReducedMotion } from "motion/react";
-import { V3Frame, V3Scan, V3SectionHeader, V3Chip, masterCardStyle, useMasterListKeys } from "../primitives";
-import { EASE } from "../anim";
-import { pillars as PILLARS } from "../../../content";
+import { pillars, sectionMeta } from "../../../content";
 
-const META = {
-  sub: "What Sets Me Apart",
-  heading: "Signals a Résumé Can't Show",
+const CINE = [0.25, 0.1, 0.25, 1];
+
+const S = {
+  root: {
+    width: "min(100%, clamp(880px, 72vw, 1240px))",
+    height: "100%",
+    display: "grid",
+    gridTemplateColumns: "minmax(320px, 380px) 1fr",
+    gap: "clamp(40px, 5vw, 72px)",
+    pointerEvents: "auto",
+    color: "var(--v3-fg)",
+    fontFamily: "var(--v3-font-ui)",
+    minHeight: 0,
+    alignItems: "start",
+  },
+
+  /* ---- LEFT ---- */
+  left: { display: "flex", flexDirection: "column", gap: 18, minHeight: 0 },
+  kicker: {
+    fontFamily: "var(--v3-font-mono)",
+    fontSize: 11,
+    letterSpacing: ".28em",
+    textTransform: "uppercase",
+    color: "var(--v3-fg-mute)",
+  },
+  title: {
+    fontFamily: "var(--v3-font-display)",
+    fontWeight: 700,
+    fontSize: "clamp(34px, 3.5vw, 52px)",
+    lineHeight: 0.92,
+    letterSpacing: "-.02em",
+    color: "color-mix(in oklab, var(--v3-accent) 62%, #ffffff 38%)",
+    margin: 0,
+    overflowWrap: "normal",
+    wordBreak: "keep-all",
+    hyphens: "none",
+    maxWidth: "18ch",
+  },
+  dirLabel: {
+    marginTop: 8,
+    paddingTop: 14,
+    borderTop: "1px solid var(--v3-line-strong)",
+    fontFamily: "var(--v3-font-mono)",
+    fontSize: 10,
+    letterSpacing: ".24em",
+    textTransform: "uppercase",
+    color: "var(--v3-accent)",
+    paddingBottom: 4,
+  },
+  row: (active) => ({
+    all: "unset",
+    cursor: "pointer",
+    display: "grid",
+    gridTemplateColumns: "44px 1fr",
+    gap: 12,
+    alignItems: "baseline",
+    padding: "11px 0",
+    borderBottom: "1px solid var(--v3-line)",
+    width: "100%",
+    transition: "background .15s ease",
+    background: active ? "color-mix(in oklab, var(--v3-accent) 8%, transparent)" : "transparent",
+  }),
+  rowN: {
+    fontFamily: "var(--v3-font-mono)",
+    fontSize: 11,
+    letterSpacing: ".14em",
+    color: "var(--v3-accent)",
+  },
+  rowTitle: (active) => ({
+    fontFamily: "var(--v3-font-display)",
+    fontWeight: active ? 600 : 500,
+    fontSize: 14,
+    letterSpacing: "-.005em",
+    color: active ? "var(--v3-fg)" : "var(--v3-fg-dim)",
+    lineHeight: 1.28,
+    transition: "color .18s ease, font-weight .18s ease",
+  }),
+
+  /* ---- RIGHT ---- */
+  right: { display: "flex", flexDirection: "column", minHeight: 0 },
+  metaRow: {
+    display: "flex",
+    gap: 24,
+    flexWrap: "wrap",
+    paddingBottom: 14,
+    borderBottom: "1px solid var(--v3-line)",
+    fontFamily: "var(--v3-font-mono)",
+    fontSize: 10,
+    letterSpacing: ".22em",
+    textTransform: "uppercase",
+    color: "var(--v3-fg-mute)",
+  },
+  metaK: { color: "var(--v3-fg)", fontWeight: 500 },
+  pillarTitle: {
+    marginTop: 20,
+    fontFamily: "var(--v3-font-display)",
+    fontWeight: 700,
+    fontSize: "clamp(30px, 3.2vw, 46px)",
+    lineHeight: 1.02,
+    letterSpacing: "-.02em",
+    color: "color-mix(in oklab, var(--v3-accent) 62%, #ffffff 38%)",
+    margin: "20px 0 0",
+    maxWidth: "22ch",
+  },
+  body: {
+    marginTop: 20,
+    fontFamily: "var(--v3-font-ui)",
+    fontSize: 15,
+    lineHeight: 1.68,
+    color: "var(--v3-fg-dim)",
+    maxWidth: "68ch",
+    margin: "20px 0 0",
+  },
+  proofWrap: { marginTop: "auto", paddingTop: 22 },
+  proofLbl: {
+    fontFamily: "var(--v3-font-mono)",
+    fontSize: 10,
+    letterSpacing: ".24em",
+    textTransform: "uppercase",
+    color: "var(--v3-fg-mute)",
+    marginBottom: 10,
+  },
+  proofRow: {
+    display: "flex",
+    gap: 10,
+    flexWrap: "wrap",
+  },
+  proofChip: {
+    fontFamily: "var(--v3-font-mono)",
+    fontSize: 11,
+    letterSpacing: ".12em",
+    color: "var(--v3-fg)",
+    padding: "6px 12px",
+    border: "1px solid var(--v3-line-strong)",
+    borderRadius: 3,
+    background: "color-mix(in oklab, var(--v3-accent) 6%, transparent)",
+  },
 };
 
-const NUMERAL_VARIANTS = {
-  hidden: { opacity: 0, y: 24 },
-  show:   { opacity: 1, y: 0, transition: { duration: 0.4, ease: EASE } },
-  exit:   { opacity: 0, y: -18, transition: { duration: 0.2 } },
-};
-const BODY_VARIANTS = {
-  hidden: { opacity: 0, y: 10 },
-  show:   { opacity: 1, y: 0, transition: { duration: 0.35, ease: EASE, delay: 0.12 } },
-  exit:   { opacity: 0, transition: { duration: 0.12 } },
-};
+const PillarRow = memo(function PillarRow({ p, n, active, onSelect }) {
+  return (
+    <button type="button" data-cursor onClick={onSelect} aria-pressed={active} style={S.row(active)}>
+      <span style={S.rowN}>{String(n).padStart(2, "0")}</span>
+      <span style={S.rowTitle(active)}>{p.title}</span>
+    </button>
+  );
+});
+
+const Featured = memo(function Featured({ p, n, total, reduced }) {
+  if (!p) return null;
+  const proofs = p.proof || [];
+  return (
+    <motion.div
+      key={p.title}
+      initial={reduced ? {} : { opacity: 0, y: 14 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.45, ease: CINE }}
+      style={{ display: "flex", flexDirection: "column", height: "100%" }}
+    >
+      <div style={S.metaRow}>
+        <span><span style={S.metaK}>Pillar</span></span>
+        <span>· {String(n).padStart(2, "0")} / {String(total).padStart(2, "0")}</span>
+      </div>
+
+      <h1 style={S.pillarTitle}>{p.title}</h1>
+
+      {p.body && <p style={S.body}>{p.body}</p>}
+
+      {proofs.length > 0 && (
+        <div style={S.proofWrap}>
+          <div style={S.proofLbl}>Receipts</div>
+          <div style={S.proofRow}>
+            {proofs.map((r, i) => <span key={i} style={S.proofChip}>{r}</span>)}
+          </div>
+        </div>
+      )}
+    </motion.div>
+  );
+});
 
 export default function WhatSetsMeApartSection({ bootNonce }) {
-  const [active, setActive] = useState(0);
-  const reduce = useReducedMotion();
-  const p = PILLARS[active] || PILLARS[0];
-
-  const goto = useCallback((i) => {
-    if (i < 0 || i >= PILLARS.length || i === active) return;
-    setActive(i);
-  }, [active]);
-  const { onKeyDown: onKeys, itemProps } = useMasterListKeys(active, goto, PILLARS.length);
+  const reduced = useReducedMotion();
+  const meta = sectionMeta.whatsetsmeapart || sectionMeta.whatSetsMeApart || {};
+  const list = pillars || [];
+  const [idx, setIdx] = useState(0);
+  useEffect(() => { setIdx(0); }, [bootNonce]);
+  const active = list[Math.min(idx, list.length - 1)];
 
   return (
-    <V3Frame
-      section="What Sets Me Apart"
-      planet="PLUTO"
-
-      scanDir="drill"
-      scanKey={bootNonce}
-      gridAreas={`"top top top" "left left ." "left left ." "left left ."`}
-    >
-      <div
-        style={{
-          gridArea: "left", display: "flex", flexDirection: "column",
-          gap: "clamp(12px, 1.2vw, 20px)",
-          minWidth: 0, minHeight: 0, overflow: "hidden",
-          maxWidth: "min(60vw, 1200px)", height: "100%",
-        }}
-        onKeyDown={onKeys}
-      >
-        {/* Header */}
-        <V3SectionHeader sub={META.sub} heading={META.heading} />
-
-        {/* Master-detail card */}
-        <V3Scan variant="drill" delay={0.15} style={{ minWidth: 0, flex: 1, minHeight: 0, display: "flex" }}>
-          <div
-            role="tablist"
-            aria-label="Differentiators"
-            style={masterCardStyle({ cols: "minmax(240px, 32%) 1fr", gap: "clamp(18px, 1.8vw, 32px)", padding: "clamp(14px, 1.3vw, 22px) clamp(16px, 1.5vw, 26px)" })}
-          >
-            {/* Master */}
-            <div style={{
-              display: "flex", flexDirection: "column",
-              justifyContent: "space-between", gap: "clamp(4px, 0.4vw, 8px)",
-              minWidth: 0, alignSelf: "stretch", height: "100%",
-            }}>
-              {PILLARS.map((pillar, i) => {
-                const isActive = i === active;
-                return (
-                  <button
-                    key={i}
-                    role="tab"
-                    aria-selected={isActive}
-                    onClick={() => goto(i)}
-                    {...itemProps(i)}
-                    className={isActive ? "v3-glass-accent" : "v3-glass"}
-                    style={{
-                      all: "unset", cursor: "pointer",
-                      display: "grid", gridTemplateColumns: "auto minmax(0, 1fr)",
-                      alignItems: "baseline", gap: 10,
-                      padding: "clamp(8px, 0.8vw, 12px) clamp(10px, 1vw, 14px)",
-                      borderLeft: isActive ? "2px solid var(--v3-accent)" : "2px solid transparent",
-                      borderRadius: "0 4px 4px 0",
-                      transition: "background .2s, border-color .2s",
-                      minWidth: 0,
-                    }}
-                  >
-                    <span aria-hidden style={{
-                      fontFamily: "var(--v3-font-mono)", fontWeight: 400,
-                      fontSize: "clamp(9px, 0.3vw + 6px, 11px)",
-                      color: isActive ? "var(--v3-accent)" : "var(--v3-fg-mute)",
-                      letterSpacing: ".14em",
-                      fontVariantNumeric: "tabular-nums",
-                    }}>{String(i + 1).padStart(2, "0")}</span>
-                    <span style={{
-                      fontFamily: "var(--v3-font-display)", fontWeight: 340,
-                      fontSize: "clamp(0.88rem, 0.4vw + 0.55rem, 1.05rem)",
-                      lineHeight: 1.2, letterSpacing: "-.005em",
-                      color: isActive ? "var(--v3-fg)" : "var(--v3-fg-dim)",
-                      fontOpticalSizing: "auto",
-                      overflowWrap: "anywhere",
-                      display: "-webkit-box", WebkitLineClamp: 2, WebkitBoxOrient: "vertical", overflow: "hidden",
-                    }}>{pillar.title}</span>
-                  </button>
-                );
-              })}
-            </div>
-
-            {/* Detail — massive numeral + spread */}
-            <div style={{
-              display: "grid",
-              gridTemplateColumns: "auto minmax(0, 1fr)",
-              columnGap: "clamp(20px, 2vw, 36px)",
-              alignItems: "start",
-              minWidth: 0, minHeight: 0,
-              position: "relative",
-            }}>
-              {/* MASSIVE numeral — crossfades + slides on active change */}
-              <div style={{
-                display: "flex", alignItems: "flex-start", justifyContent: "flex-start",
-                minWidth: 0, minHeight: 0,
-                position: "relative",
-                paddingTop: "clamp(4px, 0.4vw, 8px)",
-              }}>
-                <AnimatePresence mode="wait" initial={false}>
-                  <motion.span
-                    key={`num-${active}`}
-                    variants={NUMERAL_VARIANTS}
-                    initial={reduce ? false : "hidden"}
-                    animate="show"
-                    exit="exit"
-                    style={{
-                      display: "block",
-                      fontFamily: "var(--v3-font-display)", fontWeight: 340,
-                      fontSize: "clamp(6rem, 12vw, 12rem)",
-                      lineHeight: 0.85, letterSpacing: "-.04em",
-                      color: "var(--v3-fg)", fontOpticalSizing: "auto",
-                      fontVariantNumeric: "tabular-nums",
-                      textShadow: "0 0 40px color-mix(in oklab, var(--v3-accent) 22%, transparent)",
-                    }}
-                  >{String(active + 1).padStart(2, "0")}</motion.span>
-                </AnimatePresence>
-              </div>
-
-              {/* Body block — title + prose + proof chips */}
-              <div style={{
-                display: "flex", flexDirection: "column",
-                gap: "clamp(10px, 1vw, 18px)",
-                minWidth: 0, minHeight: 0,
-              }}>
-                <AnimatePresence mode="wait" initial={false}>
-                  <motion.div
-                    key={`body-${active}`}
-                    variants={BODY_VARIANTS}
-                    initial={reduce ? false : "hidden"}
-                    animate="show"
-                    exit="exit"
-                    style={{
-                      display: "flex", flexDirection: "column",
-                      gap: "clamp(10px, 1vw, 18px)",
-                      minWidth: 0, minHeight: 0,
-                    }}
-                  >
-                    {/* Kicker: "Differentiator N / 5" */}
-                    <span style={{
-                      fontFamily: "var(--v3-font-mono)", fontWeight: 400,
-                      fontSize: "clamp(9px, 0.3vw + 6px, 11px)",
-                      letterSpacing: ".24em", textTransform: "uppercase",
-                      color: "var(--v3-fg-mute)",
-                      fontVariantNumeric: "tabular-nums",
-                    }}>Differentiator {String(active + 1).padStart(2, "0")} / {String(PILLARS.length).padStart(2, "0")}</span>
-
-                    {/* Title */}
-                    <h3 style={{
-                      fontFamily: "var(--v3-font-display)", fontWeight: 340,
-                      fontSize: "clamp(1.35rem, 1.1vw + 0.7rem, 2.1rem)",
-                      lineHeight: 1.15, letterSpacing: "-.015em",
-                      color: "var(--v3-fg)", margin: 0, fontOpticalSizing: "auto",
-                      overflowWrap: "anywhere",
-                    }}>{p.title}</h3>
-
-                    {/* Body prose with drop-cap */}
-                    <p className="v3-pillar-lede" style={{
-                      fontFamily: "var(--v3-font-ui)", fontWeight: 300,
-                      fontSize: "clamp(0.92rem, 0.4vw + 0.6rem, 1.05rem)",
-                      color: "var(--v3-fg-dim)", lineHeight: 1.7, margin: 0,
-                      maxWidth: "min(60ch, 100%)",
-                      overflowWrap: "break-word", hyphens: "auto",
-                    }}>{p.body}</p>
-                    <style>{`
-                      .v3-pillar-lede::first-letter {
-                        font-family: var(--v3-font-display);
-                        font-weight: 340;
-                        font-size: 3em;
-                        line-height: 0.85;
-                        float: left;
-                        padding: 0.06em 0.14em 0 0;
-                        margin-right: 0.02em;
-                        color: var(--v3-fg);
-                        font-optical-sizing: auto;
-                        letter-spacing: -0.02em;
-                      }
-                    `}</style>
-
-                    {/* Proof chips */}
-                    {(p.proof || []).length > 0 && (
-                      <div style={{
-                        display: "flex", flexDirection: "column",
-                        gap: "clamp(6px, 0.6vw, 10px)",
-                        marginTop: "auto",
-                        paddingTop: "clamp(8px, 0.8vw, 14px)",
-                        borderTop: "1px solid var(--v3-line)",
-                        minWidth: 0,
-                      }}>
-                        <span style={{
-                          fontFamily: "var(--v3-font-mono)", fontWeight: 400,
-                          fontSize: "clamp(9px, 0.3vw + 6px, 11px)",
-                          letterSpacing: ".22em", textTransform: "uppercase", color: "var(--v3-fg-mute)",
-                        }}>Receipts</span>
-                        <div style={{ display: "flex", flexWrap: "wrap", gap: 4, minWidth: 0 }}>
-                          {(p.proof || []).map((pr, k) => (
-                            <V3Chip key={k}>{pr}</V3Chip>
-                          ))}
-                        </div>
-                      </div>
-                    )}
-                  </motion.div>
-                </AnimatePresence>
-              </div>
-            </div>
-          </div>
-        </V3Scan>
+    <div style={S.root}>
+      {/* ================== LEFT ================== */}
+      <div style={S.left}>
+        <div style={S.kicker}>{meta.sub || "What sets me apart"}</div>
+        <motion.h1
+          initial={reduced ? {} : { opacity: 0, y: 14 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.6, ease: CINE }}
+          style={S.title}
+        >
+          {meta.heading || "What Sets Me Apart"}
+        </motion.h1>
+        <div style={S.dirLabel}>{String(list.length).padStart(2, "0")} pillars</div>
+        {list.map((p, i) => (
+          <PillarRow key={p.title} p={p} n={i + 1} active={i === idx} onSelect={() => setIdx(i)} />
+        ))}
       </div>
-    </V3Frame>
+
+      {/* ================== RIGHT ================== */}
+      <div style={S.right}>
+        <AnimatePresence mode="wait">
+          <Featured key={active?.title || "empty"} p={active} n={idx + 1} total={list.length} reduced={reduced} />
+        </AnimatePresence>
+      </div>
+    </div>
   );
 }

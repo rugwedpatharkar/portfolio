@@ -1,312 +1,285 @@
 /*
- * Achievements (Mars) — Hero + rundown, interactive.
+ * Achievements — milestone directory + featured milestone (redesign 2026-07 v2).
+ * No cards, no scroll — matches the directory/detail pattern used by Testimonials,
+ * Notes, Hobbies, WhatSetsMeApart, Education, Projects. Fits inside the fixed
+ * 906px `.stellar-dossier-frame`.
  *
- * Design #1 (hero flagship + chip rundown) with a swap interaction:
- * every chip is clickable — clicking any chip promotes it to the hero
- * card. All 8 achievements stay visible in the chip grid; the active
- * chip gets an accent border + tinted background so it's clear which
- * one is currently featured.
+ *   LEFT  — kicker · huge Earth-tinted title · milestone directory grouped by
+ *           year (year header, hairline; each row: index + icon + title + year).
+ *           Click a row to feature it.
+ *   RIGHT — meta line (year · index) · huge planet-tinted milestone title ·
+ *           long-form description prose · icon badge for identity.
  *
- * Signature moment: hero content (title + description) crossfades on
- * swap via AnimatePresence + shutter clip-path reveal, same technique
- * as Projects. Keyboard nav (ArrowLeft/Right or H/L) advances the
- * active chip.
+ * All achievements[] entries rendered verbatim (src/content/index.js).
  */
-import { useMemo, useState, useCallback } from "react";
+import { memo, useEffect, useMemo, useState } from "react";
 import { motion, AnimatePresence, useReducedMotion } from "motion/react";
 import { achievements, sectionMeta } from "../../../content";
-import { V3Frame, V3Scan, V3Ticker, V3SectionHeader, useMasterListKeys } from "../primitives";
-import { EASE, shutterVariants } from "../anim";
 
-const META = sectionMeta.achievements || {
-  sub: "Milestones",
-  heading: "Signals from the Wire",
+const CINE = [0.25, 0.1, 0.25, 1];
+
+const S = {
+  root: {
+    width: "min(100%, clamp(880px, 72vw, 1240px))",
+    height: "100%",
+    display: "grid",
+    gridTemplateColumns: "minmax(320px, 400px) 1fr",
+    gap: "clamp(40px, 5vw, 72px)",
+    pointerEvents: "auto",
+    color: "var(--v3-fg)",
+    fontFamily: "var(--v3-font-ui)",
+    minHeight: 0,
+    alignItems: "start",
+  },
+
+  /* ---- LEFT (masthead + directory) ---- */
+  left: { display: "flex", flexDirection: "column", gap: 16, minHeight: 0 },
+  kicker: {
+    fontFamily: "var(--v3-font-mono)",
+    fontSize: 11,
+    letterSpacing: ".28em",
+    textTransform: "uppercase",
+    color: "var(--v3-fg-mute)",
+  },
+  title: {
+    fontFamily: "var(--v3-font-display)",
+    fontWeight: 700,
+    fontSize: "clamp(34px, 3.6vw, 54px)",
+    lineHeight: 0.92,
+    letterSpacing: "-.02em",
+    color: "color-mix(in oklab, var(--v3-accent) 62%, #ffffff 38%)",
+    margin: 0,
+    overflowWrap: "normal",
+    wordBreak: "keep-all",
+    hyphens: "none",
+  },
+  count: {
+    marginTop: 4,
+    fontFamily: "var(--v3-font-mono)",
+    fontSize: 10,
+    letterSpacing: ".24em",
+    textTransform: "uppercase",
+    color: "var(--v3-accent)",
+  },
+
+  yearHead: {
+    marginTop: 12,
+    paddingBottom: 6,
+    borderBottom: "1px solid var(--v3-line-strong)",
+    fontFamily: "var(--v3-font-mono)",
+    fontSize: 10,
+    letterSpacing: ".24em",
+    textTransform: "uppercase",
+    color: "var(--v3-fg-mute)",
+  },
+  row: (active) => ({
+    all: "unset",
+    cursor: "pointer",
+    display: "grid",
+    gridTemplateColumns: "26px 22px 1fr auto",
+    gap: 10,
+    alignItems: "baseline",
+    padding: "9px 0",
+    borderBottom: "1px solid var(--v3-line)",
+    width: "100%",
+    transition: "background .15s ease",
+    background: active ? "color-mix(in oklab, var(--v3-accent) 8%, transparent)" : "transparent",
+  }),
+  rowN: {
+    fontFamily: "var(--v3-font-mono)",
+    fontSize: 10,
+    letterSpacing: ".14em",
+    color: "var(--v3-accent)",
+  },
+  rowIcon: { fontSize: 14, lineHeight: 1 },
+  rowTitle: (active) => ({
+    fontFamily: "var(--v3-font-display)",
+    fontWeight: active ? 600 : 500,
+    fontSize: 13.5,
+    letterSpacing: "-.005em",
+    color: active ? "var(--v3-fg)" : "var(--v3-fg-dim)",
+    lineHeight: 1.25,
+    transition: "color .18s ease, font-weight .18s ease",
+    overflow: "hidden",
+    textOverflow: "ellipsis",
+    whiteSpace: "nowrap",
+  }),
+  rowYear: {
+    fontFamily: "var(--v3-font-mono)",
+    fontSize: 10,
+    letterSpacing: ".14em",
+    color: "rgba(255,255,255,.28)",
+  },
+
+  /* ---- RIGHT (featured milestone) ---- */
+  right: { display: "flex", flexDirection: "column", minHeight: 0 },
+  metaRow: {
+    display: "flex",
+    gap: 24,
+    flexWrap: "wrap",
+    paddingBottom: 14,
+    borderBottom: "1px solid var(--v3-line)",
+    fontFamily: "var(--v3-font-mono)",
+    fontSize: 10,
+    letterSpacing: ".22em",
+    textTransform: "uppercase",
+    color: "var(--v3-fg-mute)",
+  },
+  metaK: { color: "var(--v3-fg)", fontWeight: 500 },
+  featureHead: {
+    marginTop: 24,
+    display: "grid",
+    gridTemplateColumns: "auto 1fr",
+    gap: 20,
+    alignItems: "start",
+  },
+  iconBadge: {
+    fontSize: "clamp(48px, 5vw, 72px)",
+    lineHeight: 1,
+    paddingTop: 4,
+  },
+  featureTitle: {
+    fontFamily: "var(--v3-font-display)",
+    fontWeight: 700,
+    fontSize: "clamp(28px, 3vw, 44px)",
+    lineHeight: 1.02,
+    letterSpacing: "-.02em",
+    color: "color-mix(in oklab, var(--v3-accent) 62%, #ffffff 38%)",
+    margin: 0,
+  },
+  desc: {
+    marginTop: 24,
+    fontFamily: "var(--v3-font-ui)",
+    fontSize: 15,
+    lineHeight: 1.65,
+    color: "var(--v3-fg-dim)",
+    maxWidth: "62ch",
+    margin: "24px 0 0",
+    paddingTop: 20,
+    borderTop: "1px solid var(--v3-line-strong)",
+  },
+  navRow: {
+    marginTop: "auto",
+    paddingTop: 22,
+    borderTop: "1px solid var(--v3-line)",
+    display: "flex",
+    gap: 24,
+    fontFamily: "var(--v3-font-mono)",
+    fontSize: 10,
+    letterSpacing: ".22em",
+    textTransform: "uppercase",
+    color: "var(--v3-fg-mute)",
+  },
+  navK: { color: "var(--v3-fg)", fontWeight: 500 },
 };
 
-const METRIC_RE = /^(\d+(?:\.\d+)?)([%+]?)[\s\-–—:·]*(.*)$/;
-const parseMetric = (title = "") => {
-  const m = String(title).match(METRIC_RE);
-  if (!m) return null;
-  return {
-    value: Number(m[1]),
-    suffix: m[2] || "",
-    rest: (m[3] || "").trim() || String(title),
-  };
-};
+const MilestoneRow = memo(function MilestoneRow({ a, n, active, onSelect }) {
+  return (
+    <button type="button" data-cursor onClick={onSelect} aria-pressed={active} style={S.row(active)} title={a.title}>
+      <span style={S.rowN}>{String(n).padStart(2, "0")}</span>
+      <span style={S.rowIcon} aria-hidden>{a.icon}</span>
+      <span style={S.rowTitle(active)}>{a.title}</span>
+      <span style={S.rowYear}>{a.year}</span>
+    </button>
+  );
+});
 
-/* Pick the initial flagship — Star Performer if present, else list[0]. */
-const FLAGSHIP_TITLE_RE = /star performer/i;
-const pickFlagship = (list) => {
-  const idx = list.findIndex((a) => FLAGSHIP_TITLE_RE.test(a.title || ""));
-  return idx >= 0 ? idx : 0;
-};
+const Featured = memo(function Featured({ a, n, total, reduced }) {
+  if (!a) return null;
+  return (
+    <motion.div
+      key={a.title}
+      initial={reduced ? {} : { opacity: 0, y: 14 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.45, ease: CINE }}
+      style={{ display: "flex", flexDirection: "column", height: "100%" }}
+    >
+      <div style={S.metaRow}>
+        <span><span style={S.metaK}>Milestone</span></span>
+        <span>· {String(n).padStart(2, "0")} / {String(total).padStart(2, "0")}</span>
+        {a.year && <span>· {a.year}</span>}
+      </div>
 
-/* Shutter reveal on the flagship title. Vertical inset is negative so
-   descenders don't get shaved by the clip-path. Same technique as
-   Projects. */
-const SHUTTER_VARIANTS = shutterVariants(0.08);
+      <div style={S.featureHead}>
+        <span style={S.iconBadge} aria-hidden>{a.icon}</span>
+        <h1 style={S.featureTitle}>{a.title}</h1>
+      </div>
 
-/* Hero body crossfade on active-index change. */
-const HERO_BODY_VARIANTS = {
-  hidden: { opacity: 0, y: 6 },
-  show:   { opacity: 1, y: 0, transition: { duration: 0.3, ease: EASE } },
-  exit:   { opacity: 0, transition: { duration: 0.15 } },
-};
+      {a.description && <p style={S.desc}>{a.description}</p>}
+
+      <div style={S.navRow}>
+        <span><span style={S.navK}>Click any milestone</span> to expand</span>
+      </div>
+    </motion.div>
+  );
+});
 
 export default function AchievementsSection({ bootNonce }) {
-  const list = useMemo(() => achievements || [], []);
-  const reduce = useReducedMotion();
+  const reduced = useReducedMotion();
+  const meta = sectionMeta.achievements || {};
 
-  const initialIdx = useMemo(() => pickFlagship(list), [list]);
-  const [active, setActive] = useState(initialIdx);
+  /* Group by year, latest-first, preserving authored order within each year. */
+  const grouped = useMemo(() => {
+    const map = new Map();
+    (achievements || []).forEach((a) => {
+      const y = String(a.year || "—");
+      if (!map.has(y)) map.set(y, []);
+      map.get(y).push(a);
+    });
+    return [...map.entries()].sort(([a], [b]) => (a > b ? -1 : a < b ? 1 : 0));
+  }, []);
 
-  const hero = list[active] || list[0];
-  const heroMetric = hero ? parseMetric(hero.title) : null;
-  const heroTitle = heroMetric?.rest || hero?.title || "";
+  /* Flat list — for indexing (active milestone) + total count. */
+  const flat = useMemo(() => grouped.flatMap(([, list]) => list), [grouped]);
+  const total = flat.length;
 
-  const goto = useCallback((i) => {
-    if (i < 0 || i >= list.length || i === active) return;
-    setActive(i);
-  }, [active, list.length]);
-  const { onKeyDown: onKeys, itemProps } = useMasterListKeys(active, goto, list.length, { axis: "x" });
+  const [idx, setIdx] = useState(0);
+  useEffect(() => { setIdx(0); }, [bootNonce]);
+  const active = flat[Math.min(idx, total - 1)];
+
+  let running = 0;
 
   return (
-    <V3Frame
-      section="Achievements"
-      planet="MARS"
+    <div style={S.root}>
+      {/* ================== LEFT ================== */}
+      <div style={S.left}>
+        <div style={S.kicker}>{meta.sub || "Milestones"}</div>
+        <motion.h1
+          initial={reduced ? {} : { opacity: 0, y: 14 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.6, ease: CINE }}
+          style={S.title}
+        >
+          {meta.heading || "Achievements"}
+        </motion.h1>
+        <div style={S.count}>{String(total).padStart(2, "0")} milestones · latest first</div>
 
-      scanDir="circuit"
-      scanKey={bootNonce}
-      gridAreas={`"top top top" "left left ." "left left ." "left left ."`}
-    >
-      <div style={{
-        gridArea: "left", display: "flex", flexDirection: "column",
-        gap: "clamp(14px, 1.4vw, 22px)",
-        minWidth: 0, minHeight: 0, overflow: "hidden",
-        maxWidth: "min(60vw, 1200px)",
-        height: "100%",
-      }}>
-        {/* Header */}
-        <V3SectionHeader sub={META.sub} heading={META.heading} />
-
-        {/* Hero card — content swaps via AnimatePresence when active changes */}
-        {hero && (
-          <V3Scan variant="horizontal" delay={0.15} style={{ minWidth: 0 }}>
-            <div
-              role="region"
-              aria-live="polite"
-              aria-label="Featured milestone"
-              style={{
-                display: "grid",
-                gridTemplateColumns: "auto minmax(0, 1fr)",
-                columnGap: "clamp(18px, 2vw, 32px)",
-                alignItems: "start",
-                padding: "clamp(16px, 1.6vw, 26px) clamp(18px, 1.8vw, 28px)",
-                border: "1px solid var(--v3-accent)",
-                borderRadius: 8,
-                background: "color-mix(in oklab, var(--v3-accent) 8%, transparent)",
-                boxShadow: "0 0 32px color-mix(in oklab, var(--v3-accent) 18%, transparent)",
-                minWidth: 0,
-                /* Fixed height — card never reflows when descriptions differ
-                   in line count. Clamp keeps it fluid across viewports. */
-                height: "clamp(180px, 14vw, 230px)",
-                overflow: "hidden",
-              }}
-            >
-              {/* Emblem — swaps with the active achievement */}
-              <AnimatePresence mode="wait" initial={false}>
-                <motion.div
-                  key={`emblem-${active}`}
-                  initial={reduce ? false : { opacity: 0, scale: 0.7 }}
-                  animate={{ opacity: 1, scale: 1 }}
-                  exit={{ opacity: 0, transition: { duration: 0.12 } }}
-                  transition={{ duration: 0.3, ease: EASE }}
-                  style={{
-                    fontSize: "clamp(2.4rem, 2.4vw + 1rem, 3.8rem)",
-                    lineHeight: 1,
-                    filter: "drop-shadow(0 0 12px color-mix(in oklab, var(--v3-accent) 42%, transparent))",
-                    flexShrink: 0,
-                    minHeight: "clamp(2.4rem, 2.4vw + 1rem, 3.8rem)",
-                    display: "flex", alignItems: "center", justifyContent: "center",
-                    minWidth: "clamp(2.4rem, 2.4vw + 1rem, 3.8rem)",
-                  }}
-                >{hero.icon || "★"}</motion.div>
-              </AnimatePresence>
-
-              {/* Body — badge + year (static) + swappable title + description */}
-              <div style={{ display: "flex", flexDirection: "column", gap: "clamp(6px, 0.8vw, 14px)", minWidth: 0 }}>
-                <div style={{ display: "flex", alignItems: "center", gap: 10, flexWrap: "wrap" }}>
-                  <span style={{
-                    display: "inline-flex", alignItems: "center", gap: 8,
-                    padding: "clamp(4px, 0.4vw, 6px) clamp(10px, 0.9vw, 14px)",
-                    border: "1px solid var(--v3-accent)",
-                    borderRadius: 999,
-                    background: "color-mix(in oklab, var(--v3-accent) 14%, transparent)",
-                    fontFamily: "var(--v3-font-mono)", fontWeight: 400,
-                    fontSize: "clamp(9px, 0.3vw + 7px, 11px)",
-                    letterSpacing: ".22em", textTransform: "uppercase",
-                    color: "var(--v3-fg)",
-                  }}>
-                    <span aria-hidden style={{
-                      width: 6, height: 6, borderRadius: "50%",
-                      background: "var(--v3-accent)",
-                      boxShadow: "0 0 8px var(--v3-accent)",
-                    }} />
-                    Featured milestone
-                  </span>
-                  {hero.year && (
-                    <span style={{
-                      fontFamily: "var(--v3-font-mono)", fontWeight: 400,
-                      fontSize: "clamp(9px, 0.3vw + 7px, 11px)",
-                      letterSpacing: ".26em", textTransform: "uppercase",
-                      color: "var(--v3-fg-mute)",
-                      fontVariantNumeric: "tabular-nums",
-                    }}>Logged {hero.year}</span>
-                  )}
-                </div>
-
-                {/* Title + description swap block */}
-                <AnimatePresence mode="wait" initial={false}>
-                  <motion.div
-                    key={`body-${active}`}
-                    variants={HERO_BODY_VARIANTS}
-                    initial={reduce ? false : "hidden"}
-                    animate="show"
-                    exit="exit"
-                    style={{ display: "flex", flexDirection: "column", gap: "clamp(6px, 0.7vw, 12px)", minWidth: 0 }}
-                  >
-                    <motion.h3
-                      variants={reduce ? undefined : SHUTTER_VARIANTS}
-                      style={{
-                        fontFamily: "var(--v3-font-display)", fontWeight: 340,
-                        fontSize: "clamp(1.5rem, 1.2vw + 0.9rem, 2.6rem)",
-                        lineHeight: 1.15, letterSpacing: "-.015em",
-                        color: "var(--v3-fg)", margin: 0, fontOpticalSizing: "auto",
-                        overflowWrap: "anywhere",
-                        paddingBottom: "0.05em",
-                      }}>{heroTitle}</motion.h3>
-                    {hero.description && (
-                      <p style={{
-                        fontFamily: "var(--v3-font-ui)", fontWeight: 300,
-                        fontSize: "clamp(0.88rem, 0.35vw + 0.6rem, 1.02rem)",
-                        color: "var(--v3-fg-dim)", lineHeight: 1.6, margin: 0,
-                        maxWidth: "min(64ch, 100%)",
-                        overflowWrap: "break-word",
-                        /* Clamp to 2 lines so the card's fixed height stays
-                           consistent regardless of description length. */
-                        display: "-webkit-box",
-                        WebkitLineClamp: 2,
-                        WebkitBoxOrient: "vertical",
-                        overflow: "hidden",
-                      }}>{hero.description}</p>
-                    )}
-                  </motion.div>
-                </AnimatePresence>
-              </div>
-            </div>
-          </V3Scan>
-        )}
-
-        {/* Chip rundown — all 8 achievements, clickable */}
-        {list.length > 0 && (
-          <V3Scan variant="circuit" delay={0.28} style={{ minWidth: 0, flex: 1, minHeight: 0, display: "flex" }}>
-            <div
-              role="tablist"
-              aria-label="Milestones"
-              onKeyDown={onKeys}
-              style={{
-                width: "100%", height: "100%",
-                display: "grid",
-                gridTemplateColumns: "repeat(auto-fit, minmax(clamp(180px, 18vw, 240px), 1fr))",
-                gap: "clamp(10px, 1vw, 16px)",
-                alignContent: "start",
-                minWidth: 0, minHeight: 0,
-              }}
-            >
-              {list.map((a, i) => {
-                const metric = parseMetric(a.title);
-                const title = metric?.rest || a.title;
-                const isActive = i === active;
-                const delay = 0.35 + i * 0.06;
-                return (
-                  <motion.button
-                    key={i}
-                    role="tab"
-                    aria-selected={isActive}
-                    onClick={() => goto(i)}
-                    {...itemProps(i)}
-                    initial={reduce ? false : { opacity: 0, y: 10 }}
-                    whileInView={{ opacity: 1, y: 0 }}
-                    viewport={{ once: true, amount: 0.2 }}
-                    transition={{ duration: 0.4, ease: EASE, delay }}
-                    style={{
-                      all: "unset", cursor: "pointer",
-                      display: "flex", flexDirection: "column",
-                      gap: "clamp(4px, 0.4vw, 8px)",
-                      padding: "clamp(10px, 1vw, 16px) clamp(12px, 1.1vw, 18px)",
-                      border: `1px solid ${isActive ? "var(--v3-accent)" : "var(--v3-line)"}`,
-                      borderRadius: 6,
-                      background: isActive
-                        ? "color-mix(in oklab, var(--v3-accent) 10%, transparent)"
-                        : "color-mix(in oklab, var(--v3-bg-void) 40%, transparent)",
-                      boxShadow: isActive
-                        ? "0 0 14px color-mix(in oklab, var(--v3-accent) 20%, transparent)"
-                        : "none",
-                      transition: "border-color .2s, background .2s, box-shadow .2s",
-                      minWidth: 0,
-                    }}
-                  >
-                    <div style={{ display: "flex", alignItems: "baseline", justifyContent: "space-between", gap: 8 }}>
-                      {metric ? (
-                        <span style={{
-                          fontFamily: "var(--v3-font-display)", fontWeight: 340,
-                          fontSize: "clamp(1.5rem, 1vw + 0.7rem, 2rem)",
-                          lineHeight: 1, letterSpacing: "-.02em",
-                          color: isActive ? "var(--v3-accent)" : "var(--v3-fg)",
-                          fontOpticalSizing: "auto",
-                          fontVariantNumeric: "tabular-nums",
-                          transition: "color .2s",
-                        }}>
-                          <V3Ticker
-                            value={metric.value}
-                            suffix={metric.suffix}
-                            decimals={Number.isInteger(metric.value) ? 0 : 1}
-                          />
-                        </span>
-                      ) : (
-                        <span aria-hidden style={{
-                          fontSize: "clamp(1.3rem, 0.9vw + 0.6rem, 1.7rem)",
-                          lineHeight: 1,
-                        }}>{a.icon}</span>
-                      )}
-                      {a.year && (
-                        <span style={{
-                          fontFamily: "var(--v3-font-mono)", fontWeight: 400,
-                          fontSize: "clamp(8.5px, 0.25vw + 6px, 10px)",
-                          letterSpacing: ".22em",
-                          color: isActive ? "var(--v3-accent)" : "var(--v3-fg-mute)",
-                          fontVariantNumeric: "tabular-nums",
-                          whiteSpace: "nowrap",
-                          transition: "color .2s",
-                        }}>{a.year}</span>
-                      )}
-                    </div>
-                    <span style={{
-                      fontFamily: "var(--v3-font-display)", fontWeight: 340,
-                      fontSize: "clamp(0.88rem, 0.35vw + 0.55rem, 1.02rem)",
-                      lineHeight: 1.2, letterSpacing: "-.005em",
-                      color: isActive ? "var(--v3-fg)" : "var(--v3-fg-dim)",
-                      fontOpticalSizing: "auto",
-                      overflowWrap: "anywhere",
-                      transition: "color .2s",
-                    }}>{title}</span>
-                  </motion.button>
-                );
-              })}
-            </div>
-          </V3Scan>
-        )}
+        {grouped.map(([year, list]) => (
+          <div key={year}>
+            <div style={S.yearHead}>{year}</div>
+            {list.map((a) => {
+              const n = ++running;
+              const flatIdx = flat.indexOf(a);
+              return (
+                <MilestoneRow
+                  key={a.title}
+                  a={a}
+                  n={n}
+                  active={flatIdx === idx}
+                  onSelect={() => setIdx(flatIdx)}
+                />
+              );
+            })}
+          </div>
+        ))}
       </div>
-    </V3Frame>
+
+      {/* ================== RIGHT ================== */}
+      <div style={S.right}>
+        <AnimatePresence mode="wait">
+          <Featured key={active?.title || "empty"} a={active} n={idx + 1} total={total} reduced={reduced} />
+        </AnimatePresence>
+      </div>
+    </div>
   );
 }

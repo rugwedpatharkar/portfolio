@@ -66,8 +66,9 @@ const AdaptiveQuality = ({ scrollTRef, highDpr = 1.75, lowDpr = 1.0, onPerf }) =
     const scrolling = vel > 0.0008;
     if (scrolling) idleAt.current = now;
 
-    /* Potato-tier hysteresis — skipped entirely during the grace window so
-       the intro + texture-decode spike never drops us into potato. */
+    /* Potato-tier hysteresis — shed the heavy layers only when frames genuinely
+       dip on a struggling GPU (<~43fps sustained), and only after the grace window;
+       restore once there's real headroom again (>~58fps sustained). */
     if (now - startAt.current > GRACE) {
       if (ema.current > LOW_MS) {
         goodSince.current = 0;

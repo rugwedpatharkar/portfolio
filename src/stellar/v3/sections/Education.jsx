@@ -1,357 +1,292 @@
 /*
- * Education (Saturn) — concentric orbital rings per the taste-stack table.
+ * Education — degree directory + detail spread (redesign 2026-07).
+ * Same directory/detail pattern as Projects/Experience, adapted for 4 education
+ * levels. Fits inside the fixed 906px `.stellar-dossier-frame` with no scroll.
  *
- *   "Concentric rings around a center node; hover a ring, it lifts
- *    (z + brighten), degree flies in from the right on a horizontal
- *    line; ring stroke width encodes score."
+ *   LEFT  — kicker · huge Jupiter-tinted title · degree directory (SSC → MSc,
+ *           latest-first, each row: index + shortName + year).
+ *   RIGHT — meta line (level · duration) · huge planet-tinted degree title ·
+ *           institution · grade big-number · Highlights list (hairline rows).
  *
- * Layout:
- *   - LEFT (~48%): SVG orbital chart. Center emblem + N concentric
- *     rings (one per education entry). Inner ring = most recent
- *     (MSc), outer ring = oldest (SSC). Each ring's stroke width
- *     encodes its percentage (thicker = higher score). A dot marker
- *     sits at 12 o'clock on each ring. The active ring is
- *     accent-colored and thicker; inactive rings are muted. Rings
- *     draw in (pathLength 0 → 1) on section reveal, staggered.
- *   - RIGHT (~52%): active degree's detail. Kicker + degree name +
- *     school + duration/year + highlight chip cloud. Content
- *     "flies in from the right on a horizontal line" via AnimatePresence
- *     — a hairline horizontal rule draws in first, then the block
- *     x-slides + fades in.
- *
- * Interactions:
- *   - Click a ring OR a small "01/02/03/04" numeric tab below the
- *     chart to switch active education.
- *   - Keyboard: ArrowUp/Down or J/K cycles through educations.
+ * All educations[] entries rendered verbatim (src/content/index.js).
  */
-import { useMemo, useState, useCallback } from "react";
+import { memo, useEffect, useState } from "react";
 import { motion, AnimatePresence, useReducedMotion } from "motion/react";
 import { educations, sectionMeta } from "../../../content";
-import { V3Frame, V3Scan, V3SectionHeader, V3Chip, masterCardStyle, useMasterListKeys } from "../primitives";
-import { EASE } from "../anim";
 
-const META = sectionMeta.education || {
-  sub: "Formation",
-  heading: "Academic Track",
+const CINE = [0.25, 0.1, 0.25, 1];
+
+const S = {
+  root: {
+    width: "min(100%, clamp(880px, 72vw, 1240px))",
+    height: "100%",
+    display: "grid",
+    gridTemplateColumns: "minmax(280px, 340px) 1fr",
+    gap: "clamp(40px, 5vw, 72px)",
+    pointerEvents: "auto",
+    color: "var(--v3-fg)",
+    fontFamily: "var(--v3-font-ui)",
+    minHeight: 0,
+    alignItems: "start",
+  },
+
+  /* ---- LEFT (masthead + directory) ---- */
+  left: { display: "flex", flexDirection: "column", gap: 18, minHeight: 0 },
+  kicker: {
+    fontFamily: "var(--v3-font-mono)",
+    fontSize: 11,
+    letterSpacing: ".28em",
+    textTransform: "uppercase",
+    color: "var(--v3-fg-mute)",
+  },
+  title: {
+    fontFamily: "var(--v3-font-display)",
+    fontWeight: 700,
+    fontSize: "clamp(36px, 4vw, 60px)",
+    lineHeight: 0.92,
+    letterSpacing: "-.02em",
+    color: "color-mix(in oklab, var(--v3-accent) 62%, #ffffff 38%)",
+    margin: 0,
+    overflowWrap: "normal",
+    wordBreak: "keep-all",
+    hyphens: "none",
+  },
+  dirLabel: {
+    marginTop: 8,
+    paddingTop: 14,
+    borderTop: "1px solid var(--v3-line-strong)",
+    fontFamily: "var(--v3-font-mono)",
+    fontSize: 10,
+    letterSpacing: ".24em",
+    textTransform: "uppercase",
+    color: "var(--v3-accent)",
+    paddingBottom: 8,
+  },
+  row: (active) => ({
+    all: "unset",
+    cursor: "pointer",
+    display: "grid",
+    gridTemplateColumns: "28px 1fr auto",
+    gap: 10,
+    alignItems: "baseline",
+    padding: "12px 0",
+    borderBottom: "1px solid var(--v3-line)",
+    width: "100%",
+    transition: "background .15s ease",
+    background: active ? "color-mix(in oklab, var(--v3-accent) 8%, transparent)" : "transparent",
+  }),
+  rowN: {
+    fontFamily: "var(--v3-font-mono)",
+    fontSize: 10,
+    letterSpacing: ".14em",
+    color: "var(--v3-accent)",
+  },
+  rowName: (active) => ({
+    fontFamily: "var(--v3-font-display)",
+    fontWeight: active ? 600 : 500,
+    fontSize: 15,
+    letterSpacing: "-.005em",
+    color: active ? "var(--v3-fg)" : "var(--v3-fg-dim)",
+    transition: "color .18s ease, font-weight .18s ease",
+  }),
+  rowYear: {
+    fontFamily: "var(--v3-font-mono)",
+    fontSize: 10,
+    letterSpacing: ".14em",
+    color: "rgba(255,255,255,.30)",
+  },
+
+  /* ---- RIGHT (detail) ---- */
+  right: { display: "flex", flexDirection: "column", minHeight: 0 },
+  metaRow: {
+    display: "flex",
+    gap: 24,
+    flexWrap: "wrap",
+    paddingBottom: 14,
+    borderBottom: "1px solid var(--v3-line)",
+    fontFamily: "var(--v3-font-mono)",
+    fontSize: 10,
+    letterSpacing: ".22em",
+    textTransform: "uppercase",
+    color: "var(--v3-fg-mute)",
+  },
+  metaK: { color: "var(--v3-fg)", fontWeight: 500 },
+  degreeTitle: {
+    marginTop: 18,
+    fontFamily: "var(--v3-font-display)",
+    fontWeight: 700,
+    fontSize: "clamp(30px, 3.2vw, 46px)",
+    lineHeight: 0.98,
+    letterSpacing: "-.02em",
+    color: "color-mix(in oklab, var(--v3-accent) 62%, #ffffff 38%)",
+    margin: "18px 0 0",
+  },
+  institution: {
+    marginTop: 10,
+    fontFamily: "var(--v3-font-ui)",
+    fontSize: 15,
+    fontStyle: "italic",
+    color: "var(--v3-fg-dim)",
+  },
+  gradeRow: {
+    marginTop: 22,
+    padding: "16px 0",
+    borderTop: "1px solid var(--v3-line-strong)",
+    borderBottom: "1px solid var(--v3-line)",
+    display: "flex",
+    alignItems: "baseline",
+    gap: 12,
+  },
+  gradeN: {
+    fontFamily: "var(--v3-font-display)",
+    fontWeight: 700,
+    fontSize: "clamp(38px, 3.6vw, 52px)",
+    lineHeight: 1,
+    letterSpacing: "-.02em",
+    color: "color-mix(in oklab, var(--v3-accent) 62%, #ffffff 38%)",
+  },
+  gradeSuffix: {
+    color: "var(--v3-accent)",
+    fontFamily: "var(--v3-font-display)",
+    fontWeight: 700,
+    fontSize: "clamp(24px, 2.2vw, 32px)",
+  },
+  gradeL: {
+    fontFamily: "var(--v3-font-mono)",
+    fontSize: 10,
+    letterSpacing: ".22em",
+    textTransform: "uppercase",
+    color: "var(--v3-fg-mute)",
+    marginLeft: "auto",
+  },
+  highlightsWrap: { marginTop: 22 },
+  highlightsLbl: {
+    fontFamily: "var(--v3-font-mono)",
+    fontSize: 10,
+    letterSpacing: ".24em",
+    textTransform: "uppercase",
+    color: "var(--v3-fg-mute)",
+    borderTop: "1px solid var(--v3-line-strong)",
+    padding: "12px 0 6px",
+  },
+  hlRow: {
+    display: "grid",
+    gridTemplateColumns: "20px 1fr",
+    gap: 12,
+    padding: "8px 0",
+    borderBottom: "1px solid var(--v3-line)",
+    alignItems: "baseline",
+  },
+  hlDot: {
+    color: "var(--v3-accent)",
+    fontFamily: "var(--v3-font-mono)",
+    fontSize: 12,
+  },
+  hlText: {
+    fontSize: 13.5,
+    lineHeight: 1.55,
+    color: "var(--v3-fg-dim)",
+  },
 };
 
-/* Chart constants — 400×400 viewBox. Rings spaced evenly between
-   min and max radius. Inner ring = index 0 (most recent). */
-const CX = 200;
-const CY = 200;
-const RING_MIN = 60;
-const RING_MAX = 175;
-const DOT_R = 6;
+const DirectoryRow = memo(function DirectoryRow({ e, n, active, onSelect }) {
+  return (
+    <button
+      type="button"
+      data-cursor
+      onClick={onSelect}
+      aria-pressed={active}
+      style={S.row(active)}
+    >
+      <span style={S.rowN}>{String(n).padStart(2, "0")}</span>
+      <span style={S.rowName(active)}>{e.shortName || e.degree}</span>
+      <span style={S.rowYear}>{e.year}</span>
+    </button>
+  );
+});
 
-const strokeForPct = (pct) => 1.5 + (Math.max(0, Math.min(100, pct)) / 100) * 3.5;
+const Detail = memo(function Detail({ e, reduced }) {
+  if (!e) return null;
+  return (
+    <motion.div
+      key={e.degree}
+      initial={reduced ? {} : { opacity: 0, y: 14 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.45, ease: CINE }}
+      style={{ display: "flex", flexDirection: "column", height: "100%" }}
+    >
+      <div style={S.metaRow}>
+        {e.level && <span><span style={S.metaK}>{e.level}</span></span>}
+        {e.year && <span>· {e.year}</span>}
+        {e.duration && <span>· {e.duration}</span>}
+      </div>
+
+      <h1 style={S.degreeTitle}>{e.degree}</h1>
+
+      {e.name && <p style={S.institution}>{e.name}</p>}
+
+      {typeof e.percentage === "number" && (
+        <div style={S.gradeRow}>
+          <span style={S.gradeN}>{e.percentage}</span>
+          <span style={S.gradeSuffix}>%</span>
+          <span style={S.gradeL}>Grade</span>
+        </div>
+      )}
+
+      {(e.highlights || []).length > 0 && (
+        <div style={S.highlightsWrap}>
+          <div style={S.highlightsLbl}>Focus areas</div>
+          {e.highlights.map((h, i) => (
+            <div key={i} style={S.hlRow}>
+              <span style={S.hlDot}>›</span>
+              <span style={S.hlText}>{h}</span>
+            </div>
+          ))}
+        </div>
+      )}
+    </motion.div>
+  );
+});
 
 export default function EducationSection({ bootNonce }) {
-  const list = useMemo(() => educations || [], []);
-  const [active, setActive] = useState(0);
-  const reduce = useReducedMotion();
-  const item = list[active] || list[0];
-
-  const rings = useMemo(() => {
-    const n = list.length;
-    if (!n) return [];
-    return list.map((e, i) => {
-      /* Evenly space radii from RING_MIN (inner) to RING_MAX (outer). */
-      const t = n === 1 ? 0 : i / (n - 1);
-      const radius = RING_MIN + t * (RING_MAX - RING_MIN);
-      return {
-        e,
-        i,
-        radius,
-        strokeWidth: strokeForPct(e.percentage),
-        dot: { x: CX, y: CY - radius },  // 12 o'clock
-      };
-    });
-  }, [list]);
-
-  const goto = useCallback((i) => {
-    if (i < 0 || i >= list.length || i === active) return;
-    setActive(i);
-  }, [active, list.length]);
-  /* Education uses SVG <motion.circle> tabs — the roving-tabIndex + `.focus()`
-     model doesn't apply cleanly to SVG focus semantics, so this stop keeps the
-     container-level onKeyDown only. Per-item focus is a separate design pass. */
-  const { onKeyDown: onKeys } = useMasterListKeys(active, goto, list.length);
+  const reduced = useReducedMotion();
+  const meta = sectionMeta.education || {};
+  const list = educations || [];
+  const [idx, setIdx] = useState(0);
+  useEffect(() => { setIdx(0); }, [bootNonce]);
+  const active = list[Math.min(idx, list.length - 1)];
 
   return (
-    <V3Frame
-      section="Education"
-      planet="SATURN"
-
-      scanDir="orbit"
-      scanKey={bootNonce}
-      gridAreas={`"top top top" "left left ." "left left ." "left left ."`}
-    >
-      <div
-        style={{
-          gridArea: "left", display: "flex", flexDirection: "column",
-          gap: "clamp(12px, 1.2vw, 20px)",
-          minWidth: 0, minHeight: 0, overflow: "hidden",
-          maxWidth: "min(60vw, 1200px)", height: "100%",
-        }}
-        onKeyDown={onKeys}
-      >
-        {/* Header */}
-        <V3SectionHeader sub={META.sub} heading={META.heading} />
-
-        {/* Chart + detail card */}
-        <V3Scan variant="orbit" delay={0.15} style={{ minWidth: 0, flex: 1, minHeight: 0, display: "flex" }}>
-          <div style={masterCardStyle({ cols: "minmax(280px, 45%) 1fr", gap: "clamp(14px, 1.5vw, 28px)", padding: "clamp(12px, 1.2vw, 20px) clamp(14px, 1.4vw, 22px)" })}>
-            {/* LEFT — orbital chart */}
-            <div style={{
-              display: "flex", flexDirection: "column",
-              minWidth: 0, minHeight: 0, position: "relative",
-            }}>
-              <div style={{
-                flex: 1, minWidth: 0, minHeight: 0,
-                display: "flex", alignItems: "center", justifyContent: "center",
-                position: "relative",
-              }}>
-                <svg
-                  viewBox="0 0 400 400"
-                  preserveAspectRatio="xMidYMid meet"
-                  role="tablist"
-                  aria-label="Education orbital chart"
-                  style={{
-                    width: "100%", height: "100%",
-                    maxWidth: "min(100%, 460px)", maxHeight: "100%",
-                    overflow: "visible",
-                  }}
-                >
-                  {/* Rings — outer to inner drawn order so the active
-                      ring reliably renders above the muted ones. */}
-                  {rings.slice().reverse().map(({ e, i, radius, strokeWidth }) => {
-                    const isActive = i === active;
-                    return (
-                      <motion.circle
-                        key={`ring-${i}`}
-                        role="tab"
-                        aria-selected={isActive}
-                        aria-label={`${e.shortName || e.degree} · ${e.year}`}
-                        cx={CX} cy={CY} r={radius}
-                        fill="none"
-                        stroke={isActive ? "var(--v3-accent)" : "var(--v3-line-strong)"}
-                        strokeWidth={strokeWidth}
-                        strokeLinecap="round"
-                        style={{
-                          cursor: "pointer",
-                          filter: isActive ? "drop-shadow(0 0 6px color-mix(in oklab, var(--v3-accent) 60%, transparent))" : "none",
-                          opacity: isActive ? 1 : 0.55,
-                          transition: "opacity .25s, stroke .25s, filter .25s",
-                          pointerEvents: "stroke",
-                        }}
-                        initial={reduce ? { pathLength: 1, opacity: isActive ? 1 : 0.55 } : { pathLength: 0, opacity: 0 }}
-                        whileInView={{ pathLength: 1, opacity: isActive ? 1 : 0.55 }}
-                        viewport={{ once: true, amount: 0.3 }}
-                        transition={{ duration: 0.9, ease: EASE, delay: 0.15 + i * 0.08 }}
-                        onClick={() => goto(i)}
-                      />
-                    );
-                  })}
-
-                  {/* Dot markers at 12 o'clock on each ring */}
-                  {rings.map(({ e, i, dot }) => {
-                    const isActive = i === active;
-                    return (
-                      <motion.g
-                        key={`dot-${i}`}
-                        initial={reduce ? false : { opacity: 0, scale: 0.6 }}
-                        whileInView={{ opacity: 1, scale: 1 }}
-                        viewport={{ once: true, amount: 0.3 }}
-                        transition={{ duration: 0.35, ease: EASE, delay: 0.9 + i * 0.06 }}
-                      >
-                        <circle
-                          cx={dot.x} cy={dot.y}
-                          r={isActive ? DOT_R : DOT_R * 0.65}
-                          fill={isActive ? "var(--v3-accent)" : "var(--v3-bg-void)"}
-                          stroke="var(--v3-accent)"
-                          strokeWidth={1.5}
-                          onClick={() => goto(i)}
-                          style={{
-                            cursor: "pointer",
-                            filter: isActive ? "drop-shadow(0 0 8px color-mix(in oklab, var(--v3-accent) 70%, transparent))" : "none",
-                            transition: "r .25s, fill .25s, filter .25s",
-                          }}
-                        />
-                        {/* Compact shortName label above the dot */}
-                        <text
-                          x={dot.x}
-                          y={dot.y - 12}
-                          textAnchor="middle"
-                          fontFamily="var(--v3-font-mono)"
-                          fontSize={10.5}
-                          letterSpacing=".14em"
-                          fill={isActive ? "var(--v3-fg)" : "var(--v3-fg-mute)"}
-                          style={{ pointerEvents: "none", transition: "fill .25s" }}
-                        >{e.shortName || ""}</text>
-                      </motion.g>
-                    );
-                  })}
-
-                  {/* Center emblem — pulses subtly, shows current shortName */}
-                  <motion.circle
-                    cx={CX} cy={CY} r={22}
-                    fill="var(--v3-bg-void)"
-                    stroke="var(--v3-accent)"
-                    strokeWidth={1.5}
-                    animate={reduce ? {} : { scale: [1, 1.06, 1] }}
-                    transition={{ duration: 3.2, ease: "easeInOut", repeat: Infinity }}
-                    style={{ transformOrigin: `${CX}px ${CY}px`, filter: "drop-shadow(0 0 10px color-mix(in oklab, var(--v3-accent) 50%, transparent))" }}
-                  />
-                  <text
-                    x={CX} y={CY + 4}
-                    textAnchor="middle"
-                    fontFamily="var(--v3-font-display)"
-                    fontSize={13}
-                    fill="var(--v3-fg)"
-                    letterSpacing="-.02em"
-                    style={{ pointerEvents: "none", fontOpticalSizing: "auto" }}
-                  >EDU</text>
-                </svg>
-              </div>
-
-              {/* Small numeric tab strip beneath the chart — quick nav */}
-              <div role="none" style={{
-                display: "flex", justifyContent: "center", gap: 6,
-                marginTop: "clamp(6px, 0.7vw, 12px)",
-              }}>
-                {list.map((e, i) => {
-                  const isActive = i === active;
-                  return (
-                    <button
-                      key={i}
-                      type="button"
-                      aria-label={`Select ${e.shortName || e.degree}`}
-                      onClick={() => goto(i)}
-                      style={{
-                        all: "unset", cursor: "pointer",
-                        padding: "clamp(4px, 0.35vw, 6px) clamp(9px, 0.8vw, 14px)",
-                        border: `1px solid ${isActive ? "var(--v3-accent)" : "var(--v3-line)"}`,
-                        borderRadius: 999,
-                        background: isActive ? "color-mix(in oklab, var(--v3-accent) 12%, transparent)" : "transparent",
-                        fontFamily: "var(--v3-font-mono)", fontWeight: 400,
-                        fontSize: "clamp(9px, 0.3vw + 6px, 11px)",
-                        letterSpacing: ".18em",
-                        color: isActive ? "var(--v3-accent)" : "var(--v3-fg-mute)",
-                        fontVariantNumeric: "tabular-nums",
-                        transition: "background .2s, border-color .2s, color .2s",
-                      }}
-                    >{String(i + 1).padStart(2, "0")}</button>
-                  );
-                })}
-              </div>
-            </div>
-
-            {/* RIGHT — degree detail, flies in from the right */}
-            <div style={{
-              display: "flex", flexDirection: "column",
-              gap: "clamp(8px, 0.9vw, 14px)",
-              minWidth: 0, minHeight: 0, position: "relative",
-            }}>
-              {/* Animated horizontal rule that "carries" the block */}
-              <motion.div
-                key={`rule-${active}`}
-                aria-hidden
-                initial={reduce ? { scaleX: 1 } : { scaleX: 0 }}
-                animate={{ scaleX: 1 }}
-                transition={{ duration: 0.45, ease: EASE }}
-                style={{
-                  height: 1, background: "var(--v3-accent)",
-                  transformOrigin: "left",
-                  boxShadow: "0 0 8px color-mix(in oklab, var(--v3-accent) 55%, transparent)",
-                }}
-              />
-              <AnimatePresence mode="wait" initial={false}>
-                <motion.div
-                  key={`detail-${active}`}
-                  initial={reduce ? false : { opacity: 0, x: 30 }}
-                  animate={{ opacity: 1, x: 0 }}
-                  exit={{ opacity: 0, transition: { duration: 0.15 } }}
-                  transition={{ duration: 0.4, ease: EASE, delay: 0.1 }}
-                  style={{
-                    display: "flex", flexDirection: "column",
-                    gap: "clamp(8px, 0.9vw, 14px)",
-                    minWidth: 0, flex: 1,
-                  }}
-                >
-                  {/* Kicker: LEVEL · YEAR · DURATION */}
-                  <div style={{
-                    display: "flex", alignItems: "baseline", gap: 8, flexWrap: "wrap",
-                    fontFamily: "var(--v3-font-mono)", fontWeight: 400,
-                    fontSize: "clamp(9px, 0.3vw + 6px, 11px)",
-                    letterSpacing: ".22em", textTransform: "uppercase", color: "var(--v3-fg-mute)",
-                    fontVariantNumeric: "tabular-nums",
-                  }}>
-                    <span>{item?.level}</span>
-                    {item?.year && <><span aria-hidden style={{ opacity: 0.4 }}>·</span><span>{item.year}</span></>}
-                    {item?.duration && <><span aria-hidden style={{ opacity: 0.4 }}>·</span><span>{item.duration}</span></>}
-                  </div>
-
-                  {/* Degree title */}
-                  <h3 style={{
-                    fontFamily: "var(--v3-font-display)", fontWeight: 340,
-                    fontSize: "clamp(1.35rem, 1vw + 0.7rem, 2rem)",
-                    lineHeight: 1.15, letterSpacing: "-.015em",
-                    color: "var(--v3-fg)", margin: 0, fontOpticalSizing: "auto",
-                    overflowWrap: "anywhere",
-                  }}>{item?.degree}</h3>
-
-                  {/* School */}
-                  <p style={{
-                    fontFamily: "var(--v3-font-ui)", fontWeight: 300,
-                    fontSize: "clamp(0.85rem, 0.35vw + 0.55rem, 0.95rem)",
-                    color: "var(--v3-fg-dim)", lineHeight: 1.5, margin: 0,
-                    fontStyle: "italic",
-                  }}>{item?.name}</p>
-
-                  {/* Percentage — big display */}
-                  <div style={{ display: "flex", alignItems: "baseline", gap: 8 }}>
-                    <span style={{
-                      fontFamily: "var(--v3-font-display)", fontWeight: 340,
-                      fontSize: "clamp(2rem, 1.6vw + 1rem, 3.2rem)",
-                      lineHeight: 1, letterSpacing: "-.03em",
-                      color: "var(--v3-accent)", fontOpticalSizing: "auto",
-                      fontVariantNumeric: "tabular-nums",
-                    }}>{item?.percentage}</span>
-                    <span style={{
-                      fontFamily: "var(--v3-font-mono)", fontWeight: 400,
-                      fontSize: "clamp(9px, 0.3vw + 6px, 11px)",
-                      letterSpacing: ".22em", textTransform: "uppercase",
-                      color: "var(--v3-fg-mute)",
-                    }}>%   Grade</span>
-                  </div>
-
-                  {/* Highlights */}
-                  {(item?.highlights || []).length > 0 && (
-                    <div style={{
-                      display: "flex", flexDirection: "column", gap: "clamp(4px, 0.4vw, 8px)",
-                      marginTop: "auto",
-                      paddingTop: "clamp(8px, 0.8vw, 12px)",
-                      borderTop: "1px solid var(--v3-line)",
-                      minWidth: 0,
-                    }}>
-                      <span style={{
-                        fontFamily: "var(--v3-font-mono)", fontWeight: 400,
-                        fontSize: "clamp(9px, 0.3vw + 6px, 11px)",
-                        letterSpacing: ".22em", textTransform: "uppercase", color: "var(--v3-fg-mute)",
-                      }}>Focus areas</span>
-                      <div style={{ display: "flex", flexWrap: "wrap", gap: 4, minWidth: 0 }}>
-                        {(item.highlights || []).map((h, k) => (
-                          <V3Chip key={k}>{h}</V3Chip>
-                        ))}
-                      </div>
-                    </div>
-                  )}
-                </motion.div>
-              </AnimatePresence>
-            </div>
-          </div>
-        </V3Scan>
+    <div style={S.root}>
+      {/* ================== LEFT ================== */}
+      <div style={S.left}>
+        <div style={S.kicker}>{meta.sub || "Academic Journey"}</div>
+        <motion.h1
+          initial={reduced ? {} : { opacity: 0, y: 14 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.6, ease: CINE }}
+          style={S.title}
+        >
+          {meta.heading || "Education"}
+        </motion.h1>
+        <div style={S.dirLabel}>{String(list.length).padStart(2, "0")} milestones · latest first</div>
+        {list.map((e, i) => (
+          <DirectoryRow
+            key={e.degree}
+            e={e}
+            n={i + 1}
+            active={i === idx}
+            onSelect={() => setIdx(i)}
+          />
+        ))}
       </div>
-    </V3Frame>
+
+      {/* ================== RIGHT ================== */}
+      <div style={S.right}>
+        <AnimatePresence mode="wait">
+          <Detail key={active?.degree || "empty"} e={active} reduced={reduced} />
+        </AnimatePresence>
+      </div>
+    </div>
   );
 }

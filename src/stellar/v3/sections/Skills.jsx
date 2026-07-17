@@ -1,341 +1,352 @@
 /*
- * Skills (Ceres) — radar-chart dossier.
+ * Skills — category directory + RANKED LADDER (redesign 2026-07 v3).
+ * Typography-only, no charts, no borders, no cards — the planet behind stays
+ * fully visible. Each skill is a Syne word sized by its proficiency tier so
+ * the hierarchy reads instantly. Scales cleanly from 7 to 15+ skills per
+ * category (unlike the axis chart, which crowded at high density).
  *
- * Master-detail structure kept: 9 categories on the LEFT as a clickable
- * index, active category's skills on the RIGHT as a data-viz radar
- * chart. Every skill in the active category shows as an axis on the
- * polygon — the whole category is legible at a glance without any
- * scrolling.
+ *   LEFT  — kicker · huge Mars-tinted title · 9 category rows
+ *           (each: index + name + count). Click a row to swap the ladder.
+ *   RIGHT — meta line · huge category title · ladder of skills sorted by
+ *           level. 4 tiers by proficiency (t1 huge · t2 large · t3 medium ·
+ *           t4 small) each with a subtle proficiency bar and mono level readout.
  *
- * Chart geometry (400×400 viewBox):
- *   - Center at (200, 200), max radius 150.
- *   - N axes at even angles starting from 12 o'clock, clockwise.
- *   - Concentric hairline rings at 25/50/75/100% of max radius.
- *   - Filled polygon at each skill's proficiency, accent-tinted.
- *   - Dot at each polygon vertex.
- *   - Skill name label floats at 175 radius (outside the ring).
- *
- * Signature moment: on category switch the polygon + vertex dots
- * cross-fade + scale-in from 0.85 (via key={activeName}); the static
- * scaffold (rings, ticks) stays put — reads as a chart re-computing,
- * not a full re-render.
+ * All skills[] data rendered verbatim (src/content/index.js).
  */
-import { useMemo, useState } from "react";
-import { motion, useReducedMotion } from "motion/react";
+import { memo, useEffect, useMemo, useState } from "react";
+import { motion, AnimatePresence, useReducedMotion } from "motion/react";
 import { skills, sectionMeta } from "../../../content";
-import { V3Frame, V3Scan, V3SectionHeader, masterCardStyle, useMasterListKeys } from "../primitives";
-import { EASE } from "../anim";
 
-const META = sectionMeta.skills || { sub: "What I Bring", heading: "Technical Skills" };
+const CINE = [0.25, 0.1, 0.25, 1];
 
-/* Chart constants — shrunk so long skill names ("Integration & smoke
-   test", "Firebase Authentication") don't run past the right edge of
-   the detail column. Labels sit inside the viewBox with clearance. */
-const CX = 200;
-const CY = 200;
-const R = 118;                    // max radius (100%)
-const LABEL_R = 140;               // label placement radius
-const RING_LEVELS = [0.25, 0.5, 0.75, 1];
-
-/* Split a long skill name into up to 2 balanced lines for the chart
-   label. If the name fits (<= 18 chars), returns one line. */
-const wrapLabel = (name, maxLen = 18) => {
-  const s = String(name || "");
-  if (s.length <= maxLen) return [s];
-  const words = s.split(/\s+/);
-  if (words.length === 1) return [s]; // single long word — no good break
-  /* Greedy split — first line collects words until adding the next would
-     push past `maxLen`. Remainder becomes line 2. */
-  let line1 = words[0];
-  let i = 1;
-  while (i < words.length && (line1 + " " + words[i]).length <= maxLen) {
-    line1 = line1 + " " + words[i];
-    i++;
-  }
-  const line2 = words.slice(i).join(" ") || "";
-  return line2 ? [line1, line2] : [line1];
+/* Proficiency tier — determines typographic weight/size in the ladder.
+   Thresholds chosen so most categories get a good spread across tiers. */
+const tierOf = (lvl) => {
+  if (lvl >= 88) return 1; // t1 — HUGE
+  if (lvl >= 82) return 2; // t2 — large
+  if (lvl >= 75) return 3; // t3 — medium
+  return 4;                // t4 — small
 };
 
-/* Compute (x, y) on the circle at (angle, radius). Angle 0 = 12 o'clock,
-   positive = clockwise (standard radar orientation). */
-const polar = (angle, radius) => ({
-  x: CX + radius * Math.sin(angle),
-  y: CY - radius * Math.cos(angle),
+const S = {
+  root: {
+    width: "min(100%, clamp(880px, 72vw, 1240px))",
+    height: "100%",
+    display: "grid",
+    gridTemplateColumns: "minmax(280px, 340px) 1fr",
+    gap: "clamp(40px, 5vw, 72px)",
+    pointerEvents: "auto",
+    color: "var(--v3-fg)",
+    fontFamily: "var(--v3-font-ui)",
+    minHeight: 0,
+    alignItems: "start",
+  },
+
+  /* ---- LEFT ---- */
+  left: { display: "flex", flexDirection: "column", gap: 18, minHeight: 0 },
+  kicker: {
+    fontFamily: "var(--v3-font-mono)",
+    fontSize: 11,
+    letterSpacing: ".28em",
+    textTransform: "uppercase",
+    color: "var(--v3-fg-mute)",
+  },
+  title: {
+    fontFamily: "var(--v3-font-display)",
+    fontWeight: 700,
+    fontSize: "clamp(34px, 3.6vw, 54px)",
+    lineHeight: 0.92,
+    letterSpacing: "-.02em",
+    color: "color-mix(in oklab, var(--v3-accent) 62%, #ffffff 38%)",
+    margin: 0,
+    overflowWrap: "normal",
+    wordBreak: "keep-all",
+    hyphens: "none",
+  },
+  dirLabel: {
+    marginTop: 8,
+    paddingTop: 14,
+    borderTop: "1px solid var(--v3-line-strong)",
+    fontFamily: "var(--v3-font-mono)",
+    fontSize: 10,
+    letterSpacing: ".24em",
+    textTransform: "uppercase",
+    color: "var(--v3-accent)",
+    paddingBottom: 4,
+  },
+  row: (active) => ({
+    all: "unset",
+    cursor: "pointer",
+    display: "grid",
+    gridTemplateColumns: "28px 1fr auto",
+    gap: 10,
+    alignItems: "baseline",
+    padding: "9px 0",
+    borderBottom: "1px solid var(--v3-line)",
+    width: "100%",
+    transition: "background .15s ease",
+    background: active ? "color-mix(in oklab, var(--v3-accent) 8%, transparent)" : "transparent",
+  }),
+  rowN: {
+    fontFamily: "var(--v3-font-mono)",
+    fontSize: 10,
+    letterSpacing: ".14em",
+    color: "var(--v3-accent)",
+  },
+  rowName: (active) => ({
+    fontFamily: "var(--v3-font-display)",
+    fontWeight: active ? 600 : 500,
+    fontSize: 13,
+    letterSpacing: "-.005em",
+    color: active ? "var(--v3-fg)" : "var(--v3-fg-dim)",
+    transition: "color .18s ease, font-weight .18s ease",
+  }),
+  rowCount: {
+    fontFamily: "var(--v3-font-mono)",
+    fontSize: 10,
+    letterSpacing: ".14em",
+    color: "rgba(255,255,255,.30)",
+  },
+
+  /* ---- RIGHT ---- */
+  right: { display: "flex", flexDirection: "column", minHeight: 0, gap: 16 },
+  headRow: {
+    display: "grid",
+    gridTemplateColumns: "1fr auto",
+    gap: 24,
+    alignItems: "baseline",
+    paddingBottom: 12,
+    borderBottom: "1px solid var(--v3-line-strong)",
+  },
+  catTitle: {
+    fontFamily: "var(--v3-font-display)",
+    fontWeight: 700,
+    fontSize: "clamp(28px, 3vw, 42px)",
+    lineHeight: 1,
+    letterSpacing: "-.02em",
+    color: "color-mix(in oklab, var(--v3-accent) 62%, #ffffff 38%)",
+    margin: 0,
+    overflowWrap: "normal",
+    wordBreak: "keep-all",
+    hyphens: "none",
+  },
+  meta: {
+    fontFamily: "var(--v3-font-mono)",
+    fontSize: 10,
+    letterSpacing: ".22em",
+    textTransform: "uppercase",
+    color: "var(--v3-fg-mute)",
+    textAlign: "right",
+  },
+  metaK: { color: "var(--v3-fg)", fontWeight: 500 },
+
+  /* The ladder — a scrollless stack of skill "rungs" sorted by level desc.
+     Sized/weighted by tier so hierarchy is instant. No borders, no card. */
+  ladder: {
+    display: "flex",
+    flexDirection: "column",
+    gap: 2,
+    paddingTop: 6,
+  },
+  rung: (tier) => {
+    /* Sizes tuned so 15 skills fit the 906px frame: tier 1 ~26, drop through 4. */
+    const sizes = { 1: 26, 2: 20, 3: 16, 4: 13 };
+    const weights = { 1: 700, 2: 600, 3: 500, 4: 500 };
+    const colors = {
+      1: "color-mix(in oklab, var(--v3-accent) 62%, #ffffff 38%)",
+      2: "var(--v3-fg)",
+      3: "var(--v3-fg-dim)",
+      4: "var(--v3-fg-mute)",
+    };
+    return {
+      display: "grid",
+      gridTemplateColumns: "30px 1fr auto 70px",
+      gap: 14,
+      alignItems: "baseline",
+      padding: "3px 0",
+      borderBottom: "1px dotted rgba(255,255,255,.06)",
+      fontFamily: "var(--v3-font-display)",
+      fontWeight: weights[tier],
+      fontSize: sizes[tier],
+      letterSpacing: "-.01em",
+      lineHeight: 1.05,
+      color: colors[tier],
+      transition: "color .18s ease",
+    };
+  },
+  rungIdx: {
+    fontFamily: "var(--v3-font-mono)",
+    fontWeight: 400,
+    fontSize: 10,
+    letterSpacing: ".14em",
+    color: "rgba(255,255,255,.28)",
+    fontVariantNumeric: "tabular-nums",
+    paddingTop: 4,
+  },
+  rungName: { minWidth: 0, overflowWrap: "break-word" },
+  rungLvl: {
+    fontFamily: "var(--v3-font-mono)",
+    fontWeight: 400,
+    fontSize: 12,
+    letterSpacing: ".08em",
+    color: "var(--v3-accent)",
+    fontVariantNumeric: "tabular-nums",
+    paddingTop: 4,
+  },
+  rungBar: (tier, norm) => {
+    /* Small hairline proficiency bar aligned on the far right. Higher tiers
+       get a brighter, glowing bar; lower tiers a dimmer neutral one. */
+    return {
+      width: "100%",
+      height: 1,
+      background: "rgba(255,255,255,.08)",
+      position: "relative",
+      alignSelf: "center",
+      marginTop: 4,
+    };
+  },
+  rungBarFill: (tier, norm) => ({
+    position: "absolute",
+    inset: 0,
+    width: `${Math.round(norm * 100)}%`,
+    background: tier === 1
+      ? "linear-gradient(90deg, color-mix(in oklab, var(--v3-accent) 30%, transparent), var(--v3-accent))"
+      : "color-mix(in oklab, var(--v3-accent) 55%, transparent)",
+    boxShadow: tier === 1 ? "0 0 6px color-mix(in oklab, var(--v3-accent) 60%, transparent)" : "none",
+  }),
+  legend: {
+    marginTop: "auto",
+    paddingTop: 14,
+    borderTop: "1px solid var(--v3-line)",
+    display: "flex",
+    gap: 24,
+    flexWrap: "wrap",
+    fontFamily: "var(--v3-font-mono)",
+    fontSize: 10,
+    letterSpacing: ".18em",
+    textTransform: "uppercase",
+    color: "var(--v3-fg-mute)",
+  },
+  legendK: { color: "var(--v3-fg)" },
+};
+
+const CategoryRow = memo(function CategoryRow({ name, count, n, active, onSelect }) {
+  return (
+    <button type="button" data-cursor onClick={onSelect} aria-pressed={active} style={S.row(active)}>
+      <span style={S.rowN}>{String(n).padStart(2, "0")}</span>
+      <span style={S.rowName(active)}>{name}</span>
+      <span style={S.rowCount}>{count}</span>
+    </button>
+  );
+});
+
+const Rung = memo(function Rung({ s, n }) {
+  const tier = tierOf(s.level);
+  const norm = Math.max(0, Math.min(1, (s.level - 60) / 40));
+  return (
+    <div style={S.rung(tier)}>
+      <span style={S.rungIdx}>{String(n).padStart(2, "0")}</span>
+      <span style={S.rungName}>{s.name}</span>
+      <span style={S.rungLvl}>{s.level}</span>
+      <span style={S.rungBar(tier, norm)}>
+        <span style={S.rungBarFill(tier, norm)} />
+      </span>
+    </div>
+  );
+});
+
+const Detail = memo(function Detail({ catName, list, n, total, reduced }) {
+  const sorted = useMemo(() => [...(list || [])].sort((a, b) => (b.level || 0) - (a.level || 0)), [list]);
+  const tierCount = useMemo(() => {
+    const c = { 1: 0, 2: 0, 3: 0, 4: 0 };
+    sorted.forEach((s) => { c[tierOf(s.level)]++; });
+    return c;
+  }, [sorted]);
+  if (!list) return null;
+  const peak = sorted[0];
+
+  return (
+    <motion.div
+      key={catName}
+      initial={reduced ? {} : { opacity: 0, y: 12 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.5, ease: CINE }}
+      style={{ display: "flex", flexDirection: "column", height: "100%", gap: 14, minHeight: 0 }}
+    >
+      <div style={S.headRow}>
+        <h2 style={S.catTitle}>{catName}</h2>
+        <div style={S.meta}>
+          <div><span style={S.metaK}>Constellation</span></div>
+          <div>{String(n).padStart(2, "0")} / {String(total).padStart(2, "0")} · {list.length} skills{peak ? ` · Peak ${peak.level}` : ""}</div>
+        </div>
+      </div>
+
+      <div style={S.ladder}>
+        {sorted.map((s, i) => <Rung key={s.name} s={s} n={i + 1} />)}
+      </div>
+
+      <div style={S.legend}>
+        <span><span style={S.legendK}>Tier 01</span> · daily · {tierCount[1]}</span>
+        <span><span style={S.legendK}>Tier 02</span> · strong · {tierCount[2]}</span>
+        <span><span style={S.legendK}>Tier 03</span> · working · {tierCount[3]}</span>
+        <span><span style={S.legendK}>Tier 04</span> · exposure · {tierCount[4]}</span>
+      </div>
+    </motion.div>
+  );
 });
 
 export default function SkillsSection({ bootNonce }) {
-  const cats = Object.entries(skills);
-  const [active, setActive] = useState(0);
-  const [activeName, activeList] = cats[active] || cats[0];
-  const reduce = useReducedMotion();
-  /* Skills historically clamped rather than wrapped — preserved for parity. */
-  const { onKeyDown: onKeys, itemProps } = useMasterListKeys(active, setActive, cats.length, { wrap: false });
-
-  /* Precompute axis geometry per skill in the active category. */
-  const geometry = useMemo(() => {
-    const n = activeList.length;
-    if (!n) return { axes: [], polygonPoints: "", avg: 0 };
-    const axes = activeList.map((s, i) => {
-      const angle = (i * 2 * Math.PI) / n;
-      const outer = polar(angle, R);
-      const label = polar(angle, LABEL_R);
-      const vertex = polar(angle, (s.level / 100) * R);
-      return {
-        skill: s,
-        angle,
-        outer,
-        label,
-        vertex,
-        /* Horizontal anchor for the label — snap left/center/right based on
-           which quadrant it sits in so text never runs off-canvas. */
-        anchor: Math.abs(Math.sin(angle)) < 0.15 ? "middle" : Math.sin(angle) > 0 ? "start" : "end",
-        vAlign: Math.abs(Math.cos(angle)) < 0.15 ? "central" : Math.cos(angle) > 0 ? "text-after-edge" : "hanging",
-      };
-    });
-    const polygonPoints = axes.map((a) => `${a.vertex.x},${a.vertex.y}`).join(" ");
-    const avg = Math.round(activeList.reduce((sum, s) => sum + s.level, 0) / n);
-    return { axes, polygonPoints, avg };
-  }, [activeList]);
+  const reduced = useReducedMotion();
+  const meta = sectionMeta.skills || {};
+  const categories = useMemo(() => Object.keys(skills || {}), []);
+  const [idx, setIdx] = useState(0);
+  useEffect(() => { setIdx(0); }, [bootNonce]);
+  const activeCat = categories[Math.min(idx, categories.length - 1)];
+  const activeList = (skills || {})[activeCat] || [];
+  const total = categories.length;
+  const totalSkills = useMemo(() => {
+    return categories.reduce((acc, k) => acc + ((skills || {})[k] || []).length, 0);
+  }, [categories]);
 
   return (
-    <V3Frame
-      section="Skills"
-      planet="CERES"
-
-      scanDir="orbit"
-      scanKey={bootNonce}
-      gridAreas={`"top top top" "left left ." "left left ." "left left ."`}
-    >
-      <div style={{
-        gridArea: "left", display: "flex", flexDirection: "column",
-        gap: "clamp(12px, 1.2vw, 20px)",
-        minWidth: 0, minHeight: 0, overflow: "hidden",
-        maxWidth: "min(60vw, 1200px)", height: "100%",
-      }}>
-        {/* Header */}
-        <V3SectionHeader sub={META.sub} heading={META.heading} />
-
-        {/* Master-detail: index LEFT (~30%), radar chart RIGHT (~70%). */}
-        <V3Scan variant="orbit" delay={0.15} style={{ minWidth: 0, flex: 1, minHeight: 0, display: "flex" }}>
-          <div style={masterCardStyle()}>
-            {/* Master column */}
-            <div
-              role="tablist"
-              aria-label="Skill categories"
-              style={{
-                display: "flex", flexDirection: "column",
-                justifyContent: "space-between", gap: 2,
-                minWidth: 0, alignSelf: "stretch", height: "100%",
-              }}
-              onKeyDown={onKeys}
-            >
-              {cats.map(([cat, list], i) => {
-                const isActive = i === active;
-                return (
-                  <button
-                    key={cat}
-                    role="tab"
-                    aria-selected={isActive}
-                    onClick={() => setActive(i)}
-                    {...itemProps(i)}
-                    className={isActive ? "v3-glass-accent" : "v3-glass"}
-                    style={{
-                      all: "unset", cursor: "pointer",
-                      display: "grid", gridTemplateColumns: "auto minmax(0, 1fr) auto",
-                      alignItems: "baseline", gap: "clamp(6px, 0.6vw, 10px)",
-                      padding: "clamp(5px, 0.5vw, 8px) clamp(8px, 0.9vw, 12px)",
-                      borderLeft: isActive ? "2px solid var(--v3-accent)" : "2px solid transparent",
-                      borderRadius: "0 4px 4px 0",
-                      transition: "background .2s, border-color .2s",
-                      minWidth: 0,
-                    }}
-                  >
-                    <span aria-hidden style={{
-                      fontFamily: "var(--v3-font-mono)", fontWeight: 400,
-                      fontSize: "clamp(9px, 0.3vw + 6px, 11px)",
-                      color: isActive ? "var(--v3-accent)" : "var(--v3-fg-mute)",
-                      letterSpacing: ".14em",
-                      fontVariantNumeric: "tabular-nums",
-                    }}>{String(i + 1).padStart(2, "0")}</span>
-                    <span style={{
-                      fontFamily: "var(--v3-font-display)", fontWeight: 340,
-                      fontSize: "clamp(0.88rem, 0.4vw + 0.55rem, 1.05rem)", lineHeight: 1.2,
-                      letterSpacing: "-.005em",
-                      color: isActive ? "var(--v3-fg)" : "var(--v3-fg-dim)",
-                      fontOpticalSizing: "auto",
-                      minWidth: 0, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap",
-                    }}>{cat}</span>
-                    <span style={{
-                      fontFamily: "var(--v3-font-mono)", fontWeight: 400,
-                      fontSize: "clamp(9px, 0.3vw + 6px, 11px)",
-                      letterSpacing: ".18em",
-                      color: isActive ? "var(--v3-accent)" : "var(--v3-fg-mute)",
-                      fontVariantNumeric: "tabular-nums", flexShrink: 0,
-                    }}>{String(list.length).padStart(2, "0")}</span>
-                  </button>
-                );
-              })}
-            </div>
-
-            {/* Detail column — radar chart */}
-            <div style={{
-              display: "flex", flexDirection: "column",
-              gap: "clamp(8px, 0.8vw, 14px)",
-              minWidth: 0, minHeight: 0,
-            }}>
-              {/* Detail header — track kicker + average % */}
-              <div style={{
-                display: "flex", alignItems: "baseline", justifyContent: "space-between",
-                gap: 12,
-              }}>
-                <div style={{ display: "flex", alignItems: "baseline", gap: 10, minWidth: 0 }}>
-                  <span aria-hidden style={{ width: 14, height: 1, background: "var(--v3-accent)", alignSelf: "center" }} />
-                  <span style={{
-                    fontFamily: "var(--v3-font-mono)", fontWeight: 400,
-                    fontSize: "clamp(9px, 0.3vw + 6px, 11px)",
-                    letterSpacing: ".24em", textTransform: "uppercase", color: "var(--v3-fg-mute)",
-                    fontVariantNumeric: "tabular-nums",
-                  }}>{activeName} · {geometry.axes.length}</span>
-                </div>
-                <div style={{ display: "flex", alignItems: "baseline", gap: 6 }}>
-                  <span style={{
-                    fontFamily: "var(--v3-font-mono)", fontWeight: 400,
-                    fontSize: "clamp(9px, 0.3vw + 6px, 11px)",
-                    letterSpacing: ".22em", textTransform: "uppercase", color: "var(--v3-fg-mute)",
-                  }}>Average</span>
-                  <span style={{
-                    fontFamily: "var(--v3-font-display)", fontWeight: 340,
-                    fontSize: "clamp(1.05rem, 0.5vw + 0.6rem, 1.4rem)",
-                    lineHeight: 1, letterSpacing: "-.01em",
-                    color: "var(--v3-accent)", fontOpticalSizing: "auto",
-                    fontVariantNumeric: "tabular-nums",
-                  }}>{geometry.avg}%</span>
-                </div>
-              </div>
-
-              {/* Chart — fixed-aspect square SVG, centered in the column. */}
-              <div style={{
-                flex: 1, minWidth: 0, minHeight: 0,
-                display: "flex", alignItems: "center", justifyContent: "center",
-                position: "relative",
-              }}>
-                <svg
-                  viewBox="0 0 400 400"
-                  preserveAspectRatio="xMidYMid meet"
-                  style={{
-                    width: "100%", height: "100%",
-                    maxWidth: "min(100%, 520px)",
-                    maxHeight: "100%",
-                    overflow: "visible",
-                  }}
-                >
-                  {/* Concentric hairline rings — 25/50/75/100% */}
-                  {RING_LEVELS.map((frac, i) => (
-                    <circle
-                      key={i}
-                      cx={CX} cy={CY} r={R * frac}
-                      fill="none"
-                      stroke="var(--v3-line)"
-                      strokeWidth={frac === 1 ? 0.8 : 0.5}
-                      opacity={frac === 1 ? 0.7 : 0.35}
-                    />
-                  ))}
-
-                  {/* Ring tick labels — small mono figures at 3 o'clock */}
-                  {RING_LEVELS.slice(0, -1).map((frac) => (
-                    <text
-                      key={`tick-${frac}`}
-                      x={CX + R * frac + 4} y={CY - 2}
-                      fontFamily="var(--v3-font-mono)"
-                      fontSize={9}
-                      fill="var(--v3-fg-mute)"
-                      opacity={0.5}
-                      letterSpacing=".08em"
-                    >{Math.round(frac * 100)}</text>
-                  ))}
-
-                  {/* Axis rays */}
-                  {geometry.axes.map((a, i) => (
-                    <line
-                      key={`ax-${activeName}-${i}`}
-                      x1={CX} y1={CY} x2={a.outer.x} y2={a.outer.y}
-                      stroke="var(--v3-line-strong)"
-                      strokeWidth={0.5}
-                      opacity={0.6}
-                    />
-                  ))}
-
-                  {/* Filled polygon — cross-fade + scale-in on category change */}
-                  {geometry.polygonPoints && (
-                    <motion.polygon
-                      key={`poly-${activeName}`}
-                      points={geometry.polygonPoints}
-                      fill="var(--v3-accent)"
-                      fillOpacity={0.18}
-                      stroke="var(--v3-accent)"
-                      strokeWidth={1.2}
-                      strokeLinejoin="round"
-                      initial={reduce ? false : { opacity: 0, scale: 0.85, transformOrigin: `${CX}px ${CY}px` }}
-                      animate={{ opacity: 1, scale: 1 }}
-                      transition={{ duration: 0.5, ease: EASE }}
-                      style={{ transformOrigin: `${CX}px ${CY}px` }}
-                    />
-                  )}
-
-                  {/* Vertex dots + skill labels */}
-                  {geometry.axes.map((a, i) => (
-                    <motion.g
-                      key={`v-${activeName}-${i}`}
-                      initial={reduce ? false : { opacity: 0 }}
-                      animate={{ opacity: 1 }}
-                      transition={{ duration: 0.3, ease: EASE, delay: 0.15 + i * 0.03 }}
-                    >
-                      {/* Vertex dot */}
-                      <circle
-                        cx={a.vertex.x} cy={a.vertex.y} r={3}
-                        fill="var(--v3-accent)"
-                        stroke="var(--v3-bg-void)"
-                        strokeWidth={1.5}
-                      />
-                      {/* Skill name — up to 2 lines via tspan so long
-                          names ("Firebase Authentication", "Integration
-                          & smoke test") don't run past the column edge. */}
-                      {(() => {
-                        const lines = wrapLabel(a.skill.name);
-                        const baseY = a.label.y;
-                        return (
-                          <text
-                            x={a.label.x} y={baseY}
-                            textAnchor={a.anchor}
-                            dominantBaseline={a.vAlign}
-                            fontFamily="var(--v3-font-mono)"
-                            fontSize={10}
-                            fill="var(--v3-fg)"
-                            letterSpacing=".04em"
-                          >
-                            {lines.map((ln, li) => (
-                              <tspan key={li} x={a.label.x} dy={li === 0 ? 0 : 12}>{ln}</tspan>
-                            ))}
-                            {/* Proficiency number on its own line under the name. */}
-                            <tspan
-                              x={a.label.x}
-                              dy={12}
-                              fill="var(--v3-accent)"
-                              fontSize={9}
-                              letterSpacing=".08em"
-                              style={{ fontVariantNumeric: "tabular-nums" }}
-                            >{a.skill.level}</tspan>
-                          </text>
-                        );
-                      })()}
-                    </motion.g>
-                  ))}
-                </svg>
-              </div>
-            </div>
-          </div>
-        </V3Scan>
+    <div style={S.root}>
+      {/* ================== LEFT ================== */}
+      <div style={S.left}>
+        <div style={S.kicker}>{meta.sub || "What I Bring to the Table"}</div>
+        <motion.h1
+          initial={reduced ? {} : { opacity: 0, y: 14 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.6, ease: CINE }}
+          style={S.title}
+        >
+          {meta.heading || "Technical Skills"}
+        </motion.h1>
+        <div style={S.dirLabel}>{String(total).padStart(2, "0")} constellations · {totalSkills} skills</div>
+        {categories.map((c, i) => (
+          <CategoryRow
+            key={c}
+            name={c}
+            count={(skills[c] || []).length}
+            n={i + 1}
+            active={i === idx}
+            onSelect={() => setIdx(i)}
+          />
+        ))}
       </div>
-    </V3Frame>
+
+      {/* ================== RIGHT ================== */}
+      <div style={S.right}>
+        <AnimatePresence mode="wait">
+          <Detail
+            key={activeCat}
+            catName={activeCat}
+            list={activeList}
+            n={idx + 1}
+            total={total}
+            reduced={reduced}
+          />
+        </AnimatePresence>
+      </div>
+    </div>
   );
 }
