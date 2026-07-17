@@ -42,6 +42,14 @@ const V3Style = ({ accentKey }) => {
          V3Ticker's inner span nested inside a DM Serif Display parent) gets Saira. */
       .stellar-v3 *{font-family:inherit;}
       .stellar-v3 ::selection{background:color-mix(in oklab,var(--v3-accent) 40%,transparent);color:var(--v3-fg);}
+      /* Starlight — a faint accent-tinted glow on every Syne display heading
+         inside the panel frame. Barely visible but adds a premium sheen that
+         reads as intentional atmosphere (never on body copy — that stays crisp). */
+      .stellar-dossier-frame h1,
+      .stellar-dossier-frame h2,
+      .stellar-dossier-frame h3{
+        text-shadow: 0 0 24px color-mix(in oklab, var(--v3-accent) 18%, transparent);
+      }
       /* Chromeless reading column — kill the (global purple) scrollbar entirely;
          the edge fade + single-open accordion carry the "there's more" signal. */
       .stellar-v3 .stellar-content-left{scrollbar-width:none;-ms-overflow-style:none;}

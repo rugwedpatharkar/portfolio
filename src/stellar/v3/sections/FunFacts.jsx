@@ -12,6 +12,7 @@
 import { memo, useMemo } from "react";
 import { motion, useReducedMotion } from "motion/react";
 import { funFacts, sectionMeta } from "../../../content";
+import { useCountUp } from "../useCountUp";
 
 const CINE = [0.25, 0.1, 0.25, 1];
 
@@ -125,7 +126,9 @@ const S = {
   },
 };
 
-const MetricRow = memo(function MetricRow({ f, i, reduced }) {
+const MetricRow = memo(function MetricRow({ f, i, reduced, replayKey }) {
+  /* Animate the big Sol-tinted value from 0 → target on mount (~0.9s). */
+  const shownValue = useCountUp(f.value, replayKey);
   return (
     <motion.div
       initial={reduced ? {} : { opacity: 0, y: 8 }}
@@ -136,7 +139,7 @@ const MetricRow = memo(function MetricRow({ f, i, reduced }) {
       <div style={S.rowHead}>
         <span style={S.rowN}>{String(i + 1).padStart(2, "0")}</span>
         <span style={S.value}>
-          {f.value}
+          {shownValue}
           {f.suffix && <em style={S.valueSuffix}>{f.suffix}</em>}
         </span>
         <span style={S.label}>{f.label}</span>
@@ -171,7 +174,7 @@ export default function FunFactsSection({ bootNonce }) {
       {/* ================== RIGHT (rows, no boxes) ================== */}
       <div style={S.list}>
         {facts.map((f, i) => (
-          <MetricRow key={f.label} f={f} i={i} reduced={reduced} />
+          <MetricRow key={f.label} f={f} i={i} reduced={reduced} replayKey={bootNonce} />
         ))}
       </div>
     </div>
