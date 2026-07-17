@@ -1,341 +1,350 @@
 /*
- * Skills (Ceres) — radar-chart dossier.
+ * Skills — category directory + proficiency constellation (redesign 2026-07).
+ * Each skill is a STAR in the selected category's constellation, sized and
+ * brightened by its 0-100 proficiency level. No cards, no scroll — fits inside
+ * the fixed 906px `.stellar-dossier-frame`.
  *
- * Master-detail structure kept: 9 categories on the LEFT as a clickable
- * index, active category's skills on the RIGHT as a data-viz radar
- * chart. Every skill in the active category shows as an axis on the
- * polygon — the whole category is legible at a glance without any
- * scrolling.
+ *   LEFT  — kicker · huge Mars-tinted title · 9 category rows
+ *           (each: index + name + count). Click a row to swap the constellation.
+ *   RIGHT — meta line · constellation name · SVG star-field (skill = star sized
+ *           by proficiency) · legend list (Space Mono, skill · level).
  *
- * Chart geometry (400×400 viewBox):
- *   - Center at (200, 200), max radius 150.
- *   - N axes at even angles starting from 12 o'clock, clockwise.
- *   - Concentric hairline rings at 25/50/75/100% of max radius.
- *   - Filled polygon at each skill's proficiency, accent-tinted.
- *   - Dot at each polygon vertex.
- *   - Skill name label floats at 175 radius (outside the ring).
- *
- * Signature moment: on category switch the polygon + vertex dots
- * cross-fade + scale-in from 0.85 (via key={activeName}); the static
- * scaffold (rings, ticks) stays put — reads as a chart re-computing,
- * not a full re-render.
+ * All skills[] data rendered verbatim (src/content/index.js). Proficiency
+ * mapping: size 2px → 8px, opacity 0.35 → 1.0. Positions are deterministic
+ * (name-hash seeded) so the constellation stays stable across renders.
  */
-import { useMemo, useState } from "react";
-import { motion, useReducedMotion } from "motion/react";
+import { memo, useEffect, useMemo, useState } from "react";
+import { motion, AnimatePresence, useReducedMotion } from "motion/react";
 import { skills, sectionMeta } from "../../../content";
-import { V3Frame, V3Scan, V3SectionHeader, masterCardStyle, useMasterListKeys } from "../primitives";
-import { EASE } from "../anim";
 
-const META = sectionMeta.skills || { sub: "What I Bring", heading: "Technical Skills" };
+const CINE = [0.25, 0.1, 0.25, 1];
 
-/* Chart constants — shrunk so long skill names ("Integration & smoke
-   test", "Firebase Authentication") don't run past the right edge of
-   the detail column. Labels sit inside the viewBox with clearance. */
-const CX = 200;
-const CY = 200;
-const R = 118;                    // max radius (100%)
-const LABEL_R = 140;               // label placement radius
-const RING_LEVELS = [0.25, 0.5, 0.75, 1];
-
-/* Split a long skill name into up to 2 balanced lines for the chart
-   label. If the name fits (<= 18 chars), returns one line. */
-const wrapLabel = (name, maxLen = 18) => {
-  const s = String(name || "");
-  if (s.length <= maxLen) return [s];
-  const words = s.split(/\s+/);
-  if (words.length === 1) return [s]; // single long word — no good break
-  /* Greedy split — first line collects words until adding the next would
-     push past `maxLen`. Remainder becomes line 2. */
-  let line1 = words[0];
-  let i = 1;
-  while (i < words.length && (line1 + " " + words[i]).length <= maxLen) {
-    line1 = line1 + " " + words[i];
-    i++;
+/* Small deterministic PRNG so each skill's position is stable across renders
+   yet varies enough per skill/category to feel like a real constellation. */
+const hash = (str) => {
+  let h = 2166136261;
+  for (let i = 0; i < str.length; i++) {
+    h ^= str.charCodeAt(i);
+    h = Math.imul(h, 16777619);
   }
-  const line2 = words.slice(i).join(" ") || "";
-  return line2 ? [line1, line2] : [line1];
+  return h >>> 0;
+};
+const rng = (seed) => {
+  let s = seed >>> 0;
+  return () => {
+    s ^= s << 13; s >>>= 0;
+    s ^= s >>> 17; s >>>= 0;
+    s ^= s << 5;  s >>>= 0;
+    return s / 4294967296;
+  };
 };
 
-/* Compute (x, y) on the circle at (angle, radius). Angle 0 = 12 o'clock,
-   positive = clockwise (standard radar orientation). */
-const polar = (angle, radius) => ({
-  x: CX + radius * Math.sin(angle),
-  y: CY - radius * Math.cos(angle),
+/* Distribute skills into an SVG viewBox using a poisson-ish spread so stars
+   don't overlap into a blob. Deterministic per (category + name). */
+const layoutStars = (categoryName, list) => {
+  const W = 400;
+  const H = 220;
+  const PAD = 20;
+  const rand = rng(hash(categoryName));
+  const placed = [];
+  const MIN_DIST = 22;
+  const MAX_TRIES = 30;
+  list.forEach((s) => {
+    const nameRand = rng(hash(categoryName + "::" + s.name));
+    let x, y, tries = 0;
+    do {
+      x = PAD + rand() * (W - PAD * 2) * 0.5 + nameRand() * (W - PAD * 2) * 0.5;
+      y = PAD + rand() * (H - PAD * 2) * 0.5 + nameRand() * (H - PAD * 2) * 0.5;
+      tries++;
+      const clash = placed.some((p) => Math.hypot(p.x - x, p.y - y) < MIN_DIST);
+      if (!clash) break;
+    } while (tries < MAX_TRIES);
+    placed.push({ x, y, ...s });
+  });
+  return { W, H, stars: placed };
+};
+
+const S = {
+  root: {
+    width: "min(100%, clamp(880px, 72vw, 1240px))",
+    height: "100%",
+    display: "grid",
+    gridTemplateColumns: "minmax(280px, 340px) 1fr",
+    gap: "clamp(40px, 5vw, 72px)",
+    pointerEvents: "auto",
+    color: "var(--v3-fg)",
+    fontFamily: "var(--v3-font-ui)",
+    minHeight: 0,
+    alignItems: "start",
+  },
+
+  /* ---- LEFT ---- */
+  left: { display: "flex", flexDirection: "column", gap: 18, minHeight: 0 },
+  kicker: {
+    fontFamily: "var(--v3-font-mono)",
+    fontSize: 11,
+    letterSpacing: ".28em",
+    textTransform: "uppercase",
+    color: "var(--v3-fg-mute)",
+  },
+  title: {
+    fontFamily: "var(--v3-font-display)",
+    fontWeight: 700,
+    fontSize: "clamp(34px, 3.6vw, 54px)",
+    lineHeight: 0.92,
+    letterSpacing: "-.02em",
+    color: "color-mix(in oklab, var(--v3-accent) 62%, #ffffff 38%)",
+    margin: 0,
+    overflowWrap: "normal",
+    wordBreak: "keep-all",
+    hyphens: "none",
+  },
+  dirLabel: {
+    marginTop: 8,
+    paddingTop: 14,
+    borderTop: "1px solid var(--v3-line-strong)",
+    fontFamily: "var(--v3-font-mono)",
+    fontSize: 10,
+    letterSpacing: ".24em",
+    textTransform: "uppercase",
+    color: "var(--v3-accent)",
+    paddingBottom: 4,
+  },
+  row: (active) => ({
+    all: "unset",
+    cursor: "pointer",
+    display: "grid",
+    gridTemplateColumns: "28px 1fr auto",
+    gap: 10,
+    alignItems: "baseline",
+    padding: "9px 0",
+    borderBottom: "1px solid var(--v3-line)",
+    width: "100%",
+    transition: "background .15s ease",
+    background: active ? "color-mix(in oklab, var(--v3-accent) 8%, transparent)" : "transparent",
+  }),
+  rowN: {
+    fontFamily: "var(--v3-font-mono)",
+    fontSize: 10,
+    letterSpacing: ".14em",
+    color: "var(--v3-accent)",
+  },
+  rowName: (active) => ({
+    fontFamily: "var(--v3-font-display)",
+    fontWeight: active ? 600 : 500,
+    fontSize: 13,
+    letterSpacing: "-.005em",
+    color: active ? "var(--v3-fg)" : "var(--v3-fg-dim)",
+    transition: "color .18s ease, font-weight .18s ease",
+  }),
+  rowCount: {
+    fontFamily: "var(--v3-font-mono)",
+    fontSize: 10,
+    letterSpacing: ".14em",
+    color: "rgba(255,255,255,.30)",
+  },
+
+  /* ---- RIGHT ---- */
+  right: { display: "flex", flexDirection: "column", minHeight: 0, gap: 14 },
+  metaRow: {
+    display: "flex",
+    gap: 20,
+    flexWrap: "wrap",
+    paddingBottom: 12,
+    borderBottom: "1px solid var(--v3-line)",
+    fontFamily: "var(--v3-font-mono)",
+    fontSize: 10,
+    letterSpacing: ".22em",
+    textTransform: "uppercase",
+    color: "var(--v3-fg-mute)",
+  },
+  metaK: { color: "var(--v3-fg)", fontWeight: 500 },
+  catTitle: {
+    fontFamily: "var(--v3-font-display)",
+    fontWeight: 700,
+    fontSize: "clamp(24px, 2.6vw, 34px)",
+    lineHeight: 1,
+    letterSpacing: "-.02em",
+    color: "color-mix(in oklab, var(--v3-accent) 62%, #ffffff 38%)",
+    margin: 0,
+  },
+  svgWrap: {
+    position: "relative",
+    border: "1px solid var(--v3-line)",
+    background: "linear-gradient(180deg, rgba(255,255,255,.02) 0%, rgba(255,255,255,0) 100%)",
+    borderRadius: 3,
+    padding: 4,
+  },
+  svg: { width: "100%", height: "auto", display: "block" },
+  hoverInfo: {
+    position: "absolute",
+    top: 8,
+    right: 12,
+    fontFamily: "var(--v3-font-mono)",
+    fontSize: 10,
+    letterSpacing: ".16em",
+    textTransform: "uppercase",
+    color: "var(--v3-accent)",
+    pointerEvents: "none",
+  },
+  legendWrap: {
+    marginTop: 6,
+    paddingTop: 12,
+    borderTop: "1px solid var(--v3-line)",
+    display: "grid",
+    gridTemplateColumns: "repeat(auto-fill, minmax(180px, 1fr))",
+    gap: "4px 20px",
+    maxHeight: "22vh",
+    overflow: "hidden",
+  },
+  legendItem: {
+    display: "flex",
+    justifyContent: "space-between",
+    fontFamily: "var(--v3-font-mono)",
+    fontSize: 11,
+    letterSpacing: ".08em",
+    padding: "2px 0",
+    borderBottom: "1px dotted rgba(255,255,255,.06)",
+  },
+  legendName: { color: "var(--v3-fg)", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap", paddingRight: 8 },
+  legendLvl: { color: "var(--v3-accent)", fontVariantNumeric: "tabular-nums" },
+};
+
+const CategoryRow = memo(function CategoryRow({ name, count, n, active, onSelect }) {
+  return (
+    <button type="button" data-cursor onClick={onSelect} aria-pressed={active} style={S.row(active)}>
+      <span style={S.rowN}>{String(n).padStart(2, "0")}</span>
+      <span style={S.rowName(active)}>{name}</span>
+      <span style={S.rowCount}>{count}</span>
+    </button>
+  );
+});
+
+const Constellation = memo(function Constellation({ catName, list }) {
+  const [hover, setHover] = useState(null);
+  const layout = useMemo(() => layoutStars(catName, list), [catName, list]);
+  const peak = useMemo(() => list.reduce((a, b) => (b.level > (a?.level ?? 0) ? b : a), null), [list]);
+
+  return (
+    <div style={S.svgWrap}>
+      {hover && (
+        <div style={S.hoverInfo}>
+          {hover.name} · {hover.level}
+        </div>
+      )}
+      <svg viewBox={`0 0 ${layout.W} ${layout.H}`} style={S.svg} aria-label={`${catName} constellation`}>
+        {layout.stars.map((s) => {
+          const norm = Math.min(1, Math.max(0, s.level / 100));
+          const r = 2 + norm * 6;
+          const glowR = r * 2.2;
+          const opacity = 0.35 + norm * 0.6;
+          return (
+            <g
+              key={s.name}
+              style={{ cursor: "pointer" }}
+              onMouseEnter={() => setHover(s)}
+              onMouseLeave={() => setHover(null)}
+            >
+              <circle cx={s.x} cy={s.y} r={glowR} fill="var(--v3-accent)" opacity={opacity * 0.18} />
+              <circle cx={s.x} cy={s.y} r={r} fill="color-mix(in oklab, var(--v3-accent) 60%, #ffffff 40%)" opacity={opacity} />
+            </g>
+          );
+        })}
+      </svg>
+      {peak && (
+        <div style={{ position: "absolute", bottom: 6, left: 12, fontFamily: "var(--v3-font-mono)", fontSize: 9, letterSpacing: ".2em", textTransform: "uppercase", color: "var(--v3-fg-mute)", pointerEvents: "none" }}>
+          Peak · {peak.name} · {peak.level}
+        </div>
+      )}
+    </div>
+  );
+});
+
+const Detail = memo(function Detail({ catName, list, n, total, reduced }) {
+  if (!list) return null;
+  const sorted = [...list].sort((a, b) => (b.level || 0) - (a.level || 0));
+  return (
+    <motion.div
+      key={catName}
+      initial={reduced ? {} : { opacity: 0, y: 12 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.5, ease: CINE }}
+      style={{ display: "flex", flexDirection: "column", height: "100%", gap: 14 }}
+    >
+      <div style={S.metaRow}>
+        <span><span style={S.metaK}>Constellation</span></span>
+        <span>· {String(n).padStart(2, "0")} / {String(total).padStart(2, "0")}</span>
+        <span>· {list.length} skills</span>
+      </div>
+
+      <h2 style={S.catTitle}>{catName}</h2>
+
+      <Constellation catName={catName} list={list} />
+
+      <div style={S.legendWrap}>
+        {sorted.map((s) => (
+          <div key={s.name} style={S.legendItem}>
+            <span style={S.legendName}>{s.name}</span>
+            <span style={S.legendLvl}>{s.level}</span>
+          </div>
+        ))}
+      </div>
+    </motion.div>
+  );
 });
 
 export default function SkillsSection({ bootNonce }) {
-  const cats = Object.entries(skills);
-  const [active, setActive] = useState(0);
-  const [activeName, activeList] = cats[active] || cats[0];
-  const reduce = useReducedMotion();
-  /* Skills historically clamped rather than wrapped — preserved for parity. */
-  const { onKeyDown: onKeys, itemProps } = useMasterListKeys(active, setActive, cats.length, { wrap: false });
-
-  /* Precompute axis geometry per skill in the active category. */
-  const geometry = useMemo(() => {
-    const n = activeList.length;
-    if (!n) return { axes: [], polygonPoints: "", avg: 0 };
-    const axes = activeList.map((s, i) => {
-      const angle = (i * 2 * Math.PI) / n;
-      const outer = polar(angle, R);
-      const label = polar(angle, LABEL_R);
-      const vertex = polar(angle, (s.level / 100) * R);
-      return {
-        skill: s,
-        angle,
-        outer,
-        label,
-        vertex,
-        /* Horizontal anchor for the label — snap left/center/right based on
-           which quadrant it sits in so text never runs off-canvas. */
-        anchor: Math.abs(Math.sin(angle)) < 0.15 ? "middle" : Math.sin(angle) > 0 ? "start" : "end",
-        vAlign: Math.abs(Math.cos(angle)) < 0.15 ? "central" : Math.cos(angle) > 0 ? "text-after-edge" : "hanging",
-      };
-    });
-    const polygonPoints = axes.map((a) => `${a.vertex.x},${a.vertex.y}`).join(" ");
-    const avg = Math.round(activeList.reduce((sum, s) => sum + s.level, 0) / n);
-    return { axes, polygonPoints, avg };
-  }, [activeList]);
+  const reduced = useReducedMotion();
+  const meta = sectionMeta.skills || {};
+  const categories = useMemo(() => Object.keys(skills || {}), []);
+  const [idx, setIdx] = useState(0);
+  useEffect(() => { setIdx(0); }, [bootNonce]);
+  const activeCat = categories[Math.min(idx, categories.length - 1)];
+  const activeList = (skills || {})[activeCat] || [];
+  const total = categories.length;
+  const totalSkills = useMemo(() => {
+    return categories.reduce((acc, k) => acc + ((skills || {})[k] || []).length, 0);
+  }, [categories]);
 
   return (
-    <V3Frame
-      section="Skills"
-      planet="CERES"
-
-      scanDir="orbit"
-      scanKey={bootNonce}
-      gridAreas={`"top top top" "left left ." "left left ." "left left ."`}
-    >
-      <div style={{
-        gridArea: "left", display: "flex", flexDirection: "column",
-        gap: "clamp(12px, 1.2vw, 20px)",
-        minWidth: 0, minHeight: 0, overflow: "hidden",
-        maxWidth: "min(60vw, 1200px)", height: "100%",
-      }}>
-        {/* Header */}
-        <V3SectionHeader sub={META.sub} heading={META.heading} />
-
-        {/* Master-detail: index LEFT (~30%), radar chart RIGHT (~70%). */}
-        <V3Scan variant="orbit" delay={0.15} style={{ minWidth: 0, flex: 1, minHeight: 0, display: "flex" }}>
-          <div style={masterCardStyle()}>
-            {/* Master column */}
-            <div
-              role="tablist"
-              aria-label="Skill categories"
-              style={{
-                display: "flex", flexDirection: "column",
-                justifyContent: "space-between", gap: 2,
-                minWidth: 0, alignSelf: "stretch", height: "100%",
-              }}
-              onKeyDown={onKeys}
-            >
-              {cats.map(([cat, list], i) => {
-                const isActive = i === active;
-                return (
-                  <button
-                    key={cat}
-                    role="tab"
-                    aria-selected={isActive}
-                    onClick={() => setActive(i)}
-                    {...itemProps(i)}
-                    className={isActive ? "v3-glass-accent" : "v3-glass"}
-                    style={{
-                      all: "unset", cursor: "pointer",
-                      display: "grid", gridTemplateColumns: "auto minmax(0, 1fr) auto",
-                      alignItems: "baseline", gap: "clamp(6px, 0.6vw, 10px)",
-                      padding: "clamp(5px, 0.5vw, 8px) clamp(8px, 0.9vw, 12px)",
-                      borderLeft: isActive ? "2px solid var(--v3-accent)" : "2px solid transparent",
-                      borderRadius: "0 4px 4px 0",
-                      transition: "background .2s, border-color .2s",
-                      minWidth: 0,
-                    }}
-                  >
-                    <span aria-hidden style={{
-                      fontFamily: "var(--v3-font-mono)", fontWeight: 400,
-                      fontSize: "clamp(9px, 0.3vw + 6px, 11px)",
-                      color: isActive ? "var(--v3-accent)" : "var(--v3-fg-mute)",
-                      letterSpacing: ".14em",
-                      fontVariantNumeric: "tabular-nums",
-                    }}>{String(i + 1).padStart(2, "0")}</span>
-                    <span style={{
-                      fontFamily: "var(--v3-font-display)", fontWeight: 340,
-                      fontSize: "clamp(0.88rem, 0.4vw + 0.55rem, 1.05rem)", lineHeight: 1.2,
-                      letterSpacing: "-.005em",
-                      color: isActive ? "var(--v3-fg)" : "var(--v3-fg-dim)",
-                      fontOpticalSizing: "auto",
-                      minWidth: 0, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap",
-                    }}>{cat}</span>
-                    <span style={{
-                      fontFamily: "var(--v3-font-mono)", fontWeight: 400,
-                      fontSize: "clamp(9px, 0.3vw + 6px, 11px)",
-                      letterSpacing: ".18em",
-                      color: isActive ? "var(--v3-accent)" : "var(--v3-fg-mute)",
-                      fontVariantNumeric: "tabular-nums", flexShrink: 0,
-                    }}>{String(list.length).padStart(2, "0")}</span>
-                  </button>
-                );
-              })}
-            </div>
-
-            {/* Detail column — radar chart */}
-            <div style={{
-              display: "flex", flexDirection: "column",
-              gap: "clamp(8px, 0.8vw, 14px)",
-              minWidth: 0, minHeight: 0,
-            }}>
-              {/* Detail header — track kicker + average % */}
-              <div style={{
-                display: "flex", alignItems: "baseline", justifyContent: "space-between",
-                gap: 12,
-              }}>
-                <div style={{ display: "flex", alignItems: "baseline", gap: 10, minWidth: 0 }}>
-                  <span aria-hidden style={{ width: 14, height: 1, background: "var(--v3-accent)", alignSelf: "center" }} />
-                  <span style={{
-                    fontFamily: "var(--v3-font-mono)", fontWeight: 400,
-                    fontSize: "clamp(9px, 0.3vw + 6px, 11px)",
-                    letterSpacing: ".24em", textTransform: "uppercase", color: "var(--v3-fg-mute)",
-                    fontVariantNumeric: "tabular-nums",
-                  }}>{activeName} · {geometry.axes.length}</span>
-                </div>
-                <div style={{ display: "flex", alignItems: "baseline", gap: 6 }}>
-                  <span style={{
-                    fontFamily: "var(--v3-font-mono)", fontWeight: 400,
-                    fontSize: "clamp(9px, 0.3vw + 6px, 11px)",
-                    letterSpacing: ".22em", textTransform: "uppercase", color: "var(--v3-fg-mute)",
-                  }}>Average</span>
-                  <span style={{
-                    fontFamily: "var(--v3-font-display)", fontWeight: 340,
-                    fontSize: "clamp(1.05rem, 0.5vw + 0.6rem, 1.4rem)",
-                    lineHeight: 1, letterSpacing: "-.01em",
-                    color: "var(--v3-accent)", fontOpticalSizing: "auto",
-                    fontVariantNumeric: "tabular-nums",
-                  }}>{geometry.avg}%</span>
-                </div>
-              </div>
-
-              {/* Chart — fixed-aspect square SVG, centered in the column. */}
-              <div style={{
-                flex: 1, minWidth: 0, minHeight: 0,
-                display: "flex", alignItems: "center", justifyContent: "center",
-                position: "relative",
-              }}>
-                <svg
-                  viewBox="0 0 400 400"
-                  preserveAspectRatio="xMidYMid meet"
-                  style={{
-                    width: "100%", height: "100%",
-                    maxWidth: "min(100%, 520px)",
-                    maxHeight: "100%",
-                    overflow: "visible",
-                  }}
-                >
-                  {/* Concentric hairline rings — 25/50/75/100% */}
-                  {RING_LEVELS.map((frac, i) => (
-                    <circle
-                      key={i}
-                      cx={CX} cy={CY} r={R * frac}
-                      fill="none"
-                      stroke="var(--v3-line)"
-                      strokeWidth={frac === 1 ? 0.8 : 0.5}
-                      opacity={frac === 1 ? 0.7 : 0.35}
-                    />
-                  ))}
-
-                  {/* Ring tick labels — small mono figures at 3 o'clock */}
-                  {RING_LEVELS.slice(0, -1).map((frac) => (
-                    <text
-                      key={`tick-${frac}`}
-                      x={CX + R * frac + 4} y={CY - 2}
-                      fontFamily="var(--v3-font-mono)"
-                      fontSize={9}
-                      fill="var(--v3-fg-mute)"
-                      opacity={0.5}
-                      letterSpacing=".08em"
-                    >{Math.round(frac * 100)}</text>
-                  ))}
-
-                  {/* Axis rays */}
-                  {geometry.axes.map((a, i) => (
-                    <line
-                      key={`ax-${activeName}-${i}`}
-                      x1={CX} y1={CY} x2={a.outer.x} y2={a.outer.y}
-                      stroke="var(--v3-line-strong)"
-                      strokeWidth={0.5}
-                      opacity={0.6}
-                    />
-                  ))}
-
-                  {/* Filled polygon — cross-fade + scale-in on category change */}
-                  {geometry.polygonPoints && (
-                    <motion.polygon
-                      key={`poly-${activeName}`}
-                      points={geometry.polygonPoints}
-                      fill="var(--v3-accent)"
-                      fillOpacity={0.18}
-                      stroke="var(--v3-accent)"
-                      strokeWidth={1.2}
-                      strokeLinejoin="round"
-                      initial={reduce ? false : { opacity: 0, scale: 0.85, transformOrigin: `${CX}px ${CY}px` }}
-                      animate={{ opacity: 1, scale: 1 }}
-                      transition={{ duration: 0.5, ease: EASE }}
-                      style={{ transformOrigin: `${CX}px ${CY}px` }}
-                    />
-                  )}
-
-                  {/* Vertex dots + skill labels */}
-                  {geometry.axes.map((a, i) => (
-                    <motion.g
-                      key={`v-${activeName}-${i}`}
-                      initial={reduce ? false : { opacity: 0 }}
-                      animate={{ opacity: 1 }}
-                      transition={{ duration: 0.3, ease: EASE, delay: 0.15 + i * 0.03 }}
-                    >
-                      {/* Vertex dot */}
-                      <circle
-                        cx={a.vertex.x} cy={a.vertex.y} r={3}
-                        fill="var(--v3-accent)"
-                        stroke="var(--v3-bg-void)"
-                        strokeWidth={1.5}
-                      />
-                      {/* Skill name — up to 2 lines via tspan so long
-                          names ("Firebase Authentication", "Integration
-                          & smoke test") don't run past the column edge. */}
-                      {(() => {
-                        const lines = wrapLabel(a.skill.name);
-                        const baseY = a.label.y;
-                        return (
-                          <text
-                            x={a.label.x} y={baseY}
-                            textAnchor={a.anchor}
-                            dominantBaseline={a.vAlign}
-                            fontFamily="var(--v3-font-mono)"
-                            fontSize={10}
-                            fill="var(--v3-fg)"
-                            letterSpacing=".04em"
-                          >
-                            {lines.map((ln, li) => (
-                              <tspan key={li} x={a.label.x} dy={li === 0 ? 0 : 12}>{ln}</tspan>
-                            ))}
-                            {/* Proficiency number on its own line under the name. */}
-                            <tspan
-                              x={a.label.x}
-                              dy={12}
-                              fill="var(--v3-accent)"
-                              fontSize={9}
-                              letterSpacing=".08em"
-                              style={{ fontVariantNumeric: "tabular-nums" }}
-                            >{a.skill.level}</tspan>
-                          </text>
-                        );
-                      })()}
-                    </motion.g>
-                  ))}
-                </svg>
-              </div>
-            </div>
-          </div>
-        </V3Scan>
+    <div style={S.root}>
+      {/* ================== LEFT ================== */}
+      <div style={S.left}>
+        <div style={S.kicker}>{meta.sub || "What I Bring to the Table"}</div>
+        <motion.h1
+          initial={reduced ? {} : { opacity: 0, y: 14 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.6, ease: CINE }}
+          style={S.title}
+        >
+          {meta.heading || "Technical Skills"}
+        </motion.h1>
+        <div style={S.dirLabel}>{String(total).padStart(2, "0")} constellations · {totalSkills} skills</div>
+        {categories.map((c, i) => (
+          <CategoryRow
+            key={c}
+            name={c}
+            count={(skills[c] || []).length}
+            n={i + 1}
+            active={i === idx}
+            onSelect={() => setIdx(i)}
+          />
+        ))}
       </div>
-    </V3Frame>
+
+      {/* ================== RIGHT ================== */}
+      <div style={S.right}>
+        <AnimatePresence mode="wait">
+          <Detail
+            key={activeCat}
+            catName={activeCat}
+            list={activeList}
+            n={idx + 1}
+            total={total}
+            reduced={reduced}
+          />
+        </AnimatePresence>
+      </div>
+    </div>
   );
 }
