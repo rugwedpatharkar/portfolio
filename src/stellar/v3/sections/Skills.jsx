@@ -1,18 +1,17 @@
 /*
- * Skills — category directory + proficiency MAGNITUDE AXIS (redesign 2026-07 v2).
- * Each skill is a labeled STAR along a horizontal proficiency axis (60→100);
- * size + brightness scale with the level. No cards, no scroll — fits inside the
- * fixed 906px `.stellar-dossier-frame`.
+ * Skills — category directory + RANKED LADDER (redesign 2026-07 v3).
+ * Typography-only, no charts, no borders, no cards — the planet behind stays
+ * fully visible. Each skill is a Syne word sized by its proficiency tier so
+ * the hierarchy reads instantly. Scales cleanly from 7 to 15+ skills per
+ * category (unlike the axis chart, which crowded at high density).
  *
  *   LEFT  — kicker · huge Mars-tinted title · 9 category rows
- *           (each: index + name + count). Click a row to swap the axis.
- *   RIGHT — meta line · huge category title · magnitude axis with tick marks
- *           (60/70/80/90/100), labeled stars along it (label alternates
- *           above/below the rail to avoid overlap), legend below.
+ *           (each: index + name + count). Click a row to swap the ladder.
+ *   RIGHT — meta line · huge category title · ladder of skills sorted by
+ *           level. 4 tiers by proficiency (t1 huge · t2 large · t3 medium ·
+ *           t4 small) each with a subtle proficiency bar and mono level readout.
  *
- * All skills[] data rendered verbatim (src/content/index.js). Star size and
- * label placement are computed from level so the axis stays readable however
- * many skills are in the category.
+ * All skills[] data rendered verbatim (src/content/index.js).
  */
 import { memo, useEffect, useMemo, useState } from "react";
 import { motion, AnimatePresence, useReducedMotion } from "motion/react";
@@ -20,10 +19,14 @@ import { skills, sectionMeta } from "../../../content";
 
 const CINE = [0.25, 0.1, 0.25, 1];
 
-/* Axis range — most skills sit 65-92; a bit of headroom below/above. */
-const AXIS_MIN = 60;
-const AXIS_MAX = 100;
-const levelToPct = (l) => Math.max(0, Math.min(100, ((l - AXIS_MIN) / (AXIS_MAX - AXIS_MIN)) * 100));
+/* Proficiency tier — determines typographic weight/size in the ladder.
+   Thresholds chosen so most categories get a good spread across tiers. */
+const tierOf = (lvl) => {
+  if (lvl >= 88) return 1; // t1 — HUGE
+  if (lvl >= 82) return 2; // t2 — large
+  if (lvl >= 75) return 3; // t3 — medium
+  return 4;                // t4 — small
+};
 
 const S = {
   root: {
@@ -106,13 +109,13 @@ const S = {
   },
 
   /* ---- RIGHT ---- */
-  right: { display: "flex", flexDirection: "column", minHeight: 0, gap: 18 },
+  right: { display: "flex", flexDirection: "column", minHeight: 0, gap: 16 },
   headRow: {
     display: "grid",
     gridTemplateColumns: "1fr auto",
     gap: 24,
     alignItems: "baseline",
-    paddingBottom: 14,
+    paddingBottom: 12,
     borderBottom: "1px solid var(--v3-line-strong)",
   },
   catTitle: {
@@ -137,99 +140,87 @@ const S = {
   },
   metaK: { color: "var(--v3-fg)", fontWeight: 500 },
 
-  /* Axis chart wrapper. Fixed height so label rows have known slots — 4 label
-     slots (2 above, 2 below the rail) means adjacent skills at similar levels
-     never collide even in the densest category. */
-  axisWrap: {
-    position: "relative",
-    height: 250,
-    padding: "24px 32px",
-    background: "linear-gradient(180deg, rgba(255,255,255,.02) 0%, rgba(255,255,255,0) 100%)",
-    border: "1px solid var(--v3-line)",
-    borderRadius: 3,
-    overflow: "hidden",
+  /* The ladder — a scrollless stack of skill "rungs" sorted by level desc.
+     Sized/weighted by tier so hierarchy is instant. No borders, no card. */
+  ladder: {
+    display: "flex",
+    flexDirection: "column",
+    gap: 2,
+    paddingTop: 6,
   },
-  rail: {
-    position: "absolute",
-    left: 32,
-    right: 32,
-    top: "50%",
-    height: 1,
-    background: "linear-gradient(90deg, transparent, var(--v3-line-strong) 20%, color-mix(in oklab, var(--v3-accent) 60%, transparent))",
-    transform: "translateY(-.5px)",
+  rung: (tier) => {
+    /* Sizes tuned so 15 skills fit the 906px frame: tier 1 ~26, drop through 4. */
+    const sizes = { 1: 26, 2: 20, 3: 16, 4: 13 };
+    const weights = { 1: 700, 2: 600, 3: 500, 4: 500 };
+    const colors = {
+      1: "color-mix(in oklab, var(--v3-accent) 62%, #ffffff 38%)",
+      2: "var(--v3-fg)",
+      3: "var(--v3-fg-dim)",
+      4: "var(--v3-fg-mute)",
+    };
+    return {
+      display: "grid",
+      gridTemplateColumns: "30px 1fr auto 70px",
+      gap: 14,
+      alignItems: "baseline",
+      padding: "3px 0",
+      borderBottom: "1px dotted rgba(255,255,255,.06)",
+      fontFamily: "var(--v3-font-display)",
+      fontWeight: weights[tier],
+      fontSize: sizes[tier],
+      letterSpacing: "-.01em",
+      lineHeight: 1.05,
+      color: colors[tier],
+      transition: "color .18s ease",
+    };
   },
-  tick: {
-    position: "absolute",
-    top: "calc(50% - 3px)",
-    width: 1,
-    height: 6,
-    background: "rgba(255,255,255,.14)",
-  },
-  tickLbl: {
-    position: "absolute",
-    bottom: 4,
+  rungIdx: {
     fontFamily: "var(--v3-font-mono)",
-    fontSize: 9,
-    letterSpacing: ".22em",
-    color: "var(--v3-fg-mute)",
-    transform: "translateX(-50%)",
+    fontWeight: 400,
+    fontSize: 10,
+    letterSpacing: ".14em",
+    color: "rgba(255,255,255,.28)",
+    fontVariantNumeric: "tabular-nums",
+    paddingTop: 4,
   },
-  star: (norm) => {
-    const size = 3 + norm * 6; // 3px → 9px
+  rungName: { minWidth: 0, overflowWrap: "break-word" },
+  rungLvl: {
+    fontFamily: "var(--v3-font-mono)",
+    fontWeight: 400,
+    fontSize: 12,
+    letterSpacing: ".08em",
+    color: "var(--v3-accent)",
+    fontVariantNumeric: "tabular-nums",
+    paddingTop: 4,
+  },
+  rungBar: (tier, norm) => {
+    /* Small hairline proficiency bar aligned on the far right. Higher tiers
+       get a brighter, glowing bar; lower tiers a dimmer neutral one. */
     return {
-      position: "absolute",
-      top: "50%",
-      width: size,
-      height: size,
-      marginLeft: -size / 2,
-      marginTop: -size / 2,
-      borderRadius: "50%",
-      background: "color-mix(in oklab, var(--v3-accent) 60%, #ffffff 40%)",
-      boxShadow: `0 0 ${8 + norm * 12}px color-mix(in oklab, var(--v3-accent) ${50 + norm * 30}%, transparent)`,
-      opacity: 0.5 + norm * 0.5,
+      width: "100%",
+      height: 1,
+      background: "rgba(255,255,255,.08)",
+      position: "relative",
+      alignSelf: "center",
+      marginTop: 4,
     };
   },
-  /* Label offsets — 4 slots (indices 0..3) rotate: 0=far above, 1=near below,
-     2=near above, 3=far below. Guarantees adjacent labels never overlap. */
-  starLbl: (slot) => {
-    const offsets = [-58, 24, -32, 50];
-    return {
-      position: "absolute",
-      top: offsets[slot % 4],
-      fontFamily: "var(--v3-font-mono)",
-      fontSize: 10,
-      letterSpacing: ".04em",
-      color: "var(--v3-fg)",
-      transform: "translateX(-50%)",
-      padding: "2px 6px",
-      background: "rgba(5,6,9,.85)",
-      borderRadius: 2,
-      whiteSpace: "nowrap",
-      pointerEvents: "none",
-      border: "1px solid rgba(255,255,255,.06)",
-    };
-  },
-  starLvl: { color: "var(--v3-accent)", marginLeft: 6 },
-  starGuide: (slot) => {
-    /* Each guide connects the star (rail center) to its label slot. */
-    const heights = { 0: 46, 1: 20, 2: 22, 3: 44 };
-    const above = slot === 0 || slot === 2;
-    return {
-      position: "absolute",
-      top: above ? `calc(50% - ${heights[slot] - 4}px)` : "calc(50% + 4px)",
-      width: 1,
-      height: heights[slot] - 8,
-      background: "rgba(255,255,255,.14)",
-      transform: "translateX(-.5px)",
-    };
-  },
-
+  rungBarFill: (tier, norm) => ({
+    position: "absolute",
+    inset: 0,
+    width: `${Math.round(norm * 100)}%`,
+    background: tier === 1
+      ? "linear-gradient(90deg, color-mix(in oklab, var(--v3-accent) 30%, transparent), var(--v3-accent))"
+      : "color-mix(in oklab, var(--v3-accent) 55%, transparent)",
+    boxShadow: tier === 1 ? "0 0 6px color-mix(in oklab, var(--v3-accent) 60%, transparent)" : "none",
+  }),
   legend: {
+    marginTop: "auto",
+    paddingTop: 14,
+    borderTop: "1px solid var(--v3-line)",
     display: "flex",
     gap: 24,
     flexWrap: "wrap",
-    padding: "12px 0",
-    borderTop: "1px solid var(--v3-line)",
     fontFamily: "var(--v3-font-mono)",
     fontSize: 10,
     letterSpacing: ".18em",
@@ -237,28 +228,6 @@ const S = {
     color: "var(--v3-fg-mute)",
   },
   legendK: { color: "var(--v3-fg)" },
-
-  fallbackList: {
-    marginTop: 4,
-    paddingTop: 12,
-    borderTop: "1px solid var(--v3-line)",
-    display: "grid",
-    gridTemplateColumns: "repeat(auto-fill, minmax(220px, 1fr))",
-    gap: "4px 24px",
-    maxHeight: "18vh",
-    overflow: "hidden",
-    fontFamily: "var(--v3-font-mono)",
-    fontSize: 11,
-    letterSpacing: ".06em",
-  },
-  fallbackItem: {
-    display: "flex",
-    justifyContent: "space-between",
-    padding: "2px 0",
-    borderBottom: "1px dotted rgba(255,255,255,.06)",
-  },
-  fallbackName: { color: "var(--v3-fg-dim)", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap", paddingRight: 8 },
-  fallbackLvl: { color: "var(--v3-accent)", fontVariantNumeric: "tabular-nums" },
 };
 
 const CategoryRow = memo(function CategoryRow({ name, count, n, active, onSelect }) {
@@ -271,53 +240,30 @@ const CategoryRow = memo(function CategoryRow({ name, count, n, active, onSelect
   );
 });
 
-const Axis = memo(function Axis({ list }) {
-  /* Sort by level ascending so label placement below/above can alternate cleanly. */
-  const sorted = useMemo(() => [...list].sort((a, b) => (a.level || 0) - (b.level || 0)), [list]);
-
-  /* Group skills into buckets so labels at similar levels alternate rows. Two
-     rows above the rail, two below — 4 vertical slots to space labels apart. */
+const Rung = memo(function Rung({ s, n }) {
+  const tier = tierOf(s.level);
+  const norm = Math.max(0, Math.min(1, (s.level - 60) / 40));
   return (
-    <div style={S.axisWrap}>
-      <div style={S.rail} aria-hidden />
-      {/* tick marks. CSS calc doesn't allow percentage × length, so use a plain
-          numeric fraction × (100% - 64px). */}
-      {[60, 70, 80, 90, 100].map((v) => {
-        const frac = levelToPct(v) / 100;
-        const left = `calc(32px + ${frac} * (100% - 64px))`;
-        return (
-          <div key={v}>
-            <div style={{ ...S.tick, left }} />
-            <div style={{ ...S.tickLbl, left }}>{v}</div>
-          </div>
-        );
-      })}
-      {/* stars — 4 vertical label slots (rotating 0..3 by sorted index) so
-          adjacent skills at similar levels never collide, no matter how dense
-          the category. Numeric-fraction × length calc so CSS is valid. */}
-      {sorted.map((s, i) => {
-        const norm = Math.min(1, Math.max(0, (s.level - AXIS_MIN) / (AXIS_MAX - AXIS_MIN)));
-        const frac = levelToPct(s.level) / 100;
-        const left = `calc(32px + ${frac} * (100% - 64px))`;
-        const slot = i % 4;
-        return (
-          <div key={s.name} style={{ position: "absolute", left, top: "50%", pointerEvents: "auto" }} title={`${s.name} · ${s.level}`}>
-            <div style={S.starGuide(slot)} />
-            <div style={S.star(norm)} />
-            <div style={S.starLbl(slot)}>
-              {s.name}<span style={S.starLvl}>{s.level}</span>
-            </div>
-          </div>
-        );
-      })}
+    <div style={S.rung(tier)}>
+      <span style={S.rungIdx}>{String(n).padStart(2, "0")}</span>
+      <span style={S.rungName}>{s.name}</span>
+      <span style={S.rungLvl}>{s.level}</span>
+      <span style={S.rungBar(tier, norm)}>
+        <span style={S.rungBarFill(tier, norm)} />
+      </span>
     </div>
   );
 });
 
 const Detail = memo(function Detail({ catName, list, n, total, reduced }) {
+  const sorted = useMemo(() => [...(list || [])].sort((a, b) => (b.level || 0) - (a.level || 0)), [list]);
+  const tierCount = useMemo(() => {
+    const c = { 1: 0, 2: 0, 3: 0, 4: 0 };
+    sorted.forEach((s) => { c[tierOf(s.level)]++; });
+    return c;
+  }, [sorted]);
   if (!list) return null;
-  const peak = list.reduce((a, b) => (b.level > (a?.level ?? 0) ? b : a), null);
-  const sorted = [...list].sort((a, b) => (b.level || 0) - (a.level || 0));
+  const peak = sorted[0];
 
   return (
     <motion.div
@@ -325,7 +271,7 @@ const Detail = memo(function Detail({ catName, list, n, total, reduced }) {
       initial={reduced ? {} : { opacity: 0, y: 12 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.5, ease: CINE }}
-      style={{ display: "flex", flexDirection: "column", height: "100%", gap: 18 }}
+      style={{ display: "flex", flexDirection: "column", height: "100%", gap: 14, minHeight: 0 }}
     >
       <div style={S.headRow}>
         <h2 style={S.catTitle}>{catName}</h2>
@@ -335,21 +281,15 @@ const Detail = memo(function Detail({ catName, list, n, total, reduced }) {
         </div>
       </div>
 
-      <Axis list={list} />
-
-      <div style={S.legend}>
-        <span><span style={S.legendK}>▲ Brightness</span> = proficiency</span>
-        <span><span style={S.legendK}>─ Left</span> = 60 · <span style={S.legendK}>Right</span> = 100</span>
-        <span>{list.length} skills across this constellation</span>
+      <div style={S.ladder}>
+        {sorted.map((s, i) => <Rung key={s.name} s={s} n={i + 1} />)}
       </div>
 
-      <div style={S.fallbackList}>
-        {sorted.map((s) => (
-          <div key={s.name} style={S.fallbackItem}>
-            <span style={S.fallbackName}>{s.name}</span>
-            <span style={S.fallbackLvl}>{s.level}</span>
-          </div>
-        ))}
+      <div style={S.legend}>
+        <span><span style={S.legendK}>Tier 01</span> · daily · {tierCount[1]}</span>
+        <span><span style={S.legendK}>Tier 02</span> · strong · {tierCount[2]}</span>
+        <span><span style={S.legendK}>Tier 03</span> · working · {tierCount[3]}</span>
+        <span><span style={S.legendK}>Tier 04</span> · exposure · {tierCount[4]}</span>
       </div>
     </motion.div>
   );

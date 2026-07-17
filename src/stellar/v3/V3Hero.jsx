@@ -81,37 +81,46 @@ function V3Hero() {
         pointerEvents: "auto",
         alignSelf: "flex-start",
         marginTop: "clamp(30px, 5vh, 60px)",
-        maxWidth: isCompact ? "100%" : "min(52ch, 46vw)",
+        maxWidth: isCompact ? "100%" : "min(60ch, 52vw)",
         position: "relative",
         display: "flex",
         flexDirection: "column",
+        paddingTop: 4,
       }}
     >
-      {/* Ghost initial — sits behind everything, huge Sol-tinted "R" as a
-          typographic backdrop. Absolutely positioned so it doesn't affect
-          layout, then z-index:0 pins it behind the name/role. */}
+      {/* Ghost initial — huge Sol-tinted "R" as a typographic backdrop. Wrapped
+          in its own overflow-clipped container so it can't bleed past the panel
+          edge; the OUTER container stays unclipped so the wide Syne name is
+          never truncated. Anchored at (0, 0) inside the wrapper. */}
       {!isCompact && (
-        <motion.div
-          variants={initialRise}
+        <div
           aria-hidden
           style={{
             position: "absolute",
-            left: "clamp(-40px, -3vw, -12px)",
-            top: "clamp(-80px, -6vw, -20px)",
-            fontFamily: "var(--v3-font-display)",
-            fontWeight: 800,
-            fontSize: "clamp(340px, 32vw, 560px)",
-            lineHeight: 0.8,
-            letterSpacing: "-.08em",
-            color: "color-mix(in oklab, var(--v3-accent) 22%, transparent 96%)",
+            inset: 0,
+            overflow: "hidden",
             pointerEvents: "none",
-            userSelect: "none",
             zIndex: 0,
-            filter: "blur(0.3px)",
           }}
         >
-          {initial}
-        </motion.div>
+          <motion.div
+            variants={initialRise}
+            style={{
+              position: "absolute",
+              left: 0,
+              top: 0,
+              fontFamily: "var(--v3-font-display)",
+              fontWeight: 800,
+              fontSize: "clamp(220px, 20vw, 360px)",
+              lineHeight: 0.82,
+              letterSpacing: "-.08em",
+              color: "color-mix(in oklab, var(--v3-accent) 14%, transparent)",
+              userSelect: "none",
+            }}
+          >
+            {initial}
+          </motion.div>
+        </div>
       )}
 
       {/* status pill */}
@@ -147,17 +156,19 @@ function V3Hero() {
         <span>Available now</span>
       </motion.div>
 
-      {/* MASSIVE name — Syne, two lines, italic gold surname */}
+      {/* MASSIVE name — Syne, two lines, italic gold surname.
+          line-height 0.82 tightens the two lines (Syne descenders + italic
+          overhang can otherwise sit 30-50px apart). */}
       <h1 style={{
         position: "relative",
         zIndex: 1,
         fontFamily: "var(--v3-font-display)",
         fontWeight: 800,
-        fontSize: isCompact ? "clamp(3.4rem, 15vw, 5rem)" : "clamp(4.5rem, 3rem + 7vw, 9rem)",
-        lineHeight: 0.88,
+        fontSize: isCompact ? "clamp(3rem, 13vw, 4.4rem)" : "clamp(4rem, 2.6rem + 6vw, 7.6rem)",
+        lineHeight: 0.82,
         letterSpacing: "-.035em",
         color: "var(--v3-fg)",
-        margin: "clamp(20px, 3vh, 32px) 0 0",
+        margin: "clamp(14px, 2vh, 22px) 0 0",
       }}>
         <span style={maskLine}>
           <motion.span style={{ display: "block" }} variants={lineRise}>{first}</motion.span>
