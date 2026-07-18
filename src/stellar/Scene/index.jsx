@@ -52,6 +52,7 @@ import TrojanAsteroids from "./TrojanAsteroids";
 import OortCloud from "./OortCloud";
 import Heliosphere from "./Heliosphere";
 import LocalInterstellarCloud from "./LocalInterstellarCloud";
+import LocalBubble from "./LocalBubble";
 import MilkyWay from "./MilkyWay";
 import DustParticles from "./DustParticles";
 import AdaptiveQuality from "./AdaptiveQuality";
@@ -876,6 +877,7 @@ const Scene = ({ scrollT, finaleT, finale = false, activeIdx, onJump, focusRef, 
         {showExtras && <OortCloud count={isMobile ? 1600 : 4200} />}
         {showExtras && !isMobile && <Heliosphere />}
         {showExtras && !isMobile && activeIdx >= 10 && <LocalInterstellarCloud />}
+        {showExtras && !isMobile && activeIdx >= 10 && <LocalBubble />}
         {/* Real solar eclipses — Earth's actual Moon + any planet you fly
             behind occlude the Sun (corona + chromosphere + diamond-ring). */}
         {showExtras && <SolarEclipse satelliteRef={moonWorldRef} eclipseRef={eclipseRef} reducedMotion={reducedMotion} active={!isMilkyway} />}
