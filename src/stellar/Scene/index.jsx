@@ -720,6 +720,7 @@ const Scene = ({ scrollT, finaleT, finale = false, activeIdx, onJump, focusRef, 
                 grade={d.grade}
                 rings={d.rings}
                 faintRings={d.faintRings}
+                adamsArcs={d.adamsArcs}
                 ringColor={d.ringColor}
                 axialTilt={d.axialTilt || 0}
                 oblateness={d.oblateness || 0}

@@ -72,6 +72,7 @@ const Planet = ({
   animate = true,
   rings = false,
   faintRings = false, // Jupiter / Uranus / Neptune all have real, faint rings
+  adamsArcs = false, // Neptune only — bright dust bunches on the Adams ring
   ringColor,
   axialTilt = 0,
   oblateness = 0, // polar flattening (Jupiter 0.065, Saturn 0.098) — real gas-giant squash
@@ -431,7 +432,12 @@ const Planet = ({
           Opacity boosted from the "physically-accurate-invisible" range
           (0.06–0.10) — at real values a bright Orion/Carina backdrop shows
           straight through them. These are still "faint" per real physics but
-          now visibly occlude the sky behind. */}
+          now visibly occlude the sky behind.
+          When `adamsArcs` is set (Neptune), the outer ring is punctuated by
+          the real Adams-ring arc concentrations — Voyager 2 saw four distinct
+          dust bunches (Courage, Liberté, Égalité 1 & 2, Fraternité) held in a
+          42:43 resonance with Galatea. Rendered as three brighter azimuthal
+          sectors on the outer band. */}
       {faintRings && (
         <group rotation={[Math.PI / 2.05, 0, 0]}>
           <mesh>
@@ -442,6 +448,22 @@ const Planet = ({
             <ringGeometry args={[radius * 1.98, radius * 2.12, 96]} />
             <meshBasicMaterial color={rColor} transparent opacity={0.22} side={THREE.DoubleSide} depthWrite={false} toneMapped={false} />
           </mesh>
+          {adamsArcs &&
+            /* Three bright arcs at the outer (Adams) ring — Liberté / Égalité
+               / Fraternité, the three brightest of Neptune's four dust bunches.
+               Angular positions and widths are cinematically-tuned to sell the
+               "clumpy, not continuous" ring physics; Voyager 2 saw the full
+               arc system span ~40° of azimuth. */
+            [
+              { start: 0.15, length: 0.16 }, // Liberté
+              { start: 0.45, length: 0.12 }, // Égalité 1
+              { start: 0.66, length: 0.24 }, // Fraternité (widest)
+            ].map((a, i) => (
+              <mesh key={`arc${i}`}>
+                <ringGeometry args={[radius * 1.99, radius * 2.13, 40, 1, a.start, a.length]} />
+                <meshBasicMaterial color="#f2f4ff" transparent opacity={0.7} side={THREE.DoubleSide} depthWrite={false} toneMapped={false} />
+              </mesh>
+            ))}
         </group>
       )}
 

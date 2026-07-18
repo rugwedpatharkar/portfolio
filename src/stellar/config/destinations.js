@@ -327,6 +327,8 @@ export const DESTINATIONS = [
     axialTilt: 28.3 * DEG, // Neptune's obliquity, close to Earth's
     oblateness: 0.017, // real flattening
     faintRings: true, // Neptune's faint rings + arcs (real)
+    adamsArcs: true, // Voyager 2 saw Liberté/Égalité/Fraternité — dust bunches on the Adams ring
+
     moons: 2, // Triton (large) + Nereid (small, highly eccentric)
     moonColor: "#b8d4ee",
     moonScale: 0.07,
