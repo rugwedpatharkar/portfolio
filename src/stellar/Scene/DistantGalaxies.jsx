@@ -203,7 +203,7 @@ const DistantGalaxies = ({ deepField = false }) => {
     });
     /* Homepage → add the deep-field scatter behind the galaxy. Tour → the
        named + cluster set only. */
-    return deepField ? [...named, ...clusters, ...makeDeepField(360)] : [...named, ...clusters];
+    return deepField ? [...named, ...clusters, ...makeDeepField(2000)] : [...named, ...clusters];
   }, [deepField]);
 
   return (

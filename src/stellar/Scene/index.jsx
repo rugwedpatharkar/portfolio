@@ -19,6 +19,7 @@ import Planet from "./Planet";
 import CameraRig from "./CameraRig";
 import AsteroidBelt, { KUIPER_FAMILIES, kuiperWeightsFor } from "./AsteroidBelt";
 import Nebulae from "./Nebulae";
+import Clusters from "./Clusters";
 import VisibilityController from "./VisibilityController";
 import Skybox from "./Skybox";
 import OrbitGroup from "./OrbitGroup";
@@ -553,6 +554,9 @@ const Scene = ({ scrollT, finaleT, finale = false, activeIdx, onJump, focusRef, 
               view its ~640 soft coreless discs read as distracting floating white
               smudges over the planets (user complaint), so it's dropped here. */}
           {!finale && <DistantGalaxies />}
+          {/* Star clusters — globular + open at real J2000 positions. Fills
+              the sky between nebulae with small yellow/blue fuzzy specks. */}
+          {!finale && <Clusters />}
           {/* Zodiacal light — faint warm band along the ecliptic. */}
           {showExtras && <ZodiacalLight />}
           {/* HeroDust moved OFF the tour — its camera-riding motes read as "white
