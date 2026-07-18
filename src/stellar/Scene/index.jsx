@@ -845,21 +845,26 @@ const Scene = ({ scrollT, finaleT, finale = false, activeIdx, onJump, focusRef, 
              near 48 AU. Count bumped for density. */
           <AsteroidBelt count={11000} innerRadius={BACKGROUND_BELTS.kuiper.inner} outerRadius={BACKGROUND_BELTS.kuiper.outer} size={0.55} thickness={BACKGROUND_BELTS.kuiper.thickness} families={KUIPER_FAMILIES} weights={kuiperWeightsFor} clumps={KUIPER_CLUMPS} cliff animate={!reducedMotion} />
         )}
-        {/* Dust haze — tier 4 (mounts last + alone). Still substantial so the
-            band reads as haze rather than empty space. */}
+        {/* Dust haze — tier 4 (mounts last + alone). SPARSE — real belts
+            average ~1 million km between bodies (main belt) and are even
+            emptier in the Kuiper zone. The dust reads as a faint scatter,
+            NOT a solid dusty band. Prior "dense donut" density retired. */}
         {showDust && (
-          <BeltDust count={isMobile ? 8000 : 18000} innerRadius={BACKGROUND_BELTS.asteroid.inner} outerRadius={BACKGROUND_BELTS.asteroid.outer} thickness={BACKGROUND_BELTS.asteroid.thickness} color={BACKGROUND_BELTS.asteroid.color} size={2.6} opacity={0.15} gaps={KIRKWOOD_GAPS} animate={!reducedMotion} />
+          <BeltDust count={isMobile ? 2500 : 5000} innerRadius={BACKGROUND_BELTS.asteroid.inner} outerRadius={BACKGROUND_BELTS.asteroid.outer} thickness={BACKGROUND_BELTS.asteroid.thickness} color={BACKGROUND_BELTS.asteroid.color} size={2.6} opacity={0.10} gaps={KIRKWOOD_GAPS} animate={!reducedMotion} />
         )}
         {showDust && !isMobile && (
-          <BeltDust count={12000} innerRadius={BACKGROUND_BELTS.kuiper.inner} outerRadius={BACKGROUND_BELTS.kuiper.outer} thickness={BACKGROUND_BELTS.kuiper.thickness} color={BACKGROUND_BELTS.kuiper.color} size={2.3} opacity={0.14} cliff animate={!reducedMotion} />
+          <BeltDust count={3500} innerRadius={BACKGROUND_BELTS.kuiper.inner} outerRadius={BACKGROUND_BELTS.kuiper.outer} thickness={BACKGROUND_BELTS.kuiper.thickness} color={BACKGROUND_BELTS.kuiper.color} size={2.3} opacity={0.09} cliff animate={!reducedMotion} />
         )}
         {/* Tenuous gas/dust clouds — tier 3 (big, faint, soft; distance-faded by
-            the same shader so they never bloom into a bar). Desktop only. */}
+            the same shader so they never bloom into a bar). Desktop only.
+            Trimmed to a whisper — real interplanetary dust does exist along
+            the ecliptic (zodiacal light) but concentration in the belts
+            themselves is sparse. */}
         {showEggs && !isMobile && !shedHeavy && (
-          <BeltDust count={3200} innerRadius={BACKGROUND_BELTS.asteroid.inner} outerRadius={BACKGROUND_BELTS.asteroid.outer} thickness={BACKGROUND_BELTS.asteroid.thickness * 1.4} color="#8a7a64" size={16} opacity={0.04} drift={0.008} gaps={KIRKWOOD_GAPS} animate={!reducedMotion} />
+          <BeltDust count={900} innerRadius={BACKGROUND_BELTS.asteroid.inner} outerRadius={BACKGROUND_BELTS.asteroid.outer} thickness={BACKGROUND_BELTS.asteroid.thickness * 1.4} color="#8a7a64" size={16} opacity={0.03} drift={0.008} gaps={KIRKWOOD_GAPS} animate={!reducedMotion} />
         )}
         {showEggs && !isMobile && !shedHeavy && (
-          <BeltDust count={2600} innerRadius={BACKGROUND_BELTS.kuiper.inner} outerRadius={BACKGROUND_BELTS.kuiper.outer} thickness={BACKGROUND_BELTS.kuiper.thickness * 1.3} color="#6a7e9e" size={20} opacity={0.04} drift={0.006} cliff animate={!reducedMotion} />
+          <BeltDust count={800} innerRadius={BACKGROUND_BELTS.kuiper.inner} outerRadius={BACKGROUND_BELTS.kuiper.outer} thickness={BACKGROUND_BELTS.kuiper.thickness * 1.3} color="#6a7e9e" size={20} opacity={0.03} drift={0.006} cliff animate={!reducedMotion} />
         )}
         {/* Jupiter's Trojan asteroids — two swarms 60° ahead/behind Jupiter at
             the L4/L5 Lagrange points (true orbital radius). */}

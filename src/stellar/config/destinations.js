@@ -431,9 +431,15 @@ const AU = {
 /* The asteroid + Kuiper belts are no longer tour stops — they render as
    background scenery (Scene/index.jsx) at these true AU ranges (× AU_UNIT). */
 export const BACKGROUND_BELTS = {
-  // Real spans (main belt ~2.1–3.3 AU, Kuiper ~30–50 AU) rendered as FAT tori —
-  // a real vertical thickness from inclination dispersion (not a thin ribbon),
-  // so they read as the dense dusty donuts the reference imagery shows.
+  // Real spans (main belt ~2.1–3.3 AU, Kuiper ~30–50 AU) rendered as FAT tori.
+  // Physically the belts are ALMOST EMPTY — main belt is ~3% of Moon-mass with
+  // ~1 million km between typical asteroids (every probe that's crossed one
+  // — Pioneer, Voyagers, Galileo, Dawn — went through untouched). Vertical
+  // thickness comes from real inclination dispersion. The instanced rocks
+  // (Scene/AsteroidBelt.jsx) carry the taxonomic + Kirkwood/cliff structure;
+  // the BeltDust layer is a faint additive haze so the belt reads as
+  // "suggested" at overview zoom, not a solid ring — see docs/research/
+  // 02-small-bodies-and-interplanetary-medium.md §3.2, §5.1.
   asteroid: { inner: 2.1 * AU_UNIT, outer: 3.3 * AU_UNIT, thickness: 36, color: "#6f645a" }, // C-type-weighted dark grey-brown (belt is ~75% dark carbonaceous)
   kuiper: { inner: 30 * AU_UNIT, outer: 50 * AU_UNIT, thickness: 320, color: "#8a7360" }, // red-to-neutral (tholins) — Kuiper objects are NEVER blue
 };
