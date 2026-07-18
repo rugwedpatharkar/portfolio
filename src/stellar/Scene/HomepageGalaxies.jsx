@@ -225,6 +225,13 @@ const HERO_GALAXIES = [
   { ndc: [0.16, -0.84],  size: 150, tex: "smc", op: 0.72 },        // SMC — smaller, further out toward the pole
   { ndc: [-0.06, 0.66],  size: 150, tex: "andromeda", op: 0.44 },  // M31 — faint distant smudge, ~50 radii out
   { ndc: [0.12, 0.79],   size: 104, tex: "triangulum", op: 0.24 }, // M33 — fainter, its bound neighbour, ~55 radii
+  /* Deep-field tier — the "poster" galaxies at 460–580 R_MW.
+     Rendered as very small, very faint specks — the honest look of a
+     galaxy the size of the MW placed 500 radii away. Positioned in
+     empty screen quadrants so they never fight the Milky Way core or
+     the hero text. */
+  { ndc: [-0.78, 0.28],  size: 48,  tex: "whirlpool", op: 0.14 },  // M51 — ~460 R_MW, deep-field speck
+  { ndc: [0.72, -0.14],  size: 44,  tex: "sombrero",  op: 0.14 },  // M104 — ~586 R_MW, farthest deep-field speck
 ];
 const HERO_URLS = HERO_GALAXIES.map((h) => `/textures/galaxies/${h.tex}.webp`);
 const makeHeroes = () =>
