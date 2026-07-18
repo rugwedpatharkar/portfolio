@@ -128,13 +128,32 @@ const VERT = /* glsl */ `
   uniform float uTime;
   varying vec3 vColor;
   varying float vTwinkle;
+  /* Doppler shift — camera-motion-induced blue/red shift of star colours.
+     uDopplerAxis: unit vector of camera velocity direction (in world coords).
+     uDopplerStrength: 0..1 amount; scales dot(star_dir, cam_vel) into a
+     colour multiplier that boosts blue when moving TOWARD the star and
+     boosts red when moving AWAY. Subtle, but visible when scrolling fast
+     through the tour or in the finale pull-back. */
+  uniform vec3 uDopplerAxis;
+  uniform float uDopplerStrength;
   void main() {
     /* Per-star hash — position dotted with a magic vector — gives every star
        its own twinkle phase without needing a separate attribute. */
     float phase = fract(sin(dot(position, vec3(12.9898, 78.233, 45.164))) * 43758.5453);
     float twinkle = 1.0 + sin(uTime * 2.6 + phase * 6.2831) * 0.20 * smoothstep(1.0, 6.0, aSize);
     vTwinkle = 0.75 + 0.25 * twinkle;
-    vColor = aColor * vTwinkle;
+    /* Doppler: proj = dot(direction to this star, camera velocity axis).
+       Positive → star lies in the direction of motion → blueshift.
+       Negative → opposite direction → redshift. */
+    vec3 dir = normalize(position);
+    float proj = dot(dir, uDopplerAxis) * uDopplerStrength;
+    /* Blueshift multiplier: boost B channel, reduce R; and vice versa. */
+    vec3 doppler = vec3(
+      1.0 - proj * 0.35, // R falls as we approach
+      1.0 - abs(proj) * 0.08, // G neutral
+      1.0 + proj * 0.35  // B rises as we approach
+    );
+    vColor = aColor * vTwinkle * doppler;
     gl_PointSize = aSize * twinkle;      // slightly grow/shrink with brightness
     gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
   }
@@ -200,7 +219,12 @@ const Stars = ({ sparse = false, visible = true }) => {
     geometry.setAttribute("aColor", new THREE.BufferAttribute(colors, 3));
     geometry.setAttribute("aSize", new THREE.BufferAttribute(sizes, 1));
     const material = new THREE.ShaderMaterial({
-      uniforms: { uMap: { value: sparse && SPIKE_TEXTURE ? SPIKE_TEXTURE : SPRITE_TEXTURE }, uTime: { value: 0 } },
+      uniforms: {
+        uMap: { value: sparse && SPIKE_TEXTURE ? SPIKE_TEXTURE : SPRITE_TEXTURE },
+        uTime: { value: 0 },
+        uDopplerAxis: { value: new THREE.Vector3() },
+        uDopplerStrength: { value: 0 },
+      },
       vertexShader: VERT,
       fragmentShader: FRAG,
       transparent: true,
@@ -212,8 +236,11 @@ const Stars = ({ sparse = false, visible = true }) => {
   }, [sparse]);
 
   const groupRef = useRef();
+  const prevCam = useRef(new THREE.Vector3());
+  const camVel = useRef(new THREE.Vector3());
+  const dopplerAxis = useRef(new THREE.Vector3());
 
-  useFrame((_, dt) => {
+  useFrame(({ camera }, dt) => {
     /* Twinkle advances on real time (not sceneClock) so bright stars still
        pulse even when the tour time-scale is at 0 (reduced-motion). */
     material.uniforms.uTime.value += dt;
@@ -221,6 +248,20 @@ const Stars = ({ sparse = false, visible = true }) => {
        sky rotates once per sidereal day). Gives the whole star field a
        subtle sense of celestial motion so the sky never reads frozen. */
     if (groupRef.current) groupRef.current.rotation.y += dt * 7.27e-5;
+    /* Doppler shift: compute camera velocity (world position finite
+       difference). Fast smooth scrolling → visible shift; slow browsing →
+       none. Store velocity direction + strength (clamped) as shader
+       uniforms. */
+    camVel.current.copy(camera.position).sub(prevCam.current).divideScalar(Math.max(dt, 1e-4));
+    prevCam.current.copy(camera.position);
+    const speed = camVel.current.length();
+    if (speed > 1e-3) dopplerAxis.current.copy(camVel.current).divideScalar(speed);
+    else dopplerAxis.current.set(0, 0, 0);
+    material.uniforms.uDopplerAxis.value.copy(dopplerAxis.current);
+    /* Strength ramps in only when camera moves faster than a comfortable
+       browsing speed; scales up to a modest cap so nothing gets ugly. */
+    const strength = THREE.MathUtils.clamp((speed - 8) / 320, 0, 0.55);
+    material.uniforms.uDopplerStrength.value = strength;
   });
 
   /* §9.6 disposal — Stars unmounts when the finale engages (Scene/index.jsx
