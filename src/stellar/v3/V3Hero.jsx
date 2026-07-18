@@ -12,7 +12,7 @@
  * everything else (motion/react; reduced-motion → instant). Reads only from
  * /src/content.
  */
-import { memo, useRef, useEffect } from "react";
+import { memo, useRef, useEffect, useState } from "react";
 import { motion, useReducedMotion } from "motion/react";
 import { personalInfo, contactLinks } from "../../content";
 import { DESTINATIONS } from "../config/destinations";
@@ -35,6 +35,20 @@ function V3Hero() {
   const { isCompact } = useViewport();
   const ctaRef = useRef(null);
   const linksRef = useRef(null);
+  /* Subtle parallax on the ghost initial — it shifts opposite the cursor by a
+     small amount, giving the R a sense of depth behind the name. Off under
+     reduced motion; only listens while hero is mounted. */
+  const [pos, setPos] = useState({ x: 0, y: 0 });
+  useEffect(() => {
+    if (reduce || isCompact) return undefined;
+    const onMove = (e) => {
+      const nx = (e.clientX / window.innerWidth - 0.5) * -18;
+      const ny = (e.clientY / window.innerHeight - 0.5) * -12;
+      setPos({ x: nx, y: ny });
+    };
+    window.addEventListener("pointermove", onMove, { passive: true });
+    return () => window.removeEventListener("pointermove", onMove);
+  }, [reduce, isCompact]);
   useEffect(() => magnetic(ctaRef.current, { strength: 0.3 }), []);
   useEffect(() => {
     if (!linksRef.current) return undefined;
@@ -116,6 +130,9 @@ function V3Hero() {
               letterSpacing: "-.08em",
               color: "color-mix(in oklab, var(--v3-accent) 14%, transparent)",
               userSelect: "none",
+              transform: `translate(${pos.x}px, ${pos.y}px)`,
+              transition: "transform .6s cubic-bezier(0.25,0.1,0.25,1)",
+              willChange: "transform",
             }}
           >
             {initial}

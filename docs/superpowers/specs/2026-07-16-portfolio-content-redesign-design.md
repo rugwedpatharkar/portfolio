@@ -1,10 +1,59 @@
 # Portfolio content-layer redesign — "Constellation of Dossiers"
 
 **Date:** 2026-07-16
-**Status:** Design (awaiting sign-off)
+**Status:** Superseded — see 2026-07-18 amendment below (spine simplified to
+"editorial spread at every stop" after user rejected cards; state machine and
+`Dossier` wrapper primitive dropped as YAGNI).
 **Scope:** Redesign the CONTENT + CHROME layer only — fonts, loading screen, and every
 information section (hero → contact). The 3D experience — Milky-Way view, solar-system
 view, and the scroll tour (camera rig, planets, belts, finale) — is **kept exactly as-is**.
+
+---
+
+## Amendment 2026-07-18 — as-shipped state
+
+The design shipped with the following differences from the original spec:
+
+- **Spine simplified.** The hero-⇄-dossier two-state ("compact glanceable card
+  that expands into a rich dossier") was dropped after the user rejected the
+  card visual. Each section renders its full spread directly at its stop. The
+  shared `Dossier` wrapper primitive and the `useSyncExternalStore` scroll-store
+  were skipped as YAGNI — sections read data via direct imports.
+- **Fonts.** Settled on **Syne · Sora · Space Mono** after a live comparison
+  (the initially proposed Fraunces / Space Grotesk / Space Mono triad was
+  swapped when the user asked for something more unique and eye-catching).
+- **Section format = directory + featured detail.** All 12 sections use the
+  same interaction pattern (left directory of items + right featured detail),
+  with per-content-type variations (Experience track accordion, Skills Ranked
+  Ladder, FunFacts editorial rows, Achievements year-grouped list, etc.). No
+  cards, no boxes, no borders — hairlines only, transparent surfaces so the
+  planet stays visible.
+- **Skills** shipped as a proficiency **Ranked Ladder** (typography-only,
+  4 tiers) rather than the originally-planned SVG star-field constellation
+  (which crowded at 15+ skills per category). A single glowing hairline traces
+  the tier-1 signature constellation on the left.
+- **Read-mode softening** (CSS `:has()` tint + ref-driven DPR/bloom drop) was
+  not implemented — the existing `V3Scrim` gradient behind the panel already
+  gives sufficient text-substrate contrast, and every section already sits in
+  its own hairline-bordered area on the left half of the viewport.
+- **Ambient mission-control effects** (added 2026-07-18): `V3MissionClock`
+  (bottom-left transit/stop readout), `V3ArrivalBeat` (top-right SIGNAL LOCK
+  ping on each stop arrival), `V3SaganQuote` (bottom-right rotating cosmos
+  quote), HUD reticle cursor (`V3Cursor`), starlight text-glow on Syne headings,
+  numeric count-up on FunFacts values, kicker telemetry typewriter, ghost-R
+  cursor parallax on Hero.
+- **Mobile responsive fallback** — global media query at max-width: 1023px
+  collapses every section's 2-column grid to a single stacked column and
+  enables vertical scroll inside the panel.
+- **Hero** shipped with the "Layered Cinematic" direction (giant ghost R,
+  massive Syne name, italic Sol-gold surname, longer role sentence).
+- **BootLoader** shipped as a full-viewport telemetry "systems online" screen
+  with real progress checkpoints and Syne name reveal.
+
+Total: 20+ commits landing the shipped redesign. See `feat(redesign)` and
+`feat(effects)` in `git log`.
+
+---
 
 ---
 

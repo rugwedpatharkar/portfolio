@@ -16,6 +16,9 @@ import V3FinaleOverlay from "./v3/V3FinaleOverlay";
 import V3ScaleAnnotations from "./v3/V3ScaleAnnotations";
 import V3ScaleReadout from "./v3/V3ScaleReadout";
 import V3TheEdgeQuote from "./v3/V3TheEdgeQuote";
+import V3MissionClock from "./v3/V3MissionClock";
+import V3ArrivalBeat from "./v3/V3ArrivalBeat";
+import V3SaganQuote from "./v3/V3SaganQuote";
 import { preloadSection, preloadAllSections } from "./v3/V3Panel";
 import BootLoader from "./v3/BootLoader";
 
@@ -389,6 +392,14 @@ const StellarApp = () => {
       />
       {/* v3 FUI chrome — hairline frame, stop counter, clickable system rail. */}
       <V3Hud stops={DESTINATIONS} activeIdx={activeIdx} section={DESTINATIONS[activeIdx]?.section} onJump={handleJump} />
+      {/* Ambient mission-control chrome — bottom-left transit/stop clock + top-right
+          arrival ping when the tour lands at a new stop. Hidden on compact viewports
+          and during the fly-through (panelHidden) to keep the cinematic beat clean. */}
+      <V3MissionClock stops={DESTINATIONS} activeIdx={activeIdx} hidden={panelHidden} />
+      <V3ArrivalBeat stops={DESTINATIONS} activeIdx={activeIdx} hidden={panelHidden} />
+      {/* Rotating cosmos quote — bottom-right, hidden during flight + on the
+          finale stop where V3TheEdgeQuote already sits. */}
+      <V3SaganQuote hidden={panelHidden} finale={showFinaleContent || activeIdx === DESTINATIONS.length - 1} />
       {/* Focused-planet FUI reticle — tracks the active body via camera projection. */}
       <V3Reticle cameraRef={cameraRef} clock={sceneClockRef.current} activeIdx={activeIdx} />
       {/* Per-body editorial card — historical quote + rotating etymology / fact.
