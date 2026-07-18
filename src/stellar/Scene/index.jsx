@@ -43,6 +43,7 @@ import DustLanes from "./DustLanes";
 import HomepageGalaxies from "./HomepageGalaxies";
 import { makeSoftDot } from "./shared/textures";
 import BlackHole from "./anomalies/BlackHole";
+import TimeDilationHUD from "./TimeDilationHUD";
 import Voyagers from "./Voyagers";
 /* BlackHole + SpiralGalaxy removed from the tour — nearest black hole is
    1,560 ly away (Gaia BH1), nothing sits "just past Pluto". Milky Way seen
@@ -808,7 +809,12 @@ const Scene = ({ scrollT, finaleT, finale = false, activeIdx, onJump, focusRef, 
                itself, invisible at every other stop including Pluto. */
             const p = d.position;
             if (d.render === "blackhole" && activeIdx === 13)
-              return <BlackHole key={d.id} position={p} radius={d.radius} nebula jets animate={!reducedMotion} onPointerOver={handleHoverIn} onPointerOut={handleHoverOut} />;
+              return (
+                <group key={d.id}>
+                  <BlackHole position={p} radius={d.radius} nebula jets animate={!reducedMotion} onPointerOver={handleHoverIn} onPointerOut={handleHoverOut} />
+                  <TimeDilationHUD position={p} />
+                </group>
+              );
             return null;
           }
           return null;
