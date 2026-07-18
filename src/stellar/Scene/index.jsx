@@ -46,6 +46,7 @@ import { makeSoftDot } from "./shared/textures";
 import BlackHole from "./anomalies/BlackHole";
 import TimeDilationHUD from "./TimeDilationHUD";
 import PaleBlueDotAnnotation from "./PaleBlueDotAnnotation";
+import CassiniFinale from "./CassiniFinale";
 import Voyagers from "./Voyagers";
 /* BlackHole + SpiralGalaxy removed from the tour — nearest black hole is
    1,560 ly away (Gaia BH1), nothing sits "just past Pluto". Milky Way seen
@@ -570,6 +571,11 @@ const Scene = ({ scrollT, finaleT, finale = false, activeIdx, onJump, focusRef, 
               near Earth (achievements stop = idx 5). */}
           {activeIdx === 5 && (
             <PaleBlueDotAnnotation position={DESTINATIONS[5].position} radius={0.182} />
+          )}
+          {/* Cassini Grand Finale annotation at Saturn (activeIdx === 9)
+              when the URL flag ?cassini=1 is set. */}
+          {activeIdx === 9 && typeof window !== "undefined" && new URLSearchParams(window.location.search).get("cassini") === "1" && (
+            <CassiniFinale position={DESTINATIONS[9].position} radius={1.666} />
           )}
           {/* Procedural large extended nebulae — Barnard's Loop, Gum,
               Vela SNR, Cygnus X, Rho Oph — soft additive glows so the
