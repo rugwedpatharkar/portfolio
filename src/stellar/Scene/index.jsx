@@ -44,6 +44,7 @@ import HomepageGalaxies from "./HomepageGalaxies";
 import { makeSoftDot } from "./shared/textures";
 import BlackHole from "./anomalies/BlackHole";
 import TimeDilationHUD from "./TimeDilationHUD";
+import PaleBlueDotAnnotation from "./PaleBlueDotAnnotation";
 import Voyagers from "./Voyagers";
 /* BlackHole + SpiralGalaxy removed from the tour — nearest black hole is
    1,560 ly away (Gaia BH1), nothing sits "just past Pluto". Milky Way seen
@@ -563,6 +564,11 @@ const Scene = ({ scrollT, finaleT, finale = false, activeIdx, onJump, focusRef, 
           {!finale && <Clusters />}
           {/* Stellar nurseries — Herbig-Haro jets + Orion proplyds +
               debris disks around nearby stars. */}
+          {/* Pale Blue Dot annotation — Voyager 1's 1990 image caption
+              near Earth (achievements stop = idx 5). */}
+          {activeIdx === 5 && (
+            <PaleBlueDotAnnotation position={DESTINATIONS[5].position} radius={0.182} />
+          )}
           {!finale && <StellarNurseries />}
           {/* CMB relic radiation — 2.725 K background, faint warm-red glow. */}
           <CMBGlow />

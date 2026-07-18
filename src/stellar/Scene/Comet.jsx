@@ -191,10 +191,15 @@ const Comet = () => {
 
     /* Activity: tails grow as it dives sunward, vanish at aphelion. The DUST
        tail is the broad, bright, dominant one (real comets); the ion tail is the
-       fainter, thinner blue streak. */
+       fainter, thinner blue streak.
+       OUTBURST — real comets occasionally undergo dramatic outbursts (Comet
+       17P/Holmes went from mag 17 → 2.8 in 42 h in 2007). Model as a slow
+       (~180 s) sinusoidal amplification with the peak briefly amplifying the
+       tail brightness ~1.7×. */
+    const outburst = 1 + 0.7 * Math.max(0, Math.sin(mean.current * 0.017)) * Math.max(0, Math.sin(mean.current * 0.017));
     const act = THREE.MathUtils.clamp((ACTIVE_R - p.length()) / (ACTIVE_R - ACTIVE_PEAK), 0, 1);
-    ionUniforms.uOpacity.value = 0.55 * act;
-    dustUniforms.uOpacity.value = 0.78 * act;
+    ionUniforms.uOpacity.value = 0.55 * act * outburst;
+    dustUniforms.uOpacity.value = 0.78 * act * outburst;
 
     /* Coma brightens AND swells as the comet nears the Sun (sublimation), not a
        fixed blob. */
