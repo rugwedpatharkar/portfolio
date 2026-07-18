@@ -227,6 +227,8 @@ export const DESTINATIONS = [
     oblateness: 0.065, // real polar flattening — Jupiter is visibly squashed by its fast spin
     faintRings: true, // Jupiter's faint dusty ring (real)
     greatRedSpot: true, // Jupiter's iconic 350-year-old anticyclonic storm at ~22°S
+    plasmaTorus: true, // Io plasma torus — neon-purple ring of ionized S/O from Io's volcanoes
+    aurorae: "jupiter", // brightest aurorae in solar system per Juno UV imaging
     moons: 4, // the four Galilean moons
     moonColor: "#cfc6e0",
     moonScale: 0.045,
@@ -256,6 +258,7 @@ export const DESTINATIONS = [
     axialTilt: 26.7 * DEG, // Saturn's obliquity — tilts the ring plane across the frame
     oblateness: 0.098, // the most oblate planet — ~10% flattened, clearly squashed
     rings: true,
+    aurorae: "saturn", // H₂ emission UV auroral ovals ringing both poles
     ringTexture: "/textures/planets/saturnringcolor.webp",
     ringColor: "#f8c555",
     moons: 6,
@@ -294,6 +297,7 @@ export const DESTINATIONS = [
     axialTilt: 97.8 * DEG, // Uranus rolls on its side — the real ~98° obliquity
     oblateness: 0.023, // real flattening
     faintRings: true, // Uranus's narrow rings ride near-vertical with its tilt
+    aurorae: "uranus", // near-IR H₃⁺ auroral ovals (JWST-imaged 2023)
 
     moons: 5,
     moonColor: "#d0ccea",
@@ -329,6 +333,7 @@ export const DESTINATIONS = [
     oblateness: 0.017, // real flattening
     faintRings: true, // Neptune's faint rings + arcs (real)
     adamsArcs: true, // Voyager 2 saw Liberté/Égalité/Fraternité — dust bunches on the Adams ring
+    aurorae: "neptune", // JWST 2025 mid-latitude aurora (magnetic axis offset 47° from spin)
 
     moons: 2, // Triton (large) + Nereid (small, highly eccentric)
     moonColor: "#b8d4ee",

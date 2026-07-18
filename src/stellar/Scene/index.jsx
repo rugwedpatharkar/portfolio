@@ -51,6 +51,7 @@ import BeltDust from "./BeltDust";
 import LocalNeighborhood from "./LocalNeighborhood";
 import NearStarsMotion from "./NearStarsMotion";
 import ThreeIAtlas from "./ThreeIAtlas";
+import SolarCMEs from "./SolarCMEs";
 import TrojanAsteroids from "./TrojanAsteroids";
 import OortCloud from "./OortCloud";
 import Heliosphere from "./Heliosphere";
@@ -618,6 +619,10 @@ const Scene = ({ scrollT, finaleT, finale = false, activeIdx, onJump, focusRef, 
             <AtlasComet start={[1500, 320, 980]} vel={[-270, -34, -170]} coma="#bfe0ff" ion="#cfe6ff" dust="#e8e0ff" respawn={720} />
             <AtlasComet start={[-1400, -260, 1100]} vel={[250, 40, -190]} coma="#e2dcff" ion="#dce6ff" dust="#fff0e0" respawn={900} />
             <ThreeIAtlas />
+            {/* Solar coronal mass ejections — bright plasma bursts from the
+                Sun's limb, sells "the Sun is alive." Positioned at origin
+                where the Sun sits. */}
+            <SolarCMEs />
           </>
         )}
         {/* Distant galaxies pinned to the frame's empty regions (left column +
@@ -731,6 +736,8 @@ const Scene = ({ scrollT, finaleT, finale = false, activeIdx, onJump, focusRef, 
                 faintRings={d.faintRings}
                 adamsArcs={d.adamsArcs}
                 greatRedSpot={d.greatRedSpot}
+                plasmaTorus={d.plasmaTorus}
+                aurorae={d.aurorae}
                 ringColor={d.ringColor}
                 axialTilt={d.axialTilt || 0}
                 oblateness={d.oblateness || 0}

@@ -5,6 +5,8 @@ import * as THREE from "three";
 import PlanetMaterial from "./PlanetMaterial";
 import AtmosphereGlow from "./AtmosphereGlow";
 import RingSystem from "./RingSystem";
+import IoPlasmaTorus from "./IoPlasmaTorus";
+import GiantAurorae from "./GiantAurorae";
 import { useSceneClock } from "./SceneClock";
 import { ktx2Urls } from "./shared/textureUrl";
 
@@ -113,6 +115,8 @@ const Planet = ({
   faintRings = false, // Jupiter / Uranus / Neptune all have real, faint rings
   adamsArcs = false, // Neptune only — bright dust bunches on the Adams ring
   greatRedSpot = false, // Jupiter only — visibly spinning storm at ~22°S
+  plasmaTorus = false, // Jupiter only — Io's neon-purple sulfur ring
+  aurorae = null, // "jupiter" | "saturn" | "uranus" | "neptune" — giant-planet polar aurorae
   ringColor,
   axialTilt = 0,
   oblateness = 0, // polar flattening (Jupiter 0.065, Saturn 0.098) — real gas-giant squash
@@ -531,6 +535,13 @@ const Planet = ({
             ))}
         </group>
       )}
+
+      {/* Io plasma torus (Jupiter only) — the neon-purple ring of ionized
+          sulfur/oxygen that Io feeds Jupiter's magnetosphere. Rides inside
+          the group so it inherits the axial tilt. */}
+      {plasmaTorus && <IoPlasmaTorus jupiterRadius={radius} />}
+      {/* Giant-planet aurorae — feathered rings around each pole. */}
+      {aurorae && <GiantAurorae radius={radius} kind={aurorae} />}
 
       {moonNodes}
     </group>
