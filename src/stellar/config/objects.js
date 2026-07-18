@@ -210,6 +210,11 @@ const ANOMALY_RAW = [
     visit: { kind: "focus", cameraTarget: frame([40, 16, -28], 14, 3, 46) },
   },
   {
+    id: "siwarha", label: "Siwarħa (α Ori B)", category: "Companion star", color: "#ffb47a", position: [40, 16.2, -28.1],
+    info: "Siwarħa (α Ori B) — Betelgeuse's long-suspected close companion, formally named by the IAU in August 2025 (Howell et al.) and directly imaged in an expanding wake by HST in January 2026 (MacLeod et al., arXiv 2601.00470). A 0.6 M☉ star (about the size of a K-type dwarf) orbiting every 5.78 years at ~2.3 stellar radii from Betelgeuse's photosphere — well inside the supergiant's extended atmosphere. Drag against that atmosphere is spiralling it inward; complete engulfment expected in ~10,000 years.",
+    visit: { kind: "focus", cameraTarget: frame([40, 16.2, -28.1], 8, 2, 42) },
+  },
+  {
     id: "etacarinae", label: "Eta Carinae", category: "Nebula", color: "#ff9a5a", position: [-70, 22, -38],
     info: "Eta Carinae — one of the most massive, luminous stars known (~100× the Sun), so unstable it nearly blew itself apart in the 1840s 'Great Eruption'. That blast flung out the two billowing lobes of the Homunculus Nebula, still expanding today. It's a supernova — maybe a hypernova — waiting to happen.",
     visit: { kind: "focus", cameraTarget: frame([-70, 22, -38], 14, 3, 46) },

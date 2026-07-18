@@ -19,8 +19,10 @@ export const PERIOD = {
   projects: 0.6152,   // Venus
   achievements: 1.0,    // Earth
   skills: 1.8809,   // Mars
+  writing: 4.6042,   // Ceres (dwarf planet — 1683.145 d / 365.25)
   education: 11.862,     // Jupiter
   hobbies: 29.4571,     // Saturn
   testimonials: 84.0205, // Uranus
   whatsetsmeapart: 164.8,     // Neptune
+  contact: 248.09,  // Pluto (dwarf planet — highly eccentric, 17° incl.)
 };

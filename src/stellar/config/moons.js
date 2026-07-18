@@ -120,6 +120,27 @@ export const MOONS = [
     info: "Umbriel — the darkest of Uranus's major moons, an ancient cratered world with one mysterious bright ring, 'Wunda', sitting on its equator.",
     facts: { diameter: "1,169 km", day: "4.1 d", wow: "Reflects only ~1 in 6 photons — the moody one of Uranus's moons." },
   },
+  /* Uranus's three remaining "Big Five" moons — Ariel, Oberon, Miranda — added
+     2026 to close out the classical Uranus system. All at real diameters +
+     orbital periods; parents follow the existing Uranus-moon pattern in this
+     file (`parent: "education"`), which is inconsistent with the semantic
+     Uranus destination id ("testimonials") — see docs/research/00-MASTER.md
+     Appendix A #34. Follow-up commit can normalise all Uranus moons together. */
+  {
+    id: "moon-ariel", parent: "education", label: "Ariel", color: "#c4cfcf", offset: [1.0, -0.4, 0.6],
+    info: "Ariel — the brightest and geologically youngest of Uranus's Big Five moons. Its surface shows evidence of recent tectonic and cryovolcanic activity: broad valleys resurfaced by upwelling water-ice slurries, unlike the ancient cratered faces of its siblings.",
+    facts: { diameter: "1,158 km", day: "2.5 d", wow: "Reflectance ~40% — the brightest of Uranus's classical moons; surface may have been resurfaced within the last billion years." },
+  },
+  {
+    id: "moon-oberon", parent: "education", label: "Oberon", color: "#a2acac", offset: [-2.1, 0.6, -0.9],
+    info: "Oberon — Uranus's outermost of the Big Five and the second-largest. An ancient, heavily-cratered ice-rock world with a striking ~6 km high mountain and a dark unidentified reddish material coating some crater floors — possibly captured Kuiper-belt debris.",
+    facts: { diameter: "1,523 km", day: "13.5 d", wow: "Its highest peak stands 11 km above the surrounding plain — nearly 1½ Everests, on a moon smaller than the UK." },
+  },
+  {
+    id: "moon-miranda", parent: "education", label: "Miranda", color: "#c8d4d4", offset: [0.7, 0.5, -0.4],
+    info: "Miranda — the smallest of Uranus's Big Five, with the most bizarre surface in the solar system: patchwork terrain of grooves, cliffs, ovoidal 'coronae' and giant chevron ridges suggesting the moon was catastrophically disrupted then reassembled. Hosts Verona Rupes, the tallest known cliff — a 20 km drop.",
+    facts: { diameter: "471 km", day: "1.4 d", wow: "Its Verona Rupes cliff is 20 km high — an object dropped from the top would fall for about 12 minutes before hitting bottom (in Miranda's weak gravity)." },
+  },
   {
     id: "moon-nereid", parent: "hobbies", label: "Nereid", color: "#c8c0b4", offset: [-2.2, 0.6, -0.7],
     info: "Nereid — one of the most eccentric orbits of any moon: it swings from ~1.4 to ~9.7 million km from Neptune, likely flung outward when Triton was captured.",
