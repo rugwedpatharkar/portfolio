@@ -141,12 +141,23 @@ const S = {
   metaK: { color: "var(--v3-fg)", fontWeight: 500 },
 
   /* The ladder — a scrollless stack of skill "rungs" sorted by level desc.
-     Sized/weighted by tier so hierarchy is instant. No borders, no card. */
+     Sized/weighted by tier so hierarchy is instant. No borders, no card. The
+     first (tier-1) rungs get a faint hairline connecting them on the left —
+     the "signature constellation" of the category. */
   ladder: {
     display: "flex",
     flexDirection: "column",
     gap: 2,
     paddingTop: 6,
+    position: "relative",
+  },
+  constellationLine: {
+    position: "absolute",
+    left: 15, // aligns with index column of rung
+    width: 1,
+    background: "linear-gradient(180deg, transparent, color-mix(in oklab, var(--v3-accent) 60%, transparent), transparent)",
+    boxShadow: "0 0 6px color-mix(in oklab, var(--v3-accent) 50%, transparent)",
+    pointerEvents: "none",
   },
   rung: (tier) => {
     /* Sizes tuned so 15 skills fit the 906px frame: tier 1 ~26, drop through 4. */
@@ -282,6 +293,23 @@ const Detail = memo(function Detail({ catName, list, n, total, reduced }) {
       </div>
 
       <div style={S.ladder}>
+        {/* Constellation line — a single glowing hairline running from the top
+            of the first tier-1 rung to the bottom of the last one, tracing the
+            "signature constellation" of the category. Only drawn if there's more
+            than 1 tier-1 skill; otherwise there'd be nothing to connect. */}
+        {tierCount[1] > 1 && (
+          <motion.div
+            initial={reduced ? { opacity: 1 } : { opacity: 0, scaleY: 0 }}
+            animate={{ opacity: 1, scaleY: 1 }}
+            transition={{ duration: 0.9, delay: 0.15, ease: CINE }}
+            style={{
+              ...S.constellationLine,
+              top: 12,
+              height: `calc(${tierCount[1] * 34}px - 12px)`,
+              transformOrigin: "top",
+            }}
+          />
+        )}
         {sorted.map((s, i) => <Rung key={s.name} s={s} n={i + 1} />)}
       </div>
 

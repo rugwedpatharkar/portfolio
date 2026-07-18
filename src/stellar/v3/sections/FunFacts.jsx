@@ -13,6 +13,7 @@ import { memo, useMemo } from "react";
 import { motion, useReducedMotion } from "motion/react";
 import { funFacts, sectionMeta } from "../../../content";
 import { useCountUp } from "../useCountUp";
+import { useTypewriter } from "../useTypewriter";
 
 const CINE = [0.25, 0.1, 0.25, 1];
 
@@ -153,12 +154,13 @@ export default function FunFactsSection({ bootNonce }) {
   const reduced = useReducedMotion();
   const meta = sectionMeta.funfacts || {};
   const facts = useMemo(() => funFacts || [], []);
+  const kickerText = useTypewriter(meta.sub || "Numbers I've moved", bootNonce);
 
   return (
     <div key={bootNonce} style={S.root}>
       {/* ================== LEFT (masthead) ================== */}
       <div style={S.left}>
-        <div style={S.kicker}>{meta.sub || "Numbers I've moved"}</div>
+        <div style={S.kicker}>{kickerText}<span aria-hidden style={{ opacity: 0.5 }}>▎</span></div>
         <motion.h1
           initial={reduced ? {} : { opacity: 0, y: 14 }}
           animate={{ opacity: 1, y: 0 }}
