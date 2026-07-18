@@ -206,7 +206,7 @@ const ANOMALY_RAW = [
   },
   {
     id: "betelgeuse", label: "Betelgeuse", category: "Red supergiant", color: "#ff6a48", position: [40, 16, -28],
-    info: "Betelgeuse — a red supergiant ~750× the Sun's width. Put it where the Sun is and its surface (~3.5 AU) would engulf Mercury, Venus, Earth, Mars and the entire asteroid belt, reaching most of the way to Jupiter. It's near the end of its life and will go supernova (astronomically soon). In 2025 a close companion star was confirmed, nicknamed Siwarħa.",
+    info: "Betelgeuse — a red supergiant ~750× the Sun's radius (764 R☉ adopted, range 700–880 across studies). Put it where the Sun is and its surface (~3.55 AU) would engulf Mercury, Venus, Earth, Mars and the entire main asteroid belt, reaching about two-thirds of the way to Jupiter (Jupiter is at 5.20 AU). It's near the end of its life and will go supernova (astronomically soon). In 2025 the IAU formally named its long-suspected companion Siwarħa (α Ori B) — 0.6 M☉, orbiting every 5.78 years.",
     visit: { kind: "focus", cameraTarget: frame([40, 16, -28], 14, 3, 46) },
   },
   {

@@ -181,7 +181,7 @@ export const PLANET_FACTS = {
     mass: "~1.5 trillion Suns (dark matter + stars)",
     year: "230 million years — one galactic rotation at Sol's radius",
     day: "—",
-    gravity: "Sgr A* — 4.15 million solar-mass black hole at the core",
+    gravity: "Sgr A* — 4.30 million solar-mass black hole at the core",
     temp: "—",
     atmosphere: "Interstellar medium — hydrogen, dust, molecular clouds",
     moons: "~50 satellite galaxies (LMC, SMC, Sagittarius Dwarf, …)",
@@ -189,7 +189,8 @@ export const PLANET_FACTS = {
     wow: "You're on the Orion Spur — a minor branch between the Sagittarius and Perseus arms. Every star you can see at night is inside this single galaxy. There are ~200 billion more like it.",
     sources: [
       "Gaia Data Release 3 (2022) — DOI:10.1051/0004-6361/202243940",
-      "Reid et al. 2019 — Sgr A* distance 8.15 kpc, DOI:10.3847/1538-4357/ab4a11",
+      "GRAVITY Collaboration 2019 — Sun R₀ = 8.178 kpc, DOI:10.1051/0004-6361/201935656",
+      "GRAVITY Collaboration 2022 — Sgr A* mass 4.297×10⁶ M☉, DOI:10.1051/0004-6361/202142465",
       "EHT Collaboration 2022 — Sgr A* imaged, DOI:10.3847/2041-8213/ac6674",
     ],
   },
