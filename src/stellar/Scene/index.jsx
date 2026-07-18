@@ -48,6 +48,7 @@ import Voyagers from "./Voyagers";
    (Sgr A* homepage marker, distant Andromeda). */
 import BeltDust from "./BeltDust";
 import LocalNeighborhood from "./LocalNeighborhood";
+import NearStarsMotion from "./NearStarsMotion";
 import TrojanAsteroids from "./TrojanAsteroids";
 import OortCloud from "./OortCloud";
 import Heliosphere from "./Heliosphere";
@@ -626,6 +627,7 @@ const Scene = ({ scrollT, finaleT, finale = false, activeIdx, onJump, focusRef, 
         {!finale && showExtras && <Voyagers />}
         {/* Pull-back finale (?finale=1) — the local stellar neighbourhood at true depth. */}
         {finale && <LocalNeighborhood active />}
+        {finale && <NearStarsMotion active />}
         {/* Zodiacal light removed — its 8,500 additive points bloomed into an
             inaccurate white bar flanking the Sun (per user). The real zodiacal
             glow is far too faint to read at this scale. */}
