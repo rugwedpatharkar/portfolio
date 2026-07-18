@@ -20,6 +20,7 @@ import CameraRig from "./CameraRig";
 import AsteroidBelt, { KUIPER_FAMILIES, kuiperWeightsFor } from "./AsteroidBelt";
 import Nebulae from "./Nebulae";
 import Clusters from "./Clusters";
+import StellarNurseries from "./StellarNurseries";
 import VisibilityController from "./VisibilityController";
 import Skybox from "./Skybox";
 import OrbitGroup from "./OrbitGroup";
@@ -559,6 +560,9 @@ const Scene = ({ scrollT, finaleT, finale = false, activeIdx, onJump, focusRef, 
           {/* Star clusters — globular + open at real J2000 positions. Fills
               the sky between nebulae with small yellow/blue fuzzy specks. */}
           {!finale && <Clusters />}
+          {/* Stellar nurseries — Herbig-Haro jets + Orion proplyds +
+              debris disks around nearby stars. */}
+          {!finale && <StellarNurseries />}
           {/* CMB relic radiation — 2.725 K background, faint warm-red glow. */}
           <CMBGlow />
           {/* Zodiacal light — faint warm band along the ecliptic. */}
