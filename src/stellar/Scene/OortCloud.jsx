@@ -6,15 +6,17 @@ import { AU_UNIT } from "../config/destinations";
 /*
  * The Oort cloud — the vast spherical shell of icy bodies that wraps the ENTIRE
  * solar system and is the source of long-period comets (Halley's cousins). The
- * REAL cloud sits ~2,000–100,000 AU out. Rendered here at TRUE INNER-EDGE
- * SCALE: shell centred at 2,000 AU (~8.5 M scene units at AU_UNIT = 4274)
- * with a 1,500 AU thickness, so the visible shell spans the dense inner Hills-
- * cloud region (1,250–2,750 AU) that hosts most of the mass. The outer edge
- * (up to ~100,000 AU = ~427 M units, approaching one light-year) is off-camera
- * at any tour altitude — that's the honest scientific truth of the object.
+ * REAL cloud sits ~2,000–100,000 AU out. Rendered here at TRUE FULL SCALE:
+ * shell centred at 50,000 AU (~214 M scene units at AU_UNIT = 4274) with a
+ * 40,000 AU thickness, spanning ~30,000–70,000 AU — the dense outer spherical
+ * shell that's the classical Oort reservoir. The extreme outer edge (up to
+ * ~100,000 AU ≈ 427 M units, approaching one light-year and roughly one
+ * quarter of the way to Proxima Centauri) is beyond even this generous
+ * rendering. The camera far-clip in Scene/index.jsx is bumped to
+ * accommodate this true scale.
  * Additive, low-opacity, write-once; no per-frame work.
  */
-const OortCloud = ({ count = 1400, radius = 2000 * AU_UNIT, thickness = 1500 * AU_UNIT }) => {
+const OortCloud = ({ count = 1400, radius = 50000 * AU_UNIT, thickness = 40000 * AU_UNIT }) => {
   const geo = useMemo(() => {
     const pos = new Float32Array(count * 3);
     for (let i = 0; i < count; i++) {
@@ -39,7 +41,7 @@ const OortCloud = ({ count = 1400, radius = 2000 * AU_UNIT, thickness = 1500 * A
           possible hint of a cocooning halo, not a glowing bubble. Low opacity +
           small motes so it never frosts over the starfield/nebulae behind it. */}
       <pointsMaterial
-        size={40000}
+        size={800000}
         sizeAttenuation
         color="#c2ccd8"
         transparent

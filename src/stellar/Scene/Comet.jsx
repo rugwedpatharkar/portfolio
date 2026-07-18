@@ -3,6 +3,7 @@ import { useMemo, useRef } from "react";
 import { useFrame } from "@react-three/fiber";
 import * as THREE from "three";
 import { useSceneClock } from "./SceneClock";
+import { AU_UNIT } from "../config/destinations";
 
 /*
  * Halley's Comet (1P/Halley) — the hero comet, on its REAL true-scale orbit and
@@ -16,9 +17,11 @@ import { useSceneClock } from "./SceneClock";
  *     The cone is bowed sideways in the vertex shader (∝ vT²) so its silhouette
  *     sweeps into the classic arc instead of a straight spike.
  *
- * Orbit: Halley's true ellipse at the scene's 1:1 AU scale (AU_UNIT = 95) —
- * a = 17.83 AU, e = 0.967, perihelion q ≈ 0.59 AU (≈56 u, just inside Venus),
- * aphelion Q ≈ 35 AU (≈3332 u, out past Neptune). Eccentric-anomaly
+ * Orbit: Halley's true ellipse at the scene's true 1:1 AU scale (AU_UNIT from
+ * config/destinations.js — 4,274 scene units per AU) — a = 17.834 AU,
+ * e = 0.967, perihelion q ≈ 0.586 AU (~2,500 u, just inside Venus), aphelion
+ * Q ≈ 35.1 AU (~150,100 u, out past Neptune). Real Halley is currently near
+ * aphelion (last perihelion 9 Feb 1986; next 28 Jul 2061). Eccentric-anomaly
  * parametrisation with the Sun at the focus (origin); the MEAN anomaly advances
  * uniformly (Kepler's 2nd law), so it whips through perihelion and crawls at
  * aphelion exactly like the real comet. The tails switch ON only as it dives
@@ -84,20 +87,19 @@ const DUST_FRAG = /* glsl */ `
 
 const UP = new THREE.Vector3(0, 1, 0);
 
-/* Halley's true-scale orbit (AU_UNIT = 95). */
-const AU = 95;
-const SEMI_MAJOR = 17.834 * AU;
+/* Halley's true-scale orbit (using AU_UNIT from config/destinations.js). */
+const SEMI_MAJOR = 17.834 * AU_UNIT;
 const ECC = 0.967;
 const FOCUS_OFFSET = SEMI_MAJOR * ECC; // centre-to-focus, so the Sun sits at the focus
 const SEMI_MINOR = SEMI_MAJOR * Math.sqrt(1 - ECC * ECC);
-const INCLINATION = 24 * (Math.PI / 180); // moderate tilt so it rides the on-screen −X deep field
+const INCLINATION = 24 * (Math.PI / 180); // moderate tilt so it rides the on-screen −X deep field (real Halley i = 162.3° retrograde)
 const MEAN_MOTION = (Math.PI * 2) / 360; // one full orbit per ~360 virtual seconds
 /* Tails were only "on" for ~3.5% of the orbit (a 6s blink at perihelion) AND
    that blink happened on +X, directly behind the backlit camera. Make the comet
    tailed across almost the whole orbit so it's a visible, streaming comet
    wherever it is in the framed deep field. */
-const ACTIVE_R = 28 * AU; // tailed across almost the whole orbit (only fades near aphelion)
-const ACTIVE_PEAK = 6 * AU; // tails ramp to full brightness inside ~6 AU
+const ACTIVE_R = 28 * AU_UNIT; // tailed across almost the whole orbit (only fades near aphelion)
+const ACTIVE_PEAK = 6 * AU_UNIT; // tails ramp to full brightness inside ~6 AU
 
 /* Eccentric-anomaly point on the ellipse, Sun at the focus (origin). Perihelion
    sits on −X (sunward, the on-screen deep field the backlit tour camera frames)

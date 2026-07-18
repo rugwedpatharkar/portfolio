@@ -69,7 +69,7 @@ export const MOONS = [
     facts: { diameter: "4,000 km long", day: "—", wow: "On Earth it would run from California to New York." },
   },
   {
-    id: "moon-s2025u1", parent: "education", label: "S/2025 U1", color: "#9aa8b0", offset: [-1.3, 0.4, 0.6],
+    id: "moon-s2025u1", parent: "testimonials", label: "S/2025 U1", color: "#9aa8b0", offset: [-1.3, 0.4, 0.6],
     info: "S/2025 U1 — a tiny new moon of Uranus (~10 km across) found by JWST in 2025, nudging up Uranus's moon count. So small and dark it hid in plain sight for decades.",
     facts: { diameter: "~10 km", day: "—", wow: "Found by JWST in 2025 — Uranus keeps more secrets the closer we look." },
   },
@@ -81,7 +81,7 @@ export const MOONS = [
     facts: { diameter: "umbra ~100–200 km wide", day: "Feb 17 annular · Aug 12 total", wow: "The Moon is ~400× smaller than the Sun but ~400× closer — so they look the same size, and totality is possible." },
   },
   {
-    id: "moon-titania", parent: "education", label: "Titania", color: "#bcc8c8", offset: [1.5, 0.5, 0.4],
+    id: "moon-titania", parent: "testimonials", label: "Titania", color: "#bcc8c8", offset: [1.5, 0.5, 0.4],
     info: "Titania — Uranus's largest moon, an icy world scarred by huge canyons from an ancient freeze-and-expand.",
     facts: { diameter: "1,578 km", day: "8.7 d", wow: "Canyons longer than Earth's Grand Canyon split its surface." },
   },
@@ -116,28 +116,28 @@ export const MOONS = [
     facts: { diameter: "1,062 km", day: "1.9 d", wow: "Its Ithaca Chasma canyon runs ~2,000 km — three-quarters of the way around it." },
   },
   {
-    id: "moon-umbriel", parent: "education", label: "Umbriel", color: "#9aa4a4", offset: [-1.6, -0.5, 0.5],
+    id: "moon-umbriel", parent: "testimonials", label: "Umbriel", color: "#9aa4a4", offset: [-1.6, -0.5, 0.5],
     info: "Umbriel — the darkest of Uranus's major moons, an ancient cratered world with one mysterious bright ring, 'Wunda', sitting on its equator.",
     facts: { diameter: "1,169 km", day: "4.1 d", wow: "Reflects only ~1 in 6 photons — the moody one of Uranus's moons." },
   },
   /* Uranus's three remaining "Big Five" moons — Ariel, Oberon, Miranda — added
      2026 to close out the classical Uranus system. All at real diameters +
-     orbital periods; parents follow the existing Uranus-moon pattern in this
-     file (`parent: "education"`), which is inconsistent with the semantic
-     Uranus destination id ("testimonials") — see docs/research/00-MASTER.md
-     Appendix A #34. Follow-up commit can normalise all Uranus moons together. */
+     orbital periods. Parents match the semantic Uranus destination id
+     ("testimonials") along with the other Uranus moons (Titania, Umbriel,
+     S/2025 U1) — all normalised together, so MOON_OBJECTS (config/objects.js)
+     places them near Uranus on the overview map. */
   {
-    id: "moon-ariel", parent: "education", label: "Ariel", color: "#c4cfcf", offset: [1.0, -0.4, 0.6],
+    id: "moon-ariel", parent: "testimonials", label: "Ariel", color: "#c4cfcf", offset: [1.0, -0.4, 0.6],
     info: "Ariel — the brightest and geologically youngest of Uranus's Big Five moons. Its surface shows evidence of recent tectonic and cryovolcanic activity: broad valleys resurfaced by upwelling water-ice slurries, unlike the ancient cratered faces of its siblings.",
     facts: { diameter: "1,158 km", day: "2.5 d", wow: "Reflectance ~40% — the brightest of Uranus's classical moons; surface may have been resurfaced within the last billion years." },
   },
   {
-    id: "moon-oberon", parent: "education", label: "Oberon", color: "#a2acac", offset: [-2.1, 0.6, -0.9],
+    id: "moon-oberon", parent: "testimonials", label: "Oberon", color: "#a2acac", offset: [-2.1, 0.6, -0.9],
     info: "Oberon — Uranus's outermost of the Big Five and the second-largest. An ancient, heavily-cratered ice-rock world with a striking ~6 km high mountain and a dark unidentified reddish material coating some crater floors — possibly captured Kuiper-belt debris.",
     facts: { diameter: "1,523 km", day: "13.5 d", wow: "Its highest peak stands 11 km above the surrounding plain — nearly 1½ Everests, on a moon smaller than the UK." },
   },
   {
-    id: "moon-miranda", parent: "education", label: "Miranda", color: "#c8d4d4", offset: [0.7, 0.5, -0.4],
+    id: "moon-miranda", parent: "testimonials", label: "Miranda", color: "#c8d4d4", offset: [0.7, 0.5, -0.4],
     info: "Miranda — the smallest of Uranus's Big Five, with the most bizarre surface in the solar system: patchwork terrain of grooves, cliffs, ovoidal 'coronae' and giant chevron ridges suggesting the moon was catastrophically disrupted then reassembled. Hosts Verona Rupes, the tallest known cliff — a 20 km drop.",
     facts: { diameter: "471 km", day: "1.4 d", wow: "Its Verona Rupes cliff is 20 km high — an object dropped from the top would fall for about 12 minutes before hitting bottom (in Miranda's weak gravity)." },
   },

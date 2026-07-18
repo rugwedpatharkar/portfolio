@@ -453,7 +453,7 @@ const Scene = ({ scrollT, finaleT, finale = false, activeIdx, onJump, focusRef, 
         toneMappingExposure: 1.05,
         outputColorSpace: THREE.SRGBColorSpace,
       }}
-      camera={{ position: [0, 2.5, 11], fov: 52, near: 0.1, far: 12000 * AU_UNIT }}
+      camera={{ position: [0, 2.5, 11], fov: 52, near: 0.1, far: 90000 * AU_UNIT }}
       style={{ position: "fixed", inset: 0, background: "#03050d" }}
       onCreated={({ gl, scene }) => {
         /* Hard guarantee a dark backdrop: explicit clear colour + a
