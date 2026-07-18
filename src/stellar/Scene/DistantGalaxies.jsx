@@ -1,19 +1,25 @@
 /* eslint-disable react/no-unknown-property */
 /*
- * The four naked-eye galaxies of the sky, placed at their real RA/Dec on
- * the same distant sphere the star field + Milky Way band ride on.
- * Rendered as additive elongated sprites with a soft-dot texture — no
+ * The naked-eye + notable-photo galaxies of the sky, placed at their real
+ * RA/Dec on the same distant sphere the star field + Milky Way band ride
+ * on. Rendered as additive sprites with real NASA/ESA/ESO photos — no
  * geometry, no lights, no per-frame cost. Same equatorial ↔ scene
  * transform Stars.jsx / MilkyWay.jsx use, so every sky-fixed layer agrees.
  *
  * Angular sizes are the real values (M31 is 3° across on the sky!), scaled
  * to the shell radius so the fuzzy discs look right at the tour's overview
- * framing. Elongation matches the real inclination as seen from Earth:
+ * framing. Elongation is baked into each photo, so the sprite is square.
  *
- *   M31 (Andromeda)  — RA 00h42.7m, Dec +41.3°, ~3.0° major axis, 3.6:1 e-w
- *   M33 (Triangulum) — RA 01h33.9m, Dec +30.7°, ~1.2° major, 1.7:1
- *   LMC              — RA 05h23.6m, Dec -69.8°, ~10° across, 1.4:1
- *   SMC              — RA 00h52.7m, Dec -72.8°, ~5° across, 2:1
+ *   M31 (Andromeda)  — RA 00h42.7m, Dec +41.3°, ~3.0° major axis (2.5 Mly)
+ *   M33 (Triangulum) — RA 01h33.9m, Dec +30.7°, ~1.2° major     (2.7 Mly)
+ *   LMC              — RA 05h23.6m, Dec −69.8°, ~10° across     (163 kly)
+ *   SMC              — RA 00h52.7m, Dec −72.8°, ~5° across      (200 kly)
+ *   M51 (Whirlpool)  — RA 13h29.9m, Dec +47.2°, ~11' major      (23 Mly)
+ *   M104 (Sombrero)  — RA 12h39.9m, Dec −11.6°, ~8.7' major     (29 Mly)
+ *
+ * Also renders a procedural Virgo Cluster marker at RA 12h27m, Dec +12°43'
+ * — the nearest rich galaxy cluster (~54 Mly, hosts M87 = the first EHT
+ * black-hole image target); no photo texture — a faint warm cluster glow.
  *
  * The Milky Way band (MilkyWay.jsx) sits at r=6800 on the same shell; we
  * ride at 6700 so the galaxies sit just inside the band and blend with it
@@ -27,9 +33,10 @@ import { ktx2Url } from "./shared/textureUrl";
 import { SKY_SCALE } from "../config/destinations";
 
 const R = 6700 * SKY_SCALE;
-/* Real NASA/ESA/ESO photos for the four naked-eye galaxies, index-aligned to
-   GALAXIES below (M31, M33, LMC, SMC). */
-const NAMED_URLS = ["andromeda", "triangulum", "lmc", "smc"].map((t) => `/textures/galaxies/${t}.webp`);
+/* Real NASA/ESA/ESO photos for named galaxies. Index-aligned to GALAXIES
+   below. First 4 are the naked-eye set (M31, M33, LMC, SMC); the next 2
+   are notable-photo deep-field neighbours (M51 Whirlpool, M104 Sombrero). */
+const NAMED_URLS = ["andromeda", "triangulum", "lmc", "smc", "whirlpool", "sombrero"].map((t) => `/textures/galaxies/${t}.webp`);
 const OBLIQUITY = 23.44 * Math.PI / 180;
 
 /* Same equatorial → scene transform Stars.jsx uses so this shares the sky
@@ -76,49 +83,25 @@ const NUCLEUS_SPRITE = makeSoftDot({
   mipmaps: true,
 });
 
-/* Scales bumped dramatically — previous values were true-to-sky at 3°, but
-   at the tour's overview framing that reads as a sub-pixel smear against
-   the bright nebula backdrop. Boosted so galaxies are CLEARLY visible as
-   fuzzy elongated smears from the hero framing. */
+/* Sprite side length per galaxy at the render shell. Elongation and orientation
+   are BAKED INTO EACH PHOTO — the sprite is square and only the `size` scalar
+   matters. Sizes are bumped from raw sky degrees so they're visible at the
+   tour's overview framing (a true 3° M31 reads sub-pixel against the nebula
+   backdrop). Ordering + tex mapping follow NAMED_URLS above. */
 const GALAXIES = [
-  {
-    name: "M31 · Andromeda",
-    raHours: 0.7117, decDeg: 41.269,
-    /* Andromeda is the visual star of this layer. Big elongated disc,
-       high aspect ratio. */
-    scale: [900, 230, 230],
-    nucleusScale: 90,
-    tint: "#fff2d0",
-    nucleusTint: "#ffe4b0",
-    rotation: 2.1,
-  },
-  {
-    name: "M33 · Triangulum",
-    raHours: 1.5642, decDeg: 30.660,
-    scale: [520, 280, 280],
-    nucleusScale: 60,
-    tint: "#f2e8d0",
-    nucleusTint: "#ffd8a0",
-    rotation: 1.7,
-  },
-  {
-    name: "LMC · Large Magellanic Cloud",
-    raHours: 5.3936, decDeg: -69.756,
-    scale: [640, 480, 480],
-    nucleusScale: 130,
-    tint: "#f8e8c8",
-    nucleusTint: "#ffe0a8",
-    rotation: 0.6,
-  },
-  {
-    name: "SMC · Small Magellanic Cloud",
-    raHours: 0.8778, decDeg: -72.828,
-    scale: [400, 260, 260],
-    nucleusScale: 70,
-    tint: "#ecdcbc",
-    nucleusTint: "#ffd8a0",
-    rotation: 1.1,
-  },
+  { name: "M31 · Andromeda",              raHours: 0.7117,  decDeg:  41.269,  size: 900 },  // 2.5 Mly, biggest on sky
+  { name: "M33 · Triangulum",             raHours: 1.5642,  decDeg:  30.660,  size: 520 },  // 2.7 Mly, bound to M31
+  { name: "LMC · Large Magellanic Cloud", raHours: 5.3936,  decDeg: -69.756,  size: 640 },  // 163 kly, MW satellite
+  { name: "SMC · Small Magellanic Cloud", raHours: 0.8778,  decDeg: -72.828,  size: 400 },  // 200 kly, MW satellite
+  { name: "M51 · Whirlpool",              raHours: 13.4979, decDeg:  47.195,  size: 180 },  // 23 Mly, ~460 R_MW deep-field
+  { name: "M104 · Sombrero",              raHours: 12.6663, decDeg: -11.623,  size: 160 },  // 29 Mly, ~586 R_MW deep-field
+];
+
+/* Procedural deep-field cluster markers — no photo, rendered as a faint warm
+   glow at real RA/Dec. Currently only the Virgo Cluster (nearest rich cluster,
+   ~54 Mly, ~1300 members, hosts M87 — the first EHT black-hole image target). */
+const CLUSTERS = [
+  { name: "Virgo Cluster", raHours: 12.4500, decDeg: 12.7167, size: 260, tint: "#ffe8c8", opacity: 0.16 },
 ];
 
 /* JWST-deep-field scatter — many small distant galaxies strewn across the
@@ -189,7 +172,7 @@ const DistantGalaxies = ({ deepField = false }) => {
   useMemo(() => { for (const t of namedTex) t.colorSpace = THREE.SRGBColorSpace; }, [namedTex]);
   const items = useMemo(() => {
     const scratch = new THREE.Vector3();
-    /* The four naked-eye galaxies — now REAL photos. Square sprite sized to the
+    /* Named galaxies — real NASA/ESA/ESO photos. Square sprite sized to the
        galaxy's largest angular extent; the true shape/inclination is baked into
        the photo, so no elongation/rotation needed. */
     const named = GALAXIES.map((g, idx) => {
@@ -197,14 +180,30 @@ const DistantGalaxies = ({ deepField = false }) => {
       return {
         pos: scratch.clone().multiplyScalar(R).toArray(),
         texIndex: idx,
-        scale: Math.max(...g.scale) * 1.15 * SKY_SCALE,
+        scale: g.size * 1.15 * SKY_SCALE,
         opacity: 0.92,
         name: g.name,
       };
     });
-    /* Homepage → add the deep-field scatter behind the galaxy. Tour → just
-       the four real naked-eye galaxies. */
-    return deepField ? [...named, ...makeDeepField(360)] : named;
+    /* Procedural galaxy-cluster markers — no photo, warm cluster glow at real
+       RA/Dec. Rendered via the same "no texIndex → soft procedural disc" path
+       as the deep-field scatter. */
+    const clusters = CLUSTERS.map((c) => {
+      sceneVec(c.raHours, c.decDeg, scratch);
+      return {
+        pos: scratch.clone().multiplyScalar(R).toArray(),
+        scale: [c.size, c.size, c.size].map((s) => s * SKY_SCALE),
+        rotation: 0,
+        tint: c.tint,
+        opacity: c.opacity,
+        nucleusScale: 0,
+        nucleusTint: c.tint,
+        name: c.name,
+      };
+    });
+    /* Homepage → add the deep-field scatter behind the galaxy. Tour → the
+       named + cluster set only. */
+    return deepField ? [...named, ...clusters, ...makeDeepField(2000)] : [...named, ...clusters];
   }, [deepField]);
 
   return (

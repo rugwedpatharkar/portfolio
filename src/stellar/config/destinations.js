@@ -75,7 +75,7 @@ export const DESTINATIONS = [
     /* TRUE-SCALE Sun: its real radius, ≈109× Earth. The whole system is scaled
        up (large AU_UNIT) so this colossal Sun clears the inner orbits. */
     radius: 19.87, // 695,700 km — 109.2× Earth (0.182 × 109.2)
-    color: "#fff2e0", // the Sun is WHITE (5772K); warm-white here, warmth lives in the corona/bloom
+    color: "#FFF5EC", // the Sun is WHITE (5772K blackbody); warm-white here, warmth lives in the corona/bloom (Irwin et al.; IAU nominal T_eff)
     /* HUD accent (Sol gold) — distinct from the near-white body colour.
        Non-planet stops carry `accent`; planets fall back to `color`. */
     accent: "#e9c675",
@@ -112,7 +112,7 @@ export const DESTINATIONS = [
     label: "Venus",
     position: [8.2, -0.2, 1.0],
     radius: 0.173, // 6,052 km — Earth's near-twin
-    color: "#f8c555",
+    color: "#E3DAC2", // pale cream — Bond albedo 0.76, subtle yellow from UV absorber (Planetary Society; Irwin colour physics). NOT saturated gold.
     colorB: "#a0651a",
     texture: "/textures/planets/venusmap.webp",
     bumpTexture: "/textures/planets/venusbump.webp",
@@ -132,6 +132,7 @@ export const DESTINATIONS = [
     label: "Earth",
     position: [11.4, 0.0, -1.4],
     radius: 0.182, // 6,371 km — the reference world
+    lowEarthOrbit: true, // Starlink constellation (~5,000 sats in 2026) + ISS
     color: "#3b6ea8",
     colorB: "#1d3a5e",
     texture: "/textures/planets/earth_atmos.webp",
@@ -226,12 +227,15 @@ export const DESTINATIONS = [
     axialTilt: 3.1 * DEG, // Jupiter spins nearly upright
     oblateness: 0.065, // real polar flattening — Jupiter is visibly squashed by its fast spin
     faintRings: true, // Jupiter's faint dusty ring (real)
+    greatRedSpot: true, // Jupiter's iconic 350-year-old anticyclonic storm at ~22°S
+    plasmaTorus: true, // Io plasma torus — neon-purple ring of ionized S/O from Io's volcanoes
+    aurorae: "jupiter", // brightest aurorae in solar system per Juno UV imaging
     moons: 4, // the four Galilean moons
     moonColor: "#cfc6e0",
     moonScale: 0.045,
     /* The Galilean moons, each distinct (real relative sizes, Ganymede largest). */
     moonSet: [
-      { color: "#e6c84e", scale: 0.05, glow: 0.3 }, // Io — volcanic sulfur-orange
+      { color: "#e6c84e", scale: 0.05, glow: 0.3, volcanoes: true }, // Io — volcanic sulfur-orange + real Pele/Prometheus/Loki/Amirani plumes
       { color: "#e0e6e2", scale: 0.045 },           // Europa — bright icy white
       { color: "#9c8c74", scale: 0.062 },           // Ganymede — largest moon, tan-grey
       { color: "#6f6253", scale: 0.056 },           // Callisto — dark, heavily cratered
@@ -255,6 +259,7 @@ export const DESTINATIONS = [
     axialTilt: 26.7 * DEG, // Saturn's obliquity — tilts the ring plane across the frame
     oblateness: 0.098, // the most oblate planet — ~10% flattened, clearly squashed
     rings: true,
+    aurorae: "saturn", // H₂ emission UV auroral ovals ringing both poles
     ringTexture: "/textures/planets/saturnringcolor.webp",
     ringColor: "#f8c555",
     moons: 6,
@@ -263,7 +268,7 @@ export const DESTINATIONS = [
        tiny, brilliant water-ice; + Rhea/Iapetus/Dione/Tethys (next-biggest). */
     moonSet: [
       { color: "#d99a4a", scale: 0.052 }, // Titan — orange haze
-      { color: "#eef3f1", scale: 0.022 }, // Enceladus — bright icy
+      { color: "#eef3f1", scale: 0.022, geysers: true }, // Enceladus — bright icy + south-pole water plumes
       { color: "#cdd2d0", scale: 0.016 }, // Rhea — cratered ice
       { color: "#8a7f70", scale: 0.015 }, // Iapetus — two-tone
       { color: "#d4dad8", scale: 0.012 }, // Dione — wispy ice cliffs
@@ -293,6 +298,7 @@ export const DESTINATIONS = [
     axialTilt: 97.8 * DEG, // Uranus rolls on its side — the real ~98° obliquity
     oblateness: 0.023, // real flattening
     faintRings: true, // Uranus's narrow rings ride near-vertical with its tilt
+    aurorae: "uranus", // near-IR H₃⁺ auroral ovals (JWST-imaged 2023)
 
     moons: 5,
     moonColor: "#d0ccea",
@@ -314,7 +320,7 @@ export const DESTINATIONS = [
     label: "Neptune",
     position: [39.0, 0.4, 0.8],
     radius: 0.704, // 24,622 km — Uranus's near-twin
-    color: "#7fb0c4", // real Neptune: PALE greenish-blue, only slightly bluer than Uranus (2024 Oxford true-color study)
+    color: "#9FC4D4", // real Neptune: PALE greenish-blue, near-Uranus twin (Irwin et al. 2024, MNRAS 527, 11521 — Oxford true-colour study)
     colorB: "#5688a0",
     texture: "/textures/planets/neptunemap_hd.webp",
     bumpTexture: "/textures/planets/neptune_bump.webp",
@@ -327,6 +333,9 @@ export const DESTINATIONS = [
     axialTilt: 28.3 * DEG, // Neptune's obliquity, close to Earth's
     oblateness: 0.017, // real flattening
     faintRings: true, // Neptune's faint rings + arcs (real)
+    adamsArcs: true, // Voyager 2 saw Liberté/Égalité/Fraternité — dust bunches on the Adams ring
+    aurorae: "neptune", // JWST 2025 mid-latitude aurora (magnetic axis offset 47° from spin)
+
     moons: 2, // Triton (large) + Nereid (small, highly eccentric)
     moonColor: "#b8d4ee",
     moonScale: 0.07,
@@ -431,9 +440,15 @@ const AU = {
 /* The asteroid + Kuiper belts are no longer tour stops — they render as
    background scenery (Scene/index.jsx) at these true AU ranges (× AU_UNIT). */
 export const BACKGROUND_BELTS = {
-  // Real spans (main belt ~2.1–3.3 AU, Kuiper ~30–50 AU) rendered as FAT tori —
-  // a real vertical thickness from inclination dispersion (not a thin ribbon),
-  // so they read as the dense dusty donuts the reference imagery shows.
+  // Real spans (main belt ~2.1–3.3 AU, Kuiper ~30–50 AU) rendered as FAT tori.
+  // Physically the belts are ALMOST EMPTY — main belt is ~3% of Moon-mass with
+  // ~1 million km between typical asteroids (every probe that's crossed one
+  // — Pioneer, Voyagers, Galileo, Dawn — went through untouched). Vertical
+  // thickness comes from real inclination dispersion. The instanced rocks
+  // (Scene/AsteroidBelt.jsx) carry the taxonomic + Kirkwood/cliff structure;
+  // the BeltDust layer is a faint additive haze so the belt reads as
+  // "suggested" at overview zoom, not a solid ring — see docs/research/
+  // 02-small-bodies-and-interplanetary-medium.md §3.2, §5.1.
   asteroid: { inner: 2.1 * AU_UNIT, outer: 3.3 * AU_UNIT, thickness: 36, color: "#6f645a" }, // C-type-weighted dark grey-brown (belt is ~75% dark carbonaceous)
   kuiper: { inner: 30 * AU_UNIT, outer: 50 * AU_UNIT, thickness: 320, color: "#8a7360" }, // red-to-neutral (tholins) — Kuiper objects are NEVER blue
 };

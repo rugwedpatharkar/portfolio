@@ -19,6 +19,9 @@ import Planet from "./Planet";
 import CameraRig from "./CameraRig";
 import AsteroidBelt, { KUIPER_FAMILIES, kuiperWeightsFor } from "./AsteroidBelt";
 import Nebulae from "./Nebulae";
+import Clusters from "./Clusters";
+import StellarNurseries from "./StellarNurseries";
+import ProceduralNebulae from "./ProceduralNebulae";
 import VisibilityController from "./VisibilityController";
 import Skybox from "./Skybox";
 import OrbitGroup from "./OrbitGroup";
@@ -41,6 +44,9 @@ import DustLanes from "./DustLanes";
 import HomepageGalaxies from "./HomepageGalaxies";
 import { makeSoftDot } from "./shared/textures";
 import BlackHole from "./anomalies/BlackHole";
+import TimeDilationHUD from "./TimeDilationHUD";
+import PaleBlueDotAnnotation from "./PaleBlueDotAnnotation";
+import CassiniFinale from "./CassiniFinale";
 import Voyagers from "./Voyagers";
 /* BlackHole + SpiralGalaxy removed from the tour — nearest black hole is
    1,560 ly away (Gaia BH1), nothing sits "just past Pluto". Milky Way seen
@@ -48,10 +54,16 @@ import Voyagers from "./Voyagers";
    (Sgr A* homepage marker, distant Andromeda). */
 import BeltDust from "./BeltDust";
 import LocalNeighborhood from "./LocalNeighborhood";
+import NearStarsMotion from "./NearStarsMotion";
+import ThreeIAtlas from "./ThreeIAtlas";
+import SolarCMEs from "./SolarCMEs";
+import CMBGlow from "./CMBGlow";
+import SpaceAudio from "./SpaceAudio";
 import TrojanAsteroids from "./TrojanAsteroids";
 import OortCloud from "./OortCloud";
 import Heliosphere from "./Heliosphere";
 import LocalInterstellarCloud from "./LocalInterstellarCloud";
+import LocalBubble from "./LocalBubble";
 import MilkyWay from "./MilkyWay";
 import DustParticles from "./DustParticles";
 import AdaptiveQuality from "./AdaptiveQuality";
@@ -68,7 +80,7 @@ import KeyLight from "./KeyLight";
 import MouseParallax from "./MouseParallax";
 import SafeLoad from "./SafeLoad";
 import useViewport from "../useViewport";
-import { DESTINATIONS, BACKGROUND_BELTS, SKY_SCALE } from "../config/destinations";
+import { DESTINATIONS, BACKGROUND_BELTS, SKY_SCALE, AU_UNIT } from "../config/destinations";
 import { rotationSpeedFor } from "../config/planetData";
 import { SCENE_OBJECTS } from "./registry";
 
@@ -452,7 +464,7 @@ const Scene = ({ scrollT, finaleT, finale = false, activeIdx, onJump, focusRef, 
         toneMappingExposure: 1.05,
         outputColorSpace: THREE.SRGBColorSpace,
       }}
-      camera={{ position: [0, 2.5, 11], fov: 52, near: 0.1, far: 14000 * SKY_SCALE }}
+      camera={{ position: [0, 2.5, 11], fov: 52, near: 0.1, far: 90000 * AU_UNIT }}
       style={{ position: "fixed", inset: 0, background: "#03050d" }}
       onCreated={({ gl, scene }) => {
         /* Hard guarantee a dark backdrop: explicit clear colour + a
@@ -550,6 +562,34 @@ const Scene = ({ scrollT, finaleT, finale = false, activeIdx, onJump, focusRef, 
               view its ~640 soft coreless discs read as distracting floating white
               smudges over the planets (user complaint), so it's dropped here. */}
           {!finale && <DistantGalaxies />}
+          {/* Star clusters — globular + open at real J2000 positions. Fills
+              the sky between nebulae with small yellow/blue fuzzy specks. */}
+          {!finale && <Clusters />}
+          {/* Stellar nurseries — Herbig-Haro jets + Orion proplyds +
+              debris disks around nearby stars. */}
+          {/* Pale Blue Dot annotation — Voyager 1's 1990 image caption
+              near Earth (achievements stop = idx 5). */}
+          {activeIdx === 5 && (
+            <PaleBlueDotAnnotation position={DESTINATIONS[5].position} radius={0.182} />
+          )}
+          {/* Cassini Grand Finale annotation at Saturn (activeIdx === 9)
+              when the URL flag ?cassini=1 is set. */}
+          {activeIdx === 9 && typeof window !== "undefined" && new URLSearchParams(window.location.search).get("cassini") === "1" && (
+            <CassiniFinale position={DESTINATIONS[9].position} radius={1.666} />
+          )}
+          {/* Procedural large extended nebulae — Barnard's Loop, Gum,
+              Vela SNR, Cygnus X, Rho Oph — soft additive glows so the
+              Milky-Way band has body across Orion / Vela / Cygnus. */}
+          {!finale && <ProceduralNebulae />}
+          {!finale && <StellarNurseries />}
+          {/* CMB relic radiation — 2.725 K background, faint warm-red glow. */}
+          <CMBGlow />
+          {/* Procedural sound design — solar-wind bed + pulsar clicks + kilonova
+              chirp + Golden Record cue. Enabled via ?audio=1 URL flag. */}
+          <SpaceAudio
+            enabled={typeof window !== "undefined" && new URLSearchParams(window.location.search).get("audio") === "1"}
+            activeIdx={activeIdx}
+          />
           {/* Zodiacal light — faint warm band along the ecliptic. */}
           {showExtras && <ZodiacalLight />}
           {/* HeroDust moved OFF the tour — its camera-riding motes read as "white
@@ -604,11 +644,17 @@ const Scene = ({ scrollT, finaleT, finale = false, activeIdx, onJump, focusRef, 
           </>
         )}
         {/* Tour — extra comets sweeping the outer system (alongside Halley),
-            faster respawn so the tour sky stays alive. */}
+            faster respawn so the tour sky stays alive. Plus 3I/ATLAS on its
+            REAL Kepler-hyperbolic orbit (see ThreeIAtlas.jsx). */}
         {!isMilkyway && !isMobile && !reducedMotion && !finale && (
           <>
             <AtlasComet start={[1500, 320, 980]} vel={[-270, -34, -170]} coma="#bfe0ff" ion="#cfe6ff" dust="#e8e0ff" respawn={720} />
             <AtlasComet start={[-1400, -260, 1100]} vel={[250, 40, -190]} coma="#e2dcff" ion="#dce6ff" dust="#fff0e0" respawn={900} />
+            <ThreeIAtlas />
+            {/* Solar coronal mass ejections — bright plasma bursts from the
+                Sun's limb, sells "the Sun is alive." Positioned at origin
+                where the Sun sits. */}
+            <SolarCMEs />
           </>
         )}
         {/* Distant galaxies pinned to the frame's empty regions (left column +
@@ -625,6 +671,7 @@ const Scene = ({ scrollT, finaleT, finale = false, activeIdx, onJump, focusRef, 
         {!finale && showExtras && <Voyagers />}
         {/* Pull-back finale (?finale=1) — the local stellar neighbourhood at true depth. */}
         {finale && <LocalNeighborhood active />}
+        {finale && <NearStarsMotion active />}
         {/* Zodiacal light removed — its 8,500 additive points bloomed into an
             inaccurate white bar flanking the Sun (per user). The real zodiacal
             glow is far too faint to read at this scale. */}
@@ -719,6 +766,11 @@ const Scene = ({ scrollT, finaleT, finale = false, activeIdx, onJump, focusRef, 
                 grade={d.grade}
                 rings={d.rings}
                 faintRings={d.faintRings}
+                adamsArcs={d.adamsArcs}
+                greatRedSpot={d.greatRedSpot}
+                plasmaTorus={d.plasmaTorus}
+                aurorae={d.aurorae}
+                lowEarthOrbit={d.lowEarthOrbit}
                 ringColor={d.ringColor}
                 axialTilt={d.axialTilt || 0}
                 oblateness={d.oblateness || 0}
@@ -781,7 +833,12 @@ const Scene = ({ scrollT, finaleT, finale = false, activeIdx, onJump, focusRef, 
                itself, invisible at every other stop including Pluto. */
             const p = d.position;
             if (d.render === "blackhole" && activeIdx === 13)
-              return <BlackHole key={d.id} position={p} radius={d.radius} nebula jets animate={!reducedMotion} onPointerOver={handleHoverIn} onPointerOut={handleHoverOut} />;
+              return (
+                <group key={d.id}>
+                  <BlackHole position={p} radius={d.radius} nebula jets animate={!reducedMotion} onPointerOver={handleHoverIn} onPointerOut={handleHoverOut} />
+                  <TimeDilationHUD position={p} />
+                </group>
+              );
             return null;
           }
           return null;
@@ -845,21 +902,26 @@ const Scene = ({ scrollT, finaleT, finale = false, activeIdx, onJump, focusRef, 
              near 48 AU. Count bumped for density. */
           <AsteroidBelt count={11000} innerRadius={BACKGROUND_BELTS.kuiper.inner} outerRadius={BACKGROUND_BELTS.kuiper.outer} size={0.55} thickness={BACKGROUND_BELTS.kuiper.thickness} families={KUIPER_FAMILIES} weights={kuiperWeightsFor} clumps={KUIPER_CLUMPS} cliff animate={!reducedMotion} />
         )}
-        {/* Dust haze — tier 4 (mounts last + alone). Still substantial so the
-            band reads as haze rather than empty space. */}
+        {/* Dust haze — tier 4 (mounts last + alone). SPARSE — real belts
+            average ~1 million km between bodies (main belt) and are even
+            emptier in the Kuiper zone. The dust reads as a faint scatter,
+            NOT a solid dusty band. Prior "dense donut" density retired. */}
         {showDust && (
-          <BeltDust count={isMobile ? 8000 : 18000} innerRadius={BACKGROUND_BELTS.asteroid.inner} outerRadius={BACKGROUND_BELTS.asteroid.outer} thickness={BACKGROUND_BELTS.asteroid.thickness} color={BACKGROUND_BELTS.asteroid.color} size={2.6} opacity={0.15} gaps={KIRKWOOD_GAPS} animate={!reducedMotion} />
+          <BeltDust count={isMobile ? 2500 : 5000} innerRadius={BACKGROUND_BELTS.asteroid.inner} outerRadius={BACKGROUND_BELTS.asteroid.outer} thickness={BACKGROUND_BELTS.asteroid.thickness} color={BACKGROUND_BELTS.asteroid.color} size={2.6} opacity={0.10} gaps={KIRKWOOD_GAPS} animate={!reducedMotion} />
         )}
         {showDust && !isMobile && (
-          <BeltDust count={12000} innerRadius={BACKGROUND_BELTS.kuiper.inner} outerRadius={BACKGROUND_BELTS.kuiper.outer} thickness={BACKGROUND_BELTS.kuiper.thickness} color={BACKGROUND_BELTS.kuiper.color} size={2.3} opacity={0.14} cliff animate={!reducedMotion} />
+          <BeltDust count={3500} innerRadius={BACKGROUND_BELTS.kuiper.inner} outerRadius={BACKGROUND_BELTS.kuiper.outer} thickness={BACKGROUND_BELTS.kuiper.thickness} color={BACKGROUND_BELTS.kuiper.color} size={2.3} opacity={0.09} cliff animate={!reducedMotion} />
         )}
         {/* Tenuous gas/dust clouds — tier 3 (big, faint, soft; distance-faded by
-            the same shader so they never bloom into a bar). Desktop only. */}
+            the same shader so they never bloom into a bar). Desktop only.
+            Trimmed to a whisper — real interplanetary dust does exist along
+            the ecliptic (zodiacal light) but concentration in the belts
+            themselves is sparse. */}
         {showEggs && !isMobile && !shedHeavy && (
-          <BeltDust count={3200} innerRadius={BACKGROUND_BELTS.asteroid.inner} outerRadius={BACKGROUND_BELTS.asteroid.outer} thickness={BACKGROUND_BELTS.asteroid.thickness * 1.4} color="#8a7a64" size={16} opacity={0.04} drift={0.008} gaps={KIRKWOOD_GAPS} animate={!reducedMotion} />
+          <BeltDust count={900} innerRadius={BACKGROUND_BELTS.asteroid.inner} outerRadius={BACKGROUND_BELTS.asteroid.outer} thickness={BACKGROUND_BELTS.asteroid.thickness * 1.4} color="#8a7a64" size={16} opacity={0.03} drift={0.008} gaps={KIRKWOOD_GAPS} animate={!reducedMotion} />
         )}
         {showEggs && !isMobile && !shedHeavy && (
-          <BeltDust count={2600} innerRadius={BACKGROUND_BELTS.kuiper.inner} outerRadius={BACKGROUND_BELTS.kuiper.outer} thickness={BACKGROUND_BELTS.kuiper.thickness * 1.3} color="#6a7e9e" size={20} opacity={0.04} drift={0.006} cliff animate={!reducedMotion} />
+          <BeltDust count={800} innerRadius={BACKGROUND_BELTS.kuiper.inner} outerRadius={BACKGROUND_BELTS.kuiper.outer} thickness={BACKGROUND_BELTS.kuiper.thickness * 1.3} color="#6a7e9e" size={20} opacity={0.03} drift={0.006} cliff animate={!reducedMotion} />
         )}
         {/* Jupiter's Trojan asteroids — two swarms 60° ahead/behind Jupiter at
             the L4/L5 Lagrange points (true orbital radius). */}
@@ -871,6 +933,7 @@ const Scene = ({ scrollT, finaleT, finale = false, activeIdx, onJump, focusRef, 
         {showExtras && <OortCloud count={isMobile ? 1600 : 4200} />}
         {showExtras && !isMobile && <Heliosphere />}
         {showExtras && !isMobile && activeIdx >= 10 && <LocalInterstellarCloud />}
+        {showExtras && !isMobile && activeIdx >= 10 && <LocalBubble />}
         {/* Real solar eclipses — Earth's actual Moon + any planet you fly
             behind occlude the Sun (corona + chromosphere + diamond-ring). */}
         {showExtras && <SolarEclipse satelliteRef={moonWorldRef} eclipseRef={eclipseRef} reducedMotion={reducedMotion} active={!isMilkyway} />}

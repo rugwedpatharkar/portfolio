@@ -5,9 +5,11 @@ import * as THREE from "three";
 import { makeSoftDot } from "./shared/textures";
 
 /*
- * Dense dust band for a belt — tens of thousands of tiny additive points filling
- * the torus volume, so the belt reads as a continuous dusty band whose brightness
- * comes from density (discrete rocks alone read as sparse specks). One draw call.
+ * Faint dust HAZE for a belt — a few thousand tiny additive points scattered
+ * through the torus volume, so the belt reads as SUGGESTED rather than empty.
+ * One draw call. Density has been trimmed hard because real belts are ~empty
+ * (main belt: ~3% of Moon-mass, ~1 M km between bodies; Kuiper: sparser
+ * still) — the goal here is a whisper of dust, not a solid dusty band.
  *
  * DISTANCE BEHAVIOUR (the important part): a custom shader gives each point
  *   (a) size attenuation, CLAMPED — full size up close (so flying through the
@@ -19,7 +21,7 @@ import { makeSoftDot } from "./shared/textures";
  * full-size additive points pile onto the same pixels, the sum rockets past the
  * Bloom threshold, and the belt glows like a solid bar of light — wrong (they're
  * dark asteroids, not stars). Shrinking + fading distant dust keeps it a faint
- * haze far away while staying dense up close.
+ * haze far away while staying subtle up close.
  */
 
 /* Soft circular sprite (radial gradient) — shared module-level singleton so every

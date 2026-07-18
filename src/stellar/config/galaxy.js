@@ -11,10 +11,11 @@
  * time via LY_UNIT (see config/scaleRegimes.js). Nothing in the running scene
  * imports this yet — it cannot regress the app.
  *
- * Provenance: docs/galaxy/astronomy-milky-way.md (every value cited there).
+ * Provenance: docs/galaxy/astronomy-milky-way.md + docs/research/03-milky-way-structure.md.
  *   Bland-Hawthorn & Gerhard 2016 (structure); Reid et al. 2019 BeSSeL (arms);
- *   Wegg/Gerhard/Portail 2015 (bar); GRAVITY 2019 (Sun R0, Sgr A* mass);
- *   IAU 1958 galactic coordinate frame.
+ *   Wegg/Gerhard/Portail 2015 (bar); GRAVITY 2019 (Sun R₀ 8.178 kpc);
+ *   GRAVITY 2022 (Sgr A* mass 4.297×10⁶ M☉ — the value used here, superseding
+ *   the 2019 measurement of 4.154×10⁶); IAU 1958 galactic coordinate frame.
  */
 
 const KPC_TO_LY = 3261.56;
@@ -41,7 +42,7 @@ export const GALAXY = {
 
   // Supermassive black hole at the galactic center — used as the core DIRECTION
   // (where the band peaks), not a place we fly to. Direction == galacticCenter below.
-  sgrA: { massSolar: 4.3e6, raHours: 17.7611, decDeg: -29.0078 },
+  sgrA: { massSolar: 4.3e6 /* GRAVITY 2022: 4.297×10⁶ M☉ */, raHours: 17.7611, decDeg: -29.0078 },
 
   // Fixes the band's great circle on OUR sky. Equatorial (ICRS, J2000); the
   // renderer applies the same obliquity rotation Stars.jsx uses.

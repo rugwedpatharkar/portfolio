@@ -9,11 +9,14 @@
  *   facts      — 2-3 short, verified "notable" facts (rotates in the V3Editorial
  *                card, one at a time)
  *
- * Keyed by destination.id (matches PLANET_FACTS). The mapping is:
- *   sol → Sun, about → Mercury, funfacts → Venus, experience → Earth,
- *   projects → Mars, achievements → Ceres, skills → Jupiter, notes → Saturn,
- *   education → Uranus, hobbies → Neptune, testimonials → Pluto,
- *   contact → the heliopause boundary (Voyager crossing).
+ * Keyed by destination.id (matches PLANET_FACTS + destinations.js). Current
+ * mapping (as of 2026):
+ *   impact → Sun,          experience → Mercury,     projects → Venus,
+ *   achievements → Earth,  skills → Mars,            writing → Ceres,
+ *   education → Jupiter,   hobbies → Saturn,         testimonials → Uranus,
+ *   whatsetsmeapart → Neptune,                       contact → Pluto,
+ *   hero → Milky Way (homepage),
+ *   kuiper / oort → retired tour stops (data kept for scenery + future re-mount).
  *
  * Content style: elegant, brief, verifiable. Quotes are best-known / most
  * on-brand for each body — the recruiter should walk away with one specific

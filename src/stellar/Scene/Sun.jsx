@@ -80,8 +80,23 @@ const SUN_FRAG = /* glsl */ `
     return v;
   }
 
+  /* Differential rotation — the Sun is NOT a rigid body. Its equator rotates
+     once every ~25 days; its poles take ~34 days. The angular-velocity ratio
+     ω(pole)/ω(equator) ≈ 25/34 ≈ 0.735, so we model ω(lat) = ω_eq × (1 −
+     0.265 × sin²(lat)). Applied here as a per-fragment longitude shear of the
+     surface direction BEFORE noise sampling — features at the equator drift
+     faster across the disc than features near the poles, exactly as SDO/HMI
+     tracks show. */
+  uniform float uSpin;
+  vec3 diffRotDir(vec3 d) {
+    float latSin2 = d.y * d.y;                       // sin²(lat) via unit-vector y
+    float phi = uSpin * (1.0 - 0.265 * latSin2);     // longitude shear at this latitude
+    float c = cos(phi), s = sin(phi);
+    return vec3(d.x * c + d.z * s, d.y, -d.x * s + d.z * c);
+  }
+
   void main() {
-    vec3 dir = normalize(vPos);
+    vec3 dir = diffRotDir(normalize(vPos));
 
     /* Domain-warped convection granulation, slowly boiling. Warp uses two
        cheap snoise samples (not full FBM) to keep the fragment cost low —
@@ -187,6 +202,10 @@ const Sun = ({
       uHot: { value: new THREE.Color(euvMode ? "#fff2c8" : "#fff6e8") },
       uMid: { value: new THREE.Color(euvMode ? "#ff9a3c" : "#ffdca2") },
       uCool: { value: new THREE.Color(euvMode ? "#a83a10" : "#e0954c") },
+      /* Differential rotation phase — advances in useFrame at a rate calibrated
+         to the equatorial 25-day period. Latitude-dependence lives in the
+         shader; here we just supply the equatorial angular position. */
+      uSpin: { value: 0 },
     }),
     [euvMode]
   );
@@ -201,9 +220,12 @@ const Sun = ({
        real granules turn over in minutes — too slow at 1:1), and the disc
        slowly rotates. */
     const t = animate ? sceneClock.t : 0;
-    if (meshRef.current && animate) meshRef.current.rotation.y += 0.0011 * sceneClock.scale;
+    /* Mesh spin retired — the previous rigid 0.0011 rad/frame is replaced by
+       shader-side differential rotation (uSpin) so features near the equator
+       drift faster than the poles, matching real SDO/HMI Doppler tracks. */
     if (matRef.current) {
       matRef.current.uniforms.uTime.value = t * 2.6;
+      matRef.current.uniforms.uSpin.value = t * 0.055; // equatorial phase (rad/scene-sec)
       matRef.current.uniforms.uCameraPos.value.copy(camera.position);
       /* §7 Sun LOD — 1.0 near, 0.0 far. Threshold 500u chosen because the
          inner planet stops all sit within 50u; the outer stops + overview

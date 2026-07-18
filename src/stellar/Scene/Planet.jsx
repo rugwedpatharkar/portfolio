@@ -5,8 +5,52 @@ import * as THREE from "three";
 import PlanetMaterial from "./PlanetMaterial";
 import AtmosphereGlow from "./AtmosphereGlow";
 import RingSystem from "./RingSystem";
+import IoPlasmaTorus from "./IoPlasmaTorus";
+import GiantAurorae from "./GiantAurorae";
+import EnceladusGeysers from "./EnceladusGeysers";
+import IoVolcanoes from "./IoVolcanoes";
+import LowEarthOrbit from "./LowEarthOrbit";
 import { useSceneClock } from "./SceneClock";
 import { ktx2Urls } from "./shared/textureUrl";
+
+/* Jupiter's Great Red Spot swirl texture — a soft red-orange oval with a
+   handful of curved bands so the sprite's material-rotation reads as an
+   actually-rotating storm rather than a symmetric dot. Overlaid on top of
+   Jupiter's baked GRS at ~22°S; the baked GRS carries the storm's
+   position, and this overlay adds the visible internal rotation
+   (~6-day period compressed to tour timescale). */
+function makeGRSSwirl(size = 128) {
+  if (typeof document === "undefined") return null;
+  const cv = document.createElement("canvas");
+  cv.width = cv.height = size;
+  const ctx = cv.getContext("2d");
+  const c = size / 2;
+  const bg = ctx.createRadialGradient(c, c, 0, c, c, size * 0.5);
+  bg.addColorStop(0, "rgba(238, 128, 82, 0.85)");
+  bg.addColorStop(0.55, "rgba(178, 76, 46, 0.42)");
+  bg.addColorStop(1, "rgba(120, 50, 30, 0)");
+  ctx.fillStyle = bg;
+  ctx.beginPath();
+  ctx.ellipse(c, c, size * 0.48, size * 0.34, 0, 0, Math.PI * 2);
+  ctx.fill();
+  /* Swirl bands — offset arcs at successive radii, each rotated to break
+     radial symmetry so the sprite's material.rotation is visible. */
+  ctx.strokeStyle = "rgba(255, 208, 172, 0.55)";
+  ctx.lineWidth = size * 0.024;
+  ctx.lineCap = "round";
+  for (let i = 0; i < 4; i++) {
+    ctx.beginPath();
+    const r = size * (0.14 + i * 0.07);
+    const a0 = i * Math.PI * 0.35;
+    ctx.arc(c, c, r, a0, a0 + Math.PI * 0.85);
+    ctx.stroke();
+  }
+  const tex = new THREE.CanvasTexture(cv);
+  tex.colorSpace = THREE.SRGBColorSpace;
+  tex.needsUpdate = true;
+  return tex;
+}
+const GRS_SWIRL = makeGRSSwirl(128);
 
 /* Atmosphere preset per planet type. With bloom on, the rim will glow
    secondarily on its own — keep intensities moderate so atmospheres
@@ -72,6 +116,11 @@ const Planet = ({
   animate = true,
   rings = false,
   faintRings = false, // Jupiter / Uranus / Neptune all have real, faint rings
+  adamsArcs = false, // Neptune only — bright dust bunches on the Adams ring
+  greatRedSpot = false, // Jupiter only — visibly spinning storm at ~22°S
+  plasmaTorus = false, // Jupiter only — Io's neon-purple sulfur ring
+  aurorae = null, // "jupiter" | "saturn" | "uranus" | "neptune" — giant-planet polar aurorae
+  lowEarthOrbit = false, // Earth only — Starlink constellation + ISS
   ringColor,
   axialTilt = 0,
   oblateness = 0, // polar flattening (Jupiter 0.065, Saturn 0.098) — real gas-giant squash
@@ -91,6 +140,8 @@ const Planet = ({
   const groupRef = useRef();
   const planetRef = useRef();
   const cloudRef = useRef();
+  const grsRef = useRef(); // Jupiter's Great Red Spot swirl (only used when greatRedSpot=true)
+  const adamsArcsRef = useRef(); // Neptune's Adams-ring arcs (only used when adamsArcs=true)
   const moonsRef = useRef([]);
   const sceneClock = useSceneClock();
 
@@ -218,6 +269,16 @@ const Planet = ({
       }
     }
     if (cloudRef.current) cloudRef.current.rotation.y += dt * rotationSpeed * 1.35;
+    /* Great Red Spot internal storm rotation — real GRS takes ~6 Jupiter-days
+       per rotation, so on top of Jupiter's own spin the storm churns at
+       roughly rotationSpeed × (1 / 6-days-in-Jupiter-days) ≈ rotationSpeed /
+       14.4. Slightly amplified so the swirl is legibly rotating during a
+       Jupiter stop of ~10-30 scene-seconds. */
+    if (grsRef.current) grsRef.current.material.rotation += dt * rotationSpeed * 0.14;
+    /* Neptune Adams-ring arcs — slowly drift around the Adams ring at the
+       real 42:43 resonance rate with Galatea (the shepherd moon). At tour
+       compression this reads as a stately clockwise rotation. */
+    if (adamsArcsRef.current) adamsArcsRef.current.rotation.z += dt * rotationSpeed * 0.11;
     moonsRef.current.forEach((m, i) => {
       if (m) {
         const t = m.userData.t + dt * (0.25 + (i % 3) * 0.05);
@@ -282,6 +343,12 @@ const Planet = ({
           roughness={tex ? 0.9 : 0.7}
           metalness={tex ? 0.04 : 0.1}
         />
+        {/* Enceladus south-pole water-ice geysers — rendered as a child of
+            the moon mesh so they ride Enceladus's orbit around Saturn and
+            inherit any tilt. */}
+        {md?.geysers && <EnceladusGeysers radius={radius * ms} />}
+        {/* Io — real named volcano plumes (Pele/Prometheus/Loki/Amirani). */}
+        {md?.volcanoes && <IoVolcanoes radius={radius * ms} />}
       </mesh>
     );
   }
@@ -363,6 +430,24 @@ const Planet = ({
         {/* Surface markers (e.g. the Pune pin) ride here so they inherit the
             planet's daily rotation + axial tilt. */}
         {children}
+        {/* Great Red Spot — Jupiter only. Sits at ~22°S on the planet
+            surface (sin(-22°) = -0.375, cos(-22°) = 0.927). The sprite
+            rides Jupiter's rotation via the parent mesh; its own
+            material.rotation (see useFrame) advances at ~6-day period so
+            the swirl visibly churns on top of the baked GRS. */}
+        {greatRedSpot && GRS_SWIRL && (
+          <sprite ref={grsRef} position={[0, -radius * 0.375, radius * 0.927]} scale={[radius * 0.32, radius * 0.24, 1]}>
+            <spriteMaterial
+              map={GRS_SWIRL}
+              color="#e58254"
+              transparent
+              opacity={0.55}
+              depthWrite={false}
+              blending={THREE.AdditiveBlending}
+              toneMapped={false}
+            />
+          </sprite>
+        )}
       </mesh>
 
       {/* Cloud layer for Earth — slightly larger sphere with cloud texture.
@@ -431,7 +516,12 @@ const Planet = ({
           Opacity boosted from the "physically-accurate-invisible" range
           (0.06–0.10) — at real values a bright Orion/Carina backdrop shows
           straight through them. These are still "faint" per real physics but
-          now visibly occlude the sky behind. */}
+          now visibly occlude the sky behind.
+          When `adamsArcs` is set (Neptune), the outer ring is punctuated by
+          the real Adams-ring arc concentrations — Voyager 2 saw four distinct
+          dust bunches (Courage, Liberté, Égalité 1 & 2, Fraternité) held in a
+          42:43 resonance with Galatea. Rendered as three brighter azimuthal
+          sectors on the outer band. */}
       {faintRings && (
         <group rotation={[Math.PI / 2.05, 0, 0]}>
           <mesh>
@@ -442,8 +532,35 @@ const Planet = ({
             <ringGeometry args={[radius * 1.98, radius * 2.12, 96]} />
             <meshBasicMaterial color={rColor} transparent opacity={0.22} side={THREE.DoubleSide} depthWrite={false} toneMapped={false} />
           </mesh>
+          {adamsArcs && (
+            /* Three bright arcs at the outer (Adams) ring — Liberté / Égalité
+               / Fraternité, the three brightest of Neptune's four dust bunches.
+               Wrapped in a rotating group so they slowly orbit Neptune at the
+               real 42:43 Galatea-resonance rate (see useFrame above). */
+            <group ref={adamsArcsRef}>
+              {[
+                { start: 0.15, length: 0.16 }, // Liberté
+                { start: 0.45, length: 0.12 }, // Égalité 1
+                { start: 0.66, length: 0.24 }, // Fraternité (widest)
+              ].map((a, i) => (
+                <mesh key={`arc${i}`}>
+                  <ringGeometry args={[radius * 1.99, radius * 2.13, 40, 1, a.start, a.length]} />
+                  <meshBasicMaterial color="#f2f4ff" transparent opacity={0.7} side={THREE.DoubleSide} depthWrite={false} toneMapped={false} />
+                </mesh>
+              ))}
+            </group>
+          )}
         </group>
       )}
+
+      {/* Io plasma torus (Jupiter only) — the neon-purple ring of ionized
+          sulfur/oxygen that Io feeds Jupiter's magnetosphere. Rides inside
+          the group so it inherits the axial tilt. */}
+      {plasmaTorus && <IoPlasmaTorus jupiterRadius={radius} />}
+      {/* Giant-planet aurorae — feathered rings around each pole. */}
+      {aurorae && <GiantAurorae radius={radius} kind={aurorae} />}
+      {/* Earth's LEO satellite layer — Starlink + ISS orbits. */}
+      {lowEarthOrbit && <LowEarthOrbit earthRadius={radius} />}
 
       {moonNodes}
     </group>
