@@ -52,6 +52,7 @@ import LocalNeighborhood from "./LocalNeighborhood";
 import NearStarsMotion from "./NearStarsMotion";
 import ThreeIAtlas from "./ThreeIAtlas";
 import SolarCMEs from "./SolarCMEs";
+import CMBGlow from "./CMBGlow";
 import TrojanAsteroids from "./TrojanAsteroids";
 import OortCloud from "./OortCloud";
 import Heliosphere from "./Heliosphere";
@@ -558,6 +559,8 @@ const Scene = ({ scrollT, finaleT, finale = false, activeIdx, onJump, focusRef, 
           {/* Star clusters — globular + open at real J2000 positions. Fills
               the sky between nebulae with small yellow/blue fuzzy specks. */}
           {!finale && <Clusters />}
+          {/* CMB relic radiation — 2.725 K background, faint warm-red glow. */}
+          <CMBGlow />
           {/* Zodiacal light — faint warm band along the ecliptic. */}
           {showExtras && <ZodiacalLight />}
           {/* HeroDust moved OFF the tour — its camera-riding motes read as "white

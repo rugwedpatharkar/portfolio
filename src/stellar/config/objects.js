@@ -200,13 +200,18 @@ const ANOMALY_RAW = [
     visit: { kind: "focus", cameraTarget: frame([-30, -16, 42], 10, 2, 44) },
   },
   {
+    id: "tcrb", label: "T CrB · Blaze Star", category: "Imminent nova", color: "#ffd9a0", position: [-24, 12, -34],
+    info: "T Coronae Borealis — a recurrent nova 3,000 ly away that erupts roughly every 80 years. Last blazed in 1946; next eruption is OVERDUE (expected any day between 2024-2026 based on the pre-nova dip observed 2023). When it goes, it will brighten from mag +10 (telescope-only) to mag +2 (naked-eye) in hours — a bright new star in the Northern Crown for a week. A rare 'once-in-a-lifetime' variable.",
+    visit: { kind: "focus", cameraTarget: frame([-24, 12, -34], 8, 1.8, 44) },
+  },
+  {
     id: "kilonova", label: "Kilonova", category: "Cataclysm", color: "#ffd9a0", position: [-45, -12, -20],
     info: "A kilonova — two neutron stars merging. In seconds it forges the heavy elements the universe makes no other way: every gram of gold, platinum and uranium you've ever touched was born in a blast like this. GW170817 (2017) was the first seen in gravitational waves AND light.",
     visit: { kind: "focus", cameraTarget: frame([-45, -12, -20], 12, 2.5, 46) },
   },
   {
     id: "betelgeuse", label: "Betelgeuse", category: "Red supergiant", color: "#ff6a48", position: [40, 16, -28],
-    info: "Betelgeuse — a red supergiant ~750× the Sun's radius (764 R☉ adopted, range 700–880 across studies). Put it where the Sun is and its surface (~3.55 AU) would engulf Mercury, Venus, Earth, Mars and the entire main asteroid belt, reaching about two-thirds of the way to Jupiter (Jupiter is at 5.20 AU). It's near the end of its life and will go supernova (astronomically soon). In 2025 the IAU formally named its long-suspected companion Siwarħa (α Ori B) — 0.6 M☉, orbiting every 5.78 years.",
+    info: "Betelgeuse — a red supergiant ~750× the Sun's radius (764 R☉ adopted, range 700–880 across studies). Put it where the Sun is and its surface (~3.55 AU) would engulf Mercury, Venus, Earth, Mars and the entire main asteroid belt, reaching about two-thirds of the way to Jupiter (Jupiter is at 5.20 AU). Near the end of its life — will go supernova within ~100,000 years (astronomically imminent); when it does, it will briefly outshine the full moon, cast shadows on Earth, and be visible in daylight for weeks. In 2025 the IAU formally named its long-suspected companion Siwarħa (α Ori B) — 0.6 M☉, orbiting every 5.78 years.",
     visit: { kind: "focus", cameraTarget: frame([40, 16, -28], 14, 3, 46) },
   },
   {
