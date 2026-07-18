@@ -13,7 +13,7 @@
 
 export const PLANET_FACTS = {
   impact: {
-    body: "Sol — G2V star (a 'yellow dwarf' that actually shines pure white)",
+    body: "Sol — G2V main-sequence star · true colour: white",
     distance: "0 AU · 8 light-min from Earth",
     diameter: "1,391,400 km · ~109 Earths",
     mass: "1.989×10³⁰ kg · 333,000 Earths",
@@ -111,7 +111,7 @@ export const PLANET_FACTS = {
     gravity: "24.79 m/s² · 2.53× Earth",
     temp: "−145 °C cloud tops",
     atmosphere: "H₂ (90%) · He (10%) · ammonia ice clouds",
-    moons: "115 confirmed (Io, Europa, Ganymede, Callisto)",
+    moons: "101 confirmed (Io, Europa, Ganymede, Callisto)",
     missions: "Pioneer · Voyager · Galileo · Juno",
     wow: "The Great Red Spot is a storm wider than Earth that has raged 350+ years. That glowing ring is Io's plasma torus — volcanic sulfur trapped in a magnetic field 20,000× Earth's.",
   },
@@ -231,7 +231,7 @@ export const PLANET_FACTS = {
     temp: "~4 K (near absolute zero)",
     atmosphere: "Ices only — water, methane, carbon monoxide",
     moons: "—",
-    missions: "None. Voyager 1 (166 AU today) needs ~300 years to reach the inner edge.",
+    missions: "None. Voyager 1 (~171 AU today · one light-day from Earth on 18 Nov 2026) needs ~300 years to reach the inner edge.",
     wow: "The Solar System's outermost boundary — a spherical shell that reaches nearly to Proxima Centauri (4.24 ly). Every long-period comet you've ever seen (Halley, Hale-Bopp, NEOWISE) began its fall from here.",
     sources: [
       "Oort 1950 — Bull. Astron. Inst. Netherlands, 11, 91",

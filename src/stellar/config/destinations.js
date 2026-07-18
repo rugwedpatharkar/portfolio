@@ -75,7 +75,7 @@ export const DESTINATIONS = [
     /* TRUE-SCALE Sun: its real radius, ≈109× Earth. The whole system is scaled
        up (large AU_UNIT) so this colossal Sun clears the inner orbits. */
     radius: 19.87, // 695,700 km — 109.2× Earth (0.182 × 109.2)
-    color: "#fff2e0", // the Sun is WHITE (5772K); warm-white here, warmth lives in the corona/bloom
+    color: "#FFF5EC", // the Sun is WHITE (5772K blackbody); warm-white here, warmth lives in the corona/bloom (Irwin et al.; IAU nominal T_eff)
     /* HUD accent (Sol gold) — distinct from the near-white body colour.
        Non-planet stops carry `accent`; planets fall back to `color`. */
     accent: "#e9c675",
@@ -112,7 +112,7 @@ export const DESTINATIONS = [
     label: "Venus",
     position: [8.2, -0.2, 1.0],
     radius: 0.173, // 6,052 km — Earth's near-twin
-    color: "#f8c555",
+    color: "#E3DAC2", // pale cream — Bond albedo 0.76, subtle yellow from UV absorber (Planetary Society; Irwin colour physics). NOT saturated gold.
     colorB: "#a0651a",
     texture: "/textures/planets/venusmap.webp",
     bumpTexture: "/textures/planets/venusbump.webp",
@@ -314,7 +314,7 @@ export const DESTINATIONS = [
     label: "Neptune",
     position: [39.0, 0.4, 0.8],
     radius: 0.704, // 24,622 km — Uranus's near-twin
-    color: "#7fb0c4", // real Neptune: PALE greenish-blue, only slightly bluer than Uranus (2024 Oxford true-color study)
+    color: "#9FC4D4", // real Neptune: PALE greenish-blue, near-Uranus twin (Irwin et al. 2024, MNRAS 527, 11521 — Oxford true-colour study)
     colorB: "#5688a0",
     texture: "/textures/planets/neptunemap_hd.webp",
     bumpTexture: "/textures/planets/neptune_bump.webp",
