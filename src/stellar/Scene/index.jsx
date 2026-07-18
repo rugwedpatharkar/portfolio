@@ -21,6 +21,7 @@ import AsteroidBelt, { KUIPER_FAMILIES, kuiperWeightsFor } from "./AsteroidBelt"
 import Nebulae from "./Nebulae";
 import Clusters from "./Clusters";
 import StellarNurseries from "./StellarNurseries";
+import ProceduralNebulae from "./ProceduralNebulae";
 import VisibilityController from "./VisibilityController";
 import Skybox from "./Skybox";
 import OrbitGroup from "./OrbitGroup";
@@ -570,6 +571,10 @@ const Scene = ({ scrollT, finaleT, finale = false, activeIdx, onJump, focusRef, 
           {activeIdx === 5 && (
             <PaleBlueDotAnnotation position={DESTINATIONS[5].position} radius={0.182} />
           )}
+          {/* Procedural large extended nebulae — Barnard's Loop, Gum,
+              Vela SNR, Cygnus X, Rho Oph — soft additive glows so the
+              Milky-Way band has body across Orion / Vela / Cygnus. */}
+          {!finale && <ProceduralNebulae />}
           {!finale && <StellarNurseries />}
           {/* CMB relic radiation — 2.725 K background, faint warm-red glow. */}
           <CMBGlow />
