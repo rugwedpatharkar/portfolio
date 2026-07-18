@@ -56,6 +56,7 @@ import NearStarsMotion from "./NearStarsMotion";
 import ThreeIAtlas from "./ThreeIAtlas";
 import SolarCMEs from "./SolarCMEs";
 import CMBGlow from "./CMBGlow";
+import SpaceAudio from "./SpaceAudio";
 import TrojanAsteroids from "./TrojanAsteroids";
 import OortCloud from "./OortCloud";
 import Heliosphere from "./Heliosphere";
@@ -572,6 +573,12 @@ const Scene = ({ scrollT, finaleT, finale = false, activeIdx, onJump, focusRef, 
           {!finale && <StellarNurseries />}
           {/* CMB relic radiation — 2.725 K background, faint warm-red glow. */}
           <CMBGlow />
+          {/* Procedural sound design — solar-wind bed + pulsar clicks + kilonova
+              chirp + Golden Record cue. Enabled via ?audio=1 URL flag. */}
+          <SpaceAudio
+            enabled={typeof window !== "undefined" && new URLSearchParams(window.location.search).get("audio") === "1"}
+            activeIdx={activeIdx}
+          />
           {/* Zodiacal light — faint warm band along the ecliptic. */}
           {showExtras && <ZodiacalLight />}
           {/* HeroDust moved OFF the tour — its camera-riding motes read as "white
