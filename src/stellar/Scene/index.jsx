@@ -745,6 +745,7 @@ const Scene = ({ scrollT, finaleT, finale = false, activeIdx, onJump, focusRef, 
                 greatRedSpot={d.greatRedSpot}
                 plasmaTorus={d.plasmaTorus}
                 aurorae={d.aurorae}
+                lowEarthOrbit={d.lowEarthOrbit}
                 ringColor={d.ringColor}
                 axialTilt={d.axialTilt || 0}
                 oblateness={d.oblateness || 0}

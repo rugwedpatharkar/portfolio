@@ -9,6 +9,7 @@ import IoPlasmaTorus from "./IoPlasmaTorus";
 import GiantAurorae from "./GiantAurorae";
 import EnceladusGeysers from "./EnceladusGeysers";
 import IoVolcanoes from "./IoVolcanoes";
+import LowEarthOrbit from "./LowEarthOrbit";
 import { useSceneClock } from "./SceneClock";
 import { ktx2Urls } from "./shared/textureUrl";
 
@@ -119,6 +120,7 @@ const Planet = ({
   greatRedSpot = false, // Jupiter only — visibly spinning storm at ~22°S
   plasmaTorus = false, // Jupiter only — Io's neon-purple sulfur ring
   aurorae = null, // "jupiter" | "saturn" | "uranus" | "neptune" — giant-planet polar aurorae
+  lowEarthOrbit = false, // Earth only — Starlink constellation + ISS
   ringColor,
   axialTilt = 0,
   oblateness = 0, // polar flattening (Jupiter 0.065, Saturn 0.098) — real gas-giant squash
@@ -557,6 +559,8 @@ const Planet = ({
       {plasmaTorus && <IoPlasmaTorus jupiterRadius={radius} />}
       {/* Giant-planet aurorae — feathered rings around each pole. */}
       {aurorae && <GiantAurorae radius={radius} kind={aurorae} />}
+      {/* Earth's LEO satellite layer — Starlink + ISS orbits. */}
+      {lowEarthOrbit && <LowEarthOrbit earthRadius={radius} />}
 
       {moonNodes}
     </group>

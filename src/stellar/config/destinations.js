@@ -132,6 +132,7 @@ export const DESTINATIONS = [
     label: "Earth",
     position: [11.4, 0.0, -1.4],
     radius: 0.182, // 6,371 km — the reference world
+    lowEarthOrbit: true, // Starlink constellation (~5,000 sats in 2026) + ISS
     color: "#3b6ea8",
     colorB: "#1d3a5e",
     texture: "/textures/planets/earth_atmos.webp",
