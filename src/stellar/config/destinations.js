@@ -226,6 +226,7 @@ export const DESTINATIONS = [
     axialTilt: 3.1 * DEG, // Jupiter spins nearly upright
     oblateness: 0.065, // real polar flattening — Jupiter is visibly squashed by its fast spin
     faintRings: true, // Jupiter's faint dusty ring (real)
+    greatRedSpot: true, // Jupiter's iconic 350-year-old anticyclonic storm at ~22°S
     moons: 4, // the four Galilean moons
     moonColor: "#cfc6e0",
     moonScale: 0.045,

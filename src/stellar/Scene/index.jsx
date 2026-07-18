@@ -49,6 +49,7 @@ import Voyagers from "./Voyagers";
 import BeltDust from "./BeltDust";
 import LocalNeighborhood from "./LocalNeighborhood";
 import NearStarsMotion from "./NearStarsMotion";
+import ThreeIAtlas from "./ThreeIAtlas";
 import TrojanAsteroids from "./TrojanAsteroids";
 import OortCloud from "./OortCloud";
 import Heliosphere from "./Heliosphere";
@@ -606,11 +607,13 @@ const Scene = ({ scrollT, finaleT, finale = false, activeIdx, onJump, focusRef, 
           </>
         )}
         {/* Tour — extra comets sweeping the outer system (alongside Halley),
-            faster respawn so the tour sky stays alive. */}
+            faster respawn so the tour sky stays alive. Plus 3I/ATLAS on its
+            REAL Kepler-hyperbolic orbit (see ThreeIAtlas.jsx). */}
         {!isMilkyway && !isMobile && !reducedMotion && !finale && (
           <>
             <AtlasComet start={[1500, 320, 980]} vel={[-270, -34, -170]} coma="#bfe0ff" ion="#cfe6ff" dust="#e8e0ff" respawn={720} />
             <AtlasComet start={[-1400, -260, 1100]} vel={[250, 40, -190]} coma="#e2dcff" ion="#dce6ff" dust="#fff0e0" respawn={900} />
+            <ThreeIAtlas />
           </>
         )}
         {/* Distant galaxies pinned to the frame's empty regions (left column +
@@ -723,6 +726,7 @@ const Scene = ({ scrollT, finaleT, finale = false, activeIdx, onJump, focusRef, 
                 rings={d.rings}
                 faintRings={d.faintRings}
                 adamsArcs={d.adamsArcs}
+                greatRedSpot={d.greatRedSpot}
                 ringColor={d.ringColor}
                 axialTilt={d.axialTilt || 0}
                 oblateness={d.oblateness || 0}

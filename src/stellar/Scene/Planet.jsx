@@ -8,6 +8,45 @@ import RingSystem from "./RingSystem";
 import { useSceneClock } from "./SceneClock";
 import { ktx2Urls } from "./shared/textureUrl";
 
+/* Jupiter's Great Red Spot swirl texture — a soft red-orange oval with a
+   handful of curved bands so the sprite's material-rotation reads as an
+   actually-rotating storm rather than a symmetric dot. Overlaid on top of
+   Jupiter's baked GRS at ~22°S; the baked GRS carries the storm's
+   position, and this overlay adds the visible internal rotation
+   (~6-day period compressed to tour timescale). */
+function makeGRSSwirl(size = 128) {
+  if (typeof document === "undefined") return null;
+  const cv = document.createElement("canvas");
+  cv.width = cv.height = size;
+  const ctx = cv.getContext("2d");
+  const c = size / 2;
+  const bg = ctx.createRadialGradient(c, c, 0, c, c, size * 0.5);
+  bg.addColorStop(0, "rgba(238, 128, 82, 0.85)");
+  bg.addColorStop(0.55, "rgba(178, 76, 46, 0.42)");
+  bg.addColorStop(1, "rgba(120, 50, 30, 0)");
+  ctx.fillStyle = bg;
+  ctx.beginPath();
+  ctx.ellipse(c, c, size * 0.48, size * 0.34, 0, 0, Math.PI * 2);
+  ctx.fill();
+  /* Swirl bands — offset arcs at successive radii, each rotated to break
+     radial symmetry so the sprite's material.rotation is visible. */
+  ctx.strokeStyle = "rgba(255, 208, 172, 0.55)";
+  ctx.lineWidth = size * 0.024;
+  ctx.lineCap = "round";
+  for (let i = 0; i < 4; i++) {
+    ctx.beginPath();
+    const r = size * (0.14 + i * 0.07);
+    const a0 = i * Math.PI * 0.35;
+    ctx.arc(c, c, r, a0, a0 + Math.PI * 0.85);
+    ctx.stroke();
+  }
+  const tex = new THREE.CanvasTexture(cv);
+  tex.colorSpace = THREE.SRGBColorSpace;
+  tex.needsUpdate = true;
+  return tex;
+}
+const GRS_SWIRL = makeGRSSwirl(128);
+
 /* Atmosphere preset per planet type. With bloom on, the rim will glow
    secondarily on its own — keep intensities moderate so atmospheres
    don't drown the surface texture. */
@@ -73,6 +112,7 @@ const Planet = ({
   rings = false,
   faintRings = false, // Jupiter / Uranus / Neptune all have real, faint rings
   adamsArcs = false, // Neptune only — bright dust bunches on the Adams ring
+  greatRedSpot = false, // Jupiter only — visibly spinning storm at ~22°S
   ringColor,
   axialTilt = 0,
   oblateness = 0, // polar flattening (Jupiter 0.065, Saturn 0.098) — real gas-giant squash
@@ -92,6 +132,7 @@ const Planet = ({
   const groupRef = useRef();
   const planetRef = useRef();
   const cloudRef = useRef();
+  const grsRef = useRef(); // Jupiter's Great Red Spot swirl (only used when greatRedSpot=true)
   const moonsRef = useRef([]);
   const sceneClock = useSceneClock();
 
@@ -219,6 +260,12 @@ const Planet = ({
       }
     }
     if (cloudRef.current) cloudRef.current.rotation.y += dt * rotationSpeed * 1.35;
+    /* Great Red Spot internal storm rotation — real GRS takes ~6 Jupiter-days
+       per rotation, so on top of Jupiter's own spin the storm churns at
+       roughly rotationSpeed × (1 / 6-days-in-Jupiter-days) ≈ rotationSpeed /
+       14.4. Slightly amplified so the swirl is legibly rotating during a
+       Jupiter stop of ~10-30 scene-seconds. */
+    if (grsRef.current) grsRef.current.material.rotation += dt * rotationSpeed * 0.14;
     moonsRef.current.forEach((m, i) => {
       if (m) {
         const t = m.userData.t + dt * (0.25 + (i % 3) * 0.05);
@@ -364,6 +411,24 @@ const Planet = ({
         {/* Surface markers (e.g. the Pune pin) ride here so they inherit the
             planet's daily rotation + axial tilt. */}
         {children}
+        {/* Great Red Spot — Jupiter only. Sits at ~22°S on the planet
+            surface (sin(-22°) = -0.375, cos(-22°) = 0.927). The sprite
+            rides Jupiter's rotation via the parent mesh; its own
+            material.rotation (see useFrame) advances at ~6-day period so
+            the swirl visibly churns on top of the baked GRS. */}
+        {greatRedSpot && GRS_SWIRL && (
+          <sprite ref={grsRef} position={[0, -radius * 0.375, radius * 0.927]} scale={[radius * 0.32, radius * 0.24, 1]}>
+            <spriteMaterial
+              map={GRS_SWIRL}
+              color="#e58254"
+              transparent
+              opacity={0.55}
+              depthWrite={false}
+              blending={THREE.AdditiveBlending}
+              toneMapped={false}
+            />
+          </sprite>
+        )}
       </mesh>
 
       {/* Cloud layer for Earth — slightly larger sphere with cloud texture.
