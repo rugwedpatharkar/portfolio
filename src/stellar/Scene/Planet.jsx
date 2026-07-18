@@ -137,6 +137,7 @@ const Planet = ({
   const planetRef = useRef();
   const cloudRef = useRef();
   const grsRef = useRef(); // Jupiter's Great Red Spot swirl (only used when greatRedSpot=true)
+  const adamsArcsRef = useRef(); // Neptune's Adams-ring arcs (only used when adamsArcs=true)
   const moonsRef = useRef([]);
   const sceneClock = useSceneClock();
 
@@ -270,6 +271,10 @@ const Planet = ({
        14.4. Slightly amplified so the swirl is legibly rotating during a
        Jupiter stop of ~10-30 scene-seconds. */
     if (grsRef.current) grsRef.current.material.rotation += dt * rotationSpeed * 0.14;
+    /* Neptune Adams-ring arcs — slowly drift around the Adams ring at the
+       real 42:43 resonance rate with Galatea (the shepherd moon). At tour
+       compression this reads as a stately clockwise rotation. */
+    if (adamsArcsRef.current) adamsArcsRef.current.rotation.z += dt * rotationSpeed * 0.11;
     moonsRef.current.forEach((m, i) => {
       if (m) {
         const t = m.userData.t + dt * (0.25 + (i % 3) * 0.05);
@@ -517,22 +522,24 @@ const Planet = ({
             <ringGeometry args={[radius * 1.98, radius * 2.12, 96]} />
             <meshBasicMaterial color={rColor} transparent opacity={0.22} side={THREE.DoubleSide} depthWrite={false} toneMapped={false} />
           </mesh>
-          {adamsArcs &&
+          {adamsArcs && (
             /* Three bright arcs at the outer (Adams) ring — Liberté / Égalité
                / Fraternité, the three brightest of Neptune's four dust bunches.
-               Angular positions and widths are cinematically-tuned to sell the
-               "clumpy, not continuous" ring physics; Voyager 2 saw the full
-               arc system span ~40° of azimuth. */
-            [
-              { start: 0.15, length: 0.16 }, // Liberté
-              { start: 0.45, length: 0.12 }, // Égalité 1
-              { start: 0.66, length: 0.24 }, // Fraternité (widest)
-            ].map((a, i) => (
-              <mesh key={`arc${i}`}>
-                <ringGeometry args={[radius * 1.99, radius * 2.13, 40, 1, a.start, a.length]} />
-                <meshBasicMaterial color="#f2f4ff" transparent opacity={0.7} side={THREE.DoubleSide} depthWrite={false} toneMapped={false} />
-              </mesh>
-            ))}
+               Wrapped in a rotating group so they slowly orbit Neptune at the
+               real 42:43 Galatea-resonance rate (see useFrame above). */
+            <group ref={adamsArcsRef}>
+              {[
+                { start: 0.15, length: 0.16 }, // Liberté
+                { start: 0.45, length: 0.12 }, // Égalité 1
+                { start: 0.66, length: 0.24 }, // Fraternité (widest)
+              ].map((a, i) => (
+                <mesh key={`arc${i}`}>
+                  <ringGeometry args={[radius * 1.99, radius * 2.13, 40, 1, a.start, a.length]} />
+                  <meshBasicMaterial color="#f2f4ff" transparent opacity={0.7} side={THREE.DoubleSide} depthWrite={false} toneMapped={false} />
+                </mesh>
+              ))}
+            </group>
+          )}
         </group>
       )}
 
