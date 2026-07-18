@@ -267,7 +267,7 @@ export const DESTINATIONS = [
        tiny, brilliant water-ice; + Rhea/Iapetus/Dione/Tethys (next-biggest). */
     moonSet: [
       { color: "#d99a4a", scale: 0.052 }, // Titan — orange haze
-      { color: "#eef3f1", scale: 0.022 }, // Enceladus — bright icy
+      { color: "#eef3f1", scale: 0.022, geysers: true }, // Enceladus — bright icy + south-pole water plumes
       { color: "#cdd2d0", scale: 0.016 }, // Rhea — cratered ice
       { color: "#8a7f70", scale: 0.015 }, // Iapetus — two-tone
       { color: "#d4dad8", scale: 0.012 }, // Dione — wispy ice cliffs

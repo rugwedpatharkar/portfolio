@@ -7,6 +7,7 @@ import AtmosphereGlow from "./AtmosphereGlow";
 import RingSystem from "./RingSystem";
 import IoPlasmaTorus from "./IoPlasmaTorus";
 import GiantAurorae from "./GiantAurorae";
+import EnceladusGeysers from "./EnceladusGeysers";
 import { useSceneClock } from "./SceneClock";
 import { ktx2Urls } from "./shared/textureUrl";
 
@@ -339,6 +340,10 @@ const Planet = ({
           roughness={tex ? 0.9 : 0.7}
           metalness={tex ? 0.04 : 0.1}
         />
+        {/* Enceladus south-pole water-ice geysers — rendered as a child of
+            the moon mesh so they ride Enceladus's orbit around Saturn and
+            inherit any tilt. */}
+        {md?.geysers && <EnceladusGeysers radius={radius * ms} />}
       </mesh>
     );
   }
