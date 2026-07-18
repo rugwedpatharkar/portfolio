@@ -4,18 +4,21 @@
  * built, and the only spacecraft currently in interstellar space.
  *
  *   Voyager 1 — launched 5 Sep 1977. Reached interstellar space 25 Aug 2012.
- *     Current (2026): ~166 AU from the Sun, heading toward Camelopardalis
- *     at 17.02 km/s. Fastest human-made object.
+ *     Current (2026-07-18): ~171 AU from the Sun, heading toward
+ *     Camelopardalis at 17.0 km/s (~3.6 AU/yr escape). Fastest human-made
+ *     object. Will pass ONE LIGHT-DAY from Earth on 18 Nov 2026.
  *   Voyager 2 — launched 20 Aug 1977. Reached interstellar space 5 Nov 2018.
- *     Current (2026): ~139 AU from the Sun, heading toward the Sagittarius
- *     region at 15.34 km/s. Only spacecraft to visit Uranus + Neptune.
+ *     Current (2026-07-18): ~144 AU from the Sun, heading toward the
+ *     Sagittarius region at 15.4 km/s (~3.1 AU/yr). Only spacecraft to
+ *     visit Uranus + Neptune.
  *
- * At the tour's 1:1 AU × 95 scale, 166 AU = ~15,770 scene units — far
- * outside the 7,000-unit sky shell. That's the honest truth: they're
- * unrepresentable at true scale in the sightline. We compress their
- * positions to ~4,200u (between Kuiper and Oort) so they're VISIBLE
- * during the outer-system stops but stay in the correct direction
- * relative to the Sun (per JPL Horizons ecliptic-frame vectors, 2024).
+ * At true 1:1 scale (AU_UNIT = 4274 scene units per AU) V1 sits at
+ * 171 × 4274 = 730,854 scene units and V2 at 615,456 — both well past
+ * Neptune (128,220u) and Pluto (168,731u), just short of the inner Oort
+ * shell (2000 × 4274 = 8.5 M u). Rendered at true distances now — the
+ * previous compression to 4200 × SKY_SCALE ≈ 189k u (~44 AU) was retired
+ * per the user's "no compression" call. Directions per JPL Horizons
+ * ecliptic-frame vectors (2024).
  *
  * Each probe is a small warm sprite with a hairline label. Visible only
  * during the outer-Solar-System stops (Neptune / Pluto / Kuiper / Oort).
@@ -24,7 +27,7 @@ import { useMemo } from "react";
 import * as THREE from "three";
 import { Html } from "@react-three/drei";
 import { makeSoftDot } from "./shared/textures";
-import { SKY_SCALE } from "../config/destinations";
+import { AU_UNIT } from "../config/destinations";
 
 /* Approximate ecliptic-frame direction vectors (unit) — the DIRECTION Voyager
    1/2 are HEADING from the Sun in the Solar System's ecliptic reference frame.
@@ -32,10 +35,11 @@ import { SKY_SCALE } from "../config/destinations";
 const V1_DIR = new THREE.Vector3(0.31, 0.42, 0.85).normalize();  // roughly out + north
 const V2_DIR = new THREE.Vector3(-0.16, -0.63, 0.76).normalize(); // roughly out + south
 
-/* Scale-compressed distance so the probes are visible in the outer-tour
-   framings without leaving the sky shell. 4200u = between Kuiper Belt and
-   Oort Cloud in scene space; the DIRECTION stays honest. */
-const SCENE_DIST = 4200 * SKY_SCALE;
+/* Real heliocentric distances in AU (2026-07-18, NASA VIM extrapolated). Each
+   probe positions at AU × AU_UNIT along its heading direction — the honest
+   truth of where they actually are. */
+const V1_AU = 171;
+const V2_AU = 144;
 
 const PROBE_SPRITE = makeSoftDot({
   size: 64,
@@ -48,8 +52,9 @@ const PROBE_SPRITE = makeSoftDot({
   mipmaps: true,
 });
 
-const Probe = ({ dir, label, distance, target, crossed, tint }) => {
-  const pos = useMemo(() => dir.clone().multiplyScalar(SCENE_DIST).toArray(), [dir]);
+const Probe = ({ dir, distanceAU, label, target, crossed, tint }) => {
+  const pos = useMemo(() => dir.clone().multiplyScalar(distanceAU * AU_UNIT).toArray(), [dir, distanceAU]);
+  const distance = String(distanceAU);
 
   return (
     <group position={pos}>
@@ -93,8 +98,8 @@ const Probe = ({ dir, label, distance, target, crossed, tint }) => {
 
 const Voyagers = () => (
   <>
-    <Probe dir={V1_DIR} tint="#ffe0a0" label="Voyager 1" distance="166" target="Camelopardalis" crossed="shock 2004 · heliopause 2012" />
-    <Probe dir={V2_DIR} tint="#ffe0a0" label="Voyager 2" distance="139" target="Sagittarius" crossed="shock 2007 · heliopause 2018" />
+    <Probe dir={V1_DIR} distanceAU={V1_AU} tint="#ffe0a0" label="Voyager 1" target="Camelopardalis" crossed="shock 2004 · heliopause 2012" />
+    <Probe dir={V2_DIR} distanceAU={V2_AU} tint="#ffe0a0" label="Voyager 2" target="Sagittarius" crossed="shock 2007 · heliopause 2018" />
   </>
 );
 

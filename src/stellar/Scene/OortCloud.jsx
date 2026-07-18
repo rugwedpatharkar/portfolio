@@ -1,17 +1,20 @@
 /* eslint-disable react/no-unknown-property */
 import { useMemo } from "react";
 import * as THREE from "three";
-import { SKY_SCALE } from "../config/destinations";
+import { AU_UNIT } from "../config/destinations";
 
 /*
  * The Oort cloud — the vast spherical shell of icy bodies that wraps the ENTIRE
  * solar system and is the source of long-period comets (Halley's cousins). The
- * real cloud sits ~2,000–100,000 AU out, utterly off any visible scale, so this
- * is a representative far halo: a sparse, very faint sphere of points enclosing
- * the whole planetary region — "the system is cocooned in a cloud." Additive,
- * low-opacity, write-once; no per-frame work.
+ * REAL cloud sits ~2,000–100,000 AU out. Rendered here at TRUE INNER-EDGE
+ * SCALE: shell centred at 2,000 AU (~8.5 M scene units at AU_UNIT = 4274)
+ * with a 1,500 AU thickness, so the visible shell spans the dense inner Hills-
+ * cloud region (1,250–2,750 AU) that hosts most of the mass. The outer edge
+ * (up to ~100,000 AU = ~427 M units, approaching one light-year) is off-camera
+ * at any tour altitude — that's the honest scientific truth of the object.
+ * Additive, low-opacity, write-once; no per-frame work.
  */
-const OortCloud = ({ count = 1400, radius = 5200 * SKY_SCALE, thickness = 3200 * SKY_SCALE }) => {
+const OortCloud = ({ count = 1400, radius = 2000 * AU_UNIT, thickness = 1500 * AU_UNIT }) => {
   const geo = useMemo(() => {
     const pos = new Float32Array(count * 3);
     for (let i = 0; i < count; i++) {
@@ -36,7 +39,7 @@ const OortCloud = ({ count = 1400, radius = 5200 * SKY_SCALE, thickness = 3200 *
           possible hint of a cocooning halo, not a glowing bubble. Low opacity +
           small motes so it never frosts over the starfield/nebulae behind it. */}
       <pointsMaterial
-        size={6}
+        size={40000}
         sizeAttenuation
         color="#c2ccd8"
         transparent

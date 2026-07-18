@@ -68,7 +68,7 @@ import KeyLight from "./KeyLight";
 import MouseParallax from "./MouseParallax";
 import SafeLoad from "./SafeLoad";
 import useViewport from "../useViewport";
-import { DESTINATIONS, BACKGROUND_BELTS, SKY_SCALE } from "../config/destinations";
+import { DESTINATIONS, BACKGROUND_BELTS, SKY_SCALE, AU_UNIT } from "../config/destinations";
 import { rotationSpeedFor } from "../config/planetData";
 import { SCENE_OBJECTS } from "./registry";
 
@@ -452,7 +452,7 @@ const Scene = ({ scrollT, finaleT, finale = false, activeIdx, onJump, focusRef, 
         toneMappingExposure: 1.05,
         outputColorSpace: THREE.SRGBColorSpace,
       }}
-      camera={{ position: [0, 2.5, 11], fov: 52, near: 0.1, far: 14000 * SKY_SCALE }}
+      camera={{ position: [0, 2.5, 11], fov: 52, near: 0.1, far: 12000 * AU_UNIT }}
       style={{ position: "fixed", inset: 0, background: "#03050d" }}
       onCreated={({ gl, scene }) => {
         /* Hard guarantee a dark backdrop: explicit clear colour + a

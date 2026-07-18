@@ -47,7 +47,7 @@ const RAW = [
   },
   // ── Kuiper belt + scattered disc ──
   {
-    id: "eris", label: "Eris", category: "Dwarf planet", position: [45.6, -1.4, -2.4], radius: 0.033, color: "#dad6cd", // 2,326 km — a hair under Pluto
+    id: "eris", label: "Eris", category: "Dwarf planet", position: [73.9, -2.3, -3.9], radius: 0.033, color: "#dad6cd", // 2,326 km — a hair under Pluto. Raw position scaled so the remap lands at ~96 AU (true heliocentric distance as of 2026, semi-major axis 67.7 AU, currently near aphelion).
     info: "The most massive dwarf planet known — its 2005 discovery is what prompted the demotion of Pluto. A distant, icy, highly reflective world.",
   },
   {
@@ -66,7 +66,7 @@ const RAW = [
     info: "486958 Arrokoth — the most distant world ever explored. New Horizons flew past in 2019 and found a 36 km contact-binary 'snowman': two reddish lobes gently frozen together 44 AU from the Sun.",
   },
   {
-    id: "sedna", label: "Sedna", category: "Dwarf planet", position: [59, -3.2, 5.0], radius: 0.026, color: "#7a3a2a", // ~995 km
+    id: "sedna", label: "Sedna", category: "Dwarf planet", position: [70.2, -3.8, 5.95], radius: 0.026, color: "#7a3a2a", // ~995 km. Raw position scaled so the remap lands at ~90 AU (true current heliocentric distance; semi-major axis 506 AU, aphelion 937 AU, perihelion 76 AU — one of the most distant known worlds).
     info: "90377 Sedna — one of the most distant known worlds, on an extreme 11,400-year orbit that never approaches the planets. Its deep-red, tholin-coated surface is among the reddest in the solar system.",
   },
   {
