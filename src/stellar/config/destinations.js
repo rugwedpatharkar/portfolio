@@ -234,7 +234,7 @@ export const DESTINATIONS = [
     moonScale: 0.045,
     /* The Galilean moons, each distinct (real relative sizes, Ganymede largest). */
     moonSet: [
-      { color: "#e6c84e", scale: 0.05, glow: 0.3 }, // Io — volcanic sulfur-orange
+      { color: "#e6c84e", scale: 0.05, glow: 0.3, volcanoes: true }, // Io — volcanic sulfur-orange + real Pele/Prometheus/Loki/Amirani plumes
       { color: "#e0e6e2", scale: 0.045 },           // Europa — bright icy white
       { color: "#9c8c74", scale: 0.062 },           // Ganymede — largest moon, tan-grey
       { color: "#6f6253", scale: 0.056 },           // Callisto — dark, heavily cratered

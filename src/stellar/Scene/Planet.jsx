@@ -8,6 +8,7 @@ import RingSystem from "./RingSystem";
 import IoPlasmaTorus from "./IoPlasmaTorus";
 import GiantAurorae from "./GiantAurorae";
 import EnceladusGeysers from "./EnceladusGeysers";
+import IoVolcanoes from "./IoVolcanoes";
 import { useSceneClock } from "./SceneClock";
 import { ktx2Urls } from "./shared/textureUrl";
 
@@ -344,6 +345,8 @@ const Planet = ({
             the moon mesh so they ride Enceladus's orbit around Saturn and
             inherit any tilt. */}
         {md?.geysers && <EnceladusGeysers radius={radius * ms} />}
+        {/* Io — real named volcano plumes (Pele/Prometheus/Loki/Amirani). */}
+        {md?.volcanoes && <IoVolcanoes radius={radius * ms} />}
       </mesh>
     );
   }
